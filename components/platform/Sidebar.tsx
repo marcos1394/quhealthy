@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { 
@@ -141,6 +141,33 @@ export const Sidebar = ({ className = "", isMobile = false, onClose }: { classNa
  }
  }, [isConsumer]);
 
+ const [isSwitchingProfile, setIsSwitchingProfile] = useState(false);
+ const router = useRouter();
+
+ const handleSwitchProfile = async () => {
+   setIsSwitchingProfile(true);
+   const { switchRoleProfile } = useSessionStore.getState();
+   const result = await switchRoleProfile();
+   
+   // Obtenemos el locale actual
+   const localeMatch = window.location.pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
+   const currentLocale = localeMatch ? `/${localeMatch[1]}` : '/es';
+   
+   if (result.success) {
+     toast.success(t('profile_switched_successfully', { defaultValue: 'Perfil cambiado exitosamente' }), { autoClose: 2000 });
+     router.push(isConsumer ? '/provider/dashboard' : '/patient/dashboard');
+   } else {
+     setIsSwitchingProfile(false);
+     if (result.error === 'PROFILE_NOT_FOUND') {
+       toast.info(t('profile_not_found_redirecting', { defaultValue: 'No tienes este perfil aún. Redirigiendo...' }), { autoClose: 3000 });
+       // Redirigir al registro del rol opuesto
+       router.push(isConsumer ? `${currentLocale}/register?role=PROVIDER` : `${currentLocale}/register?role=CONSUMER`);
+     } else {
+       toast.error(t('switch_profile_error', { defaultValue: 'Ocurrió un error al cambiar de perfil.' }));
+     }
+   }
+ };
+
  const handleLogout = async () => { await logout(); toast.info(t('logout_success'), { autoClose: 2000 }); };
 
  return (
@@ -241,9 +268,33 @@ export const Sidebar = ({ className = "", isMobile = false, onClose }: { classNa
 
  {/* Footer */}
  <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-2 flex-shrink-0 bg-gray-50 dark:bg-[#050505]">
+ 
+ <button 
+ onClick={handleSwitchProfile}
+ disabled={isSwitchingProfile}
+ className={cn(
+ "flex items-center gap-4 w-full px-4 py-3 transition-colors text-medical-600 dark:text-medical-400 border border-medical-200 dark:border-medical-800/50 bg-medical-50/50 dark:bg-medical-500/10 rounded-lg",
+ "hover:bg-medical-100 dark:hover:bg-medical-500/20",
+ isCollapsed ? "justify-center px-0 w-12 h-12 mx-auto" : ""
+ )} 
+ title={isCollapsed ? (isConsumer ? t('switch_to_provider', { defaultValue: 'Cambiar a Proveedor' }) : t('switch_to_patient', { defaultValue: 'Cambiar a Paciente' })) : ""}
+ >
+ <UserCircle className={cn("w-4 h-4 flex-shrink-0", isSwitchingProfile && "animate-spin")} strokeWidth={2} />
+ {!isCollapsed && (
+ <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+ {isSwitchingProfile 
+   ? t('switching', { defaultValue: 'Cambiando...' }) 
+   : isConsumer 
+     ? t('switch_to_provider', { defaultValue: 'Cambiar a Proveedor' }) 
+     : t('switch_to_patient', { defaultValue: 'Cambiar a Paciente' })
+ }
+ </span>
+ )}
+ </button>
+
  {!isCollapsed && (
  <Link href="/patient/dashboard/support">
- <button className="flex items-center gap-4 w-full px-4 py-3 text-gray-500 hover:text-black dark:hover:text-white border border-transparent hover:border-gray-300 dark:hover:border-gray-700 hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+ <button className="flex items-center gap-4 w-full px-4 py-3 text-gray-500 hover:text-black dark:hover:text-white border border-transparent hover:border-gray-300 dark:hover:border-gray-700 hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors rounded-lg">
  <HelpCircle className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
  <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">{t('support')}</span>
  </button>
@@ -253,7 +304,7 @@ export const Sidebar = ({ className = "", isMobile = false, onClose }: { classNa
  <button 
  onClick={handleLogout}
  className={cn(
- "flex items-center gap-4 w-full px-4 py-3 transition-colors text-gray-500 border border-transparent",
+ "flex items-center gap-4 w-full px-4 py-3 transition-colors text-gray-500 border border-transparent rounded-lg",
  "hover:bg-red-500 hover:text-white hover:border-red-500",
  isCollapsed ? "justify-center px-0 w-12 h-12 mx-auto" : ""
  )} 

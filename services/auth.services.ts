@@ -101,7 +101,16 @@ export const authService = {
     const response = await axiosInstance.post<RefreshTokenResponse>(
       `${BASE_AUTH}/refresh-token`,
       {},
-      { withCredentials: true } 
+      { withCredentials: true, skipAuthRedirect: true } as any
+    );
+    return response.data;
+  },
+
+  switchProfile: async (): Promise<AuthResponse> => {
+    const response = await axiosInstance.post<AuthResponse>(
+      `${BASE_AUTH}/switch-profile`,
+      {},
+      { withCredentials: true }
     );
     return response.data;
   },

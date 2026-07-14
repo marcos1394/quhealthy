@@ -59,6 +59,7 @@ interface SessionState {
   setLoading: (loading: boolean) => void;
   initializeSession: () => Promise<void>;
   forceRefreshSession: () => Promise<void>;
+  switchRoleProfile: () => Promise<{ success: boolean; error?: string }>;
 }
 
 export const useSessionStore = create<SessionState>()(
@@ -241,6 +242,33 @@ export const useSessionStore = create<SessionState>()(
           console.log('🔄 [Auth] Sesión refrescada forzosamente (ej. tras cambio de plan)');
         } catch (error) {
           console.error('⚠️ [Auth] Falló el refresh forzoso', error);
+        }
+      },
+
+      // =========================================================================
+      // SWITCH DE PERFIL (Paciente <-> Médico)
+      // =========================================================================
+      switchRoleProfile: async () => {
+        const state = get();
+        try {
+          const { authService } = await import('@/services/auth.services');
+          const response = await authService.switchProfile();
+          
+          set({
+            token: response.token,
+            user: response.user || state.user,
+            role: response.role,
+            status: response.status || state.status,
+            isAuthenticated: true,
+          });
+          
+          return { success: true };
+        } catch (error: any) {
+          console.error('⚠️ [Auth] Falló el cambio de perfil', error);
+          if (error.response?.status === 404) {
+            return { success: false, error: 'PROFILE_NOT_FOUND' };
+          }
+          return { success: false, error: 'UNKNOWN_ERROR' };
         }
       },
     }),
