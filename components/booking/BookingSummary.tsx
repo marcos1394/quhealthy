@@ -23,8 +23,6 @@ import { appointmentService } from "@/services/appointment.service";
 import { useHealthVault } from "@/hooks/useHealthVault";
 import { usePackages } from "@/hooks/usePackages";
 import { consumerWalletService } from "@/services/consumer-wallet.service";
-import { useQuery } from "@tanstack/react-query";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -82,14 +80,26 @@ export function BookingSummary({
  const setIsLoadingRates = (val: any) => dispatch({ type: 'SET_ISLOADINGRATES', payload: val });
  const setSelectedPaymentMethod = (val: any) => dispatch({ type: 'SET_SELECTEDPAYMENTMETHOD', payload: val });
 
- // Fetch Wallet Balance
- const { data: walletData, isLoading: isLoadingWallet } = useQuery({
-   queryKey: ['consumer-wallet'],
-   queryFn: () => consumerWalletService.getMyWallet(),
-   staleTime: 0,
- });
+  // Fetch Wallet Balance
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [isLoadingWallet, setIsLoadingWallet] = useState(false);
 
- const walletBalance = walletData?.balance || 0;
+  useEffect(() => {
+    let isMounted = true;
+    const fetchWallet = async () => {
+      setIsLoadingWallet(true);
+      try {
+        const data = await consumerWalletService.getMyWallet();
+        if (isMounted) setWalletBalance(data.balance || 0);
+      } catch (error) {
+        console.warn("Could not fetch wallet balance:", error);
+      } finally {
+        if (isMounted) setIsLoadingWallet(false);
+      }
+    };
+    fetchWallet();
+    return () => { isMounted = false; };
+  }, []);
 
  const { documents, fetchDocuments, isLoading: isLoadingDocs } = useHealthVault();
  const { packages, isLoading: isLoadingPackages } = usePackages();

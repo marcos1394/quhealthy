@@ -24,7 +24,6 @@ import { es } from "date-fns/locale";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { consumerWalletService } from "@/services/consumer-wallet.service";
-import { useQuery } from "@tanstack/react-query";
 import { CreditCard, Wallet } from "lucide-react";
 import {
  Select,
@@ -70,15 +69,28 @@ export function CheckoutModal({
  const { updateQuantity, removeFromCart } = useBookingStore();
  const [paymentMethod, setPaymentMethod] = useState<'CREDIT_CARD' | 'WALLET_BALANCE'>('CREDIT_CARD');
 
- // Fetch Wallet Balance
- const { data: walletData, isLoading: isLoadingWallet } = useQuery({
-  queryKey: ['consumer-wallet'],
-  queryFn: () => consumerWalletService.getMyWallet(),
-  enabled: isOpen,
-  staleTime: 0,
- });
+  // Fetch Wallet Balance
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [isLoadingWallet, setIsLoadingWallet] = useState(false);
 
- const walletBalance = walletData?.balance || 0;
+  React.useEffect(() => {
+    let isMounted = true;
+    if (isOpen) {
+      const fetchWallet = async () => {
+        setIsLoadingWallet(true);
+        try {
+          const data = await consumerWalletService.getMyWallet();
+          if (isMounted) setWalletBalance(data.balance || 0);
+        } catch (error) {
+          console.warn("Could not fetch wallet balance:", error);
+        } finally {
+          if (isMounted) setIsLoadingWallet(false);
+        }
+      };
+      fetchWallet();
+    }
+    return () => { isMounted = false; };
+  }, [isOpen]);
 
  // --- Derived flags ---
  const hasPhysical = cart.some(i => i.type === 'PRODUCT' && i.isDigital !== true);
