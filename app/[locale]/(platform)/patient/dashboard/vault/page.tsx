@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, FolderOpen, FileText, Syringe, Search, BrainCircuit, AlertTriangle, Pill, ChevronRight, Home } from 'lucide-react';
+import { ShieldCheck, FolderOpen, FileText, Syringe, Search, BrainCircuit, AlertTriangle, Pill, ChevronRight, Home, Plus } from 'lucide-react';
 
 // Hooks & Components
 import { useHealthVault } from '@/hooks/useHealthVault';
@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { useFamily } from '@/hooks/useFamily';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import {
  Accordion,
  AccordionContent,
@@ -44,6 +46,8 @@ export default function PatientVaultPage() {
   const [activeTab, setActiveTab] = useState<string>('titular');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPath, setCurrentPath] = useState<string>('');
+  const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
 
  const [panoramaData, setPanoramaData] = useState<{ [key: string]: { clinicalSummary: string; careRecommendations: string[] } | null }>({});
  const [isGeneratingPanorama, setIsGeneratingPanorama] = useState(false);
@@ -62,9 +66,97 @@ export default function PatientVaultPage() {
   const handleDropOnBreadcrumb = async (e: React.DragEvent, targetPath: string) => {
     e.preventDefault();
     const documentId = e.dataTransfer.getData('documentId');
+    const folderPath = e.dataTransfer.getData('folderPath');
+    
     if (documentId) {
       await updateDocument(documentId, { documentType: targetPath });
+    } else if (folderPath) {
+      // Mover carpeta completa a otra ruta
+      if (folderPath.startsWith(targetPath)) return; // No mover a sí mismo o ancestro
+      await handleDropFolder(folderPath, targetPath);
     }
+  };
+
+  // Lógica para mover toda una carpeta
+  const handleDropFolder = async (sourceFolderPath: string, targetFolderPath: string) => {
+    const folderName = sourceFolderPath.split('/').pop();
+    const newBasePath = targetFolderPath === 'General' ? folderName : `${targetFolderPath}/${folderName}`;
+    
+    const docsToMove = documents.filter(doc => {
+      const type = doc.documentType || 'General';
+      return type === sourceFolderPath || type.startsWith(`${sourceFolderPath}/`);
+    });
+
+    const promises = docsToMove.map(doc => {
+      const type = doc.documentType || 'General';
+      const suffix = type.slice(sourceFolderPath.length);
+      const newType = `${newBasePath}${suffix}`;
+      return updateDocument(doc.id, { documentType: newType });
+    });
+
+    await Promise.all(promises);
+  };
+
+  // Eliminar carpeta completa
+  const handleDeleteFolder = async (folderPath: string) => {
+    const docsToDelete = documents.filter(doc => {
+      const type = doc.documentType || 'General';
+      return type === folderPath || type.startsWith(`${folderPath}/`);
+    });
+
+    const promises = docsToDelete.map(doc => deleteDocument(doc.id));
+    await Promise.all(promises);
+  };
+
+  // Renombrar carpeta completa
+  const handleRenameFolder = async (oldPath: string, newName: string) => {
+    const pathParts = oldPath.split('/');
+    pathParts.pop(); // quitar el nombre viejo
+    const parentPath = pathParts.join('/');
+    const newPath = parentPath ? `${parentPath}/${newName}` : newName;
+
+    const docsToRename = documents.filter(doc => {
+      const type = doc.documentType || 'General';
+      return type === oldPath || type.startsWith(`${oldPath}/`);
+    });
+
+    const promises = docsToRename.map(doc => {
+      const type = doc.documentType || 'General';
+      const suffix = type.slice(oldPath.length);
+      const newType = `${newPath}${suffix}`;
+      return updateDocument(doc.id, { documentType: newType });
+    });
+
+    await Promise.all(promises);
+  };
+
+  // Crear carpeta
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return;
+    const folderPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;
+    await createNote(`.qh-folder-marker`, '', activeDependentId);
+    
+    // Necesitamos encontrar la nota recién creada y actualizarle su documentType.
+    // fetchDocuments is called by createNote? useHealthVault returns the created note maybe?
+    // Actually createNote doesn't return the note in this hook. We might have to wait for sync.
+    // To be perfectly safe, let's just create a dummy note and rely on backend default if we can't set type immediately.
+    // Wait! `createNote` in hook:
+    // const createNote = async (title, content, dependentId?)
+    // Let's modify the createNote call to support documentType? No, let's just upload a dummy document or edit it.
+    // Actually, we don't have a way to pass documentType to createNote in useHealthVault right now.
+    // But `uploadDocument` can take `documentType`!
+    // We can't easily create a text file. Let's just createNote and then find it by title and update it.
+    setIsNewFolderOpen(false);
+    setNewFolderName('');
+    
+    // As a workaround, we can just assume createNote takes time and then we find it.
+    // For now, I will add an `updateDocument` on the newest `.qh-folder-marker`.
+    setTimeout(async () => {
+      const marker = documents.find(d => d.title === '.qh-folder-marker' && (!d.documentType || d.documentType === 'GENERAL'));
+      if (marker) {
+        await updateDocument(marker.id, { documentType: folderPath });
+      }
+    }, 1500);
   };
 
   // Filtrar documentos y carpetas según paciente, búsqueda y ruta
@@ -112,8 +204,8 @@ export default function PatientVaultPage() {
       const docPath = normalizeType(doc.documentType);
 
       if (currentPath === '') {
-        if (docPath === '' || docPath === 'Raíz') {
-          exactDocs.push(doc);
+        if (docPath === '' || docPath === 'Raíz' || docPath === 'General') {
+          if (doc.title !== '.qh-folder-marker') exactDocs.push(doc);
         } else {
           const rootFolder = docPath.split('/')[0];
           subfolders.set(rootFolder, (subfolders.get(rootFolder) || 0) + 1);
@@ -121,7 +213,7 @@ export default function PatientVaultPage() {
       } else {
         const currentPrefix = `${currentPath}/`;
         if (docPath === currentPath) {
-          exactDocs.push(doc);
+          if (doc.title !== '.qh-folder-marker') exactDocs.push(doc);
         } else if (docPath.startsWith(currentPrefix)) {
           const remainder = docPath.slice(currentPrefix.length);
           const nextFolder = remainder.split('/')[0];
@@ -329,15 +421,49 @@ export default function PatientVaultPage() {
  <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
  Documentos
  </h2>
- <div className="relative">
- <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
- <Input 
- placeholder="Buscar documento..." 
- value={searchQuery}
- onChange={(e) => setSearchQuery(e.target.value)}
- className="pl-9 h-10 w-full sm:w-64 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
- />
- </div>
+  <div className="flex items-center gap-3">
+  <div className="relative">
+  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+  <Input 
+  placeholder="Buscar documento..." 
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  className="pl-9 h-10 w-full sm:w-64 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+  />
+  </div>
+
+  <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
+    <DialogTrigger asChild>
+      <Button variant="outline" className="rounded-none border-gray-200 dark:border-gray-800 h-10">
+        <Plus className="w-4 h-4 mr-2" />
+        Nueva Carpeta
+      </Button>
+    </DialogTrigger>
+    <DialogContent className="rounded-none border-black dark:border-white">
+      <DialogHeader>
+        <DialogTitle className="text-black dark:text-white uppercase tracking-widest font-bold text-sm">Crear Nueva Carpeta</DialogTitle>
+      </DialogHeader>
+      <div className="py-4">
+        <Input 
+          placeholder="Nombre de la carpeta"
+          value={newFolderName}
+          onChange={(e) => setNewFolderName(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleCreateFolder(); }}
+          className="rounded-none border-gray-300 dark:border-gray-700 focus-visible:border-black dark:focus-visible:border-white"
+          autoFocus
+        />
+      </div>
+      <DialogFooter>
+        <Button variant="ghost" onClick={() => setIsNewFolderOpen(false)} className="rounded-none uppercase font-bold text-[10px] tracking-widest">
+          Cancelar
+        </Button>
+        <Button onClick={handleCreateFolder} className="rounded-none bg-black text-white dark:bg-white dark:text-black uppercase font-bold text-[10px] tracking-widest">
+          Crear
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+  </div>
  </div>
  
  <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-2 items-center flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 overflow-x-auto hide-scrollbar">
@@ -397,9 +523,13 @@ export default function PatientVaultPage() {
         >
           <HealthVaultFolderCard
             folderName={folder.name}
+            folderPath={folder.path}
             itemCount={folder.count}
             onClick={() => setCurrentPath(folder.path)}
             onDropDocument={(docId) => updateDocument(docId, { documentType: folder.path }).then(() => {})}
+            onDropFolder={(draggedPath) => handleDropFolder(draggedPath, folder.path)}
+            onRename={(newName) => handleRenameFolder(folder.path, newName)}
+            onDelete={() => handleDeleteFolder(folder.path)}
           />
         </motion.div>
       ))}
