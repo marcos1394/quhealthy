@@ -113,7 +113,7 @@ export const healthVaultService = {
    */
   updateDocument: async (
     documentId: string, 
-    data: { title?: string; noteContent?: string; aiExtractedData?: any }
+    data: { title?: string; noteContent?: string; documentType?: string; aiExtractedData?: any }
   ): Promise<ConsumerDocument> => {
     const response = await axiosInstance.put<ConsumerDocument>(
       `${BASE_URL}/${documentId}`,
@@ -129,5 +129,12 @@ export const healthVaultService = {
     const url = dependentId ? `${BASE_URL}/${dependentId}/panorama/generate` : `${BASE_URL}/panorama/generate`;
     const response = await axiosInstance.post(url);
     return response.data;
+  },
+
+  /**
+   * Elimina un documento o nota de la bóveda
+   */
+  deleteDocument: async (documentId: string): Promise<void> => {
+    await axiosInstance.delete(`${BASE_URL}/${documentId}`);
   }
 };

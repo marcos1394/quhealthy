@@ -5,17 +5,28 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import {
  FileText, Eye, BrainCircuit, Activity, Pill, AlertCircle,
- Clock, CheckCircle2, AlertTriangle, Type
+ Clock, CheckCircle2, AlertTriangle, Type, FolderOpen
 } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 
 import { ConsumerDocument } from '@/types/healthVault';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Edit2, Save, X } from 'lucide-react';
+import { Edit2, Save, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { QhSpinner } from '../ui/QhSpinner';
 
@@ -23,15 +34,17 @@ interface HealthVaultDocumentCardProps {
  document: ConsumerDocument;
  onView: (id: string) => void;
  onUpdate?: (id: string, data: any) => Promise<any>;
+ onDelete?: (id: string) => Promise<any>;
 }
 
-export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVaultDocumentCardProps) {
+export function HealthVaultDocumentCard({ document, onView, onUpdate, onDelete }: HealthVaultDocumentCardProps) {
  const t = useTranslations('HealthVault.Card');
  const [isEditing, setIsEditing] = React.useState(false);
  const [isSaving, setIsSaving] = React.useState(false);
  
  // Edit state
  const [editTitle, setEditTitle] = React.useState('');
+ const [editFolder, setEditFolder] = React.useState('');
  const [editSummary, setEditSummary] = React.useState('');
  const [editConditions, setEditConditions] = React.useState('');
  const [editMedications, setEditMedications] = React.useState('');
@@ -39,6 +52,7 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
  // Start edit mode
  const handleEdit = () => {
  setEditTitle(document.title || document.fileName || '');
+ setEditFolder(document.documentType || '');
  if (document.aiExtractedData) {
  setEditSummary(document.aiExtractedData.summary || '');
  setEditConditions((document.aiExtractedData.medicalConditions || []).join(', '));
@@ -59,6 +73,9 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
  
  if (editTitle !== (document.title || document.fileName)) {
  dataToUpdate.title = editTitle;
+ }
+ if (editFolder !== document.documentType) {
+ dataToUpdate.documentType = editFolder;
  }
 
  if (document.aiStatus === 'PROCESSED') {
@@ -124,7 +141,16 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
  const aiData = document.aiExtractedData;
 
  return (
- <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-none p-6 transition-all duration-300 flex flex-col group hover:border-black dark:hover:border-white">
+  <div 
+    draggable={!isEditing}
+    onDragStart={(e) => {
+      if (!isEditing) {
+        e.dataTransfer.setData('documentId', document.id);
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    }}
+    className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-none p-6 transition-all duration-300 flex flex-col group hover:border-black dark:hover:border-white cursor-grab active:cursor-grabbing"
+  >
 
  {/* Cabecera del Documento */}
  <div className="flex justify-between items-start mb-6">
@@ -138,12 +164,23 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
  </div>
  <div className="flex-1 min-w-0 pt-1">
  {isEditing ? (
- <Input 
- value={editTitle} 
- onChange={(e) => setEditTitle(e.target.value)}
- className="font-bold text-black dark:text-white rounded-none border-gray-300 dark:border-gray-700 h-8 mb-2"
- placeholder="Título del documento"
- />
+  <div className="space-y-2">
+  <Input 
+  value={editTitle} 
+  onChange={(e) => setEditTitle(e.target.value)}
+  className="font-bold text-black dark:text-white rounded-none border-gray-300 dark:border-gray-700 h-8"
+  placeholder="Título del documento"
+  />
+  <div className="flex items-center gap-2">
+    <FolderOpen className="w-4 h-4 text-gray-500" />
+    <Input 
+      value={editFolder} 
+      onChange={(e) => setEditFolder(e.target.value)}
+      className="text-xs text-gray-700 dark:text-gray-300 rounded-none border-gray-300 dark:border-gray-700 h-7"
+      placeholder="Carpeta / Sección"
+    />
+  </div>
+  </div>
  ) : (
  <h3 className="font-bold text-black dark:text-white truncate text-base">
  {document.title || document.fileName || 'Nota sin título'}
@@ -160,17 +197,52 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate }: HealthVa
  </div>
  </div>
  </div>
- {!isEditing && onUpdate && (
- <Button 
- variant="ghost" 
- size="icon" 
- onClick={handleEdit}
- className="opacity-0 group-hover:opacity-100 transition-opacity rounded-none hover:bg-gray-100 dark:hover:bg-[#111111]"
- title="Editar documento"
- >
- <Edit2 className="w-4 h-4 text-gray-500" />
- </Button>
- )}
+  {!isEditing && (
+  <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+  {onUpdate && (
+  <Button 
+  variant="ghost" 
+  size="icon" 
+  onClick={handleEdit}
+  className="rounded-none hover:bg-gray-100 dark:hover:bg-[#111111]"
+  title="Editar documento"
+  >
+  <Edit2 className="w-4 h-4 text-gray-500" />
+  </Button>
+  )}
+  {onDelete && (
+  <AlertDialog>
+    <AlertDialogTrigger asChild>
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="rounded-none hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500"
+        title="Eliminar documento"
+      >
+        <Trash2 className="w-4 h-4" />
+      </Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent className="rounded-none border-black dark:border-white">
+      <AlertDialogHeader>
+        <AlertDialogTitle className="text-black dark:text-white uppercase tracking-widest font-bold text-sm">¿Eliminar Documento?</AlertDialogTitle>
+        <AlertDialogDescription className="text-gray-500 font-medium">
+          {t('confirm_delete', { defaultValue: '¿Estás seguro de eliminar permanentemente este archivo del expediente? Esta acción no se puede deshacer.' })}
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel className="rounded-none uppercase font-bold text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+        <AlertDialogAction 
+          onClick={() => onDelete(document.id)}
+          className="rounded-none bg-red-600 text-white hover:bg-red-700 uppercase font-bold text-[10px] tracking-widest border-none"
+        >
+          Eliminar
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+  )}
+  </div>
+  )}
  </div>
 
  {/* Badge de Estado IA */}

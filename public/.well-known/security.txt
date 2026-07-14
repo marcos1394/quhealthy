@@ -2,4 +2,4 @@ Contact: mailto:security@quhealthy.org
 Contact: mailto:soporte@quhealthy.org
 Expires: 2028-12-31T23:59:59.000Z
 Preferred-Languages: es, en
-Canonical: https://www.quhealthy.org/.well-known/security.txt
+Canonical: https://quhealthy.org/.well-known/security.txt

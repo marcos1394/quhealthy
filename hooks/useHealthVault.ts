@@ -121,6 +121,20 @@ export function useHealthVault() {
         }
     };
 
+    // 🗑️ 7. Eliminar documento
+    const deleteDocument = async (documentId: string) => {
+        try {
+            await healthVaultService.deleteDocument(documentId);
+            setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+            toast.success(t('success_delete', { defaultValue: 'Documento eliminado.' }));
+            return true;
+        } catch (error: any) {
+            console.error('Error deleting document:', error);
+            toast.error(t('error_delete', { defaultValue: 'No se pudo eliminar el documento.' }));
+            return false;
+        }
+    };
+
     return {
         documents,
         isLoading,
@@ -130,6 +144,7 @@ export function useHealthVault() {
         createNote,
         viewDocument,
         updateDocument,
-        generatePanorama
+        generatePanorama,
+        deleteDocument
     };
 }

@@ -3,14 +3,16 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, FolderOpen, FileText, Syringe, Search, BrainCircuit, AlertTriangle, Pill } from 'lucide-react';
+import { ShieldCheck, FolderOpen, FileText, Syringe, Search, BrainCircuit, AlertTriangle, Pill, ChevronRight, Home } from 'lucide-react';
 
 // Hooks & Components
 import { useHealthVault } from '@/hooks/useHealthVault';
 import { HealthVaultDropzone } from '@/components/vault/HealthVaultDropzone';
 import { HealthVaultDocumentCard } from '@/components/vault/HealthVaultDocumentCard';
+import { HealthVaultFolderCard } from '@/components/vault/HealthVaultFolderCard';
 import { DigitalVaccinationCard } from '@/components/vault/DigitalVaccinationCard';
 import { QhSpinner } from '@/components/ui/QhSpinner';
+import { cn } from '@/lib/utils';
 import { useFamily } from '@/hooks/useFamily';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -33,14 +35,15 @@ export default function PatientVaultPage() {
  createNote,
  viewDocument,
  updateDocument,
- generatePanorama
+ generatePanorama,
+ deleteDocument
  } = useHealthVault();
 
  const { family } = useFamily();
 
- const [activeTab, setActiveTab] = useState<string>('titular');
- const [searchQuery, setSearchQuery] = useState('');
- const [documentFilter, setDocumentFilter] = useState<string>('ALL'); // ALL, LAB_RESULT, PRESCRIPTION, IMAGING, GENERAL, NOTE
+  const [activeTab, setActiveTab] = useState<string>('titular');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPath, setCurrentPath] = useState<string>('');
 
  const [panoramaData, setPanoramaData] = useState<{ [key: string]: { clinicalSummary: string; careRecommendations: string[] } | null }>({});
  const [isGeneratingPanorama, setIsGeneratingPanorama] = useState(false);
@@ -50,34 +53,92 @@ export default function PatientVaultPage() {
  fetchDocuments();
  }, [fetchDocuments]);
 
- // Filtrar documentos según el paciente activo, la búsqueda y el filtro de tipo
- const visibleDocuments = useMemo(() => {
- const dependentId = activeTab === 'titular' ? null : Number(activeTab);
- 
- return documents.filter(doc => {
- // 1. Filtrar por familiar
- if (dependentId === null) {
- if (doc.dependentId != null) return false;
- } else {
- if (doc.dependentId !== dependentId) return false;
- }
+  // Reset path on tab change
+  useEffect(() => {
+    setCurrentPath('');
+  }, [activeTab]);
 
- // 2. Filtrar por búsqueda
- if (searchQuery) {
- const searchLower = searchQuery.toLowerCase();
- const titleMatch = doc.title?.toLowerCase().includes(searchLower) || false;
- const fileMatch = doc.fileName?.toLowerCase().includes(searchLower) || false;
- if (!titleMatch && !fileMatch) return false;
- }
+  // Manejador de soltar documento en miga de pan
+  const handleDropOnBreadcrumb = async (e: React.DragEvent, targetPath: string) => {
+    e.preventDefault();
+    const documentId = e.dataTransfer.getData('documentId');
+    if (documentId) {
+      await updateDocument(documentId, { documentType: targetPath });
+    }
+  };
 
- // 3. Filtrar por tipo
- if (documentFilter !== 'ALL' && doc.documentType !== documentFilter) {
- return false;
- }
+  // Filtrar documentos y carpetas según paciente, búsqueda y ruta
+  const { visibleDocuments, visibleFolders } = useMemo(() => {
+    const dependentId = activeTab === 'titular' ? null : Number(activeTab);
+    
+    const memberDocs = documents.filter(doc => {
+      if (dependentId === null) return doc.dependentId == null;
+      return doc.dependentId === dependentId;
+    });
 
- return true;
- });
- }, [documents, activeTab, searchQuery, documentFilter]);
+    if (searchQuery) {
+      // Búsqueda Profunda (Aplanada)
+      const searchLower = searchQuery.toLowerCase();
+      const filtered = memberDocs.filter(doc => {
+        if (doc.title?.toLowerCase().includes(searchLower)) return true;
+        if (doc.fileName?.toLowerCase().includes(searchLower)) return true;
+        if (doc.noteContent?.toLowerCase().includes(searchLower)) return true;
+        
+        const ai = doc.aiExtractedData as any;
+        if (ai) {
+          if (ai.summary?.toLowerCase().includes(searchLower)) return true;
+          if (ai.medicalConditions?.some((c: string) => c.toLowerCase().includes(searchLower))) return true;
+          if (ai.medications?.some((m: string) => m.toLowerCase().includes(searchLower))) return true;
+        }
+        return false;
+      });
+      return { visibleDocuments: filtered, visibleFolders: [] };
+    }
+
+    // Navegación tipo Drive por Rutas
+    const exactDocs: any[] = [];
+    const subfolders = new Map<string, number>();
+
+    const normalizeType = (type?: string) => {
+      if (!type) return 'General';
+      if (type === 'LAB_RESULT') return 'Labs';
+      if (type === 'PRESCRIPTION') return 'Recetas';
+      if (type === 'NOTE') return 'Notas';
+      if (type === 'GENERAL') return 'General';
+      return type;
+    };
+
+    memberDocs.forEach(doc => {
+      const docPath = normalizeType(doc.documentType);
+
+      if (currentPath === '') {
+        if (docPath === '' || docPath === 'Raíz') {
+          exactDocs.push(doc);
+        } else {
+          const rootFolder = docPath.split('/')[0];
+          subfolders.set(rootFolder, (subfolders.get(rootFolder) || 0) + 1);
+        }
+      } else {
+        const currentPrefix = `${currentPath}/`;
+        if (docPath === currentPath) {
+          exactDocs.push(doc);
+        } else if (docPath.startsWith(currentPrefix)) {
+          const remainder = docPath.slice(currentPrefix.length);
+          const nextFolder = remainder.split('/')[0];
+          subfolders.set(nextFolder, (subfolders.get(nextFolder) || 0) + 1);
+        }
+      }
+    });
+
+    return { 
+      visibleDocuments: exactDocs, 
+      visibleFolders: Array.from(subfolders.entries()).map(([name, count]) => ({
+        name,
+        path: currentPath ? `${currentPath}/${name}` : name,
+        count
+      }))
+    };
+  }, [documents, activeTab, searchQuery, currentPath]);
 
  const activeDependentId = activeTab === 'titular' ? undefined : Number(activeTab);
 
@@ -160,7 +221,7 @@ export default function PatientVaultPage() {
  {/* --- ZONA DE SUBIDA (DROPZONE) --- */}
  <section>
  <HealthVaultDropzone
- onUpload={(file, title) => uploadDocument(file, title, 'GENERAL', activeDependentId)}
+ onUpload={(file, title) => uploadDocument(file, title, currentPath || 'General', activeDependentId)}
  onCreateNote={(title, content) => createNote(title, content, activeDependentId)}
  isUploading={isUploading}
  />
@@ -262,13 +323,12 @@ export default function PatientVaultPage() {
 
  {/* --- LISTA DE DOCUMENTOS CON FILTROS --- */}
  <section className="space-y-6">
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+ <div className="flex flex-col gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+ <div className="flex items-center justify-between">
  <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
  <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
  Documentos
  </h2>
-
- <div className="flex flex-col sm:flex-row gap-3">
  <div className="relative">
  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
  <Input 
@@ -278,28 +338,38 @@ export default function PatientVaultPage() {
  className="pl-9 h-10 w-full sm:w-64 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
  />
  </div>
+ </div>
  
- <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-1">
- {[
- { id: 'ALL', label: 'Todos' },
- { id: 'LAB_RESULT', label: 'Labs' },
- { id: 'PRESCRIPTION', label: 'Recetas' },
- { id: 'NOTE', label: 'Notas' }
- ].map(f => (
- <button
- key={f.id}
- onClick={() => setDocumentFilter(f.id)}
- className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
- documentFilter === f.id 
- ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm' 
- : 'text-gray-500 hover:text-black dark:hover:text-white'
- }`}
- >
- {f.label}
- </button>
- ))}
- </div>
- </div>
+ <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-2 items-center flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 overflow-x-auto hide-scrollbar">
+    <div 
+      className="flex items-center gap-1 cursor-pointer hover:text-black dark:hover:text-white transition-colors"
+      onClick={() => setCurrentPath('')}
+      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+      onDrop={(e) => handleDropOnBreadcrumb(e, 'General')}
+    >
+      <Home className="w-4 h-4" />
+      <span>Mi Unidad</span>
+    </div>
+    
+    {currentPath.split('/').filter(Boolean).map((part, idx, arr) => {
+      const pathToHere = arr.slice(0, idx + 1).join('/');
+      const isLast = idx === arr.length - 1;
+      
+      return (
+        <React.Fragment key={pathToHere}>
+          <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-700" />
+          <div 
+            className={cn("flex items-center cursor-pointer transition-colors", isLast ? "text-black dark:text-white" : "hover:text-black dark:hover:text-white")}
+            onClick={() => setCurrentPath(pathToHere)}
+            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+            onDrop={(e) => handleDropOnBreadcrumb(e, pathToHere)}
+          >
+            {part}
+          </div>
+        </React.Fragment>
+      );
+    })}
+  </div>
  </div>
 
  {/* Estado: Cargando Inicial */}
@@ -313,10 +383,32 @@ export default function PatientVaultPage() {
  </p>
  </div>
  ) : (
- <AnimatePresence mode="popLayout">
- {visibleDocuments.length > 0 ? (
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
- {visibleDocuments.map((doc, index) => (
+  <AnimatePresence mode="popLayout">
+  {visibleFolders.length > 0 && (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
+      {visibleFolders.map((folder, index) => (
+        <motion.div
+          key={`folder-${folder.path}`}
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
+          layout
+        >
+          <HealthVaultFolderCard
+            folderName={folder.name}
+            itemCount={folder.count}
+            onClick={() => setCurrentPath(folder.path)}
+            onDropDocument={(docId) => updateDocument(docId, { documentType: folder.path }).then(() => {})}
+          />
+        </motion.div>
+      ))}
+    </div>
+  )}
+
+  {visibleDocuments.length > 0 ? (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+  {visibleDocuments.map((doc, index) => (
  <motion.div
  key={doc.id}
  initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -329,6 +421,7 @@ export default function PatientVaultPage() {
  document={doc}
  onView={viewDocument}
  onUpdate={(docId, data) => updateDocument(docId, data)}
+ onDelete={deleteDocument}
  />
  </motion.div>
  ))}
@@ -348,10 +441,10 @@ export default function PatientVaultPage() {
  No se encontraron documentos
  </h3>
  <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto font-light leading-relaxed">
- {searchQuery || documentFilter !== 'ALL' 
- ? 'No hay archivos que coincidan con los filtros de búsqueda.' 
- : 'Sube tu primer estudio de laboratorio, receta médica o nota de evolución usando el recuadro de arriba.'}
- </p>
+  {searchQuery 
+  ? 'No hay archivos que coincidan con la búsqueda profunda.' 
+  : 'Esta carpeta está vacía. Sube un archivo usando el recuadro de arriba.'}
+  </p>
  </motion.div>
  )}
  </AnimatePresence>
