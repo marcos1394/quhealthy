@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { onboardingService } from '@/services/onboarding.service';
-import { UpdateProfileRequest, ProfileResponse, CategoryResponse, TagResponse, OnboardingStatusResponse } from '@/types/onboarding';
+import { UpdateProfileRequest, ProfileResponse, CategoryResponse, TagResponse, OnboardingStatusResponse, SubCategoryResponse } from '@/types/onboarding';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 
