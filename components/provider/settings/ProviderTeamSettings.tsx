@@ -42,11 +42,14 @@ export function ProviderTeamSettings() {
  const router = useRouter();
  const { staff, isLoading, fetchStaff, inviteStaff, updatePermissions, toggleStatus, revokeAccess } = useClinicStaff();
 
- const [{ isInviteOpen, inviteEmail, invitePermissions, isSubmitting, isPermissionsOpen, editingStaffId, editingPermissions }, dispatch] = React.useReducer(
+ const [{ isInviteOpen, inviteEmail, inviteFirstName, inviteLastName, inviteRole, invitePermissions, isSubmitting, isPermissionsOpen, editingStaffId, editingPermissions }, dispatch] = React.useReducer(
  (state: any, action: any) => {
  switch (action.type) {
  case 'SET_ISINVITEOPEN': return { ...state, isInviteOpen: typeof action.payload === 'function' ? action.payload(state.isInviteOpen) : action.payload };
  case 'SET_INVITEEMAIL': return { ...state, inviteEmail: typeof action.payload === 'function' ? action.payload(state.inviteEmail) : action.payload };
+ case 'SET_INVITEFIRSTNAME': return { ...state, inviteFirstName: typeof action.payload === 'function' ? action.payload(state.inviteFirstName) : action.payload };
+ case 'SET_INVITELASTNAME': return { ...state, inviteLastName: typeof action.payload === 'function' ? action.payload(state.inviteLastName) : action.payload };
+ case 'SET_INVITEROLE': return { ...state, inviteRole: typeof action.payload === 'function' ? action.payload(state.inviteRole) : action.payload };
  case 'SET_INVITEPERMISSIONS': return { ...state, invitePermissions: typeof action.payload === 'function' ? action.payload(state.invitePermissions) : action.payload };
  case 'SET_ISSUBMITTING': return { ...state, isSubmitting: typeof action.payload === 'function' ? action.payload(state.isSubmitting) : action.payload };
  case 'SET_ISPERMISSIONSOPEN': return { ...state, isPermissionsOpen: typeof action.payload === 'function' ? action.payload(state.isPermissionsOpen) : action.payload };
@@ -56,39 +59,40 @@ export function ProviderTeamSettings() {
  }
  },
  {
- isInviteOpen: false, inviteEmail: "", invitePermissions: [], isSubmitting: false, isPermissionsOpen: false, editingStaffId: null, editingPermissions: []
+ isInviteOpen: false, inviteEmail: "", inviteFirstName: "", inviteLastName: "", inviteRole: "MEDICAL_ASSISTANT", invitePermissions: [], isSubmitting: false, isPermissionsOpen: false, editingStaffId: null, editingPermissions: []
  }
  );
 
  const setIsInviteOpen = (val: any) => dispatch({ type: 'SET_ISINVITEOPEN', payload: val });
  const setInviteEmail = (val: any) => dispatch({ type: 'SET_INVITEEMAIL', payload: val });
+ const setInviteFirstName = (val: any) => dispatch({ type: 'SET_INVITEFIRSTNAME', payload: val });
+ const setInviteLastName = (val: any) => dispatch({ type: 'SET_INVITELASTNAME', payload: val });
+ const setInviteRole = (val: any) => dispatch({ type: 'SET_INVITEROLE', payload: val });
  const setInvitePermissions = (val: any) => dispatch({ type: 'SET_INVITEPERMISSIONS', payload: val });
  const setIsSubmitting = (val: any) => dispatch({ type: 'SET_ISSUBMITTING', payload: val });
  const setIsPermissionsOpen = (val: any) => dispatch({ type: 'SET_ISPERMISSIONSOPEN', payload: val });
  const setEditingStaffId = (val: any) => dispatch({ type: 'SET_EDITINGSTAFFID', payload: val });
  const setEditingPermissions = (val: any) => dispatch({ type: 'SET_EDITINGPERMISSIONS', payload: val });
 
-
-
-
-
-
-
-
-
  useEffect(() => {
  fetchStaff();
  }, [fetchStaff]);
 
  const handleInviteSubmit = async () => {
- if (!inviteEmail) return;
+ if (!inviteEmail || !inviteFirstName || !inviteLastName || !inviteRole) {
+ toast.error("Por favor completa todos los campos requeridos");
+ return;
+ }
  setIsSubmitting(true);
- const success = await inviteStaff(inviteEmail, invitePermissions);
+ const success = await inviteStaff(inviteEmail, inviteFirstName, inviteLastName, inviteRole, invitePermissions);
  setIsSubmitting(false);
  if (success) {
  toast.success("Invitación enviada correctamente");
  setIsInviteOpen(false);
  setInviteEmail("");
+ setInviteFirstName("");
+ setInviteLastName("");
+ setInviteRole("MEDICAL_ASSISTANT");
  setInvitePermissions([]);
  } else {
  toast.error("Error al enviar la invitación");
@@ -235,7 +239,7 @@ export function ProviderTeamSettings() {
 
  {/* MODAL: INVITAR STAFF */}
  <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
- <DialogContent className="sm:max-w-md rounded-none border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+ <DialogContent className="sm:max-w-md bg-white dark:bg-[#050505] rounded-none border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] max-h-[90vh] overflow-y-auto">
  <DialogHeader>
  <DialogTitle className="uppercase font-bold tracking-tighter text-black dark:text-white">Invitar al Equipo</DialogTitle>
  </DialogHeader>
@@ -249,6 +253,44 @@ export function ProviderTeamSettings() {
  value={inviteEmail} 
  onChange={(e) => setInviteEmail(e.target.value)} 
  />
+ </div>
+ <div className="grid grid-cols-2 gap-4">
+ <div className="space-y-2">
+ <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">Nombre</Label>
+ <Input 
+ type="text" 
+ placeholder="Nombre" 
+ className="rounded-none border-black/20 focus-visible:ring-black dark:border-white/20 dark:focus-visible:ring-white"
+ value={inviteFirstName} 
+ onChange={(e) => setInviteFirstName(e.target.value)} 
+ />
+ </div>
+ <div className="space-y-2">
+ <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">Apellido</Label>
+ <Input 
+ type="text" 
+ placeholder="Apellido" 
+ className="rounded-none border-black/20 focus-visible:ring-black dark:border-white/20 dark:focus-visible:ring-white"
+ value={inviteLastName} 
+ onChange={(e) => setInviteLastName(e.target.value)} 
+ />
+ </div>
+ </div>
+ <div className="space-y-2">
+ <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">Rol</Label>
+ <select 
+ className="w-full flex h-10 rounded-none border border-black/20 bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:border-white/20 dark:focus-visible:ring-white"
+ value={inviteRole}
+ onChange={(e) => setInviteRole(e.target.value)}
+ >
+ <option value="MEDICAL_ASSISTANT">Médico Asistente</option>
+ <option value="RECEPTIONIST">Recepcionista</option>
+ <option value="CLINIC_OWNER">Dueño de Clínica</option>
+ <option value="FINANCE_VIEWER">Visor de Finanzas</option>
+ <option value="FINANCE_OPERATOR">Operador de Finanzas</option>
+ <option value="FINANCE_APPROVER">Aprobador de Finanzas</option>
+ <option value="FINANCE_DIRECTOR">Director de Finanzas</option>
+ </select>
  </div>
  <div className="space-y-3">
  <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">Módulos de Acceso</Label>
@@ -279,7 +321,7 @@ export function ProviderTeamSettings() {
 
  {/* MODAL: EDITAR PERMISOS */}
  <Dialog open={isPermissionsOpen} onOpenChange={setIsPermissionsOpen}>
- <DialogContent className="sm:max-w-md rounded-none border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+ <DialogContent className="sm:max-w-md bg-white dark:bg-[#050505] rounded-none border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
  <DialogHeader>
  <DialogTitle className="uppercase font-bold tracking-tighter text-black dark:text-white">Editar Permisos de Acceso</DialogTitle>
  </DialogHeader>

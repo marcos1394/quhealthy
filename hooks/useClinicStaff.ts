@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import axios from '@/lib/axios';
+import axiosInstance from '@/lib/axios';
 
 export interface ClinicStaffMember {
   id: number;
@@ -20,7 +20,7 @@ export const useClinicStaff = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get<ClinicStaffMember[]>('/api/auth/staff');
+      const response = await axiosInstance.get<ClinicStaffMember[]>('/api/auth/staff');
       setStaff(response.data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error fetching staff');
@@ -29,9 +29,9 @@ export const useClinicStaff = () => {
     }
   }, []);
 
-  const inviteStaff = async (email: string, permissions: string[]) => {
+  const inviteStaff = async (email: string, firstName: string, lastName: string, role: string, permissions: string[]) => {
     try {
-      const response = await axios.post<ClinicStaffMember>('/api/auth/staff/invite', { email, permissions });
+      const response = await axiosInstance.post<ClinicStaffMember>('/api/auth/staff/invite', { email, firstName, lastName, role, permissions });
       setStaff((prev) => [...prev, response.data]);
       return true;
     } catch (err: any) {
@@ -42,7 +42,7 @@ export const useClinicStaff = () => {
 
   const updatePermissions = async (staffId: number, permissions: string[]) => {
     try {
-      const response = await axios.put<ClinicStaffMember>(`/api/auth/staff/${staffId}/permissions`, { permissions });
+      const response = await axiosInstance.put<ClinicStaffMember>(`/api/auth/staff/${staffId}/permissions`, { permissions });
       setStaff((prev) => prev.map((s) => (s.id === staffId ? response.data : s)));
       return true;
     } catch (err: any) {
@@ -53,7 +53,7 @@ export const useClinicStaff = () => {
 
   const toggleStatus = async (staffId: number) => {
     try {
-      const response = await axios.put<ClinicStaffMember>(`/api/auth/staff/${staffId}/toggle-status`);
+      const response = await axiosInstance.put<ClinicStaffMember>(`/api/auth/staff/${staffId}/toggle-status`);
       setStaff((prev) => prev.map((s) => (s.id === staffId ? response.data : s)));
       return true;
     } catch (err: any) {
@@ -64,7 +64,7 @@ export const useClinicStaff = () => {
 
   const revokeAccess = async (staffId: number) => {
     try {
-      await axios.delete(`/api/auth/staff/${staffId}`);
+      await axiosInstance.delete(`/api/auth/staff/${staffId}`);
       setStaff((prev) => prev.filter((s) => s.id !== staffId));
       return true;
     } catch (err: any) {
