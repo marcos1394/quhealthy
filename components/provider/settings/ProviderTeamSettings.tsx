@@ -16,6 +16,7 @@ import {
   Trash2,
   PowerOff,
   Power,
+  Mail,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ export function ProviderTeamSettings() {
     inviteStaff,
     updatePermissions,
     toggleStatus,
+    resendInvite,
     revokeAccess,
   } = useClinicStaff();
 
@@ -251,6 +253,15 @@ export function ProviderTeamSettings() {
     }
   };
 
+  const handleResendInvite = async (staffId: number) => {
+    const success = await resendInvite(staffId);
+    if (success) {
+      toast.success("Invitación reenviada correctamente");
+    } else {
+      toast.error("Error al reenviar la invitación");
+    }
+  };
+
   const openPermissionsModal = (staffId: number, permissions: string[]) => {
     setEditingStaffId(staffId);
     setEditingPermissions(permissions || []);
@@ -398,6 +409,17 @@ export function ProviderTeamSettings() {
                             <Key className="w-4 h-4 mr-2" />
                             Editar Permisos
                           </DropdownMenuItem>
+                          
+                          {member.status === "INACTIVE" && (
+                            <DropdownMenuItem
+                              onClick={() => handleResendInvite(member.id)}
+                              className="uppercase tracking-widest text-[10px] font-bold focus:bg-black/5 dark:focus:bg-white/5 cursor-pointer text-blue-600 focus:text-blue-700"
+                            >
+                              <Mail className="w-4 h-4 mr-2" />
+                              Reenviar Invitación
+                            </DropdownMenuItem>
+                          )}
+
                           <DropdownMenuItem
                             onClick={() => toggleStatus(member.id)}
                             className="uppercase tracking-widest text-[10px] font-bold focus:bg-black/5 dark:focus:bg-white/5 cursor-pointer"

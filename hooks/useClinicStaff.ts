@@ -62,6 +62,16 @@ export const useClinicStaff = () => {
     }
   };
 
+  const resendInvite = async (staffId: number) => {
+    try {
+      await axiosInstance.post(`/api/auth/staff/${staffId}/resend-invite`);
+      return true;
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error reenviando invitación');
+      return false;
+    }
+  };
+
   const revokeAccess = async (staffId: number) => {
     try {
       await axiosInstance.delete(`/api/auth/staff/${staffId}`);
@@ -81,6 +91,7 @@ export const useClinicStaff = () => {
     inviteStaff,
     updatePermissions,
     toggleStatus,
+    resendInvite,
     revokeAccess,
   };
 };
