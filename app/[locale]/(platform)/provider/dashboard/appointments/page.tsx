@@ -30,6 +30,7 @@ import { useTranslations } from "next-intl";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { handleApiError } from '@/lib/handleApiError';
 import { cn } from "@/lib/utils";
+import { useSessionStore } from '@/stores/SessionStore';
 
 export default function ProviderAppointmentsPage() {
  const router = useRouter();
@@ -167,7 +168,8 @@ export default function ProviderAppointmentsPage() {
  
  await handleUpdateStatus(idToMove, newStatus);
  
- if (newStatus === "IN_PROGRESS") {
+ // 🚀 Solo el ROLE_PROVIDER se redirige automáticamente a la consulta
+ if (newStatus === "IN_PROGRESS" && useSessionStore.getState().role === 'ROLE_PROVIDER') {
  router.push(`/provider/consultation/${idToMove}`);
  }
  }
