@@ -6,10 +6,10 @@ import { redirect } from "@/i18n/routing";
  * Mantenemos esta ruta como redirect para no romper navegación existente.
  */
 export default async function PatientDiscoverRedirect({
- params,
+  params,
 }: {
- params: Promise<{ locale: string }>;
+  params: Promise<{ locale: string }>;
 }) {
- const { locale } = await params;
- redirect({ href: "/discover", locale });
+  const { locale } = await params;
+  redirect({ href: "/discover", locale });
 }
