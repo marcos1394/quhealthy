@@ -83,7 +83,7 @@ export function proxy(request: NextRequest) {
     const userRole = request.cookies.get('__Secure-userRole')?.value;
     
     // 🚀 Redirigir según el rol guardado en la cookie
-    if (userRole === 'ROLE_PROVIDER') {
+    if (userRole === 'ROLE_PROVIDER' || userRole === 'ROLE_STAFF') {
       return NextResponse.redirect(new URL(`${currentLocale}/provider/dashboard`, request.url));
     }
     if (userRole === 'ROLE_ADMIN') {

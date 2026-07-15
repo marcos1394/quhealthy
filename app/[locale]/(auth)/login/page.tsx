@@ -103,7 +103,7 @@ export default function LoginPage() {
 
  if (role === 'ROLE_ADMIN') {
  router.push("/admin/dashboard");
- } else if (role === 'ROLE_PROVIDER') {
+ } else if (role === 'ROLE_PROVIDER' || role === 'ROLE_STAFF') {
  const isOnboardingComplete = response.status?.onboardingComplete;
  if (isOnboardingComplete) {
  router.push("/provider/dashboard");
