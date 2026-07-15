@@ -27,15 +27,19 @@ interface CategorySelectorProps {
  onGetSubCategories: (catId: number) => Promise<SubCategoryResponse[]>;
  onSelectionChange: (catId: number, subId: number, tagIds: number[]) => void;
  error?: string | null;
+ onCreateCategory?: (name: string) => Promise<CategoryResponse | null>;
+ onCreateSubCategory?: (categoryId: number, name: string) => Promise<SubCategoryResponse | null>;
+ onCreateTag?: (name: string) => Promise<TagResponse | null>;
 }
 
 const EMPTY_TAGS: number[] = [];
 
 export default function CategorySelector({
  categories, tags, selectedCategoryId, selectedSubCategoryId,
- selectedTagIds = EMPTY_TAGS, onGetSubCategories, onSelectionChange, error
+ selectedTagIds = EMPTY_TAGS, onGetSubCategories, onSelectionChange, error,
+ onCreateCategory, onCreateSubCategory, onCreateTag
 }: CategorySelectorProps) {
- const [{ subCategories, isLoadingSub, tagSearchQuery, openCat, openSub }, dispatch] = React.useReducer(
+ const [{ subCategories, isLoadingSub, tagSearchQuery, openCat, openSub, catSearchQuery, subSearchQuery, isCreatingItem }, dispatch] = React.useReducer(
  (state: any, action: any) => {
  switch (action.type) {
  case 'SET_SUBCATEGORIES': return { ...state, subCategories: typeof action.payload === 'function' ? action.payload(state.subCategories) : action.payload };
@@ -43,11 +47,14 @@ export default function CategorySelector({
  case 'SET_TAGSEARCHQUERY': return { ...state, tagSearchQuery: typeof action.payload === 'function' ? action.payload(state.tagSearchQuery) : action.payload };
  case 'SET_OPENCAT': return { ...state, openCat: typeof action.payload === 'function' ? action.payload(state.openCat) : action.payload };
  case 'SET_OPENSUB': return { ...state, openSub: typeof action.payload === 'function' ? action.payload(state.openSub) : action.payload };
+ case 'SET_CATSEARCHQUERY': return { ...state, catSearchQuery: typeof action.payload === 'function' ? action.payload(state.catSearchQuery) : action.payload };
+ case 'SET_SUBSEARCHQUERY': return { ...state, subSearchQuery: typeof action.payload === 'function' ? action.payload(state.subSearchQuery) : action.payload };
+ case 'SET_ISCREATINGITEM': return { ...state, isCreatingItem: typeof action.payload === 'function' ? action.payload(state.isCreatingItem) : action.payload };
  default: return state;
  }
  },
  {
- subCategories: [], isLoadingSub: false, tagSearchQuery: "", openCat: false, openSub: false
+ subCategories: [], isLoadingSub: false, tagSearchQuery: "", openCat: false, openSub: false, catSearchQuery: "", subSearchQuery: "", isCreatingItem: false
  }
  );
 
@@ -56,6 +63,9 @@ export default function CategorySelector({
  const setTagSearchQuery = (val: any) => dispatch({ type: 'SET_TAGSEARCHQUERY', payload: val });
  const setOpenCat = (val: any) => dispatch({ type: 'SET_OPENCAT', payload: val });
  const setOpenSub = (val: any) => dispatch({ type: 'SET_OPENSUB', payload: val });
+ const setCatSearchQuery = (val: any) => dispatch({ type: 'SET_CATSEARCHQUERY', payload: val });
+ const setSubSearchQuery = (val: any) => dispatch({ type: 'SET_SUBSEARCHQUERY', payload: val });
+ const setIsCreatingItem = (val: any) => dispatch({ type: 'SET_ISCREATINGITEM', payload: val });
 
 
 
@@ -258,9 +268,36 @@ export default function CategorySelector({
  </PopoverTrigger>
  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-none border border-gray-200 dark:border-gray-800 shadow-xl" align="start" sideOffset={4}>
  <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
- <CommandInput placeholder="Buscar sector..." className="h-10 text-xs" />
+ <CommandInput 
+  placeholder="Buscar sector..." 
+  className="h-10 text-xs" 
+  value={catSearchQuery} 
+  onValueChange={setCatSearchQuery} 
+ />
  <CommandList className="max-h-[300px] overflow-y-auto">
- <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron sectores.</CommandEmpty>
+ <CommandEmpty className="py-4 text-center text-xs flex flex-col items-center justify-center gap-2">
+  <span className="text-gray-500">No se encontraron sectores.</span>
+  {onCreateCategory && catSearchQuery && (
+    <Button 
+      type="button" 
+      disabled={isCreatingItem}
+      onClick={async () => {
+        setIsCreatingItem(true);
+        const newCat = await onCreateCategory(catSearchQuery);
+        if (newCat) {
+          handleCatChange(newCat.id);
+          setOpenCat(false);
+          setCatSearchQuery("");
+        }
+        setIsCreatingItem(false);
+      }}
+      className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black rounded-none h-8"
+    >
+      {isCreatingItem ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Plus className="w-3 h-3 mr-1" />}
+      Crear "{catSearchQuery}"
+    </Button>
+  )}
+ </CommandEmpty>
  <CommandGroup>
  {categories.map((cat) => (
  <CommandItem
@@ -325,9 +362,36 @@ export default function CategorySelector({
 
  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-none border border-gray-200 dark:border-gray-800 shadow-xl" align="start" sideOffset={4}>
  <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
- <CommandInput placeholder="Buscar enfoque..." className="h-10 text-xs" />
+ <CommandInput 
+  placeholder="Buscar enfoque..." 
+  className="h-10 text-xs" 
+  value={subSearchQuery}
+  onValueChange={setSubSearchQuery}
+ />
  <CommandList className="max-h-[300px] overflow-y-auto">
- <CommandEmpty className="py-4 text-center text-xs text-gray-500">No se encontraron enfoques.</CommandEmpty>
+ <CommandEmpty className="py-4 text-center text-xs flex flex-col items-center justify-center gap-2">
+  <span className="text-gray-500">No se encontraron enfoques.</span>
+  {onCreateSubCategory && subSearchQuery && selectedCategoryId && (
+    <Button 
+      type="button" 
+      disabled={isCreatingItem}
+      onClick={async () => {
+        setIsCreatingItem(true);
+        const newSub = await onCreateSubCategory(selectedCategoryId, subSearchQuery);
+        if (newSub) {
+          handleSubChange(newSub.id);
+          setOpenSub(false);
+          setSubSearchQuery("");
+        }
+        setIsCreatingItem(false);
+      }}
+      className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black rounded-none h-8"
+    >
+      {isCreatingItem ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Plus className="w-3 h-3 mr-1" />}
+      Crear "{subSearchQuery}"
+    </Button>
+  )}
+ </CommandEmpty>
  <CommandGroup>
  {subCategories.map((sub: any) => (
  <CommandItem
@@ -421,11 +485,30 @@ export default function CategorySelector({
  </div>
  
  {tagSearchQuery && filteredTags.length === 0 && (
- <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800">
- <Info className="w-5 h-5 text-gray-400 mx-auto mb-3" strokeWidth={1.5} />
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+ <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center">
+ <Info className="w-5 h-5 text-gray-400 mb-3" strokeWidth={1.5} />
+ <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">
  No hay resultados para "{tagSearchQuery}"
  </p>
+ {onCreateTag && (
+    <Button 
+      type="button" 
+      disabled={isCreatingItem}
+      onClick={async () => {
+        setIsCreatingItem(true);
+        const newTag = await onCreateTag(tagSearchQuery);
+        if (newTag) {
+          handleTagToggle(newTag.id);
+          setTagSearchQuery("");
+        }
+        setIsCreatingItem(false);
+      }}
+      className="text-[10px] font-bold uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black rounded-none h-9 px-4"
+    >
+      {isCreatingItem ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Plus className="w-3 h-3 mr-1" />}
+      Crear "{tagSearchQuery}"
+    </Button>
+ )}
  </div>
  )}
  </motion.div>

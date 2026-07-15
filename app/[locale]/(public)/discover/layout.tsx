@@ -45,8 +45,8 @@ export async function generateMetadata({
           url: `${siteUrl}/og-image.png`,
           width: 1200,
           height: 630,
-          alt: isEnglish 
-            ? "Discover wellness specialists on QuHealthy" 
+          alt: isEnglish
+            ? "Discover wellness specialists on QuHealthy"
             : "Descubre especialistas de bienestar en QuHealthy",
         },
       ],

@@ -159,4 +159,19 @@ export const onboardingService = {
     const response = await axiosInstance.get('/api/onboarding/catalogs/tags');
     return response.data;
   },
+
+  async createCategory(name: string, parentId: number): Promise<CategoryResponse> {
+    const response = await axiosInstance.post('/api/onboarding/catalogs/categories', { name, parentId });
+    return response.data;
+  },
+
+  async createSubcategory(categoryId: number, name: string): Promise<SubCategoryResponse> {
+    const response = await axiosInstance.post(`/api/onboarding/catalogs/categories/${categoryId}/subcategories`, { name });
+    return response.data;
+  },
+
+  async createTag(name: string): Promise<TagResponse> {
+    const response = await axiosInstance.post('/api/onboarding/catalogs/tags', { name });
+    return response.data;
+  },
 };

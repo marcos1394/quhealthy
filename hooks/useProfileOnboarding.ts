@@ -121,6 +121,45 @@ export const useProfileOnboarding = () => {
     }
   };
 
+  const createCategory = async (name: string, parentId: number): Promise<CategoryResponse | null> => {
+    try {
+      const newCategory = await onboardingService.createCategory(name, parentId);
+      setCategories(prev => [...prev, newCategory]);
+      return newCategory;
+    } catch (err) {
+      console.error("Error creando categoría:", err);
+      toast.error("No se pudo crear la especialidad.");
+      return null;
+    }
+  };
+
+  const createSubcategory = async (categoryId: number, name: string): Promise<SubCategoryResponse | null> => {
+    try {
+      const newSub = await onboardingService.createSubcategory(categoryId, name);
+      return newSub;
+    } catch (err) {
+      console.error("Error creando enfoque:", err);
+      toast.error("No se pudo crear el enfoque específico.");
+      return null;
+    }
+  };
+
+  const createTag = async (name: string): Promise<TagResponse | null> => {
+    try {
+      const newTag = await onboardingService.createTag(name);
+      setTags(prev => {
+        // Evitar duplicados en UI si la API devuelve uno existente
+        if (prev.find(t => t.id === newTag.id)) return prev;
+        return [...prev, newTag];
+      });
+      return newTag;
+    } catch (err) {
+      console.error("Error creando etiqueta:", err);
+      toast.error("No se pudo crear la etiqueta.");
+      return null;
+    }
+  };
+
   useEffect(() => {
     loadProfile();
     loadCatalogs();
@@ -132,6 +171,9 @@ export const useProfileOnboarding = () => {
     categories,
     tags,
     getSubCategories,
+    createCategory,
+    createSubcategory,
+    createTag,
     isLoading,
     isSaving,
     error,
