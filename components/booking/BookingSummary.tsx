@@ -25,6 +25,7 @@ import { usePackages } from "@/hooks/usePackages";
 import { consumerWalletService } from "@/services/consumer-wallet.service";
 import { Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "../ui/checkbox";
 
 interface BookingSummaryProps {
  cart: StorefrontItem[];
