@@ -58,6 +58,9 @@ export default function OnboardingProfilePage() {
     categories,
     tags,
     getSubCategories,
+    createCategory,
+    createSubcategory,
+    createTag,
   } = useProfileOnboarding();
 
   const [
