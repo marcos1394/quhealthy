@@ -20,7 +20,7 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 export function ClinicalMessagesView() {
  const t = useTranslations('PatientMessages');
  const { user } = useSessionStore();
- const isProvider = user?.role === 'ROLE_PROVIDER';
+ const isProvider = user?.role === 'ROLE_PROVIDER' || user?.role === 'ROLE_STAFF';
  
  // Estado del Buscador Local
  const [searchQuery, setSearchQuery] = useState('');

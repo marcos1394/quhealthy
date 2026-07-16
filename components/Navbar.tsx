@@ -148,7 +148,7 @@ export const Navbar: React.FC = () => {
  </DropdownMenuLabel>
 
  <div className="py-2">
- {role === 'ROLE_PROVIDER' ? (
+ {(role === 'ROLE_PROVIDER' || role === 'ROLE_STAFF') ? (
  <>
  <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
  <Link href="/provider/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
@@ -187,7 +187,7 @@ export const Navbar: React.FC = () => {
  )}
 
  <DropdownMenuItem asChild className="rounded-none focus:bg-gray-100 dark:focus:bg-gray-900 cursor-pointer">
- <Link href={role === 'ROLE_PROVIDER' ? "/provider/settings" : "/patient/dashboard/settings"} className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+ <Link href={(role === 'ROLE_PROVIDER' || role === 'ROLE_STAFF') ? "/provider/settings" : "/patient/dashboard/settings"} className="flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
  <Settings size={14} /> {t('user_menu.settings')}
  </Link>
  </DropdownMenuItem>
@@ -280,7 +280,7 @@ export const Navbar: React.FC = () => {
  <div className="flex items-center gap-5">
  <ThemeToggle />
  <LanguageToggle />
- {role === 'ROLE_PROVIDER' && (
+ {(role === 'ROLE_PROVIDER' || role === 'ROLE_STAFF') && (
  <Button variant="ghost" size="icon" className="rounded-none text-gray-500 hover:text-black dark:hover:text-white">
  <Megaphone size={18} />
  </Button>
@@ -402,7 +402,7 @@ export const Navbar: React.FC = () => {
  </div>
  ) : isAuthenticated ? (
  <>
- <Link href={role === 'ROLE_PROVIDER' ? "/provider/settings" : "/patient/dashboard/settings"} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-black dark:hover:text-white transition-colors">
+ <Link href={(role === 'ROLE_PROVIDER' || role === 'ROLE_STAFF') ? "/provider/settings" : "/patient/dashboard/settings"} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 p-6 border-b border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-black dark:hover:text-white transition-colors">
  <Settings size={14} /> {t('user_menu.settings')}
  </Link>
  <button

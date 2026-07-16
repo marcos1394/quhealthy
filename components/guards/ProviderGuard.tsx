@@ -23,8 +23,8 @@ export function ProviderGuard({ children }: { children: React.ReactNode }) {
  useEffect(() => {
  if (isLoading) return;
 
- // 1. Si no es provider autenticado, expulsar
- if (!isAuthenticated || role !== 'ROLE_PROVIDER') {
+ // 1. Si no es provider ni staff autenticado, expulsar
+ if (!isAuthenticated || (role !== 'ROLE_PROVIDER' && role !== 'ROLE_STAFF')) {
  console.warn('⛔ Acceso denegado: Área exclusiva para especialistas');
  router.replace('/login');
  return;
@@ -40,7 +40,8 @@ export function ProviderGuard({ children }: { children: React.ReactNode }) {
  // 3. 🚀 FIX: Si onboarding parece incompleto, re-evaluar desde el backend
  // antes de redirigir. Esto resuelve el caso donde el paso fiscal era
  // obligatorio y ahora es opcional — el JWT puede tener el valor stale.
- if (status && !status.onboardingComplete && !hasReEvaluated) {
+ // NOTA: ROLE_STAFF no pasa por onboarding propio, se omite esta verificación.
+ if (role !== 'ROLE_STAFF' && status && !status.onboardingComplete && !hasReEvaluated) {
  setIsReEvaluating(true);
 
  (async () => {
@@ -77,8 +78,8 @@ export function ProviderGuard({ children }: { children: React.ReactNode }) {
  return;
  }
 
- // 4. Si ya re-evaluamos y sigue incompleto, redirigir
- if (status && !status.onboardingComplete && hasReEvaluated) {
+ // 4. Si ya re-evaluamos y sigue incompleto, redirigir (solo aplica a PROVIDER)
+ if (role !== 'ROLE_STAFF' && status && !status.onboardingComplete && hasReEvaluated) {
  router.replace('/onboarding');
  return;
  }
@@ -90,9 +91,9 @@ export function ProviderGuard({ children }: { children: React.ReactNode }) {
  isLoading || 
  isReEvaluating ||
  !isAuthenticated || 
- role !== 'ROLE_PROVIDER' || 
+ (role !== 'ROLE_PROVIDER' && role !== 'ROLE_STAFF') || 
  !status?.emailVerified || 
- !status?.onboardingComplete
+ (role !== 'ROLE_STAFF' && !status?.onboardingComplete)
  ) {
  return (
  <div className="flex flex-col items-center justify-center h-[60vh]">
