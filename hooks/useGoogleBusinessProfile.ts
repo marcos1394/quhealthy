@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { socialService } from '@/services/social.service';
+import { useState, useCallback } from "react";
+import { socialService } from "@/services/social.service";
 
 export interface GoogleBusinessProfile {
   name: string;
@@ -19,7 +19,7 @@ export const useGoogleBusinessProfile = () => {
       err.response?.data?.message ||
       err.response?.data?.error ||
       err.message ||
-      'Ocurrió un error inesperado al conectar con Google Business';
+      "Ocurrió un error inesperado al conectar con Google Business";
     setError(msg);
     throw new Error(msg);
   }, []);
@@ -37,19 +37,22 @@ export const useGoogleBusinessProfile = () => {
     }
   }, [handleError]);
 
-  const updateDescription = useCallback(async (description: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await socialService.updateGoogleBusinessProfile(description);
-      // Actualizamos localmente tras la respuesta exitosa
-      setProfile((prev) => (prev ? { ...prev, description } : prev));
-    } catch (err) {
-      handleError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [handleError]);
+  const updateDescription = useCallback(
+    async (description: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        await socialService.updateGoogleBusinessProfile(description);
+        // Actualizamos localmente tras la respuesta exitosa
+        setProfile((prev) => (prev ? { ...prev, description } : prev));
+      } catch (err) {
+        handleError(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [handleError],
+  );
 
   return {
     profile,
