@@ -400,7 +400,9 @@ export default function PatientVaultPage() {
       </DialogFooter>
     </DialogContent>
   </Dialog>
-    <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-2 items-center flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 overflow-x-auto hide-scrollbar">
+  </div>
+  </div>
+  <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-2 items-center flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 overflow-x-auto hide-scrollbar">
     <div 
       className="flex items-center gap-1 cursor-pointer hover:text-black dark:hover:text-white transition-colors"
       onClick={() => setCurrentFolderId(null)}
@@ -436,7 +438,9 @@ export default function PatientVaultPage() {
         </React.Fragment>
       );
     })}
-  </div> {/* Estado: Cargando Inicial */}
+  </div>
+  </div>
+  {/* Estado: Cargando Inicial */}
  {isLoading ? (
  <div className="flex flex-col items-center justify-center py-32 gap-6">
  <div className="border border-gray-200 dark:border-gray-800 p-6">
