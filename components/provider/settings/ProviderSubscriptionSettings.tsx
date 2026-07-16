@@ -301,7 +301,7 @@ export function ProviderSubscriptionSettings() {
   const params = useParams();
   const searchParams = useSearchParams();
   const planIdParam = searchParams.get('planId');
-  const locale = params.locale;
+  const locale = (params?.locale as string | string[]) || 'es';
 
   const role: UserRole = "proveedor";
 
