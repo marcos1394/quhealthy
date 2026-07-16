@@ -439,7 +439,7 @@ export default function PatientVaultPage() {
         Nueva Carpeta
       </Button>
     </DialogTrigger>
-    <DialogContent className="rounded-none border-black dark:border-white">
+    <DialogContent className="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
       <DialogHeader>
         <DialogTitle className="text-black dark:text-white uppercase tracking-widest font-bold text-sm">Crear Nueva Carpeta</DialogTitle>
       </DialogHeader>
