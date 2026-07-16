@@ -30,6 +30,7 @@ export default function PatientVaultPage() {
  const t = useTranslations('HealthVault');
  const {
  documents,
+ folders,
  isLoading,
  isUploading,
  fetchDocuments,
@@ -38,7 +39,10 @@ export default function PatientVaultPage() {
  viewDocument,
  updateDocument,
  generatePanorama,
- deleteDocument
+ deleteDocument,
+ createFolder,
+ renameFolder,
+ deleteFolder
  } = useHealthVault();
 
  const { family } = useFamily();
