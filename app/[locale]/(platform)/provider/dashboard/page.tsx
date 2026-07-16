@@ -224,18 +224,18 @@ export default function DashboardPage() {
                     >
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-3 mb-2">
-                          <p className="font-semibold text-sm uppercase tracking-widest">{appt.consumerName}</p>
+                          <p className="font-semibold text-sm uppercase tracking-widest">{appt.consumer.name}</p>
                           {getStatusBadgeStaff(appt.status)}
                         </div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mb-3">{appt.serviceName}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mb-3">{appt.service.name}</p>
                         <div className="flex flex-wrap items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-gray-500">
                           <span className="flex items-center gap-1.5 border border-black/20 dark:border-white/20 px-2 py-1 bg-gray-50 dark:bg-[#050505] group-hover:border-white/30 group-hover:bg-transparent">
                             <Clock className="w-3 h-3" strokeWidth={1.5}/>
                             <span className="text-black dark:text-white group-hover:text-white dark:group-hover:text-black">{formattedDate} | {formattedTime}</span>
                           </span>
                           <span className="flex items-center gap-1.5 border border-black/20 dark:border-white/20 px-2 py-1 group-hover:border-white/30">
-                            {appt.modality === 'ONLINE' ? <Video className="w-3 h-3" strokeWidth={1.5}/> : <MapPin className="w-3 h-3" strokeWidth={1.5}/>}
-                            {appt.modality === 'ONLINE' ? 'TELEMEDICINA' : 'PRESENCIAL'}
+                            {appt.service.serviceDeliveryType === 'ONLINE' ? <Video className="w-3 h-3" strokeWidth={1.5}/> : <MapPin className="w-3 h-3" strokeWidth={1.5}/>}
+                            {appt.service.serviceDeliveryType === 'ONLINE' ? 'TELEMEDICINA' : 'PRESENCIAL'}
                           </span>
                         </div>
                       </div>
