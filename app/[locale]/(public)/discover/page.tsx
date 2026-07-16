@@ -1000,7 +1000,7 @@ const DiscoverMapContent = () => {
  </div>
  )
  ) : (
- <div className={cn("w-full pointer-events-auto", viewMode === "MAP" ? "flex overflow-x-auto gap-3 pb-4 md:flex-col md:flex-1 md:overflow-x-visible md:overflow-y-auto md:gap-3 md:pb-6 px-4 md:px-0" : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto")}>
+ <div className={cn("w-full pointer-events-auto custom-scrollbar", viewMode === "MAP" ? "flex overflow-x-auto gap-3 pb-4 md:flex-col md:flex-1 md:overflow-x-visible md:overflow-y-auto md:gap-3 md:pb-6 px-4 md:px-0" : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto")}>
  
  {/* SIDEBAR FILTER PANEL SOLO PARA GRID */}
  {viewMode === "GRID" && (
