@@ -90,7 +90,7 @@ function RecommendationCard({ rec }: { rec: PackageRecommendation }) {
         variant="outline"
         className="rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 text-[10px] font-bold uppercase tracking-widest w-full sm:w-fit px-8 transition-colors flex items-center justify-between sm:justify-center mt-auto border-0"
       >
-        Evaluar Contrato <ArrowRight className="w-4 h-4 sm:ml-3" strokeWidth={1.5} />
+       Ver Contenido <ArrowRight className="w-4 h-4 sm:ml-3" strokeWidth={1.5} />
       </Button>
     </div>
   );
