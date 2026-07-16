@@ -436,12 +436,7 @@ export default function PatientVaultPage() {
         </React.Fragment>
       );
     })}
-  </div>
-    })}
-  </div>
- </div>
-
- {/* Estado: Cargando Inicial */}
+  </div> {/* Estado: Cargando Inicial */}
  {isLoading ? (
  <div className="flex flex-col items-center justify-center py-32 gap-6">
  <div className="border border-gray-200 dark:border-gray-800 p-6">
