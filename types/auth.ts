@@ -62,7 +62,9 @@ export interface AuthUser {
   email: string;
   profileImageUrl: string | null;
   role?: 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF';
-  permissions?: string[];
+  permissions?: string[];           // módulos que el provider le otorgó al staff
+  parentProviderId?: number;        // ID del proveedor al que pertenece (solo ROLE_STAFF)
+  staffRole?: string;               // ej: "RECEPTIONIST", "NURSE", "ASSISTANT"
   planStatus?: string;
   trialExpiresAt?: string;
 }

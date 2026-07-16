@@ -22,6 +22,8 @@ import { ProviderReputationCard } from "@/components/dashboard/ProviderReputatio
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { cn } from "@/lib/utils";
+import { useProviderRole } from "@/hooks/useProviderRole";
+import { useSessionStore } from "@/stores/SessionStore";
 
 export default function DashboardPage() {
  const router = useRouter();
@@ -33,11 +35,15 @@ export default function DashboardPage() {
  const { data, isLoading, refetch } = useDashboardData(dateRange);
  const { appointments: allAppointments } = useProviderAppointments();
 
- // 🚀 ESTADO: ¿Necesita configurar su receta?
+ const { isStaff, roleLabel } = useProviderRole();
+ const { user } = useSessionStore();
+
+ // 🚀 ESTADO: ¿Necesita configurar su receta? (solo aplica a PROVIDER)
  const [needsPrescriptionSetup, setNeedsPrescriptionSetup] = useState(false);
 
- // 🚀 EFECTO: Verificar si ya tiene logo o color
+ // 🚀 EFECTO: Verificar si ya tiene logo o color — omitir para STAFF
  useEffect(() => {
+ if (isStaff) return; // Staff no tiene preferencias de receta propias
  const checkPrescriptionSetup = async () => {
  try {
  const status = await onboardingService.getOnboardingStatus();
@@ -52,7 +58,7 @@ export default function DashboardPage() {
  }
  };
  checkPrescriptionSetup();
- }, []);
+ }, [isStaff]);
 
  // --- ESTADO 1: CARGANDO (BLUEPRINT) ---
  if (isLoading) {
