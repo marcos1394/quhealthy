@@ -106,7 +106,7 @@ export function SuggestedUpgrades() {
         <div className="flex items-center gap-3 mb-8">
           <Crown className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
           <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-            Auditoría de Oportunidades
+            Recomendacion de Paquetes 
           </h2>
         </div>
         <div className="flex items-center justify-center py-12">
@@ -129,7 +129,7 @@ export function SuggestedUpgrades() {
       <div className="flex items-center gap-3 mb-4">
         <Crown className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
         <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-          Auditoría de Oportunidades
+          Recomendaciones de Paquetes
         </h2>
       </div>
 
