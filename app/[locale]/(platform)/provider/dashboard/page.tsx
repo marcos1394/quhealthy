@@ -106,7 +106,7 @@ export default function DashboardPage() {
       .filter(a => new Date(a.startTime).toDateString() === today)
       .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
     const upcomingStaffAppts = allAppointments
-      .filter(a => new Date(a.startTime) >= new Date() && a.status !== 'CANCELLED' && a.status !== 'CANCELED')
+      .filter(a => new Date(a.startTime) >= new Date() && a.status !== 'CANCELED_BY_CONSUMER' && a.status !== 'CANCELED_BY_PROVIDER')
       .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
       .slice(0, 6);
 
