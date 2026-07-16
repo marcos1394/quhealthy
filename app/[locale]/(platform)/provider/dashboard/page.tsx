@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check, FileSignature, Timer, PlayCircle, Activity, XCircle } from "lucide-react";
+import { AlertCircle, BarChart2, CheckCircle, Users, RefreshCw, Crown, Clock, Store, ArrowRight, CalendarDays, Video, MapPin, Check, FileSignature, Timer, PlayCircle, Activity, XCircle, CalendarCheck, UserCheck, PlusCircle, Calendar, MessageSquare, ShoppingBag, Wallet } from "lucide-react";
 import { useTranslations, useLocale } from 'next-intl';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { onboardingService } from "@/services/onboarding.service";
@@ -97,7 +97,163 @@ export default function DashboardPage() {
  );
  }
 
- const { plan, hasConfiguredStore, analytics, upcomingAppointments } = data;
+  const { plan, hasConfiguredStore, analytics, upcomingAppointments } = data;
+
+  // ─── STAFF: Vista diferenciada ───────────────────────────────────────────
+  if (isStaff) {
+    const today = new Date().toDateString();
+    const todayAppts = allAppointments
+      .filter(a => new Date(a.startTime).toDateString() === today)
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+    const upcomingStaffAppts = allAppointments
+      .filter(a => new Date(a.startTime) >= new Date() && a.status !== 'CANCELLED' && a.status !== 'CANCELED')
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+      .slice(0, 6);
+
+    const staffActions = [
+      { label: 'Nueva Cita', icon: PlusCircle, href: `/${locale}/provider/dashboard/appointments`, permission: 'APPOINTMENTS' },
+      { label: 'Calendario', icon: Calendar, href: `/${locale}/provider/dashboard/calendar`, permission: 'CALENDAR' },
+      { label: 'Pacientes', icon: UserCheck, href: `/${locale}/provider/dashboard/patients`, permission: 'PATIENTS' },
+      { label: 'Órdenes', icon: ShoppingBag, href: `/${locale}/provider/dashboard/orders`, permission: 'ORDERS' },
+      { label: 'Mensajes', icon: MessageSquare, href: `/${locale}/provider/dashboard/messages`, permission: 'MESSAGES' },
+      { label: 'Caja', icon: Wallet, href: `/${locale}/provider/dashboard/cash-register`, permission: 'CASH_REGISTER' },
+    ] as const;
+
+    const getStatusBadgeStaff = (status: string) => {
+      const base = "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0 flex items-center gap-1.5 rounded-none";
+      switch (status) {
+        case 'CONFIRMED': case 'SCHEDULED': return <span className={cn(base, 'bg-[#166534] border-[#14532d] text-white')}><CheckCircle className="w-3 h-3" strokeWidth={1.5}/>CONFIRMADA</span>;
+        case 'PENDING_PAYMENT': case 'PENDING': return <span className={cn(base, 'bg-[#b45309] border-[#78350f] text-white')}><Clock className="w-3 h-3" strokeWidth={1.5}/>PENDIENTE</span>;
+        case 'IN_PROGRESS': return <span className={cn(base, 'bg-[#1e3a8a] border-[#1e3a8a] text-white animate-pulse')}><Activity className="w-3 h-3" strokeWidth={1.5}/>EN CURSO</span>;
+        case 'COMPLETED': return <span className={cn(base, 'bg-gray-200 border-gray-300 text-black dark:bg-[#222] dark:border-gray-700 dark:text-white')}><Check className="w-3 h-3" strokeWidth={1.5}/>COMPLETADA</span>;
+        default: return <span className={cn(base, 'bg-gray-100 border-gray-300 text-black dark:bg-[#111] dark:text-white')}>{status}</span>;
+      }
+    };
+
+    return (
+      <div className="space-y-8 pb-16 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+
+        {/* HEADER */}
+        <div className="pb-6 border-b border-black/20 dark:border-white/20">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">{roleLabel}</p>
+          <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+            Bienvenida, {user?.name?.split(' ')[0] ?? 'equipo'}
+          </h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
+            AGENDA DEL DÍA · {new Date().toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}
+          </p>
+        </div>
+
+        {/* STATS RÁPIDOS: citas del día */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { label: 'Citas hoy', value: todayAppts.length, icon: CalendarCheck },
+            { label: 'Completadas', value: todayAppts.filter(a => a.status === 'COMPLETED').length, icon: Check },
+            { label: 'Pendientes', value: todayAppts.filter(a => ['SCHEDULED','CONFIRMED','PENDING','PENDING_PAYMENT'].includes(a.status)).length, icon: Clock },
+            { label: 'En curso', value: todayAppts.filter(a => a.status === 'IN_PROGRESS').length, icon: Activity },
+          ].map(stat => (
+            <div key={stat.label} className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-5 flex flex-col gap-3">
+              <div className="w-9 h-9 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                <stat.icon className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="text-2xl font-semibold tracking-tight text-black dark:text-white">{stat.value}</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ACCIONES RÁPIDAS */}
+        <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-5">Acceso Rápido</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {staffActions.map(action => (
+              <button
+                key={action.label}
+                onClick={() => router.push(action.href)}
+                className="flex flex-col items-center gap-3 p-4 border border-black/10 dark:border-white/10 hover:border-black dark:hover:border-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all group"
+              >
+                <action.icon className="w-5 h-5" strokeWidth={1.5} />
+                <span className="text-[9px] font-bold uppercase tracking-widest">{action.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* AGENDA DEL DÍA (próximas citas) */}
+        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] overflow-hidden">
+          <div className="p-6 border-b border-black dark:border-white flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                <CalendarDays className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Monitoreo en Tiempo Real</p>
+                <h4 className="text-lg font-semibold tracking-tight uppercase text-black dark:text-white leading-none">AGENDA OPERATIVA (24H)</h4>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push(`/${locale}/provider/dashboard/appointments`)}
+              className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black dark:border-white hover:opacity-50 transition-opacity pb-0.5 hidden sm:block"
+            >
+              VER AGENDA COMPLETA
+            </button>
+          </div>
+
+          <div className="overflow-y-auto max-h-[400px] custom-scrollbar bg-gray-50 dark:bg-[#050505]">
+            {upcomingStaffAppts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-10 text-center min-h-[200px]">
+                <CalendarDays className="w-8 h-8 text-gray-300 mb-4" strokeWidth={1.5} />
+                <h4 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">AGENDA DESPEJADA</h4>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs mx-auto leading-relaxed">
+                  NO HAY CITAS PRÓXIMAS PROGRAMADAS.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-black/10 dark:divide-white/10">
+                {upcomingStaffAppts.map(appt => {
+                  const dateObj = new Date(appt.startTime);
+                  const formattedDate = format(dateObj, locale === 'es' ? 'EEE d MMM' : 'EEE, MMM d', { locale: dateLocale });
+                  const formattedTime = format(dateObj, 'HH:mm');
+                  return (
+                    <div
+                      key={appt.id}
+                      onClick={() => router.push(`/${locale}/provider/dashboard/appointments`)}
+                      className="p-5 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <p className="font-semibold text-sm uppercase tracking-widest">{appt.consumerName}</p>
+                          {getStatusBadgeStaff(appt.status)}
+                        </div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mb-3">{appt.serviceName}</p>
+                        <div className="flex flex-wrap items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                          <span className="flex items-center gap-1.5 border border-black/20 dark:border-white/20 px-2 py-1 bg-gray-50 dark:bg-[#050505] group-hover:border-white/30 group-hover:bg-transparent">
+                            <Clock className="w-3 h-3" strokeWidth={1.5}/>
+                            <span className="text-black dark:text-white group-hover:text-white dark:group-hover:text-black">{formattedDate} | {formattedTime}</span>
+                          </span>
+                          <span className="flex items-center gap-1.5 border border-black/20 dark:border-white/20 px-2 py-1 group-hover:border-white/30">
+                            {appt.modality === 'ONLINE' ? <Video className="w-3 h-3" strokeWidth={1.5}/> : <MapPin className="w-3 h-3" strokeWidth={1.5}/>}
+                            {appt.modality === 'ONLINE' ? 'TELEMEDICINA' : 'PRESENCIAL'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="shrink-0 border border-black dark:border-white group-hover:border-white dark:group-hover:border-black px-5 h-10 flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest">
+                        GESTIONAR <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5}/>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // ─── Fin vista STAFF ──────────────────────────────────────────────────────
+
 
  const getStatusBadge = (status: string) => {
  // Etiqueta Técnica Blueprint

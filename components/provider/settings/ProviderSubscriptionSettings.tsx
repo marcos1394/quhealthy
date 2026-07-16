@@ -443,20 +443,28 @@ export function ProviderSubscriptionSettings() {
         gateway: "STRIPE",
       };
 
-      const { data } = await axiosInstance.post('/api/payments/subscriptions/checkout', payload);
+      console.log("Enviando petición a /api/payments/subscriptions/checkout", payload);
+      const response = await axiosInstance.post('/api/payments/subscriptions/checkout', payload);
+      const data = response.data;
+      console.log("Respuesta del checkout:", data);
 
-      if (data.url) {
-        window.location.href = data.url;
+      if (data && data.url) {
+        console.log("Redirigiendo a:", data.url);
+        window.location.assign(data.url);
         return;
       }
-      if (data.sessionId) {
+      
+      if (data && data.sessionId) {
+        console.log("Redirigiendo via Stripe SDK con session:", data.sessionId);
         const stripe = await stripePromise;
         if (!stripe) throw new Error("Error cargando pasarela de pago.");
         const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
         if (error) throw error;
+      } else {
+        throw new Error("El servidor no devolvió una URL válida de pago.");
       }
     } catch (err: any) {
-      console.error(err);
+      console.error("Error en handleCheckout:", err);
       handleApiError(err);
       setTimeout(() => setSelectedPlan(null), 2000);
     } finally {
