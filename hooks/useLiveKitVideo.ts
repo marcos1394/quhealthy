@@ -8,7 +8,7 @@ export const useLiveKitVideo = () => {
   const connectToRoom = useCallback(async (wsUrl: string, token: string) => {
     if (roomRef.current) return;
 
-    // 1. Inicializar la sala con configuraciones óptimas para telemedicinaa
+    // 1. Inicializar la sala con configuraciones óptimas para telemedicina
     const room = new Room({
       videoCaptureDefaults: {
         resolution: VideoPresets.h720.resolution,
