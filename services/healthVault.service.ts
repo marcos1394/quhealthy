@@ -141,7 +141,7 @@ export const healthVaultService = {
    */
   updateDocument: async (
     documentId: string, 
-    data: { title?: string; noteContent?: string; documentType?: string; aiExtractedData?: any }
+    data: { title?: string; noteContent?: string; documentType?: string; aiExtractedData?: any; folderId?: string | null; clearFolder?: boolean }
   ): Promise<ConsumerDocument> => {
     const response = await axiosInstance.put<ConsumerDocument>(
       `${BASE_URL}/${documentId}`,

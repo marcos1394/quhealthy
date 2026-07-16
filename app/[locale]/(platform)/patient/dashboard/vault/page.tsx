@@ -69,7 +69,11 @@ export default function PatientVaultPage() {
   // Manejador de soltar documento en miga de pan o en carpeta
   const handleDropDocument = async (documentId: string, targetFolderId: string | null) => {
     if (documentId) {
-      await updateDocument(documentId, { /* folderId: targetFolderId */ } as any); // TODO: Agregar folderId a data de updateDocument en useHealthVault
+      if (targetFolderId) {
+        await updateDocument(documentId, { folderId: targetFolderId });
+      } else {
+        await updateDocument(documentId, { clearFolder: true } as any);
+      }
     }
   };
 

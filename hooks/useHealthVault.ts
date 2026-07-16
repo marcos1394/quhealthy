@@ -97,7 +97,7 @@ export function useHealthVault() {
     // ✏️ 5. Actualizar documento
     const updateDocument = async (
         documentId: string, 
-        data: { title?: string; noteContent?: string; documentType?: string; aiExtractedData?: any }
+        data: { title?: string; noteContent?: string; documentType?: string; aiExtractedData?: any; folderId?: string | null; clearFolder?: boolean }
     ) => {
         try {
             const updatedDoc = await healthVaultService.updateDocument(documentId, data);
