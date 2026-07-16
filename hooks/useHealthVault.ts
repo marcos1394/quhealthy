@@ -5,31 +5,35 @@ import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
-import { ConsumerDocument } from '@/types/healthVault';
-import { healthVaultService } from '@/services/healthVault.service'; // Asegúrate de que la ruta sea correcta
+import { ConsumerDocument, VaultFolder } from '@/types/healthVault';
+import { healthVaultService } from '@/services/healthVault.service';
 
 export function useHealthVault() {
     const t = useTranslations('HealthVault.Notifications');
     
     const [documents, setDocuments] = useState<ConsumerDocument[]>([]);
+    const [folders, setFolders] = useState<VaultFolder[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
 
-    // 📥 1. Cargar documentos
-    const fetchDocuments = useCallback(async () => {
+    // 📥 1. Cargar documentos y carpetas
+    const fetchDocuments = useCallback(async (dependentId?: number) => {
         setIsLoading(true);
         try {
-            const data = await healthVaultService.getDocuments();
-            setDocuments(data);
+            const docsData = await healthVaultService.getDocuments();
+            setDocuments(docsData);
+            
+            const foldersData = await healthVaultService.getFolders(dependentId);
+            setFolders(foldersData);
         } catch (error: any) {
-            console.error('Error fetching vault docs:', error);
+            console.error('Error fetching vault data:', error);
         } finally {
             setIsLoading(false);
         }
     }, [t]);
 
     // 📤 2. Subir documento
-    const uploadDocument = async (file: File, title?: string, documentType: string = 'GENERAL', dependentId?: number) => {
+    const uploadDocument = async (file: File, title?: string, documentType: string = 'GENERAL', dependentId?: number, folderId?: string) => {
         setIsUploading(true);
         
         // Validación básica de tamaño (ej. max 10MB)
@@ -42,7 +46,7 @@ export function useHealthVault() {
         try {
             toast.info(t('info_analyzing', { defaultValue: 'Subiendo y analizando con IA...' }));
             
-            const newDoc = await healthVaultService.uploadDocument(file, title, documentType, dependentId);
+            const newDoc = await healthVaultService.uploadDocument(file, title, documentType, dependentId, folderId);
             
             // Actualizamos la UI inmediatamente agregando el doc al inicio
             setDocuments(prev => [newDoc, ...prev]);
@@ -63,10 +67,10 @@ export function useHealthVault() {
     };
 
     // 📝 3. Crear nota
-    const createNote = async (title: string, noteContent: string, dependentId?: number) => {
+    const createNote = async (title: string, noteContent: string, dependentId?: number, folderId?: string) => {
         setIsUploading(true);
         try {
-            const newNote = await healthVaultService.createNote(title, noteContent, dependentId);
+            const newNote = await healthVaultService.createNote(title, noteContent, dependentId, folderId);
             setDocuments(prev => [newNote, ...prev]);
             toast.success(t('success_note', { defaultValue: 'Nota guardada exitosamente.' }));
             return newNote;
@@ -135,8 +139,52 @@ export function useHealthVault() {
         }
     };
 
+    // 🗂️ 8. Gestión de Carpetas
+    const createFolder = async (name: string, parentFolderId?: string, dependentId?: number) => {
+        try {
+            const newFolder = await healthVaultService.createFolder(name, parentFolderId, dependentId);
+            setFolders(prev => [...prev, newFolder]);
+            toast.success('Carpeta creada exitosamente.');
+            return newFolder;
+        } catch (error: any) {
+            console.error('Error creating folder:', error);
+            toast.error('Error al crear la carpeta.');
+            return null;
+        }
+    };
+
+    const renameFolder = async (folderId: string, name: string) => {
+        try {
+            const updatedFolder = await healthVaultService.renameFolder(folderId, name);
+            setFolders(prev => prev.map(f => f.id === folderId ? updatedFolder : f));
+            toast.success('Carpeta renombrada.');
+            return updatedFolder;
+        } catch (error: any) {
+            console.error('Error renaming folder:', error);
+            toast.error('Error al renombrar la carpeta.');
+            return null;
+        }
+    };
+
+    const deleteFolder = async (folderId: string) => {
+        try {
+            await healthVaultService.deleteFolder(folderId);
+            setFolders(prev => prev.filter(f => f.id !== folderId));
+            // También deberíamos quitar o actualizar documentos que estaban dentro si el backend los elimina/mueve.
+            // Lo más seguro es refrescar todo:
+            fetchDocuments();
+            toast.success('Carpeta eliminada.');
+            return true;
+        } catch (error: any) {
+            console.error('Error deleting folder:', error);
+            toast.error('No se pudo eliminar la carpeta.');
+            return false;
+        }
+    };
+
     return {
         documents,
+        folders,
         isLoading,
         isUploading,
         fetchDocuments,
@@ -145,6 +193,9 @@ export function useHealthVault() {
         viewDocument,
         updateDocument,
         generatePanorama,
-        deleteDocument
+        deleteDocument,
+        createFolder,
+        renameFolder,
+        deleteFolder
     };
 }

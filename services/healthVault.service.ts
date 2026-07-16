@@ -1,11 +1,37 @@
 // src/services/healthVault.service.ts
 import axiosInstance from '@/lib/axios';
-import { ConsumerDocument } from '@/types/healthVault';
+import { ConsumerDocument, VaultFolder } from '@/types/healthVault';
 
 const BASE_URL = '/api/onboarding/consumer/vault';
 
 export const healthVaultService = {
   
+  /**
+   * 🗂️ Obtiene las carpetas
+   */
+  getFolders: async (dependentId?: number): Promise<VaultFolder[]> => {
+    const response = await axiosInstance.get<VaultFolder[]>(`${BASE_URL}/folders`, {
+      params: { dependentId }
+    });
+    return response.data;
+  },
+
+  createFolder: async (name: string, parentFolderId?: string, dependentId?: number): Promise<VaultFolder> => {
+    const response = await axiosInstance.post<VaultFolder>(`${BASE_URL}/folders`, {
+      name, parentFolderId, dependentId
+    });
+    return response.data;
+  },
+
+  renameFolder: async (folderId: string, name: string): Promise<VaultFolder> => {
+    const response = await axiosInstance.put<VaultFolder>(`${BASE_URL}/folders/${folderId}`, { name });
+    return response.data;
+  },
+
+  deleteFolder: async (folderId: string): Promise<void> => {
+    await axiosInstance.delete(`${BASE_URL}/folders/${folderId}`);
+  },
+
   /**
    * Obtiene la lista de documentos en la bóveda del paciente
    */
@@ -43,11 +69,12 @@ export const healthVaultService = {
     contentType: string,
     fileSizeBytes: number,
     documentType: string = 'GENERAL',
-    dependentId?: number
+    dependentId?: number,
+    folderId?: string
   ): Promise<ConsumerDocument> => {
     const response = await axiosInstance.post<ConsumerDocument>(
       `${BASE_URL}/confirm`,
-      { fileKey, originalFileName, title, contentType, fileSizeBytes, documentType, dependentId }
+      { fileKey, originalFileName, title, contentType, fileSizeBytes, documentType, dependentId, folderId }
     );
     return response.data;
   },
@@ -58,7 +85,7 @@ export const healthVaultService = {
    * 2. Subir archivo directamente a GCP
    * 3. Confirmar subida al backend
    */
-  uploadDocument: async (file: File, title?: string, documentType: string = 'GENERAL', dependentId?: number): Promise<ConsumerDocument> => {
+  uploadDocument: async (file: File, title?: string, documentType: string = 'GENERAL', dependentId?: number, folderId?: string): Promise<ConsumerDocument> => {
     // Paso 1: Generar URL firmada
     const { uploadUrl, fileKey } = await healthVaultService.generateUploadUrl(
       file.name,
@@ -83,7 +110,8 @@ export const healthVaultService = {
       file.type,
       file.size,
       documentType,
-      dependentId
+      dependentId,
+      folderId
     );
 
     return savedDoc;
@@ -92,10 +120,10 @@ export const healthVaultService = {
   /**
    * Crea una nota de texto en el expediente
    */
-  createNote: async (title: string, noteContent: string, dependentId?: number): Promise<ConsumerDocument> => {
+  createNote: async (title: string, noteContent: string, dependentId?: number, folderId?: string): Promise<ConsumerDocument> => {
     const response = await axiosInstance.post<ConsumerDocument>(
       `${BASE_URL}/notes`,
-      { title, noteContent, dependentId }
+      { title, noteContent, dependentId, folderId }
     );
     return response.data;
   },

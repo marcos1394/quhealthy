@@ -11,9 +11,19 @@ export interface AIExtractedData {
     keyMetrics?: Record<string, string>;
 }
 
+export interface VaultFolder {
+    id: string;
+    name: string;
+    dependentId?: number;
+    parentFolderId?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface ConsumerDocument {
     id: string;
     dependentId?: number;
+    folderId?: string;
     title?: string;
     noteContent?: string;
     fileName?: string;

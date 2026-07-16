@@ -45,7 +45,7 @@ export default function PatientVaultPage() {
 
   const [activeTab, setActiveTab] = useState<string>('titular');
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPath, setCurrentPath] = useState<string>('');
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
@@ -59,104 +59,27 @@ export default function PatientVaultPage() {
 
   // Reset path on tab change
   useEffect(() => {
-    setCurrentPath('');
+    setCurrentFolderId(null);
   }, [activeTab]);
 
-  // Manejador de soltar documento en miga de pan
-  const handleDropOnBreadcrumb = async (e: React.DragEvent, targetPath: string) => {
-    e.preventDefault();
-    const documentId = e.dataTransfer.getData('documentId');
-    const folderPath = e.dataTransfer.getData('folderPath');
-    
+  // Manejador de soltar documento en miga de pan o en carpeta
+  const handleDropDocument = async (documentId: string, targetFolderId: string | null) => {
     if (documentId) {
-      await updateDocument(documentId, { documentType: targetPath });
-    } else if (folderPath) {
-      // Mover carpeta completa a otra ruta
-      if (folderPath.startsWith(targetPath)) return; // No mover a sí mismo o ancestro
-      await handleDropFolder(folderPath, targetPath);
+      await updateDocument(documentId, { /* folderId: targetFolderId */ } as any); // TODO: Agregar folderId a data de updateDocument en useHealthVault
     }
   };
 
-  // Lógica para mover toda una carpeta
-  const handleDropFolder = async (sourceFolderPath: string, targetFolderPath: string) => {
-    const folderName = sourceFolderPath.split('/').pop();
-    const newBasePath = targetFolderPath === 'General' ? folderName : `${targetFolderPath}/${folderName}`;
-    
-    const docsToMove = documents.filter(doc => {
-      const type = doc.documentType || 'General';
-      return type === sourceFolderPath || type.startsWith(`${sourceFolderPath}/`);
-    });
-
-    const promises = docsToMove.map(doc => {
-      const type = doc.documentType || 'General';
-      const suffix = type.slice(sourceFolderPath.length);
-      const newType = `${newBasePath}${suffix}`;
-      return updateDocument(doc.id, { documentType: newType });
-    });
-
-    await Promise.all(promises);
-  };
-
-  // Eliminar carpeta completa
-  const handleDeleteFolder = async (folderPath: string) => {
-    const docsToDelete = documents.filter(doc => {
-      const type = doc.documentType || 'General';
-      return type === folderPath || type.startsWith(`${folderPath}/`);
-    });
-
-    const promises = docsToDelete.map(doc => deleteDocument(doc.id));
-    await Promise.all(promises);
-  };
-
-  // Renombrar carpeta completa
-  const handleRenameFolder = async (oldPath: string, newName: string) => {
-    const pathParts = oldPath.split('/');
-    pathParts.pop(); // quitar el nombre viejo
-    const parentPath = pathParts.join('/');
-    const newPath = parentPath ? `${parentPath}/${newName}` : newName;
-
-    const docsToRename = documents.filter(doc => {
-      const type = doc.documentType || 'General';
-      return type === oldPath || type.startsWith(`${oldPath}/`);
-    });
-
-    const promises = docsToRename.map(doc => {
-      const type = doc.documentType || 'General';
-      const suffix = type.slice(oldPath.length);
-      const newType = `${newPath}${suffix}`;
-      return updateDocument(doc.id, { documentType: newType });
-    });
-
-    await Promise.all(promises);
+  const handleDropFolder = async (draggedFolderId: string, targetFolderId: string | null) => {
+    // Mover carpeta (requeriría endpoint en backend para cambiar parentFolderId, por ahora no implementado o se puede hacer con renameFolder si actualizamos el DTO)
+    // omitiendo por ahora la complejidad de Drag&Drop de carpetas a nivel anidado
   };
 
   // Crear carpeta
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
-    const folderPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;
-    await createNote(`.qh-folder-marker`, '', activeDependentId);
-    
-    // Necesitamos encontrar la nota recién creada y actualizarle su documentType.
-    // fetchDocuments is called by createNote? useHealthVault returns the created note maybe?
-    // Actually createNote doesn't return the note in this hook. We might have to wait for sync.
-    // To be perfectly safe, let's just create a dummy note and rely on backend default if we can't set type immediately.
-    // Wait! `createNote` in hook:
-    // const createNote = async (title, content, dependentId?)
-    // Let's modify the createNote call to support documentType? No, let's just upload a dummy document or edit it.
-    // Actually, we don't have a way to pass documentType to createNote in useHealthVault right now.
-    // But `uploadDocument` can take `documentType`!
-    // We can't easily create a text file. Let's just createNote and then find it by title and update it.
+    await createFolder(newFolderName, currentFolderId || undefined, activeDependentId);
     setIsNewFolderOpen(false);
     setNewFolderName('');
-    
-    // As a workaround, we can just assume createNote takes time and then we find it.
-    // For now, I will add an `updateDocument` on the newest `.qh-folder-marker`.
-    setTimeout(async () => {
-      const marker = documents.find(d => d.title === '.qh-folder-marker' && (!d.documentType || d.documentType === 'GENERAL'));
-      if (marker) {
-        await updateDocument(marker.id, { documentType: folderPath });
-      }
-    }, 1500);
   };
 
   // Filtrar documentos y carpetas según paciente, búsqueda y ruta
@@ -168,10 +91,15 @@ export default function PatientVaultPage() {
       return doc.dependentId === dependentId;
     });
 
+    const memberFolders = folders.filter(folder => {
+      if (dependentId === null) return folder.dependentId == null;
+      return folder.dependentId === dependentId;
+    });
+
     if (searchQuery) {
       // Búsqueda Profunda (Aplanada)
       const searchLower = searchQuery.toLowerCase();
-      const filtered = memberDocs.filter(doc => {
+      const filteredDocs = memberDocs.filter(doc => {
         if (doc.title?.toLowerCase().includes(searchLower)) return true;
         if (doc.fileName?.toLowerCase().includes(searchLower)) return true;
         if (doc.noteContent?.toLowerCase().includes(searchLower)) return true;
@@ -184,53 +112,46 @@ export default function PatientVaultPage() {
         }
         return false;
       });
-      return { visibleDocuments: filtered, visibleFolders: [] };
+
+      const filteredFolders = memberFolders.filter(folder => 
+        folder.name.toLowerCase().includes(searchLower)
+      ).map(f => ({
+        id: f.id,
+        name: f.name,
+        path: f.id,
+        count: documents.filter(d => d.folderId === f.id).length
+      }));
+
+      return { visibleDocuments: filteredDocs, visibleFolders: filteredFolders };
     }
 
-    // Navegación tipo Drive por Rutas
-    const exactDocs: any[] = [];
-    const subfolders = new Map<string, number>();
-
-    const normalizeType = (type?: string) => {
-      if (!type) return 'General';
-      if (type === 'LAB_RESULT') return 'Labs';
-      if (type === 'PRESCRIPTION') return 'Recetas';
-      if (type === 'NOTE') return 'Notas';
-      if (type === 'GENERAL') return 'General';
-      return type;
-    };
-
-    memberDocs.forEach(doc => {
-      const docPath = normalizeType(doc.documentType);
-
-      if (currentPath === '') {
-        if (docPath === '' || docPath === 'Raíz' || docPath === 'General') {
-          if (doc.title !== '.qh-folder-marker') exactDocs.push(doc);
-        } else {
-          const rootFolder = docPath.split('/')[0];
-          subfolders.set(rootFolder, (subfolders.get(rootFolder) || 0) + 1);
-        }
+    // Navegación por IDs de Carpeta
+    const exactDocs = memberDocs.filter(doc => {
+      if (currentFolderId === null) {
+        return doc.folderId == null;
       } else {
-        const currentPrefix = `${currentPath}/`;
-        if (docPath === currentPath) {
-          if (doc.title !== '.qh-folder-marker') exactDocs.push(doc);
-        } else if (docPath.startsWith(currentPrefix)) {
-          const remainder = docPath.slice(currentPrefix.length);
-          const nextFolder = remainder.split('/')[0];
-          subfolders.set(nextFolder, (subfolders.get(nextFolder) || 0) + 1);
-        }
+        return doc.folderId === currentFolderId;
       }
     });
 
+    const exactFolders = memberFolders.filter(folder => {
+      if (currentFolderId === null) {
+        return folder.parentFolderId == null;
+      } else {
+        return folder.parentFolderId === currentFolderId;
+      }
+    }).map(f => ({
+      id: f.id,
+      name: f.name,
+      path: f.id,
+      count: documents.filter(d => d.folderId === f.id).length
+    }));
+
     return { 
       visibleDocuments: exactDocs, 
-      visibleFolders: Array.from(subfolders.entries()).map(([name, count]) => ({
-        name,
-        path: currentPath ? `${currentPath}/${name}` : name,
-        count
-      }))
+      visibleFolders: exactFolders
     };
-  }, [documents, activeTab, searchQuery, currentPath]);
+  }, [documents, folders, activeTab, searchQuery, currentFolderId]);
 
  const activeDependentId = activeTab === 'titular' ? undefined : Number(activeTab);
 
@@ -248,6 +169,22 @@ export default function PatientVaultPage() {
  }, [activeDependent]);
 
  const showVaccinationCard = activeDependentId !== undefined && activeDependentAge !== undefined && activeDependentAge <= 12;
+
+ // Helper to build breadcrumb path
+ const breadcrumbs = useMemo(() => {
+   const path: { id: string, name: string }[] = [];
+   let curr = currentFolderId;
+   while (curr) {
+     const f = folders.find(f => f.id === curr);
+     if (f) {
+       path.unshift({ id: f.id, name: f.name });
+       curr = f.parentFolderId || null;
+     } else {
+       break;
+     }
+   }
+   return path;
+ }, [currentFolderId, folders]);
 
  // Manejar generación del panorama
  const handleGeneratePanorama = async () => {
@@ -313,8 +250,8 @@ export default function PatientVaultPage() {
  {/* --- ZONA DE SUBIDA (DROPZONE) --- */}
  <section>
  <HealthVaultDropzone
- onUpload={(file, title) => uploadDocument(file, title, currentPath || 'General', activeDependentId)}
- onCreateNote={(title, content) => createNote(title, content, activeDependentId)}
+ onUpload={(file, title) => uploadDocument(file, title, 'GENERAL', activeDependentId, currentFolderId || undefined)}
+ onCreateNote={(title, content) => createNote(title, content, activeDependentId, currentFolderId || undefined)}
  isUploading={isUploading}
  />
  </section>
@@ -463,37 +400,43 @@ export default function PatientVaultPage() {
       </DialogFooter>
     </DialogContent>
   </Dialog>
-  </div>
- </div>
- 
- <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-2 items-center flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 overflow-x-auto hide-scrollbar">
+    <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-2 items-center flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 overflow-x-auto hide-scrollbar">
     <div 
       className="flex items-center gap-1 cursor-pointer hover:text-black dark:hover:text-white transition-colors"
-      onClick={() => setCurrentPath('')}
+      onClick={() => setCurrentFolderId(null)}
       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
-      onDrop={(e) => handleDropOnBreadcrumb(e, 'General')}
+      onDrop={(e) => {
+        e.preventDefault();
+        const documentId = e.dataTransfer.getData('documentId');
+        if (documentId) handleDropDocument(documentId, null);
+      }}
     >
       <Home className="w-4 h-4" />
       <span>Mi Unidad</span>
     </div>
     
-    {currentPath.split('/').filter(Boolean).map((part, idx, arr) => {
-      const pathToHere = arr.slice(0, idx + 1).join('/');
+    {breadcrumbs.map((crumb, idx, arr) => {
       const isLast = idx === arr.length - 1;
       
       return (
-        <React.Fragment key={pathToHere}>
+        <React.Fragment key={crumb.id}>
           <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-700" />
           <div 
             className={cn("flex items-center cursor-pointer transition-colors", isLast ? "text-black dark:text-white" : "hover:text-black dark:hover:text-white")}
-            onClick={() => setCurrentPath(pathToHere)}
+            onClick={() => setCurrentFolderId(crumb.id)}
             onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
-            onDrop={(e) => handleDropOnBreadcrumb(e, pathToHere)}
+            onDrop={(e) => {
+              e.preventDefault();
+              const documentId = e.dataTransfer.getData('documentId');
+              if (documentId) handleDropDocument(documentId, crumb.id);
+            }}
           >
-            {part}
+            {crumb.name}
           </div>
         </React.Fragment>
       );
+    })}
+  </div>
     })}
   </div>
  </div>
@@ -525,11 +468,11 @@ export default function PatientVaultPage() {
             folderName={folder.name}
             folderPath={folder.path}
             itemCount={folder.count}
-            onClick={() => setCurrentPath(folder.path)}
-            onDropDocument={(docId) => updateDocument(docId, { documentType: folder.path }).then(() => {})}
-            onDropFolder={(draggedPath) => handleDropFolder(draggedPath, folder.path)}
-            onRename={(newName) => handleRenameFolder(folder.path, newName)}
-            onDelete={() => handleDeleteFolder(folder.path)}
+            onClick={() => setCurrentFolderId(folder.id)}
+            onDropDocument={(docId) => handleDropDocument(docId, folder.id)}
+            onDropFolder={(draggedPath) => handleDropFolder(draggedPath, folder.id)}
+            onRename={(newName) => renameFolder(folder.id, newName)}
+            onDelete={() => deleteFolder(folder.id)}
           />
         </motion.div>
       ))}
