@@ -137,7 +137,7 @@ export default function DashboardPage() {
         <div className="pb-6 border-b border-black/20 dark:border-white/20">
           <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">{roleLabel}</p>
           <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
-            Bienvenida, {user?.name?.split(' ')[0] ?? 'equipo'}
+            Bienvenida, {user?.firstName ?? 'equipo'}
           </h1>
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
             AGENDA DEL DÍA · {new Date().toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}
