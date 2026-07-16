@@ -474,8 +474,8 @@ export default function PatientVaultPage() {
             onClick={() => setCurrentFolderId(folder.id)}
             onDropDocument={(docId) => handleDropDocument(docId, folder.id)}
             onDropFolder={(draggedPath) => handleDropFolder(draggedPath, folder.id)}
-            onRename={(newName) => renameFolder(folder.id, newName)}
-            onDelete={() => deleteFolder(folder.id)}
+            onRename={async (newName) => { await renameFolder(folder.id, newName); }}
+            onDelete={async () => { await deleteFolder(folder.id); }}
           />
         </motion.div>
       ))}
