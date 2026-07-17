@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface HealthVaultComposerProps {
- onUpload: (file: File, title?: string) => Promise<unknown>;
+ onUpload: (files: File[], title?: string) => Promise<unknown>;
  onCreateNote?: (title: string, content: string) => Promise<unknown>;
  isUploading: boolean;
 }
@@ -48,7 +48,7 @@ export function HealthVaultDropzone({ onUpload, onCreateNote, isUploading }: Hea
 
  const files = Array.from(e.dataTransfer.files);
  if (files && files.length > 0) {
- await onUpload(files[0], title || files[0].name);
+ await onUpload(files, title);
  setTitle(''); // Reset
  }
  }, [isUploading, onUpload, activeTab, title]);
@@ -56,7 +56,7 @@ export function HealthVaultDropzone({ onUpload, onCreateNote, isUploading }: Hea
  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
  const files = e.target.files;
  if (files && files.length > 0 && !isUploading) {
- await onUpload(files[0], title || files[0].name);
+ await onUpload(Array.from(files), title);
  setTitle(''); // Reset
  if (fileInputRef.current) fileInputRef.current.value = '';
  }
@@ -126,6 +126,7 @@ export function HealthVaultDropzone({ onUpload, onCreateNote, isUploading }: Hea
  onChange={handleFileInputChange}
  accept=".pdf,.jpg,.jpeg,.png"
  className="hidden"
+ multiple
  />
 
  <AnimateContent isUploading={isUploading} isDragging={isDragging} t={t} />

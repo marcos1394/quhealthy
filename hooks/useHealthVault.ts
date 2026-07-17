@@ -32,34 +32,42 @@ export function useHealthVault() {
         }
     }, [t]);
 
-    // 📤 2. Subir documento
-    const uploadDocument = async (file: File, title?: string, documentType: string = 'GENERAL', dependentId?: number, folderId?: string) => {
+    // 📤 2. Subir documento(s)
+    const uploadDocument = async (files: File | File[], title?: string, documentType: string = 'GENERAL', dependentId?: number, folderId?: string) => {
         setIsUploading(true);
-        
-        // Validación básica de tamaño (ej. max 10MB)
-        if (file.size > 20 * 1024 * 1024) {
-            toast.warn(t('error_size', { defaultValue: 'El archivo excede el límite de 10MB.' }));
-            setIsUploading(false);
-            return null;
-        }
+        const fileArray = Array.isArray(files) ? files : [files];
+        const uploadedDocs = [];
 
         try {
-            toast.info(t('info_analyzing', { defaultValue: 'Subiendo y analizando con IA...' }));
+            toast.info(t('info_analyzing', { defaultValue: 'Subiendo y analizando documento(s)...' }));
             
-            const newDoc = await healthVaultService.uploadDocument(file, title, documentType, dependentId, folderId);
-            
-            // Actualizamos la UI inmediatamente agregando el doc al inicio
-            setDocuments(prev => [newDoc, ...prev]);
-            
-            if (newDoc.aiStatus === 'PROCESSED') {
-                toast.success(t('success_upload_ai', { defaultValue: 'Documento procesado exitosamente por IA.' }));
-            } else {
-                toast.success(t('success_upload', { defaultValue: 'Documento encriptado y guardado.' }));
+            for (const file of fileArray) {
+                if (file.size > 20 * 1024 * 1024) {
+                    toast.warn(t('error_size', { defaultValue: `El archivo ${file.name} excede el límite de 20MB.` }));
+                    continue;
+                }
+                
+                const finalTitle = fileArray.length === 1 ? (title || file.name) : file.name;
+                const newDoc = await healthVaultService.uploadDocument(file, finalTitle, documentType, dependentId, folderId);
+                uploadedDocs.push(newDoc);
             }
             
-            return newDoc;
+            if (uploadedDocs.length > 0) {
+                // Reverse so the first file is at the top of the UI
+                setDocuments(prev => [...uploadedDocs.reverse(), ...prev]);
+                
+                const allProcessed = uploadedDocs.every(d => d.aiStatus === 'PROCESSED');
+                if (allProcessed) {
+                    toast.success(t('success_upload_ai', { defaultValue: 'Documento(s) procesado(s) exitosamente.' }));
+                } else {
+                    toast.success(t('success_upload', { defaultValue: 'Documento(s) guardado(s) exitosamente.' }));
+                }
+            }
+            
+            return uploadedDocs;
         } catch (error: any) {
-            console.error('Error uploading document:', error);
+            console.error('Error uploading document(s):', error);
+            toast.error('Ocurrió un error al subir algunos documentos.');
             return null;
         } finally {
             setIsUploading(false);
