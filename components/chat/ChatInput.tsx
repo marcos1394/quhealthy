@@ -61,8 +61,9 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
 
  setIsUploading(true);
  try {
- const newDoc = await uploadDocument(file, 'GENERAL');
- if (newDoc) {
+ const uploadedDocs = await uploadDocument(file, 'GENERAL');
+ if (uploadedDocs && uploadedDocs.length > 0) {
+ const newDoc = uploadedDocs[0];
  onSendMessage(`Adjunto documento clínico: ${newDoc.fileName}`, newDoc.id);
  toast.success("Documento adjuntado exitosamente.");
  } else {
