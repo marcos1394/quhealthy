@@ -96,7 +96,9 @@ export default function PatientVaultPage() {
  renameFolder,
  deleteFolder,
  reorderFolders,
- reorderDocuments
+ reorderDocuments,
+ getLatestPanorama,
+ getPanoramaHistory
  } = useHealthVault();
 
  const { family } = useFamily();
@@ -107,13 +109,44 @@ export default function PatientVaultPage() {
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
- const [panoramaData, setPanoramaData] = useState<{ [key: string]: { clinicalSummary: string; careRecommendations: string[] } | null }>({});
+ const [panoramaData, setPanoramaData] = useState<{ [key: string]: { clinicalSummary: string; careRecommendations: string[], createdAt?: string } | null }>({});
  const [isGeneratingPanorama, setIsGeneratingPanorama] = useState(false);
+ const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+ const [panoramaHistory, setPanoramaHistory] = useState<any[]>([]);
+ const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
  // Cargar los documentos al montar la página
  useEffect(() => {
  fetchDocuments();
  }, [fetchDocuments]);
+
+ // Cargar el último panorama al cambiar de tab
+ useEffect(() => {
+    const fetchLatest = async () => {
+        const dependentId = activeTab === 'titular' ? undefined : Number(activeTab);
+        const latest = await getLatestPanorama(dependentId);
+        if (latest) {
+            setPanoramaData(prev => ({ ...prev, [activeTab]: latest }));
+        }
+    };
+    if (!panoramaData[activeTab]) {
+        fetchLatest();
+    }
+ }, [activeTab, getLatestPanorama, panoramaData]);
+
+ // Cargar el historial cuando se abre el modal
+ useEffect(() => {
+    if (isHistoryOpen) {
+        const fetchHistory = async () => {
+            setIsLoadingHistory(true);
+            const dependentId = activeTab === 'titular' ? undefined : Number(activeTab);
+            const history = await getPanoramaHistory(dependentId);
+            setPanoramaHistory(history || []);
+            setIsLoadingHistory(false);
+        };
+        fetchHistory();
+    }
+ }, [isHistoryOpen, activeTab, getPanoramaHistory]);
 
   // Reset path on tab change
   useEffect(() => {
@@ -369,13 +402,52 @@ export default function PatientVaultPage() {
  </p>
  </div>
  </div>
- <button
- onClick={handleGeneratePanorama}
- disabled={isGeneratingPanorama}
- className="px-4 py-2 border border-black dark:border-white bg-white dark:bg-black text-black dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors disabled:opacity-50"
- >
- {isGeneratingPanorama ? 'Generando...' : 'Generar Panorama'}
- </button>
+ <div className="flex items-center gap-2">
+     {panoramaData[activeTab] && (
+         <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+             <DialogTrigger asChild>
+                 <Button variant="outline" className="px-4 py-2 border border-black dark:border-white text-black dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors h-10 rounded-none">
+                     Ver Historial
+                 </Button>
+             </DialogTrigger>
+             <DialogContent className="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a] max-h-[80vh] overflow-y-auto">
+                 <DialogHeader>
+                     <DialogTitle className="text-black dark:text-white uppercase tracking-widest font-bold text-sm">Historial de Análisis Clínicos</DialogTitle>
+                 </DialogHeader>
+                 <div className="py-4 space-y-6">
+                     {isLoadingHistory ? (
+                         <div className="flex justify-center p-8"><QhSpinner size="sm" /></div>
+                     ) : panoramaHistory.length === 0 ? (
+                         <p className="text-sm text-gray-500 italic text-center">No hay historial disponible.</p>
+                     ) : (
+                         panoramaHistory.map((hist, idx) => (
+                             <div key={idx} className="border-l-2 border-black dark:border-white pl-4 space-y-2">
+                                 <h4 className="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">
+                                     {new Date(hist.createdAt).toLocaleDateString()} a las {new Date(hist.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                 </h4>
+                                 <p className="text-sm text-black dark:text-white leading-relaxed">
+                                     {hist.clinicalSummary}
+                                 </p>
+                             </div>
+                         ))
+                     )}
+                 </div>
+                 <DialogFooter>
+                     <Button variant="ghost" onClick={() => setIsHistoryOpen(false)} className="rounded-none uppercase font-bold text-[10px] tracking-widest">
+                         Cerrar
+                     </Button>
+                 </DialogFooter>
+             </DialogContent>
+         </Dialog>
+     )}
+     <button
+     onClick={handleGeneratePanorama}
+     disabled={isGeneratingPanorama}
+     className="px-4 py-2 border border-black dark:border-white bg-white dark:bg-black text-black dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors disabled:opacity-50 h-10 flex items-center"
+     >
+     {isGeneratingPanorama ? 'Generando...' : 'Generar Análisis'}
+     </button>
+ </div>
  </div>
 
  <div className="pt-2">
@@ -386,7 +458,14 @@ export default function PatientVaultPage() {
  ) : (
  <div className="space-y-6">
  <div>
- <h3 className="text-xs font-bold uppercase text-gray-400 mb-2">Panorama General</h3>
+ <div className="flex items-center justify-between mb-2">
+     <h3 className="text-xs font-bold uppercase text-gray-400">Último Panorama General</h3>
+     {panoramaData[activeTab]?.createdAt && (
+         <span className="text-[10px] text-gray-400 font-medium">
+             {new Date(panoramaData[activeTab]!.createdAt!).toLocaleDateString()}
+         </span>
+     )}
+ </div>
  <p className="text-sm text-black dark:text-white leading-relaxed">
  {panoramaData[activeTab]?.clinicalSummary}
  </p>

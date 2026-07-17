@@ -36,3 +36,10 @@ export interface ConsumerDocument {
     aiStatus: AIStatus;
     aiExtractedData?: AIExtractedData; // El JSON mágico que viene de Gemini
 }
+
+export interface PanoramaResponseDto {
+    id?: string;
+    clinicalSummary: string;
+    careRecommendations: string[];
+    createdAt?: string;
+}

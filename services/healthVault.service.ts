@@ -1,6 +1,6 @@
 // src/services/healthVault.service.ts
 import axiosInstance from '@/lib/axios';
-import { ConsumerDocument, VaultFolder } from '@/types/healthVault';
+import { ConsumerDocument, VaultFolder, PanoramaResponseDto } from '@/types/healthVault';
 
 const BASE_URL = '/api/onboarding/consumer/vault';
 
@@ -157,9 +157,26 @@ export const healthVaultService = {
   /**
    * Genera el panorama clínico usando IA, basándose en todo el contexto disponible
    */
-  generatePanorama: async (dependentId?: number): Promise<{ clinicalSummary: string; careRecommendations: string[] }> => {
+  generatePanorama: async (dependentId?: number): Promise<PanoramaResponseDto> => {
     const url = dependentId ? `${BASE_URL}/${dependentId}/panorama/generate` : `${BASE_URL}/panorama/generate`;
     const response = await axiosInstance.post(url);
+    return response.data;
+  },
+
+  getLatestPanorama: async (dependentId?: number): Promise<PanoramaResponseDto | null> => {
+    const url = dependentId ? `${BASE_URL}/${dependentId}/panorama/latest` : `${BASE_URL}/panorama/latest`;
+    try {
+      const response = await axiosInstance.get(url);
+      // Backend might return 204 No Content if there is no history yet.
+      return response.status === 204 ? null : response.data;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  getPanoramaHistory: async (dependentId?: number): Promise<PanoramaResponseDto[]> => {
+    const url = dependentId ? `${BASE_URL}/${dependentId}/panorama/history` : `${BASE_URL}/panorama/history`;
+    const response = await axiosInstance.get(url);
     return response.data;
   },
 
