@@ -36,7 +36,7 @@ export function useHealthVault() {
     const uploadDocument = async (files: File | File[], title?: string, documentType: string = 'GENERAL', dependentId?: number, folderId?: string) => {
         setIsUploading(true);
         const fileArray = Array.isArray(files) ? files : [files];
-        const uploadedDocs = [];
+        const uploadedDocs: ConsumerDocument[] = [];
 
         try {
             toast.info(t('info_analyzing', { defaultValue: 'Subiendo y analizando documento(s)...' }));
