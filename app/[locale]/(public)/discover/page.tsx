@@ -204,7 +204,12 @@ const MapProviderCard = ({
  {/* Rating Block */}
  <div className="absolute bottom-3 left-3 bg-white dark:bg-black border border-black dark:border-white px-2 py-1 flex items-center gap-1.5 z-20">
  <Star className="w-3 h-3 text-black dark:text-white fill-current" strokeWidth={1} />
- <span className="text-[10px] font-bold text-black dark:text-white leading-none mt-0.5">{provider.rating || '4.9'}</span>
+ <span className="text-[10px] font-bold text-black dark:text-white leading-none mt-0.5">
+ {provider.rating > 0 ? provider.rating.toFixed(1) : 'Nuevo'}
+ </span>
+ {provider.reviews > 0 && (
+ <span className="text-[9px] text-gray-500 ml-1">({provider.reviews})</span>
+ )}
  </div>
  </div>
 

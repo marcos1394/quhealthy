@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Clock, Navigation, ShoppingBag, Package, BookOpen, Stethoscope, Calendar, CreditCard, GraduationCap } from 'lucide-react';
+import { Clock, Navigation, ShoppingBag, Package, BookOpen, Stethoscope, Calendar, CreditCard, GraduationCap, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn, generateSlug } from '@/lib/utils';
@@ -162,6 +162,22 @@ export const DiscoverItemCard = ({
  onAuthRequired={!canUseFavorites ? onAuthRequired : undefined}
  />
  </div>
+ 
+ {/* Rating Block */}
+ {(item.averageRating !== undefined && item.averageRating > 0) ? (
+  <div className="absolute bottom-2 left-2 bg-white dark:bg-black border border-black dark:border-white px-2 py-1 flex items-center gap-1.5 z-20">
+  <Star className="w-3 h-3 text-black dark:text-white fill-current" strokeWidth={1} />
+  <span className="text-[10px] font-bold text-black dark:text-white leading-none mt-0.5">{item.averageRating.toFixed(1)}</span>
+  {item.reviewCount !== undefined && item.reviewCount > 0 && (
+  <span className="text-[9px] text-gray-500 ml-1">({item.reviewCount})</span>
+  )}
+  </div>
+ ) : (
+  <div className="absolute bottom-2 left-2 bg-white dark:bg-black border border-black dark:border-white px-2 py-1 flex items-center gap-1.5 z-20">
+  <Star className="w-3 h-3 text-black dark:text-white fill-current" strokeWidth={1} />
+  <span className="text-[10px] font-bold text-black dark:text-white leading-none mt-0.5">Nuevo</span>
+  </div>
+ )}
  </div>
 
  {/* CONTENIDO */}
