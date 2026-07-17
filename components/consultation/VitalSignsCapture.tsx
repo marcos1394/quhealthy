@@ -13,8 +13,8 @@ interface VitalSignsCaptureProps {
 const VITAL_SIGN_TYPES = [
     { value: 'HEART_RATE', label: 'FRECUENCIA CARDÍACA (BPM)' },
     { value: 'BLOOD_PRESSURE', label: 'PRESIÓN ARTERIAL (MMHG)' },
-    { value: 'BLOOD_OXYGEN', label: 'OXÍGENO EN SANGRE (%)' },
-    { value: 'BODY_TEMPERATURE', label: 'TEMPERATURA CORPORAL (°C)' },
+    { value: 'SPO2', label: 'OXÍGENO EN SANGRE (%)' },
+    { value: 'TEMPERATURE', label: 'TEMPERATURA CORPORAL (°C)' },
     { value: 'WEIGHT', label: 'PESO (KG)' },
     { value: 'HEIGHT', label: 'ALTURA (CM)' },
     { value: 'BMI', label: 'IMC' },
@@ -36,8 +36,8 @@ export const VitalSignsCapture: React.FC<VitalSignsCaptureProps> = ({ vitalSigns
         switch(type) {
             case 'HEART_RATE': unit = 'bpm'; break;
             case 'BLOOD_PRESSURE': unit = 'mmHg'; break;
-            case 'BLOOD_OXYGEN': unit = '%'; break;
-            case 'BODY_TEMPERATURE': unit = 'C'; break;
+            case 'SPO2': unit = '%'; break;
+            case 'TEMPERATURE': unit = 'C'; break;
             case 'WEIGHT': unit = 'kg'; break;
             case 'HEIGHT': unit = 'cm'; break;
             case 'GLUCOSE': unit = 'mg/dL'; break;
