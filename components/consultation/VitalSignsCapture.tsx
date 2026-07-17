@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslations } from "next-intl";
 import { Activity, X, PlusCircle } from "lucide-react";
 import { VitalSignRequest } from '@/types/ehr';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface VitalSignsCaptureProps {
     vitalSigns: VitalSignRequest[];
@@ -64,15 +65,18 @@ export const VitalSignsCapture: React.FC<VitalSignsCaptureProps> = ({ vitalSigns
                     <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
                         TIPO DE SIGNO VITAL
                     </label>
-                    <select
-                        value={type}
-                        onChange={(e) => setType(e.target.value)}
-                        className="block w-full border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-xs font-semibold uppercase p-2 rounded-none focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white"
-                    >
-                        {VITAL_SIGN_TYPES.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                    </select>
+                    <Select value={type} onValueChange={setType}>
+                        <SelectTrigger className="w-full border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-xs font-semibold uppercase rounded-none focus:ring-0 focus:ring-offset-0 focus:border-black dark:focus:border-white h-[34px] px-2">
+                            <SelectValue placeholder="TIPO" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-none border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                            {VITAL_SIGN_TYPES.map(opt => (
+                                <SelectItem key={opt.value} value={opt.value} className="text-xs font-semibold uppercase cursor-pointer focus:bg-gray-100 dark:focus:bg-[#1a1a1a]">
+                                    {opt.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                 
                 <div className="flex-1 w-full">
