@@ -5,7 +5,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import {
  FileText, Eye, BrainCircuit, Activity, Pill, AlertCircle,
- Clock, CheckCircle2, AlertTriangle, Type, FolderOpen
+ Clock, CheckCircle2, AlertTriangle, Type, FolderOpen, GripVertical
 } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
@@ -35,9 +35,12 @@ interface HealthVaultDocumentCardProps {
  onView: (id: string) => void;
  onUpdate?: (id: string, data: any) => Promise<any>;
  onDelete?: (id: string) => Promise<any>;
+ dragHandleListeners?: any;
+ dragHandleAttributes?: any;
+ setDragHandleRef?: (element: HTMLElement | null) => void;
 }
 
-export function HealthVaultDocumentCard({ document, onView, onUpdate, onDelete }: HealthVaultDocumentCardProps) {
+export function HealthVaultDocumentCard({ document, onView, onUpdate, onDelete, dragHandleListeners, dragHandleAttributes, setDragHandleRef }: HealthVaultDocumentCardProps) {
  const t = useTranslations('HealthVault.Card');
  const [isEditing, setIsEditing] = React.useState(false);
  const [isSaving, setIsSaving] = React.useState(false);
@@ -155,11 +158,23 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate, onDelete }
  {/* Cabecera del Documento */}
  <div className="flex justify-between items-start mb-6">
  <div className="flex gap-4 items-start w-full">
- <div className="p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] group-hover:bg-black dark:group-hover:bg-white transition-colors shrink-0">
- {document.documentType === 'NOTE' ? (
- <Type className="w-6 h-6 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+ <div 
+  ref={setDragHandleRef}
+  {...dragHandleAttributes}
+  {...dragHandleListeners}
+  className={cn(
+    "p-4 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] transition-colors shrink-0 flex items-center justify-center",
+    setDragHandleRef ? "cursor-grab active:cursor-grabbing hover:bg-gray-200 dark:hover:bg-[#111]" : "group-hover:bg-black dark:group-hover:bg-white"
+  )}
+ >
+ {setDragHandleRef ? (
+   <GripVertical className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
  ) : (
- <FileText className="w-6 h-6 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+   document.documentType === 'NOTE' ? (
+     <Type className="w-6 h-6 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+   ) : (
+     <FileText className="w-6 h-6 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors" strokeWidth={1.5} />
+   )
  )}
  </div>
  <div className="flex-1 min-w-0 pt-1">

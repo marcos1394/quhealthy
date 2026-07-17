@@ -57,8 +57,11 @@ export function useHealthVault() {
                 setDocuments(prev => [...uploadedDocs.reverse(), ...prev]);
                 
                 const allProcessed = uploadedDocs.every(d => d.aiStatus === 'PROCESSED');
+                const hasUnsupported = uploadedDocs.some(d => d.aiStatus === 'UNSUPPORTED');
                 if (allProcessed) {
                     toast.success(t('success_upload_ai', { defaultValue: 'Documento(s) procesado(s) exitosamente.' }));
+                } else if (hasUnsupported) {
+                    toast.success('Documento(s) guardado(s) exitosamente. La IA no pudo extraer texto de los formatos no soportados.');
                 } else {
                     toast.success(t('success_upload', { defaultValue: 'Documento(s) guardado(s) exitosamente.' }));
                 }
@@ -190,6 +193,54 @@ export function useHealthVault() {
         }
     };
 
+    const reorderFolders = async (items: { id: string; displayOrder: number }[]) => {
+        try {
+            // Optimistic update
+            setFolders(prev => {
+                const newFolders = [...prev];
+                items.forEach(item => {
+                    const idx = newFolders.findIndex(f => f.id === item.id);
+                    if (idx !== -1) newFolders[idx] = { ...newFolders[idx], displayOrder: item.displayOrder };
+                });
+                return newFolders.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+            });
+            await healthVaultService.reorderFolders(items);
+            return true;
+        } catch (error) {
+            console.error('Error reordering folders:', error);
+            toast.error('Error al guardar el nuevo orden de las carpetas.');
+            fetchDocuments(); // Rollback
+            return false;
+        }
+    };
+
+    const reorderDocuments = async (items: { id: string; displayOrder: number }[]) => {
+        try {
+            // Optimistic update
+            setDocuments(prev => {
+                const newDocs = [...prev];
+                items.forEach(item => {
+                    const idx = newDocs.findIndex(d => d.id === item.id);
+                    if (idx !== -1) newDocs[idx] = { ...newDocs[idx], displayOrder: item.displayOrder };
+                });
+                return newDocs.sort((a, b) => {
+                    // Si ambos tienen displayOrder se usa ese, sino por fecha
+                    const aOrder = a.displayOrder ?? 999999;
+                    const bOrder = b.displayOrder ?? 999999;
+                    if (aOrder !== bOrder) return aOrder - bOrder;
+                    return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+                });
+            });
+            await healthVaultService.reorderDocuments(items);
+            return true;
+        } catch (error) {
+            console.error('Error reordering documents:', error);
+            toast.error('Error al guardar el nuevo orden de los documentos.');
+            fetchDocuments(); // Rollback
+            return false;
+        }
+    };
+
     return {
         documents,
         folders,
@@ -204,6 +255,8 @@ export function useHealthVault() {
         deleteDocument,
         createFolder,
         renameFolder,
-        deleteFolder
+        deleteFolder,
+        reorderFolders,
+        reorderDocuments
     };
 }

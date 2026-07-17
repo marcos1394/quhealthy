@@ -25,6 +25,58 @@ import {
  AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ChevronDown } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+function SortableFolderWrapper({ id, motionProps, cardProps }: any) {
+  const { attributes, listeners, setNodeRef, transform, transition, setActivatorNodeRef, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 999 : 'auto', position: 'relative' as any };
+  return (
+    <div ref={setNodeRef} style={style}>
+      <motion.div {...motionProps} layout={false}>
+        <HealthVaultFolderCard
+          {...cardProps}
+          setDragHandleRef={setActivatorNodeRef}
+          dragHandleAttributes={attributes}
+          dragHandleListeners={listeners}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
+function SortableDocumentWrapper({ id, motionProps, cardProps }: any) {
+  const { attributes, listeners, setNodeRef, transform, transition, setActivatorNodeRef, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 999 : 'auto', position: 'relative' as any };
+  return (
+    <div ref={setNodeRef} style={style}>
+      <motion.div {...motionProps} layout={false}>
+        <HealthVaultDocumentCard
+          {...cardProps}
+          setDragHandleRef={setActivatorNodeRef}
+          dragHandleAttributes={attributes}
+          dragHandleListeners={listeners}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
 
 export default function PatientVaultPage() {
  const t = useTranslations('HealthVault');
@@ -42,7 +94,9 @@ export default function PatientVaultPage() {
  deleteDocument,
  createFolder,
  renameFolder,
- deleteFolder
+ deleteFolder,
+ reorderFolders,
+ reorderDocuments
  } = useHealthVault();
 
  const { family } = useFamily();
@@ -195,21 +249,56 @@ export default function PatientVaultPage() {
  }, [currentFolderId, folders]);
 
  // Manejar generación del panorama
- const handleGeneratePanorama = async () => {
- const dependentId = activeTab === 'titular' ? undefined : Number(activeTab);
- setIsGeneratingPanorama(true);
- try {
- const result = await generatePanorama(dependentId);
- if (result) {
- setPanoramaData(prev => ({
- ...prev,
- [activeTab]: result
- }));
- }
- } finally {
- setIsGeneratingPanorama(false);
- }
- };
+  const handleGeneratePanorama = async () => {
+  const dependentId = activeTab === 'titular' ? undefined : Number(activeTab);
+  setIsGeneratingPanorama(true);
+  try {
+  const result = await generatePanorama(dependentId);
+  if (result) {
+  setPanoramaData(prev => ({
+  ...prev,
+  [activeTab]: result
+  }));
+  }
+  } finally {
+  setIsGeneratingPanorama(false);
+  }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleFolderDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = visibleFolders.findIndex(f => f.id === active.id);
+      const newIndex = visibleFolders.findIndex(f => f.id === over.id);
+      const newFolders = arrayMove(visibleFolders, oldIndex, newIndex);
+      
+      const payload = newFolders.map((f, idx) => ({ id: f.id, displayOrder: idx }));
+      reorderFolders(payload);
+    }
+  };
+
+  const handleDocumentDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = visibleDocuments.findIndex(d => d.id === active.id);
+      const newIndex = visibleDocuments.findIndex(d => d.id === over.id);
+      const newDocs = arrayMove(visibleDocuments, oldIndex, newIndex);
+      
+      const payload = newDocs.map((d, idx) => ({ id: d.id, displayOrder: idx }));
+      reorderDocuments(payload);
+    }
+  };
 
  return (
  <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
@@ -461,52 +550,76 @@ export default function PatientVaultPage() {
  ) : (
   <AnimatePresence mode="popLayout">
   {visibleFolders.length > 0 && (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
-      {visibleFolders.map((folder, index) => (
-        <motion.div
-          key={`folder-${folder.path}`}
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
-          layout
-        >
-          <HealthVaultFolderCard
-            folderName={folder.name}
-            folderPath={folder.path}
-            itemCount={folder.count}
-            onClick={() => setCurrentFolderId(folder.id)}
-            onDropDocument={(docId) => handleDropDocument(docId, folder.id)}
-            onDropFolder={(draggedPath) => handleDropFolder(draggedPath, folder.id)}
-            onRename={async (newName) => { await renameFolder(folder.id, newName); }}
-            onDelete={async () => { await deleteFolder(folder.id); }}
-          />
-        </motion.div>
-      ))}
-    </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleFolderDragEnd}
+    >
+      <SortableContext 
+        items={visibleFolders.map(f => f.id)} 
+        strategy={rectSortingStrategy}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
+          {visibleFolders.map((folder, index) => (
+            <SortableFolderWrapper
+              key={`folder-${folder.path}`}
+              id={folder.id}
+              motionProps={{
+                initial: { opacity: 0, scale: 0.95, y: 20 },
+                animate: { opacity: 1, scale: 1, y: 0 },
+                exit: { opacity: 0, scale: 0.95 },
+                transition: { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
+              }}
+              cardProps={{
+                folderName: folder.name,
+                folderPath: folder.path,
+                itemCount: folder.count,
+                onClick: () => setCurrentFolderId(folder.id),
+                onDropDocument: (docId: string) => handleDropDocument(docId, folder.id),
+                onDropFolder: (draggedPath: string) => handleDropFolder(draggedPath, folder.id),
+                onRename: async (newName: string) => { await renameFolder(folder.id, newName); },
+                onDelete: async () => { await deleteFolder(folder.id); }
+              }}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   )}
 
   {visibleDocuments.length > 0 ? (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-  {visibleDocuments.map((doc, index) => (
- <motion.div
- key={doc.id}
- initial={{ opacity: 0, scale: 0.95, y: 20 }}
- animate={{ opacity: 1, scale: 1, y: 0 }}
- exit={{ opacity: 0, scale: 0.95 }}
- transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
- layout
- >
- <HealthVaultDocumentCard
- document={doc}
- onView={viewDocument}
- onUpdate={(docId, data) => updateDocument(docId, data)}
- onDelete={deleteDocument}
- />
- </motion.div>
- ))}
- </div>
- ) : (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDocumentDragEnd}
+    >
+      <SortableContext 
+        items={visibleDocuments.map(d => d.id)} 
+        strategy={rectSortingStrategy}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {visibleDocuments.map((doc, index) => (
+            <SortableDocumentWrapper
+              key={doc.id}
+              id={doc.id}
+              motionProps={{
+                initial: { opacity: 0, scale: 0.95, y: 20 },
+                animate: { opacity: 1, scale: 1, y: 0 },
+                exit: { opacity: 0, scale: 0.95 },
+                transition: { duration: 0.4, delay: index * 0.05, ease: "easeOut" }
+              }}
+              cardProps={{
+                document: doc,
+                onView: viewDocument,
+                onUpdate: (docId: string, data: any) => updateDocument(docId, data),
+                onDelete: deleteDocument
+              }}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  ) : (
  <motion.div
  initial={{ opacity: 0, y: 10 }}
  animate={{ opacity: 1, y: 0 }}

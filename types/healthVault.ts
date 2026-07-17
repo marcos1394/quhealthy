@@ -18,6 +18,7 @@ export interface VaultFolder {
     parentFolderId?: string;
     createdAt: string;
     updatedAt: string;
+    displayOrder?: number;
 }
 
 export interface ConsumerDocument {
@@ -31,6 +32,7 @@ export interface ConsumerDocument {
     fileSizeBytes?: number;
     documentType: DocumentType;
     uploadedAt: string;
+    displayOrder?: number;
     aiStatus: AIStatus;
     aiExtractedData?: AIExtractedData; // El JSON mágico que viene de Gemini
 }

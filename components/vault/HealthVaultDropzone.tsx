@@ -124,7 +124,7 @@ export function HealthVaultDropzone({ onUpload, onCreateNote, isUploading }: Hea
  type="file"
  ref={fileInputRef}
  onChange={handleFileInputChange}
- accept=".pdf,.jpg,.jpeg,.png"
+ accept=".pdf,.jpg,.jpeg,.png,.dcm,.xml,.csv,.zip,.doc,.docx"
  className="hidden"
  multiple
  />
@@ -214,8 +214,8 @@ function AnimateContent({ isUploading, isDragging, t }: { isUploading: boolean, 
  )}>
  {isDragging ? t('drag_active', { defaultValue: '¡Suéltalo aquí!' }) : t('drag_inactive', { defaultValue: 'Arrastra tu archivo aquí' })}
  </h3>
- <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
- {t('supported_formats', { defaultValue: 'o haz clic para explorar (PDF, JPG, PNG)' })}
+ <p className="text-xs font-medium text-gray-400 dark:text-gray-500 text-center mt-2 px-4">
+ {t('supported_formats', { defaultValue: 'o haz clic para explorar (PDF, JPG, PNG, DICOM, ZIP, XML, CSV, DOCX)' })}
  </p>
  </div>
  );

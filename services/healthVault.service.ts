@@ -32,6 +32,10 @@ export const healthVaultService = {
     await axiosInstance.delete(`${BASE_URL}/folders/${folderId}`);
   },
 
+  reorderFolders: async (items: { id: string; displayOrder: number }[]): Promise<void> => {
+    await axiosInstance.put(`${BASE_URL}/folders/reorder`, { items });
+  },
+
   /**
    * Obtiene la lista de documentos en la bóveda del paciente
    */
@@ -164,5 +168,9 @@ export const healthVaultService = {
    */
   deleteDocument: async (documentId: string): Promise<void> => {
     await axiosInstance.delete(`${BASE_URL}/${documentId}`);
+  },
+
+  reorderDocuments: async (items: { id: string; displayOrder: number }[]): Promise<void> => {
+    await axiosInstance.put(`${BASE_URL}/reorder`, { items });
   }
 };

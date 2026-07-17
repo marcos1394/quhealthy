@@ -2,7 +2,7 @@
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */;
 
 import React, { useState } from 'react';
-import { FolderOpen, ArrowRight, Edit2, Trash2, X, Save } from 'lucide-react';
+import { FolderOpen, ArrowRight, Edit2, Trash2, X, Save, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,9 @@ interface HealthVaultFolderCardProps {
   onDropFolder?: (folderPath: string) => Promise<void>; // Para arrastrar carpetas enteras
   onRename?: (newName: string) => Promise<void>;
   onDelete?: () => Promise<void>;
+  dragHandleListeners?: any;
+  dragHandleAttributes?: any;
+  setDragHandleRef?: (element: HTMLElement | null) => void;
 }
 
 export function HealthVaultFolderCard({ 
@@ -39,7 +42,10 @@ export function HealthVaultFolderCard({
   onDropDocument,
   onDropFolder,
   onRename,
-  onDelete
+  onDelete,
+  dragHandleListeners,
+  dragHandleAttributes,
+  setDragHandleRef
 }: HealthVaultFolderCardProps) {
   const t = useTranslations('HealthVault.Card');
   
@@ -128,8 +134,20 @@ export function HealthVaultFolderCard({
       )}
     >
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="p-4 border border-black dark:border-white bg-black dark:bg-white transition-colors shrink-0">
-          <FolderOpen className="w-6 h-6 text-white dark:text-black" strokeWidth={1.5} />
+        <div 
+          ref={setDragHandleRef} 
+          {...dragHandleAttributes} 
+          {...dragHandleListeners}
+          className={cn(
+            "p-4 border border-black dark:border-white bg-black dark:bg-white transition-colors shrink-0 flex items-center justify-center",
+            setDragHandleRef && "cursor-grab active:cursor-grabbing hover:bg-gray-800 dark:hover:bg-gray-200"
+          )}
+        >
+          {setDragHandleRef ? (
+            <GripVertical className="w-6 h-6 text-white dark:text-black" strokeWidth={1.5} />
+          ) : (
+            <FolderOpen className="w-6 h-6 text-white dark:text-black" strokeWidth={1.5} />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           {isEditing ? (
