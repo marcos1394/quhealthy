@@ -1,10 +1,11 @@
 "use client"
-/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
+/* eslint-disable react-doctor/no-react19-deprecated-apis */;
 
 import React from "react";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface ConfirmationModalProps {
  isOpen: boolean;
@@ -17,36 +18,37 @@ interface ConfirmationModalProps {
 }
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, title, message, isLoading = false, variant = "destructive" }) => {
+ const t = useTranslations('Common'); // Just in case we need general translations
  const handleConfirm = (e: React.MouseEvent) => { e.preventDefault(); onConfirm(); };
 
  return (
  <AlertDialog open={isOpen} onOpenChange={onClose}>
- <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white max-w-md transition-colors">
+ <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border-black dark:border-white text-black dark:text-white max-w-md rounded-none transition-colors">
  <AlertDialogHeader>
- <div className="flex items-start gap-3">
- <div className={`p-2.5 rounded-xl flex-shrink-0 border ${variant === "destructive"
- ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400"
- : "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400"
+ <div className="flex flex-col gap-4">
+ <div className={`w-12 h-12 border flex items-center justify-center shrink-0 ${variant === "destructive"
+ ? "border-red-600 bg-red-50 dark:bg-red-950/20 text-red-600"
+ : "border-black dark:border-white bg-gray-50 dark:bg-[#050505] text-black dark:text-white"
  }`}>
- <AlertTriangle className="w-5 h-5" />
+ <AlertTriangle className="w-6 h-6" strokeWidth={1.5} />
  </div>
- <div className="space-y-1">
- <AlertDialogTitle className="text-lg font-medium text-slate-900 dark:text-white">{title}</AlertDialogTitle>
- <AlertDialogDescription className="text-slate-500 dark:text-slate-400 leading-relaxed font-light text-sm">{message}</AlertDialogDescription>
+ <div className="space-y-2 text-left">
+ <AlertDialogTitle className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">{title}</AlertDialogTitle>
+ <AlertDialogDescription className="text-gray-500 dark:text-gray-400 leading-relaxed font-light text-sm">{message}</AlertDialogDescription>
  </div>
  </div>
  </AlertDialogHeader>
- <AlertDialogFooter className="mt-3">
+ <AlertDialogFooter className="mt-6 gap-2 sm:gap-0">
  <AlertDialogCancel disabled={isLoading}
- className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white bg-transparent rounded-xl">
- Cancel
+ className="rounded-none border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111111] bg-transparent uppercase font-bold text-[10px] tracking-widest h-10">
+ Cancelar
  </AlertDialogCancel>
- <Button variant={variant} onClick={handleConfirm} disabled={isLoading}
- className={`rounded-xl shadow-none ${variant === "destructive"
- ? "bg-red-600 hover:bg-red-700 text-white"
- : "bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900"
+ <Button variant={variant === "destructive" ? "destructive" : "default"} onClick={handleConfirm} disabled={isLoading}
+ className={`rounded-none h-10 uppercase font-bold text-[10px] tracking-widest ${variant === "destructive"
+ ? "bg-red-600 hover:bg-red-700 text-white border-0"
+ : "bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black border-0"
  }`}>
- {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Processing...</>) : "Yes, confirm"}
+ {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Procesando...</>) : "Confirmar"}
  </Button>
  </AlertDialogFooter>
  </AlertDialogContent>
