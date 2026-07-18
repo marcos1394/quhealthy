@@ -1,5 +1,5 @@
 import { useRef, useCallback, useMemo } from "react";
-import { Room, RoomEvent, VideoPresets, Track } from "livekit-client";
+import { Room, RoomEvent, VideoPresets, Track, ParticipantKind } from "livekit-client";
 import { useTeleconsultationStore } from "@/stores/TeleconsultationStore";
 
 export const useLiveKitVideo = () => {
@@ -60,7 +60,7 @@ export const useLiveKitVideo = () => {
     const checkAiAgent = (room: Room) => {
       const { setAiAgentActive } = useTeleconsultationStore.getState();
       const hasAgent = Array.from(room.remoteParticipants.values()).some(p => 
-        p.identity.toLowerCase().includes('agent')
+        p.kind === ParticipantKind.AGENT
       );
       setAiAgentActive(hasAgent);
     };
