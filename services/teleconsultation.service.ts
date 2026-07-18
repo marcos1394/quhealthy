@@ -4,9 +4,11 @@ export interface TeleconsultationAccessResponse {
   teleconsultationId: string;
   status: string;
   canStartWebRTC: boolean;
-  message: string;
-  serverEndTime: string;
-  remainingSeconds: number;
+  message?: string;
+  serverEndTime?: string;
+  remainingSeconds?: number;
+  livekitWsUrl?: string;
+  livekitToken?: string;
 }
 
 export const teleconsultationService = {
