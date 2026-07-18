@@ -28,10 +28,27 @@ export const useTeleconsultation = (
   const startSetup = useCallback(() => {
     const store = useTeleconsultationStore.getState();
     store.setState("CHECKING_ACCESS");
-    // Pre-validar o simplemente ir a setup
-    store.setState("DEVICE_SETUP");
-    media.getDevices();
-  }, [media]);
+    if (role === "PATIENT") {
+      store.setState("AI_CONSENT");
+    } else {
+      store.setState("DEVICE_SETUP");
+      media.getDevices();
+    }
+  }, [media, role]);
+
+  const submitAiConsent = useCallback(
+    async (preferences: { audioProcessingAccepted: boolean; clinicalNoteAccepted: boolean; dataStorageAccepted: boolean; consentVersion: string; }) => {
+      try {
+        await teleconsultationService.saveAiConsent(appointmentId, preferences);
+        const store = useTeleconsultationStore.getState();
+        store.setState("DEVICE_SETUP");
+        media.getDevices();
+      } catch (error) {
+        toast.error("Error al guardar el consentimiento. Por favor, intente de nuevo.");
+      }
+    },
+    [appointmentId, media]
+  );
 
   const joinCall = useCallback(
     async (teleconsultationId: string) => {
@@ -163,11 +180,17 @@ export const useTeleconsultation = (
     };
   }, [cleanup]);
 
+  const store = useTeleconsultationStore();
+
   return {
     startSetup,
+    submitAiConsent,
     joinCall,
     cleanup,
     endCall,
+    toggleVideoMuted: store.toggleVideoMuted,
+    toggleAudioMuted: store.toggleAudioMuted,
     media,
+    liveKit,
   };
 };

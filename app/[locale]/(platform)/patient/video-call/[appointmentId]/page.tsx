@@ -10,6 +10,7 @@ import { DeviceSetup } from "@/components/teleconsultation/DeviceSetup";
 import { WaitingRoom } from "@/components/teleconsultation/WaitingRoom";
 import { ConsultationRoom } from "@/components/teleconsultation/ConsultationRoom";
 import { CallFinished } from "@/components/teleconsultation/CallFinished";
+import { AiConsentModal } from "@/components/teleconsultation/AiConsentModal";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ export default function VideoCallPage() {
   const rawId = params.appointmentId;
   const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId || "";
 
-  const { startSetup, joinCall, cleanup, media } = useTeleconsultation(
+  const { startSetup, submitAiConsent, joinCall, cleanup, media } = useTeleconsultation(
     appointmentId,
     "PATIENT",
   );
@@ -84,6 +85,12 @@ export default function VideoCallPage() {
 
   return (
     <ConsultationLayout>
+      {state === "AI_CONSENT" && (
+        <AiConsentModal 
+          onSubmit={submitAiConsent} 
+        />
+      )}
+
       {state === "DEVICE_SETUP" && (
         <DeviceSetup media={media} onJoin={handleJoin} isLoading={false} />
       )}

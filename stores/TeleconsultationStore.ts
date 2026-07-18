@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 export type TeleconsultationState = 
   | 'IDLE' 
+  | 'AI_CONSENT'
   | 'CHECKING_ACCESS' 
   | 'DEVICE_SETUP' 
   | 'JOINING' 

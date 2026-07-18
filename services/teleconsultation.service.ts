@@ -24,4 +24,19 @@ export const teleconsultationService = {
     );
     return response.data;
   },
+  
+  saveAiConsent: async (
+    appointmentId: string,
+    preferences: {
+      audioProcessingAccepted: boolean;
+      clinicalNoteAccepted: boolean;
+      dataStorageAccepted: boolean;
+      consentVersion: string;
+    }
+  ): Promise<void> => {
+    await axiosInstance.post(
+      `/api/appointments/teleconsultations/${appointmentId}/ai-consent`,
+      preferences
+    );
+  },
 };
