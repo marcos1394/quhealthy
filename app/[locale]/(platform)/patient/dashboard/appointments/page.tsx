@@ -66,7 +66,7 @@ export default function ConsumerAppointmentsPage() {
  // 1. Filtrar por Pestaña Activa
  if (activeTab === 'upcoming') {
  filtered = filtered.filter(a =>
- new Date(a.startTime) >= now &&
+ new Date(a.endTime) >= now &&
  (a.status === 'SCHEDULED' || a.status === 'PENDING_PAYMENT' || a.status === 'IN_PROGRESS')
  );
  } else if (activeTab === 'past') {
