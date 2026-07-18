@@ -234,7 +234,7 @@ export default function ProviderAppointmentsPage() {
  const apptDate = new Date(appt.startTime).toDateString();
  const today = new Date().toDateString();
  if (dateFilter === 'TODAY') return apptDate === today;
- if (dateFilter === 'UPCOMING') return new Date(appt.startTime) >= new Date();
+ if (dateFilter === 'UPCOMING') return new Date(appt.endTime) >= new Date();
  return true;
  });
 

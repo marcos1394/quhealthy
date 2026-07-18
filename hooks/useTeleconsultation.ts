@@ -109,6 +109,53 @@ export const useTeleconsultation = (
     isJoinedRef.current = false;
   }, [liveKit]);
 
+  // Polling al servidor cuando estamos en estado WAITING
+  const state = useTeleconsultationStore(s => s.state);
+  const teleconsultationId = useTeleconsultationStore(s => s.teleconsultationId);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const pollStatus = async () => {
+      if (state !== "WAITING" || !teleconsultationId || isJoinedRef.current) {
+        return;
+      }
+
+      try {
+        const response = await teleconsultationService.joinTeleconsultation(
+          teleconsultationId,
+          role === "PROVIDER",
+        );
+
+        const store = useTeleconsultationStore.getState();
+        store.setTimerConfig(response.serverEndTime, response.remainingSeconds);
+
+        if (response.canStartWebRTC && response.livekitWsUrl && response.livekitToken) {
+          await liveKit.connectToRoom(response.livekitWsUrl, response.livekitToken);
+          isJoinedRef.current = true;
+          // El estado pasa a ser controlado por LiveKit
+        } else {
+          // Seguir esperando
+          timeoutId = setTimeout(pollStatus, 5000);
+        }
+      } catch (error) {
+        console.error("Error polling teleconsultation status:", error);
+        // Reintentar a pesar del error
+        timeoutId = setTimeout(pollStatus, 5000);
+      }
+    };
+
+    if (state === "WAITING") {
+      timeoutId = setTimeout(pollStatus, 5000);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [state, teleconsultationId, role, liveKit]);
+
   // Limpieza al desmontar el componente padre
   useEffect(() => {
     return () => {
