@@ -195,7 +195,7 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
  
  {canJoinVideo && (
  <Button
- onClick={() => appt.meetLink ? window.open(appt.meetLink, '_blank') : toast.info("El enlace de conexión aún no está activo.")}
+ onClick={() => appt.meetLink ? window.open(appt.meetLink, '_blank') : router.push(`/patient/video-call/${appt.id}`)}
  // Hover individual sobrepuesto con !important (via la utilidad de Tailwind hover:!bg-...)
  className="w-full rounded-none border-0 h-10 text-[9px] font-bold uppercase tracking-widest flex justify-start pl-4 transition-colors duration-300 bg-black text-white dark:bg-white dark:text-black group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white hover:!bg-gray-200 dark:hover:!bg-gray-800"
  >
