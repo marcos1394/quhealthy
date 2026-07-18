@@ -28,7 +28,10 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
 
  const isPast = new Date(appt.endTime) < new Date();
  const isVideo = appt.type === 'ONLINE';
- const canJoinVideo = isVideo && !isPast && (appt.status === 'SCHEDULED' || appt.status === 'IN_PROGRESS');
+ const canJoinVideo = isVideo && (appt.status === 'SCHEDULED' || appt.status === 'IN_PROGRESS');
+ 
+ // Tolerancia tardía: si la hora actual superó la hora de inicio + 15 minutos
+ const isLateTolerance = new Date() > new Date(new Date(appt.startTime).getTime() + 15 * 60 * 1000);
 
  const getStatusConfig = (status: AppointmentStatus) => {
  switch (status) {
@@ -196,11 +199,18 @@ export function AppointmentCard({ appt, index, onRequestCancel }: AppointmentCar
  {canJoinVideo && (
  <Button
  onClick={() => appt.meetLink ? window.open(appt.meetLink, '_blank') : router.push(`/patient/video-call/${appt.id}`)}
- // Hover individual sobrepuesto con !important (via la utilidad de Tailwind hover:!bg-...)
- className="w-full rounded-none border-0 h-10 text-[9px] font-bold uppercase tracking-widest flex justify-start pl-4 transition-colors duration-300 bg-black text-white dark:bg-white dark:text-black group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white hover:!bg-gray-200 dark:hover:!bg-gray-800"
+ className={cn(
+ "w-full rounded-none border-0 h-10 text-[9px] font-bold uppercase tracking-widest flex justify-start pl-4 transition-colors duration-300",
+ isLateTolerance 
+ ? "bg-amber-500 text-white hover:!bg-amber-600 dark:bg-amber-600 dark:hover:!bg-amber-500 group-hover:bg-amber-500" 
+ : "bg-black text-white dark:bg-white dark:text-black group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white hover:!bg-gray-200 dark:hover:!bg-gray-800"
+ )}
+ title={isLateTolerance ? "Estás ingresando fuera del tiempo de tolerancia gratuita." : ""}
  >
- <Video className="w-3.5 h-3.5 mr-3" strokeWidth={1.5} />
- {t('btn_join_video', { defaultValue: 'Conectar Video' })}
+ <Video className="w-3.5 h-3.5 mr-3 shrink-0" strokeWidth={1.5} />
+ <span className="truncate">
+ {isLateTolerance ? t('btn_join_late', { defaultValue: 'Conectar (Tarde)' }) : t('btn_join_video', { defaultValue: 'Conectar Video' })}
+ </span>
  </Button>
  )}
 
