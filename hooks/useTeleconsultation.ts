@@ -60,6 +60,11 @@ export const useTeleconsultation = (
 
         store.setTimerConfig(response.serverEndTime, response.remainingSeconds);
 
+        if (!response.canStartWebRTC) {
+          store.setState("WAITING");
+          return;
+        }
+
         // 3. Conectar a la sala de LiveKit Cloud
         if (response.livekitWsUrl && response.livekitToken) {
           await liveKit.connectToRoom(response.livekitWsUrl, response.livekitToken);
