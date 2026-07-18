@@ -6,7 +6,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { toast } from 'react-toastify';
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Video, VideoOff, ChevronRight, Activity } from "lucide-react";
+import { ArrowLeft, User, Stethoscope, Pill, CheckCircle, Save, Video, VideoOff, ChevronRight, Activity, Monitor, Columns, FileText } from "lucide-react";
 
 import { useConsultation } from "@/hooks/useConsultation";
 import { appointmentService } from "@/services/appointment.service"; 
@@ -36,7 +36,7 @@ export default function ConsultationRoomPage() {
  
  const appointmentId = Number(params.id);
  
- const [{ currentStep, consumerId, patientDirectoryId, isOfflinePatient, patientName, appointmentType, loadingAppointment, totalPrice, paymentMethod, paymentStatus, showCashModal, registerDenominations, newRx, isRecording, isTranscribing, isVideoCollapsed }, dispatch] = React.useReducer(
+ const [{ currentStep, consumerId, patientDirectoryId, isOfflinePatient, patientName, appointmentType, loadingAppointment, totalPrice, paymentMethod, paymentStatus, showCashModal, registerDenominations, newRx, isRecording, isTranscribing, viewMode }, dispatch] = React.useReducer(
  (state: any, action: any) => {
  switch (action.type) {
  case 'SET_CURRENTSTEP': return { ...state, currentStep: typeof action.payload === 'function' ? action.payload(state.currentStep) : action.payload };
@@ -54,14 +54,14 @@ export default function ConsultationRoomPage() {
  case 'SET_NEWRX': return { ...state, newRx: typeof action.payload === 'function' ? action.payload(state.newRx) : action.payload };
  case 'SET_ISRECORDING': return { ...state, isRecording: typeof action.payload === 'function' ? action.payload(state.isRecording) : action.payload };
  case 'SET_ISTRANSCRIBING': return { ...state, isTranscribing: typeof action.payload === 'function' ? action.payload(state.isTranscribing) : action.payload };
- case 'SET_ISVIDEOCOLLAPSED': return { ...state, isVideoCollapsed: typeof action.payload === 'function' ? action.payload(state.isVideoCollapsed) : action.payload };
+ case 'SET_VIEWMODE': return { ...state, viewMode: typeof action.payload === 'function' ? action.payload(state.viewMode) : action.payload };
  default: return state;
  }
  },
  {
  currentStep: 'profile', consumerId: null, patientDirectoryId: null, isOfflinePatient: false, patientName: "", appointmentType: 'in_person', loadingAppointment: true, totalPrice: 0, paymentMethod: '', paymentStatus: '', showCashModal: false, registerDenominations: null, newRx: { 
  medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 
- }, isRecording: false, isTranscribing: false, isVideoCollapsed: false
+ }, isRecording: false, isTranscribing: false, viewMode: 'split'
  }
  );
 
@@ -80,20 +80,7 @@ export default function ConsultationRoomPage() {
  const setNewRx = (val: any) => dispatch({ type: 'SET_NEWRX', payload: val });
  const setIsRecording = (val: any) => dispatch({ type: 'SET_ISRECORDING', payload: val });
  const setIsTranscribing = (val: any) => dispatch({ type: 'SET_ISTRANSCRIBING', payload: val });
- const setIsVideoCollapsed = (val: any) => dispatch({ type: 'SET_ISVIDEOCOLLAPSED', payload: val });
-
-
-
-
-
-
- 
-
-
-
-
-
-
+ const setViewMode = (val: any) => dispatch({ type: 'SET_VIEWMODE', payload: val });
 
  const {
  patientProfile, vaultDocuments, vaultAccessDenied, isLoading, isSubmitting,
@@ -103,11 +90,6 @@ export default function ConsultationRoomPage() {
  addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
  } = useConsultation(appointmentId, consumerId || 0);
 
-
- 
-
-
- 
  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
  const audioChunksRef = useRef<Blob[]>([]);
 
@@ -360,13 +342,29 @@ export default function ConsultationRoomPage() {
  
  <div className="flex items-center gap-3 w-full md:w-auto">
  {appointmentType === 'online' && (
- <button 
- onClick={() => setIsVideoCollapsed(!isVideoCollapsed)}
- className={`border w-10 h-10 flex items-center justify-center transition-colors rounded-none ${isVideoCollapsed ? 'border-amber-500 text-amber-600 bg-amber-50' : 'border-black dark:border-white text-black dark:text-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}`}
- title={isVideoCollapsed ? "Mostrar Video" : "Ocultar Video"}
- >
- {isVideoCollapsed ? <VideoOff className="w-4 h-4" strokeWidth={1.5} /> : <Video className="w-4 h-4" strokeWidth={1.5} />}
- </button>
+        <div className="flex bg-gray-100 dark:bg-[#111] p-1 border border-black dark:border-white">
+          <button 
+            onClick={() => setViewMode('split')}
+            className={`w-8 h-8 flex items-center justify-center transition-colors ${viewMode === 'split' ? 'bg-white dark:bg-black shadow-sm' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
+            title="Vista Dividida"
+          >
+            <Columns className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+          <button 
+            onClick={() => setViewMode('video')}
+            className={`w-8 h-8 flex items-center justify-center transition-colors ${viewMode === 'video' ? 'bg-white dark:bg-black shadow-sm' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
+            title="Solo Video"
+          >
+            <Monitor className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+          <button 
+            onClick={() => setViewMode('ehr')}
+            className={`w-8 h-8 flex items-center justify-center transition-colors ${viewMode === 'ehr' ? 'bg-white dark:bg-black shadow-sm' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
+            title="Solo Formulario"
+          >
+            <FileText className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+        </div>
  )}
  <button className="hidden sm:flex border border-black dark:border-white bg-transparent text-black dark:text-white px-4 h-10 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors items-center gap-2 rounded-none">
  <Save className="w-3.5 h-3.5" strokeWidth={1.5} /> {t('save_draft', { defaultValue: 'GUARDAR' })}
@@ -388,18 +386,18 @@ export default function ConsultationRoomPage() {
  
  {/* === SECCIÓN VIDEOLLAMADA (Solo ONLINE) === */}
  {appointmentType === 'online' && (
- <div 
- style={{ width: isVideoCollapsed ? '0px' : '35%', minWidth: isVideoCollapsed ? '0px' : '300px' }}
- className={`h-[45vh] lg:h-auto border-b lg:border-b-0 border-black dark:border-white shrink-0 bg-white dark:bg-[#050505] transition-all duration-300 ease-in-out relative ${isVideoCollapsed ? 'overflow-hidden opacity-0 border-r-0' : 'lg:border-r opacity-100'} resize-x overflow-auto`}
- >
- <div className="w-full h-full min-w-[300px]">
- <ProviderVideoWidget appointmentId={appointmentId} />
+        <div 
+          style={{ width: viewMode === 'ehr' ? '0px' : viewMode === 'video' ? '100%' : '35%', minWidth: viewMode === 'ehr' ? '0px' : '300px' }}
+          className={`h-[45vh] lg:h-auto border-b lg:border-b-0 border-black dark:border-white shrink-0 bg-white dark:bg-[#050505] transition-all duration-300 ease-in-out relative ${viewMode === 'ehr' ? 'overflow-hidden opacity-0 border-r-0' : 'lg:border-r opacity-100'} ${viewMode === 'split' ? 'resize-x' : ''} overflow-auto`}
+        >
+          <div className="w-full h-full min-w-[300px]">
+            <ProviderVideoWidget appointmentId={appointmentId} onClosePanel={() => setViewMode('ehr')} />
  </div>
  </div>
  )}
 
  {/* === SECCIÓN EHR === */}
- <div className="flex-1 h-full overflow-y-auto overflow-x-hidden relative p-4 md:p-6 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#050505] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
+ <div className={`flex-1 h-full overflow-y-auto overflow-x-hidden relative p-4 md:p-6 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#050505] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800 ${viewMode === 'video' ? 'hidden' : 'block'}`}>
  <div className="max-w-5xl mx-auto pb-12">
  
  {currentStep === 'profile' && (

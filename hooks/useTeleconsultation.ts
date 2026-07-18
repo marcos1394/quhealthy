@@ -97,6 +97,18 @@ export const useTeleconsultation = (
     isJoinedRef.current = false;
   }, [liveKit]);
 
+  const endCall = useCallback(() => {
+    liveKit.disconnectFromRoom();
+
+    const store = useTeleconsultationStore.getState();
+    if (store.localStream) {
+      store.localStream.getTracks().forEach((track) => track.stop());
+    }
+
+    store.setState('COMPLETED');
+    isJoinedRef.current = false;
+  }, [liveKit]);
+
   // Limpieza al desmontar el componente padre
   useEffect(() => {
     return () => {
@@ -108,6 +120,7 @@ export const useTeleconsultation = (
     startSetup,
     joinCall,
     cleanup,
+    endCall,
     media,
   };
 };

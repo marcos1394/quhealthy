@@ -4,7 +4,11 @@ import { Mic, MicOff, Video, VideoOff, PhoneOff, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTeleconsultationTimer } from '@/hooks/useTeleconsultationTimer';
 
-export const ConsultationRoom: React.FC = () => {
+interface ConsultationRoomProps {
+  onHangup?: () => void;
+}
+
+export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({ onHangup }) => {
  const { 
  localStream, 
  remoteStream, 
@@ -12,7 +16,8 @@ export const ConsultationRoom: React.FC = () => {
  isVideoMuted, 
  toggleAudioMuted, 
  toggleVideoMuted,
- state
+ state,
+ role
  } = useTeleconsultationStore();
  
  const { formattedTime, isWarning, isCritical } = useTeleconsultationTimer();
@@ -33,10 +38,11 @@ export const ConsultationRoom: React.FC = () => {
  }, [remoteStream]);
 
  const handleHangup = () => {
- // Para colgar, el usuario simplemente cierra la pestaña o navega atrás,
- // o podemos llamar al endpoint de finalizar si queremos permitir finalización manual.
- // Por ahora, recargar limpiará la sesión, o redirigir a dashboard.
- window.location.href = '/patient/dashboard';
+    if (onHangup) {
+      onHangup();
+    } else {
+      window.location.href = role === 'PATIENT' ? '/patient/dashboard' : '/provider/dashboard';
+    }
  };
 
  return (

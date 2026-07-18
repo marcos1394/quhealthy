@@ -6,14 +6,15 @@ import { WaitingRoom } from '@/components/teleconsultation/WaitingRoom';
 import { ConsultationRoom } from '@/components/teleconsultation/ConsultationRoom';
 import { CallFinished } from '@/components/teleconsultation/CallFinished';
 import { QhSpinner } from '@/components/ui/QhSpinner';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 
 interface ProviderVideoWidgetProps {
  appointmentId: number;
+ onClosePanel?: () => void;
 }
 
-export const ProviderVideoWidget: React.FC<ProviderVideoWidgetProps> = ({ appointmentId }) => {
- const { startSetup, joinCall, cleanup, media } = useTeleconsultation(appointmentId.toString(), 'PROVIDER');
+export const ProviderVideoWidget: React.FC<ProviderVideoWidgetProps> = ({ appointmentId, onClosePanel }) => {
+ const { startSetup, joinCall, cleanup, endCall, media } = useTeleconsultation(appointmentId.toString(), 'PROVIDER');
  const { state } = useTeleconsultationStore();
 
  useEffect(() => {
@@ -66,11 +67,24 @@ export const ProviderVideoWidget: React.FC<ProviderVideoWidgetProps> = ({ appoin
  )}
  
  {(state === 'CONNECTING' || state === 'RECONNECTING' || state === 'CONNECTED') && (
- <ConsultationRoom />
+ <ConsultationRoom onHangup={endCall} />
  )}
  
  {state === 'COMPLETED' && (
- <CallFinished />
+ <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#050505] text-black dark:text-white">
+   <div className="w-12 h-12 bg-green-500/10 dark:bg-green-500/20 rounded-none flex items-center justify-center mb-4 border border-green-500">
+     <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-500" />
+   </div>
+   <h3 className="text-[12px] font-bold uppercase tracking-widest mb-2">Videollamada Finalizada</h3>
+   <p className="text-[10px] uppercase font-semibold text-gray-500 mb-6">
+     Puedes continuar con la evaluación clínica.
+   </p>
+   {onClosePanel && (
+     <button onClick={onClosePanel} className="border border-black dark:border-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+       Cerrar Panel
+     </button>
+   )}
+ </div>
  )}
  </div>
  );
