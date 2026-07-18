@@ -8,7 +8,7 @@ export const useLiveKitVideo = () => {
   const connectToRoom = useCallback(async (wsUrl: string, token: string) => {
     if (roomRef.current) return;
 
-    // 1. Inicializar la sala con configuraciones óptimas para telemedicinaa
+    // 1. Inicializar la sala con configuraciones óptimas para telemedicina
     const room = new Room({
       videoCaptureDefaults: {
         resolution: VideoPresets.h720.resolution,
@@ -28,6 +28,14 @@ export const useLiveKitVideo = () => {
         const mediaStream = new MediaStream([track.mediaStreamTrack]);
         setRemoteStream(mediaStream);
         setState("CONNECTED");
+      } else if (track.kind === Track.Kind.Audio) {
+        // También necesitamos el audio remoto
+        const { remoteStream } = useTeleconsultationStore.getState();
+        if (remoteStream) {
+          remoteStream.addTrack(track.mediaStreamTrack);
+        } else {
+          setRemoteStream(new MediaStream([track.mediaStreamTrack]));
+        }
       }
     });
 
@@ -52,8 +60,16 @@ export const useLiveKitVideo = () => {
       // 5. Conectarse al servidor de LiveKit Cloud
       await room.connect(wsUrl, token);
       
-      // 6. Publicar automáticamente la cámara y micrófono locales previamente aprobados
-      await room.localParticipant.enableCameraAndMicrophone();
+      // 6. Publicar automáticamente los tracks locales que ya están en el Store
+      const { localStream } = useTeleconsultationStore.getState();
+      if (localStream) {
+        for (const track of localStream.getTracks()) {
+          await room.localParticipant.publishTrack(track);
+        }
+      } else {
+        // Fallback si no había stream (raro en este flujo)
+        await room.localParticipant.enableCameraAndMicrophone();
+      }
       
     } catch (error) {
       console.error("Error connecting to LiveKit room:", error);
