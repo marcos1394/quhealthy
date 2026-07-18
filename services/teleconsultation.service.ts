@@ -39,4 +39,10 @@ export const teleconsultationService = {
       preferences
     );
   },
+
+  revokeAiConsent: async (appointmentId: string): Promise<void> => {
+    await axiosInstance.patch(
+      `/api/appointments/teleconsultations/${appointmentId}/ai-consent/revoke`
+    );
+  },
 };

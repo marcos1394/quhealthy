@@ -51,6 +51,10 @@ interface TeleconsultationStore {
   };
   setSystemCheck: (key: keyof TeleconsultationStore['systemChecks'], value: boolean) => void;
 
+  // AI Agent Status
+  aiAgentActive: boolean;
+  setAiAgentActive: (active: boolean) => void;
+
   // Cleanup
   reset: () => void;
 }
@@ -71,7 +75,8 @@ const initialState = {
     mic: false,
     internet: typeof navigator !== 'undefined' ? navigator.onLine : true,
     browser: typeof navigator !== 'undefined' ? !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) : false
-  }
+  },
+  aiAgentActive: false
 };
 
 export const useTeleconsultationStore = create<TeleconsultationStore>((set) => ({
@@ -115,8 +120,13 @@ export const useTeleconsultationStore = create<TeleconsultationStore>((set) => (
   updateRemainingSeconds: (seconds) => set({ remainingSeconds: seconds }),
   
   setSystemCheck: (key, value) => set((state) => ({
-    systemChecks: { ...state.systemChecks, [key]: value }
+    systemChecks: {
+      ...state.systemChecks,
+      [key]: value
+    }
   })),
+
+  setAiAgentActive: (active) => set({ aiAgentActive: active }),
 
   reset: () => set({ ...initialState, systemChecks: { ...initialState.systemChecks, internet: typeof navigator !== 'undefined' ? navigator.onLine : true } })
 }));

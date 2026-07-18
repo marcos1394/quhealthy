@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, Clock } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, Clock, BrainCircuit, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTeleconsultationTimer } from '@/hooks/useTeleconsultationTimer';
+import { teleconsultationService } from '@/services/teleconsultation.service';
+import { toast } from 'react-toastify';
 
 interface ConsultationRoomProps {
   onHangup?: () => void;
@@ -17,8 +19,12 @@ export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({ onHangup }) 
  toggleAudioMuted, 
  toggleVideoMuted,
  state,
- role
+ role,
+ appointmentId,
+ aiAgentActive
  } = useTeleconsultationStore();
+ 
+ const [isRevoking, setIsRevoking] = useState(false);
  
  const { formattedTime, isWarning, isCritical } = useTeleconsultationTimer();
  
@@ -43,6 +49,20 @@ export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({ onHangup }) 
     } else {
       window.location.href = role === 'PATIENT' ? '/patient/dashboard' : '/provider/dashboard';
     }
+ };
+
+ const handleRevokeAiConsent = async () => {
+   if (!appointmentId) return;
+   try {
+     setIsRevoking(true);
+     await teleconsultationService.revokeAiConsent(appointmentId);
+     toast.success("Consentimiento revocado. La IA abandonará la sala.");
+   } catch (error) {
+     console.error("Failed to revoke AI consent:", error);
+     toast.error("Hubo un error al revocar el consentimiento.");
+   } finally {
+     setIsRevoking(false);
+   }
  };
 
  return (
@@ -72,19 +92,40 @@ export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({ onHangup }) 
  {/* Overlays */}
  <div className="absolute inset-0 z-10 flex flex-col pointer-events-none p-4 md:p-8">
  
- {/* Top Bar: Timer */}
- <div className="flex justify-center w-full">
- <div className={`
- pointer-events-auto flex items-center gap-2 px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-widest transition-colors border
- ${isCritical 
- ? 'bg-red-500 text-white border-red-500 animate-pulse' 
- : isWarning 
- ? 'bg-orange-500 text-white border-orange-500' 
- : 'bg-white dark:bg-[#050505] text-black dark:text-white border-black dark:border-white'}
- `}>
- <Clock className="w-4 h-4" />
- {formattedTime}
- </div>
+ {/* Top Bar: Timer & AI Indicator */}
+ <div className="flex justify-between items-start w-full">
+   {/* AI Indicator */}
+   <div className="flex flex-col gap-2 pointer-events-auto">
+     {aiAgentActive && (
+       <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-900 border border-blue-900 font-mono text-[10px] font-bold uppercase tracking-widest">
+         <BrainCircuit className="w-4 h-4 animate-pulse" />
+         IA ACTIVA
+       </div>
+     )}
+     {aiAgentActive && role === 'PATIENT' && (
+       <button
+         onClick={handleRevokeAiConsent}
+         disabled={isRevoking}
+         className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-red-50 text-red-600 border border-red-600 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+       >
+         <XCircle className="w-4 h-4" />
+         {isRevoking ? "REVOCANDO..." : "REVOCAR IA"}
+       </button>
+     )}
+   </div>
+
+   {/* Timer */}
+   <div className={`
+   pointer-events-auto flex items-center gap-2 px-4 py-2 font-mono text-[12px] font-bold uppercase tracking-widest transition-colors border
+   ${isCritical 
+   ? 'bg-red-500 text-white border-red-500 animate-pulse' 
+   : isWarning 
+   ? 'bg-orange-500 text-white border-orange-500' 
+   : 'bg-white dark:bg-[#050505] text-black dark:text-white border-black dark:border-white'}
+   `}>
+   <Clock className="w-4 h-4" />
+   {formattedTime}
+   </div>
  </div>
 
  {/* Video Local (Miniatura) */}

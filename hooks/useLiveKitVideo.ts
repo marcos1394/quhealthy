@@ -56,9 +56,29 @@ export const useLiveKitVideo = () => {
       if (connectionState === "disconnected") setState("RECONNECTING");
     });
 
+    // Función para revisar si el AudioAgent está en la sala
+    const checkAiAgent = (room: Room) => {
+      const { setAiAgentActive } = useTeleconsultationStore.getState();
+      const hasAgent = Array.from(room.remoteParticipants.values()).some(p => 
+        p.identity.toLowerCase().includes('agent')
+      );
+      setAiAgentActive(hasAgent);
+    };
+
+    room.on(RoomEvent.ParticipantConnected, (participant) => {
+      checkAiAgent(room);
+    });
+
+    room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+      checkAiAgent(room);
+    });
+
     try {
       // 5. Conectarse al servidor de LiveKit Cloud
       await room.connect(wsUrl, token);
+      
+      // Checar si el agente ya estaba en la sala
+      checkAiAgent(room);
       
       // 6. Publicar automáticamente los tracks locales que ya están en el Store
       const { localStream } = useTeleconsultationStore.getState();
