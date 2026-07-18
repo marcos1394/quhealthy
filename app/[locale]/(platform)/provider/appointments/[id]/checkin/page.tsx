@@ -34,7 +34,7 @@ export default function CheckinPage() {
 
     const fetchAppointment = async () => {
       try {
-        const data = await appointmentService.getById(id);
+        const data = await appointmentService.getAppointmentById(id);
         setAppointment(data);
         setLoading(false);
       } catch (err: any) {
