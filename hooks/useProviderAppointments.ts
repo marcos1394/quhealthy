@@ -59,9 +59,15 @@ export const useProviderAppointments = () => {
     }
   }, []);
 
-  // Carga inicial al montar
+  // Carga inicial al montar y polling cada 15 segundos para actualizaciones en tiempo real (ej. paciente entra a sala de espera)
   useEffect(() => {
     fetchAppointments();
+    
+    const interval = setInterval(() => {
+      fetchAppointments(false); // background fetch
+    }, 15000);
+    
+    return () => clearInterval(interval);
   }, [fetchAppointments]);
 
   return {
