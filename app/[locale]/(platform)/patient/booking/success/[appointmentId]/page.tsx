@@ -80,7 +80,7 @@ export default function BookingSuccessPage() {
     const providerName = appointment.providerNameSnapshot || "ESPECIALISTA ASIGNADO";
     const portalUrl = `${window.location.origin}/patient/dashboard/appointments/${appointmentId}`;
 
-    return `QuHealthy - Confirmación de Cita\n\nDetalles:\nServicio: ${serviceName}\nEspecialista: ${providerName}\nFecha: ${dateStr}\nModalidad: ${appointment.modality === 'ONLINE' ? 'Teleconsulta' : 'Presencial'}\n\nIngresa al portal para ver más detalles: ${portalUrl}`;
+    return `QuHealthy - Confirmación de Cita\n\nDetalles:\nServicio: ${serviceName}\nEspecialista: ${providerName}\nFecha: ${dateStr}\nModalidad: ${appointment.appointmentType === 'ONLINE' ? 'Teleconsulta' : 'Presencial'}\n\nIngresa al portal para ver más detalles: ${portalUrl}`;
   };
 
   const handleShare = async () => {
