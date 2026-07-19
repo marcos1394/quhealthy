@@ -23,25 +23,27 @@ export const useLiveKitVideo = () => {
 
     // 2. Escuchar cuando un participante comparte su track (video/audio)
     room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-      if (track.kind === Track.Kind.Video) {
-        // Creamos un MediaStream nativo a partir del track de LiveKit para tu store
+      if (track.kind === Track.Kind.Audio) {
+        // Fix: La forma más segura de reproducir múltiples audios (Humano + Agente IA)
+        // es permitiendo que LiveKit cree los elementos <audio> y los ancle al DOM
+        const element = track.attach();
+        element.id = `audio-${track.sid}`;
+        document.body.appendChild(element);
+      } else if (track.kind === Track.Kind.Video) {
+        // Mantenemos el flujo del store para el Video y que React lo ponga en el <video> principal
         const mediaStream = new MediaStream([track.mediaStreamTrack]);
         setRemoteStream(mediaStream);
         setState("CONNECTED");
-      } else if (track.kind === Track.Kind.Audio) {
-        // También necesitamos el audio remoto
-        const { remoteStream } = useTeleconsultationStore.getState();
-        if (remoteStream) {
-          remoteStream.addTrack(track.mediaStreamTrack);
-        } else {
-          setRemoteStream(new MediaStream([track.mediaStreamTrack]));
-        }
       }
     });
 
     // 3. Escuchar cuando un participante remueve un track
     room.on(RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
-      if (track.kind === Track.Kind.Video) {
+      if (track.kind === Track.Kind.Audio) {
+        track.detach().forEach(el => el.remove());
+        const el = document.getElementById(`audio-${track.sid}`);
+        if (el) el.remove();
+      } else if (track.kind === Track.Kind.Video) {
         setRemoteStream(null);
       }
     });
