@@ -72,6 +72,13 @@ axiosInstance.interceptors.request.use(
 
     const token = useSessionStore.getState().token;
     if (config.headers) {
+      // 🚀 FIX: Enviar siempre la zona horaria dinámica del usuario al backend
+      try {
+        config.headers['X-Timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      } catch (e) {
+        // Fallback seguro si falla
+      }
+
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
