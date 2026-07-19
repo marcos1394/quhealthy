@@ -15,9 +15,10 @@ interface Props {
  handleAddToCalendar: () => void;
  downloadInvoice: () => void;
  handleShare: () => void;
+ handleEnableAlert: () => void;
 }
 
-export function ActionButtons({ t, router, copied, isDownloading, handleAddToCalendar, downloadInvoice, handleShare }: Props) {
+export function ActionButtons({ t, router, copied, isDownloading, handleAddToCalendar, downloadInvoice, handleShare, handleEnableAlert }: Props) {
  return (
  <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-12">
  
@@ -57,7 +58,7 @@ export function ActionButtons({ t, router, copied, isDownloading, handleAddToCal
  </button>
 
  <button 
- onClick={() => toast.info("NOTIFICACIÓN PROGRAMADA EN TERMINAL.")} 
+ onClick={handleEnableAlert} 
  className="flex flex-col items-center justify-center gap-3 py-6 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group"
  >
  <Bell className="w-5 h-5 text-gray-400 group-hover:text-white dark:group-hover:text-black" strokeWidth={1.5} /> 

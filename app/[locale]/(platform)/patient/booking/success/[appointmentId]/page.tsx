@@ -24,6 +24,7 @@ import { SuccessHeader } from "@/components/booking/success/SuccessHeader";
 import { QrCodeCard } from "@/components/booking/success/QrCodeCard";
 import { AppointmentSummary } from "@/components/booking/success/AppointmentSummary";
 import { ActionButtons } from "@/components/booking/success/ActionButtons";
+import { downloadICS } from "@/lib/calendar-utils";
 
 export default function BookingSuccessPage() {
   const params = useParams();
@@ -74,14 +75,12 @@ export default function BookingSuccessPage() {
       "eeee d 'de' MMMM 'a las' HH:mm 'hrs'",
       { locale: es },
     ).toUpperCase();
-    return t("share_text", {
-      service:
-        appointment.serviceNameSnapshot ||
-        appointment.serviceName ||
-        "PROCEDIMIENTO CLÍNICO",
-      provider: appointment.providerNameSnapshot || "ESPECIALISTA ASIGNADO",
-      date: dateStr,
-    });
+    
+    const serviceName = appointment.serviceNameSnapshot || appointment.serviceName || "PROCEDIMIENTO CLÍNICO";
+    const providerName = appointment.providerNameSnapshot || "ESPECIALISTA ASIGNADO";
+    const portalUrl = `${window.location.origin}/patient/dashboard/appointments/${appointmentId}`;
+
+    return `QuHealthy - Confirmación de Cita\n\nDetalles:\nServicio: ${serviceName}\nEspecialista: ${providerName}\nFecha: ${dateStr}\nModalidad: ${appointment.modality === 'ONLINE' ? 'Teleconsulta' : 'Presencial'}\n\nIngresa al portal para ver más detalles: ${portalUrl}`;
   };
 
   const handleShare = async () => {
@@ -104,7 +103,30 @@ export default function BookingSuccessPage() {
   };
 
   const handleAddToCalendar = () => {
-    toast.info("La sincronización de calendario estará disponible pronto.");
+    if (appointment) {
+      downloadICS(appointment);
+      toast.success("Archivo de calendario descargado");
+    }
+  };
+
+  const handleEnableAlert = async () => {
+    try {
+      if (!appointment) return;
+      if ("Notification" in window) {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          toast.success("Notificaciones del navegador activadas");
+        }
+      }
+      
+      // Llamada al backend para activar recordatorios (SMS/Correo/WhatsApp)
+      const axios = (await import('@/lib/axios')).default;
+      await axios.post(`/api/appointments/${appointmentId}/reminders/enable`);
+      toast.success("Recordatorios (SMS/Correo) activados exitosamente");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al activar recordatorios");
+    }
   };
 
   // ==========================================
@@ -193,6 +215,7 @@ export default function BookingSuccessPage() {
             handleAddToCalendar={handleAddToCalendar}
             downloadInvoice={downloadInvoice}
             handleShare={handleShare}
+            handleEnableAlert={handleEnableAlert}
           />
         </motion.div>
       </div>
