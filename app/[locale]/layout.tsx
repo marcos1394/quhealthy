@@ -79,7 +79,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
     // Hreflang
     alternates: {
-      canonical: `/${locale}`,
       languages: {
         es: '/es',
         en: '/en',

@@ -23,10 +23,20 @@ export async function generateMetadata({
 
  // Inicializamos el t con namespace general si existe, o defaults seguros
  // Hacemos try/catch para fallback si no hubiese las keys
- return {
- title: locale === 'en' ? "QuHealthy | Comprehensive Health Platform" : "QuHealthy | Plataforma Integral de Salud",
- description: locale === 'en' ? "The #1 marketplace for health, beauty and wellness services." : "El marketplace #1 de servicios de salud, belleza y bienestar.",
- };
+  const baseUrl = "https://www.quhealthy.org";
+
+  return {
+    title: locale === 'en' ? "QuHealthy | Comprehensive Health Platform" : "QuHealthy | Plataforma Integral de Salud",
+    description: locale === 'en' ? "The #1 marketplace for health, beauty and wellness services." : "El marketplace #1 de servicios de salud, belleza y bienestar.",
+    alternates: {
+      canonical: `${baseUrl}/${locale}`,
+      languages: {
+        es: `${baseUrl}/es`,
+        en: `${baseUrl}/en`,
+        "x-default": `${baseUrl}/es`,
+      },
+    },
+  };
 }
 
 export default function Home() {
