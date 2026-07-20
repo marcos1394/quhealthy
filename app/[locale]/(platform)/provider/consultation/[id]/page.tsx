@@ -426,7 +426,6 @@ export default function ConsultationRoomPage() {
    <PatientBackgroundPanel
      patientDirectoryId={patientDirectoryId}
      consumerId={consumerId}
-     healthProfileId={patientProfile?.id}
    />
  </div>
  )}
