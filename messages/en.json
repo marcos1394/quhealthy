@@ -3139,6 +3139,8 @@
     "cash_register": "Cash Register",
     "calendar": "Calendar",
     "appointments": "Appointments",
+    "emergencies": "Emergencies",
+    "templates": "Clinical Templates",
     "reviews": "Reviews",
     "patients": "Patients",
     "billing": "Billing",
