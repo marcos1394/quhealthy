@@ -31,8 +31,8 @@ export const AiConsentModal: React.FC<AiConsentModalProps> = ({ onSubmit, isSubm
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col justify-center h-full min-h-[500px] overflow-y-auto py-6">
-      <div className="bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-6 md:p-10 relative overflow-hidden group my-auto">
+    <div className="absolute inset-0 w-full h-full overflow-y-auto p-4 sm:p-6 flex flex-col items-center justify-start sm:justify-center bg-slate-50 dark:bg-[#050505]">
+      <div className="w-full max-w-2xl bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 p-6 md:p-10 relative overflow-hidden group shrink-0 sm:my-auto">
         
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-black/5 dark:bg-white/5 rounded-bl-full pointer-events-none -z-10 transition-transform duration-500 group-hover:scale-110" />
