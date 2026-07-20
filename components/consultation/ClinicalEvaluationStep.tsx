@@ -197,11 +197,12 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  SV
  </div>
  <div>
- <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none">
- SIGNOS VITALES
+ <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none flex items-center gap-2">
+ SIGNOS VITALES 
+ <span className="bg-red-500 text-white px-1.5 py-0.5 rounded-sm text-[8px] tracking-widest">NOM-004 OBLIGATORIO</span>
  </h4>
  <p className="text-[9px] uppercase tracking-widest text-gray-500 mt-1">
- REGISTRO ESTRUCTURADO PARA GRÁFICAS DE EVOLUCIÓN
+ REGISTRO ESTRUCTURADO OBLIGATORIO PARA CUMPLIMIENTO NORMATIVO Y GRÁFICAS DE EVOLUCIÓN
  </p>
  </div>
  </div>

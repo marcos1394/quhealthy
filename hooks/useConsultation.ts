@@ -214,9 +214,16 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       
       toast.success(successMsg);
       return true; // Retornamos true para que el componente avance al paso 'success'
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al finalizar consulta:", error);
-      toast.error(errorMsg);
+      
+      let errorMsgToShow = errorMsg;
+      if (error.response?.status === 400 && error.response?.data?.message) {
+        // HU-004: Mostrar mensajes específicos de validación de la NOM-004
+        errorMsgToShow = error.response.data.message;
+      }
+      
+      toast.error(errorMsgToShow);
       return false;
     } finally {
       setIsSubmitting(false);

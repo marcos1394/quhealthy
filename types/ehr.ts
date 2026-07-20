@@ -138,3 +138,10 @@ export interface VaultDocument {
   uploadDate: string; // ISO 8601
   secureUrl?: string; // URL temporal de S3/Azure Blob Storage
 }
+
+export interface PatientBackgroundRequest {
+  healthProfileId: number;
+  personalBackground?: Record<string, any>;
+  familyBackground?: Record<string, any>;
+  socialBackground?: Record<string, any>;
+}

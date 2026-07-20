@@ -18,6 +18,7 @@ import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvalua
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
 import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; 
 import { ClinicalTemplatesManager } from "@/components/consultation/ClinicalTemplatesManager";
+import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgroundPanel";
 
 // Modal de Caja
 import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
@@ -27,7 +28,7 @@ import { DenominationMap } from "@/types/cash-register";
 // Widget de Teleconsulta
 import { ProviderVideoWidget } from "@/components/teleconsultation/ProviderVideoWidget";
 
-type PipelineStep = 'profile' | 'evaluation' | 'templates' | 'treatment' | 'success';
+type PipelineStep = 'profile' | 'background' | 'evaluation' | 'templates' | 'treatment' | 'success';
 
 export default function ConsultationRoomPage() {
  const t = useTranslations('EHR');
@@ -319,6 +320,13 @@ export default function ConsultationRoomPage() {
  </button>
  <ChevronRight className="w-3 h-3 text-gray-400" />
  <button 
+ onClick={() => setCurrentStep('background')}
+ className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'background' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
+ >
+ <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">{t('step_background', { defaultValue: 'ANTECEDENTES' })}</span>
+ </button>
+ <ChevronRight className="w-3 h-3 text-gray-400" />
+ <button 
  onClick={() => setCurrentStep('evaluation')}
  className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'evaluation' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
  >
@@ -409,8 +417,18 @@ export default function ConsultationRoomPage() {
  isOfflinePatient={isOfflinePatient}
  displayFullName={displayFullName}
  patientDirectoryId={patientDirectoryId} 
- onNext={() => setCurrentStep('evaluation')}
+ onNext={() => setCurrentStep('background')}
  />
+ )}
+
+ {currentStep === 'background' && (
+ <div className="h-[75vh]">
+   <PatientBackgroundPanel
+     patientDirectoryId={patientDirectoryId}
+     consumerId={consumerId}
+     healthProfileId={patientProfile?.id}
+   />
+ </div>
  )}
 
  {currentStep === 'evaluation' && (
@@ -427,7 +445,7 @@ export default function ConsultationRoomPage() {
  isTranscribing={isTranscribing}
  handleToggleRecording={handleToggleRecording}
  appointmentType={appointmentType}
- onBack={() => setCurrentStep('profile')}
+ onBack={() => setCurrentStep('background')}
  onNext={() => setCurrentStep('templates')}
  />
  )}

@@ -4,7 +4,8 @@ import {
   PatientClinicalProfile, 
   VaultDocument, 
   CompleteConsultationPayload,
-  ClinicalNotesDto
+  ClinicalNotesDto,
+  PatientBackgroundRequest
 } from '@/types/ehr';
 
 export const ehrService = {
@@ -77,8 +78,25 @@ export const ehrService = {
    */
   getPatientDocumentUrl: async (consumerId: number, documentId: string): Promise<string> => {
     const response = await axiosInstance.get<{ url: string }>(
+    const response = await axiosInstance.get<{ url: string }>(
       `/api/onboarding/consumer/vault/${consumerId}/document/${documentId}/url`
     );
     return response.data.url;
+  },
+
+  /**
+   * 🏥 Actualiza el Perfil Clínico Único (Antecedentes) desde la vista del Doctor
+   * PUT /api/appointments/provider/directory/background
+   */
+  updateProviderPatientBackground: async (payload: PatientBackgroundRequest): Promise<void> => {
+    await axiosInstance.put(`/api/appointments/provider/directory/background`, payload);
+  },
+
+  /**
+   * 🏥 Actualiza el Perfil Clínico Único (Antecedentes) desde la vista del Paciente
+   * PUT /api/patients/me/background
+   */
+  updatePatientBackground: async (payload: PatientBackgroundRequest): Promise<void> => {
+    await axiosInstance.put(`/api/patients/me/background`, payload);
   }
 };

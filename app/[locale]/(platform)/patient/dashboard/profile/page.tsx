@@ -28,6 +28,7 @@ import { handleApiError } from '@/lib/handleApiError';
 import { cn } from '@/lib/utils';
 
 import { ClinicalFormsHistory } from "@/components/consultation/ClinicalFormsHistory";
+import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgroundPanel";
 
 // Esquema de Validación
 const patientProfileSchema = z.object({
@@ -377,6 +378,13 @@ export default function PatientProfilePage() {
 
  </form>
  </Form>
+
+ {/* --- SECCIÓN DE ANTECEDENTES NOM-004 --- */}
+ {user?.id && (
+ <div className="mt-12">
+   <PatientBackgroundPanel consumerId={user.id} />
+ </div>
+ )}
 
  {/* --- SECCIÓN DE FICHAS CLÍNICAS (PLANTILLAS) --- */}
  {user?.id && (
