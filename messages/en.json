@@ -4100,5 +4100,9 @@
     },
     "loading": "Loading history...",
     "empty": "No records found matching your search."
+  },
+  "Teleconsultation": {
+    "ai_consent_title": "AI Medical Assistant",
+    "ai_consent_desc": "To provide you with better care, your doctor may use artificial intelligence during the consultation. Please select which uses you authorize."
   }
 }

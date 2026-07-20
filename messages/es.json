@@ -4125,5 +4125,9 @@
     },
     "loading": "Cargando historial...",
     "empty": "No se encontraron registros que coincidan con tu búsqueda."
+  },
+  "Teleconsultation": {
+    "ai_consent_title": "Asistente Médico con IA",
+    "ai_consent_desc": "Para brindarte una mejor atención, tu médico puede utilizar inteligencia artificial durante la consulta. Por favor, selecciona qué usos autorizas."
   }
 }
