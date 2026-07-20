@@ -14,7 +14,7 @@ import { EmergencyConsole } from "@/components/emergencies/EmergencyConsole";
 import { RegisterEmergencyModal } from "@/components/emergencies/RegisterEmergencyModal";
 
 export default function EmergenciesPage() {
-  const { session } = useSessionStore();
+  const { user } = useSessionStore();
   const [queue, setQueue] = useState<EmergencyQueueItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEmergency, setSelectedEmergency] = useState<EmergencyQueueItem | null>(null);
@@ -22,10 +22,10 @@ export default function EmergenciesPage() {
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
 
   const fetchQueue = async () => {
-    if (!session?.id) return;
+    if (!user?.id) return;
     try {
       // In a real scenario we'd use useQuery, but fetching directly here for simplicity
-      const data = await emergencyService.getEmergencyQueue(session.id);
+      const data = await emergencyService.getEmergencyQueue(user.id);
       setQueue(data);
     } catch (error) {
       console.error(error);
@@ -40,7 +40,7 @@ export default function EmergenciesPage() {
     // Auto-refresh the queue every 30 seconds
     const interval = setInterval(fetchQueue, 30000);
     return () => clearInterval(interval);
-  }, [session?.id]);
+  }, [user?.id]);
 
   const handlePatientSelect = (emergency: EmergencyQueueItem) => {
     setSelectedEmergency(emergency);

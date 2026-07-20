@@ -17,7 +17,7 @@ export const EmergencyConsole: React.FC<EmergencyConsoleProps> = ({
   emergency,
   onUpdate
 }) => {
-  const { session } = useSessionStore();
+  const { user } = useSessionStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clinicalNotes, setClinicalNotes] = useState({
     subjective: "",
@@ -30,11 +30,11 @@ export const EmergencyConsole: React.FC<EmergencyConsoleProps> = ({
   if (!isOpen) return null;
 
   const handleAddNote = async () => {
-    if (!session?.id) return;
+    if (!user?.id) return;
     setIsSubmitting(true);
     try {
       await emergencyService.addHourlyNote(emergency.appointmentId, {
-        providerId: session.id,
+        providerId: user.id,
         clinicalNotes
       });
       toast.success("Nota de evolución horaria guardada.");

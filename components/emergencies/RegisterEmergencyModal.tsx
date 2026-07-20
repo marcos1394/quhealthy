@@ -15,7 +15,7 @@ export const RegisterEmergencyModal: React.FC<RegisterEmergencyModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const { session } = useSessionStore();
+  const { user } = useSessionStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [patientId, setPatientId] = useState("");
 
@@ -23,12 +23,12 @@ export const RegisterEmergencyModal: React.FC<RegisterEmergencyModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.id || !patientId) return;
+    if (!user?.id || !patientId) return;
     
     setIsSubmitting(true);
     try {
       // Registrar cita de emergencia
-      const appt = await emergencyService.registerEmergencyWalkIn(session.id, Number(patientId));
+      const appt = await emergencyService.registerEmergencyWalkIn(user.id, Number(patientId));
       
       // Detonar triage inmediatamente (inicia el reloj de triage)
       await emergencyService.startTriage(appt.id);
