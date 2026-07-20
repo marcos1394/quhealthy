@@ -34,4 +34,12 @@ export interface PatientDirectoryProfile {
   gender: string | null;
   isPlatformUser: boolean;
   createdAt: string;
+  // --- NOM-024 ---
+  nom024CompliancePercentage?: number;
+  curp?: string;
+  ethnicGroup?: string;
+  healthInsurance?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  address?: string;
 }

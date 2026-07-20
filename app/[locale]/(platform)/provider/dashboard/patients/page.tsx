@@ -124,6 +124,7 @@ export default function ProviderPatientsPage() {
  <TableRow className="border-b border-black/10 dark:border-white/10 hover:bg-transparent">
  <TableHead className="h-14 pl-6 text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_patient", { defaultValue: 'PACIENTE' })}</TableHead>
  <TableHead className="h-14 text-center text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_status", { defaultValue: 'ESTADO' })}</TableHead>
+ <TableHead className="h-14 text-center text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">NOM-024</TableHead>
  <TableHead className="h-14 text-center text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_appointments", { defaultValue: 'CITAS' })}</TableHead>
  <TableHead className="h-14 text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_last_visit", { defaultValue: 'ÚLTIMA VISITA' })}</TableHead>
  <TableHead className="h-14 text-right pr-6 text-gray-500 font-bold text-[9px] uppercase tracking-widest whitespace-nowrap">{t("col_actions", { defaultValue: 'ACCIÓN' })}</TableHead>
@@ -168,6 +169,23 @@ export default function ProviderPatientsPage() {
  <span className={cn("w-1.5 h-1.5", client.status === 'active' ? "bg-emerald-500" : "bg-gray-500")} />
  {client.status === 'active' ? t("status_active", { defaultValue: 'ACTIVO' }) : t("status_inactive", { defaultValue: 'INACTIVO' })}
  </span>
+ </TableCell>
+ <TableCell className="text-center py-5">
+ <div className="flex flex-col items-center justify-center gap-1 group-hover:opacity-90">
+ <div className="w-16 h-1.5 bg-gray-100 dark:bg-[#111] overflow-hidden border border-black/10 dark:border-white/10 group-hover:border-white/20 dark:group-hover:border-black/20">
+ <div 
+ className={cn(
+ "h-full transition-all duration-500",
+ (client.consumer.nom024CompliancePercentage || 0) >= 100 ? "bg-emerald-500" :
+ (client.consumer.nom024CompliancePercentage || 0) >= 50 ? "bg-yellow-500" : "bg-red-500"
+ )}
+ style={{ width: `${client.consumer.nom024CompliancePercentage || 0}%` }}
+ />
+ </div>
+ <span className="text-[8px] font-bold text-gray-500 group-hover:text-white dark:group-hover:text-black">
+ {Math.round(client.consumer.nom024CompliancePercentage || 0)}%
+ </span>
+ </div>
  </TableCell>
  <TableCell className="text-center py-5">
  <span className="inline-flex items-center justify-center w-8 h-8 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-bold text-xs group-hover:bg-transparent group-hover:text-white dark:group-hover:bg-transparent dark:group-hover:text-black group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">

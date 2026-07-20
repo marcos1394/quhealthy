@@ -183,9 +183,27 @@ export default function PatientDetailPage() {
  </span>
  )}
  </div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+ <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4">
  {t("patient_since", { year: new Date(profile.createdAt).getFullYear(), defaultValue: `REGISTRADO EN ${new Date(profile.createdAt).getFullYear()}` })}
  </p>
+
+ {/* NOM-024 Compliance Bar */}
+ <div className="w-full max-w-[200px] flex flex-col gap-2 mt-2">
+ <div className="flex justify-between items-center w-full">
+ <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">NOM-024</span>
+ <span className="text-[8px] font-bold text-black dark:text-white">{Math.round(profile.nom024CompliancePercentage || 0)}%</span>
+ </div>
+ <div className="w-full h-1 bg-black/10 dark:bg-white/10 overflow-hidden relative">
+ <div 
+ className={cn(
+ "absolute top-0 left-0 h-full transition-all duration-500",
+ (profile.nom024CompliancePercentage || 0) >= 100 ? "bg-emerald-500" :
+ (profile.nom024CompliancePercentage || 0) >= 50 ? "bg-yellow-500" : "bg-red-500"
+ )}
+ style={{ width: `${profile.nom024CompliancePercentage || 0}%` }}
+ />
+ </div>
+ </div>
  </div>
 
  {/* Datos de Contacto */}

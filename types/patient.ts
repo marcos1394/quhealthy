@@ -4,6 +4,14 @@ export interface ConsumerInfo {
   email: string;
   phone?: string;
   profileImageUrl: string | null;
+  // --- NOM-024 ---
+  nom024CompliancePercentage?: number;
+  curp?: string;
+  ethnicGroup?: string;
+  healthInsurance?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  address?: string;
 }
 
 export interface PatientClient {
@@ -22,11 +30,29 @@ export interface PatientRegistrationPayload {
   birthDate: string; // YYYY-MM-DD
   gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
   preferredNotificationMethod?: string;
+  // --- NOM-024 ---
+  curp?: string;
+  ethnicGroup?: string;
+  healthInsurance?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  address?: string;
 }
 
 export interface PatientUpdatePayload {
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
   email?: string;
   phone?: string;
+  // --- NOM-024 ---
+  curp?: string;
+  ethnicGroup?: string;
+  healthInsurance?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  address?: string;
 }
 
 export interface PatientDirectorySearchResult {
@@ -41,4 +67,11 @@ export interface PatientDirectorySearchResult {
   gender: 'MALE' | 'FEMALE' | 'OTHER' | null;
   createdAt: string;
   platformUser: boolean;
+  // --- NOM-024 ---
+  curp?: string;
+  ethnicGroup?: string;
+  healthInsurance?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  address?: string;
 }

@@ -23,6 +23,7 @@ import { toast } from "react-toastify";
 import { consumerProfileService } from "@/services/consumerProfile.service";
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
 import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
+import { CreatableSelect } from "@/components/ui/creatable-select";
 import { WearablesStep } from "./WearablesStep";
 import { DependentsStep } from "./DependentsStep";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -193,6 +194,109 @@ export default function ConsumerOnboardingWizard() {
                 ))}
               </div>
             </div>
+
+            {/* --- DATOS NOM-024 --- */}
+            <div className="pt-6 border-t border-gray-200 dark:border-gray-800 mt-8">
+              <div className="border-l-2 border-black dark:border-white pl-4 py-2 mb-6 bg-gray-50 dark:bg-[#050505]">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                  Datos Requeridos (NOM-024)
+                </p>
+                <p className="text-xs text-gray-500 font-light">
+                  Información oficial requerida para tu expediente clínico.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">CURP</label>
+                  <input
+                    type="text"
+                    placeholder="Tu CURP (18 caracteres)"
+                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none uppercase"
+                    value={data.curp || ""}
+                    onChange={(e) => updateData({ curp: e.target.value.toUpperCase() })}
+                    maxLength={18}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Derechohabiencia</label>
+                  <CreatableSelect
+                    options={[
+                      { label: 'IMSS', value: 'IMSS' },
+                      { label: 'ISSSTE', value: 'ISSSTE' },
+                      { label: 'INSABI / SSA', value: 'INSABI' },
+                      { label: 'PEMEX / SEDENA / SEMAR', value: 'PEMEX' },
+                      { label: 'Seguro Médico Privado', value: 'SEGURO_PRIVADO' },
+                      { label: 'Ninguna', value: 'NINGUNA' }
+                    ]}
+                    value={data.healthInsurance || ''}
+                    onChange={(val) => updateData({ healthInsurance: val })}
+                    placeholder="SELECCIONAR O CREAR"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Domicilio Completo</label>
+                <textarea
+                  placeholder="Calle, número, colonia, código postal, ciudad, estado"
+                  className="w-full min-h-[80px] rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 p-4 transition-colors outline-none resize-none"
+                  value={data.address || ""}
+                  onChange={(e) => updateData({ address: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Grupo Étnico</label>
+                  <CreatableSelect
+                    options={[
+                      { label: 'Ninguno', value: 'Ninguno' },
+                      { label: 'Náhuatl', value: 'Náhuatl' },
+                      { label: 'Maya', value: 'Maya' },
+                      { label: 'Zapoteco', value: 'Zapoteco' },
+                      { label: 'Mixteco', value: 'Mixteco' },
+                      { label: 'Otomí', value: 'Otomí' },
+                      { label: 'Totonaca', value: 'Totonaca' },
+                      { label: 'Tsotsil', value: 'Tsotsil' },
+                      { label: 'Tzeltal', value: 'Tzeltal' },
+                      { label: 'Mazahua', value: 'Mazahua' },
+                      { label: 'Huasteco', value: 'Huasteco' }
+                    ]}
+                    value={data.ethnicGroup || ''}
+                    onChange={(val) => updateData({ ethnicGroup: val })}
+                    placeholder="SELECCIONAR O CREAR"
+                  />
+                </div>
+              </div>
+
+              <h4 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mt-8 mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
+                Contacto de Emergencia
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Nombre Completo</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. María Pérez"
+                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    value={data.emergencyContactName || ""}
+                    onChange={(e) => updateData({ emergencyContactName: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Teléfono</label>
+                  <input
+                    type="tel"
+                    placeholder="Ej. 55 1234 5678"
+                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    value={data.emergencyContactPhone || ""}
+                    onChange={(e) => updateData({ emergencyContactPhone: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
           </div>
         );
       case 2:

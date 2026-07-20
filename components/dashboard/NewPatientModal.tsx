@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CreatableSelect } from '@/components/ui/creatable-select';
 import { cn } from '@/lib/utils';
 import { usePatientDirectory } from '@/hooks/usePatientDirectory';
 import { PatientRegistrationPayload } from '@/types/patient';
@@ -55,7 +56,14 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
  phone: formData.phone?.trim() || undefined,
  birthDate: formData.birthDate,
  gender: formData.gender,
- preferredNotificationMethod: formData.preferredNotificationMethod
+ preferredNotificationMethod: formData.preferredNotificationMethod,
+ // --- NOM-024 ---
+ curp: formData.curp,
+ ethnicGroup: formData.ethnicGroup,
+ healthInsurance: formData.healthInsurance,
+ emergencyContactName: formData.emergencyContactName,
+ emergencyContactPhone: formData.emergencyContactPhone,
+ address: formData.address,
  };
  const success = await createPatient(payload);
  if (success) {
@@ -68,7 +76,13 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
  phone: '',
  birthDate: '',
  gender: 'MALE',
- preferredNotificationMethod: 'NONE'
+ preferredNotificationMethod: 'NONE',
+ curp: '',
+ ethnicGroup: '',
+ healthInsurance: '',
+ emergencyContactName: '',
+ emergencyContactPhone: '',
+ address: ''
  });
  setCalendarOpen(false);
  }
@@ -243,6 +257,102 @@ export function NewPatientModal({ isOpen, onClose, onSuccess }: NewPatientModalP
  <SelectItem className="text-[9px] font-bold uppercase tracking-widest focus:bg-black focus:text-white dark:focus:bg-white dark:focus:text-black cursor-pointer rounded-none" value="OTHER">{t('gender_other', { defaultValue: 'OTRO' })}</SelectItem>
  </SelectContent>
  </Select>
+ </div>
+ </div>
+ </div>
+
+ {/* Fila 4: NOM-024 (Datos Requeridos) */}
+ <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+ <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-4 border-b border-black/10 dark:border-white/10 pb-2 flex items-center gap-2">
+ <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">7</span>
+ Datos Complementarios (NOM-024)
+ </h4>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+ <div>
+ <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">CURP</label>
+ <Input 
+ value={formData.curp || ''} 
+ onChange={e => setFormData({...formData, curp: e.target.value.toUpperCase()})} 
+ maxLength={18}
+ placeholder="18 Caracteres"
+ className="h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold uppercase focus-visible:ring-0 focus-visible:border-black rounded-none"
+ disabled={isSubmitting}
+ />
+ </div>
+ <div>
+ <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Derechohabiencia</label>
+ <Select value={formData.healthInsurance} onValueChange={(val) => setFormData({...formData, healthInsurance: val})} disabled={isSubmitting}>
+ <SelectTrigger className="h-12 rounded-none border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-xs font-semibold uppercase focus:ring-0 focus:border-black">
+ <SelectValue placeholder="SELECCIONAR" />
+ </SelectTrigger>
+ <SelectContent className="bg-white dark:bg-[#0a0a0a] rounded-none">
+ <SelectItem className="text-[9px] font-bold uppercase tracking-widest rounded-none" value="IMSS">IMSS</SelectItem>
+ <SelectItem className="text-[9px] font-bold uppercase tracking-widest rounded-none" value="ISSSTE">ISSSTE</SelectItem>
+ <SelectItem className="text-[9px] font-bold uppercase tracking-widest rounded-none" value="INSABI">INSABI / SSA</SelectItem>
+ <SelectItem className="text-[9px] font-bold uppercase tracking-widest rounded-none" value="PEMEX">PEMEX / SEDENA / SEMAR</SelectItem>
+ <SelectItem className="text-[9px] font-bold uppercase tracking-widest rounded-none" value="SEGURO_PRIVADO">Seguro Médico Privado</SelectItem>
+ <SelectItem className="text-[9px] font-bold uppercase tracking-widest rounded-none" value="NINGUNA">Ninguna</SelectItem>
+ </SelectContent>
+ </Select>
+ </div>
+ </div>
+
+ <div className="mb-6">
+ <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Domicilio Completo</label>
+ <textarea
+ value={formData.address || ''} 
+ onChange={e => setFormData({...formData, address: e.target.value})}
+ placeholder="Calle, número, colonia, código postal, ciudad, estado"
+ className="w-full min-h-[60px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold uppercase focus:outline-none focus:border-black dark:focus:border-white resize-none"
+ disabled={isSubmitting}
+ />
+ </div>
+
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+ <div>
+ <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Grupo Étnico</label>
+ <CreatableSelect
+ options={[
+ { label: 'Ninguno', value: 'Ninguno' },
+ { label: 'Náhuatl', value: 'Náhuatl' },
+ { label: 'Maya', value: 'Maya' },
+ { label: 'Zapoteco', value: 'Zapoteco' },
+ { label: 'Mixteco', value: 'Mixteco' },
+ { label: 'Otomí', value: 'Otomí' },
+ { label: 'Totonaca', value: 'Totonaca' },
+ { label: 'Tsotsil', value: 'Tsotsil' },
+ { label: 'Tzeltal', value: 'Tzeltal' },
+ { label: 'Mazahua', value: 'Mazahua' },
+ { label: 'Huasteco', value: 'Huasteco' }
+ ]}
+ value={formData.ethnicGroup || ''}
+ onChange={(val) => setFormData({...formData, ethnicGroup: val})}
+ placeholder="SELECCIONAR O CREAR"
+ disabled={isSubmitting}
+ />
+ </div>
+ </div>
+
+ <h5 className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4 mt-6">Contacto de Emergencia</h5>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+ <div>
+ <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Nombre Completo</label>
+ <Input 
+ value={formData.emergencyContactName || ''} 
+ onChange={e => setFormData({...formData, emergencyContactName: e.target.value})}
+ className="h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold uppercase focus-visible:ring-0 focus-visible:border-black rounded-none"
+ disabled={isSubmitting}
+ />
+ </div>
+ <div>
+ <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Teléfono</label>
+ <Input 
+ type="tel"
+ value={formData.emergencyContactPhone || ''} 
+ onChange={e => setFormData({...formData, emergencyContactPhone: e.target.value})}
+ className="h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold uppercase focus-visible:ring-0 focus-visible:border-black rounded-none"
+ disabled={isSubmitting}
+ />
  </div>
  </div>
  </div>

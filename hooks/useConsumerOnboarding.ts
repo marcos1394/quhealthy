@@ -40,6 +40,13 @@ export function useConsumerOnboarding(stepsLength: number) {
             heightCm: profile.heightCm?.toString() ?? prev.heightCm,
             stressLevel: profile.stressLevel ?? prev.stressLevel,
             sleepHoursAvg: profile.sleepHoursAvg?.toString() ?? prev.sleepHoursAvg,
+            // --- NOM-024 ---
+            curp: profile.curp ?? prev.curp,
+            ethnicGroup: profile.ethnicGroup ?? prev.ethnicGroup,
+            healthInsurance: profile.healthInsurance ?? prev.healthInsurance,
+            emergencyContactName: profile.emergencyContactName ?? prev.emergencyContactName,
+            emergencyContactPhone: profile.emergencyContactPhone ?? prev.emergencyContactPhone,
+            address: profile.address ?? prev.address,
           }));
         }
       } catch (err) {
@@ -80,6 +87,13 @@ export function useConsumerOnboarding(stepsLength: number) {
           bloodType: data.bloodType,
           dietaryPreference: data.dietaryPreference,
           algorithmicConsentAccepted: data.algorithmicConsentAccepted,
+          // --- NOM-024 ---
+          curp: data.curp,
+          ethnicGroup: data.ethnicGroup,
+          healthInsurance: data.healthInsurance,
+          emergencyContactName: data.emergencyContactName,
+          emergencyContactPhone: data.emergencyContactPhone,
+          address: data.address,
         });
       } else if (currentStep === 2) {
         if (!data.weightKg || !data.heightCm) {

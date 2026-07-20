@@ -18,6 +18,13 @@ export interface ConsumerOnboardingData {
   allergies: any[];
   currentMedications: string[];
   healthGoals: string[];
+  // --- NOM-024 ---
+  curp: string;
+  ethnicGroup: string;
+  healthInsurance: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  address: string;
 }
 
 export const INITIAL_CONSUMER_ONBOARDING_DATA: ConsumerOnboardingData = {
@@ -40,4 +47,11 @@ export const INITIAL_CONSUMER_ONBOARDING_DATA: ConsumerOnboardingData = {
   allergies: [],
   currentMedications: [],
   healthGoals: [],
+  // --- NOM-024 ---
+  curp: "",
+  ethnicGroup: "",
+  healthInsurance: "",
+  emergencyContactName: "",
+  emergencyContactPhone: "",
+  address: "",
 };
