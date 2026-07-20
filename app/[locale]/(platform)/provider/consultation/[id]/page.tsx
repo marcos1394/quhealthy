@@ -334,13 +334,6 @@ export default function ConsultationRoomPage() {
  </button>
  <ChevronRight className="w-3 h-3 text-gray-400" />
  <button 
- onClick={() => setCurrentStep('templates')}
- className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'templates' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
- >
- <Activity className="w-3.5 h-3.5" strokeWidth={1.5} /> <span className="hidden sm:inline">PLANTILLAS</span>
- </button>
- <ChevronRight className="w-3 h-3 text-gray-400" />
- <button 
  onClick={() => setCurrentStep('treatment')}
  className={`px-3 h-8 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors rounded-none ${currentStep === 'treatment' ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-gray-500 hover:text-black dark:hover:text-white'}`}
  >
