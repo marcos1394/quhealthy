@@ -139,6 +139,7 @@ export default function PatientAppointmentDetailsPage() {
 
   const isOnline =
     appointment.type === "ONLINE" || appointment.appointmentType === "ONLINE";
+  const canJoinVideo = isOnline && (appointment.status === "SCHEDULED" || appointment.status === "IN_PROGRESS");
   const dateFormatted = format(new Date(appointment.startTime), "dd MMM yyyy", {
     locale: es,
   });
@@ -449,6 +450,16 @@ export default function PatientAppointmentDetailsPage() {
 
             {/* Bloque de Comandos (Chat / Reprogramar / Cancelar) */}
             <div className="space-y-4">
+              {canJoinVideo && (
+                <Button
+                  onClick={() => appointment.meetLink ? window.open(appointment.meetLink, '_blank') : router.push(`/patient/video-call/${appointment.id}`)}
+                  className="w-full rounded-none bg-blue-600 text-white hover:bg-blue-700 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 border-0"
+                >
+                  Unirse a Video Consulta
+                  <Video className="w-4 h-4" strokeWidth={1.5} />
+                </Button>
+              )}
+
               {(appointment.status === "SCHEDULED" ||
                 appointment.status === "COMPLETED") &&
                 appointment.paymentStatus === "SETTLED" && (
