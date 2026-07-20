@@ -5,6 +5,7 @@ import React from 'react';
 import { useTranslations } from "next-intl";
 import { Mic, Square, Sparkles, Video, ArrowRight, ArrowLeft, FileText, Cpu } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { TemplateSelectorModal } from "./TemplateSelectorModal";
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { SoapNotes, AppointmentDiagnosis, VitalSignRequest } from '@/types/ehr';
 import { cn } from '@/lib/utils';
@@ -40,13 +41,21 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  isRecording,
  isTranscribing,
  handleToggleRecording,
- appointmentType,
  onBack,
  onNext
 }) => {
  const t = useTranslations('EHR');
 
  const [isCopilotOpen, setIsCopilotOpen] = React.useState(false);
+ const [isTemplateModalOpen, setIsTemplateModalOpen] = React.useState(false);
+ const [targetField, setTargetField] = React.useState<'subjective' | 'objective' | 'assessment' | 'plan' | null>(null);
+
+ const handleTemplateSelect = (content: string) => {
+   if (targetField) {
+     const currentContent = soapNotes[targetField] || "";
+     updateSoapNote(targetField, currentContent ? `${currentContent}\n\n${content}` : content);
+   }
+ };
 
  return (
  <div className="flex flex-col gap-8 transition-colors duration-300">
@@ -70,6 +79,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  </div>
  </div>
  
+ <div className="flex items-center gap-2">
  <button
  onClick={() => setIsCopilotOpen(!isCopilotOpen)}
  className={cn(
@@ -82,6 +92,14 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  <Cpu className="w-3.5 h-3.5" strokeWidth={1.5} />
  <span className="hidden sm:inline">AI SCRIBE</span>
  </button>
+
+ <button
+    onClick={() => setIsTemplateModalOpen(true)}
+    className="h-10 px-4 flex items-center justify-center gap-2 border border-black dark:border-white text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+  >
+    <span>✨ Cargar Plantilla</span>
+  </button>
+  </div>
  </div>
  
  {/* Grid Blueprint SOAP */}
@@ -101,6 +119,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  <Textarea 
  value={soapNotes.subjective} 
  onChange={(e) => updateSoapNote('subjective', e.target.value)} 
+ onFocus={() => setTargetField('subjective')}
  onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
  placeholder={t('soap_subjective_placeholder', { defaultValue: 'Motivo de consulta y síntomas referidos por el paciente...' })} 
  className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors" 
@@ -120,6 +139,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  <Textarea 
  value={soapNotes.objective} 
  onChange={(e) => updateSoapNote('objective', e.target.value)} 
+ onFocus={() => setTargetField('objective')}
  onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
  placeholder={t('soap_objective_placeholder', { defaultValue: 'Signos vitales, hallazgos físicos y resultados de laboratorio...' })} 
  className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors" 
@@ -139,6 +159,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  <Textarea 
  value={soapNotes.assessment} 
  onChange={(e) => updateSoapNote('assessment', e.target.value)} 
+ onFocus={() => setTargetField('assessment')}
  onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
  placeholder={t('soap_assessment_placeholder', { defaultValue: 'Diagnóstico diferencial, razonamiento clínico y estado actual...' })} 
  className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors" 
@@ -158,6 +179,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  <Textarea 
  value={soapNotes.plan} 
  onChange={(e) => updateSoapNote('plan', e.target.value)} 
+ onFocus={() => setTargetField('plan')}
  onInput={(e) => { e.currentTarget.style.height = 'auto'; e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; }}
  placeholder={t('soap_plan_placeholder', { defaultValue: 'Tratamiento, medicamentos, estudios solicitados y seguimiento...' })} 
  className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors" 
@@ -268,6 +290,12 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
  {t('btn_continue_treatment', { defaultValue: 'CONTINUAR' })} <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
  </button>
  </div>
+
+ <TemplateSelectorModal
+    isOpen={isTemplateModalOpen}
+    onClose={() => setIsTemplateModalOpen(false)}
+    onSelect={handleTemplateSelect}
+  />
  </div>
  );
 };

@@ -23,6 +23,11 @@ export interface ClinicalTemplateRequest {
     category?: string;
     schema: ClinicalTemplateSchema;
     pdfTemplateText?: string;
+    content?: string;
+    isPublic?: boolean;
+    authorName?: string;
+    downloads?: number;
+    rating?: number;
 }
 
 export interface ClinicalTemplateResponse extends ClinicalTemplateRequest {
@@ -36,6 +41,11 @@ export const clinicalTemplateService = {
         const response = await axiosInstance.get('/api/appointments/clinical-templates', {
             params: { providerId }
         });
+        return response.data;
+    },
+
+    getCommunityTemplates: async (): Promise<ClinicalTemplateResponse[]> => {
+        const response = await axiosInstance.get('/api/appointments/clinical-templates/community');
         return response.data;
     },
 

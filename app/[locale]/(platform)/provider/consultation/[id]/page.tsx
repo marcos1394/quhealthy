@@ -17,7 +17,7 @@ import { PatientProfileStep } from "@/components/consultation/PatientProfileStep
 import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvaluationStep";
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
 import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep"; 
-import { ClinicalTemplatesManager } from "@/components/consultation/ClinicalTemplatesManager";
+
 import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgroundPanel";
 
 // Modal de Caja
@@ -28,7 +28,7 @@ import { DenominationMap } from "@/types/cash-register";
 // Widget de Teleconsulta
 import { ProviderVideoWidget } from "@/components/teleconsultation/ProviderVideoWidget";
 
-type PipelineStep = 'profile' | 'background' | 'evaluation' | 'templates' | 'treatment' | 'success';
+type PipelineStep = 'profile' | 'background' | 'evaluation' | 'treatment' | 'success';
 
 export default function ConsultationRoomPage() {
  const t = useTranslations('EHR');
@@ -445,15 +445,6 @@ export default function ConsultationRoomPage() {
  handleToggleRecording={handleToggleRecording}
  appointmentType={appointmentType}
  onBack={() => setCurrentStep('background')}
- onNext={() => setCurrentStep('templates')}
- />
- )}
-
- {currentStep === 'templates' && (
- <ClinicalTemplatesManager
- appointmentId={appointmentId}
- consumerId={consumerId || 0}
- onBack={() => setCurrentStep('evaluation')}
  onNext={() => setCurrentStep('treatment')}
  />
  )}
@@ -465,7 +456,7 @@ export default function ConsultationRoomPage() {
  setNewRx={setNewRx}
  handleAddRx={handleAddRx}
  removePrescriptionItem={removePrescriptionItem}
- onBack={() => setCurrentStep('templates')}
+ onBack={() => setCurrentStep('evaluation')}
  />
  )}
 

@@ -36,6 +36,11 @@ import {
   Utensils,
   Activity,
   AlertTriangle,
+  Globe,
+  Bell,
+  Search,
+  CheckCircle,
+  FileText,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
@@ -137,6 +142,12 @@ const providerLinks = [
     key: "history",
     href: "/provider/dashboard/history",
     icon: History,
+    badge: null,
+  },
+  {
+    key: "templates",
+    href: "/provider/dashboard/templates",
+    icon: FileText,
     badge: null,
   },
   {
