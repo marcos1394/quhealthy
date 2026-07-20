@@ -35,6 +35,7 @@ import {
   X,
   Utensils,
   Activity,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
@@ -112,6 +113,12 @@ const providerLinks = [
     key: "appointments",
     href: "/provider/dashboard/appointments",
     icon: ClipboardIcon,
+    badge: null,
+  },
+  {
+    key: "emergencies",
+    href: "/provider/dashboard/emergencies",
+    icon: AlertTriangle,
     badge: null,
   },
   {
