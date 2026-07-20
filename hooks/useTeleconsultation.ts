@@ -147,7 +147,6 @@ export const useTeleconsultation = (
           store.preferredLanguage,
         );
 
-        const store = useTeleconsultationStore.getState();
         store.setTimerConfig(response.serverEndTime, response.remainingSeconds);
 
         if (response.canStartWebRTC && response.livekitWsUrl && response.livekitToken) {
