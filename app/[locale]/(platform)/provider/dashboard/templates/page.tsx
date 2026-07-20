@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Search, Plus, Filter, FileText, Share2, Globe, User, Clock, Star, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { clinicalTemplateService, ClinicalTemplateResponse } from "@/services/clinicalTemplates.service";
-import { useSessionStore } from "@/store/useSessionStore";
+import { useSessionStore } from "@/stores/SessionStore";
 import { format } from "date-fns";
 
 export default function TemplatesExplorerPage() {

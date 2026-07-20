@@ -3,7 +3,7 @@ import { Search, FileText, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { clinicalTemplateService, ClinicalTemplateResponse } from '@/services/clinicalTemplates.service';
-import { useSessionStore } from '@/store/useSessionStore';
+import { useSessionStore } from '@/stores/SessionStore';
 
 interface TemplateSelectorModalProps {
   isOpen: boolean;
