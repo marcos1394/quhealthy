@@ -78,7 +78,6 @@ export const ehrService = {
    */
   getPatientDocumentUrl: async (consumerId: number, documentId: string): Promise<string> => {
     const response = await axiosInstance.get<{ url: string }>(
-    const response = await axiosInstance.get<{ url: string }>(
       `/api/onboarding/consumer/vault/${consumerId}/document/${documentId}/url`
     );
     return response.data.url;
