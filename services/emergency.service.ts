@@ -1,5 +1,4 @@
 import axiosInstance from "@/lib/axios";
-import { Appointment } from "@/types/appointment"; // Assuming Appointment type exists, we can use any or partial for now
 
 export enum TriageLevel {
   LEVEL_1_RESUSCITATION = "LEVEL_1_RESUSCITATION",
