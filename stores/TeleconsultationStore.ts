@@ -24,7 +24,9 @@ interface TeleconsultationStore {
   appointmentId: string | null;
   teleconsultationId: string | null;
   role: ParticipantRole | null;
+  preferredLanguage: string;
   setIdentifiers: (appId: string, teleId: string, role: ParticipantRole) => void;
+  setPreferredLanguage: (lang: string) => void;
 
   // Media state
   localStream: MediaStream | null;
@@ -55,6 +57,11 @@ interface TeleconsultationStore {
   aiAgentActive: boolean;
   setAiAgentActive: (active: boolean) => void;
 
+  // Transcriptions
+  transcriptions: Array<{id: string, text: string, participantName: string, isTranslation: boolean}>;
+  addTranscription: (transcription: {id: string, text: string, participantName: string, isTranslation: boolean}) => void;
+  clearTranscriptions: () => void;
+
   // Cleanup
   reset: () => void;
 }
@@ -64,6 +71,7 @@ const initialState = {
   appointmentId: null,
   teleconsultationId: null,
   role: null,
+  preferredLanguage: 'es',
   localStream: null,
   remoteStream: null,
   isAudioMuted: false,
@@ -76,7 +84,8 @@ const initialState = {
     internet: typeof navigator !== 'undefined' ? navigator.onLine : true,
     browser: typeof navigator !== 'undefined' ? !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) : false
   },
-  aiAgentActive: false
+  aiAgentActive: false,
+  transcriptions: []
 };
 
 export const useTeleconsultationStore = create<TeleconsultationStore>((set) => ({
@@ -89,6 +98,8 @@ export const useTeleconsultationStore = create<TeleconsultationStore>((set) => (
     teleconsultationId: teleId, 
     role 
   }),
+  
+  setPreferredLanguage: (lang) => set({ preferredLanguage: lang }),
   
   setLocalStream: (stream) => set({ localStream: stream }),
   
@@ -127,6 +138,13 @@ export const useTeleconsultationStore = create<TeleconsultationStore>((set) => (
   })),
 
   setAiAgentActive: (active) => set({ aiAgentActive: active }),
+
+  addTranscription: (transcription) => set((state) => {
+    const newTranscriptions = [...state.transcriptions, transcription].slice(-3); // Keep only last 3
+    return { transcriptions: newTranscriptions };
+  }),
+
+  clearTranscriptions: () => set({ transcriptions: [] }),
 
   reset: () => set({ ...initialState, systemChecks: { ...initialState.systemChecks, internet: typeof navigator !== 'undefined' ? navigator.onLine : true } })
 }));

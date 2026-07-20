@@ -73,6 +73,7 @@ export const useTeleconsultation = (
         const response = await teleconsultationService.joinTeleconsultation(
           teleconsultationId,
           role === "PROVIDER",
+          store.preferredLanguage,
         );
 
         store.setTimerConfig(response.serverEndTime, response.remainingSeconds);
@@ -139,9 +140,11 @@ export const useTeleconsultation = (
       }
 
       try {
+        const store = useTeleconsultationStore.getState();
         const response = await teleconsultationService.joinTeleconsultation(
           teleconsultationId,
           role === "PROVIDER",
+          store.preferredLanguage,
         );
 
         const store = useTeleconsultationStore.getState();

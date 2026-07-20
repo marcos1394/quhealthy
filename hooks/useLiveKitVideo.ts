@@ -75,6 +75,21 @@ export const useLiveKitVideo = () => {
       checkAiAgent(room);
     });
 
+    room.on(RoomEvent.TranscriptionReceived, (transcriptions, participant, publication) => {
+      const { addTranscription } = useTeleconsultationStore.getState();
+      
+      transcriptions.forEach((transcription) => {
+        // The text sent by the agent contains both original and translation if they differ
+        // e.g. "[ES] Hola\n[EN] Hello" or just the text if same language
+        addTranscription({
+          id: transcription.id || Math.random().toString(),
+          text: transcription.text,
+          participantName: participant?.name || participant?.identity || "Unknown",
+          isTranslation: transcription.text.includes('\n[') // simple heuristic based on our agent format
+        });
+      });
+    });
+
     try {
       // 5. Conectarse al servidor de LiveKit Cloud
       await room.connect(wsUrl, token);

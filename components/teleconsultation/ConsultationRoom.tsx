@@ -156,6 +156,22 @@ export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({ onHangup }) 
  </div>
  </div>
 
+ {/* Subtitles Overlay */}
+ {useTeleconsultationStore((state) => state.transcriptions).length > 0 && (
+   <div className="absolute bottom-24 left-0 right-0 z-20 flex flex-col items-center pointer-events-none px-4 space-y-1">
+     {useTeleconsultationStore((state) => state.transcriptions).map((t, idx) => (
+       <div key={t.id + idx} className="bg-black/70 backdrop-blur-sm text-white px-4 py-2 border-l-4 border-white max-w-2xl w-full">
+         <div className="text-[9px] font-bold uppercase tracking-widest text-gray-300 mb-1">{t.participantName}</div>
+         {t.isTranslation ? (
+           <div className="text-sm font-mono whitespace-pre-wrap">{t.text}</div>
+         ) : (
+           <div className="text-sm font-mono">{t.text}</div>
+         )}
+       </div>
+     ))}
+   </div>
+ )}
+
  <div className="absolute bottom-0 left-0 right-0 z-20 p-4 flex justify-center bg-gradient-to-t from-white via-white/80 dark:from-[#050505] dark:via-[#050505]/80 to-transparent">
  <div className="flex items-center gap-2 bg-white dark:bg-[#0a0a0a] px-3 py-2 border border-black dark:border-white shadow-2xl">
  

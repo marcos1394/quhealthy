@@ -15,9 +15,10 @@ export const teleconsultationService = {
   joinTeleconsultation: async (
     appointmentId: string,
     isProvider: boolean,
+    language: string,
   ): Promise<TeleconsultationAccessResponse> => {
     const response = await axiosInstance.post(
-      `/api/appointments/teleconsultations/${appointmentId}/join`,
+      `/api/appointments/teleconsultations/${appointmentId}/join?language=${language}`,
       {
         isProvider,
       },

@@ -77,14 +77,29 @@ export const DeviceSetup: React.FC<DeviceSetupProps> = ({ media, onJoin, isLoadi
  </div>
 
  {/* Overlay inferior y botón de entrada */}
- <div className="absolute bottom-0 left-0 right-0 z-20 p-6 flex flex-col items-center bg-gradient-to-t from-black/80 via-black/40 to-transparent">
- <Button 
- className="w-full sm:w-auto min-w-[200px] h-12 text-[10px] uppercase tracking-widest rounded-none font-bold border border-transparent bg-white text-black hover:bg-gray-200 shadow-2xl transition-all"
- onClick={onJoin}
- disabled={!allChecksPassed || isLoading}
- >
- {isLoading ? 'Conectando...' : 'ENTRAR A LA SALA'}
- </Button>
+ <div className="absolute bottom-0 left-0 right-0 z-20 p-6 flex flex-col items-center bg-gradient-to-t from-black/80 via-black/60 to-transparent">
+  
+  <div className="mb-4 w-full sm:w-auto min-w-[200px] flex flex-col gap-1">
+    <label className="text-[10px] font-bold uppercase tracking-widest text-white text-center">
+      Idioma de Subtítulos / Traducción
+    </label>
+    <select 
+      className="w-full bg-white text-black border border-black rounded-none p-2 text-[12px] font-mono font-bold outline-none"
+      value={useTeleconsultationStore((s) => s.preferredLanguage)}
+      onChange={(e) => useTeleconsultationStore.getState().setPreferredLanguage(e.target.value)}
+    >
+      <option value="es">Español</option>
+      <option value="en">English (Inglés)</option>
+    </select>
+  </div>
+
+  <Button 
+  className="w-full sm:w-auto min-w-[200px] h-12 text-[10px] uppercase tracking-widest rounded-none font-bold border border-transparent bg-white text-black hover:bg-gray-200 shadow-2xl transition-all"
+  onClick={onJoin}
+  disabled={!allChecksPassed || isLoading}
+  >
+  {isLoading ? 'Conectando...' : 'ENTRAR A LA SALA'}
+  </Button>
  </div>
  </div>
  );
