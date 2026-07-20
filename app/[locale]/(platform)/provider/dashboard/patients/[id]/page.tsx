@@ -482,7 +482,6 @@ export default function PatientDetailPage() {
  <div className="border-b border-black/10 dark:border-white/10">
    <PatientBackgroundPanel 
      patientDirectoryId={patientDirectoryId} 
-     healthProfileId={healthProfile?.id}
    />
  </div>
 
