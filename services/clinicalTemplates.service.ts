@@ -37,32 +37,43 @@ export interface ClinicalTemplateResponse extends ClinicalTemplateRequest {
     updatedAt: string;
 }
 
+const parseTemplate = (tmpl: any): ClinicalTemplateResponse => {
+    if (typeof tmpl.schema === 'string') {
+        try {
+            tmpl.schema = JSON.parse(tmpl.schema);
+        } catch (e) {
+            tmpl.schema = { fields: [] };
+        }
+    }
+    return tmpl as ClinicalTemplateResponse;
+};
+
 export const clinicalTemplateService = {
     getTemplates: async (providerId?: number): Promise<ClinicalTemplateResponse[]> => {
         const response = await axiosInstance.get('/api/appointments/clinical-templates', {
             params: { providerId }
         });
-        return response.data;
+        return response.data.map(parseTemplate);
     },
 
     getCommunityTemplates: async (): Promise<ClinicalTemplateResponse[]> => {
         const response = await axiosInstance.get('/api/appointments/clinical-templates/community');
-        return response.data;
+        return response.data.map(parseTemplate);
     },
 
     getTemplate: async (id: number): Promise<ClinicalTemplateResponse> => {
         const response = await axiosInstance.get(`/api/appointments/clinical-templates/${id}`);
-        return response.data;
+        return parseTemplate(response.data);
     },
 
     createTemplate: async (data: ClinicalTemplateRequest): Promise<ClinicalTemplateResponse> => {
         const response = await axiosInstance.post('/api/appointments/clinical-templates', data);
-        return response.data;
+        return parseTemplate(response.data);
     },
 
     updateTemplate: async (id: number, data: ClinicalTemplateRequest): Promise<ClinicalTemplateResponse> => {
         const response = await axiosInstance.put(`/api/appointments/clinical-templates/${id}`, data);
-        return response.data;
+        return parseTemplate(response.data);
     },
 
     deleteTemplate: async (id: number): Promise<void> => {
@@ -77,6 +88,6 @@ export const clinicalTemplateService = {
         const response = await axiosInstance.post(`/api/appointments/clinical-templates/${id}/clone`, null, {
             params: { providerId }
         });
-        return response.data;
+        return parseTemplate(response.data);
     }
 };

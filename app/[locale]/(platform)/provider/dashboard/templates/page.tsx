@@ -525,7 +525,7 @@ export default function TemplatesExplorerPage() {
 
         {/* Modal de Vista Previa */}
         <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-none border-black dark:border-white">
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
             <DialogHeader>
               <DialogTitle className="text-xl uppercase tracking-widest">{previewTemplate?.name}</DialogTitle>
               <DialogDescription className="text-xs uppercase tracking-widest">{previewTemplate?.description}</DialogDescription>
