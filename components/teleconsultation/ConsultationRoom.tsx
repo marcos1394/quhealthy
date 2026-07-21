@@ -21,7 +21,8 @@ export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({ onHangup }) 
  state,
  role,
  appointmentId,
- aiAgentActive
+ aiAgentActive,
+ transcriptions
  } = useTeleconsultationStore();
  
  const [isRevoking, setIsRevoking] = useState(false);
@@ -157,9 +158,9 @@ export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({ onHangup }) 
  </div>
 
  {/* Subtitles Overlay */}
- {useTeleconsultationStore((state) => state.transcriptions).length > 0 && (
+ {transcriptions.length > 0 && (
    <div className="absolute bottom-24 left-0 right-0 z-20 flex flex-col items-center pointer-events-none px-4 space-y-1">
-     {useTeleconsultationStore((state) => state.transcriptions).map((t, idx) => (
+     {transcriptions.map((t, idx) => (
        <div key={t.id + idx} className="bg-black/70 backdrop-blur-sm text-white px-4 py-2 border-l-4 border-white max-w-2xl w-full">
          <div className="text-[9px] font-bold uppercase tracking-widest text-gray-300 mb-1">{t.participantName}</div>
          {t.isTranslation ? (
