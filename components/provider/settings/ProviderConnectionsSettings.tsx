@@ -25,7 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { useGoogleLogin } from '@react-oauth/google';
 import { useSearchParams } from 'next/navigation';
-import api from '@/lib/api';
+import api from '@/lib/axios';
 
 // Tipos
 interface SocialConnection {
