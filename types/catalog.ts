@@ -19,6 +19,7 @@ export interface CatalogItemDTO {
   requiresEvaluation?: boolean;
   imageUrl?: string; 
   galleryImages?: GalleryImage[]; 
+  metadata?: Record<string, any>; // NUEVO: Para guardar campos custom como clinicalTemplateId
   
   // Específico de Servicios
   durationMinutes?: number;
