@@ -2915,6 +2915,14 @@
     "toast_load_error": "We couldn't load your packages. Please try again."
   },
   "EHR": {
+    "medical_history_base": "Base Medical History",
+    "save_background": "Save Background",
+    "nom004_background_notice": "According to NOM-004-SSA3-2012, recording the patient's medical background is mandatory.",
+    "family_background": "Family Background",
+    "add": "Add",
+    "no_data_added": "No data added",
+    "personal_background": "Personal Pathological and Non-Pathological Background",
+    "social_background": "Social Background",
     "title_consultation": "Consultation Room",
     "tab_history": "History & Vault",
     "tab_soap": "Clinical Notes (SOAP)",

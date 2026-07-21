@@ -2940,6 +2940,14 @@
     "toast_load_error": "No pudimos cargar tus paquetes. Intenta de nuevo."
   },
   "EHR": {
+    "medical_history_base": "Historial Médico Base",
+    "save_background": "Guardar Antecedentes",
+    "nom004_background_notice": "De acuerdo a la NOM-004-SSA3-2012, es obligatorio registrar los antecedentes médicos del paciente.",
+    "family_background": "Antecedentes Heredofamiliares",
+    "add": "Agregar",
+    "no_data_added": "No se han agregado datos",
+    "personal_background": "Antecedentes Personales Patológicos y No Patológicos",
+    "social_background": "Antecedentes Sociales",
     "title_consultation": "Sala de Consulta",
     "tab_history": "Historial y Bóveda",
     "tab_soap": "Notas Clínicas (SOAP)",
