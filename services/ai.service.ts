@@ -12,5 +12,13 @@ export const aiService = {
       audioBase64
     });
     return response.data;
+  },
+
+  /**
+   * 🔄 Recupera las notas SOAP generadas en background por el agente de LiveKit
+   */
+  getStagingSoapNote: async (appointmentId: number): Promise<{ soapJson: string }> => {
+    const response = await axiosInstance.get(`/api/appointments/ai/clinical-copilot/staging-soap/${appointmentId}`);
+    return response.data;
   }
 };

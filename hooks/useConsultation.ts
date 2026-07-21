@@ -250,6 +250,33 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     }
   };
 
+  const syncAiSoapNote = async (): Promise<boolean> => {
+    try {
+      const response = await aiService.getStagingSoapNote(appointmentId);
+      if (response && response.soapJson) {
+        let generatedSoap: SoapNotes;
+        try {
+          generatedSoap = JSON.parse(response.soapJson);
+        } catch (e) {
+          console.error("El JSON de staging no es válido", e);
+          return false;
+        }
+
+        setSoapNotes(prevNotes => ({
+          subjective: prevNotes.subjective || generatedSoap.subjective || '',
+          objective: prevNotes.objective || generatedSoap.objective || '',
+          assessment: prevNotes.assessment || generatedSoap.assessment || '',
+          plan: prevNotes.plan || generatedSoap.plan || ''
+        }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      // 404 significa que aún no hay nota generada en staging
+      return false;
+    }
+  };
+
   return {
     patientProfile,
     vaultDocuments,
@@ -270,6 +297,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     addPrescriptionItem,
     removePrescriptionItem,
     completeConsultation,
-    processAudioWithAi
+    processAudioWithAi,
+    syncAiSoapNote
   };
 };

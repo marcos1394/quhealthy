@@ -88,7 +88,7 @@ export default function ConsultationRoomPage() {
  soapNotes, setSoapNotes, prescription, loadPatientRecord, updateSoapNote, 
  addDiagnosis, removeDiagnosis, diagnoses,
  addVitalSign, removeVitalSign, vitalSigns,
- addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi
+ addPrescriptionItem, removePrescriptionItem, completeConsultation, processAudioWithAi, syncAiSoapNote
  } = useConsultation(appointmentId, consumerId || 0);
 
  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -436,6 +436,7 @@ export default function ConsultationRoomPage() {
  isRecording={isRecording}
  isTranscribing={isTranscribing}
  handleToggleRecording={handleToggleRecording}
+ syncAiSoapNote={syncAiSoapNote}
  appointmentType={appointmentType}
  onBack={() => setCurrentStep('background')}
  onNext={() => setCurrentStep('treatment')}
