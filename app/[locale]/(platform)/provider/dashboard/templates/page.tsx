@@ -196,7 +196,7 @@ export default function TemplatesExplorerPage() {
     if (!selectedServiceId || !templateToLink) return;
     try {
       const service = providerServices.find(s => s.id === Number(selectedServiceId));
-      if (service) {
+      if (service && service.id) {
         if (!service.metadata) service.metadata = {};
         service.metadata.clinicalTemplateId = templateToLink.id;
         
