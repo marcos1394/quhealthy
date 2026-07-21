@@ -51,6 +51,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   isRecording,
   isTranscribing,
   handleToggleRecording,
+  appointmentType,
   onBack,
   onNext,
   syncAiSoapNote
