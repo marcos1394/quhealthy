@@ -44,40 +44,40 @@ export const emergencyService = {
     });
     if (consumerId) params.append("consumerId", consumerId.toString());
 
-    const response = await axiosInstance.post(`/api/emergencies/register?${params.toString()}`);
+    const response = await axiosInstance.post(`/api/appointments/emergencies/register?${params.toString()}`);
     return response.data;
   },
 
   startTriage: async (appointmentId: number): Promise<any> => {
-    const response = await axiosInstance.post(`/api/emergencies/${appointmentId}/triage/start`);
+    const response = await axiosInstance.post(`/api/appointments/emergencies/${appointmentId}/triage/start`);
     return response.data;
   },
 
   completeTriage: async (appointmentId: number, request: TriageRequest): Promise<any> => {
-    const response = await axiosInstance.put(`/api/emergencies/${appointmentId}/triage/complete`, request);
+    const response = await axiosInstance.put(`/api/appointments/emergencies/${appointmentId}/triage/complete`, request);
     return response.data;
   },
 
   startMedicalAttention: async (appointmentId: number): Promise<any> => {
-    const response = await axiosInstance.post(`/api/emergencies/${appointmentId}/attention/start`);
+    const response = await axiosInstance.post(`/api/appointments/emergencies/${appointmentId}/attention/start`);
     return response.data;
   },
 
   addHourlyNote: async (appointmentId: number, request: HourlyNoteRequest): Promise<any> => {
-    const response = await axiosInstance.post(`/api/emergencies/${appointmentId}/notes`, request);
+    const response = await axiosInstance.post(`/api/appointments/emergencies/${appointmentId}/notes`, request);
     return response.data;
   },
 
   completeEmergency: async (appointmentId: number, patientDestination?: string): Promise<any> => {
     const url = patientDestination 
-      ? `/api/emergencies/${appointmentId}/complete?patientDestination=${encodeURIComponent(patientDestination)}`
-      : `/api/emergencies/${appointmentId}/complete`;
+      ? `/api/appointments/emergencies/${appointmentId}/complete?patientDestination=${encodeURIComponent(patientDestination)}`
+      : `/api/appointments/emergencies/${appointmentId}/complete`;
     const response = await axiosInstance.post(url);
     return response.data;
   },
 
   getEmergencyQueue: async (providerId: number): Promise<EmergencyQueueItem[]> => {
-    const response = await axiosInstance.get(`/api/emergencies/queue?providerId=${providerId}`);
+    const response = await axiosInstance.get(`/api/appointments/emergencies/queue?providerId=${providerId}`);
     return response.data;
   },
 };
