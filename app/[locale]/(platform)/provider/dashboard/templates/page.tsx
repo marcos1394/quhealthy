@@ -565,9 +565,9 @@ export default function TemplatesExplorerPage() {
                   <SelectValue placeholder="Elige un servicio..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {providerServices.map(s => (
+                  {providerServices.map(s => s.id ? (
                     <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
-                  ))}
+                  ) : null)}
                 </SelectContent>
               </Select>
             </div>
