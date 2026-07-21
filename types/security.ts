@@ -14,3 +14,21 @@ export interface ActiveSessionResponse {
   lastActiveAt: string;
   current: boolean;
 }
+
+export interface ProviderSettingsResponse {
+  emailNotificationsEnabled: boolean;
+  smsNotificationsEnabled: boolean;
+  pushNotificationsEnabled: boolean;
+  marketingEmailsOptIn: boolean;
+  appointmentRemindersEnabled: boolean;
+  loginAlertsEnabled: boolean;
+}
+
+export interface UpdateProviderSettingsRequest {
+  emailNotificationsEnabled: boolean;
+  smsNotificationsEnabled: boolean;
+  pushNotificationsEnabled: boolean;
+  marketingEmailsOptIn: boolean;
+  appointmentRemindersEnabled: boolean;
+  loginAlertsEnabled: boolean;
+}

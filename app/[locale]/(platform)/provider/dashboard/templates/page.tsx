@@ -547,7 +547,7 @@ export default function TemplatesExplorerPage() {
 
         {/* Modal de Vinculación */}
         <Dialog open={linkServiceModalOpen} onOpenChange={setLinkServiceModalOpen}>
-          <DialogContent className="rounded-none border-black dark:border-white">
+          <DialogContent className="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
             <DialogHeader>
               <DialogTitle className="uppercase tracking-widest">Vincular a Servicio</DialogTitle>
               <DialogDescription className="text-xs">Selecciona un servicio para usar esta plantilla por defecto en la consulta.</DialogDescription>

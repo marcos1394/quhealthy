@@ -2,7 +2,7 @@
 
 import axiosInstance from '@/lib/axios';
 import { MessageResponse } from '@/types/auth';
-import { ActiveSessionResponse, MfaEnableResponse, MfaSetupResponse } from '@/types/security';
+import { ActiveSessionResponse, MfaEnableResponse, MfaSetupResponse, ProviderSettingsResponse, UpdateProviderSettingsRequest } from '@/types/security';
 
 export interface ChangePasswordRequest {
   currentPassword: string;
@@ -50,7 +50,7 @@ export const securityService = {
   },
 
   revokeAllExceptCurrent: async (): Promise<MessageResponse> => {
-    const response = await axiosInstance.delete<MessageResponse>('/api/auth/sessions/all-except-current');
+    const response = await axiosInstance.delete<MessageResponse>('/api/auth/sessions');
     return response.data;
   },
 
@@ -66,6 +66,17 @@ export const securityService = {
   // ⚠️ 5. Eliminar Cuenta
   deleteAccount: async (password: string): Promise<MessageResponse> => {
     const response = await axiosInstance.delete<MessageResponse>('/api/auth/account', { data: { password } });
+    return response.data;
+  },
+
+  // ⚙️ 6. Provider Settings
+  getProviderSettings: async (): Promise<ProviderSettingsResponse> => {
+    const response = await axiosInstance.get<ProviderSettingsResponse>('/api/auth/provider/settings');
+    return response.data;
+  },
+
+  updateProviderSettings: async (data: UpdateProviderSettingsRequest): Promise<ProviderSettingsResponse> => {
+    const response = await axiosInstance.put<ProviderSettingsResponse>('/api/auth/provider/settings', data);
     return response.data;
   }
 };
