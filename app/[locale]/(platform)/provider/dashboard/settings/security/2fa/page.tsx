@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Smartphone, ArrowLeft, QrCode, KeyRound, Save, AlertTriangle, ShieldCheck, Download } from "lucide-react";
 import Link from "next/link";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 
 import { securityService } from "@/services/security.service";

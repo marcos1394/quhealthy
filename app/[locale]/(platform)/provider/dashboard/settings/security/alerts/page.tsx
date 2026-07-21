@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Bell, ArrowLeft, Save, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 import { securityService } from "@/services/security.service";
 import { ProviderSettingsResponse } from "@/types/security";
