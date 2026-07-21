@@ -2940,6 +2940,9 @@
     "toast_load_error": "No pudimos cargar tus paquetes. Intenta de nuevo."
   },
   "EHR": {
+    "step_background": "Antecedentes",
+    "condition_or_relation": "Condición o Parentesco",
+    "description_or_details": "Descripción o Detalles",
     "medical_history_base": "Historial Médico Base",
     "save_background": "Guardar Antecedentes",
     "nom004_background_notice": "De acuerdo a la NOM-004-SSA3-2012, es obligatorio registrar los antecedentes médicos del paciente.",

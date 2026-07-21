@@ -2915,6 +2915,9 @@
     "toast_load_error": "We couldn't load your packages. Please try again."
   },
   "EHR": {
+    "step_background": "Background",
+    "condition_or_relation": "Condition or Relation",
+    "description_or_details": "Description or Details",
     "medical_history_base": "Base Medical History",
     "save_background": "Save Background",
     "nom004_background_notice": "According to NOM-004-SSA3-2012, recording the patient's medical background is mandatory.",
