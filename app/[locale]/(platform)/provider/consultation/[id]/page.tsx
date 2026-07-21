@@ -37,7 +37,7 @@ export default function ConsultationRoomPage() {
  
  const appointmentId = Number(params.id);
  
- const [{ currentStep, consumerId, patientDirectoryId, isOfflinePatient, patientName, appointmentType, loadingAppointment, totalPrice, paymentMethod, paymentStatus, showCashModal, registerDenominations, newRx, isRecording, isTranscribing, viewMode }, dispatch] = React.useReducer(
+ const [{ currentStep, consumerId, patientDirectoryId, isOfflinePatient, patientName, appointmentType, loadingAppointment, totalPrice, paymentMethod, paymentStatus, showCashModal, registerDenominations, newRx, isRecording, isTranscribing, viewMode, serviceId }, dispatch] = React.useReducer(
  (state: any, action: any) => {
  switch (action.type) {
  case 'SET_CURRENTSTEP': return { ...state, currentStep: typeof action.payload === 'function' ? action.payload(state.currentStep) : action.payload };
@@ -56,13 +56,14 @@ export default function ConsultationRoomPage() {
  case 'SET_ISRECORDING': return { ...state, isRecording: typeof action.payload === 'function' ? action.payload(state.isRecording) : action.payload };
  case 'SET_ISTRANSCRIBING': return { ...state, isTranscribing: typeof action.payload === 'function' ? action.payload(state.isTranscribing) : action.payload };
  case 'SET_VIEWMODE': return { ...state, viewMode: typeof action.payload === 'function' ? action.payload(state.viewMode) : action.payload };
+ case 'SET_SERVICEID': return { ...state, serviceId: typeof action.payload === 'function' ? action.payload(state.serviceId) : action.payload };
  default: return state;
  }
  },
  {
  currentStep: 'profile', consumerId: null, patientDirectoryId: null, isOfflinePatient: false, patientName: "", appointmentType: 'in_person', loadingAppointment: true, totalPrice: 0, paymentMethod: '', paymentStatus: '', showCashModal: false, registerDenominations: null, newRx: { 
  medicationName: '', dosage: '', frequency: '', duration: '', instructions: '', price: '', frequencyEnum: '', durationDays: '', quantity: 1 
- }, isRecording: false, isTranscribing: false, viewMode: 'split'
+ }, isRecording: false, isTranscribing: false, viewMode: 'split', serviceId: null
  }
  );
 
@@ -82,6 +83,7 @@ export default function ConsultationRoomPage() {
  const setIsRecording = (val: any) => dispatch({ type: 'SET_ISRECORDING', payload: val });
  const setIsTranscribing = (val: any) => dispatch({ type: 'SET_ISTRANSCRIBING', payload: val });
  const setViewMode = (val: any) => dispatch({ type: 'SET_VIEWMODE', payload: val });
+ const setServiceId = (val: any) => dispatch({ type: 'SET_SERVICEID', payload: val });
 
  const {
  patientProfile, vaultDocuments, vaultAccessDenied, isLoading, isSubmitting,
@@ -181,6 +183,7 @@ export default function ConsultationRoomPage() {
  setPatientName(appointment.consumerNameSnapshot || appointment.consumer?.name || t('patient_directory_placeholder'));
  }
  
+ setServiceId(appointment.serviceId);
  setAppointmentType(appointment.type?.toLowerCase() || 'in_person');
  setTotalPrice(appointment.totalPrice || 0);
  setPaymentMethod(appointment.paymentMethod || 'CASH');
@@ -438,6 +441,7 @@ export default function ConsultationRoomPage() {
  handleToggleRecording={handleToggleRecording}
  syncAiSoapNote={syncAiSoapNote}
  appointmentType={appointmentType}
+ serviceId={serviceId}
  onBack={() => setCurrentStep('background')}
  onNext={() => setCurrentStep('treatment')}
  />

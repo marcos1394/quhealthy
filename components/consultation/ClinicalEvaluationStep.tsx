@@ -14,6 +14,10 @@ import {
   Cpu,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { catalogService } from "@/services/catalog.service";
+import { clinicalTemplateService, ClinicalTemplateResponse } from "@/services/clinicalTemplates.service";
 import { TemplateSelectorModal } from "./TemplateSelectorModal";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { SoapNotes, AppointmentDiagnosis, VitalSignRequest } from "@/types/ehr";
@@ -37,6 +41,7 @@ interface ClinicalEvaluationStepProps {
   onBack: () => void;
   onNext: () => void;
   syncAiSoapNote?: () => Promise<boolean>;
+  serviceId?: number | null;
 }
 
 export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
@@ -54,7 +59,8 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   appointmentType,
   onBack,
   onNext,
-  syncAiSoapNote
+  syncAiSoapNote,
+  serviceId
 }) => {
   const t = useTranslations("EHR");
 
@@ -64,6 +70,29 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   const [targetField, setTargetField] = React.useState<
     "subjective" | "objective" | "assessment" | "plan" | null
   >(null);
+
+  const [linkedTemplate, setLinkedTemplate] = React.useState<ClinicalTemplateResponse | null>(null);
+  const [templateData, setTemplateData] = React.useState<Record<string, any>>({});
+
+  React.useEffect(() => {
+    const fetchLinkedTemplate = async () => {
+      if (!serviceId) return;
+      try {
+        const item = await catalogService.getItemDetail(serviceId);
+        if (item.metadata?.clinicalTemplateId) {
+          const tmpl = await clinicalTemplateService.getTemplateById(item.metadata.clinicalTemplateId);
+          setLinkedTemplate(tmpl);
+        }
+      } catch (err) {
+        console.error("Error fetching linked template:", err);
+      }
+    };
+    fetchLinkedTemplate();
+  }, [serviceId]);
+
+  const updateTemplateData = (fieldId: string, value: any) => {
+    setTemplateData(prev => ({ ...prev, [fieldId]: value }));
+  };
 
   React.useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -146,6 +175,60 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
             </button>
           </div>
         </div>
+
+        {/* === CAMPOS DE PLANTILLA VINCULADA === */}
+        {linkedTemplate && linkedTemplate.schema?.fields && linkedTemplate.schema.fields.length > 0 && (
+          <div className="border-b border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
+                <FileText className="w-4 h-4" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none">
+                  DATOS ESPECÍFICOS DEL SERVICIO
+                </h4>
+                <p className="text-[9px] uppercase tracking-widest text-gray-500 mt-1">
+                  PLANTILLA: {linkedTemplate.name}
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {linkedTemplate.schema.fields.map(field => (
+                <div key={field.id} className="border border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-[#050505]">
+                  <label className="text-[10px] uppercase tracking-widest text-black dark:text-white mb-2 block font-bold">
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  {field.type === 'textarea' ? (
+                     <Textarea 
+                       value={templateData[field.id] || ""}
+                       onChange={e => updateTemplateData(field.id, e.target.value)}
+                       className="w-full min-h-[60px] bg-white dark:bg-black border-black/20 dark:border-white/20 p-2 text-xs rounded-none" 
+                     />
+                  ) : field.type === 'select' ? (
+                     <Select value={templateData[field.id]} onValueChange={v => updateTemplateData(field.id, v)}>
+                        <SelectTrigger className="rounded-none h-8 text-xs bg-white dark:bg-black border-black/20 dark:border-white/20">
+                          <SelectValue placeholder="Seleccionar..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                           {field.options?.map(opt => (
+                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                           ))}
+                        </SelectContent>
+                     </Select>
+                  ) : (
+                     <Input 
+                       type={field.type} 
+                       value={templateData[field.id] || ""}
+                       onChange={e => updateTemplateData(field.id, e.target.value)}
+                       className="rounded-none h-8 text-xs bg-white dark:bg-black border-black/20 dark:border-white/20" 
+                     />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Grid Blueprint SOAP */}
         <div className="bg-gray-50 dark:bg-[#050505] p-0">

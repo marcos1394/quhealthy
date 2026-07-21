@@ -28,6 +28,7 @@ export interface ClinicalTemplateRequest {
     authorName?: string;
     downloads?: number;
     rating?: number;
+    likes?: number;
 }
 
 export interface ClinicalTemplateResponse extends ClinicalTemplateRequest {
@@ -66,5 +67,16 @@ export const clinicalTemplateService = {
 
     deleteTemplate: async (id: number): Promise<void> => {
         await axiosInstance.delete(`/api/appointments/clinical-templates/${id}`);
+    },
+
+    likeTemplate: async (id: number): Promise<void> => {
+        await axiosInstance.put(`/api/appointments/clinical-templates/${id}/like`);
+    },
+
+    cloneTemplate: async (id: number, providerId: number): Promise<ClinicalTemplateResponse> => {
+        const response = await axiosInstance.post(`/api/appointments/clinical-templates/${id}/clone`, null, {
+            params: { providerId }
+        });
+        return response.data;
     }
 };

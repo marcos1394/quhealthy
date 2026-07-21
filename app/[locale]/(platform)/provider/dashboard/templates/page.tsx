@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Search, Plus, Filter, FileText, Share2, Globe, User, Clock, Star, Edit, Trash2, Settings, Edit2, Save, PlusCircle } from "lucide-react";
+import { Search, Plus, Filter, FileText, Share2, Globe, User, Clock, Star, Edit, Trash2, Settings, Edit2, Save, PlusCircle, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { clinicalTemplateService, ClinicalTemplateResponse, ClinicalTemplateRequest, ClinicalTemplateField, ClinicalTemplateSchema } from "@/services/clinicalTemplates.service";
+import { catalogService } from "@/services/catalog.service";
+import { CatalogItemDTO } from "@/types/catalog";
 import { useSessionStore } from "@/stores/SessionStore";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
@@ -23,6 +26,13 @@ export default function TemplatesExplorerPage() {
   const [personalTemplates, setPersonalTemplates] = useState<ClinicalTemplateResponse[]>([]);
   const [communityTemplates, setCommunityTemplates] = useState<ClinicalTemplateResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [previewTemplate, setPreviewTemplate] = useState<ClinicalTemplateResponse | null>(null);
+  
+  const [linkServiceModalOpen, setLinkServiceModalOpen] = useState(false);
+  const [templateToLink, setTemplateToLink] = useState<ClinicalTemplateResponse | null>(null);
+  const [providerServices, setProviderServices] = useState<CatalogItemDTO[]>([]);
+  const [selectedServiceId, setSelectedServiceId] = useState<number | ''>('');
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -147,6 +157,56 @@ export default function TemplatesExplorerPage() {
       fields.splice(index, 1);
       return { ...prev, schema: { fields } };
     });
+  };
+
+  const handleLike = async (id: number) => {
+    try {
+      await clinicalTemplateService.likeTemplate(id);
+      toast.success("¡Te ha gustado esta plantilla!");
+      loadTemplates();
+    } catch(err) {
+      handleApiError(err, "Error al dar me gusta");
+    }
+  };
+
+  const handleClone = async (tmpl: ClinicalTemplateResponse) => {
+    if (!providerId) return;
+    try {
+      await clinicalTemplateService.cloneTemplate(tmpl.id, providerId);
+      toast.success("Plantilla guardada en tu biblioteca");
+      loadTemplates();
+      setActiveTab("personal");
+    } catch(err) {
+      handleApiError(err, "Error al clonar la plantilla");
+    }
+  };
+
+  const handleOpenLinkModal = async (tmpl: ClinicalTemplateResponse) => {
+    setTemplateToLink(tmpl);
+    setLinkServiceModalOpen(true);
+    try {
+      const services = await catalogService.getMyCatalog();
+      setProviderServices(services.filter(s => s.type === 'SERVICE'));
+    } catch (err) {
+      toast.error("Error al cargar servicios");
+    }
+  };
+
+  const handleLinkService = async () => {
+    if (!selectedServiceId || !templateToLink) return;
+    try {
+      const service = providerServices.find(s => s.id === Number(selectedServiceId));
+      if (service) {
+        if (!service.metadata) service.metadata = {};
+        service.metadata.clinicalTemplateId = templateToLink.id;
+        
+        await catalogService.updateItem(service.id, service);
+        toast.success(`Plantilla vinculada a ${service.name}`);
+        setLinkServiceModalOpen(false);
+      }
+    } catch (err) {
+      handleApiError(err, "Error al vincular plantilla");
+    }
   };
 
   if (isEditing) {
@@ -390,17 +450,20 @@ export default function TemplatesExplorerPage() {
                   
                   <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-900 flex justify-end gap-2">
                     {tmpl.type !== 'SYSTEM' && (
-                      <>
-                        <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white rounded-none" onClick={() => handleEditTemplate(tmpl)}>
+                      <div className="flex w-full gap-2">
+                        <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none w-full border border-gray-200 dark:border-gray-800" onClick={() => handleOpenLinkModal(tmpl)}>
+                          Vincular a Servicio
+                        </Button>
+                        <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white rounded-none border border-gray-200 dark:border-gray-800" onClick={() => handleEditTemplate(tmpl)}>
                           <Edit2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-none" onClick={() => handleDeleteTemplate(tmpl.id)}>
+                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-none border border-gray-200 dark:border-gray-800" onClick={() => handleDeleteTemplate(tmpl.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
-                      </>
+                      </div>
                     )}
                     {tmpl.type === 'SYSTEM' && (
-                      <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none" onClick={() => handleEditTemplate(tmpl)}>
+                      <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none border border-gray-200 dark:border-gray-800" onClick={() => setPreviewTemplate(tmpl)}>
                         Ver Detalle
                       </Button>
                     )}
@@ -416,9 +479,15 @@ export default function TemplatesExplorerPage() {
                       <span className="bg-blue-50 text-blue-600 dark:bg-blue-900/10 dark:text-blue-400 text-[9px] font-bold uppercase tracking-widest px-2 py-1 border border-blue-200 dark:border-blue-800">
                         {tmpl.category || tmpl.type}
                       </span>
-                      <div className="flex items-center gap-1 text-amber-500">
-                        <Star className="w-3.5 h-3.5 fill-current" strokeWidth={1.5} />
-                        <span className="text-xs font-bold">{tmpl.rating?.toFixed(1) || '0.0'}</span>
+                      <div className="flex gap-4">
+                        <div className="flex items-center gap-1 text-red-500 cursor-pointer" onClick={() => handleLike(tmpl.id)}>
+                          <Heart className="w-4 h-4 fill-current" strokeWidth={1.5} />
+                          <span className="text-xs font-bold">{tmpl.likes || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-amber-500">
+                          <Star className="w-3.5 h-3.5 fill-current" strokeWidth={1.5} />
+                          <span className="text-xs font-bold">{tmpl.rating?.toFixed(1) || '0.0'}</span>
+                        </div>
                       </div>
                     </div>
                     <h3 className="font-bold text-lg mb-2 text-black dark:text-white leading-tight">{tmpl.name}</h3>
@@ -434,13 +503,18 @@ export default function TemplatesExplorerPage() {
                   
                   <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-900 flex justify-end">
                     {tmpl.type === 'SYSTEM' ? (
-                        <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none w-full" onClick={() => handleEditTemplate(tmpl)}>
+                        <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none border border-gray-200 dark:border-gray-800 w-full" onClick={() => setPreviewTemplate(tmpl)}>
                           Ver Detalle
                         </Button>
                     ) : (
-                        <Button className="h-8 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-4 border-0 w-full">
-                          Guardar en Mi Biblioteca
-                        </Button>
+                        <div className="flex w-full gap-2">
+                          <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none w-1/3 border border-gray-200 dark:border-gray-800" onClick={() => setPreviewTemplate(tmpl)}>
+                            Ver Detalle
+                          </Button>
+                          <Button className="h-8 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-4 border-0 w-2/3" onClick={() => handleClone(tmpl)}>
+                            Guardar en Mi Biblioteca
+                          </Button>
+                        </div>
                     )}
                   </div>
                 </div>
@@ -448,6 +522,61 @@ export default function TemplatesExplorerPage() {
             )}
           </div>
         )}
+
+        {/* Modal de Vista Previa */}
+        <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-none border-black dark:border-white">
+            <DialogHeader>
+              <DialogTitle className="text-xl uppercase tracking-widest">{previewTemplate?.name}</DialogTitle>
+              <DialogDescription className="text-xs uppercase tracking-widest">{previewTemplate?.description}</DialogDescription>
+            </DialogHeader>
+            <div className="mt-6 space-y-4">
+              {previewTemplate?.schema?.fields?.map((field) => (
+                <div key={field.id} className="border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-[#0a0a0a]">
+                  <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  {field.type === 'textarea' ? (
+                     <textarea disabled className="w-full h-20 bg-white dark:bg-black border-gray-200 dark:border-gray-800 p-2 text-xs" />
+                  ) : field.type === 'select' ? (
+                     <Select disabled>
+                        <SelectTrigger className="rounded-none h-8 text-xs bg-white dark:bg-black border-gray-200 dark:border-gray-800"><SelectValue placeholder="Seleccionar opción..." /></SelectTrigger>
+                     </Select>
+                  ) : (
+                     <Input disabled type={field.type} className="rounded-none h-8 text-xs bg-white dark:bg-black border-gray-200 dark:border-gray-800" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Vinculación */}
+        <Dialog open={linkServiceModalOpen} onOpenChange={setLinkServiceModalOpen}>
+          <DialogContent className="rounded-none border-black dark:border-white">
+            <DialogHeader>
+              <DialogTitle className="uppercase tracking-widest">Vincular a Servicio</DialogTitle>
+              <DialogDescription className="text-xs">Selecciona un servicio para usar esta plantilla por defecto en la consulta.</DialogDescription>
+            </DialogHeader>
+            <div className="py-6">
+              <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Servicios disponibles</label>
+              <Select value={selectedServiceId.toString()} onValueChange={(val: any) => setSelectedServiceId(Number(val))}>
+                <SelectTrigger className="rounded-none h-10 bg-white dark:bg-black border-gray-300 dark:border-gray-700">
+                  <SelectValue placeholder="Elige un servicio..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {providerServices.map(s => (
+                    <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+               <Button variant="outline" className="rounded-none uppercase text-[10px] h-10" onClick={() => setLinkServiceModalOpen(false)}>Cancelar</Button>
+               <Button className="rounded-none uppercase text-[10px] h-10 bg-black text-white dark:bg-white dark:text-black" onClick={handleLinkService}>Vincular</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
