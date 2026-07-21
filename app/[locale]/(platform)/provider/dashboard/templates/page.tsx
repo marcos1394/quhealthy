@@ -502,20 +502,14 @@ export default function TemplatesExplorerPage() {
                   </div>
                   
                   <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-900 flex justify-end">
-                    {tmpl.type === 'SYSTEM' ? (
-                        <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none border border-gray-200 dark:border-gray-800 w-full" onClick={() => setPreviewTemplate(tmpl)}>
-                          Ver Detalle
-                        </Button>
-                    ) : (
-                        <div className="flex w-full gap-2">
-                          <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none w-1/3 border border-gray-200 dark:border-gray-800" onClick={() => setPreviewTemplate(tmpl)}>
-                            Ver Detalle
-                          </Button>
-                          <Button className="h-8 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-4 border-0 w-2/3" onClick={() => handleClone(tmpl)}>
-                            Guardar en Mi Biblioteca
-                          </Button>
-                        </div>
-                    )}
+                    <div className="flex w-full gap-2">
+                      <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none w-1/3 border border-gray-200 dark:border-gray-800" onClick={() => setPreviewTemplate(tmpl)}>
+                        Ver Detalle
+                      </Button>
+                      <Button className="h-8 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-4 border-0 w-2/3" onClick={() => handleClone(tmpl)}>
+                        Usar Plantilla
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))
