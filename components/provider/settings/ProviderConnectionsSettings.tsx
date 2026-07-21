@@ -23,60 +23,173 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+import { useGoogleLogin } from '@react-oauth/google';
+import { useSearchParams } from 'next/navigation';
+import api from '@/lib/api';
+
 // Tipos
-interface Connection {
- id: string;
- provider: "google" | "facebook" | "instagram" | "apple" | "linkedin";
- email: string;
- connectedAt: string;
- status: "active" | "expired";
+interface SocialConnection {
+  id: string;
+  platform: string;
+  platformUserName: string;
+  profileImageUrl: string | null;
+  isConnected: boolean;
+  connectedAt: string;
 }
 
-// Datos Mock (Fallback)
-const mockConnections: Connection[] = [
- {
- id: "conn-1",
- provider: "google",
- email: "dr.marcos@gmail.com",
- connectedAt: "10 Ene, 2025",
- status: "active"
- }
-];
+interface ProviderSettings {
+  isGoogleConnected?: boolean;
+  isAppleConnected?: boolean;
+}
 
 export function ProviderConnectionsSettings() {
- const t = useTranslations('SettingsConnections');
- const [connections, setConnections] = useState<Connection[]>(mockConnections);
- const [connecting, setConnecting] = useState<string | null>(null);
+  const t = useTranslations('SettingsConnections');
+  const searchParams = useSearchParams();
+  
+  const [connections, setConnections] = React.useState<SocialConnection[]>([]);
+  const [settings, setSettings] = React.useState<ProviderSettings>({});
+  const [loading, setLoading] = React.useState(true);
+  const [connecting, setConnecting] = useState<string | null>(null);
 
- const handleConnect = (provider: string) => {
- setConnecting(provider);
- setTimeout(() => {
- setConnecting(null);
- toast.info("Redirigiendo al proveedor de identidad...");
- }, 1500);
- };
+  // Cargar datos
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [connRes, settingsRes] = await Promise.all([
+        api.get('/social/connections'),
+        api.get('/auth/provider/settings')
+      ]);
+      setConnections(connRes.data);
+      setSettings(settingsRes.data);
+    } catch (err) {
+      toast.error('Error al cargar configuraciones');
+    } finally {
+      setLoading(false);
+    }
+  };
 
- const handleDisconnect = (id: string) => {
- setConnections(prev => prev.filter(c => c.id !== id));
- toast.success("Cuenta desconectada exitosamente");
- };
+  React.useEffect(() => {
+    loadData();
+    
+    // Check URL for social auth redirects
+    const socialConnected = searchParams.get('social_connected');
+    const facebookConnected = searchParams.get('facebook_connected');
+    const googleConnected = searchParams.get('google_connected');
+    const linkedinConnected = searchParams.get('linkedin_connected');
+    const instagramConnected = searchParams.get('instagram_connected');
+    
+    if (socialConnected === 'true' || facebookConnected === 'true' || googleConnected === 'true' || linkedinConnected === 'true' || instagramConnected === 'true') {
+      toast.success('Cuenta vinculada correctamente');
+    }
+    const error = searchParams.get('error');
+    if (error) {
+      toast.error('Ocurrió un error al vincular la cuenta');
+    }
+  }, [searchParams]);
 
- const getProviderIcon = (provider: string) => {
- switch (provider) {
- case "google": return <span className="font-bold text-slate-700 dark:text-white">G</span>;
- case "facebook": return <span className="font-bold text-blue-600">f</span>;
- case "instagram": return <span className="font-bold text-pink-500">ig</span>;
- case "linkedin": return <span className="font-bold text-blue-500">in</span>;
- case "apple": return <span className="font-bold text-slate-900 dark:text-white">A</span>;
- default: return <Globe className="w-5 h-5 text-slate-400" />;
- }
- };
+  // Google Login Hook
+  const googleLogin = useGoogleLogin({
+    scope: 'openid email profile',
+    onSuccess: async (tokenResponse) => {
+      try {
+        setConnecting('google');
+        await api.post('/auth/provider/settings/link-identity/google', {
+          token: tokenResponse.access_token,
+          role: 'PROVIDER'
+        });
+        toast.success("Cuenta de Google vinculada correctamente");
+        loadData();
+      } catch (err) {
+        toast.error("Error al vincular Google");
+      } finally {
+        setConnecting(null);
+      }
+    },
+    onError: () => {
+      toast.error("El inicio de sesión con Google falló");
+      setConnecting(null);
+    }
+  });
 
- const providersList: ("google" | "facebook" | "instagram" | "linkedin" | "apple")[] = ["google", "facebook", "instagram", "linkedin", "apple"];
+  const handleConnect = async (provider: string) => {
+    if (provider === 'google') {
+      googleLogin();
+      return;
+    }
+    
+    if (provider === 'apple') {
+      toast.info("Conexión con Apple estará disponible pronto");
+      return;
+    }
 
- return (
- <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans">
- <div className="max-w-4xl mx-auto space-y-6">
+    try {
+      setConnecting(provider);
+      // Para FB, IG, LinkedIn -> social_service
+      const res = await api.get(`/social/${provider}/url`);
+      if (res.data && res.data.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (err) {
+      toast.error("Error al iniciar redirección a " + provider);
+      setConnecting(null);
+    }
+  };
+
+  const handleDisconnect = async (id: string, provider: string, isIdentity: boolean = false) => {
+    try {
+      if (isIdentity) {
+        await api.delete(`/auth/provider/settings/link-identity/${provider}`);
+      } else {
+        await api.delete(`/social/connections/${id}`);
+      }
+      toast.success("Cuenta desconectada exitosamente");
+      loadData();
+    } catch (err) {
+      toast.error("Error al desconectar cuenta");
+    }
+  };
+
+  const getProviderIcon = (provider: string) => {
+    switch (provider.toLowerCase()) {
+      case "google": return <span className="font-bold text-slate-700 dark:text-white">G</span>;
+      case "facebook": return <span className="font-bold text-blue-600">f</span>;
+      case "instagram": return <span className="font-bold text-pink-500">ig</span>;
+      case "linkedin": return <span className="font-bold text-blue-500">in</span>;
+      case "apple": return <span className="font-bold text-slate-900 dark:text-white">A</span>;
+      default: return <Globe className="w-5 h-5 text-slate-400" />;
+    }
+  };
+
+  const providersList: ("google" | "facebook" | "instagram" | "linkedin" | "apple")[] = ["google", "facebook", "instagram", "linkedin", "apple"];
+
+  // Merge social connections + identities for display
+  const activeConnections = [
+    ...connections.map(c => ({
+      id: c.id,
+      provider: c.platform.toLowerCase(),
+      name: c.platformUserName,
+      connectedAt: new Date(c.connectedAt).toLocaleDateString(),
+      isIdentity: false
+    })),
+    ...(settings.isGoogleConnected ? [{
+      id: 'google-identity',
+      provider: 'google',
+      name: 'Google Identity',
+      connectedAt: 'Activo',
+      isIdentity: true
+    }] : []),
+    ...(settings.isAppleConnected ? [{
+      id: 'apple-identity',
+      provider: 'apple',
+      name: 'Apple Identity',
+      connectedAt: 'Activo',
+      isIdentity: true
+    }] : [])
+  ];
+
+  return (
+    <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans">
+      <div className="max-w-4xl mx-auto space-y-6">
 
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
@@ -98,49 +211,43 @@ export function ProviderConnectionsSettings() {
  <CardDescription className="text-gray-600 dark:text-gray-400 text-xs uppercase tracking-widest">{t('social.desc')}</CardDescription>
  </CardHeader>
  <CardContent className="space-y-4">
- {connections.length > 0 ? (
- connections.map((conn) => (
- <motion.div
- key={conn.id}
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-transparent border border-black/20 dark:border-white/20 rounded-none group hover:border-black dark:hover:border-white transition-all gap-4"
- >
- <div className="flex items-center gap-4">
- <div className="h-10 w-10 shrink-0 rounded-none bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/10 dark:border-white/10">
- {getProviderIcon(conn.provider)}
- </div>
- <div>
- <div className="flex items-center gap-2">
- <h4 className="font-bold text-black dark:text-white uppercase tracking-tight">{t(`social.${conn.provider}`)}</h4>
- {conn.status === 'active' ? (
- <Badge className="bg-black text-white dark:bg-white dark:text-black border-black dark:border-white rounded-none text-[9px] uppercase tracking-widest px-2 py-0.5">Activo</Badge>
- ) : (
- <Badge className="bg-red-500 text-white border-red-500 rounded-none text-[9px] uppercase tracking-widest px-2 py-0.5 flex gap-1">
- <AlertCircle className="w-3 h-3" /> Reconectar
- </Badge>
- )}
- </div>
- <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1">{conn.email}</p>
- </div>
- </div>
+              {activeConnections.length > 0 ? (
+                activeConnections.map((conn) => (
+                  <motion.div
+                    key={conn.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-transparent border border-black/20 dark:border-white/20 rounded-none group hover:border-black dark:hover:border-white transition-all gap-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 shrink-0 rounded-none bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/10 dark:border-white/10">
+                        {getProviderIcon(conn.provider)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-black dark:text-white uppercase tracking-tight">{t(`social.${conn.provider}`)}</h4>
+                          <Badge className="bg-black text-white dark:bg-white dark:text-black border-black dark:border-white rounded-none text-[9px] uppercase tracking-widest px-2 py-0.5">Activo</Badge>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1">{conn.name}</p>
+                      </div>
+                    </div>
 
- <div className="flex items-center gap-4 self-end sm:self-auto">
- <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 hidden md:block">Conectado {conn.connectedAt}</span>
- <Button
- variant="outline"
- size="sm"
- onClick={() => handleDisconnect(conn.id)}
- className="rounded-none border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
- >
- <Trash2 className="w-4 h-4 mr-1.5 md:mr-0" />
- <span className="md:hidden text-[10px] uppercase tracking-widest">{t('social.disconnect')}</span>
- </Button>
- </div>
- </motion.div>
- ))
- ) : (
+                    <div className="flex items-center gap-4 self-end sm:self-auto">
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 hidden md:block">Conectado {conn.connectedAt}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDisconnect(conn.id, conn.provider, conn.isIdentity)}
+                        className="rounded-none border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 mr-1.5 md:mr-0" />
+                        <span className="md:hidden text-[10px] uppercase tracking-widest">{t('social.disconnect')}</span>
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
  <div className="text-center py-8 text-gray-500 text-xs font-bold uppercase tracking-widest border border-dashed border-black/20 dark:border-white/20 rounded-none bg-black/5 dark:bg-white/5">
  {t('social.desc')}
  </div>
@@ -156,9 +263,9 @@ export function ProviderConnectionsSettings() {
  </CardHeader>
  <CardContent>
  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
- {providersList.map((provider) => {
- const isConnected = connections.some(c => c.provider === provider);
- if (isConnected) return null;
+                {providersList.map((provider) => {
+                  const isConnected = activeConnections.some(c => c.provider === provider);
+                  if (isConnected) return null;
 
  return (
  <Button

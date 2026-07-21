@@ -3966,6 +3966,8 @@
       "instagram_desc": "Conectar para mostrar tu feed clínico",
       "linkedin": "LinkedIn",
       "linkedin_desc": "Mostrar tu perfil profesional",
+      "apple": "Apple",
+      "apple_desc": "Conectar con tu ID de Apple",
       "connect": "Conectar",
       "disconnect": "Cerrar sesión"
     },
