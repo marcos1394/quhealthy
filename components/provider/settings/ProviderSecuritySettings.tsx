@@ -44,7 +44,7 @@ export function ProviderSecuritySettings() {
  title: t('options.2fa.title'),
  description: t('options.2fa.desc'),
  icon: Smartphone,
- link: "security/2fa",
+ link: "/provider/dashboard/settings/security/2fa",
  status: t('options.2fa.status'),
  color: "text-black dark:text-white",
  bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
@@ -54,7 +54,7 @@ export function ProviderSecuritySettings() {
  title: t('options.password.title'),
  description: t('options.password.desc'),
  icon: Lock,
- link: "security/password",
+ link: "/provider/dashboard/settings/security/password",
  color: "text-black dark:text-white",
  bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
  },
@@ -63,7 +63,7 @@ export function ProviderSecuritySettings() {
  title: t('options.alerts.title'),
  description: t('options.alerts.desc'),
  icon: Bell,
- link: "security/alerts",
+ link: "/provider/dashboard/settings/security/alerts",
  color: "text-black dark:text-white",
  bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
  },
@@ -72,7 +72,7 @@ export function ProviderSecuritySettings() {
  title: t('options.devices.title'),
  description: t('options.devices.desc'),
  icon: Laptop,
- link: "security/devices",
+ link: "/provider/dashboard/settings/security/devices",
  color: "text-black dark:text-white",
  bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
  },
@@ -81,7 +81,7 @@ export function ProviderSecuritySettings() {
  title: t('options.activity.title'),
  description: t('options.activity.desc'),
  icon: Activity,
- link: "security/activity",
+ link: "/provider/dashboard/settings/security/activity",
  color: "text-black dark:text-white",
  bgHover: "group-hover:bg-black/5 dark:group-hover:bg-white/5"
  },
@@ -90,7 +90,7 @@ export function ProviderSecuritySettings() {
  title: "Eliminar Cuenta",
  description: "Borrar permanentemente tu cuenta y todos tus datos.",
  icon: UserX,
- link: "security/delete-account",
+ link: "/provider/dashboard/settings/security/delete-account",
  color: "text-red-600 dark:text-red-400",
  bgHover: "group-hover:bg-red-500/10 dark:group-hover:bg-red-500/20"
  },
