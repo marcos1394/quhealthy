@@ -80,7 +80,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
       try {
         const item = await catalogService.getItemDetail(serviceId);
         if (item.metadata?.clinicalTemplateId) {
-          const tmpl = await clinicalTemplateService.getTemplateById(item.metadata.clinicalTemplateId);
+          const tmpl = await clinicalTemplateService.getTemplate(item.metadata.clinicalTemplateId);
           setLinkedTemplate(tmpl);
         }
       } catch (err) {
