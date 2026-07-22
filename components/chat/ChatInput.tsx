@@ -89,34 +89,34 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
  />
  <form 
  onSubmit={handleSubmit} 
- className="p-4 md:p-6 bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-gray-800 flex items-center gap-4 shrink-0"
+ className="p-4 md:p-6 bg-white dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 flex items-center gap-4 shrink-0 rounded-b-3xl"
  >
  <DropdownMenu>
  <DropdownMenuTrigger asChild>
  <Button 
  type="button" 
  variant="outline" 
- className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black w-12 h-12 p-0 flex items-center justify-center transition-colors shrink-0 hidden md:flex"
+ className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] text-gray-700 dark:text-gray-300 w-12 h-12 p-0 flex items-center justify-center transition-all shadow-sm shrink-0 hidden md:flex"
  disabled={isUploading}
  >
- {isUploading ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} /> : <Paperclip className="w-4 h-4" strokeWidth={1.5} />}
+ {isUploading ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} /> : <Paperclip className="w-4 h-4" strokeWidth={2} />}
  </Button>
  </DropdownMenuTrigger>
- <DropdownMenuContent align="start" className="w-56 rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-0 shadow-none">
+ <DropdownMenuContent align="start" className="w-56 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-2 shadow-lg">
  <DropdownMenuItem 
- className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] focus:bg-gray-50 dark:focus:bg-[#050505] flex items-center gap-3 transition-colors"
+ className="rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111] focus:bg-gray-50 dark:focus:bg-[#111] flex items-center gap-3 transition-colors"
  onClick={() => fileInputRef.current?.click()}
  >
- <Upload className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
- <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">Carga Local</span>
+ <Upload className="w-4 h-4 text-gray-700 dark:text-gray-300" strokeWidth={2} />
+ <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Subir Archivo</span>
  </DropdownMenuItem>
- <div className="h-px bg-gray-200 dark:bg-gray-800 w-full" />
+ <div className="h-px bg-gray-100 dark:bg-gray-800 w-full my-1" />
  <DropdownMenuItem 
- className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] focus:bg-gray-50 dark:focus:bg-[#050505] flex items-center gap-3 transition-colors"
+ className="rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111] focus:bg-gray-50 dark:focus:bg-[#111] flex items-center gap-3 transition-colors"
  onClick={() => setIsVaultModalOpen(true)}
  >
- <FolderHeart className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
- <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">Extraer de Bóveda</span>
+ <FolderHeart className="w-4 h-4 text-gray-700 dark:text-gray-300" strokeWidth={2} />
+ <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Bóveda Clínica</span>
  </DropdownMenuItem>
  </DropdownMenuContent>
  </DropdownMenu>
@@ -124,14 +124,14 @@ export function ChatInput({ onSendMessage, onTyping }: ChatInputProps) {
  <Input
  value={message}
  onChange={handleChange}
- placeholder={t('input_placeholder', { defaultValue: 'REDACTAR TRANSMISIÓN...' })}
- className="flex-1 rounded-none bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 h-12 px-4 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors placeholder:text-[10px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest"
+ placeholder={t('input_placeholder', { defaultValue: 'Escribe un mensaje...' })}
+ className="flex-1 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 h-12 px-4 text-sm focus-visible:ring-2 focus-visible:ring-quhealthy-green/20 focus-visible:border-quhealthy-green transition-all shadow-sm"
  />
  
  <Button
  type="submit"
  disabled={!message.trim()}
- className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors shrink-0 disabled:opacity-50"
+ className="rounded-xl bg-quhealthy-green hover:bg-emerald-700 text-white h-12 px-8 text-sm font-bold border-0 transition-all shadow-sm shrink-0 disabled:opacity-50"
  >
  <Send className="w-4 h-4 md:mr-3" strokeWidth={2} />
  <span className="hidden md:inline">{t('btn_send', { defaultValue: 'Enviar' })}</span>

@@ -75,12 +75,12 @@ export default function NutritionDashboard() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 py-12 md:px-12 md:py-16">
       {/* HEADER HOMOLOGADO */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-6 mb-8">
         <div>
-          <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-white tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
             QuHealthy Food Vision
           </h1>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
+          <p className="text-sm font-medium text-gray-500 mt-2">
             Captura tu comida y obtén un desglose nutricional al instante.
           </p>
         </div>
@@ -98,29 +98,29 @@ export default function NutritionDashboard() {
         />
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
-          <TabsList className="flex w-full max-w-2xl overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-gray-100 dark:bg-gray-900 rounded-full p-1 border border-gray-200 dark:border-gray-800">
+          <TabsList className="flex w-full max-w-2xl overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl p-1 border border-gray-100 dark:border-gray-800">
             <TabsTrigger 
               value="progress" 
-              className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+              className="shrink-0 px-4 py-2 rounded-xl font-bold text-xs data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm transition-all"
             >
               Progreso
             </TabsTrigger>
             <TabsTrigger 
               value="analyze" 
-              className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+              className="shrink-0 px-4 py-2 rounded-xl font-bold text-xs data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm transition-all"
             >
               Analizar Comida
             </TabsTrigger>
           <TabsTrigger 
             value="result" 
             disabled={!currentAnalysis}
-            className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+            className="shrink-0 px-4 py-2 rounded-xl font-bold text-xs data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm transition-all"
           >
             Resultado
           </TabsTrigger>
           <TabsTrigger 
             value="history" 
-            className="shrink-0 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm"
+            className="shrink-0 px-4 py-2 rounded-xl font-bold text-xs data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-quhealthy-green data-[state=active]:shadow-sm transition-all"
           >
             Historial
           </TabsTrigger>
@@ -143,37 +143,37 @@ export default function NutritionDashboard() {
 
           <TabsContent value="history" className="mt-0">
             {isLoadingHistory ? (
-              <div className="bg-white dark:bg-[#050505] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 flex justify-center items-center h-[300px]">
+              <div className="bg-white dark:bg-[#050505] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 flex justify-center items-center h-[300px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-quhealthy-green"></div>
               </div>
             ) : history.length === 0 ? (
-              <div className="bg-white dark:bg-[#050505] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 text-center text-gray-400 dark:text-gray-500">
-                <h3 className="font-bold text-lg mb-2 text-black dark:text-white">Historial Nutricional</h3>
+              <div className="bg-white dark:bg-[#050505] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 text-center text-gray-500">
+                <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">Historial Nutricional</h3>
                 <p className="text-sm">Tus análisis previos aparecerán aquí.</p>
               </div>
             ) : (
-              <div className="bg-white dark:bg-[#050505] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 space-y-4">
-                <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">Tus Análisis Anteriores</h3>
+              <div className="bg-white dark:bg-[#050505] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 space-y-4">
+                <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Tus Análisis Anteriores</h3>
                 <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                   {history.map((item) => (
                     <div 
                       key={item.id} 
-                      className="border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#0a0a0a] transition-colors cursor-pointer"
+                      className="border border-gray-100 dark:border-gray-800 rounded-2xl p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-[#0a0a0a] transition-all cursor-pointer hover:shadow-sm"
                       onClick={() => {
                         setCurrentAnalysis(item);
                         setActiveTab('result');
                       }}
                     >
                       <div className="flex items-center gap-4">
-                        <img src={nutritionService.getImageUrl(item)} alt="Food" className="w-16 h-16 rounded-lg object-cover" />
+                        <img src={nutritionService.getImageUrl(item)} alt="Food" className="w-16 h-16 rounded-xl object-cover" />
                         <div>
                           <p className="font-bold text-gray-900 dark:text-white">{parseDate(item.createdAt).toLocaleDateString()}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.totals?.calories || 0} kcal • {item.totals?.protein || 0}g proteína</p>
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">{item.totals?.calories || 0} kcal • {item.totals?.protein || 0}g proteína</p>
                         </div>
                       </div>
-                      <div className="text-center">
-                        <span className="text-lg font-black text-quhealthy-green">{item.healthScore}</span>
-                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 block -mt-1">SCORE</span>
+                      <div className="text-center bg-gray-50/50 dark:bg-gray-900/50 px-4 py-2 rounded-xl">
+                        <span className="text-xl font-black text-quhealthy-green">{item.healthScore}</span>
+                        <span className="text-xs font-bold text-gray-400 dark:text-gray-500 block -mt-1">SCORE</span>
                       </div>
                     </div>
                   ))}

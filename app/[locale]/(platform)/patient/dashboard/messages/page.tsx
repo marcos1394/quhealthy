@@ -72,26 +72,26 @@ export default function MessagesPage() {
  "items-center gap-6 mb-6 hidden md:flex shrink-0",
  selectedConversation && "hidden lg:flex" 
  )}>
- <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
- <MessageCircle className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="w-14 h-14 rounded-2xl border-none flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 shrink-0">
+ <MessageCircle className="w-7 h-7 text-blue-500" strokeWidth={1.5} />
  </div>
  <div>
- <h1 className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-1">
+ <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">
  {t('title', { defaultValue: 'Mensajes' })}
  </h1>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+ <p className="text-sm font-medium text-gray-500">
  {t('subtitle', { defaultValue: 'Comunicación privada y directa con tu especialista' })}
  </p>
  </div>
  </div>
 
- {/* Contenedor Principal del Chat (Blueprint UI) */}
- <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex min-h-0 relative">
+ {/* Contenedor Principal del Chat (Soft Health) */}
+ <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex min-h-0 relative rounded-3xl shadow-sm overflow-hidden">
  
  {/* Alerta de Desconexión */}
  {!isConnected && !isLoading && (
- <div className="absolute top-0 left-0 right-0 bg-black text-white dark:bg-white dark:text-black text-[9px] font-bold uppercase tracking-widest text-center py-2 z-50 border-b border-gray-800 dark:border-gray-200 flex items-center justify-center gap-3">
- <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} />
+ <div className="absolute top-0 left-0 right-0 bg-rose-500 text-white text-xs font-bold text-center py-2 z-50 border-b border-rose-600 flex items-center justify-center gap-3 rounded-t-3xl">
+ <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />
  {t('reconnecting', { defaultValue: 'Reestableciendo conexión segura...' })}
  </div>
  )}
@@ -130,7 +130,7 @@ export default function MessagesPage() {
  
  {/* Disclaimer de Privacidad */}
  <div className="flex justify-center mb-8">
- <span className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+ <span className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 px-4 py-1.5 text-xs font-bold rounded-full shadow-sm">
  {t('privacy_notice', { defaultValue: '🔒 Chat Privado y Seguro' })}
  </span>
  </div>
@@ -146,8 +146,12 @@ export default function MessagesPage() {
 
  {/* Indicador "Escribiendo..." (Consola) */}
  {isTyping && (
- <div className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500 ml-16 mt-4">
- <span className="w-2 h-2 bg-gray-400 dark:bg-gray-600 animate-pulse" />
+ <div className="flex items-center gap-3 text-xs font-medium text-gray-500 ml-12 mt-4 bg-white dark:bg-gray-800 w-fit px-4 py-2 rounded-2xl shadow-sm">
+ <span className="flex gap-1">
+ <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+ <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+ <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+ </span>
  {t('typing', { defaultValue: 'Escribiendo...' })}
  </div>
  )}
@@ -163,14 +167,14 @@ export default function MessagesPage() {
  </>
  ) : (
  /* Estado Empty cuando no hay chat seleccionado */
- <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-gray-50 dark:bg-[#050505]">
- <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
- <MessageCircle className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+ <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-gray-50/50 dark:bg-gray-900/10">
+ <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-6 shadow-sm">
+ <MessageCircle className="w-8 h-8 text-blue-500" strokeWidth={1.5} />
  </div>
- <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+ <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
  {t('select_conversation', { defaultValue: 'Tus Mensajes' })}
  </h3>
- <p className="text-xs text-gray-500 font-light max-w-sm leading-relaxed">
+ <p className="text-sm text-gray-500 font-medium max-w-sm leading-relaxed">
  {t('select_conversation_desc', { defaultValue: 'Selecciona una conversación de la lista para comunicarte con tu especialista.' })}
  </p>
  </div>

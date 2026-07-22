@@ -67,7 +67,7 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
           <div className="flex gap-4 justify-center">
             <Button 
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 flex items-center transition-colors"
+              className="rounded-xl bg-quhealthy-green text-white hover:bg-emerald-700 h-12 px-8 text-sm font-bold border-0 flex items-center transition-all shadow-sm hover:shadow"
             >
               <Camera className="w-4 h-4 mr-3" />
               Tomar Foto
@@ -76,7 +76,7 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
         </div>
       ) : (
         <div className="w-full max-w-lg text-center">
-          <div className="relative rounded-xl overflow-hidden mb-6 aspect-video bg-gray-100 flex items-center justify-center border border-gray-200">
+          <div className="relative rounded-2xl overflow-hidden mb-6 aspect-video bg-gray-50 dark:bg-gray-900 flex items-center justify-center border border-gray-100 dark:border-gray-800 shadow-sm">
             <img src={previewUrl} alt="Comida" className="object-cover w-full h-full" />
             
             {isAnalyzing && (
@@ -95,7 +95,7 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
                 setPreviewUrl(null);
                 if (fileInputRef.current) fileInputRef.current.value = '';
               }}
-              className="rounded-none border-gray-300 dark:border-gray-700 text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
+              className="rounded-xl border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1a1a1a] h-12 px-8 text-sm font-bold transition-all"
             >
               Intentar con otra foto
             </Button>
