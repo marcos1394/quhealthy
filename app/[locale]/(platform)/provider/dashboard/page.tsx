@@ -229,12 +229,22 @@ export default function DashboardPage() {
                           <p className="font-bold text-gray-900 dark:text-white">{appt.consumer.name}</p>
                           {getStatusBadgeStaff(appt.status)}
                         </div>
-                            {appt.service.serviceDeliveryType === 'ONLINE' ? 'TELEMEDICINA' : 'PRESENCIAL'}
+                        <p className="text-sm font-semibold text-gray-500 mb-3">{appt.service.name}</p>
+                        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-gray-500">
+                          <span className="flex items-center gap-1.5 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-lg px-2.5 py-1">
+                            <Clock className="w-3.5 h-3.5" strokeWidth={2}/>
+                            <span>{formattedDate} | {formattedTime}</span>
+                          </span>
+                          <span className="flex items-center gap-1.5 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-lg px-2.5 py-1">
+                            {appt.service.serviceDeliveryType === 'ONLINE' ? <Video className="w-3.5 h-3.5" strokeWidth={2}/> : <MapPin className="w-3.5 h-3.5" strokeWidth={2}/>}
+                            {appt.service.serviceDeliveryType === 'ONLINE' ? 'Telemedicina' : 'Presencial'}
                           </span>
                         </div>
                       </div>
-                      <div className="shrink-0 border border-black dark:border-white group-hover:border-white dark:group-hover:border-black px-5 h-10 flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest">
-                        GESTIONAR <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5}/>
+                      <div className="shrink-0 sm:self-center">
+                        <div className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30 group-hover:border-emerald-200 dark:group-hover:border-emerald-800 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors shadow-sm">
+                          <ArrowRight className="w-4 h-4" strokeWidth={2}/>
+                        </div>
                       </div>
                     </div>
                   );
