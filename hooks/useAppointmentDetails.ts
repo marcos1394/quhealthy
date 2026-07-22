@@ -87,12 +87,33 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
     }
   };
 
+  const cancelAppointment = async (reason?: string) => {
+    if (!appointmentId) return false;
+    
+    try {
+      await appointmentService.cancelAppointment(appointmentId as string | number, reason || "Cancelado por el paciente");
+      toast.success("Cita cancelada con éxito");
+      
+      // Update local state if needed
+      if (appointment) {
+        setAppointment({ ...appointment, status: 'CANCELLED' });
+      }
+      return true;
+    } catch (err) {
+      console.error("Error canceling appointment:", err);
+      toast.error("Error al cancelar la cita");
+      handleApiError(err);
+      return false;
+    }
+  };
+
   return {
     appointment,
     isLoading,
     error,
     isDownloading,
     downloadInvoice,
-    qrCodeUrl // 📱 Exponemos el QR a la página
+    qrCodeUrl, // 📱 Exponemos el QR a la página
+    cancelAppointment
   };
 };

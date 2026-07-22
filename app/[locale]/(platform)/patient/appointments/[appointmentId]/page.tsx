@@ -56,6 +56,7 @@ export default function PatientAppointmentDetailsPage() {
     isDownloading,
     downloadInvoice,
     qrCodeUrl,
+    cancelAppointment
   } = useAppointmentDetails(appointmentId);
 
   const handlePayNow = async () => {
@@ -93,6 +94,13 @@ export default function PatientAppointmentDetailsPage() {
     } finally {
       setIsStartingChat(false);
     }
+  };
+
+  const handleCancelAppointment = async () => {
+    if (!window.confirm("¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.")) return;
+    
+    // El hook internamente mostrará los toast de éxito/error y actualizará el estado
+    await cancelAppointment("Cancelado por el paciente desde detalles de cita");
   };
 
   // ==========================================
@@ -484,7 +492,7 @@ export default function PatientAppointmentDetailsPage() {
                   <Button
                     variant="outline"
                     className="w-full rounded-xl border border-rose-100 dark:border-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:border-rose-200 h-14 text-sm font-semibold transition-all shadow-sm flex justify-start px-6"
-                    onClick={() => handleCancelAppointment(appointment.id)}
+                    onClick={handleCancelAppointment}
                   >
                     <XCircle className="w-4 h-4 mr-3" strokeWidth={2} />{" "}
                     Cancelar Cita
