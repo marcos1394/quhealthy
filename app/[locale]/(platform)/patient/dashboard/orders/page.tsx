@@ -241,7 +241,7 @@ export default function PatientOrdersPage() {
   </div>
 
  {/* Cuerpo de la Orden */}
- <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[400px] gap-0">
+ <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-0">
 
  {/* Izquierda: Lista de Ítems */}
   <div className="p-6 md:p-8 border-b lg:border-b-0 border-gray-100 dark:border-gray-800 lg:rounded-bl-3xl">
@@ -280,8 +280,8 @@ export default function PatientOrdersPage() {
   <div className="space-y-4">
   {order.shippingAddress ? (
   order.shippingAddress === 'PICKUP' ? (
-  <div className="space-y-4">
-  <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-900 p-4 shadow-sm">
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-900 p-4 shadow-sm flex flex-col justify-center">
   <h4 className="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-2">
   <MapPin className="h-4 w-4" strokeWidth={2} /> 
   Logística In-Situ
@@ -299,7 +299,7 @@ export default function PatientOrdersPage() {
   )}
   </div>
   {order.deliveryPin && (
-  <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-900 p-4 shadow-sm">
+  <div className="rounded-2xl border border-gray-200 bg-white dark:bg-gray-900 p-4 shadow-sm flex flex-col justify-center">
   <h4 className="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-2">
   <Sparkles className="h-4 w-4" strokeWidth={2} /> 
   PIN de Recolección
@@ -307,7 +307,7 @@ export default function PatientOrdersPage() {
   <p className="text-2xl font-bold tracking-widest text-emerald-600 mb-1">
   {order.deliveryPin}
   </p>
-  <p className="text-xs font-semibold text-gray-400">
+  <p className="text-[10px] leading-tight font-semibold text-gray-400">
   Proporciona este código al proveedor al recolectar tu orden.
   </p>
   </div>

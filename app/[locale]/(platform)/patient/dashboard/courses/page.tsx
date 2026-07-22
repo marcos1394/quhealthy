@@ -47,23 +47,23 @@ export default function MyCoursesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-8"
         >
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-gray-200 dark:border-gray-800 pb-8">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-gray-100 dark:border-gray-800 pb-8">
             <div className="flex items-start gap-6">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-quhealthy-green dark:text-teal-400">
                 <GraduationCap
-                  className="h-6 w-6 text-black dark:text-white"
-                  strokeWidth={1.5}
+                  className="h-7 w-7"
+                  strokeWidth={2}
                 />
               </div>
               <div className="max-w-2xl">
-                <div className="mb-3 inline-flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
-                  <Sparkles className="h-3 w-3" strokeWidth={2} />
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-3 py-1 text-xs font-bold">
+                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
                   Biblioteca Digital
                 </div>
-                <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
                   Mis Cursos
                 </h1>
-                <p className="text-xs font-light leading-relaxed text-gray-500">
+                <p className="text-sm font-medium leading-relaxed text-gray-500">
                   Accede a tus contenidos, retoma el aprendizaje y consulta tus
                   recursos digitales cuando los necesites.
                 </p>
@@ -74,58 +74,66 @@ export default function MyCoursesPage() {
               onClick={() => fetchCourses()}
               disabled={isLoading}
               variant="outline"
-              className="rounded-none border border-black dark:border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors disabled:opacity-50 shrink-0"
+              className="rounded-xl border border-gray-200 dark:border-gray-800 h-11 px-6 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors shadow-sm disabled:opacity-50 shrink-0"
             >
               <RefreshCw
-                className={cn("h-3.5 w-3.5 mr-2", isLoading && "animate-spin")}
+                className={cn("h-4 w-4 mr-2 text-gray-500", isLoading && "animate-spin")}
                 strokeWidth={2}
               />
               Actualizar
             </Button>
           </div>
 
-          {/* --- ESTADÍSTICAS (BLUEPRINT GRID) --- */}
+          {/* --- ESTADÍSTICAS (SOFT HEALTH) --- */}
           {!isLoading && courses.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-              <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
-                <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="text-sm font-semibold text-gray-500">
                     Cursos Totales
                   </p>
-                  <Library
-                    className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors"
-                    strokeWidth={1.5}
-                  />
+                  <div className="rounded-full bg-blue-50 dark:bg-blue-900/20 p-2">
+                    <Library
+                      className="h-4 w-4 text-blue-600 dark:text-blue-400"
+                      strokeWidth={2}
+                    />
+                  </div>
                 </div>
-                <p className="text-3xl font-semibold text-black dark:text-white group-hover:text-white dark:group-hover:text-black tracking-tight">
+                <p className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                   {courses.length}
                 </p>
               </div>
-              <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
-                <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">
+              
+              <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="text-sm font-semibold text-gray-500">
                     Disponibles Ahora
                   </p>
-                  <Video
-                    className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors"
-                    strokeWidth={1.5}
-                  />
+                  <div className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 p-2">
+                    <Video
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
+                      strokeWidth={2}
+                    />
+                  </div>
                 </div>
-                <p className="text-3xl font-semibold text-black dark:text-white group-hover:text-white dark:group-hover:text-black tracking-tight">
+                <p className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                   {coursesWithContent}
                 </p>
               </div>
-              <div className="group relative z-0 hover:z-10 border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer">
-                <div className="flex items-center justify-between gap-3 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">
+              
+              <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="text-sm font-semibold text-gray-500">
                     Última Compra
                   </p>
-                  <CalendarCheck
-                    className="h-4 w-4 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors"
-                    strokeWidth={1.5}
-                  />
+                  <div className="rounded-full bg-purple-50 dark:bg-purple-900/20 p-2">
+                    <CalendarCheck
+                      className="h-4 w-4 text-purple-600 dark:text-purple-400"
+                      strokeWidth={2}
+                    />
+                  </div>
                 </div>
-                <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black truncate">
+                <p className="text-base font-bold text-gray-900 dark:text-white truncate">
                   {latestCourse
                     ? format(
                         new Date(latestCourse.access.purchasedAt),
@@ -141,25 +149,25 @@ export default function MyCoursesPage() {
 
         {/* --- CONTENIDO --- */}
         {isLoading ? (
-          /* SKELETONS ARQUITECTÓNICOS */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          /* SKELETONS SOFT HEALTH */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[1, 2, 3].map((skeleton) => (
               <div
                 key={skeleton}
-                className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
+                className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm overflow-hidden"
               >
-                <div className="aspect-video animate-pulse bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800" />
+                <div className="aspect-video animate-pulse bg-gray-100 dark:bg-gray-900" />
                 <div className="p-6 space-y-6">
                   <div className="flex justify-between">
-                    <div className="h-4 w-24 animate-pulse bg-gray-200 dark:bg-gray-800" />
-                    <div className="h-4 w-16 animate-pulse bg-gray-200 dark:bg-gray-800" />
+                    <div className="h-6 w-24 rounded-full animate-pulse bg-gray-200 dark:bg-gray-800" />
+                    <div className="h-6 w-20 rounded-full animate-pulse bg-gray-200 dark:bg-gray-800" />
                   </div>
-                  <div className="h-6 w-full animate-pulse bg-gray-200 dark:bg-gray-800" />
+                  <div className="h-6 w-3/4 rounded-md animate-pulse bg-gray-200 dark:bg-gray-800" />
                   <div className="space-y-2">
-                    <div className="h-2 w-full animate-pulse bg-gray-100 dark:bg-gray-900" />
-                    <div className="h-2 w-4/5 animate-pulse bg-gray-100 dark:bg-gray-900" />
+                    <div className="h-3 w-full rounded-md animate-pulse bg-gray-100 dark:bg-gray-900" />
+                    <div className="h-3 w-4/5 rounded-md animate-pulse bg-gray-100 dark:bg-gray-900" />
                   </div>
-                  <div className="h-12 w-full animate-pulse bg-gray-200 dark:bg-gray-800 mt-8" />
+                  <div className="h-12 w-full rounded-xl animate-pulse bg-gray-200 dark:bg-gray-800 mt-8" />
                 </div>
               </div>
             ))}
@@ -169,20 +177,20 @@ export default function MyCoursesPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] p-12 text-center flex flex-col items-center justify-center py-24"
+            className="rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] p-12 text-center flex flex-col items-center justify-center py-24"
           >
-            <div className="flex h-16 w-16 items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-black mb-6">
-              <BookOpen className="h-6 w-6 text-gray-400" strokeWidth={1.5} />
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white dark:bg-black shadow-sm mb-6">
+              <BookOpen className="h-6 w-6 text-gray-400" strokeWidth={2} />
             </div>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
               Tu biblioteca está vacía
             </h3>
-            <p className="mx-auto mb-8 max-w-md text-xs font-light leading-relaxed text-gray-500">
+            <p className="mx-auto mb-8 max-w-md text-sm font-medium leading-relaxed text-gray-500">
               Explora el catálogo de nuestros especialistas para encontrar
               contenido en video, guías y programas diseñados para ti.
             </p>
             <Button
-              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
+              className="rounded-xl bg-quhealthy-green text-white hover:bg-emerald-700 h-12 px-8 text-sm font-bold shadow-sm transition-all border-0"
               onClick={() => (window.location.href = "/discover")}
             >
               Explorar Catálogo
@@ -191,7 +199,7 @@ export default function MyCoursesPage() {
           </motion.div>
         ) : (
           /* GRID DE CURSOS */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <AnimatePresence>
               {courses.map((course, index) => (
                 <motion.div
@@ -199,23 +207,23 @@ export default function MyCoursesPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group relative z-0 hover:z-10 flex flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff] cursor-pointer"
+                  className="group flex flex-col rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm hover:shadow-md transition-shadow overflow-hidden"
                 >
                   {/* IMAGEN DEL CURSO */}
-                  <div className="aspect-video relative overflow-hidden bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+                  <div className="aspect-video relative overflow-hidden bg-gray-50 dark:bg-gray-900">
                     {course.details.imageUrl ? (
                       <Image
-                        src={course.details.imageUrl}
-                        alt={course.details.name}
-                        fill
-                        className="object-cover transition-all duration-700"
+                         src={course.details.imageUrl}
+                         alt={course.details.name}
+                         fill
+                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-12 w-12 items-center justify-center border border-gray-300 dark:border-gray-700 bg-white dark:bg-black group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors duration-300">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-sm shadow-sm transition-transform duration-300 group-hover:scale-110">
                           <PlayCircle
-                            className="h-5 w-5 text-gray-400 group-hover:text-white dark:group-hover:text-black transition-colors duration-300"
-                            strokeWidth={1.5}
+                            className="h-6 w-6 text-gray-400 dark:text-gray-500"
+                            strokeWidth={2}
                           />
                         </div>
                       </div>
@@ -223,16 +231,16 @@ export default function MyCoursesPage() {
 
                     {/* Overlay superior */}
                     <div className="absolute top-4 left-4">
-                      <span className="bg-white text-black border border-black dark:bg-black dark:text-white dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-sm group-hover:bg-black group-hover:text-white group-hover:border-white dark:group-hover:bg-white dark:group-hover:text-black dark:group-hover:border-black transition-colors duration-300">
-                        <BookOpen className="h-3 w-3" strokeWidth={2} />
+                      <span className="rounded-full bg-white/95 dark:bg-black/95 px-3 py-1 text-xs font-bold text-gray-700 dark:text-gray-300 shadow-sm flex items-center gap-1.5 backdrop-blur-sm">
+                        <BookOpen className="h-3.5 w-3.5 text-blue-500" strokeWidth={2} />
                         Digital
                       </span>
                     </div>
 
                     {/* Overlay inferior */}
                     <div className="absolute bottom-4 left-4">
-                      <span className="bg-black/80 text-white backdrop-blur-sm border border-white/20 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 group-hover:bg-white/90 group-hover:text-black group-hover:border-black/20 dark:group-hover:bg-black/90 dark:group-hover:text-white transition-colors duration-300">
-                        <Clock className="h-3 w-3" strokeWidth={2} />
+                      <span className="rounded-full bg-black/80 text-white px-3 py-1 text-xs font-semibold shadow-sm flex items-center gap-1.5 backdrop-blur-md">
+                        <Clock className="h-3.5 w-3.5" strokeWidth={2} />
                         Adquirido:{" "}
                         {format(
                           new Date(course.access.purchasedAt),
@@ -244,36 +252,33 @@ export default function MyCoursesPage() {
                   </div>
 
                   {/* CONTENIDO DEL CURSO */}
-                  <div className="flex flex-1 flex-col p-6 group-hover:bg-transparent transition-colors duration-300">
-                    <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-4 transition-colors duration-300 group-hover:border-gray-800 dark:group-hover:border-gray-200">
-                      <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:bg-black group-hover:text-gray-400 dark:group-hover:bg-white dark:group-hover:text-gray-600 transition-colors duration-300">
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-5 flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs font-semibold text-gray-600 dark:text-gray-300">
                         Folio #{course.access.orderId}
                       </span>
                       <span
                         className={cn(
-                          "flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border transition-colors duration-300",
-                          "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900 group-hover:bg-green-900 group-hover:text-green-300 group-hover:border-green-700",
+                          "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
+                          "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400",
                         )}
                       >
-                        <>
-                          <Video className="h-3 w-3" strokeWidth={2} />
-                          Acceso Activo
-                        </>
+                        <Video className="h-3.5 w-3.5" strokeWidth={2} />
+                        Acceso Activo
                       </span>
                     </div>
 
-                    <h3 className="mb-2 text-lg font-bold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors duration-300 line-clamp-2">
+                    <h3 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white line-clamp-2">
                       {course.details.name}
                     </h3>
-                    <p className="mb-6 text-xs font-light leading-relaxed text-gray-500 group-hover:text-gray-400 transition-colors duration-300 line-clamp-2 flex-1">
+                    <p className="mb-8 text-sm font-medium leading-relaxed text-gray-500 dark:text-gray-400 line-clamp-2 flex-1">
                       {course.details.description}
                     </p>
 
                     <Button
                       className={cn(
-                        "mt-auto h-12 w-full rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 border border-black dark:border-white group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white",
-                        // Consideramos el curso disponible siempre, ya sea que tenga LMS o contentUrl legacy
-                        "bg-black text-white dark:bg-white dark:text-black",
+                        "mt-auto h-12 w-full rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm",
+                        "bg-quhealthy-green text-white hover:bg-emerald-700 hover:shadow-md border-0",
                       )}
                       onClick={() => {
                         router.push(
@@ -281,11 +286,8 @@ export default function MyCoursesPage() {
                         );
                       }}
                     >
-                      <span className="flex items-center gap-2">
-                        <PlayCircle className="h-4 w-4" strokeWidth={2} />
-                        Acceder al Curso
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+                      <PlayCircle className="h-5 w-5" strokeWidth={2} />
+                      Acceder al Curso
                     </Button>
                   </div>
                 </motion.div>
