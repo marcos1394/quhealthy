@@ -184,7 +184,7 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({ store, scoreData
               <MapPin className="w-6 h-6 shrink-0 mt-0.5 text-black dark:text-white" strokeWidth={1.5} />
               <div>
                 <h4 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">Ubicación Céntrica</h4>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Ubicado en {store.locations?.[0]?.city || "Ciudad Principal"}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Ubicado en {store.city || "Ciudad Principal"}</p>
               </div>
             </div>
           </div>
