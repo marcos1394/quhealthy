@@ -17,6 +17,7 @@ import { ProviderScoreResponse } from '@/types/providerScore';
 import { DiscoverItemCard } from '@/components/discover/DiscoverItemCard';
 import { FilterPanel } from '@/components/discover/FilterPanel';
 import { ProviderCard } from '@/components/discover/ProviderCard';
+import { DiscoverSkeleton } from './DiscoverSkeleton';
 
 export const MarketplaceList = ({ setAuthGateContext, setAuthGateOpen }: { setAuthGateContext: any, setAuthGateOpen: any }) => {
 
