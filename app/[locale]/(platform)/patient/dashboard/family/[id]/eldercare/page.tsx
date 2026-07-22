@@ -72,9 +72,9 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
 
   return (
     <span
-      className={`text-[10px] font-bold flex items-center gap-1 ${isOverdue ? "text-red-500" : "text-blue-500"}`}
+      className={`text-xs font-bold flex items-center gap-1.5 px-2.5 py-1 rounded-full ${isOverdue ? "bg-rose-50 text-rose-600 dark:bg-rose-900/20" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20"}`}
     >
-      <Timer className="w-3 h-3" />
+      <Timer className="w-3.5 h-3.5" strokeWidth={2} />
       {isOverdue ? `Retraso de ${timeLeft}` : `Faltan ${timeLeft}`}
     </span>
   );
@@ -292,22 +292,24 @@ export default function EldercarePage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans pb-32 text-black dark:text-white selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 space-y-12">
         {/* Header Back & Info */}
-        <div className="flex flex-col sm:flex-row sm:items-end gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
           <div className="flex items-center gap-6">
             <button
               onClick={() => router.back()}
-              className="w-14 h-14 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+              className="w-12 h-12 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center bg-white dark:bg-[#0a0a0a] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm shrink-0"
             >
-              <ChevronLeft className="w-6 h-6" strokeWidth={1.5} />
+              <ChevronLeft className="w-5 h-5" strokeWidth={2} />
             </button>
             <div>
-              <h1 className="text-3xl font-semibold tracking-tight uppercase flex items-center gap-3 mb-1">
-                <HeartHandshake className="w-8 h-8" strokeWidth={1.5} />
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-3 mb-1">
+                <div className="h-10 w-10 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center border border-emerald-100 dark:border-emerald-800/50">
+                  <HeartHandshake className="w-6 h-6" strokeWidth={2} />
+                </div>
                 Cuidado y Bienestar
               </h1>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                Monitoreo de salud y rutinas de...{" "}
-                <span className="text-black dark:text-white">
+              <p className="text-sm font-medium text-gray-500">
+                Monitoreo de salud y rutinas de{" "}
+                <span className="font-bold text-gray-900 dark:text-white">
                   {member.firstName} {member.lastName}
                 </span>
               </p>
@@ -315,39 +317,39 @@ export default function EldercarePage() {
           </div>
         </div>
 
-        {/* Main Hero CTA (Blueprint Block) */}
-        <div className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex flex-col md:flex-row">
-          <div className="p-8 md:p-12 flex-1">
-            <span className="border border-white/30 dark:border-black/30 px-3 py-1 text-[9px] font-bold uppercase tracking-widest mb-6 inline-flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5" strokeWidth={2} />
+        {/* Main Hero CTA */}
+        <div className="border border-gray-100 dark:border-gray-800 bg-emerald-900 dark:bg-emerald-950 text-white rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-lg">
+          <div className="p-8 md:p-12 flex-1 flex flex-col justify-center">
+            <span className="bg-emerald-800/50 border border-emerald-700/50 px-3 py-1 rounded-full text-xs font-bold mb-6 inline-flex items-center gap-2 w-fit">
+              <Activity className="w-4 h-4" strokeWidth={2} />
               Asistencia en Casa
             </span>
-            <h2 className="text-3xl md:text-4xl font-semibold mb-4 tracking-tight leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight leading-tight">
               Atención profesional en la comodidad de su hogar
             </h2>
-            <p className="text-xs font-light text-gray-400 dark:text-gray-600 mb-8 max-w-xl leading-relaxed">
+            <p className="text-sm font-medium text-emerald-100/80 mb-8 max-w-xl leading-relaxed">
               Solicite cuidadores, enfermeros o terapeutas físicos certificados
               para brindar atención clínica a sus seres queridos con monitoreo
               constante.
             </p>
             <Button
               onClick={handleRequestCare}
-              className="rounded-none bg-white text-black dark:bg-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center border-0"
+              className="rounded-xl bg-white text-emerald-900 hover:bg-emerald-50 h-12 px-8 text-sm font-bold transition-all flex items-center w-fit shadow-sm border-0"
             >
               Solicitar Asistencia
               <ArrowRight className="w-4 h-4 ml-3" strokeWidth={2} />
             </Button>
           </div>
 
-          <div className="border-t md:border-t-0 md:border-l border-white/20 dark:border-black/20 p-8 md:w-64 flex flex-col items-center justify-center text-center bg-white/5 dark:bg-black/5">
+          <div className="border-t md:border-t-0 md:border-l border-emerald-800/30 p-8 md:w-64 flex flex-col items-center justify-center text-center bg-black/10">
             <PhoneCall
-              className="w-10 h-10 mb-4 opacity-80"
+              className="w-12 h-12 mb-4 text-emerald-200"
               strokeWidth={1.5}
             />
-            <div className="text-[10px] font-bold uppercase tracking-widest mb-2">
+            <div className="text-sm font-bold text-white mb-1">
               Asistencia 24/7
             </div>
-            <div className="text-[9px] font-light uppercase tracking-widest text-gray-400 dark:text-gray-500">
+            <div className="text-xs font-medium text-emerald-200/70">
               Cobertura Integral
             </div>
           </div>
@@ -356,16 +358,20 @@ export default function EldercarePage() {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Signos Vitales */}
-          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col">
-            <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 dark:bg-[#050505] gap-4">
-              <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-1">
-                  <HeartPulse className="w-4 h-4" strokeWidth={1.5} />
-                  Signos Vitales
-                </h3>
-                <p className="text-[9px] uppercase tracking-widest text-gray-500">
-                  Haz clic en una métrica para registrar un nuevo valor
-                </p>
+          <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-3xl shadow-sm overflow-hidden">
+            <div className="border-b border-gray-100 dark:border-gray-800 p-6 flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50/50 dark:bg-gray-900/10 gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-rose-50 text-rose-500 dark:bg-rose-900/20">
+                  <HeartPulse className="w-4 h-4" strokeWidth={2} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-0.5">
+                    Signos Vitales
+                  </h3>
+                  <p className="text-xs font-medium text-gray-500">
+                    Haz clic en una métrica para registrar un nuevo valor
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -379,10 +385,12 @@ export default function EldercarePage() {
           </div>
 
           {/* Medicación Activa */}
-          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col">
-            <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                <Pill className="w-4 h-4" strokeWidth={1.5} />
+          <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-3xl shadow-sm overflow-hidden">
+            <div className="border-b border-gray-100 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/10">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20">
+                  <Pill className="w-4 h-4" strokeWidth={2} />
+                </div>
                 Tratamiento Actual
               </h3>
               <Button
@@ -391,16 +399,16 @@ export default function EldercarePage() {
                   setMedicationToEdit(null);
                   setIsMedModalOpen(true);
                 }}
-                className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                className="rounded-xl border border-gray-200 dark:border-gray-700 h-9 px-4 text-xs font-bold hover:bg-gray-50 dark:hover:bg-gray-900 transition-all shadow-sm"
               >
-                <Plus className="w-3 h-3 mr-2" strokeWidth={2} /> Añadir
+                <Plus className="w-3.5 h-3.5 mr-2" strokeWidth={2} /> Añadir
               </Button>
             </div>
 
             <div className="p-6 grid grid-cols-1 gap-4">
               {dashboardData?.activeMedications?.length === 0 && (
-                <div className="text-center p-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <div className="text-center p-8 bg-gray-50/50 dark:bg-gray-900/10 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800">
+                  <p className="text-sm font-medium text-gray-500">
                     Sin medicación activa
                   </p>
                 </div>
@@ -408,21 +416,21 @@ export default function EldercarePage() {
               {dashboardData?.activeMedications?.map((med) => (
                 <div
                   key={med.id}
-                  className="border border-gray-200 dark:border-gray-800 p-6 hover:border-black dark:hover:border-white transition-colors group"
+                  className="border border-gray-100 dark:border-gray-800 p-6 rounded-2xl hover:border-quhealthy-green/30 dark:hover:border-quhealthy-green/30 transition-all shadow-sm hover:shadow-md group"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                     <div>
-                      <h4 className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase mb-1">
+                      <h4 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white mb-1">
                         {med.medicationName}
                       </h4>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                      <p className="text-xs font-bold text-gray-500">
                         {med.dosage}
                       </p>
                     </div>
-                    <div className="border border-black dark:border-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 w-fit">
+                    <div className="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 w-fit border border-indigo-100 dark:border-indigo-800/50">
                       <CalendarClock
-                        className="w-3.5 h-3.5"
-                        strokeWidth={1.5}
+                        className="w-4 h-4"
+                        strokeWidth={2}
                       />
                       {FREQUENCY_OPTIONS.find(
                         (opt) => opt.value === med.frequency,
@@ -431,22 +439,22 @@ export default function EldercarePage() {
                   </div>
 
                   <div className="mt-4 flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    <div className="flex justify-between items-center px-1">
+                      <span className="text-xs font-bold text-gray-500">
                         Progreso
                       </span>
-                      <span className="text-[10px] font-bold text-black dark:text-white">
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">
                         {med.adherenceCount || 0} / {med.totalExpected || "-"}{" "}
                         dosis
                       </span>
                     </div>
                     {med.nextDueTime && (
-                      <div className="flex justify-between items-center bg-gray-50 dark:bg-[#050505] p-2 mt-1 border border-gray-100 dark:border-gray-900">
+                      <div className="flex justify-between items-center bg-gray-50/80 dark:bg-gray-900/30 p-3 mt-1 rounded-xl border border-gray-100 dark:border-gray-800">
                         <div className="flex flex-col">
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                          <span className="text-xs font-bold text-gray-500 mb-0.5">
                             Próxima toma
                           </span>
-                          <span className="text-[10px] font-bold text-black dark:text-white">
+                          <span className="text-sm font-bold text-gray-900 dark:text-white">
                             {new Date(med.nextDueTime).toLocaleString([], {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -465,19 +473,19 @@ export default function EldercarePage() {
                         med.adherenceCount !== undefined &&
                         med.adherenceCount >= med.totalExpected
                       }
-                      className="w-full mt-2 rounded-none bg-black hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-200 dark:text-black uppercase tracking-widest text-[9px] font-bold h-8"
+                      className="w-full mt-3 rounded-xl bg-quhealthy-green hover:bg-emerald-700 text-white text-sm font-bold h-10 shadow-sm border-0"
                     >
                       Registrar Toma
                     </Button>
                   </div>
 
-                  <div className="flex items-center justify-between mt-4 border-t border-gray-100 dark:border-gray-900 pt-4">
+                  <div className="flex items-center justify-between mt-5 border-t border-gray-100 dark:border-gray-800 pt-4 px-1">
                     {med.isManual ? (
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-blue-500">
+                      <p className="text-xs font-bold text-indigo-500">
                         Agregado por la familia
                       </p>
                     ) : (
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                      <p className="text-xs font-bold text-gray-500">
                         Indicado por el especialista
                       </p>
                     )}
@@ -488,13 +496,13 @@ export default function EldercarePage() {
                             setMedicationToEdit(med);
                             setIsMedModalOpen(true);
                           }}
-                          className="text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setMedicationToDelete(med.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -523,12 +531,12 @@ export default function EldercarePage() {
       />
 
       {medicationToDelete !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white w-full max-w-sm shadow-2xl relative p-6">
-            <h2 className="text-xl font-bold tracking-tight text-black dark:text-white mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 w-full max-w-sm rounded-3xl shadow-xl relative p-6">
+            <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
               Eliminar Medicamento
             </h2>
-            <p className="text-xs text-gray-500 mb-6">
+            <p className="text-sm font-medium text-gray-500 mb-6">
               ¿Estás seguro de que deseas eliminar este medicamento? Esta acción
               no se puede deshacer.
             </p>
@@ -537,13 +545,13 @@ export default function EldercarePage() {
               <Button
                 variant="outline"
                 onClick={() => setMedicationToDelete(null)}
-                className="rounded-none border-black dark:border-white hover:bg-gray-100 dark:hover:bg-gray-900 uppercase tracking-widest text-[10px] font-bold"
+                className="rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-sm font-bold shadow-sm"
               >
                 Cancelar
               </Button>
               <Button
                 onClick={() => handleDeleteMedication(medicationToDelete)}
-                className="rounded-none bg-red-600 hover:bg-red-700 text-white uppercase tracking-widest text-[10px] font-bold border-0"
+                className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold border-0 shadow-sm"
               >
                 Eliminar
               </Button>

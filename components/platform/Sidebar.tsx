@@ -280,23 +280,27 @@ const NavItem = ({
     pathname === href ||
     (href !== "/provider/dashboard" &&
       href !== "/patient/dashboard" &&
-      pathname?.startsWith(href))
+      pathname?.startsWith(href)),
   );
 
   const getIconColorClass = (key: string, active: boolean) => {
-    if (['reviews'].includes(key)) return 'text-yellow-500';
-    if (['favorites'].includes(key)) return 'text-red-500';
-    if (['wallet', 'billing', 'finance', 'cash_register'].includes(key)) return 'text-emerald-500';
-    if (['messages'].includes(key)) return 'text-blue-500';
-    if (['packages'].includes(key)) return 'text-amber-500';
-    if (['orders', 'inventory'].includes(key)) return 'text-purple-500';
-    if (['patients', 'dependents', 'public_profile', 'profile'].includes(key)) return 'text-indigo-500';
-    if (['calendar', 'appointments'].includes(key)) return 'text-orange-500';
-    if (['discover'].includes(key)) return 'text-fuchsia-500';
-    if (['emergencies'].includes(key)) return 'text-rose-500';
-    if (['nutrition'].includes(key)) return 'text-lime-500';
-    
-    return active ? 'text-teal-600 dark:text-teal-400' : 'text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors';
+    if (["reviews"].includes(key)) return "text-yellow-500";
+    if (["favorites"].includes(key)) return "text-red-500";
+    if (["wallet", "billing", "finance", "cash_register"].includes(key))
+      return "text-emerald-500";
+    if (["messages"].includes(key)) return "text-blue-500";
+    if (["packages"].includes(key)) return "text-amber-500";
+    if (["orders", "inventory"].includes(key)) return "text-purple-500";
+    if (["patients", "dependents", "public_profile", "profile"].includes(key))
+      return "text-indigo-500";
+    if (["calendar", "appointments"].includes(key)) return "text-orange-500";
+    if (["discover"].includes(key)) return "text-fuchsia-500";
+    if (["emergencies"].includes(key)) return "text-rose-500";
+    if (["nutrition"].includes(key)) return "text-lime-500";
+
+    return active
+      ? "text-teal-600 dark:text-teal-400"
+      : "text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors";
   };
 
   return (
@@ -305,9 +309,7 @@ const NavItem = ({
       title={isCollapsed ? label : ""}
       className={cn(
         "relative flex items-center gap-4 transition-all group rounded-xl mx-2",
-        isCollapsed
-          ? "justify-center p-3 w-12 h-12 mx-auto"
-          : "px-4 py-2.5",
+        isCollapsed ? "justify-center p-3 w-12 h-12 mx-auto" : "px-4 py-2.5",
         isActive
           ? "bg-teal-50 text-teal-900 dark:bg-teal-900/20 dark:text-teal-100 font-semibold"
           : "bg-transparent text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white font-medium",
@@ -322,15 +324,13 @@ const NavItem = ({
         <Icon
           className={cn(
             "w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110",
-            getIconColorClass(itemKey, isActive)
+            getIconColorClass(itemKey, isActive),
           )}
           strokeWidth={isActive ? 2.5 : 2}
         />
 
         {!isCollapsed && (
-          <span className="text-sm whitespace-nowrap">
-            {label}
-          </span>
+          <span className="text-sm whitespace-nowrap">{label}</span>
         )}
 
         {/* Badge Architectura */}
@@ -588,7 +588,7 @@ export const Sidebar = ({
             <UserCircle
               className={cn(
                 "w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors",
-                isSwitchingProfile && "animate-spin"
+                isSwitchingProfile && "animate-spin",
               )}
               strokeWidth={2}
             />
@@ -611,7 +611,10 @@ export const Sidebar = ({
         {!isCollapsed && (
           <Link href="/patient/dashboard/support">
             <button className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-[#111] transition-all group">
-              <HelpCircle className="w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" strokeWidth={2} />
+              <HelpCircle
+                className="w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"
+                strokeWidth={2}
+              />
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                 {t("support")}
               </span>
@@ -623,11 +626,14 @@ export const Sidebar = ({
           onClick={handleLogout}
           className={cn(
             "flex items-center gap-3 w-full p-3 rounded-xl transition-all group hover:bg-red-50 dark:hover:bg-red-900/10",
-            isCollapsed ? "justify-center" : ""
+            isCollapsed ? "justify-center" : "",
           )}
           title={isCollapsed ? t("logout") : ""}
         >
-          <LogOut className="w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-red-500 transition-colors" strokeWidth={2} />
+          <LogOut
+            className="w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-red-500 transition-colors"
+            strokeWidth={2}
+          />
           {!isCollapsed && (
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-red-500 transition-colors">
               {t("logout")}

@@ -44,16 +44,18 @@ export default function DependentGrowthPage() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.back()}
-              className="flex h-10 w-10 shrink-0 items-center justify-center border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] text-gray-500 hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white transition-colors"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
             >
-              <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+              <ArrowLeft className="h-4 w-4" strokeWidth={2} />
             </button>
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+              <span className="text-xs font-bold text-gray-500 mb-1">
                 {activeDependent.firstName} {activeDependent.lastName}
               </span>
-              <h1 className="text-2xl font-semibold tracking-tight text-black dark:text-white flex items-center gap-3">
-                <Baby className="h-6 w-6" strokeWidth={1.5} />
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
+                <div className="h-8 w-8 rounded-xl bg-quhealthy-green/10 text-quhealthy-green flex items-center justify-center">
+                  <Baby className="h-5 w-5" strokeWidth={2} />
+                </div>
                 Crecimiento Pediátrico
               </h1>
             </div>

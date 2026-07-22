@@ -487,25 +487,25 @@ export default function VaccinationsPage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans text-black dark:text-white pb-32 selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 space-y-12">
         {/* --- HEADER --- */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
           <div className="flex items-center gap-6">
             <button
               onClick={() => router.back()}
-              className="w-14 h-14 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+              className="w-12 h-12 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center bg-white dark:bg-[#0a0a0a] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm shrink-0"
             >
-              <ChevronLeft className="w-6 h-6" strokeWidth={1.5} />
+              <ChevronLeft className="w-5 h-5" strokeWidth={2} />
             </button>
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
-                <Sparkles className="h-3 w-3" strokeWidth={2} />
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-3 py-1 text-xs font-bold">
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
                 Registro de Salud
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight uppercase mb-1">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">
                 Cartilla de Vacunación
               </h1>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              <p className="text-sm font-medium text-gray-500">
                 Monitoreo y registro para{" "}
-                <span className="text-black dark:text-white">
+                <span className="font-bold text-gray-900 dark:text-white">
                   {member.firstName} {member.lastName}
                 </span>
               </p>
@@ -513,58 +513,64 @@ export default function VaccinationsPage() {
           </div>
         </div>
 
-        {/* --- ESTADÍSTICAS (BLUEPRINT GRID) --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-          <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+        {/* --- ESTADÍSTICAS --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 flex flex-col justify-between rounded-3xl shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between gap-3 mb-6">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              <p className="text-xs font-bold text-gray-500">
                 Progreso
               </p>
-              <ShieldCheck
-                className="h-4 w-4 text-black dark:text-white"
-                strokeWidth={1.5}
-              />
+              <div className="h-10 w-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center border border-indigo-100 dark:border-indigo-800/50">
+                <ShieldCheck
+                  className="h-5 w-5"
+                  strokeWidth={2}
+                />
+              </div>
             </div>
-            <p className="text-3xl font-semibold tracking-tight">{progress}%</p>
+            <p className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{progress}%</p>
           </div>
-          <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 flex flex-col justify-between rounded-3xl shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between gap-3 mb-6">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              <p className="text-xs font-bold text-gray-500">
                 Dosis Aplicadas
               </p>
-              <Check
-                className="h-4 w-4 text-black dark:text-white"
-                strokeWidth={1.5}
-              />
+              <div className="h-10 w-10 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center border border-emerald-100 dark:border-emerald-800/50">
+                <Check
+                  className="h-5 w-5"
+                  strokeWidth={2}
+                />
+              </div>
             </div>
-            <p className="text-3xl font-semibold tracking-tight">
+            <p className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
               {appliedCount}
             </p>
           </div>
-          <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 flex flex-col justify-between rounded-3xl shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between gap-3 mb-6">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-red-500">
+              <p className="text-xs font-bold text-gray-500">
                 Pendientes o Atrasadas
               </p>
-              <AlertCircle className="h-4 w-4 text-red-500" strokeWidth={1.5} />
+              <div className="h-10 w-10 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 flex items-center justify-center border border-rose-100 dark:border-rose-800/50">
+                <AlertCircle className="h-5 w-5" strokeWidth={2} />
+              </div>
             </div>
-            <p className="text-3xl font-semibold tracking-tight text-red-500">
+            <p className="text-3xl font-bold tracking-tight text-rose-600 dark:text-rose-400">
               {delayedCount}
             </p>
           </div>
         </div>
 
-        {/* --- MÓDULO DE ESCANEO (BLOQUE ARQUITECTÓNICO) --- */}
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        {/* --- MÓDULO DE ESCANEO --- */}
+        <div className="border border-indigo-100 dark:border-indigo-900/50 bg-indigo-50/50 dark:bg-indigo-900/10 p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6 rounded-3xl shadow-sm">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-black text-white dark:bg-white dark:text-black shrink-0">
-              <ScanFace className="w-5 h-5" strokeWidth={1.5} />
+            <div className="w-12 h-12 rounded-2xl border border-indigo-200 dark:border-indigo-800/50 flex items-center justify-center bg-white dark:bg-gray-900 text-indigo-500 shadow-sm shrink-0">
+              <ScanFace className="w-6 h-6" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
                 Escanear Cartilla Física
               </h3>
-              <p className="text-[10px] uppercase tracking-widest text-gray-500 font-light">
+              <p className="text-sm font-medium text-gray-500">
                 Toma una foto de tu cartilla física para registrar las vacunas
                 automáticamente.
               </p>
@@ -584,7 +590,7 @@ export default function VaccinationsPage() {
               <DropdownMenuTrigger asChild>
                 <Button
                   disabled={isScanning}
-                  className="w-full md:w-auto h-12 rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 px-8"
+                  className="w-full md:w-auto h-12 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-bold transition-all shadow-sm border-0 px-8"
                 >
                   {isScanning ? (
                     <>
@@ -593,7 +599,7 @@ export default function VaccinationsPage() {
                     </>
                   ) : (
                     <>
-                      <ScanFace className="w-4 h-4 mr-3" strokeWidth={1.5} />{" "}
+                      <ScanFace className="w-4 h-4 mr-3" strokeWidth={2} />{" "}
                       Escanear Documento
                     </>
                   )}
@@ -601,27 +607,26 @@ export default function VaccinationsPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="z-50 w-64 rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-0 shadow-none"
+                className="z-50 w-64 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-1 shadow-xl"
               >
                 <DropdownMenuItem
                   onSelect={(e) => {
                     e.preventDefault();
                     openCameraModal();
                   }}
-                  className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] text-[10px] font-bold uppercase tracking-widest focus:bg-gray-50 dark:focus:bg-[#050505]"
+                  className="rounded-lg px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 text-sm font-bold text-gray-700 dark:text-gray-200 focus:bg-gray-50 dark:focus:bg-gray-900"
                 >
-                  <Camera className="mr-3 h-4 w-4" strokeWidth={1.5} /> Capturar
+                  <Camera className="mr-3 h-4 w-4" strokeWidth={2} /> Capturar
                   Fotografía
                 </DropdownMenuItem>
-                <div className="h-px bg-gray-200 dark:bg-gray-800 w-full" />
                 <DropdownMenuItem
                   onSelect={(e) => {
                     e.preventDefault();
                     fileInputRef.current?.click();
                   }}
-                  className="rounded-none px-4 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#050505] text-[10px] font-bold uppercase tracking-widest focus:bg-gray-50 dark:focus:bg-[#050505]"
+                  className="rounded-lg px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 text-sm font-bold text-gray-700 dark:text-gray-200 focus:bg-gray-50 dark:focus:bg-gray-900"
                 >
-                  <FileUp className="mr-3 h-4 w-4" strokeWidth={1.5} /> Subir
+                  <FileUp className="mr-3 h-4 w-4" strokeWidth={2} /> Subir
                   Archivo Local
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -630,25 +635,25 @@ export default function VaccinationsPage() {
         </div>
 
         {/* --- ESQUEMA DE VACUNACIÓN (TABLAS) --- */}
-        <Accordion type="multiple" className="space-y-8">
+        <Accordion type="multiple" className="space-y-6">
           {groupedVaccines.map((stage, idx) => (
             <AccordionItem
               value={stage.ageGroup}
               key={stage.ageGroup}
-              className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none data-[state=open]:border-black dark:data-[state=open]:border-white transition-colors"
+              className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-sm data-[state=open]:border-quhealthy-green/30 transition-all overflow-hidden"
             >
               {/* Cabecera del Grupo */}
-              <AccordionTrigger className="bg-gray-50 dark:bg-[#050505] px-6 py-4 hover:no-underline hover:bg-gray-100 dark:hover:bg-[#111111] transition-colors border-b border-transparent data-[state=open]:border-gray-200 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
+              <AccordionTrigger className="bg-gray-50/50 dark:bg-gray-900/10 px-6 py-4 hover:no-underline hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors border-b border-transparent data-[state=open]:border-gray-100 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
                 <div className="flex items-center gap-3">
                   <Clock
-                    className="w-4 h-4 text-black dark:text-white"
-                    strokeWidth={1.5}
+                    className="w-4 h-4 text-gray-500"
+                    strokeWidth={2}
                   />
-                  <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                  <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                     A los: {stage.ageGroup}
                   </h2>
                 </div>
-                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white" />
+                <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200 text-gray-400" />
               </AccordionTrigger>
 
               {/* Filas de Vacunas */}
@@ -665,15 +670,15 @@ export default function VaccinationsPage() {
                         className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group"
                       >
                         <div className="flex items-start gap-4">
-                          {/* Checkbox Arquitectónico */}
+                          {/* Checkbox */}
                           <button
                             onClick={() => handleToggleVaccine(vaccine)}
                             disabled={isSimulating}
                             className={cn(
-                              "mt-0.5 w-6 h-6 border flex items-center justify-center shrink-0 transition-colors focus:outline-none",
+                              "mt-0.5 w-6 h-6 border flex items-center justify-center shrink-0 transition-all rounded-md focus:outline-none shadow-sm",
                               isApplied
-                                ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black"
-                                : "border-gray-300 dark:border-gray-700 bg-transparent hover:border-black dark:hover:border-white",
+                                ? "bg-quhealthy-green border-quhealthy-green text-white"
+                                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-quhealthy-green dark:hover:border-quhealthy-green",
                             )}
                           >
                             {isSimulating ? (
@@ -689,24 +694,24 @@ export default function VaccinationsPage() {
                           <div>
                             <h4
                               className={cn(
-                                "text-sm font-bold uppercase tracking-widest transition-colors mb-1",
+                                "text-sm font-bold transition-colors mb-1",
                                 isApplied
                                   ? "text-gray-500"
-                                  : "text-black dark:text-white",
+                                  : "text-gray-900 dark:text-white",
                               )}
                             >
                               {vaccine.name}
                             </h4>
-                            <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+                            <p className="text-xs text-gray-500 font-medium">
                               {vaccine.diseasePrevented} (Dosis{" "}
                               {vaccine.doseNumber})
                             </p>
 
                             {isApplied && vaccine.appliedDate && (
-                              <div className="flex items-center gap-2 mt-3 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border border-gray-300 dark:border-gray-700 px-2 py-1 w-fit bg-gray-50 dark:bg-[#050505]">
+                              <div className="flex items-center gap-2 mt-3 text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 px-3 py-1.5 rounded-full w-fit bg-gray-50 dark:bg-gray-900 shadow-sm">
                                 <FileCheck2
-                                  className="w-3 h-3"
-                                  strokeWidth={1.5}
+                                  className="w-4 h-4 text-quhealthy-green"
+                                  strokeWidth={2}
                                 />
                                 Aplicada: {vaccine.appliedDate}
                               </div>
@@ -719,7 +724,7 @@ export default function VaccinationsPage() {
                             variant="outline"
                             disabled={isSimulating}
                             onClick={() => handleToggleVaccine(vaccine)}
-                            className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                            className="rounded-xl border border-gray-200 dark:border-gray-700 h-9 px-4 text-xs font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-all shadow-sm"
                           >
                             Registrar Dosis
                           </Button>
@@ -739,12 +744,12 @@ export default function VaccinationsPage() {
         open={isManualMarkModalOpen}
         onOpenChange={setIsManualMarkModalOpen}
       >
-        <DialogContent className="sm:max-w-md rounded-none bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-0 gap-0 shadow-2xl">
-          <DialogHeader className="p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-            <DialogTitle className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
+        <DialogContent className="sm:max-w-md rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 gap-0 shadow-xl overflow-hidden">
+          <DialogHeader className="p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/10 rounded-t-3xl">
+            <DialogTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
               Registrar Vacuna
             </DialogTitle>
-            <DialogDescription className="text-[10px] uppercase tracking-widest text-gray-500 mt-2">
+            <DialogDescription className="text-sm font-medium text-gray-500 mt-2">
               ¿Cuándo se aplicó esta vacuna? Si no recuerdas el día exacto,
               selecciona un aproximado.
             </DialogDescription>
@@ -752,7 +757,7 @@ export default function VaccinationsPage() {
 
           <div className="p-8 space-y-4">
             <div className="space-y-3 flex flex-col">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+              <label className="text-xs font-bold text-gray-500">
                 Fecha de Registro
               </label>
               <DatePicker
@@ -762,18 +767,18 @@ export default function VaccinationsPage() {
                   date > new Date() || date < new Date("1900-01-01")
                 }
                 placeholder="Seleccionar fecha"
-                className="w-full h-12 text-xs font-mono rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
-                popoverClassName="z-[60] bg-white dark:bg-[#0a0a0a] border-black dark:border-white rounded-none"
+                className="w-full h-12 text-sm rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-black focus:ring-2 focus:ring-quhealthy-green/20 focus:border-quhealthy-green shadow-sm"
+                popoverClassName="z-[60] bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-xl shadow-lg"
               />
             </div>
           </div>
 
-          <DialogFooter className="p-8 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row gap-4">
+          <DialogFooter className="p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/10 flex flex-col sm:flex-row gap-4 rounded-b-3xl">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsManualMarkModalOpen(false)}
-              className="rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest w-full sm:w-auto"
+              className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-gray-900 h-12 px-6 text-sm font-bold w-full sm:w-auto shadow-sm"
             >
               Cancelar
             </Button>
@@ -781,12 +786,12 @@ export default function VaccinationsPage() {
               type="button"
               onClick={confirmManualMark}
               disabled={!selectedDate || simulatingAction !== null}
-              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-6 text-[10px] font-bold uppercase tracking-widest w-full sm:w-auto border-0 disabled:opacity-50"
+              className="rounded-xl bg-quhealthy-green hover:bg-emerald-700 text-white h-12 px-6 text-sm font-bold w-full sm:w-auto border-0 disabled:opacity-50 shadow-sm"
             >
               {simulatingAction !== null ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
-                <FileCheck2 className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                <FileCheck2 className="w-4 h-4 mr-2" strokeWidth={2} />
               )}
               Guardar Registro
             </Button>

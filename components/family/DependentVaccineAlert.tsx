@@ -39,22 +39,22 @@ export function DependentVaccineAlert({
         <TooltipTrigger asChild>
           <Link
             href={`/patient/dashboard/family/${memberId}/vaccinations`}
-            className="absolute left-4 top-4 z-20 flex h-8 items-center justify-center border border-red-500 bg-white dark:bg-[#0a0a0a] px-3 text-red-500 hover:bg-red-500 hover:text-white transition-colors rounded-none group"
+            className="absolute left-4 top-4 z-20 flex h-8 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 px-3 text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors group shadow-sm"
           >
-            <AlertCircle className="h-3.5 w-3.5 mr-2" strokeWidth={2} />
-            <span className="text-[10px] font-bold uppercase tracking-widest">
+            <AlertCircle className="h-4 w-4 mr-2" strokeWidth={2} />
+            <span className="text-xs font-bold">
               {delayedCount} Atraso{delayedCount > 1 ? "s" : ""}
             </span>
           </Link>
         </TooltipTrigger>
         <TooltipContent
-          className="z-50 max-w-xs rounded-none border border-red-500 bg-red-500 text-white p-4"
+          className="z-50 max-w-xs rounded-xl border border-rose-200 dark:border-rose-800 bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white p-4 shadow-lg"
           sideOffset={5}
         >
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-1">
+          <p className="text-sm font-bold text-rose-600 dark:text-rose-400 mb-1">
             Atención Requerida
           </p>
-          <p className="text-xs font-light">
+          <p className="text-xs font-medium text-gray-500">
             El expediente indica {delayedCount} vacuna
             {delayedCount > 1 ? "s" : ""} con retraso. Haga clic para registrar
             la aplicación o programar una cita.

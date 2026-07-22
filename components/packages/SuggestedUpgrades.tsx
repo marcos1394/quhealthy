@@ -1,17 +1,17 @@
 "use client";
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowRight, Zap, Crown, Star, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { QhSpinner } from '@/components/ui/QhSpinner';
-import { usePackageRecommendations } from '@/hooks/usePackageRecommendations';
-import { PackageRecommendation } from '@/types/recommendations';
+import React from "react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Zap, Crown, Star, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { usePackageRecommendations } from "@/hooks/usePackageRecommendations";
+import { PackageRecommendation } from "@/types/recommendations";
 
-function formatPrice(price: number, currency: string = 'MXN') {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: currency === 'USD' ? 'USD' : 'MXN',
+function formatPrice(price: number, currency: string = "MXN") {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: currency === "USD" ? "USD" : "MXN",
     minimumFractionDigits: 0,
   }).format(price);
 }
@@ -27,7 +27,7 @@ function RecommendationCard({ rec }: { rec: PackageRecommendation }) {
     if (rec.providerSlug) {
       router.push(`/discover/${rec.providerSlug}`);
     } else {
-      router.push('/discover');
+      router.push("/discover");
     }
   };
 
@@ -53,9 +53,13 @@ function RecommendationCard({ rec }: { rec: PackageRecommendation }) {
       {rec.averageRating != null && rec.averageRating > 0 && (
         <div className="flex items-center gap-1.5 mb-4">
           <Star className="w-4 h-4 text-amber-400 fill-current" />
-          <span className="text-xs font-bold text-gray-900 dark:text-white">{rec.averageRating.toFixed(1)}</span>
+          <span className="text-xs font-bold text-gray-900 dark:text-white">
+            {rec.averageRating.toFixed(1)}
+          </span>
           {rec.reviewCount != null && (
-            <span className="text-xs font-medium text-gray-500">({rec.reviewCount} reseñas)</span>
+            <span className="text-xs font-medium text-gray-500">
+              ({rec.reviewCount} reseñas)
+            </span>
           )}
         </div>
       )}
@@ -90,7 +94,7 @@ function RecommendationCard({ rec }: { rec: PackageRecommendation }) {
         variant="outline"
         className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-quhealthy-green hover:text-white hover:border-quhealthy-green dark:hover:bg-quhealthy-green dark:hover:text-white h-12 text-sm font-bold w-full sm:w-fit px-8 transition-all flex items-center justify-between sm:justify-center mt-auto shadow-sm"
       >
-       Ver Contenido <ArrowRight className="w-4 h-4 sm:ml-3" strokeWidth={2} />
+        Ver Contenido <ArrowRight className="w-4 h-4 sm:ml-3" strokeWidth={2} />
       </Button>
     </div>
   );
@@ -106,7 +110,7 @@ export function SuggestedUpgrades() {
         <div className="flex items-center gap-3 mb-8">
           <Crown className="w-5 h-5 text-quhealthy-green" strokeWidth={2} />
           <h2 className="text-sm font-bold text-gray-900 dark:text-white">
-            Recomendacion de Paquetes 
+            Recomendacion de Paquetes
           </h2>
         </div>
         <div className="flex items-center justify-center py-12">
@@ -125,7 +129,7 @@ export function SuggestedUpgrades() {
   const displayedRecs = recommendations.slice(0, 4);
 
   return (
-      <div className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800 space-y-8">
+    <div className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800 space-y-8">
       <div className="flex items-center gap-3 mb-4">
         <Crown className="w-5 h-5 text-quhealthy-green" strokeWidth={2} />
         <h2 className="text-sm font-bold text-gray-900 dark:text-white">
@@ -133,7 +137,9 @@ export function SuggestedUpgrades() {
         </h2>
       </div>
 
-      <div className={`grid grid-cols-1 gap-8 ${displayedRecs.length > 1 ? 'lg:grid-cols-2' : ''}`}>
+      <div
+        className={`grid grid-cols-1 gap-8 ${displayedRecs.length > 1 ? "lg:grid-cols-2" : ""}`}
+      >
         {displayedRecs.map((rec) => (
           <RecommendationCard key={rec.id} rec={rec} />
         ))}

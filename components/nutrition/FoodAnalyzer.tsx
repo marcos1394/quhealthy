@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Camera, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
-import { NutritionAnalysis } from '@/types/nutrition';
-import { toast } from 'react-toastify';
-import { nutritionService } from '@/services/nutrition.service';
+import React, { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Camera, Upload, Loader2, Image as ImageIcon } from "lucide-react";
+import { NutritionAnalysis } from "@/types/nutrition";
+import { toast } from "react-toastify";
+import { nutritionService } from "@/services/nutrition.service";
 
 interface FoodAnalyzerProps {
   onComplete: (analysis: NutritionAnalysis) => void;
@@ -33,11 +33,11 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
 
     try {
       const result = await nutritionService.analyzeFood(file);
-      toast.success('Análisis completado');
+      toast.success("Análisis completado");
       onComplete(result);
     } catch (error) {
       console.error(error);
-      toast.error('Hubo un error al procesar la imagen. Intenta nuevamente.');
+      toast.error("Hubo un error al procesar la imagen. Intenta nuevamente.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -45,27 +45,30 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
 
   return (
     <div className="bg-white dark:bg-[#050505] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 flex flex-col items-center justify-center min-h-[400px]">
-      <input 
-        type="file" 
-        accept="image/*" 
+      <input
+        type="file"
+        accept="image/*"
         capture="environment"
-        className="hidden" 
+        className="hidden"
         ref={fileInputRef}
         onChange={handleFileSelect}
         disabled={isAnalyzing}
       />
-      
+
       {!previewUrl ? (
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-green-50 dark:bg-quhealthy-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Camera className="w-10 h-10 text-quhealthy-green" />
           </div>
-          <h2 className="text-xl font-bold mb-3 text-black dark:text-white">Toma una foto a tu comida</h2>
+          <h2 className="text-xl font-bold mb-3 text-black dark:text-white">
+            Toma una foto a tu comida
+          </h2>
           <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">
-            Nuestra IA analizará la imagen para detectar alimentos, porciones estimadas y calcular el valor nutricional de tu plato.
+            Nuestra IA analizará la imagen para detectar alimentos, porciones
+            estimadas y calcular el valor nutricional de tu plato.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button 
+            <Button
               onClick={() => fileInputRef.current?.click()}
               className="rounded-xl bg-quhealthy-green text-white hover:bg-emerald-700 h-12 px-8 text-sm font-bold border-0 flex items-center transition-all shadow-sm hover:shadow"
             >
@@ -77,23 +80,29 @@ export default function FoodAnalyzer({ onComplete }: FoodAnalyzerProps) {
       ) : (
         <div className="w-full max-w-lg text-center">
           <div className="relative rounded-2xl overflow-hidden mb-6 aspect-video bg-gray-50 dark:bg-gray-900 flex items-center justify-center border border-gray-100 dark:border-gray-800 shadow-sm">
-            <img src={previewUrl} alt="Comida" className="object-cover w-full h-full" />
-            
+            <img
+              src={previewUrl}
+              alt="Comida"
+              className="object-cover w-full h-full"
+            />
+
             {isAnalyzing && (
               <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white backdrop-blur-sm">
                 <Loader2 className="w-10 h-10 animate-spin mb-4 text-quhealthy-green" />
                 <p className="font-bold text-lg">Analizando plato...</p>
-                <p className="text-sm opacity-80 mt-1">Identificando ingredientes y porciones</p>
+                <p className="text-sm opacity-80 mt-1">
+                  Identificando ingredientes y porciones
+                </p>
               </div>
             )}
           </div>
 
           {!isAnalyzing && (
-            <Button 
+            <Button
               variant="outline"
               onClick={() => {
                 setPreviewUrl(null);
-                if (fileInputRef.current) fileInputRef.current.value = '';
+                if (fileInputRef.current) fileInputRef.current.value = "";
               }}
               className="rounded-xl border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1a1a1a] h-12 px-8 text-sm font-bold transition-all"
             >
