@@ -126,7 +126,7 @@ export function HealthVaultFolderCard({
           e.dataTransfer.effectAllowed = 'move';
         }
       }}
-      <div className={cn(
+      className={cn(
         "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 transition-all duration-300 flex items-center justify-between group shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700",
         !isEditing && "cursor-grab active:cursor-grabbing",
         isDragOver && "border-blue-500 ring-1 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/10",
