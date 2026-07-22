@@ -276,11 +276,12 @@ const NavItem = ({
   pathname: string | null;
   itemKey: string;
 }) => {
-  const isActive =
+  const isActive = Boolean(
     pathname === href ||
     (href !== "/provider/dashboard" &&
       href !== "/patient/dashboard" &&
-      pathname?.startsWith(href));
+      pathname?.startsWith(href))
+  );
 
   const getIconColorClass = (key: string, active: boolean) => {
     if (['reviews'].includes(key)) return 'text-yellow-500';
