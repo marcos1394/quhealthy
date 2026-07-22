@@ -104,9 +104,9 @@ export default function ParentGrowthHistory({ history, standards, sex }: ParentG
 
   const renderStatusBadge = (status?: string) => {
     if (!status) return <span className="text-gray-400">--</span>;
-    if (status === 'NORMAL') return <span className="inline-flex items-center gap-1 text-xs font-bold text-gray-700 dark:text-gray-300"><ShieldCheck className="w-3.5 h-3.5" /> Estable</span>;
-    if (status === 'VIGILANCIA') return <span className="inline-flex items-center gap-1 text-xs font-bold text-gray-700 dark:text-gray-300"><AlertTriangle className="w-3.5 h-3.5" /> Seguir</span>;
-    return <span className="inline-flex items-center gap-1 text-xs font-bold text-black dark:text-white"><ShieldAlert className="w-3.5 h-3.5" /> Alerta</span>;
+    if (status === 'NORMAL') return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"><ShieldCheck className="w-3.5 h-3.5" /> Estable</span>;
+    if (status === 'VIGILANCIA') return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"><AlertTriangle className="w-3.5 h-3.5" /> Seguir</span>;
+    return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400"><ShieldAlert className="w-3.5 h-3.5" /> Alerta</span>;
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -115,8 +115,8 @@ export default function ParentGrowthHistory({ history, standards, sex }: ParentG
       const p50Data = payload.find((p: any) => p.dataKey === 'P50');
       
       return (
-        <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-4 rounded-xl shadow-lg shadow-black/5 dark:shadow-white/5">
-          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Edad: {Number(label).toFixed(1)} meses</p>
+        <div className="bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 p-4 rounded-2xl shadow-xl shadow-black/5 dark:shadow-white/5">
+          <p className="text-xs font-semibold text-gray-500 mb-2">Edad: {Number(label).toFixed(1)} meses</p>
           {patientData && (
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-black dark:bg-white" />
@@ -143,11 +143,11 @@ export default function ParentGrowthHistory({ history, standards, sex }: ParentG
     <div className="w-full space-y-8">
       
       {/* Chart Section */}
-      <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl p-6 md:p-8 border border-gray-200 dark:border-gray-800 shadow-sm relative">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative">
         <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6 mb-8">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center shrink-0">
-              <Activity className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800/50 flex items-center justify-center shrink-0">
+              <Activity className="w-5 h-5 text-quhealthy-green" strokeWidth={2} />
             </div>
             <div>
               <h3 className="text-lg font-bold text-black dark:text-white mb-0.5">
@@ -175,10 +175,10 @@ export default function ParentGrowthHistory({ history, standards, sex }: ParentG
               <button 
                 key={tab.id}
                 onClick={() => setActiveIndicator(tab.id as IndicatorType)}
-                className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all rounded-md whitespace-nowrap
+                className={`px-4 py-1.5 text-xs font-semibold transition-all rounded-md whitespace-nowrap
                   ${activeIndicator === tab.id 
-                    ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm border border-gray-200 dark:border-gray-700' 
-                    : 'text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white border border-transparent'}`}
+                    ? 'bg-white dark:bg-gray-800 text-quhealthy-green dark:text-teal-400 shadow-sm border border-gray-200 dark:border-gray-700' 
+                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white border border-transparent'}`}
               >
                 {tab.label}
               </button>
@@ -251,13 +251,12 @@ export default function ParentGrowthHistory({ history, standards, sex }: ParentG
               <Line 
                 type="monotone" 
                 dataKey="Paciente" 
-                stroke="currentColor" 
+                stroke="#0d9488" 
                 strokeWidth={3} 
-                dot={{ stroke: 'currentColor', strokeWidth: 2, r: 4, fill: 'var(--bg-color, white)' }} 
-                activeDot={{ r: 6, stroke: 'currentColor', strokeWidth: 2, fill: 'var(--bg-color, white)' }} 
+                dot={{ stroke: '#0d9488', strokeWidth: 2, r: 4, fill: 'var(--bg-color, white)' }} 
+                activeDot={{ r: 6, stroke: '#0d9488', strokeWidth: 2, fill: 'var(--bg-color, white)' }} 
                 name="Paciente"
                 connectNulls
-                className="text-black dark:text-white"
               />
             </ComposedChart>
           </ResponsiveContainer>
@@ -265,23 +264,23 @@ export default function ParentGrowthHistory({ history, standards, sex }: ParentG
       </div>
 
       {/* Table Section */}
-      <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-[#050505]/50">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
             Historial de Mediciones
           </h3>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 dark:bg-gray-900/50">
+            <thead className="text-xs font-semibold text-gray-500 bg-gray-50/80 dark:bg-gray-900/50">
               <tr>
-                <th className="px-6 py-4">Fecha</th>
+                <th className="px-6 py-4 rounded-tl-lg">Fecha</th>
                 <th className="px-6 py-4">Edad</th>
                 <th className="px-6 py-4">Peso</th>
                 <th className="px-6 py-4">Estatura</th>
                 <th className="px-6 py-4">IMC</th>
-                <th className="px-6 py-4">Estado</th>
+                <th className="px-6 py-4 rounded-tr-lg">Estado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">

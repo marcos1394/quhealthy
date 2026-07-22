@@ -71,12 +71,10 @@ export function ParentGrowthContainer({ dependentId, sex }: ParentGrowthContaine
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-800 shadow-sm">
-        <GrowthMeasurementForm 
-          onSubmit={handleSubmit} 
-          isSubmitting={isSubmitting} 
-        />
-      </div>
+      <GrowthMeasurementForm 
+        onSubmit={handleSubmit} 
+        isSubmitting={isSubmitting} 
+      />
 
       <ParentGrowthView latestMeasurement={latestMeasurement} />
       

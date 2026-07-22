@@ -63,8 +63,8 @@ export default function GrowthMeasurementForm({
   };
 
   return (
-    <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10">
-      <h3 className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white mb-6">
+    <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
         Registrar Nueva Medición
       </h3>
       <form
@@ -72,7 +72,7 @@ export default function GrowthMeasurementForm({
         className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
       >
         <div className="flex flex-col gap-2">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+          <label className="text-xs font-semibold text-gray-500">
             Fecha
           </label>
           <Popover>
@@ -80,7 +80,7 @@ export default function GrowthMeasurementForm({
               <Button
                 variant="outline"
                 className={cn(
-                  "h-10 w-full justify-start rounded-none border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-sm font-normal focus:ring-0 hover:border-black dark:hover:border-white transition-colors",
+                  "h-11 w-full justify-start rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm font-normal focus:ring-1 focus:border-teal-500 focus:ring-teal-500 hover:border-teal-500 dark:hover:border-teal-400 transition-all shadow-sm",
                   !measurementDate && "text-gray-400",
                 )}
               >
@@ -99,7 +99,7 @@ export default function GrowthMeasurementForm({
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="z-[100] w-auto rounded-none border border-black dark:border-white p-0 bg-white dark:bg-[#0a0a0a]"
+              className="z-[100] w-auto rounded-xl border border-gray-200 dark:border-gray-800 p-0 bg-white dark:bg-[#0a0a0a] shadow-lg"
               align="start"
             >
               <CalendarUI
@@ -122,7 +122,7 @@ export default function GrowthMeasurementForm({
           </Popover>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+          <label className="text-xs font-semibold text-gray-500">
             Peso (kg)
           </label>
           <input
@@ -131,11 +131,11 @@ export default function GrowthMeasurementForm({
             placeholder="Ej: 14.5"
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
-            className="h-10 px-3 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-sm text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white rounded-none"
+            className="h-11 px-3 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl transition-all shadow-sm"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+          <label className="text-xs font-semibold text-gray-500">
             Talla (cm)
           </label>
           <input
@@ -144,11 +144,11 @@ export default function GrowthMeasurementForm({
             placeholder="Ej: 95.5"
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
-            className="h-10 px-3 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-sm text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white rounded-none"
+            className="h-11 px-3 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl transition-all shadow-sm"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+          <label className="text-xs font-semibold text-gray-500">
             Perímetro Cefálico (cm)
           </label>
           <input
@@ -157,19 +157,19 @@ export default function GrowthMeasurementForm({
             placeholder="Ej: 48.0"
             value={headCircumferenceCm}
             onChange={(e) => setHeadCircumferenceCm(e.target.value)}
-            className="h-10 px-3 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-sm text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white rounded-none"
+            className="h-11 px-3 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl transition-all shadow-sm"
           />
         </div>
         <div className="flex flex-col gap-2">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-10 px-4 border border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
+            className="h-11 px-4 bg-quhealthy-green hover:bg-emerald-700 text-white transition-colors text-sm font-bold flex items-center justify-center gap-2 rounded-xl disabled:opacity-50 shadow-sm"
           >
             {isSubmitting ? (
               <QhSpinner size="sm" className="text-current" />
             ) : (
-              <PlusCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <PlusCircle className="w-4 h-4" strokeWidth={2} />
             )}
             Registrar
           </button>
