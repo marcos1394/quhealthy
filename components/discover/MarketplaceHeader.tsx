@@ -139,7 +139,7 @@ export const MarketplaceHeader = ({
                   Filtros
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] p-0 border-t-2 border-black dark:border-white bg-white dark:bg-black rounded-t-[2rem]">
+              <SheetContent position="bottom" className="h-[85vh] p-0 border-t-2 border-black dark:border-white bg-white dark:bg-black rounded-t-[2rem]">
                 <div className="h-full overflow-y-auto px-4 py-8">
                   <FilterPanel isCollapsed={false} />
                 </div>
