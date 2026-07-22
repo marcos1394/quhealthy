@@ -36,7 +36,7 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ token: s
 
  // 4. Renderizado del Contenedor Principal
  return (
- <div className="min-h-screen bg-gray-50 dark:bg-[#050505] flex justify-center items-center py-12 px-4 sm:px-6 md:px-8 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+ <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0a0a] flex justify-center items-center py-12 px-4 sm:px-6 md:px-8 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
  <div className="max-w-2xl w-full">
  {/* 
  Al inyectar el ReviewForm refactorizado, este ya posee sus propios 
