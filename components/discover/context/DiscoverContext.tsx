@@ -138,10 +138,10 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
   });
 
   const isStore = state.searchType === 'STORE';
-  const isLoading = isStore ? isLoadingProviders : isLoadingItems;
-  const isValidating = isStore ? isValidatingProviders : isValidatingItems;
-  const isLoadingMore = isStore ? isLoadingMoreProviders : isLoadingMoreItems;
-  const isReachingEnd = isStore ? isReachingEndProviders : isReachingEndItems;
+  const isLoading = isStore ? !!isLoadingProviders : !!isLoadingItems;
+  const isValidating = isStore ? !!isValidatingProviders : !!isValidatingItems;
+  const isLoadingMore = isStore ? !!isLoadingMoreProviders : !!isLoadingMoreItems;
+  const isReachingEnd = isStore ? !!isReachingEndProviders : !!isReachingEndItems;
 
   const loadMore = () => {
     if (isStore) {
