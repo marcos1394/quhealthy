@@ -334,7 +334,6 @@ export default function PatientVaultPage() {
   };
 
  return (
-return (
  <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
  <motion.div
  initial={{ opacity: 0, y: 10 }}
