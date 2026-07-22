@@ -34,6 +34,8 @@ import { CrossSellingCarousel } from "@/components/discover/CrossSellingCarousel
 import { ImageGalleryViewer } from "@/components/ui/gallery/ImageGalleryViewer";
 import { BeforeAfterComparator } from "@/components/ui/gallery/BeforeAfterComparator";
 import { CertificationGrid } from "@/components/ui/gallery/CertificationGrid";
+import { StorefrontHero } from "@/components/store/StorefrontHero";
+import { StickyBookingBar } from "@/components/store/StickyBookingBar";
 
 type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
 
@@ -146,127 +148,6 @@ export default function PublicStorePage() {
  {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
  <ActiveCreditsBanner providerId={store.providerId} brandColor={store.primaryColor} />
 
- {/* --- HERO SECTION CORREGIDO --- */}
- <div className="w-full border-b border-gray-200 dark:border-gray-800">
- {/* Banner con color natural */}
- <div className="h-48 sm:h-64 w-full relative bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800">
- {store.bannerUrl && (
- <img src={store.bannerUrl} alt="Banner" className="w-full h-full object-cover" />
- )}
- <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
- <FavoriteButton 
- entityType="PROVIDER" 
- entityId={store.providerId} 
- initialIsFavorite={favoriteProviderIds.has(store.providerId)} 
- brandColor={safePrimaryColor}
- className="w-10 h-10 sm:w-12 sm:h-12" 
- />
- </div>
- </div>
-
- {/* Información Base */}
- <div className="max-w-5xl mx-auto px-6 relative">
- <div className="flex flex-col sm:flex-row items-start gap-8 pb-10">
- <div className="w-32 h-32 border border-black dark:border-white bg-white dark:bg-black flex-shrink-0 -mt-16 relative z-10 flex items-center justify-center overflow-hidden">
- {store.logoUrl ? (
- // eslint-disable-next-line @next/next/no-img-element
- <img src={store.logoUrl} alt="Logo" className="w-full h-full object-cover" />
- ) : (
- <span className="text-4xl font-bold uppercase">{store.displayName.charAt(0)}</span>
- )}
- </div>
-
- <div className="flex-1 pt-4">
- <h1 className="text-3xl font-bold uppercase tracking-tight text-black dark:text-white mb-4">
- {store.displayName}
- </h1>
- 
- <div className="flex flex-wrap items-center gap-3">
- <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
- <Star className="w-3 h-3 fill-current" strokeWidth={1} />
- {store.rating || '4.9'} ({store.reviewsCount || t('new_label')})
- </span>
- 
- {singleScore && (
- <button 
- onClick={() => setShowQuScoreModal(true)}
- className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white text-gray-600 dark:text-gray-400 px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-colors"
- >
- <Info className="w-3 h-3" strokeWidth={2} />
- QUSCORE: {singleScore.score}
- </button>
- )}
-
- {/* Etiqueta de ubicación usando el color del backend en el texto/borde */}
- <span 
- className={cn(
- "border px-3 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 bg-transparent",
- !hasValidPrimaryColor && "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
- )}
- style={hasValidPrimaryColor ? { borderColor: safePrimaryColor, color: safePrimaryColor } : {}}
- >
- <MapPin className="w-3 h-3" strokeWidth={1.5} />
- <span className="truncate max-w-[200px]">{store.city || store.address || 'CONSULTORIO'}</span>
- </span>
-
- {store.languages && store.languages.length > 0 && (
- <span className="border border-gray-300 dark:border-gray-700 px-3 py-1 text-[9px] font-bold uppercase tracking-widest hidden sm:flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
- <Globe className="w-3 h-3" strokeWidth={1.5} />
- {store.languages.join(", ")}
- </span>
- )}
- </div>
-
- <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-3xl">
- {store.bio || t('default_bio', { defaultValue: 'PERFIL PROFESIONAL NO DETALLADO.' })}
- </p>
-
- {/* Tags Técnicos / Amenidades */}
- {store.tags && store.tags.length > 0 && (
- <div className="mt-6 flex flex-wrap gap-2 max-w-3xl">
- {store.tags.map((tag, idx) => (
- <span 
- key={idx} 
- className={cn(
- "group cursor-default bg-transparent text-gray-500 dark:text-gray-400 text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 flex items-center gap-1.5 border border-gray-200 dark:border-gray-800 transition-colors duration-300",
- hasValidPrimaryColor 
- ? "hover:border-[var(--brand-color)] hover:text-[var(--brand-color)]" 
- : "hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white"
- )}
- style={hasValidPrimaryColor ? { '--brand-color': safePrimaryColor } as React.CSSProperties : {}}
- >
- <CheckCircle2 
- className={cn(
- "w-3 h-3 transition-colors duration-300",
- !hasValidPrimaryColor && "text-gray-400 group-hover:text-black dark:group-hover:text-white"
- )} 
- strokeWidth={1.5} 
- style={hasValidPrimaryColor ? { color: safePrimaryColor } : {}}
- />
- {tag}
- </span>
- ))}
- </div>
- )}
-
- {/* Botones de Contacto */}
- <div className="mt-8 flex gap-4">
- {store.whatsappEnabled && (
- <Button className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white h-10 text-[9px] font-bold uppercase tracking-widest transition-colors px-6">
- <MessageCircle className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} /> WHATSAPP
- </Button>
- )}
- {store.instagramUrl && (
- <Button
- onClick={() => window.open(store.instagramUrl || "", '_blank')}
- className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-black dark:text-white h-10 text-[9px] font-bold uppercase tracking-widest transition-colors px-6"
- >
- <Instagram className="w-3.5 h-3.5 mr-2" strokeWidth={1.5} /> INSTAGRAM
- </Button>
- )}
- </div>
- </div>
- </div>
  </div>
  </div>
 
@@ -860,6 +741,7 @@ export default function PublicStorePage() {
  scoreData={singleScore}
  />
 
+ <StickyBookingBar providerSlug={slug} brandColor={safePrimaryColor} />
  </div>
  );
 }
