@@ -266,6 +266,7 @@ const NavItem = ({
   badge,
   isCollapsed,
   pathname,
+  itemKey,
 }: {
   href: string;
   icon: any;
