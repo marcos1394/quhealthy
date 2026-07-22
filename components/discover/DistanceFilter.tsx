@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Navigation } from 'lucide-react';
-import { useDiscoverFilters } from '@/hooks/useDiscoverFilters';
-import { Slider } from '@/components/ui/slider';
+import React, { useState, useEffect } from "react";
+import { Navigation } from "lucide-react";
+import { useDiscoverFilters } from "@/hooks/useDiscoverFilters";
+import { Slider } from "@/components/ui/slider";
 
 const PRESETS = [5, 10, 20, 50];
 
@@ -23,7 +23,9 @@ export function DistanceFilter() {
     <div className="space-y-4">
       <div className="flex items-center gap-1.5 mb-1">
         <Navigation className="w-3 h-3 text-gray-500" strokeWidth={2} />
-        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Distancia Máx. (KM)</span>
+        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+          Distancia Máx. (KM)
+        </span>
       </div>
 
       {/* Presets rápidos */}
@@ -33,12 +35,12 @@ export function DistanceFilter() {
             key={p}
             onClick={() => {
               setRadiusKm(p);
-              setFilter('radiusKm', p);
+              setFilter("radiusKm", p);
             }}
             className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest border transition-all duration-200 ${
               filters.radiusKm === p
-                ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]'
-                : 'bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff]'
+                ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]"
+                : "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff]"
             }`}
           >
             {p} km
@@ -55,7 +57,7 @@ export function DistanceFilter() {
             setRadiusKm(val[0]);
           }}
           onValueCommit={(val) => {
-            setFilter('radiusKm', val[0]);
+            setFilter("radiusKm", val[0]);
           }}
           className="w-full"
         />

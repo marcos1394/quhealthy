@@ -44,19 +44,19 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-3 mt-6 p-4 border border-gray-200 dark:border-gray-800 animate-pulse bg-gray-50 dark:bg-[#050505]">
+      <div className="flex items-center gap-3 mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl animate-pulse bg-gray-50 dark:bg-[#050505]">
         <div className="w-5 h-5 bg-gray-300 dark:bg-gray-700 rounded-full" />
-        <div className="h-4 bg-gray-300 dark:bg-gray-700 w-32" />
+        <div className="h-4 bg-gray-300 dark:bg-gray-700 w-32 rounded" />
       </div>
     );
   }
 
   if (nextSlots.length === 0) {
     return (
-      <div className="flex items-center justify-between mt-6 p-4 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+      <div className="flex items-center justify-between mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-[#050505]">
         <div className="flex items-center gap-3">
-          <Calendar className="w-4 h-4 text-gray-500" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400">
+          <Calendar className="w-5 h-5 text-gray-400" />
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
             Agenda sujeta a confirmación
           </span>
         </div>
@@ -65,15 +65,15 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId
   }
 
   return (
-    <div className="mt-6 p-4 border border-black dark:border-white bg-white dark:bg-black group hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4" strokeWidth={1.5} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">
+    <div className="mt-6 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-black shadow-sm group hover:border-teal-500 dark:hover:border-teal-400 hover:shadow-md transition-all cursor-pointer">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2 text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+          <Clock className="w-5 h-5" strokeWidth={2} />
+          <span className="text-sm font-semibold">
             Próximos turnos disponibles
           </span>
         </div>
-        <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-1 transition-all" />
       </div>
       
       <div className="flex flex-wrap gap-2">
@@ -103,7 +103,7 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId
           }
           
           return (
-            <div key={i} className="px-3 py-1.5 border border-black dark:border-white text-[11px] font-bold tracking-widest group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white transition-colors">
+            <div key={i} className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#111] text-xs font-semibold text-gray-700 dark:text-gray-300 group-hover:bg-teal-50 group-hover:border-teal-200 group-hover:text-teal-700 dark:group-hover:bg-teal-950 dark:group-hover:border-teal-800 dark:group-hover:text-teal-400 transition-colors">
               {isToday ? 'Hoy' : 'Mñn'} {time}
             </div>
           );

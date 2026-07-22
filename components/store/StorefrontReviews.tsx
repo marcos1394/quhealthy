@@ -15,11 +15,11 @@ export const StorefrontReviews: React.FC<StorefrontReviewsProps> = ({ providerId
 
   if (isLoading) {
     return (
-      <div className="py-12 border-t border-gray-200 dark:border-gray-800 animate-pulse">
-        <div className="h-8 bg-gray-200 dark:bg-gray-800 w-48 mb-8" />
+      <div className="py-12 border-t border-gray-100 dark:border-gray-800 animate-pulse">
+        <div className="h-8 bg-gray-200 dark:bg-gray-800 w-48 mb-8 rounded-lg" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-32 bg-gray-100 dark:bg-[#111] border border-gray-200 dark:border-gray-800" />
+            <div key={i} className="h-32 bg-gray-50 dark:bg-[#111] rounded-2xl border border-gray-100 dark:border-gray-800" />
           ))}
         </div>
       </div>
@@ -31,29 +31,29 @@ export const StorefrontReviews: React.FC<StorefrontReviewsProps> = ({ providerId
   if (reviews.length === 0) return null;
 
   return (
-    <div className="py-12 border-t border-gray-200 dark:border-gray-800">
+    <div className="py-12 border-t border-gray-100 dark:border-gray-800">
       <div className="flex items-center gap-3 mb-8">
-        <Star className="w-6 h-6 fill-black dark:fill-white text-black dark:text-white" strokeWidth={1} />
-        <h2 className="text-2xl font-bold uppercase tracking-tight text-black dark:text-white">
+        <Star className="w-6 h-6 fill-yellow-500 text-yellow-500" strokeWidth={2} />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
           Reseñas de Pacientes
         </h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
         {reviews.map((review) => (
-          <div key={review.id} className="flex flex-col space-y-4">
+          <div key={review.id} className="flex flex-col space-y-4 p-5 rounded-2xl border border-gray-100 bg-white shadow-sm dark:bg-[#0a0a0a] dark:border-gray-800">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 border border-black dark:border-white bg-gray-100 dark:bg-black flex items-center justify-center shrink-0">
-                <span className="text-lg font-bold uppercase text-black dark:text-white">
+              <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center shrink-0">
+                <span className="text-lg font-bold text-teal-600 dark:text-teal-400">
                   {/* Default to 'U' for User since name might not be in payload */}
                   U
                 </span>
               </div>
               <div>
-                <p className="text-[12px] font-bold uppercase tracking-widest text-black dark:text-white leading-none mb-1">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white leading-none mb-1.5">
                   Usuario Verificado
                 </p>
-                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
                   <span>
                     {(() => {
                       try {
@@ -74,8 +74,8 @@ export const StorefrontReviews: React.FC<StorefrontReviewsProps> = ({ providerId
                   {review.isVerified && (
                     <>
                       <span>•</span>
-                      <span className="flex items-center text-black dark:text-white">
-                        <CheckCircle2 className="w-3 h-3 mr-1" strokeWidth={2} /> Auténtico
+                      <span className="flex items-center text-teal-600 dark:text-teal-400">
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1" strokeWidth={2} /> Auténtico
                       </span>
                     </>
                   )}
@@ -87,22 +87,22 @@ export const StorefrontReviews: React.FC<StorefrontReviewsProps> = ({ providerId
               {[...Array(5)].map((_, i) => (
                 <Star 
                   key={i} 
-                  className={`w-3.5 h-3.5 ${i < review.rating ? 'fill-black dark:fill-white text-black dark:text-white' : 'fill-transparent text-gray-300 dark:text-gray-700'}`} 
+                  className={`w-4 h-4 ${i < review.rating ? 'fill-yellow-500 text-yellow-500' : 'fill-transparent text-gray-200 dark:text-gray-700'}`} 
                   strokeWidth={1.5} 
                 />
               ))}
             </div>
 
-            <p className="text-[12px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic">
               &quot;{review.comment}&quot;
             </p>
 
             {review.providerResponse && (
-              <div className="mt-4 p-4 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex gap-3">
-                <MessageCircle className="w-4 h-4 mt-0.5 shrink-0 text-black dark:text-white" strokeWidth={1.5} />
+              <div className="mt-2 p-4 rounded-xl bg-gray-50 dark:bg-[#111] flex gap-3">
+                <MessageCircle className="w-4 h-4 mt-0.5 shrink-0 text-gray-500" strokeWidth={2} />
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">Respuesta del Especialista</p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed">
+                  <p className="text-xs font-semibold text-gray-900 dark:text-white mb-1">Respuesta del Especialista</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                     {review.providerResponse}
                   </p>
                 </div>
@@ -114,7 +114,7 @@ export const StorefrontReviews: React.FC<StorefrontReviewsProps> = ({ providerId
       
       {reviewsResponse && reviewsResponse.totalElements > 6 && (
         <div className="mt-10">
-          <button className="border border-black dark:border-white px-6 h-12 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+          <button className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-900 dark:border-gray-700 dark:bg-black dark:hover:bg-gray-900 dark:text-white rounded-xl shadow-sm px-6 h-11 text-sm font-semibold transition-all">
             Mostrar todas las {reviewsResponse.totalElements} reseñas
           </button>
         </div>

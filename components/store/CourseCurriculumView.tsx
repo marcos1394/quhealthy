@@ -40,8 +40,8 @@ export function CourseCurriculumView({ catalogItemId }: Props) {
 
  if (loading) {
  return (
- <div className="py-8 text-center text-sm font-bold uppercase tracking-widest text-gray-400 animate-pulse border border-gray-200 dark:border-gray-800">
- Cargando temario...
+ <div className="py-12 text-center text-sm font-medium text-gray-400 animate-pulse bg-gray-50 dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800">
+ Cargando plan de estudios...
  </div>
  );
  }
@@ -53,37 +53,37 @@ export function CourseCurriculumView({ catalogItemId }: Props) {
  const totalLessons = modules.reduce((acc, mod) => acc + mod.lessons.length, 0);
 
  return (
- <div className="space-y-6 mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+ <div className="space-y-6 mt-10 pt-10 border-t border-gray-100 dark:border-gray-800">
  <div className="flex items-end justify-between">
  <div>
- <h3 className="text-lg font-bold tracking-tight uppercase flex items-center gap-2 mb-2">
- <BookOpen className="w-5 h-5" strokeWidth={2} /> Plan de Estudios
+ <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-1.5">
+ <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400" strokeWidth={2} /> Plan de Estudios
  </h3>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+ <p className="text-sm font-medium text-gray-500">
  {modules.length} Módulos • {totalLessons} Lecciones
  </p>
  </div>
  </div>
 
- <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+ <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm overflow-hidden">
  {modules.map((mod, index) => (
- <div key={mod.id} className="border-b border-gray-100 dark:border-gray-900 last:border-0">
+ <div key={mod.id} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
  <button 
  onClick={() => toggleModule(mod.id!)}
  className="w-full flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-left"
  >
  <div className="flex flex-col gap-1 pr-4">
- <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Módulo {index + 1}</span>
- <span className="text-sm font-bold">{mod.title}</span>
+ <span className="text-xs font-bold text-teal-600 dark:text-teal-400">Módulo {index + 1}</span>
+ <span className="text-base font-semibold text-gray-900 dark:text-white">{mod.title}</span>
  </div>
  <div className="flex items-center gap-4 text-gray-400">
- <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline-block">
+ <span className="text-xs font-medium hidden sm:inline-block">
  {mod.lessons.length} Lecciones
  </span>
  {expandedModules[mod.id!] ? (
- <ChevronDown className="w-4 h-4 shrink-0" />
+ <ChevronDown className="w-5 h-5 shrink-0 text-gray-500" />
  ) : (
- <ChevronRight className="w-4 h-4 shrink-0" />
+ <ChevronRight className="w-5 h-5 shrink-0 text-gray-400" />
  )}
  </div>
  </button>
@@ -94,14 +94,14 @@ export function CourseCurriculumView({ catalogItemId }: Props) {
  initial={{ height: 0 }} 
  animate={{ height: "auto" }} 
  exit={{ height: 0 }}
- className="overflow-hidden bg-gray-50 dark:bg-[#050505]"
+ className="overflow-hidden bg-gray-50/50 dark:bg-[#050505]"
  >
  <div className="py-2">
  {mod.lessons.map((lesson, lIndex) => (
  <div
  key={lesson.id}
  className={cn(
- "w-full flex items-center justify-between p-4 px-6 text-left hover:bg-gray-100 dark:hover:bg-[#111] transition-colors",
+ "w-full flex items-center justify-between p-4 px-6 text-left hover:bg-teal-50/50 dark:hover:bg-teal-900/10 transition-colors border-t border-dashed border-gray-100 dark:border-gray-800 first:border-0",
  lesson.isFreePreview ? "cursor-pointer" : "opacity-90"
  )}
  onClick={() => {
@@ -113,13 +113,13 @@ export function CourseCurriculumView({ catalogItemId }: Props) {
  >
  <div className="flex items-start gap-4">
  <PlayCircle className={cn(
- "w-4 h-4 shrink-0 mt-0.5",
- lesson.isFreePreview ? "text-blue-500" : "text-gray-300 dark:text-gray-700"
+ "w-5 h-5 shrink-0 mt-0.5",
+ lesson.isFreePreview ? "text-teal-500" : "text-gray-300 dark:text-gray-700"
  )} strokeWidth={2} />
  <div className="flex flex-col gap-1">
  <span className={cn(
  "text-sm",
- lesson.isFreePreview ? "font-bold text-black dark:text-white" : "font-medium text-gray-600 dark:text-gray-400"
+ lesson.isFreePreview ? "font-semibold text-gray-900 dark:text-white" : "font-medium text-gray-600 dark:text-gray-400"
  )}>
  {index + 1}.{lIndex + 1} {lesson.title}
  </span>
@@ -128,15 +128,15 @@ export function CourseCurriculumView({ catalogItemId }: Props) {
  )}
  </div>
  </div>
- <div className="flex items-center gap-3 shrink-0 pl-4">
+ <div className="flex items-center gap-4 shrink-0 pl-4">
  {lesson.isFreePreview && (
- <span className="hidden sm:inline-flex bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">
- Vista Previa Libre
+ <span className="hidden sm:inline-flex bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 border border-teal-100 dark:border-teal-800 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+ Vista Previa
  </span>
  )}
  {lesson.durationMinutes && (
- <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1">
- <Clock className="w-3 h-3" /> {lesson.durationMinutes} min
+ <span className="text-xs font-medium text-gray-500 flex items-center gap-1.5">
+ <Clock className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} /> {lesson.durationMinutes} min
  </span>
  )}
  </div>

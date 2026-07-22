@@ -28,23 +28,23 @@ export const StorefrontNavigation: React.FC<StorefrontNavigationProps> = ({ stor
   return (
     <>
       {/* Desktop Breadcrumbs (Static Top) */}
-      <div className="hidden md:flex max-w-7xl mx-auto px-6 py-4 items-center text-[10px] font-bold uppercase tracking-widest text-gray-500">
+      <div className="hidden md:flex max-w-7xl mx-auto px-6 py-4 items-center text-sm font-medium text-gray-500">
         <button 
           onClick={() => router.push('/es/discover')} 
-          className="hover:text-black dark:hover:text-white transition-colors"
+          className="hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           {t('discover', { defaultValue: 'Discover' })}
         </button>
-        <span className="mx-2">/</span>
+        <span className="mx-2 text-gray-300 dark:text-gray-700">/</span>
         {category && (
           <>
-            <span className="hover:text-black dark:hover:text-white transition-colors cursor-pointer">
+            <span className="hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">
               {category}
             </span>
-            <span className="mx-2">/</span>
+            <span className="mx-2 text-gray-300 dark:text-gray-700">/</span>
           </>
         )}
-        <span className="text-black dark:text-white truncate max-w-[200px]">
+        <span className="text-gray-900 dark:text-white truncate max-w-[200px] font-semibold">
           {storeName}
         </span>
       </div>
@@ -64,13 +64,13 @@ export const StorefrontNavigation: React.FC<StorefrontNavigationProps> = ({ stor
             <ArrowLeft className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
           </button>
           
-          <h1 className="text-[12px] font-bold uppercase tracking-widest text-black dark:text-white truncate flex-1 text-center px-4">
+          <h1 className="text-sm font-semibold text-gray-900 dark:text-white truncate flex-1 text-center px-4">
             {storeName}
           </h1>
 
           <div className="flex items-center gap-1">
-            <button className="w-10 h-10 flex items-center justify-center pointer-events-auto">
-              <Share className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <button className="w-10 h-10 flex items-center justify-center pointer-events-auto rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <Share className="w-4 h-4 text-gray-700 dark:text-gray-300" strokeWidth={2} />
             </button>
           </div>
         </div>
