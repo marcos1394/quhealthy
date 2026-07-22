@@ -357,18 +357,66 @@ export function VisualIdentitySection({
 
         </div>
 
-        {/* Galería de Consultorio y Certificaciones */}
+        {/* Galería de Consultorio */}
         <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
           <div>
             <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-              Galería de Imágenes
+              Galería de Instalaciones
             </h3>
             <p className="text-xs text-gray-500 font-medium">
-              Sube fotos de tu consultorio, equipo médico, diplomas o certificaciones relevantes.
+              Sube fotos de tu consultorio, sala de espera o equipo médico.
             </p>
           </div>
           <GalleryUploadManager 
             galleryType="OFFICE" 
+            maxImages={10} 
+          />
+        </div>
+
+        {/* Galería de Certificaciones */}
+        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+              Certificaciones y Diplomas
+            </h3>
+            <p className="text-xs text-gray-500 font-medium">
+              Sube imágenes de tus títulos, especialidades o certificaciones relevantes.
+            </p>
+          </div>
+          <GalleryUploadManager 
+            galleryType="CERTIFICATION" 
+            maxImages={5} 
+          />
+        </div>
+
+        {/* Galería de Equipo Médico */}
+        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+              Equipo Médico y Tecnología
+            </h3>
+            <p className="text-xs text-gray-500 font-medium">
+              Destaca la tecnología y el equipo especializado de tu consultorio.
+            </p>
+          </div>
+          <GalleryUploadManager 
+            galleryType="EQUIPMENT" 
+            maxImages={10} 
+          />
+        </div>
+
+        {/* Galería de Antes y Después */}
+        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+              Casos de Éxito (Antes y Después)
+            </h3>
+            <p className="text-xs text-gray-500 font-medium">
+              Muestra los resultados de tus procedimientos y tratamientos médicos.
+            </p>
+          </div>
+          <GalleryUploadManager 
+            galleryType="BEFORE_AFTER" 
             maxImages={10} 
           />
         </div>
