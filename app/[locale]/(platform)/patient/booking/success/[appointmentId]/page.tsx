@@ -75,12 +75,16 @@ export default function BookingSuccessPage() {
       "eeee d 'de' MMMM 'a las' HH:mm 'hrs'",
       { locale: es },
     ).toUpperCase();
-    
-    const serviceName = appointment.serviceNameSnapshot || appointment.serviceName || "PROCEDIMIENTO CLÍNICO";
-    const providerName = appointment.providerNameSnapshot || "ESPECIALISTA ASIGNADO";
+
+    const serviceName =
+      appointment.serviceNameSnapshot ||
+      appointment.serviceName ||
+      "PROCEDIMIENTO CLÍNICO";
+    const providerName =
+      appointment.providerNameSnapshot || "ESPECIALISTA ASIGNADO";
     const portalUrl = `${window.location.origin}/patient/dashboard/appointments/${appointmentId}`;
 
-    return `QuHealthy - Confirmación de Cita\n\nDetalles:\nServicio: ${serviceName}\nEspecialista: ${providerName}\nFecha: ${dateStr}\nModalidad: ${appointment.appointmentType === 'ONLINE' ? 'Teleconsulta' : 'Presencial'}\n\nIngresa al portal para ver más detalles: ${portalUrl}`;
+    return `QuHealthy - Confirmación de Cita\n\nDetalles:\nServicio: ${serviceName}\nEspecialista: ${providerName}\nFecha: ${dateStr}\nModalidad: ${appointment.appointmentType === "ONLINE" ? "Teleconsulta" : "Presencial"}\n\nIngresa al portal para ver más detalles: ${portalUrl}`;
   };
 
   const handleShare = async () => {
@@ -118,9 +122,9 @@ export default function BookingSuccessPage() {
           toast.success("Notificaciones del navegador activadas");
         }
       }
-      
+
       // Llamada al backend para activar recordatorios (SMS/Correo/WhatsApp)
-      const axios = (await import('@/lib/axios')).default;
+      const axios = (await import("@/lib/axios")).default;
       await axios.post(`/api/appointments/${appointmentId}/reminders/enable`);
       toast.success("Recordatorios (SMS/Correo) activados exitosamente");
     } catch (error) {

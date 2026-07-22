@@ -91,7 +91,7 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
     if (!appointmentId) return false;
     
     try {
-      await appointmentService.cancelAppointment(appointmentId as string | number, reason || "Cancelado por el paciente");
+      await appointmentService.cancelAppointment(Number(appointmentId), reason || "Cancelado por el paciente");
       toast.success("Cita cancelada con éxito");
       
       // Update local state if needed

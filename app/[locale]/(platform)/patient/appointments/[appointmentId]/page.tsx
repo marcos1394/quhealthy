@@ -56,7 +56,7 @@ export default function PatientAppointmentDetailsPage() {
     isDownloading,
     downloadInvoice,
     qrCodeUrl,
-    cancelAppointment
+    cancelAppointment,
   } = useAppointmentDetails(appointmentId);
 
   const handlePayNow = async () => {
@@ -97,8 +97,13 @@ export default function PatientAppointmentDetailsPage() {
   };
 
   const handleCancelAppointment = async () => {
-    if (!window.confirm("¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.")) return;
-    
+    if (
+      !window.confirm(
+        "¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.",
+      )
+    )
+      return;
+
     // El hook internamente mostrará los toast de éxito/error y actualizará el estado
     await cancelAppointment("Cancelado por el paciente desde detalles de cita");
   };
@@ -121,19 +126,24 @@ export default function PatientAppointmentDetailsPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] px-6 text-center transition-colors duration-300">
         <div className="w-16 h-16 rounded-3xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mb-6">
-          <AlertCircle className="w-7 h-7 text-rose-600 dark:text-rose-400" strokeWidth={2} />
+          <AlertCircle
+            className="w-7 h-7 text-rose-600 dark:text-rose-400"
+            strokeWidth={2}
+          />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
           Cita no encontrada
         </h2>
         <p className="text-sm font-medium text-gray-500 max-w-sm mx-auto mb-8">
-          El registro solicitado no existe o carece de permisos de visualización.
+          El registro solicitado no existe o carece de permisos de
+          visualización.
         </p>
         <Button
           onClick={() => router.push("/patient/dashboard/appointments")}
           className="rounded-xl bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-sm font-semibold shadow-sm transition-all"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} /> Retornar al Directorio
+          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} /> Retornar al
+          Directorio
         </Button>
       </div>
     );
@@ -145,7 +155,10 @@ export default function PatientAppointmentDetailsPage() {
 
   const isOnline =
     appointment.type === "ONLINE" || appointment.appointmentType === "ONLINE";
-  const canJoinVideo = isOnline && (appointment.status === "SCHEDULED" || appointment.status === "IN_PROGRESS");
+  const canJoinVideo =
+    isOnline &&
+    (appointment.status === "SCHEDULED" ||
+      appointment.status === "IN_PROGRESS");
   const dateFormatted = format(new Date(appointment.startTime), "dd MMM yyyy", {
     locale: es,
   });
@@ -278,14 +291,18 @@ export default function PatientAppointmentDetailsPage() {
                       Especialista Asignado
                     </p>
                     <p className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                      {appointment.providerNameSnapshot || "Especialista General"}
+                      {appointment.providerNameSnapshot ||
+                        "Especialista General"}
                     </p>
                   </div>
                 </div>
 
                 <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
                   <p className="text-xs font-medium text-gray-500 mb-2 flex items-center gap-2">
-                    <Stethoscope className="w-4 h-4 text-teal-500" strokeWidth={2} />{" "}
+                    <Stethoscope
+                      className="w-4 h-4 text-teal-500"
+                      strokeWidth={2}
+                    />{" "}
                     Servicio Programado
                   </p>
                   <p className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
@@ -298,7 +315,10 @@ export default function PatientAppointmentDetailsPage() {
                 {appointment.consumerSymptoms && (
                   <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
                     <p className="text-xs font-medium text-gray-500 mb-3 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-amber-500" strokeWidth={2} />{" "}
+                      <FileText
+                        className="w-4 h-4 text-amber-500"
+                        strokeWidth={2}
+                      />{" "}
                       Observaciones del Paciente
                     </p>
                     <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30 p-5 text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -313,12 +333,22 @@ export default function PatientAppointmentDetailsPage() {
             <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
               <div className="border-b border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between bg-gray-50/50 dark:bg-[#111]/30">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-emerald-500" strokeWidth={2} />
+                  <MapPin
+                    className="w-4 h-4 text-emerald-500"
+                    strokeWidth={2}
+                  />
                   Ubicación y Modalidad
                 </h3>
               </div>
               <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0", isOnline ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400")}>
+                <div
+                  className={cn(
+                    "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0",
+                    isOnline
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                      : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400",
+                  )}
+                >
                   {isOnline ? (
                     <Video className="w-6 h-6" strokeWidth={2} />
                   ) : (
@@ -328,13 +358,16 @@ export default function PatientAppointmentDetailsPage() {
                 <div className="flex-1">
                   <p className="text-xs font-medium text-gray-500 mb-1">
                     Modalidad:{" "}
-                    <span className="font-bold">{isOnline ? "Telemedicina" : "Atención Presencial"}</span>
+                    <span className="font-bold">
+                      {isOnline ? "Telemedicina" : "Atención Presencial"}
+                    </span>
                   </p>
 
                   {isOnline ? (
                     <div className="space-y-3 mt-2">
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                        El enlace cifrado para la transmisión se activará minutos antes de su consulta.
+                        El enlace cifrado para la transmisión se activará
+                        minutos antes de su consulta.
                       </p>
                       {appointment.meetLink ? (
                         <a
@@ -348,13 +381,15 @@ export default function PatientAppointmentDetailsPage() {
                         </a>
                       ) : (
                         <span className="text-sm font-bold text-amber-500 flex items-center gap-1.5">
-                          <Clock className="w-4 h-4" strokeWidth={2} /> Enlace en generación
+                          <Clock className="w-4 h-4" strokeWidth={2} /> Enlace
+                          en generación
                         </span>
                       )}
                     </div>
                   ) : (
                     <p className="text-lg font-bold tracking-tight text-gray-900 dark:text-white leading-relaxed mt-2">
-                      {appointment.locationAddress || "Dirección no especificada. Contacte al proveedor."}
+                      {appointment.locationAddress ||
+                        "Dirección no especificada. Contacte al proveedor."}
                     </p>
                   )}
                 </div>
@@ -392,7 +427,7 @@ export default function PatientAppointmentDetailsPage() {
             <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                  <Receipt className="w-4 h-4 text-amber-500" strokeWidth={2} /> 
+                  <Receipt className="w-4 h-4 text-amber-500" strokeWidth={2} />
                   Resumen Financiero
                 </h3>
               </div>
@@ -453,7 +488,11 @@ export default function PatientAppointmentDetailsPage() {
             <div className="space-y-3">
               {canJoinVideo && (
                 <Button
-                  onClick={() => appointment.meetLink ? window.open(appointment.meetLink, '_blank') : router.push(`/patient/video-call/${appointment.id}`)}
+                  onClick={() =>
+                    appointment.meetLink
+                      ? window.open(appointment.meetLink, "_blank")
+                      : router.push(`/patient/video-call/${appointment.id}`)
+                  }
                   className="w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 h-14 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6"
                 >
                   Unirse a Video Consulta
@@ -474,7 +513,10 @@ export default function PatientAppointmentDetailsPage() {
                     {isStartingChat ? (
                       <QhSpinner size="sm" />
                     ) : (
-                      <MessageSquare className="w-4 h-4 text-indigo-500" strokeWidth={2} />
+                      <MessageSquare
+                        className="w-4 h-4 text-indigo-500"
+                        strokeWidth={2}
+                      />
                     )}
                   </Button>
                 )}
