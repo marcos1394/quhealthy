@@ -61,8 +61,8 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
  <div 
  onClick={onClick}
  className={cn(
- "h-full flex flex-col bg-white dark:bg-[#0a0a0a] border-b border-r border-gray-200 dark:border-gray-800 transition-all duration-300 group",
- "hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)]",
+ "h-full flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm transition-all duration-300 group",
+ "hover:-translate-y-1 hover:shadow-lg hover:border-emerald-100 dark:hover:border-gray-700",
  onClick ? "cursor-pointer" : "cursor-default"
  )}
  >
@@ -71,7 +71,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
  {/* Etiqueta Superior Estricta */}
  {badge && (
  <div className="absolute top-6 right-6 z-20">
- <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white transition-colors">
+ <span className="inline-flex bg-gray-50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 px-3 py-1 text-xs font-semibold rounded-lg group-hover:bg-emerald-50 group-hover:text-emerald-700 dark:group-hover:bg-emerald-900/30 dark:group-hover:text-emerald-400 transition-colors">
  {badge}
  </span>
  </div>
@@ -79,45 +79,45 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
 
  {/* Cabecera (Icono y Tendencia) */}
  <div className="flex items-start justify-between mb-8">
- <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white transition-colors shrink-0">
- <Icon className="w-4 h-4" strokeWidth={1.5} />
+ <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30 transition-colors shrink-0 shadow-sm border border-gray-100 dark:border-gray-800">
+ <Icon className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" strokeWidth={2} />
  </div>
  
  {trend && (
  <div className={cn(
- "border px-2 py-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest transition-colors duration-300",
+ "px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-xs font-bold transition-colors duration-300",
  trend.isPositive 
- ? "border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400 group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-white" 
- : "border-red-500/30 bg-red-50/50 text-red-600 dark:bg-red-900/10 dark:text-red-400 group-hover:bg-red-500 group-hover:border-red-500 group-hover:text-white"
+ ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" 
+ : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400"
  )}>
- <TrendIcon className="w-3 h-3" strokeWidth={2} /> {Math.abs(trend.value)}%
+ <TrendIcon className="w-3.5 h-3.5" strokeWidth={2.5} /> {Math.abs(trend.value)}%
  </div>
  )}
  </div>
 
  {/* Bloque de Datos (Telemetría) */}
  <div className="space-y-2">
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
+ <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 transition-colors">
  {title}
  </p>
  
  {loading ? (
- <div className="h-10 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] animate-pulse w-3/4 mt-2" />
+ <div className="h-10 rounded-xl bg-gray-100 dark:bg-[#050505] animate-pulse w-3/4 mt-2" />
  ) : (
- <p className="text-3xl md:text-4xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">
+ <p className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white transition-colors leading-none">
  {value}
  </p>
  )}
 
  {comparison && (
  <div className="flex items-center gap-2 pt-2 transition-colors">
- <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-300">{comparison.label}:</span>
- <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black">{comparison.value}</span>
+ <span className="text-xs font-semibold text-gray-500">{comparison.label}:</span>
+ <span className="text-xs font-bold text-gray-900 dark:text-white">{comparison.value}</span>
  </div>
  )}
  
  {trend?.period && (
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-300 transition-colors">
+ <p className="text-xs font-semibold text-gray-500 transition-colors">
  VS. {trend.period}
  </p>
  )}
@@ -127,37 +127,36 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   {sparkline && renderSparkline()}
 
   {/* Desglose de ingresos (Breakdown) */}
-  {breakdown && breakdown.length > 0 && (
-    <div className="mt-8 pt-4 border-t border-black/10 dark:border-white/10 w-full space-y-3">
-      {breakdown.map((item, idx) => (
-        <div key={idx} className="flex items-center justify-between transition-colors">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300">
-            {item.label}
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black">
-              {item.value}
-            </span>
-            {item.percentage && (
-              <span className="text-[10px] font-bold text-gray-400 group-hover:text-gray-500">
-                ({item.percentage})
-              </span>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
+ {breakdown && breakdown.length > 0 && (
+ <div className="mt-8 pt-4 border-t border-gray-100 dark:border-gray-800 w-full space-y-3">
+ {breakdown.map((item, idx) => (
+ <div key={idx} className="flex items-center justify-between transition-colors">
+ <span className="text-sm font-semibold text-gray-500">
+ {item.label}
+ </span>
+ <div className="flex items-center gap-2">
+ <span className="text-sm font-bold text-gray-900 dark:text-white">
+ {item.value}
+ </span>
+ {item.percentage && (
+ <span className="text-xs font-medium text-gray-400">
+ ({item.percentage})
+ </span>
+ )}
+ </div>
+ </div>
+ ))}
+ </div>
+ )}
   </div>
 
  {/* Bloque Descriptivo Estructural (Legible) */}
  {description && (
- <div className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] group-hover:bg-black dark:group-hover:bg-white group-hover:border-black dark:group-hover:border-white transition-colors p-5 flex items-start gap-4 shrink-0">
- <div className="w-6 h-6 border border-black/10 dark:border-white/10 flex items-center justify-center shrink-0 bg-white dark:bg-[#0a0a0a] group-hover:bg-white dark:group-hover:bg-black transition-colors">
- <Info className="w-3 h-3 text-black dark:text-white group-hover:text-black dark:group-hover:text-white" strokeWidth={1.5} />
+ <div className="rounded-b-3xl border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] p-5 flex items-start gap-4 shrink-0 transition-colors">
+ <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-white dark:bg-[#0a0a0a] shadow-sm border border-gray-100">
+ <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
  </div>
- {/* Se mantiene Sentence Case y peso ligero para máxima legibilidad */}
- <p className="text-xs font-light text-gray-600 dark:text-gray-300 group-hover:text-white dark:group-hover:text-black transition-colors leading-relaxed pt-0.5">
+ <p className="text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed pt-0.5">
  {description}
  </p>
  </div>
@@ -174,20 +173,20 @@ const SummaryCardCompact: React.FC<SummaryCardProps> = (props) => {
  <div 
  onClick={onClick}
  className={cn(
- "p-6 flex items-center justify-between border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all duration-300 group",
- "hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)]",
+ "p-6 flex items-center justify-between rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm transition-all duration-300 group",
+ "hover:-translate-y-1 hover:shadow-lg hover:border-emerald-100",
  onClick ? "cursor-pointer" : "cursor-default"
  )}
  >
  <div className="flex items-center gap-5">
- <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center bg-gray-50 dark:bg-[#050505] group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white transition-colors shrink-0">
- <Icon className="w-4 h-4" strokeWidth={1.5} />
+ <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-[#050505] shadow-sm border border-gray-100 dark:border-gray-800 group-hover:bg-emerald-50 transition-colors shrink-0">
+ <Icon className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-emerald-600" strokeWidth={2} />
  </div>
  <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-1">
+ <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-1">
  {title}
  </p>
- <p className="text-xl md:text-2xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">
+ <p className="text-xl md:text-2xl font-bold tracking-tight text-gray-900 dark:text-white transition-colors leading-none">
  {value}
  </p>
  </div>
@@ -195,23 +194,22 @@ const SummaryCardCompact: React.FC<SummaryCardProps> = (props) => {
 
  {trend && (
  <div className={cn(
- "border px-2 py-1 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest shrink-0 ml-4 transition-colors duration-300",
+ "px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-xs font-bold shrink-0 ml-4 transition-colors duration-300",
  trend.isPositive 
- ? "border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400 group-hover:bg-emerald-500 group-hover:border-emerald-500 group-hover:text-white" 
- : "border-red-500/30 bg-red-50/50 text-red-600 dark:bg-red-900/10 dark:text-red-400 group-hover:bg-red-500 group-hover:border-red-500 group-hover:text-white"
+ ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400" 
+ : "bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400"
  )}>
- <TrendIcon className="w-3 h-3" strokeWidth={2} /> {Math.abs(trend.value)}%
+ <TrendIcon className="w-3.5 h-3.5" strokeWidth={2.5} /> {Math.abs(trend.value)}%
  </div>
  )}
  </div>
  );
 };
 
-const SummaryCardGrid: React.FC<{ children: React.ReactNode; columns?: number }> = ({ children, columns = 4 }) => {
+ const SummaryCardGrid: React.FC<{ children: React.ReactNode; columns?: number }> = ({ children, columns = 4 }) => {
  return (
- // Estructura Blueprint Grid: gap-0 con bordes Top e Izquierdo en el contenedor padre
  <div className={cn(
- "grid gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]", 
+ "grid gap-4", 
  columns === 1 ? "grid-cols-1" : "", 
  columns === 2 ? "grid-cols-1 md:grid-cols-2" : "",
  columns === 3 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "",

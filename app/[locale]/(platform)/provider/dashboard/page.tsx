@@ -63,10 +63,10 @@ export default function DashboardPage() {
  // --- ESTADO 1: CARGANDO (BLUEPRINT) ---
  if (isLoading) {
  return (
- <div className="min-h-[70vh] flex flex-col justify-center items-center bg-gray-50 dark:bg-[#050505] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
- <QhSpinner size="lg" />
- <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
- {t('loading_title', { defaultValue: 'EXTRAYENDO TELEMETRÍA DEL SISTEMA...' })}
+ <div className="min-h-[70vh] flex flex-col justify-center items-center bg-gray-50/50 dark:bg-[#050505] transition-colors selection:bg-emerald-200 dark:selection:bg-emerald-900/30">
+ <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+ <p className="mt-6 text-sm font-semibold text-gray-500 animate-pulse">
+ CUALIFICANDO TELEMETRÍA DEL SISTEMA...
  </p>
  </div>
  );
@@ -75,22 +75,22 @@ export default function DashboardPage() {
  // --- ESTADO 2: ERROR ---
  if (!data) {
  return (
- <div className="min-h-[70vh] flex flex-col justify-center items-center text-center px-6 bg-gray-50 dark:bg-[#050505] transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
- <div className="w-16 h-16 border border-red-500/50 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6 shrink-0">
- <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
+ <div className="min-h-[70vh] flex flex-col justify-center items-center text-center px-6 bg-gray-50/50 dark:bg-[#050505] transition-colors selection:bg-emerald-200 dark:selection:bg-emerald-900/30">
+ <div className="w-16 h-16 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6 shrink-0 shadow-sm">
+ <AlertCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
  </div>
  <div className="space-y-4 max-w-md flex flex-col items-center">
- <h3 className="text-xl font-semibold uppercase tracking-tight text-black dark:text-white">
- {t('error_title', { defaultValue: 'ERROR DE CONEXIÓN' })}
+ <h3 className="text-2xl font-bold text-gray-900 dark:text-white leading-none">
+ {t('error_title', { defaultValue: 'Error de Conexión' })}
  </h3>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed">
- {t('error_desc', { defaultValue: 'NO SE PUDO ESTABLECER CONEXIÓN CON EL SERVIDOR DE DATOS. COMPRUEBE SU RED Y REINTENTE.' })}
+ <p className="text-sm font-medium text-gray-500 leading-relaxed">
+ {t('error_desc', { defaultValue: 'No se pudo establecer conexión con el servidor de datos. Compruebe su red y reintente.' })}
  </p>
  <Button 
  onClick={() => refetch()} 
- className="mt-4 rounded-none bg-black text-white dark:bg-white dark:text-black border-0 hover:bg-gray-800 dark:hover:bg-gray-200 h-14 px-10 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-3"
+ className="mt-4 rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-0 hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-sm font-semibold transition-colors flex items-center gap-3 shadow-sm"
  >
- <RefreshCw className="w-4 h-4" strokeWidth={1.5} />{t('error_retry', { defaultValue: 'REINTENTAR CONEXIÓN' })}
+ <RefreshCw className="w-4 h-4" strokeWidth={2} />{t('error_retry', { defaultValue: 'Reintentar Conexión' })}
  </Button>
  </div>
  </div>
@@ -120,27 +120,27 @@ export default function DashboardPage() {
     ] as const;
 
     const getStatusBadgeStaff = (status: string) => {
-      const base = "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0 flex items-center gap-1.5 rounded-none";
+      const base = "px-2.5 py-1 text-xs font-semibold shrink-0 flex items-center gap-1.5 rounded-lg";
       switch (status) {
-        case 'CONFIRMED': case 'SCHEDULED': return <span className={cn(base, 'bg-[#166534] border-[#14532d] text-white')}><CheckCircle className="w-3 h-3" strokeWidth={1.5}/>CONFIRMADA</span>;
-        case 'PENDING_PAYMENT': case 'PENDING': return <span className={cn(base, 'bg-[#b45309] border-[#78350f] text-white')}><Clock className="w-3 h-3" strokeWidth={1.5}/>PENDIENTE</span>;
-        case 'IN_PROGRESS': return <span className={cn(base, 'bg-[#1e3a8a] border-[#1e3a8a] text-white animate-pulse')}><Activity className="w-3 h-3" strokeWidth={1.5}/>EN CURSO</span>;
-        case 'COMPLETED': return <span className={cn(base, 'bg-gray-200 border-gray-300 text-black dark:bg-[#222] dark:border-gray-700 dark:text-white')}><Check className="w-3 h-3" strokeWidth={1.5}/>COMPLETADA</span>;
-        default: return <span className={cn(base, 'bg-gray-100 border-gray-300 text-black dark:bg-[#111] dark:text-white')}>{status}</span>;
+        case 'CONFIRMED': case 'SCHEDULED': return <span className={cn(base, 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400')}><CheckCircle className="w-3.5 h-3.5" strokeWidth={2}/>Confirmada</span>;
+        case 'PENDING_PAYMENT': case 'PENDING': return <span className={cn(base, 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400')}><Clock className="w-3.5 h-3.5" strokeWidth={2}/>Pendiente</span>;
+        case 'IN_PROGRESS': return <span className={cn(base, 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 animate-pulse')}><Activity className="w-3.5 h-3.5" strokeWidth={2}/>En curso</span>;
+        case 'COMPLETED': return <span className={cn(base, 'bg-gray-100 text-gray-700 dark:bg-[#222] dark:text-gray-300')}><Check className="w-3.5 h-3.5" strokeWidth={2}/>Completada</span>;
+        default: return <span className={cn(base, 'bg-gray-100 text-gray-700 dark:bg-[#111] dark:text-gray-300')}>{status}</span>;
       }
     };
 
     return (
-      <div className="space-y-8 pb-16 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+      <div className="space-y-8 pb-16 font-sans selection:bg-emerald-200 dark:selection:bg-emerald-900/30 transition-colors duration-300">
 
         {/* HEADER */}
-        <div className="pb-6 border-b border-black/20 dark:border-white/20">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">{roleLabel}</p>
-          <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+        <div className="pb-6">
+          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-1">{roleLabel}</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-none">
             Bienvenida, {user?.firstName ?? 'equipo'}
           </h1>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
-            AGENDA DEL DÍA · {new Date().toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}
+          <p className="text-sm font-medium text-gray-500 mt-2">
+            Agenda del día · {new Date().toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
         </div>
 
@@ -152,66 +152,68 @@ export default function DashboardPage() {
             { label: 'Pendientes', value: todayAppts.filter(a => ['SCHEDULED','CONFIRMED','PENDING','PENDING_PAYMENT'].includes(a.status)).length, icon: Clock },
             { label: 'En curso', value: todayAppts.filter(a => a.status === 'IN_PROGRESS').length, icon: Activity },
           ].map(stat => (
-            <div key={stat.label} className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-5 flex flex-col gap-3">
-              <div className="w-9 h-9 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                <stat.icon className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+            <div key={stat.label} className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-5 flex flex-col gap-3 rounded-2xl shadow-sm">
+              <div className="w-9 h-9 border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-center rounded-lg">
+                <stat.icon className="w-4 h-4 text-gray-900 dark:text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <p className="text-2xl font-semibold tracking-tight text-black dark:text-white">{stat.value}</p>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">{stat.label}</p>
+                <p className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">{stat.value}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">{stat.label}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* ACCIONES RÁPIDAS */}
-        <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-5">Acceso Rápido</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div>
+          <p className="text-sm font-semibold text-gray-500 mb-4">Acceso Rápido</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {staffActions.map(action => (
               <button
                 key={action.label}
                 onClick={() => router.push(action.href)}
-                className="flex flex-col items-center gap-3 p-4 border border-black/10 dark:border-white/10 hover:border-black dark:hover:border-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all group"
+                className="flex flex-col items-center gap-3 p-4 bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:border-emerald-200 dark:hover:border-emerald-900/30 hover:shadow-md transition-all group"
               >
-                <action.icon className="w-5 h-5" strokeWidth={1.5} />
-                <span className="text-[9px] font-bold uppercase tracking-widest">{action.label}</span>
+                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#050505] flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30 transition-colors">
+                  <action.icon className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" strokeWidth={2} />
+                </div>
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{action.label}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* AGENDA DEL DÍA (próximas citas) */}
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] overflow-hidden">
-          <div className="p-6 border-b border-black dark:border-white flex items-center justify-between">
+        <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-[#050505]">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                <CalendarDays className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+              <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex items-center justify-center shadow-sm">
+                <CalendarDays className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
               </div>
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Monitoreo en Tiempo Real</p>
-                <h4 className="text-lg font-semibold tracking-tight uppercase text-black dark:text-white leading-none">AGENDA OPERATIVA (24H)</h4>
+                <p className="text-sm font-semibold text-gray-500 mb-1">Monitoreo en Tiempo Real</p>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-none">Agenda Operativa</h4>
               </div>
             </div>
             <button
               onClick={() => router.push(`/${locale}/provider/dashboard/appointments`)}
-              className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black dark:border-white hover:opacity-50 transition-opacity pb-0.5 hidden sm:block"
+              className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors hidden sm:block"
             >
-              VER AGENDA COMPLETA
+              Ver agenda completa &rarr;
             </button>
           </div>
 
-          <div className="overflow-y-auto max-h-[400px] custom-scrollbar bg-gray-50 dark:bg-[#050505]">
+          <div className="overflow-y-auto max-h-[400px] custom-scrollbar bg-white dark:bg-[#0a0a0a]">
             {upcomingStaffAppts.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-10 text-center min-h-[200px]">
-                <CalendarDays className="w-8 h-8 text-gray-300 mb-4" strokeWidth={1.5} />
-                <h4 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">AGENDA DESPEJADA</h4>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs mx-auto leading-relaxed">
-                  NO HAY CITAS PRÓXIMAS PROGRAMADAS.
+                <CalendarDays className="w-12 h-12 text-gray-300 mb-4" strokeWidth={1.5} />
+                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Agenda Despejada</h4>
+                <p className="text-sm font-medium text-gray-500 max-w-xs mx-auto leading-relaxed">
+                  No hay citas próximas programadas.
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-black/10 dark:divide-white/10">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {upcomingStaffAppts.map(appt => {
                   const dateObj = new Date(appt.startTime);
                   const formattedDate = format(dateObj, locale === 'es' ? 'EEE d MMM' : 'EEE, MMM d', { locale: dateLocale });
@@ -220,21 +222,13 @@ export default function DashboardPage() {
                     <div
                       key={appt.id}
                       onClick={() => router.push(`/${locale}/provider/dashboard/appointments`)}
-                      className="p-5 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      className="p-6 hover:bg-gray-50/50 dark:hover:bg-[#050505] transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-3 mb-2">
-                          <p className="font-semibold text-sm uppercase tracking-widest">{appt.consumer.name}</p>
+                          <p className="font-bold text-gray-900 dark:text-white">{appt.consumer.name}</p>
                           {getStatusBadgeStaff(appt.status)}
                         </div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mb-3">{appt.service.name}</p>
-                        <div className="flex flex-wrap items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                          <span className="flex items-center gap-1.5 border border-black/20 dark:border-white/20 px-2 py-1 bg-gray-50 dark:bg-[#050505] group-hover:border-white/30 group-hover:bg-transparent">
-                            <Clock className="w-3 h-3" strokeWidth={1.5}/>
-                            <span className="text-black dark:text-white group-hover:text-white dark:group-hover:text-black">{formattedDate} | {formattedTime}</span>
-                          </span>
-                          <span className="flex items-center gap-1.5 border border-black/20 dark:border-white/20 px-2 py-1 group-hover:border-white/30">
-                            {appt.service.serviceDeliveryType === 'ONLINE' ? <Video className="w-3 h-3" strokeWidth={1.5}/> : <MapPin className="w-3 h-3" strokeWidth={1.5}/>}
                             {appt.service.serviceDeliveryType === 'ONLINE' ? 'TELEMEDICINA' : 'PRESENCIAL'}
                           </span>
                         </div>
@@ -256,41 +250,40 @@ export default function DashboardPage() {
 
 
  const getStatusBadge = (status: string) => {
- // Etiqueta Técnica Blueprint
- const baseClass = "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0 flex items-center gap-1.5 rounded-none";
+ const baseClass = "px-2.5 py-1 text-xs font-semibold shrink-0 flex items-center gap-1.5 rounded-lg";
  
  switch (status) {
  case "CONFIRMED":
  case "SCHEDULED": 
- return <span className={cn(baseClass, "bg-[#166534] border-[#14532d] text-white")}>
- <CheckCircle className="w-3 h-3" strokeWidth={1.5} />
- {t('status_confirmed', { defaultValue: 'CONFIRMADA' })}
+ return <span className={cn(baseClass, "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400")}>
+ <CheckCircle className="w-3.5 h-3.5" strokeWidth={2} />
+ {t('status_confirmed', { defaultValue: 'Confirmada' })}
  </span>;
  case "PENDING_PAYMENT": 
  case "PENDING":
- return <span className={cn(baseClass, "bg-[#b45309] border-[#78350f] text-white")}>
- <Clock className="w-3 h-3" strokeWidth={1.5} />
- {t('status_pending_payment', { defaultValue: 'PEND. PAGO' })}
+ return <span className={cn(baseClass, "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400")}>
+ <Clock className="w-3.5 h-3.5" strokeWidth={2} />
+ {t('status_pending_payment', { defaultValue: 'Pendiente' })}
  </span>;
  case "IN_PROGRESS": 
- return <span className={cn(baseClass, "bg-[#1e3a8a] border-[#1e3a8a] text-white animate-pulse")}>
- <Activity className="w-3 h-3" strokeWidth={1.5} />
- {t('status_in_progress', { defaultValue: 'EN CURSO' })}
+ return <span className={cn(baseClass, "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 animate-pulse")}>
+ <Activity className="w-3.5 h-3.5" strokeWidth={2} />
+ {t('status_in_progress', { defaultValue: 'En curso' })}
  </span>;
  case "CANCELLED":
  case "CANCELED":
- return <span className={cn(baseClass, "bg-[#991b1b] border-[#7f1d1d] text-white")}>
- <XCircle className="w-3 h-3" strokeWidth={1.5} />
- {t('status_cancelled', { defaultValue: 'ANULADA' })}
+ return <span className={cn(baseClass, "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400")}>
+ <XCircle className="w-3.5 h-3.5" strokeWidth={2} />
+ {t('status_cancelled', { defaultValue: 'Anulada' })}
  </span>;
  case "COMPLETED":
- return <span className={cn(baseClass, "bg-[#1e3a8a] border-[#1e3a8a] text-white")}>
- <CheckCircle className="w-3 h-3" strokeWidth={1.5} />
- {t('status_completed', { defaultValue: 'COMPLETADA' })}
+ return <span className={cn(baseClass, "bg-gray-100 text-gray-700 dark:bg-[#222] dark:text-gray-300")}>
+ <CheckCircle className="w-3.5 h-3.5" strokeWidth={2} />
+ {t('status_completed', { defaultValue: 'Completada' })}
  </span>;
  default: 
- return <span className={cn(baseClass, "bg-gray-100 border-gray-300 text-black dark:bg-[#111] dark:border-gray-800 dark:text-white")}>
- <CalendarDays className="w-3 h-3" strokeWidth={1.5} />
+ return <span className={cn(baseClass, "bg-gray-100 text-gray-700 dark:bg-[#111] dark:text-gray-300")}>
+ <CalendarDays className="w-3.5 h-3.5" strokeWidth={2} />
  {status}
  </span>;
  }
@@ -328,73 +321,73 @@ export default function DashboardPage() {
  <div className="space-y-8 pb-16 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
 
  {/* --- HEADER TÉCNICO & BANNER DE SUSCRIPCIÓN --- */}
- <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+ <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
  <div>
- <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
- {t('welcome', { defaultValue: 'PANEL DE CONTROL GENERAL' })}
+ <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 leading-none">
+ {t('welcome', { defaultValue: 'Panel de Control' })}
  </h1>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
- {t('welcome_desc', { defaultValue: 'TELEMETRÍA, CITAS Y GESTIÓN OPERATIVA.' })}
+ <p className="text-sm font-semibold text-gray-500">
+ {t('welcome_desc', { defaultValue: 'Telemetría, citas y gestión operativa.' })}
  </p>
  </div>
  
- {/* Etiqueta de Plan (Plana y Geométrica) */}
+ {/* Etiqueta de Plan (Soft Health) */}
  <div className={cn(
- "flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-4 border bg-white dark:bg-[#0a0a0a] rounded-none",
- plan.status === "EXPIRED" ? "border-red-500/50" : "border-black/20 dark:border-white/20"
+ "flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-5 border bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm",
+ plan.status === "EXPIRED" ? "border-red-200" : "border-gray-100 dark:border-gray-800"
  )}>
  <div className="flex items-center gap-4">
  <div className={cn(
- "w-12 h-12 border flex items-center justify-center shrink-0",
- plan.status === "EXPIRED" ? "border-red-500/30 bg-red-50 dark:bg-red-900/10" : "border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]"
+ "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border",
+ plan.status === "EXPIRED" ? "border-red-100 bg-red-50 dark:bg-red-900/10 text-red-500" : "border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-700 dark:text-gray-300"
  )}>
- <Crown className={cn("w-5 h-5", plan.status === "EXPIRED" ? "text-red-500" : "text-black dark:text-white")} strokeWidth={1.5} />
+ <Crown className="w-6 h-6" strokeWidth={2} />
  </div>
  <div>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">
- PLAN: <span className="text-black dark:text-white">{plan.name}</span>
+ <p className="text-sm font-semibold text-gray-500 mb-1">
+ Plan: <span className="text-gray-900 dark:text-white font-bold">{plan.name}</span>
  </p>
- <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest">
- <Clock className="w-3 h-3 text-gray-400" strokeWidth={1.5} />
+ <div className="flex items-center gap-1.5 text-xs font-bold">
+ <Clock className="w-4 h-4 text-gray-400" strokeWidth={2} />
  <span className={cn(plan.daysLeft <= 3 ? "text-red-500" : "text-gray-500")}>
- {plan.daysLeft} {t('days_remaining', { defaultValue: 'DÍAS RESTANTES' })}
+ {plan.daysLeft} {t('days_remaining', { defaultValue: 'días restantes' })}
  </span>
  </div>
  </div>
  </div>
  <Button 
  onClick={() => router.push(`/${locale}/provider/dashboard/settings#subscription`)}
- className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors w-full sm:w-auto"
+ className="rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-6 text-sm font-semibold border-0 transition-colors w-full sm:w-auto shadow-sm"
  >
- {t('upgrade_plan', { defaultValue: 'ACTUALIZAR LICENCIA' })}
+ {t('upgrade_plan', { defaultValue: 'Actualizar Licencia' })}
  </Button>
  </div>
  </div>
 
  {/* --- CTAS REQUERIDOS (ONBOARDING) --- */}
- <div className="space-y-0 border-t border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
+ <div className="space-y-4">
  <AnimatePresence>
  {needsPrescriptionSetup && (
  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
- <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
+ <div className="border border-amber-200 bg-amber-50/50 dark:bg-amber-900/10 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors shadow-sm">
  <div className="flex items-start gap-5">
- <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
- <FileSignature className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-amber-200 shadow-sm flex items-center justify-center shrink-0">
+ <FileSignature className="w-6 h-6 text-amber-600 dark:text-amber-500" strokeWidth={2} />
  </div>
  <div>
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
- {t('setup_prescription_title', { fallback: 'MÓDULO DE RECETA INCOMPLETO' })}
+ <h3 className="text-sm font-bold text-amber-900 dark:text-amber-50 mb-1">
+ {t('setup_prescription_title', { fallback: 'Módulo de Receta Incompleto' })}
  </h3>
- <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
+ <p className="text-sm font-medium text-amber-700 dark:text-amber-200/70 max-w-2xl leading-relaxed">
  {t('setup_prescription_desc', { fallback: 'Requiere configurar firma digital, logotipo y código cromático para emisión de documentos oficiales.' })}
  </p>
  </div>
  </div>
  <Button 
  onClick={() => router.push("/provider/settings/prescription")}
- className="w-full md:w-auto shrink-0 bg-transparent text-black dark:text-white border border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors"
+ className="w-full md:w-auto shrink-0 bg-white text-amber-900 hover:bg-amber-100 border border-amber-200 rounded-xl h-12 px-6 text-sm font-semibold transition-colors shadow-sm"
  >
- {t('setup_prescription_cta', { fallback: 'INICIALIZAR CONFIGURACIÓN' })} <ArrowRight className="w-4 h-4 ml-3" strokeWidth={1.5} />
+ {t('setup_prescription_cta', { fallback: 'Inicializar Configuración' })} <ArrowRight className="w-4 h-4 ml-2" strokeWidth={2} />
  </Button>
  </div>
  </motion.div>
@@ -404,25 +397,25 @@ export default function DashboardPage() {
  <AnimatePresence>
  {!hasConfiguredStore && (
  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
- <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
+ <div className="border border-blue-200 bg-blue-50/50 dark:bg-blue-900/10 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors shadow-sm mt-4">
  <div className="flex items-start gap-5">
- <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
- <Store className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-blue-200 shadow-sm flex items-center justify-center shrink-0">
+ <Store className="w-6 h-6 text-blue-600 dark:text-blue-400" strokeWidth={2} />
  </div>
  <div>
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
- {t('empty_store_title', { defaultValue: 'ESCAPARATE DIGITAL INACTIVO' })}
+ <h3 className="text-sm font-bold text-blue-900 dark:text-blue-50 mb-1">
+ {t('empty_store_title', { defaultValue: 'Escaparate Digital Inactivo' })}
  </h3>
- <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
+ <p className="text-sm font-medium text-blue-700 dark:text-blue-200/70 max-w-2xl leading-relaxed">
  {t('empty_store_desc', { defaultValue: 'Su directorio público y catálogo de servicios aún no han sido configurados.' })}
  </p>
  </div>
  </div>
  <Button 
  onClick={() => router.push("/provider/store")}
- className="w-full md:w-auto shrink-0 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 rounded-none h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors"
+ className="w-full md:w-auto shrink-0 bg-blue-600 text-white hover:bg-blue-700 border-0 rounded-xl h-12 px-6 text-sm font-semibold transition-colors shadow-sm"
  >
- {t('setup_store', { defaultValue: 'HABILITAR ESCAPARATE' })} <ArrowRight className="w-4 h-4 ml-3" strokeWidth={1.5} />
+ {t('setup_store', { defaultValue: 'Habilitar Escaparate' })} <ArrowRight className="w-4 h-4 ml-2" strokeWidth={2} />
  </Button>
  </div>
  </motion.div>
@@ -431,7 +424,7 @@ export default function DashboardPage() {
  </div>
 
  {/* --- MÉTRICAS CLAVE Y TIEMPOS UNIFICADOS --- */}
- <div className="grid grid-cols-2 md:grid-cols-6 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+ <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
  {/* KPI 1 */}
  <div className="col-span-2">
  {(() => {
@@ -500,24 +493,24 @@ export default function DashboardPage() {
  {/* --- GRID PRINCIPAL: GRÁFICO & REPUTACIÓN --- */}
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
- {/* Gráfico Financiero (Plano) */}
- <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-none">
- <div className="p-6 md:p-8 border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex items-center justify-between">
+ {/* Gráfico Financiero (Soft Health) */}
+ <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-3xl shadow-sm overflow-hidden">
+ <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#0a0a0a] flex items-center justify-between">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
- <BarChart2 className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="w-12 h-12 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#050505] flex items-center justify-center shrink-0 shadow-sm">
+ <BarChart2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
  </div>
  <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+ <p className="text-sm font-semibold text-gray-500 mb-1">
  Telemetría de Ingresos
  </p>
- <h4 className="text-lg font-semibold tracking-tight uppercase text-black dark:text-white leading-none">
- {t('financial_summary', { defaultValue: 'HISTÓRICO FINANCIERO' })}
+ <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-none">
+ {t('financial_summary', { defaultValue: 'Histórico Financiero' })}
  </h4>
  </div>
  </div>
  </div>
- <div className="flex-1 bg-gray-50 dark:bg-[#050505]">
+ <div className="flex-1 bg-white dark:bg-[#050505]">
  <RevenueChart />
  </div>
  </div>
@@ -528,46 +521,46 @@ export default function DashboardPage() {
  </div>
 
  {/* --- PRÓXIMAS CITAS (AGENDA OPERATIVA) --- */}
- <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-none overflow-hidden">
- <div className="p-6 md:p-8 border-b border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex items-center justify-between">
+ <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-3xl shadow-sm overflow-hidden">
+ <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#0a0a0a] flex items-center justify-between">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
- <CalendarDays className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="w-12 h-12 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#050505] flex items-center justify-center shrink-0 shadow-sm">
+ <CalendarDays className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
  </div>
  <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+ <p className="text-sm font-semibold text-gray-500 mb-1">
  Monitoreo en Tiempo Real
  </p>
- <h4 className="text-lg font-semibold tracking-tight uppercase text-black dark:text-white leading-none">
- {t('upcoming_title', { defaultValue: 'AGENDA OPERATIVA (24H)' })}
+ <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-none">
+ {t('upcoming_title', { defaultValue: 'Agenda Operativa (24H)' })}
  </h4>
  </div>
  </div>
  {upcomingAppointments.length > 0 && (
  <button 
  onClick={() => router.push("/provider/appointments")}
- className="hidden sm:block text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black dark:border-white hover:opacity-50 transition-opacity pb-0.5"
+ className="hidden sm:block text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
  >
- {t('view_all', { defaultValue: 'VER AGENDA COMPLETA' })}
+ {t('view_all', { defaultValue: 'Ver Agenda Completa' })} &rarr;
  </button>
  )}
  </div>
  
- <div className="flex-1 overflow-y-auto custom-scrollbar max-h-[400px] bg-gray-50 dark:bg-[#050505]">
+ <div className="flex-1 overflow-y-auto custom-scrollbar max-h-[400px] bg-white dark:bg-[#0a0a0a]">
  {upcomingAppointments.length === 0 ? (
  <div className="h-full flex flex-col items-center justify-center p-10 text-center min-h-[250px]">
- <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
- <CalendarDays className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+ <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-[#0a0a0a] border border-gray-100 flex items-center justify-center mb-6 shadow-sm">
+ <CalendarDays className="w-8 h-8 text-gray-400" strokeWidth={2} />
  </div>
- <h4 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
- {t('no_appointments_title', { defaultValue: 'AGENDA DESPEJADA' })}
+ <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+ {t('no_appointments_title', { defaultValue: 'Agenda Despejada' })}
  </h4>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs mx-auto leading-relaxed">
- {t('no_appointments_desc', { defaultValue: 'NO EXISTEN REGISTROS DE CONSULTA PROGRAMADOS A CORTO PLAZO.' })}
+ <p className="text-sm font-medium text-gray-500 max-w-xs mx-auto leading-relaxed">
+ {t('no_appointments_desc', { defaultValue: 'No existen registros de consulta programados a corto plazo.' })}
  </p>
  </div>
  ) : (
- <div className="grid grid-cols-1 gap-0 border-t border-black/10 dark:border-white/10">
+ <div className="grid grid-cols-1 gap-0 divide-y divide-gray-100 dark:divide-gray-800">
  {upcomingAppointments.map((appt) => {
  const dateObj = parseISO(appt.startTime);
  const formattedDate = format(dateObj, locale === 'es' ? "EEE d MMM" : "EEE, MMM d", { locale: dateLocale });
@@ -582,34 +575,34 @@ export default function DashboardPage() {
  router.push('/provider/dashboard/appointments');
  }
  }}
- className="p-6 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-black/10 dark:border-white/10 last:border-b-0"
+ className="p-6 hover:bg-gray-50/50 dark:hover:bg-[#050505] transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-6"
  >
  <div className="flex-1">
  <div className="flex flex-wrap items-center gap-4 mb-3">
- <p className="font-semibold text-sm uppercase tracking-widest">
+ <p className="font-bold text-gray-900 dark:text-white">
  {appt.consumerName}
  </p>
  {getStatusBadge(appt.status)}
  </div>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mb-4">
+ <p className="text-sm font-semibold text-gray-500 mb-4">
  {appt.serviceName}
  </p>
- <div className="flex flex-wrap items-center gap-3 text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-400">
- <div className="flex items-center gap-2 border border-black/20 dark:border-white/20 group-hover:border-white/30 dark:group-hover:border-black/30 px-2 py-1 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent">
- <Clock className="w-3 h-3" strokeWidth={1.5} />
- <span className="text-black dark:text-white group-hover:text-white dark:group-hover:text-black">{formattedDate} | {formattedTime}</span>
+ <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-gray-500">
+ <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-lg px-2.5 py-1">
+ <Clock className="w-3.5 h-3.5" strokeWidth={2} />
+ <span>{formattedDate} | {formattedTime}</span>
  </div>
- <div className="flex items-center gap-2 px-2 py-1 border border-black/20 dark:border-white/20 group-hover:border-white/30 dark:group-hover:border-black/30">
- {appt.modality === "ONLINE" ? <Video className="w-3 h-3" strokeWidth={1.5} /> : <MapPin className="w-3 h-3" strokeWidth={1.5} />}
- <span>{appt.modality === "ONLINE" ? 'TELEMEDICINA' : 'PRESENCIAL'}</span>
+ <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-lg px-2.5 py-1">
+ {appt.modality === "ONLINE" ? <Video className="w-3.5 h-3.5" strokeWidth={2} /> : <MapPin className="w-3.5 h-3.5" strokeWidth={2} />}
+ <span>{appt.modality === "ONLINE" ? 'Telemedicina' : 'Presencial'}</span>
  </div>
  </div>
  </div>
  
- <div className="shrink-0 sm:self-center border border-black dark:border-white group-hover:border-white dark:group-hover:border-black px-6 h-12 flex items-center justify-center">
- <span className="inline-flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest">
- GESTIONAR <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
- </span>
+ <div className="shrink-0 sm:self-center">
+ <div className="w-12 h-12 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30 group-hover:border-emerald-200 dark:group-hover:border-emerald-800 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors shadow-sm">
+ <ArrowRight className="w-5 h-5" strokeWidth={2}/>
+ </div>
  </div>
  </div>
  );

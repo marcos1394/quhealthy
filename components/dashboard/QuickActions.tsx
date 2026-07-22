@@ -29,7 +29,7 @@ export const QuickActions = () => {
  animate={{ opacity: 1, y: 0, scale: 1 }}
  exit={{ opacity: 0, y: 10, scale: 0.98 }}
  transition={{ duration: 0.15, ease: "easeOut" }}
- className="mb-0 w-72 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white flex flex-col rounded-none overflow-hidden"
+ className="mb-4 w-72 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col rounded-3xl shadow-xl overflow-hidden"
  >
  {/* Lista de Acciones tipo Terminal */}
  <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
@@ -40,12 +40,12 @@ export const QuickActions = () => {
  setIsOpen(false);
  router.push(action.href);
  }}
- className="w-full flex items-center gap-4 p-4 border-b border-black dark:border-white last:border-0 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group text-left rounded-none bg-white dark:bg-[#0a0a0a]"
+ className="w-full flex items-center gap-4 p-4 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group text-left bg-white dark:bg-[#0a0a0a]"
  >
- <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-transparent group-hover:border-white/50 dark:group-hover:border-black/50 transition-colors">
- <action.icon className="w-4 h-4" strokeWidth={1.5} />
+ <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30 transition-colors shadow-sm border border-gray-100 dark:border-gray-800">
+ <action.icon className="w-5 h-5 text-gray-600 group-hover:text-emerald-600 dark:text-gray-400 dark:group-hover:text-emerald-400" strokeWidth={1.5} />
  </div>
- <span className="text-[10px] font-bold uppercase tracking-widest">
+ <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
  {action.label}
  </span>
  </button>
@@ -59,11 +59,10 @@ export const QuickActions = () => {
  <button
  onClick={() => setIsOpen(!isOpen)}
  className={cn(
- "w-14 h-14 flex items-center justify-center transition-colors duration-200 rounded-none border border-black dark:border-white border-t-0",
- // Cambio de estado binario sin traslaciones ni sombras
+ "w-14 h-14 flex items-center justify-center transition-all duration-300 rounded-full shadow-lg",
  isOpen 
- ? "bg-white text-black dark:bg-[#0a0a0a] dark:text-white hover:bg-gray-50 dark:hover:bg-[#050505]" 
- : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-t"
+ ? "bg-white text-gray-700 dark:bg-[#0a0a0a] dark:text-gray-300 hover:bg-gray-50 border border-gray-200" 
+ : "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/30 hover:scale-105"
  )}
  aria-label="Toggle quick actions"
  >
