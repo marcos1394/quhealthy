@@ -116,6 +116,12 @@ export const MarketplaceHeader = ({
                 Paquetes de Salud
               </DropdownMenuItem>
               <DropdownMenuItem 
+                onClick={() => setSearchType('COURSE')}
+                className={cn("text-[13px] font-medium px-4 py-2.5 rounded-lg cursor-pointer mb-1 focus:bg-gray-50 dark:focus:bg-[#1a1a1a]", searchType === 'COURSE' && "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400")}
+              >
+                Cursos y Clases
+              </DropdownMenuItem>
+              <DropdownMenuItem 
                 onClick={() => setSearchType('PRODUCT')}
                 className={cn("text-[13px] font-medium px-4 py-2.5 rounded-lg cursor-pointer focus:bg-gray-50 dark:focus:bg-[#1a1a1a]", searchType === 'PRODUCT' && "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400")}
               >

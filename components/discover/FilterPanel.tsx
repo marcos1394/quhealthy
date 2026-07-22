@@ -26,23 +26,23 @@ export function FilterPanel({ isCollapsed = false, onToggle }: FilterPanelProps)
  });
 
  return (
- <div className={cn(
- "bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] sticky top-24 transition-all duration-300",
- isCollapsed ? "p-3 w-[60px] flex flex-col items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111]" : "p-5 w-[300px] space-y-6"
- )}
- onClick={isCollapsed && onToggle ? onToggle : undefined}>
- 
- {/* Header */}
- <div className={cn("flex items-center", isCollapsed ? "justify-center" : "justify-between")}>
- <div className="flex items-center gap-2">
- <button 
- onClick={(e) => {
- if (!isCollapsed) {
- e.stopPropagation();
- onToggle?.();
- }
- }}
- className="w-7 h-7 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+  <div className={cn(
+    "bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl sticky top-24 transition-all duration-300",
+    isCollapsed ? "p-3 w-[60px] flex flex-col items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1a1a1a]" : "p-5 w-[300px] space-y-6"
+  )}
+  onClick={isCollapsed && onToggle ? onToggle : undefined}>
+  
+  {/* Header */}
+  <div className={cn("flex items-center", isCollapsed ? "justify-center" : "justify-between")}>
+    <div className="flex items-center gap-2">
+      <button 
+        onClick={(e) => {
+          if (!isCollapsed) {
+            e.stopPropagation();
+            onToggle?.();
+          }
+        }}
+        className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#1a1a1a] hover:bg-white dark:hover:bg-[#222] hover:shadow-sm transition-all cursor-pointer"
  title={isCollapsed ? "Mostrar filtros" : "Ocultar filtros"}
  >
  <SlidersHorizontal className="w-3.5 h-3.5 text-black dark:text-white" />
