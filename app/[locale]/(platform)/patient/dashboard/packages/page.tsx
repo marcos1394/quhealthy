@@ -40,23 +40,23 @@ export default function ConsumerPackagesPage() {
         className="max-w-6xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12 pb-24"
       >
         {/* --- HEADER --- */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
           <div className="flex items-start gap-6">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 shadow-sm">
               <Package
-                className="h-6 w-6 text-black dark:text-white"
+                className="h-8 w-8"
                 strokeWidth={1.5}
               />
             </div>
             <div className="max-w-2xl">
-              <div className="mb-3 inline-flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
-                <Sparkles className="h-3 w-3" strokeWidth={2} />
+              <div className="mb-3 inline-flex items-center gap-1.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 px-3 py-1 text-xs font-bold rounded-full">
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
                 Mis Paquetes
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase mb-2">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
                 {t("title", { defaultValue: "Cartera de Contratos" })}
               </h1>
-              <p className="text-xs font-light leading-relaxed text-gray-500">
+              <p className="text-sm font-medium leading-relaxed text-gray-500">
                 {t("subtitle", {
                   defaultValue:
                     "Auditoría, gestión y redención de créditos en paquetes clínicos prepagados.",
@@ -67,7 +67,7 @@ export default function ConsumerPackagesPage() {
 
           <Button
             onClick={() => router.push("/discover")}
-            className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 shrink-0"
+            className="rounded-xl bg-quhealthy-green text-white hover:bg-emerald-700 h-12 px-8 text-sm font-bold transition-all shadow-sm border-0 shrink-0"
           >
             <Sparkles className="w-4 h-4 mr-3" strokeWidth={2} />
             {t("btn_explore", { defaultValue: "Nuevo Contrato" })}
@@ -76,12 +76,12 @@ export default function ConsumerPackagesPage() {
 
         {/* --- GRID DE PAQUETES --- */}
         <div className="space-y-6">
-          <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-4">
+          <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-4">
             <Activity
-              className="w-4 h-4 text-black dark:text-white"
-              strokeWidth={1.5}
+              className="w-5 h-5 text-quhealthy-green"
+              strokeWidth={2}
             />
-            <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {t("active_title", { defaultValue: "Contratos en Ejecución" })}
             </h2>
           </div>

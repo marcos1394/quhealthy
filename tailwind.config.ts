@@ -11,7 +11,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Trust Colors (Healthtech Palette - Institucional)
+        'quhealthy-green': '#0d9488', // Teal 600
         medical: { // Azul Profesional Confianza (basado en blue/slate oscuro)
           50: '#eff6ff',
           100: '#dbeafe',
