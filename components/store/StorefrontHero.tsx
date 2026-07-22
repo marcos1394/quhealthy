@@ -221,7 +221,7 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({ store, scoreData
       <QuScoreModal 
         isOpen={showQuScoreModal} 
         onClose={() => setShowQuScoreModal(false)}
-        providerId={store.providerId}
+        scoreData={scoreData || null}
       />
     </div>
   );
