@@ -13,25 +13,25 @@ import { ProviderScoreResponse } from '@/types/providerScore';
 interface ProviderCardProps {
   provider: DiscoverProvider & { distanceKm?: number };
   isSelected?: boolean;
-  isFavorited: boolean;
+  isFavorited?: boolean;
   scoreData?: ProviderScoreResponse;
-  canUseFavorites: boolean;
+  canUseFavorites?: boolean;
   onClick?: () => void;
   onHover?: () => void;
   onLeave?: () => void;
-  onAuthRequired: () => void;
+  onAuthRequired?: () => void;
 }
 
 export const ProviderCard: React.FC<ProviderCardProps> = ({
   provider,
   isSelected = false,
-  isFavorited,
+  isFavorited = false,
   scoreData,
-  canUseFavorites,
+  canUseFavorites = false,
   onClick,
   onHover,
   onLeave,
-  onAuthRequired,
+  onAuthRequired = () => {},
 }) => {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
