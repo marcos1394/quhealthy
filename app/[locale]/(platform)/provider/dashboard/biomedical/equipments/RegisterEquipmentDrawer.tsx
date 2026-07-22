@@ -93,41 +93,41 @@ export const RegisterEquipmentDrawer = ({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent position="right" size="lg" className="p-0 border-l border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex flex-col h-full rounded-none">
-                <SheetHeader className="p-6 border-b border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0 text-left">
+            <SheetContent position="right" size="lg" className="p-0 border-l border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] flex flex-col h-full rounded-l-3xl shadow-2xl">
+                <SheetHeader className="p-8 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 text-left rounded-tl-3xl">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0">
-                                <Activity className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shrink-0">
+                                <Activity className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                             </div>
                             <div>
-                                <SheetTitle className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-1">
-                                    NUEVO EQUIPO BIOMÉDICO
+                                <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                                    Nuevo Equipo Biomédico
                                 </SheetTitle>
-                                <SheetDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                    REGISTRO EN EL INVENTARIO CLÍNICO
+                                <SheetDescription className="text-sm font-medium text-gray-500">
+                                    Registro en el inventario clínico
                                 </SheetDescription>
                             </div>
                         </div>
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     <form id="register-equipment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Nombre del Equipo *</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Nombre del Equipo *</label>
                                 <input 
                                     {...register("name", { required: true })}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                                     placeholder="Ej. Monitor de Signos Vitales"
                                 />
-                                {errors.name && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
+                                {errors.name && <span className="text-xs text-red-500 font-bold">Requerido</span>}
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Categoría *</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Categoría *</label>
                                 <Controller
                                     name="category"
                                     control={control}
@@ -139,30 +139,30 @@ export const RegisterEquipmentDrawer = ({
                                                     type="button"
                                                     role="combobox"
                                                     aria-expanded={openCategoryPopover}
-                                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center justify-between transition-colors"
+                                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white flex items-center justify-between transition-colors focus:ring-2 focus:ring-emerald-500/20"
                                                 >
-                                                    {field.value || "SELECCIONAR..."}
+                                                    {field.value || <span className="text-gray-400 font-normal">Seleccionar...</span>}
                                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                 </button>
                                             </PopoverTrigger>
-                                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-none border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg overflow-hidden">
                                                 <Command className="bg-white dark:bg-[#0a0a0a]">
                                                     <CommandInput 
-                                                        placeholder="BUSCAR O CREAR..." 
+                                                        placeholder="Buscar o crear..." 
                                                         onValueChange={setCategorySearch}
-                                                        className="text-[10px] font-bold uppercase"
+                                                        className="text-sm font-medium"
                                                     />
                                                     <CommandList>
                                                         <CommandEmpty className="py-6 text-center text-sm">
                                                             <button
                                                                 type="button"
-                                                                className="w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                                className="w-full text-left px-4 py-2 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-[#111]"
                                                                 onClick={() => {
-                                                                    field.onChange(categorySearch.toUpperCase());
+                                                                    field.onChange(categorySearch);
                                                                     setOpenCategoryPopover(false);
                                                                 }}
                                                             >
-                                                                CREAR NUEVA: {categorySearch}
+                                                                Crear nueva: <span className="text-emerald-600">{categorySearch}</span>
                                                             </button>
                                                         </CommandEmpty>
                                                         <CommandGroup>
@@ -181,11 +181,11 @@ export const RegisterEquipmentDrawer = ({
                                                                         field.onChange(cat.name);
                                                                         setOpenCategoryPopover(false);
                                                                     }}
-                                                                    className="text-[10px] font-bold uppercase cursor-pointer opacity-100 pointer-events-auto data-[disabled]:opacity-100 data-[disabled]:pointer-events-auto hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                                    className="text-sm font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111]"
                                                                 >
                                                                     <Check
                                                                         className={cn(
-                                                                            "mr-2 h-4 w-4",
+                                                                            "mr-2 h-4 w-4 text-emerald-600",
                                                                             field.value === cat.name ? "opacity-100" : "opacity-0"
                                                                         )}
                                                                     />
@@ -196,13 +196,13 @@ export const RegisterEquipmentDrawer = ({
                                                                 <CommandItem
                                                                     value={categorySearch}
                                                                     onSelect={(currentValue) => {
-                                                                        field.onChange(currentValue.toUpperCase());
+                                                                        field.onChange(currentValue);
                                                                         setOpenCategoryPopover(false);
                                                                     }}
-                                                                    className="text-[10px] font-bold uppercase cursor-pointer text-blue-600 dark:text-blue-400"
+                                                                    className="text-sm font-semibold cursor-pointer text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10"
                                                                 >
                                                                     <Check className="mr-2 h-4 w-4 opacity-0" />
-                                                                    CREAR: {categorySearch}
+                                                                    Crear: {categorySearch}
                                                                 </CommandItem>
                                                             )}
                                                         </CommandGroup>
@@ -212,56 +212,56 @@ export const RegisterEquipmentDrawer = ({
                                         </Popover>
                                     )}
                                 />
-                                {errors.category && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
+                                {errors.category && <span className="text-xs text-red-500 font-bold">Requerido</span>}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Fabricante *</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Fabricante *</label>
                                 <input 
                                     {...register("manufacturer", { required: true })}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                                     placeholder="Ej. Philips"
                                 />
-                                {errors.manufacturer && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
+                                {errors.manufacturer && <span className="text-xs text-red-500 font-bold">Requerido</span>}
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Modelo *</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Modelo *</label>
                                 <input 
                                     {...register("model", { required: true })}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                                     placeholder="Ej. IntelliVue MX400"
                                 />
-                                {errors.model && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
+                                {errors.model && <span className="text-xs text-red-500 font-bold">Requerido</span>}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Número de Serie *</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Número de Serie *</label>
                                 <input 
                                     {...register("serialNumber", { required: true })}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                                    placeholder="SN ÚNICO"
+                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
+                                    placeholder="SN Único"
                                 />
-                                {errors.serialNumber && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
+                                {errors.serialNumber && <span className="text-xs text-red-500 font-bold">Requerido</span>}
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Código Interno</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Código Interno</label>
                                 <input 
                                     {...register("internalCode")}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                                    placeholder="OPCIONAL"
+                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
+                                    placeholder="Opcional"
                                 />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Fecha de Adquisición</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Fecha de Adquisición</label>
                                 <Controller
                                     name="acquisitionDate"
                                     control={control}
@@ -269,14 +269,14 @@ export const RegisterEquipmentDrawer = ({
                                         <DatePicker
                                             value={field.value ? new Date(field.value) : undefined}
                                             onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                            className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest"
+                                            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white"
                                         />
                                     )}
                                 />
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Fecha de Operación</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Fecha de Operación</label>
                                 <Controller
                                     name="operationalDate"
                                     control={control}
@@ -284,7 +284,7 @@ export const RegisterEquipmentDrawer = ({
                                         <DatePicker
                                             value={field.value ? new Date(field.value) : undefined}
                                             onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                                            className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest"
+                                            className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white"
                                         />
                                     )}
                                 />
@@ -293,50 +293,50 @@ export const RegisterEquipmentDrawer = ({
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Vida Útil (Años)</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Vida Útil (Años)</label>
                                 <input 
                                     type="number"
                                     {...register("lifespanYears")}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                                     placeholder="Ej. 10"
                                 />
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Nivel de Riesgo *</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Nivel de Riesgo *</label>
                                 <Controller
                                     name="riskLevel"
                                     control={control}
                                     rules={{ required: true }}
                                     render={({ field }) => (
                                         <Select onValueChange={field.onChange} value={field.value || ""}>
-                                            <SelectTrigger className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
-                                                <SelectValue placeholder="SELECCIONAR..." />
+                                            <SelectTrigger className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 transition-colors">
+                                                <SelectValue placeholder={<span className="text-gray-400 font-normal">Seleccionar...</span>} />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-none">
-                                                <SelectItem value="LOW">BAJO (CLASE I)</SelectItem>
-                                                <SelectItem value="MEDIUM">MEDIO (CLASE II)</SelectItem>
-                                                <SelectItem value="HIGH">ALTO (CLASE III)</SelectItem>
+                                            <SelectContent className="rounded-xl border border-gray-200 dark:border-gray-800 shadow-lg">
+                                                <SelectItem value="LOW">Bajo (Clase I)</SelectItem>
+                                                <SelectItem value="MEDIUM">Medio (Clase II)</SelectItem>
+                                                <SelectItem value="HIGH">Alto (Clase III)</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     )}
                                 />
-                                {errors.riskLevel && <span className="text-xs text-red-500 font-bold uppercase">REQUERIDO</span>}
+                                {errors.riskLevel && <span className="text-xs text-red-500 font-bold">Requerido</span>}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Centro de Costos / Ubicación (Opcional)</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Centro de Costos / Ubicación (Opcional)</label>
                                 <Controller
                                     name="currentAreaId"
                                     control={control}
                                     render={({ field }) => (
                                         <Select onValueChange={field.onChange} value={field.value || ""}>
-                                            <SelectTrigger className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white rounded-none">
-                                                <SelectValue placeholder="SELECCIONAR UBICACIÓN..." />
+                                            <SelectTrigger className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 transition-colors">
+                                                <SelectValue placeholder={<span className="text-gray-400 font-normal">Seleccionar ubicación...</span>} />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-none">
+                                            <SelectContent className="rounded-xl border border-gray-200 dark:border-gray-800 shadow-lg">
                                                 {costCenters.map(cc => (
                                                     <SelectItem key={cc.id} value={cc.id.toString()}>{cc.name}</SelectItem>
                                                 ))}
@@ -347,12 +347,12 @@ export const RegisterEquipmentDrawer = ({
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Precio Proveedor (Opcional)</label>
+                                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Precio Proveedor (Opcional)</label>
                                 <input 
                                     type="number"
                                     step="0.01"
                                     {...register("purchasePrice")}
-                                    className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                                     placeholder="Ej. 15000.50"
                                 />
                             </div>
@@ -360,17 +360,17 @@ export const RegisterEquipmentDrawer = ({
                     </form>
                 </div>
 
-                <div className="p-6 border-t border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0">
+                <div className="p-8 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 rounded-bl-3xl">
                     <button 
                         type="submit"
                         form="register-equipment-form"
                         disabled={isSubmitting}
-                        className="w-full h-12 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none disabled:opacity-50"
+                        className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? (
-                            <><QhSpinner size="sm" className="text-current" /> REGISTRANDO...</>
+                            <><QhSpinner size="sm" className="text-white" /> Registrando...</>
                         ) : (
-                            <><Save className="w-4 h-4" strokeWidth={1.5} /> CONFIRMAR REGISTRO</>
+                            <><Save className="w-5 h-5" strokeWidth={2} /> Confirmar Registro</>
                         )}
                     </button>
                 </div>

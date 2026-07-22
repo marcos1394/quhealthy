@@ -51,94 +51,91 @@ export default function BiomedicalDashboardPage() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 bg-gray-50 dark:bg-[#050505]">
-                <QhSpinner size="lg" className="text-black dark:text-white" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
-                    ANALIZANDO FLOTA BIOMÉDICA...
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 bg-gray-50/50 dark:bg-[#050505]">
+                <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+                <p className="text-sm font-semibold text-gray-500 animate-pulse">
+                    Analizando flota biomédica...
                 </p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] p-4 md:p-8 transition-colors duration-500 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] pt-8 px-6 md:px-10 pb-16 transition-colors duration-500">
             <div className="max-w-7xl mx-auto space-y-8">
                 
-                {/* --- HEADER ARQUITECTÓNICO --- */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
-                    <div className="flex items-start gap-5">
-                        <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
-                            <Activity className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+                {/* --- HEADER --- */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-gray-800">
+                    <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center shrink-0 shadow-sm">
+                            <Activity className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                         </div>
                         <div>
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                            <p className="text-xs font-semibold text-gray-500 mb-1">
                                 Ingeniería Clínica
                             </p>
-                            <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
-                                EQUIPOS BIOMÉDICOS
+                            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-none">
+                                Equipos Biomédicos
                             </h1>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                GESTIÓN DEL CICLO DE VIDA, MANTENIMIENTO Y MTTR.
-                            </p>
                         </div>
                     </div>
                     <button 
                         onClick={() => router.push('/provider/dashboard/biomedical/equipments')}
-                        className="h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none shrink-0"
+                        className="h-12 px-6 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 rounded-xl shadow-sm shrink-0"
                     >
-                        <Settings className="w-4 h-4" strokeWidth={1.5} />
-                        CATÁLOGO DE EQUIPOS
+                        <Settings className="w-4 h-4" strokeWidth={2} />
+                        Catálogo de Equipos
                     </button>
                 </div>
 
                 {/* --- KPI CARDS --- */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     
-                    <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col rounded-none group hover:border-black dark:hover:border-white transition-colors cursor-default">
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 flex flex-col rounded-3xl shadow-sm group hover:border-emerald-200 dark:hover:border-emerald-900/30 hover:shadow-md transition-all cursor-default">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-                                <Activity className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-gray-800 flex items-center justify-center shrink-0 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors">
+                                <Activity className="w-5 h-5 text-gray-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" strokeWidth={2} />
                             </div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">TOTAL EQUIPOS</span>
+                            <span className="text-xs font-bold text-gray-600 dark:text-gray-400">Total Equipos</span>
                         </div>
-                        <div className="text-4xl font-semibold tracking-tight text-black dark:text-white mb-2">
+                        <div className="text-4xl font-bold text-gray-900 dark:text-white mb-1">
                             {stats.totalEquipments}
                         </div>
                     </div>
 
-                    <div className="border border-red-500/30 bg-red-50 dark:bg-red-900/10 p-6 flex flex-col rounded-none group hover:border-red-500/50 transition-colors cursor-default">
+                    <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-6 flex flex-col rounded-3xl shadow-sm group hover:border-red-300 dark:hover:border-red-800/50 hover:shadow-md transition-all cursor-default">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 border border-red-500/20 bg-red-100 dark:bg-red-900/20 flex items-center justify-center shrink-0">
-                                <ShieldAlert className="w-4 h-4 text-red-600 dark:text-red-400" strokeWidth={1.5} />
+                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center justify-center shrink-0">
+                                <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400" strokeWidth={2} />
                             </div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">FUERA DE SERVICIO</span>
+                            <span className="text-xs font-bold text-red-700 dark:text-red-400">Fuera de Servicio</span>
                         </div>
-                        <div className="text-4xl font-semibold tracking-tight text-red-700 dark:text-red-300 mb-2">
+                        <div className="text-4xl font-bold text-red-700 dark:text-red-400 mb-1">
                             {stats.outOfService}
                         </div>
                     </div>
 
-                    <div className="border border-amber-500/30 bg-amber-50 dark:bg-amber-900/10 p-6 flex flex-col rounded-none group hover:border-amber-500/50 transition-colors cursor-default">
+                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-6 flex flex-col rounded-3xl shadow-sm group hover:border-amber-300 dark:hover:border-amber-800/50 hover:shadow-md transition-all cursor-default">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 border border-amber-500/20 bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
-                                <Wrench className="w-4 h-4 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />
+                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-center shrink-0">
+                                <Wrench className="w-5 h-5 text-amber-600 dark:text-amber-400" strokeWidth={2} />
                             </div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">ÓRDENES PENDIENTES</span>
+                            <span className="text-xs font-bold text-amber-700 dark:text-amber-400">Órdenes Pendientes</span>
                         </div>
-                        <div className="text-4xl font-semibold tracking-tight text-amber-700 dark:text-amber-300 mb-2">
+                        <div className="text-4xl font-bold text-amber-700 dark:text-amber-400 mb-1">
                             {stats.activeWorkOrders}
                         </div>
                     </div>
 
-                    <div className="border border-blue-500/30 bg-blue-50 dark:bg-blue-900/10 p-6 flex flex-col rounded-none group hover:border-blue-500/50 transition-colors cursor-default">
+                    <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 p-6 flex flex-col rounded-3xl shadow-sm group hover:border-blue-300 dark:hover:border-blue-800/50 hover:shadow-md transition-all cursor-default">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 border border-blue-500/20 bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                                <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
+                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex items-center justify-center shrink-0">
+                                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" strokeWidth={2} />
                             </div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">MTTR PROMEDIO</span>
+                            <span className="text-xs font-bold text-blue-700 dark:text-blue-400">MTTR Promedio</span>
                         </div>
-                        <div className="text-4xl font-semibold tracking-tight text-blue-700 dark:text-blue-300 mb-2">
-                            {stats.avgMttrMinutes} <span className="text-sm font-normal text-blue-600/70 dark:text-blue-400/70">min</span>
+                        <div className="text-4xl font-bold text-blue-700 dark:text-blue-400 mb-1">
+                            {stats.avgMttrMinutes} <span className="text-lg font-semibold text-blue-600/70 dark:text-blue-400/70 ml-1">min</span>
                         </div>
                     </div>
 
@@ -147,33 +144,37 @@ export default function BiomedicalDashboardPage() {
                 {/* --- QUICK ACTIONS / HIGHLIGHTS --- */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Próximos Mantenimientos */}
-                    <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-none h-[400px]">
-                        <div className="p-6 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
-                            <h2 className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
-                                <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} /> 
-                                PRÓXIMOS MANTENIMIENTOS
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col rounded-3xl h-[400px] shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
+                            <h2 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                                <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} /> 
+                                Próximos Mantenimientos
                             </h2>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center text-center">
-                            <Wrench className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-[250px]">
-                                NO HAY MANTENIMIENTOS PROGRAMADOS PARA ESTA SEMANA.
+                            <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-[#111] flex items-center justify-center mb-6">
+                                <Wrench className="w-8 h-8 text-gray-400" strokeWidth={2} />
+                            </div>
+                            <p className="text-sm font-medium text-gray-500 max-w-[250px] leading-relaxed">
+                                No hay mantenimientos programados para esta semana.
                             </p>
                         </div>
                     </div>
 
                     {/* Alertas de Garantías */}
-                    <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-none h-[400px]">
-                        <div className="p-6 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
-                            <h2 className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
-                                <FileText className="w-4 h-4 text-gray-500" strokeWidth={1.5} /> 
-                                GARANTÍAS POR EXPIRAR
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col rounded-3xl h-[400px] shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
+                            <h2 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                                <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} /> 
+                                Garantías por Expirar
                             </h2>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center text-center">
-                            <ShieldAlert className="w-8 h-8 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-[250px]">
-                                NINGUNA GARANTÍA EXPIRARÁ EN LOS PRÓXIMOS 30 DÍAS.
+                            <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-[#111] flex items-center justify-center mb-6">
+                                <ShieldAlert className="w-8 h-8 text-gray-400" strokeWidth={2} />
+                            </div>
+                            <p className="text-sm font-medium text-gray-500 max-w-[250px] leading-relaxed">
+                                Ninguna garantía expirará en los próximos 30 días.
                             </p>
                         </div>
                     </div>

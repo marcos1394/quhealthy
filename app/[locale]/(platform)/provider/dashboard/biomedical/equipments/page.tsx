@@ -103,175 +103,174 @@ export default function BiomedicalEquipmentsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] p-4 md:p-8 transition-colors duration-500 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] pt-8 px-6 md:px-10 pb-16 transition-colors duration-500">
             <div className="max-w-7xl mx-auto space-y-8">
                 
-                {/* --- HEADER ARQUITECTÓNICO --- */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
-                    <div className="flex items-start gap-5">
+                {/* --- HEADER --- */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-gray-800">
+                    <div className="flex items-center gap-5">
                         <button 
                             onClick={() => router.push('/provider/dashboard/biomedical')}
-                            className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                            className="w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center shrink-0 shadow-sm hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
                         >
-                            <Activity className="w-6 h-6" strokeWidth={1.5} />
+                            <Activity className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                         </button>
                         <div>
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                            <p className="text-xs font-semibold text-gray-500 mb-1">
                                 Ingeniería Clínica
                             </p>
-                            <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white mb-2 leading-none">
-                                CATÁLOGO DE EQUIPOS
+                            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-none">
+                                Catálogo de Equipos
                             </h1>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                INVENTARIO, ESTADO Y TRAZABILIDAD.
-                            </p>
                         </div>
                     </div>
-                    <div className="flex gap-2 shrink-0">
+                    <div className="flex gap-3 shrink-0 flex-wrap">
                         <button 
                             onClick={handleExportPdf}
-                            className="h-12 px-4 bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border border-black/10 dark:border-white/10 rounded-none"
+                            className="h-12 px-4 rounded-xl bg-white border border-gray-200 dark:bg-[#0a0a0a] dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-sm font-bold flex items-center justify-center gap-2 shadow-sm"
                         >
-                            <Download className="w-4 h-4" strokeWidth={1.5} />
+                            <Download className="w-4 h-4" strokeWidth={2} />
                             PDF
                         </button>
                         <button 
                             onClick={handleExportExcel}
-                            className="h-12 px-4 bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border border-black/10 dark:border-white/10 rounded-none"
+                            className="h-12 px-4 rounded-xl bg-white border border-gray-200 dark:bg-[#0a0a0a] dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-sm font-bold flex items-center justify-center gap-2 shadow-sm"
                         >
-                            <Download className="w-4 h-4" strokeWidth={1.5} />
-                            EXCEL
+                            <Download className="w-4 h-4" strokeWidth={2} />
+                            Excel
                         </button>
                         <button 
                             onClick={() => setIsRegisterDrawerOpen(true)}
-                            className="h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none shrink-0"
+                            className="h-12 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 shadow-sm border-0"
                         >
-                            <Plus className="w-4 h-4" strokeWidth={1.5} />
-                            REGISTRAR EQUIPO
+                            <Plus className="w-4 h-4" strokeWidth={2} />
+                            Registrar Equipo
                         </button>
                     </div>
                 </div>
 
                 {/* --- FILTROS --- */}
-                <div className="flex flex-col md:flex-row gap-4 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-4">
+                <div className="flex flex-col md:flex-row gap-4 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-4 rounded-3xl shadow-sm">
                     <div className="relative flex-1">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
                         <input 
-                            placeholder="BUSCAR NOMBRE, SERIE O CÓDIGO..." 
+                            placeholder="Buscar nombre, serie o código..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-12 pl-12 pr-4 bg-gray-50 dark:bg-[#050505] border border-black/10 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400"
+                            className="w-full h-12 pl-12 pr-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                         />
                     </div>
-                    <div className="flex bg-gray-50 dark:bg-[#050505] border border-black/10 dark:border-white/10">
+                    <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-xl p-1 gap-1">
                         <button 
                             onClick={() => setFilterStatus('ALL')}
                             className={cn(
-                                "px-6 h-12 flex items-center justify-center border-r border-black/10 dark:border-white/10 transition-colors text-[9px] font-bold uppercase tracking-widest",
-                                filterStatus === 'ALL' ? "bg-black text-white dark:bg-white dark:text-black" : "text-gray-500 hover:bg-white dark:hover:bg-[#111]"
+                                "px-4 h-10 flex items-center justify-center rounded-lg transition-colors text-xs font-bold",
+                                filterStatus === 'ALL' ? "bg-white dark:bg-[#111] text-emerald-600 shadow-sm border border-gray-200 dark:border-gray-700" : "text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111]"
                             )}
                         >
-                            TODOS
+                            Todos
                         </button>
                         <button 
                             onClick={() => setFilterStatus('ACTIVE')}
                             className={cn(
-                                "px-6 h-12 flex items-center justify-center border-r border-black/10 dark:border-white/10 transition-colors text-[9px] font-bold uppercase tracking-widest gap-2",
-                                filterStatus === 'ACTIVE' ? "bg-emerald-600 text-white" : "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10"
+                                "px-4 h-10 flex items-center justify-center rounded-lg transition-colors text-xs font-bold gap-2",
+                                filterStatus === 'ACTIVE' ? "bg-white dark:bg-[#111] text-emerald-600 shadow-sm border border-gray-200 dark:border-gray-700" : "text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111]"
                             )}
                         >
-                            <ShieldCheck className="w-3 h-3" strokeWidth={1.5} />
-                            ACTIVOS
+                            <ShieldCheck className="w-3.5 h-3.5" strokeWidth={2} />
+                            Activos
                         </button>
                         <button 
                             onClick={() => setFilterStatus('OUT_OF_SERVICE')}
                             className={cn(
-                                "px-6 h-12 flex items-center justify-center transition-colors text-[9px] font-bold uppercase tracking-widest gap-2",
-                                filterStatus === 'OUT_OF_SERVICE' ? "bg-red-600 text-white" : "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
+                                "px-4 h-10 flex items-center justify-center rounded-lg transition-colors text-xs font-bold gap-2",
+                                filterStatus === 'OUT_OF_SERVICE' ? "bg-white dark:bg-[#111] text-red-600 shadow-sm border border-gray-200 dark:border-gray-700" : "text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111]"
                             )}
                         >
-                            <AlertTriangle className="w-3 h-3" strokeWidth={1.5} />
-                            FUERA DE SERVICIO
+                            <AlertTriangle className="w-3.5 h-3.5" strokeWidth={2} />
+                            Fuera de Servicio
                         </button>
                     </div>
                 </div>
 
                 {/* --- DATA TABLE --- */}
-                <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex flex-col rounded-none min-h-[400px]">
+                <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col rounded-3xl shadow-sm overflow-hidden min-h-[400px]">
                     {isLoading ? (
                          <div className="flex flex-col items-center justify-center flex-1 min-h-[400px] gap-6 bg-white dark:bg-[#0a0a0a]">
-                             <QhSpinner size="lg" className="text-black dark:text-white" />
-                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">CARGANDO INVENTARIO BIOMÉDICO...</p>
+                             <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+                             <p className="text-sm font-semibold text-gray-500 animate-pulse">Cargando inventario biomédico...</p>
                          </div>
                     ) : filteredEquipments.length === 0 ? (
                         <div className="flex flex-col items-center justify-center flex-1 min-h-[400px] text-center p-8">
-                            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
-                                <Activity className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+                            <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-[#111] flex items-center justify-center mb-6">
+                                <Activity className="w-6 h-6 text-gray-400" strokeWidth={2} />
                             </div>
-                            <p className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
-                                SIN COINCIDENCIAS
+                            <p className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                Sin Coincidencias
                             </p>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-xs leading-relaxed">
-                                NO SE ENCONTRARON EQUIPOS CON LOS FILTROS ACTUALES.
+                            <p className="text-sm font-medium text-gray-500 max-w-xs leading-relaxed">
+                                No se encontraron equipos con los filtros actuales.
                             </p>
                         </div>
                     ) : (
                         <div className="w-full overflow-x-auto">
-                            <table className="w-full text-left text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                                <thead className="bg-gray-50 dark:bg-[#050505] border-b border-black/10 dark:border-white/10 text-gray-500">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800">
                                     <tr>
-                                        <th className="px-6 py-4 font-bold">CÓDIGO / EQUIPO</th>
-                                        <th className="px-6 py-4 font-bold">CATEGORÍA</th>
-                                        <th className="px-6 py-4 font-bold">FABRICANTE / MODELO</th>
-                                        <th className="px-6 py-4 font-bold">ESTADO</th>
-                                        <th className="px-6 py-4 font-bold">RIESGO</th>
-                                        <th className="px-6 py-4 font-bold text-right">ACCIONES</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Equipo</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Categoría</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Fabricante / Modelo</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Estado</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500">Riesgo</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-gray-500 text-right">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-black/10 dark:divide-white/10">
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                     {filteredEquipments.map((eq) => (
-                                        <tr key={eq.id} className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group">
+                                        <tr key={eq.id} className="hover:bg-gray-50/50 dark:hover:bg-[#111]/50 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0">
-                                                        <Activity className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0">
+                                                        <Activity className="w-5 h-5 text-gray-400" strokeWidth={2} />
                                                     </div>
                                                     <div>
-                                                        <span className="block text-[11px] text-black dark:text-white">{eq.name}</span>
-                                                        <span className="block text-[9px] text-gray-500">{eq.internalCode || eq.serialNumber}</span>
+                                                        <span className="block text-sm font-bold text-gray-900 dark:text-white">{eq.name}</span>
+                                                        <span className="block text-xs font-semibold text-gray-500">{eq.internalCode || eq.serialNumber}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-gray-500">{eq.categoryName || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-sm font-semibold text-gray-700 dark:text-gray-300">{eq.categoryName || 'N/A'}</td>
                                             <td className="px-6 py-4">
-                                                <span className="block">{eq.manufacturer}</span>
-                                                <span className="block text-[9px] text-gray-500">{eq.model}</span>
+                                                <span className="block text-sm font-bold text-gray-900 dark:text-white">{eq.manufacturer}</span>
+                                                <span className="block text-xs font-semibold text-gray-500">{eq.model}</span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                {eq.status === 'AVAILABLE' && <span className="inline-flex px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-900/30">DISPONIBLE</span>}
-                                                {eq.status === 'ACTIVE' && <span className="inline-flex px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-900/30">ACTIVO</span>}
-                                                {eq.status === 'OUT_OF_SERVICE' && <span className="inline-flex px-2 py-1 bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/30">FUERA DE SERVICIO</span>}
-                                                {eq.status === 'IN_MAINTENANCE' && <span className="inline-flex px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/30">EN MANTENIMIENTO</span>}
-                                                {eq.status === 'DECOMMISSIONED' && <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">DADO DE BAJA</span>}
+                                                {eq.status === 'AVAILABLE' && <span className="inline-flex px-2 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-900/30 text-xs font-bold shadow-sm">Disponible</span>}
+                                                {eq.status === 'ACTIVE' && <span className="inline-flex px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-900/30 text-xs font-bold shadow-sm">Activo</span>}
+                                                {eq.status === 'OUT_OF_SERVICE' && <span className="inline-flex px-2 py-1 rounded-md bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/10 dark:text-red-400 dark:border-red-900/30 text-xs font-bold shadow-sm">Fuera de Servicio</span>}
+                                                {eq.status === 'IN_MAINTENANCE' && <span className="inline-flex px-2 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/30 text-xs font-bold shadow-sm">En Mantenimiento</span>}
+                                                {eq.status === 'DECOMMISSIONED' && <span className="inline-flex px-2 py-1 rounded-md bg-gray-100 text-gray-700 border border-gray-200 dark:bg-[#111] dark:text-gray-400 dark:border-gray-800 text-xs font-bold shadow-sm">Dado de Baja</span>}
                                             </td>
                                             <td className="px-6 py-4">
-                                                {eq.riskLevel === 'LOW' && <span className="text-emerald-600 dark:text-emerald-400 font-bold">BAJO</span>}
-                                                {eq.riskLevel === 'MEDIUM' && <span className="text-amber-600 dark:text-amber-400 font-bold">MEDIO</span>}
-                                                {eq.riskLevel === 'HIGH' && <span className="text-red-600 dark:text-red-400 font-bold">ALTO</span>}
-                                                {!eq.riskLevel && <span className="text-gray-400 font-bold">N/A</span>}
+                                                {eq.riskLevel === 'LOW' && <span className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">Bajo</span>}
+                                                {eq.riskLevel === 'MEDIUM' && <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">Medio</span>}
+                                                {eq.riskLevel === 'HIGH' && <span className="text-red-600 dark:text-red-400 text-sm font-bold">Alto</span>}
+                                                {!eq.riskLevel && <span className="text-gray-400 text-sm font-bold">N/A</span>}
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <button 
-                                                    onClick={() => router.push(`/provider/dashboard/biomedical/equipments/${eq.id}`)}
-                                                    className="inline-flex items-center justify-center w-8 h-8 border border-transparent hover:border-black/20 dark:hover:border-white/20 text-gray-500 hover:text-black dark:hover:text-white hover:bg-white dark:hover:bg-[#0a0a0a] transition-all"
-                                                >
-                                                    <FileText className="w-4 h-4" strokeWidth={1.5} />
-                                                </button>
-                                                <button 
-                                                    className="inline-flex items-center justify-center w-8 h-8 border border-transparent hover:border-black/20 dark:hover:border-white/20 text-gray-500 hover:text-black dark:hover:text-white hover:bg-white dark:hover:bg-[#0a0a0a] transition-all"
-                                                >
-                                                    <Settings className="w-4 h-4" strokeWidth={1.5} />
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button 
+                                                        onClick={() => router.push(`/provider/dashboard/biomedical/equipments/${eq.id}`)}
+                                                        className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                                    >
+                                                        <FileText className="w-4 h-4" strokeWidth={2} />
+                                                    </button>
+                                                    <button 
+                                                        className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                                    >
+                                                        <Settings className="w-4 h-4" strokeWidth={2} />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
