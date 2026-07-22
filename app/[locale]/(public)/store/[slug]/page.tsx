@@ -212,7 +212,7 @@ export default function PublicStorePage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
-      <StorefrontNavigation storeName={store.displayName} category={store.specialties?.[0]?.name} />
+      <StorefrontNavigation storeName={store.displayName} category={store.tags?.[0]} />
       
       {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
       <ActiveCreditsBanner
