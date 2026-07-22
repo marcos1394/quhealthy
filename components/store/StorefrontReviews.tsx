@@ -57,14 +57,15 @@ export const StorefrontReviews: React.FC<StorefrontReviewsProps> = ({ providerId
                   <span>
                     {(() => {
                       try {
-                        let d = review.createdAt;
-                        if (Array.isArray(d)) {
-                          d = new Date(d[0], d[1] - 1, d[2], d[3] || 0, d[4] || 0);
+                        const rawDate: any = review.createdAt;
+                        let dateObj: Date;
+                        if (Array.isArray(rawDate)) {
+                          dateObj = new Date(rawDate[0], rawDate[1] - 1, rawDate[2], rawDate[3] || 0, rawDate[4] || 0);
                         } else {
-                          d = new Date(d);
+                          dateObj = new Date(rawDate);
                         }
-                        if (isNaN(d.getTime())) return "Reciente";
-                        return format(d, "MMMM yyyy", { locale: es });
+                        if (isNaN(dateObj.getTime())) return "Reciente";
+                        return format(dateObj, "MMMM yyyy", { locale: es });
                       } catch {
                         return "Reciente";
                       }
