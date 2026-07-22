@@ -154,45 +154,45 @@ export function PackageEditorDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="[&>button]:hidden bg-white dark:bg-[#0a0a0a] border border-black dark:border-white !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh]">
-        {/* --- HEADER ARQUITECTÓNICO --- */}
-        <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
+      <DialogContent className="[&>button]:hidden bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+        {/* --- HEADER --- */}
+        <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
               <ShoppingCart
-                className="w-6 h-6 text-black dark:text-white"
-                strokeWidth={1.5}
+                className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+                strokeWidth={2}
               />
             </div>
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+              <p className="text-xs font-semibold text-gray-500 mb-1">
                 Ensamblador Comercial
               </p>
-              <DialogTitle className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
+              <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-none">
                 {pkg.isNew
-                  ? t("dialog_create", { defaultValue: "NUEVO PAQUETE" })
-                  : t("dialog_edit", { defaultValue: "EDICIÓN DE PAQUETE" })}
+                  ? t("dialog_create", { defaultValue: "Nuevo Paquete" })
+                  : t("dialog_edit", { defaultValue: "Edición de Paquete" })}
               </DialogTitle>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-12 h-12 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#111] transition-colors border border-transparent hover:border-black/20 dark:hover:border-white/20 shrink-0"
+            className="w-12 h-12 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 shrink-0"
           >
-            <X className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
+            <X className="w-5 h-5" strokeWidth={2} />
           </button>
         </div>
 
         {/* --- ÁREA DE SCROLL PRINCIPAL --- */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505] flex flex-col">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50/50 dark:bg-[#050505]/50 flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
             {/* --- COLUMNA IZQUIERDA: IDENTIDAD Y DETALLES --- */}
-            <div className="flex flex-col border-b lg:border-b-0 lg:border-r border-black/10 dark:border-white/10">
+            <div className="flex flex-col border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800">
               {/* Fotografía Panorámica */}
-              <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex flex-col">
-                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-4 flex items-center gap-2">
-                  <Camera className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
-                  {t("photo", { defaultValue: "RECURSO GRÁFICO (BANNER)" })}
+              <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]/50 flex flex-col">
+                <label className="text-xs font-semibold text-gray-500 mb-4 flex items-center gap-2">
+                  <Camera className="w-4 h-4" strokeWidth={2} />{" "}
+                  {t("photo", { defaultValue: "Recurso Gráfico (Banner)" })}
                 </label>
 
                 <input
@@ -206,10 +206,10 @@ export function PackageEditorDialog({
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    "w-full aspect-[21/9] border border-black/20 dark:border-white/20 flex flex-col items-center justify-center overflow-hidden transition-colors cursor-pointer group bg-white dark:bg-[#0a0a0a] rounded-none",
+                    "w-full aspect-[21/9] rounded-2xl border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center overflow-hidden transition-colors cursor-pointer group bg-white dark:bg-[#0a0a0a] shadow-sm",
                     pkg.imageUrl
-                      ? ""
-                      : "border-dashed hover:bg-black/5 dark:hover:bg-white/5",
+                      ? "border-solid"
+                      : "border-dashed hover:bg-gray-50 dark:hover:bg-[#111]",
                   )}
                 >
                   {pkg.imageUrl ? (
@@ -220,17 +220,17 @@ export function PackageEditorDialog({
                     />
                   ) : (
                     <div className="text-center flex flex-col items-center p-6">
-                      <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-4 transition-colors">
+                      <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-[#111] flex items-center justify-center mb-4 transition-colors">
                         <ImagePlus
-                          className="w-5 h-5 text-gray-400 group-hover:text-black dark:group-hover:text-white"
-                          strokeWidth={1.5}
+                          className="w-5 h-5 text-gray-400 group-hover:text-emerald-500"
+                          strokeWidth={2}
                         />
                       </div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                        SELECCIONAR ARCHIVO
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">
+                        Seleccionar Archivo
                       </p>
-                      <p className="text-[8px] font-bold uppercase tracking-widest text-gray-500 mt-2">
-                        1200x500PX RECOMENDADO
+                      <p className="text-xs font-medium text-gray-500 mt-1">
+                        1200x500px Recomendado
                       </p>
                     </div>
                   )}
@@ -238,22 +238,22 @@ export function PackageEditorDialog({
               </div>
 
               {/* Formulario (Inputs) */}
-              <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
-                <div className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10">
-                  <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
-                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-                      {t("name_label", { defaultValue: "DENOMINACIÓN" })}{" "}
+              <div className="flex flex-col bg-white dark:bg-[#0a0a0a] p-6 md:p-8 gap-6">
+                <div className="flex flex-col sm:flex-row gap-6">
+                  <div className="flex-1">
+                    <label className="text-xs font-semibold text-gray-500 mb-2 block">
+                      {t("name_label", { defaultValue: "Denominación" })}{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <input
                       value={pkg.name}
                       onChange={(e) =>
-                        setPkg({ ...pkg, name: e.target.value.toUpperCase() })
+                        setPkg({ ...pkg, name: e.target.value })
                       }
-                      placeholder="EJ. PAQUETE PREVENTIVO"
-                      className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400"
+                      placeholder="Ej. Paquete Preventivo"
+                      className="w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                     />
-                    <div className="mt-2 text-[9px] font-bold uppercase tracking-widest flex items-center justify-between">
+                    <div className="mt-2 text-xs font-semibold flex items-center justify-between">
                       <span
                         className={cn(
                           (pkg.name.trim()
@@ -266,13 +266,13 @@ export function PackageEditorDialog({
                         {pkg.name.trim()
                           ? pkg.name.trim().split(/\s+/).length
                           : 0}{" "}
-                        / 3 PALABRAS MÍN.
+                        / 3 Palabras mín.
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 p-6">
-                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-                      {t("category_label", { defaultValue: "CATEGORIZACIÓN" })}{" "}
+                  <div className="flex-1">
+                    <label className="text-xs font-semibold text-gray-500 mb-2 block">
+                      {t("category_label", { defaultValue: "Categorización" })}{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -280,19 +280,19 @@ export function PackageEditorDialog({
                       onChange={(e) =>
                         setPkg({
                           ...pkg,
-                          category: e.target.value.toUpperCase(),
+                          category: e.target.value,
                         })
                       }
-                      placeholder="EJ. CHEQUEOS GENERALES"
-                      className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400"
+                      placeholder="Ej. Chequeos Generales"
+                      className="w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-400 placeholder:font-normal"
                     />
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+                <div>
+                  <label className="text-xs font-semibold text-gray-500 mb-2 block">
                     {t("desc_label", {
-                      defaultValue: "ESPECIFICACIONES DEL PAQUETE",
+                      defaultValue: "Especificaciones del paquete",
                     })}
                   </label>
                   <textarea
@@ -300,16 +300,16 @@ export function PackageEditorDialog({
                     onChange={(e) =>
                       setPkg({
                         ...pkg,
-                        description: e.target.value.toUpperCase(),
+                        description: e.target.value,
                       })
                     }
                     placeholder={t("desc_placeholder", {
-                      defaultValue: "DESCRIPCIÓN COMERCIAL...",
+                      defaultValue: "Descripción comercial...",
                     })}
                     rows={4}
-                    className="w-full min-h-[120px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors resize-y placeholder:text-gray-400"
+                    className="w-full min-h-[120px] p-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors resize-y placeholder:text-gray-400 placeholder:font-normal"
                   />
-                  <div className="mt-2 text-[9px] font-bold uppercase tracking-widest flex items-center justify-between">
+                  <div className="mt-2 text-xs font-semibold flex items-center justify-between">
                     <span
                       className={cn(
                         (pkg.description?.length || 0) < 150
@@ -317,7 +317,7 @@ export function PackageEditorDialog({
                           : "text-emerald-500",
                       )}
                     >
-                      {pkg.description?.length || 0} / 150 CARACTERES MÍN.
+                      {pkg.description?.length || 0} / 150 Caracteres mín.
                     </span>
                   </div>
                 </div>
@@ -327,20 +327,20 @@ export function PackageEditorDialog({
             {/* --- COLUMNA DERECHA: ENSAMBLE Y MOTOR DE PRECIOS --- */}
             <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
               {/* 1. SELECCIÓN DE SERVICIOS */}
-              <div className="flex flex-col border-b border-black/10 dark:border-white/10 flex-1 min-h-[300px]">
-                <div className="p-6 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
-                  <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                    <CheckSquare className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
+              <div className="flex flex-col border-b border-gray-100 dark:border-gray-800 flex-1 min-h-[300px]">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]/50 flex items-center justify-between shrink-0">
+                  <label className="text-xs font-semibold text-gray-500 flex items-center gap-2">
+                    <CheckSquare className="w-4 h-4" strokeWidth={2} />{" "}
                     {t("included_services", {
-                      defaultValue: "SERVICIOS INTEGRADOS",
+                      defaultValue: "Servicios Integrados",
                     })}
                   </label>
-                  <span className="border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-black dark:text-white">
+                  <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 text-xs font-bold rounded-full">
                     {(pkg.packageItems || []).reduce(
                       (acc, i) => acc + i.quantity,
                       0,
                     )}{" "}
-                    ITEMS
+                    ítems
                   </span>
                 </div>
 
@@ -348,21 +348,21 @@ export function PackageEditorDialog({
                   {availableServices.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-center p-12 h-full">
                       <AlertCircle
-                        className="w-8 h-8 text-gray-400 mb-4"
-                        strokeWidth={1.5}
+                        className="w-8 h-8 text-gray-300 mb-4"
+                        strokeWidth={2}
                       />
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">
-                        {t("no_services", { defaultValue: "INVENTARIO VACÍO" })}
+                      <p className="text-sm font-bold text-gray-500 mb-1">
+                        {t("no_services", { defaultValue: "Inventario Vacío" })}
                       </p>
-                      <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400 max-w-xs leading-relaxed">
+                      <p className="text-xs font-medium text-gray-400 max-w-xs leading-relaxed">
                         {t("no_services_desc", {
                           defaultValue:
-                            "AGREGUE SERVICIOS AL CATÁLOGO PREVIO A LA CREACIÓN DE UN PAQUETE.",
+                            "Agregue servicios al catálogo previo a la creación de un paquete.",
                         })}
                       </p>
                     </div>
                   ) : (
-                    <div className="flex flex-col">
+                    <div className="flex flex-col p-4 gap-2">
                       {availableServices.map((service) => {
                         const packageItem = (pkg.packageItems || []).find(
                           (i) => i.id === service.id,
@@ -373,50 +373,50 @@ export function PackageEditorDialog({
                           <div
                             key={service.id}
                             className={cn(
-                              "flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-black/10 dark:border-white/10 transition-colors",
+                              "flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl transition-colors border",
                               isSelected
-                                ? "bg-black/5 dark:bg-white/5"
-                                : "hover:bg-gray-50 dark:hover:bg-[#111]",
+                                ? "bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30"
+                                : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111]",
                             )}
                           >
                             <div className="flex-1 min-w-0 flex items-center gap-4">
-                              <div className="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-[#1a1a1a] border border-black/10 dark:border-white/10 text-[10px] font-bold">
+                              <div className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-[#111] rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300">
                                 {quantity}x
                               </div>
                               <div className="flex flex-col min-w-0">
                                 <p
                                   className={cn(
-                                    "text-xs font-semibold uppercase tracking-widest truncate",
+                                    "text-sm font-bold truncate",
                                     isSelected
-                                      ? "text-black dark:text-white"
-                                      : "text-gray-700 dark:text-gray-300",
+                                      ? "text-emerald-900 dark:text-emerald-100"
+                                      : "text-gray-900 dark:text-gray-100",
                                   )}
                                 >
                                   {service.name}
                                 </p>
-                                <span className="text-[10px] font-mono font-bold tracking-widest shrink-0 text-gray-500">
-                                  ${service.price} C/U
+                                <span className="text-xs font-mono font-medium text-gray-500 mt-1">
+                                  ${service.price} c/u
                                 </span>
                               </div>
                             </div>
 
-                            <div className="flex items-center border border-black/20 dark:border-white/20 shrink-0 h-8">
+                            <div className="flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] overflow-hidden shrink-0 h-10 shadow-sm">
                               <button
                                 onClick={() =>
                                   handleQuantityChange(service.id, -1)
                                 }
-                                className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white transition-colors"
+                                className="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-gray-900 dark:hover:text-white transition-colors"
                               >
                                 -
                               </button>
-                              <div className="w-8 h-full flex items-center justify-center text-xs font-bold font-mono border-x border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+                              <div className="w-10 h-full flex items-center justify-center text-sm font-bold font-mono border-x border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
                                 {quantity}
                               </div>
                               <button
                                 onClick={() =>
                                   handleQuantityChange(service.id, 1)
                                 }
-                                className="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#111] hover:text-black dark:hover:text-white transition-colors"
+                                className="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-gray-900 dark:hover:text-white transition-colors"
                               >
                                 +
                               </button>
@@ -432,53 +432,52 @@ export function PackageEditorDialog({
               {/* 2. MOTOR DE PRECIOS Y VALOR */}
               <div
                 className={cn(
-                  "p-6 md:p-8 flex flex-col bg-gray-50 dark:bg-[#050505] transition-opacity",
+                  "p-6 md:p-8 flex flex-col bg-gray-50/50 dark:bg-[#050505]/50 transition-opacity",
                   (pkg.packageItems || []).length === 0 &&
                     "opacity-50 pointer-events-none",
                 )}
               >
                 {/* Valuación */}
-                <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-6 mb-6">
+                <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6 mb-6">
                   <div className="flex flex-col gap-1">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                      {t("real_value", { defaultValue: "VALOR TÉCNICO" })}
+                    <p className="text-xs font-semibold text-gray-500">
+                      {t("real_value", { defaultValue: "Valor Técnico" })}
                     </p>
-                    <p className="text-sm font-mono font-bold text-gray-400 line-through decoration-gray-500">
+                    <p className="text-base font-mono font-bold text-gray-400 line-through decoration-gray-500">
                       ${realValue}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                      {t("saving", { defaultValue: "DIFERENCIAL (AHORRO)" })}{" "}
-                      <CheckCircle2 className="w-3 h-3" strokeWidth={2} />
+                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                      {t("saving", { defaultValue: "Diferencial (Ahorro)" })}{" "}
+                      <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
                     </p>
-                    <p className="text-xl font-mono font-black tracking-tight text-emerald-600 dark:text-emerald-400">
+                    <p className="text-2xl font-mono font-black tracking-tight text-emerald-600 dark:text-emerald-400">
                       ${savings}
                     </p>
                   </div>
                 </div>
 
                 {/* Controles de Precio */}
-                <div className="flex flex-col gap-6">
-                  <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-8">
+                  <div className="flex flex-col gap-5">
                     <div className="flex items-center justify-between">
-                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                        <Percent className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
-                        COMPRESIÓN DE PRECIO (%)
+                      <label className="text-xs font-semibold text-gray-500 flex items-center gap-2">
+                        <Percent className="w-4 h-4" strokeWidth={2} />{" "}
+                        Descuento Sugerido
                       </label>
-                      <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+                      <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">
                         {discountPercent}%
                       </span>
                     </div>
 
-                    {/* El slider de shadcn requerirá clases custom para verse brutalista, se aplican aquí */}
                     <Slider
                       value={[discountPercent]}
                       max={60}
                       min={0}
                       step={1}
                       onValueChange={(vals) => applyDiscountPercent(vals[0])}
-                      className="py-2 [&_[role=slider]]:bg-black dark:[&_[role=slider]]:bg-white [&_[role=slider]]:border-none [&_[role=slider]]:w-4 [&_[role=slider]]:h-6 [&_[role=slider]]:rounded-none [&_.bg-primary]:bg-black dark:[&_.bg-primary]:bg-white [&_.bg-secondary]:bg-black/10 dark:[&_.bg-secondary]:bg-white/10"
+                      className="py-2"
                     />
 
                     <div className="flex gap-2">
@@ -487,10 +486,10 @@ export function PackageEditorDialog({
                           key={idx}
                           onClick={() => applyDiscountPercent(sug.percent)}
                           className={cn(
-                            "flex-1 h-8 border text-[9px] font-bold uppercase tracking-widest transition-colors rounded-none",
+                            "flex-1 h-10 rounded-xl text-xs font-bold transition-colors border",
                             discountPercent === sug.percent
-                              ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-                              : "border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]",
+                              ? "bg-emerald-600 text-white border-emerald-600"
+                              : "bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#111]",
                           )}
                         >
                           {sug.label}
@@ -500,14 +499,14 @@ export function PackageEditorDialog({
                   </div>
 
                   <div className="flex flex-col">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                    <label className="text-xs font-semibold text-gray-500 mb-2">
                       {t("manual_price", {
-                        defaultValue: "VALOR COMERCIAL FINAL",
+                        defaultValue: "Valor Comercial Final",
                       })}
                     </label>
                     <div className="relative">
                       <DollarSign
-                        className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black dark:text-white pointer-events-none"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
                         strokeWidth={2}
                       />
                       <input
@@ -517,7 +516,7 @@ export function PackageEditorDialog({
                         onChange={(e) =>
                           manualPriceChange(Number(e.target.value))
                         }
-                        className="w-full h-14 pl-12 pr-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-lg font-mono font-black tracking-widest text-black dark:text-white uppercase focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors"
+                        className="w-full h-14 pl-12 pr-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 text-xl font-mono font-black text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors shadow-sm"
                       />
                     </div>
                   </div>
@@ -528,30 +527,30 @@ export function PackageEditorDialog({
         </div>
 
         {/* --- FOOTER DE COMANDOS --- */}
-        <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-2 w-full sm:w-auto text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">
+        <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-2 w-full sm:w-auto text-xs font-semibold text-amber-600 dark:text-amber-500">
             {!isValid && (
               <>
-                <Info className="w-3.5 h-3.5" strokeWidth={1.5} />
-                <span>COMPLETE LOS CAMPOS OBLIGATORIOS (*)</span>
+                <Info className="w-4 h-4" strokeWidth={2} />
+                <span>Complete los campos obligatorios (*)</span>
               </>
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button
               onClick={onClose}
-              className="h-14 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none w-full sm:w-auto"
+              className="h-12 px-8 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-sm font-bold w-full sm:w-auto shadow-sm"
             >
-              {t("cancel", { defaultValue: "ANULAR" })}
+              {t("cancel", { defaultValue: "Cancelar" })}
             </button>
             <button
               onClick={() => onSave(pkg)}
               disabled={!isValid}
-              className="h-14 px-10 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none w-full sm:w-auto disabled:opacity-50"
+              className="h-12 px-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 w-full sm:w-auto disabled:opacity-50 shadow-sm"
             >
-              <Zap className="w-4 h-4" strokeWidth={1.5} />{" "}
-              {t("save_package", { defaultValue: "CONFIRMAR ENSAMBLE" })}
+              <Zap className="w-4 h-4" strokeWidth={2} />{" "}
+              {t("save_package", { defaultValue: "Confirmar Ensamble" })}
             </button>
           </div>
         </div>
