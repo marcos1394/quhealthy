@@ -8,6 +8,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from '@/lib/utils';
 import { useDiscoverContext } from './context/DiscoverContext';
 import { SortDropdown } from '@/components/discover/SortDropdown';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { FilterPanel } from '@/components/discover/FilterPanel';
 
 export const MarketplaceHeader = ({ 
   locationDeclined, 
@@ -125,7 +127,25 @@ export const MarketplaceHeader = ({
         </form>
 
         <div className="flex-shrink-0 pointer-events-auto flex gap-2 overflow-x-auto md:flex-wrap no-scrollbar pb-1 pt-1 px-1 -mx-1 flex-1">
-          {/* Quick Filters - Here we can add the ones that update useDiscoverFilters in the future, for now omitted or simplified */}
+          {/* Mobile Filter Trigger */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="rounded-none border-black dark:border-white h-9 px-4 text-[10px] font-bold uppercase tracking-widest bg-white dark:bg-black text-black dark:text-white"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 mr-2" />
+                  Filtros
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[85vh] p-0 border-t-2 border-black dark:border-white bg-white dark:bg-black rounded-t-[2rem]">
+                <div className="h-full overflow-y-auto px-4 py-8">
+                  <FilterPanel isCollapsed={false} />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
         
         <div className="flex-shrink-0 pointer-events-auto pl-2">

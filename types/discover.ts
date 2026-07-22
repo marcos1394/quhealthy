@@ -11,9 +11,10 @@ export interface DiscoverProvider {
   rating: number;
   reviews: number;
   slug: string;
-  imageUrl: string; // El banner (Fallback si no hay video)
+  imageUrl: string; // El banner principal
+  galleryUrls?: string[]; // Para el carrusel de imágenes de la tarjeta
   logoUrl: string;
-  previewVideoUrl: string | null; // 🚀 El video para el Hover
+  previewVideoUrl: string | null;
   color: string;
   isPremium: boolean;
   isPromoted?: boolean;

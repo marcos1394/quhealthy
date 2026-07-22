@@ -7,6 +7,7 @@ export interface DiscoverFilters {
   minPrice?: number;
   maxPrice?: number;
   hasDiscount?: boolean;
+  radiusKm?: number;
 }
 
 export function useDiscoverFilters() {
@@ -21,6 +22,7 @@ export function useDiscoverFilters() {
       minPrice: searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined,
       maxPrice: searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined,
       hasDiscount: searchParams.get('hasDiscount') === 'true',
+      radiusKm: searchParams.get('radiusKm') ? Number(searchParams.get('radiusKm')) : undefined,
     };
   }, [searchParams]);
 
@@ -45,7 +47,7 @@ export function useDiscoverFilters() {
   const clearFilters = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     // Keep 'type' and 'q' but remove all filter params
-    ['modality', 'city', 'minPrice', 'maxPrice', 'hasDiscount', 'page'].forEach(key => params.delete(key));
+    ['modality', 'city', 'minPrice', 'maxPrice', 'hasDiscount', 'radiusKm', 'page'].forEach(key => params.delete(key));
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, pathname, router]);
 

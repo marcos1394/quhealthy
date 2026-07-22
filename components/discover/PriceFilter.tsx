@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tag } from 'lucide-react';
 import { useDiscoverFilters } from '@/hooks/useDiscoverFilters';
+import { Slider } from '@/components/ui/slider';
 
 const PRESETS = [500, 1000, 2000, 5000];
 
@@ -50,19 +51,25 @@ export function PriceFilter() {
  ))}
  </div>
 
- {/* Input personalizado */}
- <div className="relative">
- <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm pointer-events-none">$</span>
- <input
- type="number"
- value={maxPrice}
- onChange={(e) => setMaxPrice(e.target.value)}
- onBlur={applyPrice}
- onKeyDown={(e) => e.key === 'Enter' && applyPrice()}
- placeholder="Personalizado"
- className="w-full bg-white dark:bg-[#0a0a0a] border border-black dark:border-white pl-8 pr-3 py-2.5 text-xs font-bold text-black dark:text-white placeholder:text-gray-400 focus:outline-none focus:shadow-[2px_2px_0_0_#000] dark:focus:shadow-[2px_2px_0_0_#fff] transition-all"
- />
- </div>
+      <div className="pt-6 pb-2 px-2">
+        <Slider
+          value={[maxPrice ? Number(maxPrice) : 5000]}
+          max={10000}
+          step={100}
+          onValueChange={(val) => {
+            setMaxPrice(String(val[0]));
+          }}
+          onValueCommit={(val) => {
+            setFilter('maxPrice', val[0]);
+          }}
+          className="w-full"
+        />
+        <div className="flex justify-between mt-2 text-[10px] font-bold text-gray-500">
+          <span>$0</span>
+          <span>${maxPrice || 5000}</span>
+          <span>$10k+</span>
+        </div>
+      </div>
 
  {/* Solo Ofertas */}
  <label className="flex items-center gap-3 cursor-pointer group">

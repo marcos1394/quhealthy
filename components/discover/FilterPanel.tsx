@@ -4,6 +4,7 @@ import React from 'react';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { ModalityFilter } from './ModalityFilter';
 import { PriceFilter } from './PriceFilter';
+import { DistanceFilter } from './DistanceFilter';
 import { useDiscoverFilters } from '@/hooks/useDiscoverFilters';
 import { cn } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
@@ -80,8 +81,10 @@ export function FilterPanel({ isCollapsed = false, onToggle }: FilterPanelProps)
  </>
  )}
 
- {/* Ubicación (próximamente) */}
- <div className="space-y-2">
+ {/* Ubicación y Distancia */}
+ <div className="space-y-4">
+ <DistanceFilter />
+ <div className="w-full h-px bg-black dark:bg-white" />
  <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Ubicación</span>
  <p className="text-[10px] text-gray-600 uppercase tracking-wider font-bold">
  Búsqueda por ciudad — próximamente
