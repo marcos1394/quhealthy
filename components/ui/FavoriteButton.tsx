@@ -67,9 +67,9 @@ export function FavoriteButton({
  const active = isFavorite || isHovered;
 
  const dynamicStyles: React.CSSProperties =
- accentColor && active
+ active
  ? {
- backgroundColor: accentColor,
+ backgroundColor: accentColor || '#0d9488', // quhealthy-green default
  color: accentTextColor,
  }
  : {};
