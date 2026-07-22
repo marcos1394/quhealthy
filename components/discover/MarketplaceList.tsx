@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Award, PlayCircle, Star, Navigation, ChevronRight, User, Image as ImageIcon, Loader2, Search } from 'lucide-react';
