@@ -53,6 +53,8 @@ import { BeforeAfterComparator } from "@/components/ui/gallery/BeforeAfterCompar
 import { CertificationGrid } from "@/components/ui/gallery/CertificationGrid";
 import { StorefrontHero } from "@/components/store/StorefrontHero";
 import { StickyBookingBar } from "@/components/store/StickyBookingBar";
+import { StorefrontReviews } from "@/components/store/StorefrontReviews";
+import { StorefrontNavigation } from "@/components/store/StorefrontNavigation";
 
 type TabType = "servicios" | "paquetes" | "productos" | "cursos";
 
@@ -210,6 +212,8 @@ export default function PublicStorePage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+      <StorefrontNavigation storeName={store.displayName} category={store.specialties?.[0]?.name} />
+      
       {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
       <ActiveCreditsBanner
         providerId={store.providerId}
@@ -1103,6 +1107,9 @@ export default function PublicStorePage() {
             )}
           </div>
         )}
+
+        {/* 🚀 RESEÑAS (FASE 4) */}
+        <StorefrontReviews providerId={store.providerId} />
 
         {/* 🚀 CARRUSELES DE CROSS-SELLING (FASE 1) */}
         <div className="mt-12 px-6 lg:px-0">

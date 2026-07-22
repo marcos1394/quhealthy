@@ -9,6 +9,7 @@ import { ProviderScoreResponse } from '@/types/providerScore';
 import { FavoriteButton } from '@/components/ui/FavoriteButton';
 import { ImageGalleryViewer } from '@/components/ui/gallery/ImageGalleryViewer';
 import { QuScoreModal } from '@/components/store/QuScoreModal';
+import { QuickAvailability } from '@/components/store/QuickAvailability';
 import { useTranslations } from 'next-intl';
 
 interface StorefrontHeroProps {
@@ -180,13 +181,15 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({ store, scoreData
               </div>
             </div>
             <div className="flex gap-4">
-              <Navigation className="w-6 h-6 shrink-0 mt-0.5 text-black dark:text-white" strokeWidth={1.5} />
+              <MapPin className="w-6 h-6 shrink-0 mt-0.5 text-black dark:text-white" strokeWidth={1.5} />
               <div>
                 <h4 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">Ubicación Céntrica</h4>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Instalaciones de primer nivel accesibles.</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Ubicado en {store.locations?.[0]?.city || "Ciudad Principal"}</p>
               </div>
             </div>
           </div>
+
+          <QuickAvailability providerId={store.providerId} />
 
           {/* Bio and Contact */}
           <div className="pb-8">
