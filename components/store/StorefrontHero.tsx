@@ -25,7 +25,7 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({ store, scoreData
 
   // Extract gallery images or fallback to banner
   const images = store.galleryImages && store.galleryImages.length > 0 
-    ? store.galleryImages.map(img => img.url)
+    ? store.galleryImages.map(img => img.imageUrl)
     : store.bannerUrl ? [store.bannerUrl] : [];
 
   return (
