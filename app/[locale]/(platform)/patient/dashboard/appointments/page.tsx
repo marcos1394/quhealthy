@@ -122,11 +122,11 @@ export default function ConsumerAppointmentsPage() {
  return (
  <div className="flex flex-col justify-center items-center min-h-screen gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
  <QhSpinner size="lg" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
- {t('loading', { defaultValue: 'Cargando tu agenda...' })}
- </p>
- </div>
- );
+      <p className="text-sm font-semibold tracking-wide text-gray-600 dark:text-gray-400 animate-pulse mt-4">
+        {t('loading', { defaultValue: 'Cargando tu agenda...' })}
+      </p>
+    </div>
+  );
  }
 
  // --- ESTADO 2: PÁGINA PRINCIPAL ---
@@ -134,30 +134,30 @@ export default function ConsumerAppointmentsPage() {
  <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
  <div className="max-w-7xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12">
 
- {/* --- CABECERA --- */}
- <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
- <div className="flex items-center gap-6">
- <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
- <Calendar className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
- </div>
- <div>
- <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-2 uppercase">
- {t('title', { defaultValue: 'Mis Citas' })}
- </h1>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
- {t('subtitle', { defaultValue: 'Gestiona tus próximas consultas y revisa tu historial.' })}
- </p>
- </div>
- </div>
- 
- <Button 
- onClick={() => router.push('/discover')} 
- className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
- >
- <Plus className="w-4 h-4 mr-3" strokeWidth={2} /> 
- {t('btn_new', { defaultValue: 'Agendar Cita' })}
- </Button>
- </div>
+        {/* --- CABECERA --- */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-3xl flex items-center justify-center bg-teal-50 dark:bg-teal-900/20 shrink-0">
+              <Calendar className="w-7 h-7 text-teal-600 dark:text-teal-400" strokeWidth={2} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">
+                {t('title', { defaultValue: 'Mis Citas' })}
+              </h1>
+              <p className="text-sm font-medium text-gray-500">
+                {t('subtitle', { defaultValue: 'Gestiona tus próximas consultas y revisa tu historial.' })}
+              </p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => router.push('/discover')} 
+            className="rounded-xl bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 h-12 px-8 text-sm font-semibold shadow-sm transition-all"
+          >
+            <Plus className="w-4 h-4 mr-2" strokeWidth={2.5} /> 
+            {t('btn_new', { defaultValue: 'Agendar Cita' })}
+          </Button>
+        </div>
 
  {/* --- COMPONENTE DE ESTADÍSTICAS --- */}
  <AppointmentStats stats={stats} />

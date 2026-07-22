@@ -29,33 +29,32 @@ export function AppointmentEmptyState({ activeTab, searchQuery }: AppointmentEmp
  return t('empty_hint', { defaultValue: 'Explora el catálogo de especialistas para agendar tu próxima valoración médica.' });
  };
 
- return (
- <motion.div
- initial={{ opacity: 0, scale: 0.98 }}
- animate={{ opacity: 1, scale: 1 }}
- className="flex flex-col items-center justify-center py-24 px-4 border border-dashed border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] transition-colors"
- >
- <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black flex items-center justify-center mb-6">
- <Calendar className="w-6 h-6 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
- </div>
- 
- <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2 text-center">
- {getEmptyMessage()}
- </h3>
- 
- <p className="text-xs text-gray-500 dark:text-gray-400 font-light mb-8 max-w-sm text-center leading-relaxed">
- {getEmptyHint()}
- </p>
- 
- {!searchQuery && (
- <Button
- onClick={() => router.push('/discover')}
- className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
- >
- <Plus className="w-4 h-4 mr-3" strokeWidth={2} />
- {t('btn_find', { defaultValue: 'Agendar Consulta' })}
- </Button>
- )}
- </motion.div>
- );
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center justify-center py-24 px-4 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30 transition-colors"
+    >
+      <div className="w-16 h-16 rounded-3xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-6">
+        <Calendar className="w-7 h-7 text-teal-600 dark:text-teal-400" strokeWidth={2} />
+      </div>
+      
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center tracking-tight">
+        {getEmptyMessage()}
+      </h3>
+      
+      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-8 max-w-sm text-center leading-relaxed">
+        {getEmptyHint()}
+      </p>
+      
+      {!searchQuery && (
+        <Button
+          onClick={() => router.push('/discover')}
+          className="rounded-xl bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 h-12 px-8 text-sm font-semibold shadow-sm transition-all"
+        >
+          <Plus className="w-4 h-4 mr-2" strokeWidth={2.5} />
+          {t('btn_find', { defaultValue: 'Agendar Consulta' })}
+        </Button>
+      )}
+    </motion.div>
+  );
 }
