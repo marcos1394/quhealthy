@@ -13,7 +13,7 @@ interface RegisterEmergencyModalProps {
 export const RegisterEmergencyModal: React.FC<RegisterEmergencyModalProps> = ({
   isOpen,
   onClose,
-  onSuccess
+  onSuccess,
 }) => {
   const { user } = useSessionStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,15 +24,18 @@ export const RegisterEmergencyModal: React.FC<RegisterEmergencyModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id || !patientId) return;
-    
+
     setIsSubmitting(true);
     try {
       // Registrar cita de emergencia
-      const appt = await emergencyService.registerEmergencyWalkIn(user.id, Number(patientId));
-      
+      const appt = await emergencyService.registerEmergencyWalkIn(
+        user.id,
+        Number(patientId),
+      );
+
       // Detonar triage inmediatamente (inicia el reloj de triage)
       await emergencyService.startTriage(appt.id);
-      
+
       onSuccess();
     } catch (err) {
       toast.error("Error al registrar paciente en urgencias");
@@ -49,14 +52,19 @@ export const RegisterEmergencyModal: React.FC<RegisterEmergencyModalProps> = ({
             <UserPlus className="w-5 h-5 text-red-500" />
             Ingresar a Urgencias (Walk-in)
           </h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded-full transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">ID del Directorio de Pacientes</label>
-            <input 
+            <label className="block text-sm font-bold text-gray-700 mb-1">
+              ID del Directorio de Pacientes
+            </label>
+            <input
               type="number"
               required
               value={patientId}
@@ -64,10 +72,13 @@ export const RegisterEmergencyModal: React.FC<RegisterEmergencyModalProps> = ({
               className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-red-500"
               placeholder="Ej: 1045"
             />
-            <p className="text-xs text-gray-500 mt-1">En una implementación completa, aquí habría un buscador de pacientes.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              En una implementación completa, aquí habría un buscador de
+              pacientes.
+            </p>
           </div>
-          
-          <button 
+
+          <button
             type="submit"
             disabled={isSubmitting}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all"

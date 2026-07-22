@@ -273,6 +273,7 @@ const NavItem = ({
   badge?: { count: number | string; color?: string } | null;
   isCollapsed: boolean;
   pathname: string | null;
+  itemKey: string;
 }) => {
   const isActive =
     pathname === href ||
@@ -280,18 +281,34 @@ const NavItem = ({
       href !== "/patient/dashboard" &&
       pathname?.startsWith(href));
 
+  const getIconColorClass = (key: string, active: boolean) => {
+    if (['reviews'].includes(key)) return 'text-yellow-500';
+    if (['favorites'].includes(key)) return 'text-red-500';
+    if (['wallet', 'billing', 'finance', 'cash_register'].includes(key)) return 'text-emerald-500';
+    if (['messages'].includes(key)) return 'text-blue-500';
+    if (['packages'].includes(key)) return 'text-amber-500';
+    if (['orders', 'inventory'].includes(key)) return 'text-purple-500';
+    if (['patients', 'dependents', 'public_profile', 'profile'].includes(key)) return 'text-indigo-500';
+    if (['calendar', 'appointments'].includes(key)) return 'text-orange-500';
+    if (['discover'].includes(key)) return 'text-fuchsia-500';
+    if (['emergencies'].includes(key)) return 'text-rose-500';
+    if (['nutrition'].includes(key)) return 'text-lime-500';
+    
+    return active ? 'text-teal-600 dark:text-teal-400' : 'text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors';
+  };
+
   return (
     <Link
       href={href}
       title={isCollapsed ? label : ""}
       className={cn(
-        "relative flex items-center gap-4 transition-colors group border",
+        "relative flex items-center gap-4 transition-all group rounded-xl mx-2",
         isCollapsed
           ? "justify-center p-3 w-12 h-12 mx-auto"
-          : "px-4 py-3 w-full",
+          : "px-4 py-2.5",
         isActive
-          ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-          : "bg-transparent text-gray-500 border-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-black dark:hover:border-white",
+          ? "bg-teal-50 text-teal-900 dark:bg-teal-900/20 dark:text-teal-100 font-semibold"
+          : "bg-transparent text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white font-medium",
       )}
     >
       <div
@@ -302,16 +319,14 @@ const NavItem = ({
       >
         <Icon
           className={cn(
-            "w-4 h-4 flex-shrink-0 transition-colors",
-            isActive
-              ? "text-white dark:text-black"
-              : "text-gray-500 group-hover:text-white dark:group-hover:text-black",
+            "w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110",
+            getIconColorClass(itemKey, isActive)
           )}
-          strokeWidth={isActive ? 2 : 1.5}
+          strokeWidth={isActive ? 2.5 : 2}
         />
 
         {!isCollapsed && (
-          <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+          <span className="text-sm whitespace-nowrap">
             {label}
           </span>
         )}
@@ -530,15 +545,16 @@ export const Sidebar = ({
                 badge={link.badge}
                 isCollapsed={isCollapsed}
                 pathname={pathname}
+                itemKey={link.key}
               />
             ))}
           </div>
         </nav>
 
         {/* Settings Links */}
-        <nav className="border-t border-gray-200 dark:border-gray-800 pt-8">
+        <nav className="border-t border-gray-100 dark:border-gray-800 pt-6">
           {!isCollapsed && (
-            <h3 className="text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-4 px-2">
+            <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 px-4">
               {t("settings_section")}
             </h3>
           )}
@@ -552,6 +568,7 @@ export const Sidebar = ({
                 badge={link.badge}
                 isCollapsed={isCollapsed}
                 pathname={pathname}
+                itemKey={link.key}
               />
             ))}
           </div>
@@ -559,52 +576,41 @@ export const Sidebar = ({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-2 flex-shrink-0 bg-gray-50 dark:bg-[#050505]">
+      <div className="p-4 border-t border-gray-100 dark:border-gray-800 space-y-2 flex-shrink-0 bg-white dark:bg-[#0a0a0a]">
         <button
           onClick={handleSwitchProfile}
           disabled={isSwitchingProfile}
-          className={cn(
-            "flex items-center gap-4 w-full px-4 py-3 transition-colors text-medical-600 dark:text-medical-400 border border-medical-200 dark:border-medical-800/50 bg-medical-50/50 dark:bg-medical-500/10 rounded-lg",
-            "hover:bg-medical-100 dark:hover:bg-medical-500/20",
-            isCollapsed ? "justify-center px-0 w-12 h-12 mx-auto" : "",
-          )}
-          title={
-            isCollapsed
-              ? isConsumer
-                ? t("switch_to_provider", {
-                    defaultValue: "Cambiar a Proveedor",
-                  })
-                : t("switch_to_patient", { defaultValue: "Cambiar a Paciente" })
-              : ""
-          }
+          className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-[#111] transition-all group disabled:opacity-50"
         >
-          <UserCircle
-            className={cn(
-              "w-4 h-4 flex-shrink-0",
-              isSwitchingProfile && "animate-spin",
+          <div className="flex items-center gap-3">
+            <UserCircle
+              className={cn(
+                "w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors",
+                isSwitchingProfile && "animate-spin"
+              )}
+              strokeWidth={2}
+            />
+            {!isCollapsed && (
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                {isSwitchingProfile
+                  ? t("switching", { defaultValue: "Cambiando..." })
+                  : isConsumer
+                    ? t("switch_to_provider", {
+                        defaultValue: "Cambiar a Proveedor",
+                      })
+                    : t("switch_to_patient", {
+                        defaultValue: "Cambiar a Paciente",
+                      })}
+              </span>
             )}
-            strokeWidth={2}
-          />
-          {!isCollapsed && (
-            <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
-              {isSwitchingProfile
-                ? t("switching", { defaultValue: "Cambiando..." })
-                : isConsumer
-                  ? t("switch_to_provider", {
-                      defaultValue: "Cambiar a Proveedor",
-                    })
-                  : t("switch_to_patient", {
-                      defaultValue: "Cambiar a Paciente",
-                    })}
-            </span>
-          )}
+          </div>
         </button>
 
         {!isCollapsed && (
           <Link href="/patient/dashboard/support">
-            <button className="flex items-center gap-4 w-full px-4 py-3 text-gray-500 hover:text-black dark:hover:text-white border border-transparent hover:border-gray-300 dark:hover:border-gray-700 hover:bg-white dark:hover:bg-[#0a0a0a] transition-colors rounded-lg">
-              <HelpCircle className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
-              <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+            <button className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-[#111] transition-all group">
+              <HelpCircle className="w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" strokeWidth={2} />
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                 {t("support")}
               </span>
             </button>
@@ -614,15 +620,14 @@ export const Sidebar = ({
         <button
           onClick={handleLogout}
           className={cn(
-            "flex items-center gap-4 w-full px-4 py-3 transition-colors text-gray-500 border border-transparent rounded-lg",
-            "hover:bg-red-500 hover:text-white hover:border-red-500",
-            isCollapsed ? "justify-center px-0 w-12 h-12 mx-auto" : "",
+            "flex items-center gap-3 w-full p-3 rounded-xl transition-all group hover:bg-red-50 dark:hover:bg-red-900/10",
+            isCollapsed ? "justify-center" : ""
           )}
           title={isCollapsed ? t("logout") : ""}
         >
-          <LogOut className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+          <LogOut className="w-5 h-5 flex-shrink-0 text-gray-400 group-hover:text-red-500 transition-colors" strokeWidth={2} />
           {!isCollapsed && (
-            <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-red-500 transition-colors">
               {t("logout")}
             </span>
           )}

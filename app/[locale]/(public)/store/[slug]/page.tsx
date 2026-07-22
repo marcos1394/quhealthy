@@ -349,7 +349,7 @@ export default function PublicStorePage() {
                 store.services.map((service) => (
                   <div
                     key={service.id}
-                    className="bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 transition-all p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group hover:-translate-y-1 hover:shadow-lg rounded-3xl relative hover:z-10"
                     style={
                       hasValidPrimaryColor
                         ? ({
@@ -365,9 +365,9 @@ export default function PublicStorePage() {
                           {service.category && (
                             <span
                               className={cn(
-                                "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest bg-transparent",
+                                "border px-3 py-1 rounded-full text-xs font-semibold tracking-wide bg-transparent",
                                 !hasValidPrimaryColor &&
-                                  "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400",
+                                  "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400",
                               )}
                               style={
                                 hasValidPrimaryColor
@@ -382,12 +382,12 @@ export default function PublicStorePage() {
                             </span>
                           )}
                           {renderModalityBadge(service.modality)}
-                          <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                          <span className="flex items-center text-xs font-medium text-gray-500">
                             <Clock
-                              className="w-3 h-3 mr-1.5"
-                              strokeWidth={1.5}
+                              className="w-3.5 h-3.5 mr-1.5"
+                              strokeWidth={2}
                             />{" "}
-                            {service.durationMinutes || 0} MIN
+                            {service.durationMinutes || 0} min
                           </span>
                         </div>
 
@@ -501,7 +501,7 @@ export default function PublicStorePage() {
                                 : handleAddToCart(service)
                             }
                             className={cn(
-                              "rounded-none px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                              "rounded-xl px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
                               isInCart
                                 ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white"
                                 : "text-white",
@@ -549,7 +549,7 @@ export default function PublicStorePage() {
                 store.packages.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className="border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col md:flex-row gap-6 md:items-start hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col md:flex-row gap-6 md:items-start rounded-3xl hover:-translate-y-1 hover:shadow-lg relative hover:z-10"
                     style={
                       hasValidPrimaryColor
                         ? ({
@@ -672,7 +672,7 @@ export default function PublicStorePage() {
                                 : handleAddToCart(pkg)
                             }
                             className={cn(
-                              "rounded-none px-8 h-14 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                              "rounded-xl px-8 h-14 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
                               isInCart
                                 ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
                                 : "text-white",
@@ -730,7 +730,7 @@ export default function PublicStorePage() {
                         <div
                           key={product.id}
                           className={cn(
-                            "bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all flex flex-col group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10",
+                            "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 transition-all group hover:-translate-y-1 hover:shadow-lg flex flex-col h-full",
                             isOutOfStock ? "opacity-60" : "",
                           )}
                           style={
@@ -742,7 +742,7 @@ export default function PublicStorePage() {
                           }
                         >
                           {/* Box Image */}
-                          <div className="h-48 border-b border-gray-200 dark:border-gray-800 relative flex items-center justify-center bg-gray-50 dark:bg-[#050505] overflow-hidden">
+                          <div className="h-48 mb-6 border border-gray-100 dark:border-gray-800 relative flex items-center justify-center bg-gray-50 dark:bg-[#050505] overflow-hidden rounded-2xl">
                             {product.imageUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
@@ -766,7 +766,7 @@ export default function PublicStorePage() {
                             )}
                           </div>
 
-                          <div className="p-6 flex flex-col flex-1">
+                          <div className="flex flex-col flex-1">
                             <div className="flex justify-between items-start gap-4 mb-4">
                               <span
                                 className={cn(
@@ -821,7 +821,7 @@ export default function PublicStorePage() {
                               {product.description}
                             </p>
 
-                            <div className="flex items-end justify-between pt-6 border-t border-gray-200 dark:border-gray-800 mt-auto">
+                            <div className="flex items-end justify-between pt-6 border-t border-gray-100 dark:border-gray-800 mt-auto">
                               <div className="flex flex-col">
                                 {product.compareAtPrice &&
                                   product.compareAtPrice > product.price && (
@@ -844,7 +844,7 @@ export default function PublicStorePage() {
 
                                 if (isInCart) {
                                   return (
-                                    <div className="flex items-center h-10 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                                    <div className="flex items-center h-10 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-xl">
                                       <button
                                         onClick={() => {
                                           if (
@@ -886,7 +886,7 @@ export default function PublicStorePage() {
                                     disabled={isOutOfStock}
                                     onClick={() => handleAddToCart(product)}
                                     className={cn(
-                                      "rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors",
+                                      "rounded-xl h-10 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors",
                                       isOutOfStock
                                         ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed"
                                         : "text-white",
@@ -949,7 +949,7 @@ export default function PublicStorePage() {
                 store.courses.map((course) => (
                   <div
                     key={course.id}
-                    className="flex flex-col sm:flex-row border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    className="flex flex-col sm:flex-row border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl transition-all group hover:-translate-y-1 hover:shadow-lg relative overflow-hidden"
                     style={
                       hasValidPrimaryColor
                         ? ({

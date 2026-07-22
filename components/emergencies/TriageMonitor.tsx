@@ -10,27 +10,42 @@ interface TriageMonitorProps {
 
 const getTriageColor = (level: TriageLevel) => {
   switch (level) {
-    case TriageLevel.LEVEL_1_RESUSCITATION: return "bg-red-500 text-white border-red-700";
-    case TriageLevel.LEVEL_2_EMERGENT: return "bg-orange-500 text-white border-orange-700";
-    case TriageLevel.LEVEL_3_URGENT: return "bg-yellow-400 text-gray-900 border-yellow-600";
-    case TriageLevel.LEVEL_4_LESS_URGENT: return "bg-green-500 text-white border-green-700";
-    case TriageLevel.LEVEL_5_NON_URGENT: return "bg-blue-500 text-white border-blue-700";
-    default: return "bg-gray-200 text-gray-700 border-gray-400";
+    case TriageLevel.LEVEL_1_RESUSCITATION:
+      return "bg-red-500 text-white border-red-700";
+    case TriageLevel.LEVEL_2_EMERGENT:
+      return "bg-orange-500 text-white border-orange-700";
+    case TriageLevel.LEVEL_3_URGENT:
+      return "bg-yellow-400 text-gray-900 border-yellow-600";
+    case TriageLevel.LEVEL_4_LESS_URGENT:
+      return "bg-green-500 text-white border-green-700";
+    case TriageLevel.LEVEL_5_NON_URGENT:
+      return "bg-blue-500 text-white border-blue-700";
+    default:
+      return "bg-gray-200 text-gray-700 border-gray-400";
   }
 };
 
 const getTriageLabel = (level: TriageLevel) => {
   switch (level) {
-    case TriageLevel.LEVEL_1_RESUSCITATION: return "Nivel 1 - Inmediato";
-    case TriageLevel.LEVEL_2_EMERGENT: return "Nivel 2 - Emergencia";
-    case TriageLevel.LEVEL_3_URGENT: return "Nivel 3 - Urgencia";
-    case TriageLevel.LEVEL_4_LESS_URGENT: return "Nivel 4 - Menos Urgente";
-    case TriageLevel.LEVEL_5_NON_URGENT: return "Nivel 5 - No Urgente";
-    default: return "Pendiente de Triage";
+    case TriageLevel.LEVEL_1_RESUSCITATION:
+      return "Nivel 1 - Inmediato";
+    case TriageLevel.LEVEL_2_EMERGENT:
+      return "Nivel 2 - Emergencia";
+    case TriageLevel.LEVEL_3_URGENT:
+      return "Nivel 3 - Urgencia";
+    case TriageLevel.LEVEL_4_LESS_URGENT:
+      return "Nivel 4 - Menos Urgente";
+    case TriageLevel.LEVEL_5_NON_URGENT:
+      return "Nivel 5 - No Urgente";
+    default:
+      return "Pendiente de Triage";
   }
 };
 
-export const TriageMonitor: React.FC<TriageMonitorProps> = ({ queue, onPatientSelect }) => {
+export const TriageMonitor: React.FC<TriageMonitorProps> = ({
+  queue,
+  onPatientSelect,
+}) => {
   const [now, setNow] = useState(new Date());
 
   // Reloj activo para actualizar tiempos de espera
@@ -44,9 +59,15 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({ queue, onPatientSe
     const start = new Date(startedAt).getTime();
     const diff = Math.floor((now.getTime() - start) / 1000);
     if (diff < 0) return "00:00:00";
-    const h = Math.floor(diff / 3600).toString().padStart(2, "0");
-    const m = Math.floor((diff % 3600) / 60).toString().padStart(2, "0");
-    const s = Math.floor(diff % 60).toString().padStart(2, "0");
+    const h = Math.floor(diff / 3600)
+      .toString()
+      .padStart(2, "0");
+    const m = Math.floor((diff % 3600) / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = Math.floor(diff % 60)
+      .toString()
+      .padStart(2, "0");
     return `${h}:${m}:${s}`;
   };
 
@@ -55,17 +76,21 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({ queue, onPatientSe
       {queue.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center text-gray-400">
           <Clock className="w-16 h-16 mb-4 opacity-50" />
-          <p className="text-xl font-medium">No hay pacientes en la sala de urgencias</p>
+          <p className="text-xl font-medium">
+            No hay pacientes en la sala de urgencias
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {queue.map((item) => (
-            <div 
+            <div
               key={item.appointmentId}
               onClick={() => onPatientSelect(item)}
               className={cn(
                 "rounded-2xl border-2 p-5 cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 bg-white relative overflow-hidden",
-                item.triageLevel ? getTriageColor(item.triageLevel) : "border-gray-200"
+                item.triageLevel
+                  ? getTriageColor(item.triageLevel)
+                  : "border-gray-200",
               )}
             >
               {/* Triage Badge Indicator */}
@@ -82,14 +107,18 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({ queue, onPatientSe
                     {item.patientName}
                   </h3>
                   <p className="text-xs opacity-80 uppercase tracking-wide">
-                    {item.status === "WAITING_ROOM" ? "En Espera" : "En Atención"}
+                    {item.status === "WAITING_ROOM"
+                      ? "En Espera"
+                      : "En Atención"}
                   </p>
                 </div>
               </div>
 
               <div className="space-y-2 mb-6">
                 <div className="bg-black/10 rounded-lg p-3">
-                  <p className="text-xs font-semibold opacity-70 uppercase mb-1">Motivo</p>
+                  <p className="text-xs font-semibold opacity-70 uppercase mb-1">
+                    Motivo
+                  </p>
                   <p className="font-medium text-sm line-clamp-2">
                     {item.reasonForEmergency || "Pendiente de evaluación"}
                   </p>
