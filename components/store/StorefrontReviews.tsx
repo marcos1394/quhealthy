@@ -54,7 +54,22 @@ export const StorefrontReviews: React.FC<StorefrontReviewsProps> = ({ providerId
                   Usuario Verificado
                 </p>
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  <span>{format(new Date(review.createdAt), "MMMM yyyy", { locale: es })}</span>
+                  <span>
+                    {(() => {
+                      try {
+                        let d = review.createdAt;
+                        if (Array.isArray(d)) {
+                          d = new Date(d[0], d[1] - 1, d[2], d[3] || 0, d[4] || 0);
+                        } else {
+                          d = new Date(d);
+                        }
+                        if (isNaN(d.getTime())) return "Reciente";
+                        return format(d, "MMMM yyyy", { locale: es });
+                      } catch {
+                        return "Reciente";
+                      }
+                    })()}
+                  </span>
                   {review.isVerified && (
                     <>
                       <span>•</span>

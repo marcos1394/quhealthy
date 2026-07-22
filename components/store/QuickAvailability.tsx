@@ -78,9 +78,29 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId
       
       <div className="flex flex-wrap gap-2">
         {nextSlots.map((slot, i) => {
-          const dateObj = new Date(slot);
-          const time = format(dateObj, 'HH:mm');
-          const isToday = format(dateObj, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+          let dateObj: Date;
+          let time = "";
+          let isToday = false;
+
+          try {
+            if (Array.isArray(slot)) {
+              dateObj = new Date(slot[0], slot[1] - 1, slot[2], slot[3] || 0, slot[4] || 0);
+            } else if (typeof slot === 'string' && slot.includes(':') && !slot.includes('T')) {
+              // Si solo viene la hora "14:00"
+              const [h, m] = slot.split(':');
+              dateObj = new Date();
+              dateObj.setHours(parseInt(h), parseInt(m), 0, 0);
+            } else {
+              dateObj = new Date(slot);
+            }
+
+            if (isNaN(dateObj.getTime())) throw new Error("Invalid");
+
+            time = format(dateObj, 'HH:mm');
+            isToday = format(dateObj, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+          } catch {
+            return null;
+          }
           
           return (
             <div key={i} className="px-3 py-1.5 border border-black dark:border-white text-[11px] font-bold tracking-widest group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white transition-colors">
