@@ -663,17 +663,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
         `}</style>
       </div>
 
-      {/* LEYENDA (Footer Estricto) */}
+      {/* LEYENDA (Soft Health) */}
       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 pt-2">
         {["confirmed", "pending", "completed", "cancelled"].map((status) => {
           const theme = getStatusTheme(status);
           return (
             <div key={status} className="flex items-center gap-2">
               <div
-                className="w-3 h-3 border border-black dark:border-white"
+                className="w-3 h-3 rounded-full border border-gray-200 dark:border-gray-700"
                 style={{ backgroundColor: theme.bg }}
               />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+              <span className="text-xs font-semibold text-gray-500">
                 {theme.label}
               </span>
             </div>
@@ -681,53 +681,53 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
         })}
       </div>
 
-      {/* DIÁLOGO DEL EXPEDIENTE (Blueprint Grid) */}
+      {/* DIÁLOGO DEL EXPEDIENTE (Soft Health) */}
       <Dialog
         open={!!selectedEvent}
         onOpenChange={(open) => !open && setSelectedEvent(null)}
       >
-        <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-2xl rounded-none p-0 overflow-hidden transition-colors">
+        <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white sm:max-w-2xl rounded-3xl p-0 overflow-hidden shadow-2xl transition-colors">
           {selectedEvent && (
             <div className="flex flex-col">
               {/* Header Modal */}
-              <div className="bg-white dark:bg-[#0a0a0a] p-6 md:p-8 border-b border-black/20 dark:border-white/20 flex items-center justify-between gap-4">
+              <div className="bg-white dark:bg-[#0a0a0a] p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[9px] uppercase font-bold tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+                  <p className="text-xs font-semibold text-gray-500 mb-1">
                     {t("event_detail.booking_id", {
                       defaultValue: "ID OPERACIÓN",
                     })}
                     : #{selectedEvent.id}
                   </p>
-                  <DialogTitle className="font-semibold text-xl md:text-2xl uppercase tracking-tight text-black dark:text-white leading-none">
+                  <DialogTitle className="font-bold text-xl md:text-2xl text-gray-900 dark:text-white leading-none">
                     {selectedEvent.title}
                   </DialogTitle>
                 </div>
-                <div className="hidden sm:flex w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] items-center justify-center shrink-0">
+                <div className="hidden sm:flex w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 items-center justify-center shrink-0">
                   <CalendarIcon
-                    className="w-5 h-5 text-gray-400"
-                    strokeWidth={1.5}
+                    className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+                    strokeWidth={2}
                   />
                 </div>
               </div>
 
-              {/* Body Modal: Matriz Matemática */}
-              <div className="flex flex-col bg-gray-50 dark:bg-[#050505]">
-                {/* Fila 1: Paciente y Estado */}
-                <div className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10">
-                  <div className="flex-1 p-6 md:p-8 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex items-start gap-4">
-                    <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+              {/* Body Modal: Soft Blocks */}
+              <div className="flex flex-col bg-gray-50/50 dark:bg-[#050505]/50 p-6 md:p-8 gap-6">
+                {/* Paciente y Estado */}
+                <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/50">
                       <User
-                        className="w-4 h-4 text-black dark:text-white"
-                        strokeWidth={1.5}
+                        className="w-5 h-5 text-emerald-600 dark:text-emerald-400"
+                        strokeWidth={2}
                       />
                     </div>
                     <div>
-                      <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-1">
+                      <p className="text-xs font-semibold text-gray-500 mb-1">
                         {t("event_detail.patient", {
                           defaultValue: "PACIENTE ASIGNADO",
                         })}
                       </p>
-                      <p className="text-sm font-semibold uppercase tracking-widest text-black dark:text-white">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">
                         {selectedEvent.extendedProps?.clientName ||
                           t("event_detail.new_patient", {
                             defaultValue: "USUARIO EXTERNO",
@@ -736,9 +736,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                     </div>
                   </div>
 
-                  <div className="flex-1 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] flex flex-col justify-center items-start sm:items-end gap-3">
+                  <div className="flex flex-col items-start sm:items-end gap-3">
                     <span
-                      className="border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest rounded-none"
+                      className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm"
                       style={{
                         backgroundColor: getStatusTheme(
                           selectedEvent.extendedProps?.status,
@@ -753,8 +753,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                           .label
                       }
                     </span>
-                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                      <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
+                      <Clock className="w-4 h-4" strokeWidth={2} />
                       {new Date(selectedEvent.start).toLocaleString(
                         locale === "es" ? "es-MX" : "en-US",
                         {
@@ -769,22 +769,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                   </div>
                 </div>
 
-                {/* Fila 2: Detalles Técnicos */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10">
-                  <div className="bg-white dark:bg-[#0a0a0a] p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
-                    <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">
-                        1
-                      </span>
+                {/* Detalles Técnicos */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
+                    <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
                       {t("event_detail.modality", {
                         defaultValue: "CANAL DE ATENCIÓN",
                       })}
                     </p>
-                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-3">
+                    <div className="flex items-center gap-3 text-sm font-bold text-gray-900 dark:text-white mt-1">
                       {selectedEvent.extendedProps?.modality === "ONLINE" ? (
-                        <Video className="w-4 h-4" strokeWidth={1.5} />
+                        <Video className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                       ) : (
-                        <MapPin className="w-4 h-4" strokeWidth={1.5} />
+                        <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                       )}
                       <span>
                         {selectedEvent.extendedProps?.modality === "ONLINE"
@@ -798,16 +795,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-[#0a0a0a] p-6">
-                    <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <span className="w-3 h-3 flex items-center justify-center border border-black/20 dark:border-white/20">
-                        2
-                      </span>
+                  <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
+                    <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
                       {t("event_detail.payment", {
                         defaultValue: "ESTADO FINANCIERO",
                       })}
                     </p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-3">
+                    <p className="text-sm font-bold text-gray-900 dark:text-white mt-2">
                       {selectedEvent.extendedProps?.paymentStatus === "SETTLED"
                         ? t("event_detail.paid", { defaultValue: "LIQUIDADO" })
                         : t("event_detail.payment_pending", {
@@ -819,35 +813,35 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
 
                 {/* Notas Adjuntas (Opcional) */}
                 {selectedEvent.extendedProps?.notes && (
-                  <div className="bg-gray-50 dark:bg-[#050505] p-6 md:p-8">
-                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-3 border-b border-black/10 dark:border-white/10 pb-2">
+                  <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
+                    <p className="text-xs font-semibold text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-800 pb-3">
                       {t("event_detail.notes", {
                         defaultValue: "OBSERVACIONES CLÍNICAS",
                       })}
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 uppercase font-semibold tracking-widest leading-relaxed">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
                       {selectedEvent.extendedProps.notes}
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* Footer Modal: Botones Sólidos */}
-              <div className="bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 p-6 flex flex-col sm:flex-row justify-end gap-4 shrink-0">
+              {/* Footer Modal: Botones */}
+              <div className="bg-white dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 p-6 md:p-8 flex flex-col sm:flex-row justify-end gap-3 shrink-0">
                 {(selectedEvent.extendedProps?.status === "confirmed" ||
                   selectedEvent.extendedProps?.status === "pending") && (
                   <button
                     onClick={handleCancelAppointment}
                     disabled={isCancelling}
-                    className="w-full sm:w-auto h-12 px-8 flex items-center justify-center border border-red-500 text-red-600 hover:bg-red-500 hover:text-white transition-colors text-[10px] uppercase font-bold tracking-widest disabled:opacity-50 rounded-none bg-transparent"
+                    className="w-full sm:w-auto h-12 px-8 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 transition-colors text-sm font-bold disabled:opacity-50 rounded-xl"
                   >
                     {isCancelling ? (
                       <Loader2
                         className="w-4 h-4 animate-spin mr-2"
-                        strokeWidth={1.5}
+                        strokeWidth={2}
                       />
                     ) : (
-                      <Trash2 className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                      <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} />
                     )}
                     {t("event_detail.cancel_appointment", {
                       defaultValue: "ANULAR CITA",
@@ -856,7 +850,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                 )}
                 <button
                   onClick={() => setSelectedEvent(null)}
-                  className="w-full sm:w-auto h-12 px-10 bg-black text-white dark:bg-white dark:text-black text-[10px] uppercase font-bold tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors border-0 rounded-none"
+                  className="w-full sm:w-auto h-12 px-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 text-sm font-bold hover:bg-gray-50 dark:hover:bg-[#111] transition-colors rounded-xl shadow-sm"
                 >
                   {t("event_detail.close", {
                     defaultValue: "CERRAR EXPEDIENTE",
