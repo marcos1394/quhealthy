@@ -22,9 +22,9 @@ function CalendarLoading() {
  const t = useTranslations('DashboardCalendar');
  return (
  <div className="min-h-[60vh] w-full flex flex-col items-center justify-center bg-gray-50 dark:bg-[#050505] transition-colors">
- <QhSpinner size="lg" className="text-black dark:text-white" />
- <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mt-6 animate-pulse">
- {t('loading', { defaultValue: 'SINCRONIZANDO AGENDA...' })}
+ <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+ <p className="text-sm font-semibold text-gray-500 mt-6 animate-pulse">
+ {t('loading', { defaultValue: 'Sincronizando agenda...' })}
  </p>
  </div>
  );
@@ -87,22 +87,22 @@ function CalendarContent() {
  
  <div className="max-w-7xl mx-auto space-y-12 px-6 md:px-10">
 
- {/* HEADER ARQUITECTÓNICO */}
- <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-black/20 dark:border-white/20">
+ {/* HEADER */}
+ <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
  <div className="space-y-2">
  <div className="flex items-center gap-5">
- <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white flex items-center justify-center shrink-0">
- <CalendarDays className="w-6 h-6" strokeWidth={1.5} />
+ <div className="w-16 h-16 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center justify-center shrink-0 shadow-sm">
+ <CalendarDays className="w-7 h-7 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
  </div>
  <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+ <p className="text-sm font-semibold text-gray-500 mb-1">
  Módulo de Programación
  </p>
- <h1 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
- {t('title', { defaultValue: 'AGENDA OPERATIVA' })}
+ <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-none">
+ {t('title', { defaultValue: 'Agenda Operativa' })}
  </h1>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
- {t('subtitle', { defaultValue: 'CONTROL DE DISPONIBILIDAD Y BLOQUEOS HORARIOS.' })}
+ <p className="text-sm font-medium text-gray-500 mt-2">
+ {t('subtitle', { defaultValue: 'Control de disponibilidad y bloqueos horarios.' })}
  </p>
  </div>
  </div>
@@ -114,18 +114,18 @@ function CalendarContent() {
  onValueChange={(value) => setSelectedLocationId(Number(value))}
  disabled={isLoadingLocations || locations.length === 0}
  >
- <SelectTrigger className="h-14 rounded-none border-black dark:border-white font-bold text-[10px] uppercase tracking-widest bg-transparent">
+ <SelectTrigger className="h-12 rounded-xl border-gray-200 dark:border-gray-800 font-semibold text-sm bg-white dark:bg-[#0a0a0a] shadow-sm">
  <div className="flex items-center gap-2">
- <MapPin className="w-4 h-4" strokeWidth={1.5} />
+ <MapPin className="w-4 h-4 text-emerald-600" strokeWidth={2} />
  <SelectValue placeholder="Seleccionar sede" />
  </div>
  </SelectTrigger>
- <SelectContent className="rounded-none border-black dark:border-white z-50">
+ <SelectContent className="rounded-xl border-gray-200 dark:border-gray-800 z-50 shadow-xl">
  {locations.map(location => (
  <SelectItem
  key={location.id}
  value={location.id.toString()}
- className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+ className="text-sm font-medium cursor-pointer"
  >
  {location.name} {location.isMain ? "(Principal)" : ""}
  </SelectItem>
@@ -136,18 +136,18 @@ function CalendarContent() {
  <button 
  onClick={() => setIsHoursModalOpen(true)}
  disabled={!selectedLocationId}
- className="flex items-center justify-center gap-3 h-14 px-8 border border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none font-bold text-[10px] uppercase tracking-widest transition-colors w-full sm:w-auto"
+ className="flex items-center justify-center gap-3 h-12 px-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] text-gray-700 dark:text-gray-200 rounded-xl font-semibold text-sm transition-colors shadow-sm w-full sm:w-auto"
  >
- <Clock className="w-4 h-4" strokeWidth={1.5} />
- {t('operating_hours', { defaultValue: 'MATRIZ HORARIA' })}
+ <Clock className="w-4 h-4" strokeWidth={2} />
+ {t('operating_hours', { defaultValue: 'Matriz Horaria' })}
  </button>
  <button 
  onClick={() => setIsBlockModalOpen(true)}
  disabled={!selectedLocationId}
- className="flex items-center justify-center gap-3 h-14 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none font-bold text-[10px] uppercase tracking-widest border-0 transition-colors w-full sm:w-auto"
+ className="flex items-center justify-center gap-3 h-12 px-6 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl font-semibold text-sm border-0 transition-colors shadow-sm w-full sm:w-auto"
  >
- <Plus className="w-4 h-4" strokeWidth={1.5} />
- {t('block_time', { defaultValue: 'BLOQUEAR TURNO' })}
+ <Plus className="w-4 h-4" strokeWidth={2} />
+ {t('block_time', { defaultValue: 'Bloquear Turno' })}
  </button>
  </div>
  </div>
@@ -162,26 +162,26 @@ function CalendarContent() {
  exit={{ opacity: 0, height: 0 }}
  className="overflow-hidden"
  >
- <div className="border border-red-500/50 bg-red-50 dark:bg-red-900/10 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
+ <div className="border border-amber-200 bg-amber-50/50 dark:bg-amber-900/10 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors shadow-sm">
  <div className="flex items-start gap-5">
- <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 border border-red-500/30">
- <AlertCircle className="w-5 h-5" strokeWidth={1.5} />
+ <div className="w-12 h-12 bg-white dark:bg-[#0a0a0a] text-amber-600 dark:text-amber-500 flex items-center justify-center shrink-0 border border-amber-200 rounded-2xl shadow-sm">
+ <AlertCircle className="w-6 h-6" strokeWidth={2} />
  </div>
  <div>
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-2">
- {t('missing_hours_title', { defaultValue: 'ESCAPARATE DESHABILITADO' })}
+ <h3 className="text-sm font-bold text-amber-900 dark:text-amber-50 mb-1">
+ {t('missing_hours_title', { defaultValue: 'Escaparate Deshabilitado' })}
  </h3>
- <p className="text-xs font-semibold text-red-700 dark:text-red-300 max-w-2xl leading-relaxed">
+ <p className="text-sm font-medium text-amber-700 dark:text-amber-200/70 max-w-2xl leading-relaxed">
  {t('missing_hours_desc', { defaultValue: 'La agenda pública permanecerá bloqueada hasta establecer la matriz de disponibilidad operativa.' })}
  </p>
  </div>
  </div>
  <button 
  onClick={() => setIsHoursModalOpen(true)}
- className="w-full md:w-auto h-12 px-8 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-widest rounded-none text-[10px] border-0 transition-colors shrink-0 flex items-center justify-center gap-3"
+ className="w-full md:w-auto h-12 px-6 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-sm border-0 transition-colors shrink-0 flex items-center justify-center gap-3 shadow-sm"
  >
- <Clock className="w-4 h-4" strokeWidth={1.5} />
- {t('btn_configure_hours', { fallback: 'CONFIGURAR MATRIZ' })}
+ <Clock className="w-4 h-4" strokeWidth={2} />
+ {t('btn_configure_hours', { fallback: 'Configurar Matriz' })}
  </button>
  </div>
  </motion.div>
@@ -191,10 +191,10 @@ function CalendarContent() {
  {/* BANNER DE INTEGRACIÓN GOOGLE */}
  <AnimatePresence>
  <motion.div layout initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="overflow-hidden">
- <div className="border border-black/20 dark:border-white/20 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors bg-white dark:bg-[#0a0a0a]">
+ <div className="border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors bg-white dark:bg-[#0a0a0a]">
  
  <div className="flex items-start gap-5">
- <div className="w-14 h-14 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+ <div className="w-14 h-14 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white dark:bg-[#050505] shadow-sm flex items-center justify-center shrink-0">
  <svg className="w-6 h-6" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
  <path fill="#4285F4" d="M3 10.5v27C3 41.085 5.915 44 9.5 44h29c3.585 0 6.5-2.915 6.5-6.5v-27H3z" />
  <path fill="#1666D5" d="M3 10.5v12h42v-12H3z" />
@@ -206,44 +206,44 @@ function CalendarContent() {
  </div>
  <div>
  <div className="flex flex-wrap items-center gap-3 mb-2">
- <h3 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white">
- {t('sync_title', { defaultValue: 'VÍNCULO GOOGLE CALENDAR' })}
+ <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+ {t('sync_title', { defaultValue: 'Vínculo Google Calendar' })}
  </h3>
  {isGoogleConnected ? (
- <span className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 px-2 py-1 border border-emerald-500/30">
- <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
- {t('sync_active', { defaultValue: 'SINCRONIZADO' })}
+ <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10 px-2.5 py-1 rounded-lg">
+ <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+ {t('sync_active', { defaultValue: 'Sincronizado' })}
  </span>
  ) : (
- <span className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase text-gray-500 bg-gray-50 dark:bg-[#050505] px-2 py-1 border border-black/20 dark:border-white/20">
- <AlertCircle className="w-3 h-3" strokeWidth={1.5} />
- {t('sync_recommended', { defaultValue: 'RECOMENDADO' })}
+ <span className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
+ <AlertCircle className="w-3.5 h-3.5" strokeWidth={2} />
+ {t('sync_recommended', { defaultValue: 'Recomendado' })}
  </span>
  )}
  </div>
- <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 max-w-2xl leading-relaxed">
+ <p className="text-sm font-medium text-gray-500 max-w-2xl leading-relaxed">
  {isGoogleConnected
- ? t('sync_connected_desc', { defaultValue: 'LECTURA DE DISPONIBILIDAD EXTERNA ACTIVA PARA PREVENIR CONFLICTOS DE AGENDA.' })
- : t('sync_disconnected_desc', { defaultValue: 'VINCULE SU CUENTA PARA BLOQUEAR AUTOMÁTICAMENTE HORARIOS OCUPADOS.' })}
+ ? t('sync_connected_desc', { defaultValue: 'Lectura de disponibilidad externa activa para prevenir conflictos de agenda.' })
+ : t('sync_disconnected_desc', { defaultValue: 'Vincule su cuenta para bloquear automáticamente horarios ocupados.' })}
  </p>
  </div>
  </div>
 
  <div className="shrink-0 w-full md:w-auto">
  {isCheckingGoogle ? (
- <div className="h-14 w-48 bg-gray-100 dark:bg-[#111] animate-pulse border border-black/20 dark:border-white/20" />
+ <div className="h-12 w-48 bg-gray-100 dark:bg-[#111] animate-pulse rounded-xl" />
  ) : isGoogleConnected ? (
- <button className="w-full md:w-auto flex items-center justify-center gap-3 h-14 px-8 border border-black dark:border-white text-black dark:text-white bg-transparent hover:bg-gray-50 dark:hover:bg-[#111] rounded-none font-bold uppercase tracking-widest text-[10px] transition-colors">
- <Settings className="w-4 h-4" strokeWidth={1.5} />
- {t('settings', { defaultValue: 'GESTIONAR VÍNCULO' })}
+ <button className="w-full md:w-auto flex items-center justify-center gap-3 h-12 px-6 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] rounded-xl font-semibold text-sm transition-colors shadow-sm">
+ <Settings className="w-4 h-4" strokeWidth={2} />
+ {t('settings', { defaultValue: 'Gestionar Vínculo' })}
  </button>
  ) : (
  <button 
  onClick={handleGoogleConnect}
- className="w-full md:w-auto flex items-center justify-center gap-3 h-14 px-8 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 font-bold uppercase tracking-widest rounded-none border-0 text-[10px] transition-colors"
+ className="w-full md:w-auto flex items-center justify-center gap-3 h-12 px-6 bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 font-semibold rounded-xl border-0 text-sm transition-colors shadow-sm"
  >
- <LinkIcon className="w-4 h-4" strokeWidth={1.5} />
- {t('connect_google', { defaultValue: 'VINCULAR CUENTA' })}
+ <LinkIcon className="w-4 h-4" strokeWidth={2} />
+ {t('connect_google', { defaultValue: 'Vincular Cuenta' })}
  </button>
  )}
  </div>
@@ -252,35 +252,35 @@ function CalendarContent() {
  </AnimatePresence>
 
  {/* ÁREA DEL CALENDARIO (Contenedor Estricto) */}
- <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white transition-colors">
+ <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
  <div className="w-full relative p-4 md:p-6 flex flex-col">
  {selectedLocationId ? (
  <CalendarView key={`${refreshKey}-${selectedLocationId}`} locationId={selectedLocationId} />
  ) : (
  <div className="min-h-[50vh] flex items-center justify-center">
- <QhSpinner size="lg" className="text-black dark:text-white" />
+ <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
  </div>
  )}
  </div>
  </div>
 
- {/* MÉTRICAS DE ESTADO OPERATIVO (GRID MATEMÁTICO) */}
- <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
+ {/* MÉTRICAS DE ESTADO OPERATIVO */}
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  {[
- { label: t('metrics.operating_hours', { defaultValue: 'MATRIZ HORARIA' }), value: t('metrics.configured', { defaultValue: 'CONFIGURADA' }), icon: Clock },
- { label: t('metrics.sync', { defaultValue: 'SINCRONIZACIÓN' }), value: isGoogleConnected ? t('metrics.real_time', { defaultValue: 'TIEMPO REAL' }) : t('metrics.manual', { defaultValue: 'MANUAL' }), icon: RefreshCcw },
- { label: t('metrics.booking_engine', { defaultValue: 'MOTOR DE RESERVAS' }), value: t('metrics.active', { defaultValue: 'ACTIVO' }), icon: Sparkles },
+ { label: t('metrics.operating_hours', { defaultValue: 'Matriz Horaria' }), value: t('metrics.configured', { defaultValue: 'Configurada' }), icon: Clock },
+ { label: t('metrics.sync', { defaultValue: 'Sincronización' }), value: isGoogleConnected ? t('metrics.real_time', { defaultValue: 'Tiempo Real' }) : t('metrics.manual', { defaultValue: 'Manual' }), icon: RefreshCcw },
+ { label: t('metrics.booking_engine', { defaultValue: 'Motor de Reservas' }), value: t('metrics.active', { defaultValue: 'Activo' }), icon: Sparkles },
  ].map((metric, i) => (
- <div key={i} className="bg-white dark:bg-[#0a0a0a] border-b border-r border-black/20 dark:border-white/20 p-6 md:p-8 flex flex-col justify-between min-h-[160px] group transition-all duration-300 hover:bg-black hover:border-black hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-black hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.1)]">
+ <div key={i} className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 flex flex-col justify-between min-h-[160px] group transition-all duration-300 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700">
  <div className="flex items-center gap-4 mb-6">
- <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white flex items-center justify-center shrink-0 transition-colors group-hover:bg-white group-hover:text-black group-hover:border-transparent dark:group-hover:bg-black dark:group-hover:text-white dark:group-hover:border-transparent">
- <metric.icon className="w-5 h-5" strokeWidth={1.5} />
+ <div className="w-12 h-12 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 transition-colors group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 shadow-sm">
+ <metric.icon className="w-6 h-6" strokeWidth={2} />
  </div>
- <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
+ <span className="text-sm font-semibold text-gray-500 transition-colors">
  {metric.label}
  </span>
  </div>
- <p className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black leading-none transition-colors">
+ <p className="text-2xl font-bold text-gray-900 dark:text-white leading-none transition-colors">
  {metric.value}
  </p>
  </div>

@@ -153,29 +153,29 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
 
  return (
  <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && onClose()}>
- <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white text-black dark:text-white sm:max-w-3xl p-0 overflow-hidden rounded-none shadow-2xl flex flex-col max-h-[90vh] [&>button.absolute]:hidden">
+ <DialogContent className="bg-white dark:bg-[#0a0a0a] border-0 text-black dark:text-white sm:max-w-3xl p-0 overflow-hidden rounded-3xl shadow-2xl flex flex-col max-h-[90vh] [&>button.absolute]:hidden">
  
- {/* HEADER ARQUITECTÓNICO */}
- <div className="px-6 md:px-8 py-6 md:py-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 flex items-start justify-between shrink-0">
+ {/* HEADER */}
+ <div className="px-6 md:px-8 py-6 md:py-8 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 flex items-start justify-between shrink-0">
  <div className="flex items-center gap-5">
- <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
- <Calendar className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="w-14 h-14 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 shadow-sm">
+ <Calendar className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
  </div>
  <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
- {t('subtitle', { defaultValue: 'RESTRINGIR DISPONIBILIDAD OPERATIVA.' })}
+ <p className="text-sm font-semibold text-gray-500 mb-1">
+ {t('subtitle', { defaultValue: 'Restringir disponibilidad operativa' })}
  </p>
- <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight uppercase leading-none text-black dark:text-white">
- {t('title', { defaultValue: 'BLOQUEO DE AGENDA' })}
+ <DialogTitle className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-none">
+ {t('title', { defaultValue: 'Bloqueo de Agenda' })}
  </DialogTitle>
  </div>
  </div>
  {!loading && (
  <button 
  onClick={onClose} 
- className="w-12 h-12 border border-transparent hover:border-black/20 dark:hover:border-white/20 bg-transparent hover:bg-gray-50 dark:hover:bg-[#050505] flex items-center justify-center transition-colors shrink-0"
+ className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-[#111] flex items-center justify-center transition-colors shrink-0"
  >
- <X className="w-5 h-5 text-gray-500 hover:text-black dark:hover:text-white" strokeWidth={1.5} />
+ <X className="w-5 h-5 text-gray-500" strokeWidth={2} />
  </button>
  )}
  </div>
@@ -241,128 +241,120 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({ isOpen, onClose,
  value={formData.title} 
  onChange={handleInput} 
  placeholder={t('event_title_placeholder', { defaultValue: 'EJ. RECESO, ASUNTOS PERSONALES...' })}
- className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-xs font-semibold uppercase tracking-widest transition-colors focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none w-full" 
+ className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 h-12 text-sm font-medium rounded-xl transition-colors focus-visible:ring-emerald-500 w-full" 
  disabled={loading} 
  />
  </div>
 
  {/* SELECTORES DE FECHA Y HORA */}
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
+ <div className="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-white dark:bg-[#0a0a0a]">
  
  {/* Inicio */}
- <div className="p-6 md:p-8 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 flex flex-col">
- <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-3 mb-4">
- <div className="flex items-center gap-3 text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
- <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
- {t('start', { defaultValue: 'INICIO' })}
+ <div className="flex flex-col">
+ <div className="flex items-center gap-3 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+ <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-500">2</span>
+ {t('start', { defaultValue: 'Inicio (Desde)' })}
  </div>
- <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-gray-500 text-[9px] uppercase font-bold tracking-widest px-2 py-1">
- {t('from', { defaultValue: 'DESDE' })}
- </span>
- </div>
- <div className="flex flex-col gap-4">
+ <div className="flex flex-col gap-3">
  <DatePicker
  value={formData.startDate ? new Date(formData.startDate + "T12:00:00") : undefined}
  onChange={(date) => handleInput({ target: { name: 'startDate', value: date ? format(date, "yyyy-MM-dd") : "" } } as any)}
  disabled={loading ? () => true : undefined}
  placeholder="DD/MM/AAAA"
- className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-black/20 dark:border-white/20"
- popoverClassName="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]"
+ className="bg-gray-50 dark:bg-[#050505] h-12 rounded-xl border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-emerald-500"
+ popoverClassName="rounded-xl border-gray-100 shadow-xl bg-white dark:bg-[#0a0a0a]"
  />
  <Input 
  type="time" 
  name="startTime" 
  value={formData.startTime} 
  onChange={handleInput}
- className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
+ className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 h-12 rounded-xl text-sm font-medium transition-colors focus-visible:ring-emerald-500 w-full" 
  disabled={loading} 
  />
  </div>
  </div>
-
+ 
  {/* Término */}
- <div className="p-6 md:p-8 flex flex-col">
- <div className="flex items-center justify-between border-b border-black/20 dark:border-white/20 pb-3 mb-4">
- <div className="flex items-center gap-3 text-[10px] font-bold text-black dark:text-white uppercase tracking-widest">
- <Clock className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
- {t('end', { defaultValue: 'TÉRMINO' })}
+ <div className="flex flex-col">
+ <div className="flex items-center gap-3 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+ <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-500">3</span>
+ {t('end', { defaultValue: 'Término (Hasta)' })}
  </div>
- <span className="border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-gray-500 text-[9px] uppercase font-bold tracking-widest px-2 py-1">
- {t('until', { defaultValue: 'HASTA' })}
- </span>
- </div>
- <div className="flex flex-col gap-4">
+ <div className="flex flex-col gap-3">
  <DatePicker
  value={formData.endDate ? new Date(formData.endDate + "T12:00:00") : undefined}
  onChange={(date) => handleInput({ target: { name: 'endDate', value: date ? format(date, "yyyy-MM-dd") : "" } } as any)}
  disabled={loading ? () => true : undefined}
  placeholder="DD/MM/AAAA"
- className="bg-gray-50 dark:bg-[#050505] h-12 rounded-none border-black/20 dark:border-white/20"
- popoverClassName="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]"
+ className="bg-gray-50 dark:bg-[#050505] h-12 rounded-xl border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-emerald-500"
+ popoverClassName="rounded-xl border-gray-100 shadow-xl bg-white dark:bg-[#0a0a0a]"
  />
  <Input 
  type="time" 
  name="endTime" 
  value={formData.endTime} 
  onChange={handleInput}
- className="bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 h-12 text-[10px] font-bold uppercase tracking-widest focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white rounded-none transition-colors w-full" 
+ className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 h-12 rounded-xl text-sm font-medium transition-colors focus-visible:ring-emerald-500 w-full" 
  disabled={loading} 
  />
  </div>
  </div>
  </div>
-
+ 
  {/* BLOQUE DE ERROR */}
  {validationError && (
- <div className="bg-red-50 dark:bg-red-900/10 border-b border-red-500/30 p-6 flex items-start gap-4">
- <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" strokeWidth={1.5} />
+ <div className="px-6 md:px-8 pb-6 bg-white dark:bg-[#0a0a0a]">
+ <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900 rounded-2xl p-4 flex items-start gap-4">
+ <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" strokeWidth={2} />
  <div className="flex-1 text-left">
- <p className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-1">
- {t('validation_error', { defaultValue: 'ERROR DE VALIDACIÓN' })}
+ <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-500 mb-1">
+ {t('validation_error', { defaultValue: 'Error de Validación' })}
  </p>
- <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+ <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
  {validationError}
  </p>
+ </div>
  </div>
  </div>
  )}
  </div>
  </div>
 
- {/* FOOTER DE COMANDOS ESTRICTO */}
- <DialogFooter className="flex-col sm:flex-row gap-4 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 shrink-0">
+ {/* FOOTER DE COMANDOS */}
+ <DialogFooter className="flex-col sm:flex-row gap-4 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 shrink-0">
  <Button 
  variant="outline" 
  onClick={onClose} 
  disabled={loading}
- className="flex-1 sm:flex-none h-14 border border-black dark:border-white bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none text-[10px] uppercase font-bold tracking-widest transition-colors px-10"
+ className="flex-1 sm:flex-none h-12 border border-gray-200 dark:border-gray-800 bg-white text-gray-700 hover:bg-gray-50 dark:bg-[#050505] dark:text-gray-300 dark:hover:bg-[#111] rounded-xl text-sm font-semibold transition-colors px-10 shadow-sm"
  >
- {t('cancel', { defaultValue: 'ANULAR' })}
+ {t('cancel', { defaultValue: 'Cancelar' })}
  </Button>
  <Button 
  onClick={handleSave} 
  disabled={loading || !isValid}
  className={cn(
- "flex-1 sm:flex-none min-w-[220px] h-14 border rounded-none text-[10px] uppercase font-bold tracking-widest transition-colors px-10 disabled:opacity-50",
+ "flex-1 sm:flex-none min-w-[220px] h-12 border rounded-xl text-sm font-semibold transition-colors px-10 shadow-sm disabled:opacity-50",
  savingStep === "success" 
- ? "border-black dark:border-white bg-white text-black dark:bg-[#0a0a0a] dark:text-white" 
- : "border-black dark:border-white bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0"
+ ? "border-emerald-200 bg-emerald-50 text-emerald-700" 
+ : "border-0 bg-emerald-600 text-white hover:bg-emerald-700"
  )}
  >
  <AnimatePresence mode="wait">
  {savingStep === "saving" && (
  <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center gap-3">
- <QhSpinner size="sm" className="text-current" /> {t('saving', { defaultValue: 'PROCESANDO...' })}
+ <QhSpinner size="sm" className="text-current" /> {t('saving', { defaultValue: 'Procesando...' })}
  </motion.div>
  )}
  {savingStep === "success" && (
  <motion.div key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center gap-3">
- <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} /> {t('created', { defaultValue: 'BLOQUEO APLICADO' })}
+ <CheckCircle2 className="w-5 h-5" strokeWidth={2} /> {t('created', { defaultValue: 'Bloqueo Aplicado' })}
  </motion.div>
  )}
  {savingStep === "idle" && (
  <motion.div key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center gap-3">
- <Plus className="w-4 h-4" strokeWidth={1.5} /> {t('block_time', { defaultValue: 'REGISTRAR BLOQUEO' })}
+ <Plus className="w-5 h-5" strokeWidth={2} /> {t('block_time', { defaultValue: 'Registrar Bloqueo' })}
  </motion.div>
  )}
  </AnimatePresence>

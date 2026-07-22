@@ -349,15 +349,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
   return (
     <div className="flex-1 w-full flex flex-col space-y-6">
       {/* PANEL DE CONTROL SUPERIOR */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 md:p-6 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-colors rounded-none">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 md:p-6 border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-colors rounded-3xl shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2 border border-[#14532d] bg-[#166534] text-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
-            <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-            {stats.confirmed} {t("confirmed", { defaultValue: "CONFIRMADOS" })}
+          <div className="flex items-center gap-2 border border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400 px-4 py-2 text-xs font-semibold rounded-xl">
+            <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
+            {stats.confirmed} {t("confirmed", { defaultValue: "Confirmados" })}
           </div>
-          <div className="flex items-center gap-2 border border-[#78350f] bg-[#b45309] text-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded-none">
-            <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
-            {stats.pending} {t("pending", { defaultValue: "PENDIENTES" })}
+          <div className="flex items-center gap-2 border border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-400 px-4 py-2 text-xs font-semibold rounded-xl">
+            <Clock className="w-4 h-4" strokeWidth={2} />
+            {stats.pending} {t("pending", { defaultValue: "Pendientes" })}
           </div>
         </div>
 
@@ -366,28 +366,28 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
             setSelectedDateSlot(new Date());
             setIsNewApptModalOpen(true);
           }}
-          className="flex items-center gap-3 bg-transparent text-black dark:text-white border border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors px-6 h-12 text-[10px] font-bold uppercase tracking-widest w-full sm:w-auto justify-center rounded-none"
+          className="flex items-center gap-3 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors px-6 h-12 text-sm font-semibold w-full sm:w-auto justify-center rounded-xl shadow-sm"
         >
-          <Plus className="w-4 h-4" strokeWidth={1.5} /> AGENDAR TURNO
+          <Plus className="w-4 h-4" strokeWidth={2} /> Agendar Turno
         </button>
       </div>
 
       {/* CONTENEDOR DEL CALENDARIO */}
-      <div className="relative w-full bg-white dark:bg-[#0a0a0a] border border-black dark:border-white flex flex-col transition-colors rounded-none">
+      <div className="relative w-full bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col transition-colors rounded-3xl shadow-sm overflow-hidden">
         <AnimatePresence>
           {isLoading && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm flex items-center justify-center z-50 transition-colors"
+              className="absolute inset-0 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-md flex items-center justify-center z-50 transition-colors"
             >
-              <div className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white border border-black dark:border-white px-10 py-8 flex flex-col items-center gap-5 rounded-none">
+              <div className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white border border-gray-100 dark:border-gray-800 shadow-xl px-10 py-8 flex flex-col items-center gap-5 rounded-3xl">
                 <Loader2
-                  className="w-6 h-6 animate-spin text-gray-400"
-                  strokeWidth={1.5}
+                  className="w-8 h-8 animate-spin text-emerald-600"
+                  strokeWidth={2}
                 />
-                <p className="text-[10px] uppercase tracking-widest font-bold text-gray-500">
+                <p className="text-sm font-semibold text-gray-500">
                   Sincronizando Agenda...
                 </p>
               </div>
@@ -471,17 +471,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                 if (eventInfo.view.type === "dayGridMonth") {
                   return (
                     <div
-                      className="flex flex-col gap-0.5 overflow-hidden px-1.5 py-1 w-full rounded-none"
+                      className="flex flex-col gap-0.5 overflow-hidden px-2 py-1.5 w-full rounded-xl shadow-sm mx-1 mb-1"
                       style={{
                         backgroundColor: theme.bg,
                         color: theme.text,
-                        borderLeft: `3px solid ${theme.border}`,
                       }}
                     >
-                      <span className="text-[9px] font-bold uppercase tracking-widest truncate leading-tight opacity-90">
+                      <span className="text-[10px] font-semibold truncate leading-tight opacity-90">
                         {eventInfo.timeText}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest truncate leading-tight">
+                      <span className="text-xs font-bold truncate leading-tight">
                         {eventInfo.event.title}
                       </span>
                     </div>
@@ -491,9 +490,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                 return (
                   <div
                     className={cn(
-                      "flex flex-col h-full px-2 py-1.5 overflow-hidden transition-all duration-200 border rounded-none",
+                      "flex flex-col h-full px-3 py-2 overflow-hidden transition-all duration-200 border rounded-xl shadow-sm",
                       isHovered
-                        ? "opacity-100 ring-1 ring-inset ring-current"
+                        ? "opacity-100 ring-2 ring-emerald-500/50"
                         : "opacity-90",
                     )}
                     style={{
@@ -502,18 +501,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                       color: theme.text,
                     }}
                   >
-                    <div className="flex items-center justify-between mb-1 border-b border-inherit pb-1 opacity-70">
-                      <span className="text-[9px] font-bold uppercase tracking-widest font-mono">
+                    <div className="flex items-center justify-between mb-1 opacity-80">
+                      <span className="text-xs font-medium">
                         {eventInfo.timeText}
                       </span>
                       {getStatusIcon(eventInfo.event.extendedProps?.status)}
                     </div>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest leading-tight truncate mt-1">
+                    <div className="text-sm font-bold leading-tight truncate mt-1">
                       {eventInfo.event.title}
                     </div>
                     {eventInfo.event.extendedProps?.clientName && (
-                      <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest mt-auto pt-2 opacity-70">
-                        <User className="w-3 h-3 shrink-0" strokeWidth={1.5} />
+                      <div className="flex items-center gap-2 text-xs font-semibold mt-auto pt-2 opacity-80">
+                        <User className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
                         <span className="truncate">
                           {eventInfo.event.extendedProps.clientName}
                         </span>
@@ -526,38 +525,39 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
           </div>
         </div>
 
-        {/* MOTOR CSS BLUEPRINT PARA FULLCALENDAR */}
+        {/* CSS PARA FULLCALENDAR (SOFT HEALTH) */}
         <style jsx global>{`
           .calendar-container {
             --fc-page-bg-color: transparent;
             --fc-neutral-bg-color: #f9fafb;
-            --fc-neutral-text-color: #000;
-            --fc-border-color: #000;
-            --fc-button-text-color: #000;
-            --fc-button-bg-color: #fff;
-            --fc-button-border-color: #000;
-            --fc-button-hover-bg-color: #000;
-            --fc-button-hover-border-color: #000;
-            --fc-button-active-bg-color: #000;
-            --fc-button-active-border-color: #000;
-            --fc-now-indicator-color: #000;
+            --fc-neutral-text-color: #374151;
+            --fc-border-color: #f3f4f6;
+            --fc-button-text-color: #374151;
+            --fc-button-bg-color: #ffffff;
+            --fc-button-border-color: #e5e7eb;
+            --fc-button-hover-bg-color: #f9fafb;
+            --fc-button-hover-border-color: #d1d5db;
+            --fc-button-active-bg-color: #f3f4f6;
+            --fc-button-active-border-color: #d1d5db;
+            --fc-now-indicator-color: #059669;
           }
           .dark .calendar-container {
-            --fc-neutral-bg-color: #050505;
-            --fc-neutral-text-color: #fff;
-            --fc-border-color: #fff;
-            --fc-button-text-color: #fff;
-            --fc-button-bg-color: #0a0a0a;
-            --fc-button-border-color: #fff;
-            --fc-button-hover-bg-color: #fff;
-            --fc-button-hover-border-color: #fff;
-            --fc-button-active-bg-color: #fff;
-            --fc-button-active-border-color: #fff;
-            --fc-now-indicator-color: #fff;
+            --fc-neutral-bg-color: #0a0a0a;
+            --fc-neutral-text-color: #e5e7eb;
+            --fc-border-color: #1f2937;
+            --fc-button-text-color: #e5e7eb;
+            --fc-button-bg-color: #111111;
+            --fc-button-border-color: #374151;
+            --fc-button-hover-bg-color: #1f2937;
+            --fc-button-hover-border-color: #4b5563;
+            --fc-button-active-bg-color: #374151;
+            --fc-button-active-border-color: #4b5563;
+            --fc-now-indicator-color: #10b981;
           }
           .fc-theme-standard .fc-scrollgrid {
             border: 1px solid var(--fc-border-color) !important;
-            border-radius: 0 !important;
+            border-radius: 1rem !important;
+            overflow: hidden;
           }
           .fc-theme-standard td,
           .fc-theme-standard th {
@@ -565,79 +565,77 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
             border-width: 1px !important;
           }
           .fc-scrollgrid-section-header > th {
-            border: 1px solid var(--fc-border-color) !important;
+            border-bottom: 1px solid var(--fc-border-color) !important;
           }
           .fc-col-header-cell-cushion {
             padding: 12px 8px !important;
-            font-size: 9px;
-            font-weight: 700;
+            font-size: 0.875rem;
+            font-weight: 600;
             color: var(--fc-neutral-text-color);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            text-transform: capitalize;
           }
           .fc-day-today .fc-col-header-cell-cushion {
             color: var(--fc-button-bg-color);
             background-color: var(--fc-neutral-text-color);
-            padding: 4px 8px !important;
+            border-radius: 0.5rem;
+            padding: 4px 12px !important;
             margin: 8px 0;
           }
           .fc .fc-toolbar-title {
             font-size: 1.25rem;
-            font-weight: 600 !important;
-            letter-spacing: -0.02em !important;
-            text-transform: uppercase;
+            font-weight: 700 !important;
+            letter-spacing: -0.01em !important;
             color: var(--fc-neutral-text-color);
+            text-transform: capitalize;
           }
           .fc .fc-button-primary {
-            border-radius: 0 !important;
-            font-weight: 700 !important;
-            font-size: 9px !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.1em !important;
+            border-radius: 0.75rem !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            text-transform: capitalize !important;
             transition: all 0.2s ease;
             border-width: 1px !important;
             padding: 0.5rem 1rem !important;
-            box-shadow: none !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
           }
           .fc .fc-button-primary:hover {
-            color: var(--fc-button-bg-color) !important;
+            color: var(--fc-button-text-color) !important;
             background-color: var(--fc-button-hover-bg-color) !important;
+            border-color: var(--fc-button-hover-border-color) !important;
           }
           .fc .fc-button-primary:not(:disabled).fc-button-active,
           .fc .fc-button-primary:not(:disabled):active {
-            background-color: var(--fc-neutral-text-color) !important;
-            color: var(--fc-button-bg-color) !important;
-            border-color: var(--fc-neutral-text-color) !important;
-            box-shadow: none !important;
+            background-color: var(--fc-button-active-bg-color) !important;
+            color: var(--fc-button-text-color) !important;
+            border-color: var(--fc-button-active-border-color) !important;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
           }
           .fc .fc-button-primary:focus {
-            box-shadow: none !important;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
           }
           .editorial-calendar-event {
-            border-radius: 0 !important;
-            margin: 1px !important;
+            border-radius: 0.75rem !important;
+            margin: 2px !important;
             cursor: pointer;
-            box-shadow: none !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            border-width: 1px !important;
           }
           .fc .fc-timegrid-slot {
-            height: 3rem;
+            height: 3.5rem;
           }
           .fc .fc-timegrid-slot-label-cushion {
-            font-family: monospace;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+            font-weight: 500;
             color: var(--fc-neutral-text-color);
             padding: 8px !important;
-            opacity: 0.7;
+            opacity: 0.6;
           }
           .fc .fc-daygrid-day.fc-day-today,
           .fc .fc-timegrid-col.fc-day-today {
             background: var(--fc-neutral-bg-color) !important;
           }
           .fc-timegrid-now-indicator-line {
-            border-width: 1px;
-            border-style: dashed;
+            border-width: 2px;
             border-color: var(--fc-now-indicator-color);
             opacity: 0.5;
           }
