@@ -99,13 +99,15 @@ export const MarketplaceList = ({ setAuthGateContext, setAuthGateOpen }: { setAu
         : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4"
     )}>
       {(searchType === 'STORE' ? enrichedProviders.length === 0 : items.length === 0) ? (
-        <div className="w-[90%] md:w-full mx-auto bg-white dark:bg-[#0a0a0a] border border-black dark:border-white p-10 text-center pointer-events-auto shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
-          <Search className="w-8 h-8 text-black dark:text-white mx-auto mb-6" strokeWidth={1.5} />
-          <h3 className="text-black dark:text-white font-bold text-sm uppercase tracking-widest mb-2">
-            BÚSQUEDA SIN COINCIDENCIAS
+        <div className="w-[90%] md:w-full mx-auto bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-10 text-center pointer-events-auto shadow-sm rounded-2xl flex flex-col items-center justify-center min-h-[300px]">
+          <div className="bg-white dark:bg-black p-4 rounded-full shadow-sm mb-4">
+            <Search className="w-8 h-8 text-teal-600 dark:text-teal-400" strokeWidth={1.5} />
+          </div>
+          <h3 className="text-gray-900 dark:text-white font-semibold text-lg tracking-tight mb-2">
+            No encontramos coincidencias
           </h3>
-          <p className="text-gray-500 text-[10px] uppercase tracking-widest font-light">
-            AMPLÍE LOS PARÁMETROS O ELIMINE FILTROS PARA VISUALIZAR RESULTADOS GLOBALES.
+          <p className="text-gray-500 text-sm font-medium max-w-sm mx-auto">
+            Intenta ampliando los parámetros de tu búsqueda o eliminando algunos filtros.
           </p>
         </div>
       ) : (

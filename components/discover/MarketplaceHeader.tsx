@@ -42,44 +42,44 @@ export const MarketplaceHeader = ({
       <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
         <form 
           onSubmit={(e) => e.preventDefault()}
-          className="pointer-events-auto w-full md:w-[460px] lg:w-[400px] xl:w-[460px] shrink-0 flex gap-0 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:shadow-[8px_8px_0_0_rgba(255,255,255,0.05)] border border-black dark:border-gray-800"
+          className="pointer-events-auto w-full md:w-[500px] lg:w-[480px] xl:w-[500px] shrink-0 flex items-center bg-white dark:bg-[#111] rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 transition-shadow focus-within:shadow-xl overflow-hidden"
         >
-          <div className="flex-1 flex items-center bg-white dark:bg-[#0a0a0a] px-4 h-14 relative">
+          <div className="flex-1 flex items-center px-4 h-14 relative">
             {isValidating ? (
-              <Loader2 className="w-5 h-5 text-gray-400 mr-3 shrink-0 animate-spin" strokeWidth={2} />
+              <Loader2 className="w-5 h-5 text-teal-500 mr-3 shrink-0 animate-spin" strokeWidth={2} />
             ) : (
               <Search className="w-5 h-5 text-gray-400 mr-3 shrink-0" strokeWidth={2} />
             )}
             <Input
-              placeholder="ESPECIALIDAD, CLÍNICA O NOMBRE..."
-              className="bg-transparent border-none p-0 h-full text-xs font-bold uppercase tracking-widest text-black dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+              placeholder="Busca especialistas, clínicas o servicios..."
+              className="bg-transparent border-none p-0 h-full text-[13px] font-medium text-black dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           
-          <div className="hidden md:flex border-l border-gray-300 dark:border-gray-800 h-14 bg-white dark:bg-[#0a0a0a]">
+          <div className="hidden md:flex items-center gap-1 px-2 border-l border-gray-200 dark:border-gray-800 h-8">
             <Button
               type="button"
               variant="ghost"
               className={cn(
-                "rounded-none h-full w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 transition-colors",
-                viewMode === 'MAP' ? "bg-black text-white dark:bg-white dark:text-black" : "text-gray-400"
+                "rounded-xl h-10 w-10 p-0 transition-colors",
+                viewMode === 'MAP' ? "bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400" : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               )}
               onClick={() => setViewMode('MAP')}
             >
-              <MapIcon className="w-5 h-5" strokeWidth={1.5} />
+              <MapIcon className="w-4 h-4" strokeWidth={2} />
             </Button>
             <Button
               type="button"
               variant="ghost"
               className={cn(
-                "rounded-none h-full w-14 border-l border-gray-300 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-[#111] p-0 transition-colors",
-                viewMode === 'GRID' ? "bg-black text-white dark:bg-white dark:text-black" : "text-gray-400"
+                "rounded-xl h-10 w-10 p-0 transition-colors",
+                viewMode === 'GRID' ? "bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400" : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               )}
               onClick={() => setViewMode('GRID')}
             >
-              <LayoutGrid className="w-5 h-5" strokeWidth={1.5} />
+              <LayoutGrid className="w-4 h-4" strokeWidth={2} />
             </Button>
           </div>
 
@@ -89,38 +89,36 @@ export const MarketplaceHeader = ({
                 type="button"
                 variant="ghost" 
                 className={cn(
-                  "rounded-none border-l border-gray-300 dark:border-gray-800 h-14 w-14 hover:bg-gray-100 dark:hover:bg-[#111] p-0 shrink-0 transition-colors",
-                  searchType !== 'STORE' ? "bg-black text-white dark:bg-white dark:text-black" : "bg-white dark:bg-[#0a0a0a]"
+                  "rounded-none border-l border-gray-200 dark:border-gray-800 h-14 w-14 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] p-0 shrink-0 transition-colors",
+                  searchType !== 'STORE' ? "text-teal-600 dark:text-teal-400" : "text-gray-500 dark:text-gray-400"
                 )}
               >
-                <SlidersHorizontal className={cn("w-5 h-5", searchType !== 'STORE' ? "text-white dark:text-black" : "text-black dark:text-white")} strokeWidth={1.5} />
+                <SlidersHorizontal className="w-5 h-5" strokeWidth={1.5} />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-black border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
+            <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl p-1">
               <DropdownMenuItem 
-                className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'STORE' && "bg-gray-100 dark:bg-gray-900")} 
-                onClick={() => setSearchType('STORE')}>
-                Tiendas / Clínicas
+                onClick={() => setSearchType('STORE')}
+                className={cn("text-[13px] font-medium px-4 py-2.5 rounded-lg cursor-pointer mb-1 focus:bg-gray-50 dark:focus:bg-[#1a1a1a]", searchType === 'STORE' && "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400")}
+              >
+                Clínicas y Especialistas
               </DropdownMenuItem>
               <DropdownMenuItem 
-                className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PRODUCT' && "bg-gray-100 dark:bg-gray-900")} 
-                onClick={() => setSearchType('PRODUCT')}>
-                Productos
+                onClick={() => setSearchType('SERVICE')}
+                className={cn("text-[13px] font-medium px-4 py-2.5 rounded-lg cursor-pointer mb-1 focus:bg-gray-50 dark:focus:bg-[#1a1a1a]", searchType === 'SERVICE' && "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400")}
+              >
+                Consultas y Procedimientos
               </DropdownMenuItem>
               <DropdownMenuItem 
-                className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'COURSE' && "bg-gray-100 dark:bg-gray-900")} 
-                onClick={() => setSearchType('COURSE')}>
-                Cursos
+                onClick={() => setSearchType('PACKAGE')}
+                className={cn("text-[13px] font-medium px-4 py-2.5 rounded-lg cursor-pointer mb-1 focus:bg-gray-50 dark:focus:bg-[#1a1a1a]", searchType === 'PACKAGE' && "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400")}
+              >
+                Paquetes de Salud
               </DropdownMenuItem>
               <DropdownMenuItem 
-                className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'PACKAGE' && "bg-gray-100 dark:bg-gray-900")} 
-                onClick={() => setSearchType('PACKAGE')}>
-                Paquetes
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className={cn("cursor-pointer font-bold uppercase tracking-widest text-xs focus:bg-gray-100 dark:focus:bg-gray-900 rounded-none", searchType === 'SERVICE' && "bg-gray-100 dark:bg-gray-900")} 
-                onClick={() => setSearchType('SERVICE')}>
-                Servicios
+                onClick={() => setSearchType('PRODUCT')}
+                className={cn("text-[13px] font-medium px-4 py-2.5 rounded-lg cursor-pointer focus:bg-gray-50 dark:focus:bg-[#1a1a1a]", searchType === 'PRODUCT' && "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-400")}
+              >
+                Farmacia y Productos
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -133,13 +131,13 @@ export const MarketplaceHeader = ({
               <SheetTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="rounded-none border-black dark:border-white h-9 px-4 text-[10px] font-bold uppercase tracking-widest bg-white dark:bg-black text-black dark:text-white"
+                  className="rounded-xl border-gray-200 dark:border-gray-800 h-10 px-4 text-xs font-medium bg-white dark:bg-[#111] text-gray-700 dark:text-gray-200 shadow-sm"
                 >
-                  <SlidersHorizontal className="w-3.5 h-3.5 mr-2" />
+                  <SlidersHorizontal className="w-4 h-4 mr-2 text-teal-600 dark:text-teal-400" />
                   Filtros
                 </Button>
               </SheetTrigger>
-              <SheetContent position="bottom" className="h-[85vh] p-0 border-t-2 border-black dark:border-white bg-white dark:bg-black rounded-t-[2rem]">
+              <SheetContent position="bottom" className="h-[85vh] p-0 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111] rounded-t-[2rem] shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
                 <div className="h-full overflow-y-auto px-4 py-8">
                   <FilterPanel isCollapsed={false} />
                 </div>

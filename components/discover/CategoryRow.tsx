@@ -34,54 +34,53 @@ export const CategoryRow: React.FC<CategoryRowProps> = ({ title, subtitle, provi
 
  return (
  <div className="relative flex flex-col w-full py-6 group">
- 
- {/* --- HEADER DE LA FILA --- */}
- <div className="px-4 md:px-8 mb-4 flex items-end justify-between">
- <div>
- <h2 className="text-2xl font-black text-white tracking-tight">{title}</h2>
- {subtitle && <p className="text-sm text-zinc-400 mt-1 font-medium">{subtitle}</p>}
- </div>
- 
- {/* Botón sutil para "Ver todos" */}
- <button className="text-sm font-bold text-purple-400 hover:text-purple-300 transition-colors hidden sm:flex items-center">
- Ver todos <ChevronRight className="w-4 h-4 ml-1" />
- </button>
- </div>
+  {/* --- HEADER DE LA FILA --- */}
+  <div className="px-4 md:px-8 mb-4 flex items-end justify-between">
+    <div>
+      <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">{title}</h2>
+      {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{subtitle}</p>}
+    </div>
+    
+    {/* Botón sutil para "Ver todos" */}
+    <button className="text-sm font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 transition-colors hidden sm:flex items-center">
+      Ver todos <ChevronRight className="w-4 h-4 ml-1" />
+    </button>
+  </div>
 
- {/* --- BOTONES DE SCROLL (Solo visibles en Desktop al hacer hover) --- */}
- <div className="hidden sm:block">
- <Button
- variant="ghost"
- size="default"
- onClick={() => scroll('left')}
- className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-black/80 hover:scale-110"
- >
- <ChevronLeft className="w-6 h-6" />
- </Button>
- <Button
- variant="ghost"
- size="default"
- onClick={() => scroll('right')}
- className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-black/80 hover:scale-110"
- >
- <ChevronRight className="w-6 h-6" />
- </Button>
- </div>
+  {/* --- BOTONES DE SCROLL (Solo visibles en Desktop al hacer hover) --- */}
+  <div className="hidden sm:block">
+    <Button
+      variant="ghost"
+      size="default"
+      onClick={() => scroll('left')}
+      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/90 dark:bg-black/90 shadow-md border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-0 hover:bg-white hover:scale-105"
+    >
+      <ChevronLeft className="w-6 h-6" />
+    </Button>
+    <Button
+      variant="ghost"
+      size="default"
+      onClick={() => scroll('right')}
+      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/90 dark:bg-black/90 shadow-md border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-0 hover:bg-white hover:scale-105"
+    >
+      <ChevronRight className="w-6 h-6" />
+    </Button>
+  </div>
 
- {/* --- CARRUSEL HORIZONTAL --- */}
- {/* Utilizamos 'snap-x snap-mandatory' para el efecto magnético en móviles.
- El 'custom-scrollbar' esconde la barra de scroll fea.
- */}
- <div 
- ref={rowRef}
- className="flex overflow-x-auto gap-4 px-4 md:px-8 pb-8 pt-2 snap-x snap-mandatory scroll-smooth custom-scrollbar"
- style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Oculta la barra en Firefox/IE
- >
- {providers.map((provider) => (
- <div key={provider.id} className="snap-start shrink-0">
- <ProviderCard provider={provider} />
- </div>
- ))}
+  {/* --- CARRUSEL HORIZONTAL --- */}
+  {/* Utilizamos 'snap-x snap-mandatory' para el efecto magnético en móviles.
+  El 'custom-scrollbar' esconde la barra de scroll fea.
+  */}
+  <div 
+    ref={rowRef}
+    className="flex overflow-x-auto gap-6 px-4 md:px-8 pb-8 pt-2 snap-x snap-mandatory scroll-smooth custom-scrollbar"
+    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Oculta la barra en Firefox/IE
+  >
+    {providers.map((provider) => (
+      <div key={provider.id} className="snap-start shrink-0">
+        <ProviderCard provider={provider} />
+      </div>
+    ))}
 
  {/* Espaciador final para que la última tarjeta no quede pegada al borde derecho */}
  <div className="w-4 shrink-0 sm:hidden" />
