@@ -12,7 +12,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   GripVertical,
   UploadCloud,
@@ -103,14 +103,14 @@ export function ServiceItemCard({
       return {
         level: "low",
         message: t("price_warning_low", {
-          defaultValue: "PRECIO INUSUALMENTE BAJO",
+          defaultValue: "Precio inusualmente bajo",
         }),
       };
     if (price > 5000)
       return {
         level: "high",
         message: t("price_warning_high", {
-          defaultValue: "PRECIO SOBRE PROMEDIO",
+          defaultValue: "Precio sobre el promedio",
         }),
       };
     return null;
@@ -125,33 +125,33 @@ export function ServiceItemCard({
       exit={{ opacity: 0, height: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "flex flex-col border border-black/20 dark:border-white/20 transition-colors rounded-none overflow-hidden",
+        "flex flex-col border transition-colors rounded-3xl overflow-hidden shadow-sm",
         service.isNew || service.hasUnsavedChanges
-          ? "bg-amber-50/10 dark:bg-amber-900/5 border-amber-500/50"
-          : "bg-white dark:bg-[#0a0a0a]",
+          ? "border-amber-200 dark:border-amber-900/30 bg-white dark:bg-[#0a0a0a] ring-1 ring-amber-500/20"
+          : "border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-emerald-200 dark:hover:border-emerald-900/30",
       )}
     >
       {/* --- CABECERA DE LA TARJETA (BARRA DE CONTROL) --- */}
-      <div className="flex flex-wrap items-center justify-between p-4 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+      <div className="flex flex-wrap items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]/50">
         <div className="flex items-center gap-4">
-          <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-black dark:hover:text-white transition-colors">
-            <GripVertical className="w-5 h-5" strokeWidth={1.5} />
+          <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <GripVertical className="w-5 h-5" strokeWidth={2} />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-[10px] font-mono font-bold bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 px-2 py-0.5 text-black dark:text-white">
+            <span className="text-xs font-semibold bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 px-3 py-1 rounded-full text-gray-700 dark:text-gray-300 shadow-sm">
               S-{(index + 1).toString().padStart(3, "0")}
             </span>
 
             {(service.isNew || service.hasUnsavedChanges) && (
-              <span className="border border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/10 dark:text-amber-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-                <AlertCircle className="w-3 h-3" strokeWidth={1.5} />
-                {t("unsaved_changes", { defaultValue: "SIN GUARDAR" })}
+              <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                <AlertCircle className="w-3.5 h-3.5" strokeWidth={2} />
+                {t("unsaved_changes", { defaultValue: "Sin guardar" })}
               </span>
             )}
             {!isValid && (
-              <span className="border border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">
-                {t("incomplete", { defaultValue: "DATOS INCOMPLETOS" })}
+              <span className="bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm border border-red-100 dark:border-red-900/50">
+                {t("incomplete", { defaultValue: "Datos incompletos" })}
               </span>
             )}
           </div>
@@ -161,9 +161,9 @@ export function ServiceItemCard({
       {/* --- MATRIZ DEL FORMULARIO PRINCIPAL --- */}
       <div className="flex flex-col md:flex-row">
         {/* Celda: Subida de Imagen */}
-        <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col shrink-0 w-full md:w-64">
-          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-            {t("image_label", { defaultValue: "PORTADA DEL SERVICIO" })}
+        <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 flex flex-col shrink-0 w-full md:w-72 bg-gray-50/30 dark:bg-black/20">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+            {t("image_label", { defaultValue: "Portada del Servicio" })}
           </label>
           <div
             onClick={() => fileInputRef.current?.click()}
@@ -171,12 +171,12 @@ export function ServiceItemCard({
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={cn(
-              "w-full h-40 flex flex-col items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer group relative rounded-none",
+              "w-full h-48 flex flex-col items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer group relative rounded-2xl shadow-sm",
               service.imageUrl
-                ? "border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]"
-                : "border border-dashed border-black/30 dark:border-white/30 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#0a0a0a]",
+                ? "border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#050505]"
+                : "border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-emerald-500 dark:hover:border-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10",
               isDragging &&
-                "border-black dark:border-white bg-black/5 dark:bg-white/5 scale-[1.02]",
+                "border-emerald-500 dark:border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20 scale-[1.02]",
             )}
           >
             {service.imageUrl ? (
@@ -184,32 +184,27 @@ export function ServiceItemCard({
                 <img
                   src={service.imageUrl}
                   alt={service.name}
-                  className="w-full h-full object-contain group-hover:opacity-40 transition-opacity duration-300 p-2"
+                  className="w-full h-full object-cover group-hover:opacity-60 transition-opacity duration-300 mix-blend-multiply dark:mix-blend-screen"
                 />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 border border-white flex items-center justify-center bg-black/50 backdrop-blur-sm mb-2">
-                    <Camera className="w-5 h-5 text-white" strokeWidth={1.5} />
-                  </div>
-                  <span className="text-[9px] text-white font-bold uppercase tracking-widest bg-black px-2 py-1">
-                    CAMBIAR FOTOGRAFÍA
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                  <span className="text-sm font-semibold text-white bg-black/60 px-4 py-2 rounded-full border border-white/20 flex items-center gap-2">
+                    <Camera className="w-4 h-4" /> Cambiar foto
                   </span>
                 </div>
               </>
             ) : (
               <>
-                <div className="w-12 h-12 border border-black/20 dark:border-white/20 flex items-center justify-center bg-white dark:bg-[#0a0a0a] group-hover:border-black dark:group-hover:border-white transition-colors mb-4 shadow-[4px_4px_0_0_rgba(0,0,0,0.05)] dark:shadow-[4px_4px_0_0_rgba(255,255,255,0.05)]">
+                <div className="w-12 h-12 rounded-full bg-white dark:bg-[#0a0a0a] flex items-center justify-center border border-gray-200 dark:border-gray-700 group-hover:border-emerald-500 transition-colors mb-3 shadow-sm">
                   <UploadCloud
-                    className="w-5 h-5 text-black dark:text-white"
-                    strokeWidth={1.5}
+                    className="w-5 h-5 text-gray-400 group-hover:text-emerald-500 transition-colors"
+                    strokeWidth={2}
                   />
                 </div>
-                <span className="text-[10px] text-black dark:text-white font-bold uppercase tracking-widest mb-1">
-                  SUBIR IMAGEN
+                <span className="text-sm text-gray-700 dark:text-gray-300 font-semibold mb-1 group-hover:text-emerald-600 transition-colors">
+                  Subir imagen
                 </span>
-                <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest text-center px-4 leading-relaxed">
-                  ARRASTRE O HAGA CLIC
-                  <br />
-                  (JPG, PNG, WEBP)
+                <span className="text-xs text-gray-500 font-medium text-center px-4 leading-relaxed">
+                  Arrastra o haz clic<br />(JPG, PNG, WEBP)
                 </span>
               </>
             )}
@@ -231,10 +226,10 @@ export function ServiceItemCard({
 
         {/* Celda: Inputs Centrales */}
         <div className="flex-1 flex flex-col">
-          <div className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10">
-            <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
-              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-                {t("name_label", { defaultValue: "NOMBRE TÉCNICO" })}{" "}
+          <div className="flex flex-col sm:flex-row border-b border-gray-100 dark:border-gray-800">
+            <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+                {t("name_label", { defaultValue: "Nombre del Servicio" })}{" "}
                 <span className="text-red-500">*</span>
               </label>
               <input
@@ -245,17 +240,17 @@ export function ServiceItemCard({
                     hasUnsavedChanges: true,
                   })
                 }
-                placeholder="EJ. CONSULTA DE VALORACIÓN"
+                placeholder="Ej. Consulta Dermatológica"
                 className={cn(
-                  "w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400",
-                  !service.name && "border-red-500/50",
+                  "w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-400 placeholder:font-normal",
+                  !service.name && "border-red-300 dark:border-red-900/50",
                 )}
               />
             </div>
 
             <div className="flex-1 p-6">
-              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-                {t("category_label", { defaultValue: "CLASIFICACIÓN" })}{" "}
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+                {t("category_label", { defaultValue: "Clasificación / Especialidad" })}{" "}
                 <span className="text-red-500">*</span>
               </label>
               <input
@@ -266,20 +261,20 @@ export function ServiceItemCard({
                     hasUnsavedChanges: true,
                   })
                 }
-                placeholder="EJ. DERMATOLOGÍA"
+                placeholder="Ej. Dermatología"
                 className={cn(
-                  "w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400",
-                  !service.category && "border-red-500/50",
+                  "w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-400 placeholder:font-normal",
+                  !service.category && "border-red-300 dark:border-red-900/50",
                 )}
               />
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row border-b border-black/10 dark:border-white/10">
-            <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10">
-              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row border-b border-gray-100 dark:border-gray-800">
+            <div className="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center justify-between">
                 <span>
-                  {t("price_label", { defaultValue: "VALOR COMERCIAL" })}{" "}
+                  {t("price_label", { defaultValue: "Valor Comercial" })}{" "}
                   <span className="text-red-500">*</span>
                 </span>
                 {priceWarning && (
@@ -288,15 +283,15 @@ export function ServiceItemCard({
                       <TooltipTrigger>
                         <AlertCircle
                           className={cn(
-                            "w-3.5 h-3.5",
+                            "w-4 h-4",
                             priceWarning.level === "low"
                               ? "text-amber-500"
                               : "text-blue-500",
                           )}
-                          strokeWidth={1.5}
+                          strokeWidth={2}
                         />
                       </TooltipTrigger>
-                      <TooltipContent className="bg-black text-white dark:bg-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-none border-none">
+                      <TooltipContent className="bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-xs font-semibold rounded-xl border-none shadow-lg px-3 py-2">
                         {priceWarning.message}
                       </TooltipContent>
                     </Tooltip>
@@ -305,8 +300,8 @@ export function ServiceItemCard({
               </label>
               <div className="relative">
                 <DollarSign
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"
-                  strokeWidth={1.5}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                  strokeWidth={2}
                 />
                 <input
                   type="number"
@@ -321,16 +316,16 @@ export function ServiceItemCard({
                   }
                   disabled={service.requiresEvaluation}
                   className={cn(
-                    "w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-sm font-mono font-bold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors",
+                    "w-full h-12 pl-9 pr-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors",
                     !service.requiresEvaluation &&
                       (!service.price || service.price <= 0) &&
-                      "border-red-500/50",
+                      "border-red-300 dark:border-red-900/50",
                     service.requiresEvaluation &&
-                      "opacity-50 cursor-not-allowed",
+                      "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-[#111]",
                   )}
                 />
               </div>
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-4 flex items-center gap-3">
                 <input
                   type="checkbox"
                   id={`req-eval-${service.id}`}
@@ -342,28 +337,28 @@ export function ServiceItemCard({
                       hasUnsavedChanges: true,
                     })
                   }
-                  className="w-4 h-4 rounded-none border-black/20 dark:border-white/20 text-black dark:text-white focus:ring-black dark:focus:ring-white bg-gray-50 dark:bg-[#050505] cursor-pointer"
+                  className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-emerald-600 focus:ring-emerald-500 bg-white dark:bg-[#050505] cursor-pointer"
                 />
                 <label
                   htmlFor={`req-eval-${service.id}`}
-                  className="text-[9px] font-bold uppercase tracking-widest text-gray-500 cursor-pointer"
+                  className="text-xs font-semibold text-gray-600 dark:text-gray-400 cursor-pointer select-none"
                 >
                   {t("requires_evaluation", {
-                    defaultValue: "PRECIO A CONVENIR / REQUIERE VALORACIÓN",
+                    defaultValue: "Requiere valoración / Precio a convenir",
                   })}
                 </label>
               </div>
             </div>
 
             <div className="flex-1 p-6">
-              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-                {t("duration_label", { defaultValue: "TIEMPO OPERATIVO" })}{" "}
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+                {t("duration_label", { defaultValue: "Tiempo Estimado" })}{" "}
                 <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Clock
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"
-                  strokeWidth={1.5}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                  strokeWidth={2}
                 />
                 <input
                   type="number"
@@ -377,12 +372,12 @@ export function ServiceItemCard({
                     })
                   }
                   className={cn(
-                    "w-full h-12 pl-10 pr-12 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-sm font-mono font-bold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors",
+                    "w-full h-12 pl-9 pr-12 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors",
                     (!service.duration || service.duration <= 0) &&
-                      "border-red-500/50",
+                      "border-red-300 dark:border-red-900/50",
                   )}
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-bold text-gray-500 uppercase tracking-widest pointer-events-none">
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none">
                   MIN
                 </span>
               </div>
@@ -390,35 +385,35 @@ export function ServiceItemCard({
           </div>
 
           <div className="p-6">
-            <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-              {t("desc_label", { defaultValue: "ESPECIFICACIONES TÉCNICAS" })}
+            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">
+              {t("desc_label", { defaultValue: "Descripción para el paciente" })}
             </label>
             <textarea
               value={service.description}
               onChange={(e) =>
                 onUpdate(service.id, {
-                  description: e.target.value.slice(0, 200),
+                  description: e.target.value.slice(0, 300),
                   hasUnsavedChanges: true,
                 })
               }
               placeholder={t("desc_placeholder", {
-                defaultValue: "DETALLES DE OPERACIÓN...",
+                defaultValue: "Explica brevemente qué incluye y los beneficios...",
               })}
-              rows={2}
-              maxLength={200}
-              className="w-full min-h-[60px] p-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors resize-y placeholder:text-gray-400"
+              rows={3}
+              maxLength={300}
+              className="w-full min-h-[80px] p-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors resize-y placeholder:text-gray-400 placeholder:font-normal"
             />
           </div>
         </div>
       </div>
 
       {/* --- CONFIGURACIONES AVANZADAS (FOOTER MATRIZ) --- */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
-        <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col justify-center">
-          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-            {t("delivery_type", { defaultValue: "MODALIDAD DE ENTREGA" })}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]/50">
+        <div className="p-6 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 flex flex-col justify-center">
+          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+            {t("delivery_type", { defaultValue: "Modalidad" })}
           </label>
-          <div className="flex border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+          <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] shadow-sm">
             <button
               onClick={() =>
                 onUpdate(service.id, {
@@ -427,13 +422,13 @@ export function ServiceItemCard({
                 })
               }
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 h-10 border-r border-black/10 dark:border-white/10 text-[8px] font-bold uppercase tracking-widest transition-colors",
+                "flex-1 flex items-center justify-center gap-1.5 h-10 border-r border-gray-200 dark:border-gray-700 text-xs font-bold transition-colors",
                 service.serviceDeliveryType === "in_person"
-                  ? "bg-black text-white dark:bg-white dark:text-black"
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                   : "text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]",
               )}
             >
-              <MapPin className="w-3 h-3" strokeWidth={1.5} /> LOC.
+              <MapPin className="w-3.5 h-3.5" strokeWidth={2} /> Presencial
             </button>
             <button
               onClick={() =>
@@ -443,13 +438,13 @@ export function ServiceItemCard({
                 })
               }
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 h-10 border-r border-black/10 dark:border-white/10 text-[8px] font-bold uppercase tracking-widest transition-colors",
+                "flex-1 flex items-center justify-center gap-1.5 h-10 border-r border-gray-200 dark:border-gray-700 text-xs font-bold transition-colors",
                 service.serviceDeliveryType === "hybrid"
-                  ? "bg-black text-white dark:bg-white dark:text-black"
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                   : "text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]",
               )}
             >
-              <Globe className="w-3 h-3" strokeWidth={1.5} /> MIX
+              <Globe className="w-3.5 h-3.5" strokeWidth={2} /> Híbrido
             </button>
             <button
               onClick={() =>
@@ -459,20 +454,20 @@ export function ServiceItemCard({
                 })
               }
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 h-10 text-[8px] font-bold uppercase tracking-widest transition-colors",
+                "flex-1 flex items-center justify-center gap-1.5 h-10 text-xs font-bold transition-colors",
                 service.serviceDeliveryType === "video_call"
-                  ? "bg-black text-white dark:bg-white dark:text-black"
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                   : "text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111]",
               )}
             >
-              <Video className="w-3 h-3" strokeWidth={1.5} /> REM.
+              <Video className="w-3.5 h-3.5" strokeWidth={2} /> Remoto
             </button>
           </div>
         </div>
 
-        <div className="p-6 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 flex flex-col justify-center">
-          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-            {t("cancellation", { defaultValue: "REGLAS DE ANULACIÓN" })}
+        <div className="p-6 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 flex flex-col justify-center">
+          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+            {t("cancellation", { defaultValue: "Reglas de Anulación" })}
           </label>
           <Select
             value={service.cancellationPolicy}
@@ -483,35 +478,26 @@ export function ServiceItemCard({
               })
             }
           >
-            <SelectTrigger className="w-full h-10 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[9px] font-bold text-black dark:text-white uppercase tracking-widest focus:ring-0 focus:border-black dark:focus:border-white rounded-none">
+            <SelectTrigger className="w-full h-10 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white focus:ring-0 focus:border-emerald-500 shadow-sm">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none shadow-2xl">
-              <SelectItem
-                value="flexible"
-                className="text-[9px] font-bold uppercase tracking-widest rounded-none"
-              >
-                FLEXIBLE
+            <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg">
+              <SelectItem value="flexible" className="text-sm font-medium rounded-lg">
+                Flexible
               </SelectItem>
-              <SelectItem
-                value="moderate"
-                className="text-[9px] font-bold uppercase tracking-widest rounded-none"
-              >
-                MODERADA
+              <SelectItem value="moderate" className="text-sm font-medium rounded-lg">
+                Moderada
               </SelectItem>
-              <SelectItem
-                value="strict"
-                className="text-[9px] font-bold uppercase tracking-widest rounded-none"
-              >
-                ESTRICTA
+              <SelectItem value="strict" className="text-sm font-medium rounded-lg">
+                Estricta
               </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="p-6 flex flex-col justify-center relative">
-          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
-            {t("follow_up", { defaultValue: "VENTANA DE SEGUIMIENTO" })}
+          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 block">
+            {t("follow_up", { defaultValue: "Días de Seguimiento" })}
           </label>
           <div className="relative">
             <input
@@ -524,9 +510,9 @@ export function ServiceItemCard({
                   hasUnsavedChanges: true,
                 })
               }
-              className="w-full h-10 pl-4 pr-12 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-xs font-mono font-bold text-black dark:text-white uppercase tracking-widest focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors"
+              className="w-full h-10 pl-4 pr-12 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors shadow-sm"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none">
               DÍAS
             </span>
           </div>
@@ -535,20 +521,17 @@ export function ServiceItemCard({
 
       {/* --- GALERÍAS DEL SERVICIO (Sólo si ya está guardado) --- */}
       {!service.isNew && (
-        <div className="border-t border-black/10 dark:border-white/10 p-6 md:p-8 bg-gray-50/50 dark:bg-[#080808]">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
-              <Camera
-                className="w-4 h-4 text-black dark:text-white"
-                strokeWidth={1.5}
-              />
+        <div className="border-t border-gray-100 dark:border-gray-800 p-6 md:p-8 bg-white dark:bg-[#0a0a0a]">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0 shadow-sm">
+              <Camera className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
             </div>
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                 Galería del Servicio
               </h3>
-              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">
-                Muestra resultados, técnicas o procesos
+              <p className="text-xs text-gray-500 font-medium mt-0.5">
+                Muestra resultados, técnicas o tu espacio de trabajo.
               </p>
             </div>
           </div>
@@ -562,7 +545,7 @@ export function ServiceItemCard({
               maxImages={5}
             />
 
-            <div className="border-t border-black/10 dark:border-white/10 pt-8">
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
               <BeforeAfterUploader catalogItemId={service.id} />
             </div>
           </div>
@@ -570,73 +553,75 @@ export function ServiceItemCard({
       )}
 
       {/* --- ACCIONES PRINCIPALES (FOOTER) --- */}
-      <div className="flex flex-col sm:flex-row border-t border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
-        {onDuplicate && (
-          <button
-            onClick={() => onDuplicate(service)}
-            className="flex-1 sm:flex-none sm:w-1/4 h-16 flex items-center justify-center gap-2 border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#111] transition-colors text-[11px] font-bold uppercase tracking-widest"
-          >
-            <Copy className="w-4 h-4" strokeWidth={1.5} />
-            <span>{t("duplicate", { defaultValue: "DUPLICAR" })}</span>
-          </button>
-        )}
+      <div className="flex flex-col sm:flex-row border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]/50 p-4 gap-4">
+        <div className="flex gap-4 flex-1">
+          {onDuplicate && (
+            <button
+              onClick={() => onDuplicate(service)}
+              className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-sm font-semibold shadow-sm"
+            >
+              <Copy className="w-4 h-4" strokeWidth={2} />
+              <span>{t("duplicate", { defaultValue: "Duplicar" })}</span>
+            </button>
+          )}
 
-        <button
-          onClick={() => setIsDeleteModalOpen(true)}
-          className="flex-1 sm:flex-none sm:w-1/4 h-16 flex items-center justify-center gap-2 border-b sm:border-b-0 sm:border-r border-black/20 dark:border-white/20 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-[11px] font-bold uppercase tracking-widest"
-        >
-          <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-          <span>{t("delete", { defaultValue: "ELIMINAR" })}</span>
-        </button>
+          <button
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-900/30 bg-white dark:bg-[#0a0a0a] text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-sm font-semibold shadow-sm"
+          >
+            <Trash2 className="w-4 h-4" strokeWidth={2} />
+            <span>{t("delete", { defaultValue: "Eliminar" })}</span>
+          </button>
+        </div>
 
         <button
           onClick={() => onSave(service)}
           disabled={!isValid || (!service.hasUnsavedChanges && !service.isNew)}
-          className="flex-1 sm:flex-auto h-16 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 transition-colors"
+          className="flex-1 sm:flex-auto sm:w-1/3 h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors shadow-sm"
         >
-          <Save className="w-5 h-5" strokeWidth={1.5} />
-          {t("save", { defaultValue: "GUARDAR SERVICIO" })}
+          <Save className="w-4 h-4" strokeWidth={2} />
+          {t("save", { defaultValue: "Guardar Servicio" })}
         </button>
       </div>
 
-      {/* Brutalist Confirmation Modal */}
+      {/* Soft Confirmation Modal */}
       <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none p-0 overflow-hidden shadow-2xl sm:max-w-md [&>button]:hidden">
-          <div className="p-6 md:p-8 border-b border-black/20 dark:border-white/20">
+        <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-3xl p-0 overflow-hidden shadow-2xl sm:max-w-md [&>button]:hidden">
+          <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800">
             <AlertDialogHeader className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 border border-red-500 flex items-center justify-center bg-red-50 dark:bg-red-900/10 shrink-0">
-                  <Trash2 className="w-4 h-4 text-red-500" strokeWidth={1.5} />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0 border border-red-100 dark:border-red-900/30">
+                  <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" strokeWidth={2} />
                 </div>
-                <AlertDialogTitle className="text-sm font-bold uppercase tracking-widest text-black dark:text-white leading-none mt-1">
+                <AlertDialogTitle className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
                   {t("delete_confirm_title", {
-                    defaultValue: "ANULAR SERVICIO",
+                    defaultValue: "Eliminar Servicio",
                   })}
                 </AlertDialogTitle>
               </div>
-              <AlertDialogDescription className="text-xs text-gray-500 uppercase tracking-widest leading-relaxed text-left font-semibold">
+              <AlertDialogDescription className="text-sm text-gray-500 font-medium leading-relaxed text-left">
                 {t("delete_confirm_message", {
                   defaultValue:
-                    "¿Confirma la eliminación permanente de este servicio del catálogo? Esta acción no se puede deshacer.",
+                    "¿Estás seguro de que deseas eliminar este servicio? Esta acción no se puede deshacer y se borrarán sus imágenes.",
                 })}
               </AlertDialogDescription>
             </AlertDialogHeader>
           </div>
-          <AlertDialogFooter className="p-0 bg-gray-50 dark:bg-[#050505] flex flex-row sm:flex-row gap-0 sm:space-x-0 border-none">
+          <AlertDialogFooter className="p-6 bg-gray-50 dark:bg-[#050505] flex flex-row gap-3 sm:space-x-0 border-none">
             <button
               onClick={() => setIsDeleteModalOpen(false)}
-              className="flex-1 h-14 border-r border-black/20 dark:border-white/20 text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+              className="flex-1 h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors shadow-sm"
             >
-              CANCELAR
+              Cancelar
             </button>
             <button
               onClick={() => {
                 onDelete(service.id);
                 setIsDeleteModalOpen(false);
               }}
-              className="flex-1 h-14 text-[9px] font-bold uppercase tracking-widest text-white bg-red-500 hover:bg-red-600 transition-colors"
+              className="flex-1 h-12 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
             >
-              SÍ, ELIMINAR
+              Sí, eliminar
             </button>
           </AlertDialogFooter>
         </AlertDialogContent>
