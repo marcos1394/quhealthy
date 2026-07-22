@@ -170,34 +170,34 @@ export function WearablesSettings() {
  <div 
  key={wearable.id}
  className={cn(
- "p-6 border transition-colors relative flex flex-col justify-between group",
+ "p-6 rounded-3xl border transition-colors relative flex flex-col justify-between group shadow-sm",
  connected 
- ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]" 
- : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white"
+ ? "border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-900/10" 
+ : "border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-emerald-100 dark:hover:border-gray-700"
  )}
  >
  <div>
  <div className="flex items-start justify-between mb-6">
- <div className={cn("w-12 h-12 flex items-center justify-center border", wearable.color, wearable.border)}>
- <wearable.icon className={cn("w-6 h-6", wearable.textColor)} />
+ <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm", wearable.color, wearable.border)}>
+ <wearable.icon className={cn("w-7 h-7", wearable.textColor)} />
  </div>
  
  {connected && (
- <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
- <Check className="w-3 h-3" strokeWidth={2} /> Enlazado
+ <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+ <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Enlazado
  </span>
  )}
  {wearable.mobileOnly && !connected && (
- <span className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-500 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
- <Smartphone className="w-3 h-3" strokeWidth={1.5} /> App iOS Requerida
+ <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+ <Smartphone className="w-3.5 h-3.5" strokeWidth={2} /> App iOS Requerida
  </span>
  )}
  </div>
  
- <h4 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+ <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
  {wearable.name}
  </h4>
- <p className="text-xs text-gray-500 font-light leading-relaxed mb-6">
+ <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6">
  {wearable.desc}
  </p>
  </div>
@@ -206,16 +206,16 @@ export function WearablesSettings() {
  {connected ? (
  <button 
  onClick={() => handleDisconnect(wearable.id)}
- className="w-full h-12 border border-red-500 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest"
+ className="w-full h-12 rounded-xl border-red-200 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors text-sm font-bold shadow-sm"
  >
  Revocar Acceso
  </button>
  ) : (
  <button 
  onClick={() => handleConnect(wearable.id)}
- className="w-full h-12 border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+ className="w-full h-12 rounded-xl bg-white border border-gray-200 text-gray-700 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-bold shadow-sm flex items-center justify-center gap-2"
  >
- <LinkIcon className="w-3.5 h-3.5" strokeWidth={1.5} /> Sincronizar Protocolo
+ <LinkIcon className="w-4 h-4" strokeWidth={2} /> Sincronizar Protocolo
  </button>
  )}
  </div>
@@ -226,11 +226,11 @@ export function WearablesSettings() {
  )}
  
  {/* Privacy Notice (Architectural Note) */}
- <div className="border-l-2 border-black dark:border-white pl-5 py-2 bg-gray-50 dark:bg-[#050505]">
- <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2">
- <AlertCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> Cifrado Biométrico E2E
+ <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/30 p-5 bg-emerald-50 dark:bg-emerald-900/10">
+ <p className="text-sm font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-2 mb-2">
+ <AlertCircle className="w-4 h-4" strokeWidth={2} /> Cifrado Biométrico E2E
  </p>
- <p className="text-xs text-gray-500 font-light leading-relaxed">
+ <p className="text-sm text-emerald-700/80 dark:text-emerald-500/80 font-medium leading-relaxed">
  La telemetría de tus dispositivos es cifrada de extremo a extremo. QuHealthy interactúa exclusivamente con los nodos autorizados para nutrir el modelo algorítmico consentido en tu perfil clínico inicial.
  </p>
  </div>

@@ -68,49 +68,49 @@ export function ActiveSessionsList() {
  <div className="space-y-6">
  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div>
- <h3 className="text-sm font-semibold text-black dark:text-white uppercase tracking-tight">Sesiones Activas</h3>
- <p className="text-xs text-gray-500 mt-1">Dispositivos con acceso a tu cuenta.</p>
+ <h3 className="text-lg font-bold text-gray-900 dark:text-white">Sesiones Activas</h3>
+ <p className="text-sm text-gray-500 mt-1">Dispositivos con acceso a tu cuenta.</p>
  </div>
  {otherSessions.length > 0 && (
  <Button 
  variant="outline" 
  onClick={handleRevokeAll}
  disabled={isRevoking === 'ALL'}
- className="rounded-none border border-black dark:border-white h-8 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors"
+ className="rounded-xl border-gray-200 h-9 px-4 text-xs font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors shadow-sm"
  >
- {isRevoking === 'ALL' ? <Loader2 className="w-3 h-3 animate-spin" /> : "Revocar Restantes"}
+ {isRevoking === 'ALL' ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : "Revocar Restantes"}
  </Button>
  )}
  </div>
 
- <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] divide-y divide-gray-200 dark:divide-gray-800">
+ <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
  {sessions.map((session) => (
- <div key={session.sessionId} className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-gray-50 dark:hover:bg-[#050505]">
+ <div key={session.sessionId} className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-gray-50 dark:hover:bg-[#050505]">
  <div className="flex items-start gap-4">
- <div className="w-10 h-10 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-black flex items-center justify-center shrink-0">
+ <div className="w-12 h-12 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-black flex items-center justify-center shrink-0 shadow-sm">
  {session.deviceName?.toLowerCase().includes('mac') || session.deviceName?.toLowerCase().includes('windows') ? (
- <Laptop className="w-5 h-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+ <Laptop className="w-6 h-6 text-emerald-600 dark:text-emerald-500" strokeWidth={1.5} />
  ) : session.deviceName?.toLowerCase().includes('iphone') || session.deviceName?.toLowerCase().includes('android') ? (
- <Smartphone className="w-5 h-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+ <Smartphone className="w-6 h-6 text-emerald-600 dark:text-emerald-500" strokeWidth={1.5} />
  ) : (
- <Monitor className="w-5 h-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+ <Monitor className="w-6 h-6 text-emerald-600 dark:text-emerald-500" strokeWidth={1.5} />
  )}
  </div>
  <div>
- <h4 className="text-sm font-semibold text-black dark:text-white uppercase tracking-tight">
+ <h4 className="text-base font-bold text-gray-900 dark:text-white">
  {session.deviceName || "Dispositivo Desconocido"}
  </h4>
  <div className="flex items-center gap-2 mt-1">
- <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+ <span className="text-xs font-medium text-gray-500">
  {session.ipAddress}
  </span>
  <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
- <span className="text-[10px] font-medium text-gray-400">
+ <span className="text-xs text-gray-400">
  Última vez: {new Date(session.lastActiveAt).toLocaleString()}
  </span>
  </div>
  {session.current && (
- <span className="inline-block mt-2 text-[9px] font-bold uppercase tracking-widest text-green-600 border border-green-600 px-2 py-0.5">
+ <span className="inline-flex mt-3 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2.5 py-1 rounded-lg">
  Este dispositivo
  </span>
  )}
@@ -122,9 +122,9 @@ export function ActiveSessionsList() {
  variant="outline" 
  onClick={() => handleRevoke(session.sessionId)}
  disabled={isRevoking === session.sessionId}
- className="rounded-none border-gray-300 dark:border-gray-700 h-8 text-[9px] font-bold uppercase tracking-widest hover:text-red-600 hover:border-red-600 transition-colors self-start sm:self-auto"
+ className="rounded-xl border-gray-200 h-9 px-4 text-xs font-semibold text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors self-start sm:self-auto shadow-sm"
  >
- {isRevoking === session.sessionId ? <Loader2 className="w-3 h-3 animate-spin" /> : "Revocar"}
+ {isRevoking === session.sessionId ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : "Revocar"}
  </Button>
  )}
  </div>

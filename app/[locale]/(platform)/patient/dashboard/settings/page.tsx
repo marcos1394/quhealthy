@@ -55,37 +55,37 @@ export default function SettingsPage() {
  return (
  <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
  <div className="mb-8">
- <h1 className="text-2xl font-bold text-black dark:text-white uppercase tracking-tighter">
+ <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
  Configuración
  </h1>
- <p className="text-sm text-gray-500 mt-2 font-light">
+ <p className="text-base text-gray-500 mt-2">
  Administra tu seguridad, privacidad y preferencias de la plataforma.
  </p>
  </div>
 
  <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
- <TabsList className="bg-transparent border-b border-gray-200 dark:border-gray-800 w-full justify-start h-auto p-0 rounded-none overflow-x-auto flex-nowrap">
+ <TabsList className="bg-transparent border-b border-gray-100 dark:border-gray-800 w-full justify-start h-auto p-0 rounded-none overflow-x-auto flex-nowrap gap-6">
  <TabsTrigger 
  value="security"
- className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white flex items-center gap-2"
+ className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-2 py-4 text-sm font-semibold text-gray-500 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
  >
  <Shield className="w-4 h-4" /> Seguridad
  </TabsTrigger>
  <TabsTrigger 
  value="notifications"
- className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white flex items-center gap-2"
+ className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-2 py-4 text-sm font-semibold text-gray-500 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
  >
  <Bell className="w-4 h-4" /> Notificaciones
  </TabsTrigger>
  <TabsTrigger 
  value="privacy"
- className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white flex items-center gap-2"
+ className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-2 py-4 text-sm font-semibold text-gray-500 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
  >
  <Database className="w-4 h-4" /> Privacidad
  </TabsTrigger>
  <TabsTrigger 
  value="wearables"
- className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 data-[state=active]:text-black dark:data-[state=active]:text-white flex items-center gap-2"
+ className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-600 dark:data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-2 py-4 text-sm font-semibold text-gray-500 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
  >
  <Watch className="w-4 h-4" /> Integraciones
  </TabsTrigger>
