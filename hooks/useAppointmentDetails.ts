@@ -96,7 +96,7 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
       
       // Update local state if needed
       if (appointment) {
-        setAppointment({ ...appointment, status: 'CANCELLED' });
+        setAppointment({ ...appointment, status: 'CANCELED_BY_CONSUMER' });
       }
       return true;
     } catch (err) {
