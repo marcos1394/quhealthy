@@ -76,36 +76,36 @@ export default function ConsumerDashboardPage() {
 
 
  // Pantallas de Carga/Error generales
- if (isDashboardLoading) {
- return (
- <div className="flex flex-col justify-center items-center min-h-screen gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
- <QhSpinner size="lg" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
- {t('loading')}
- </p>
- </div>
- );
- }
+  if (isDashboardLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen gap-4 bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+        <QhSpinner size="lg" />
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 animate-pulse mt-2">
+          {t('loading')}
+        </p>
+      </div>
+    );
+  }
 
- if (dashboardError) {
- return (
- <div className="flex flex-col justify-center items-center min-h-screen px-6 text-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
- <div className="w-16 h-16 border border-red-500 flex items-center justify-center bg-red-50 dark:bg-red-900/10 mb-6">
- <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
- </div>
- <div className="space-y-2 mb-8">
- <h3 className="text-xl font-bold tracking-tight text-black dark:text-white uppercase">{t('error_title')}</h3>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto">{dashboardError}</p>
- </div>
- <Button 
- onClick={() => window.location.reload()}
- className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 flex items-center gap-3 transition-colors"
- >
- <RotateCcw className="w-4 h-4" strokeWidth={1.5} /> {t('btn_retry')}
- </Button>
- </div>
- );
- }
+  if (dashboardError) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen px-6 text-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+        <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 mb-6 shadow-sm">
+          <AlertCircle className="w-10 h-10" strokeWidth={2} />
+        </div>
+        <div className="space-y-2 mb-8">
+          <h3 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{t('error_title')}</h3>
+          <p className="text-sm text-gray-500 max-w-sm mx-auto">{dashboardError}</p>
+        </div>
+        <Button 
+          onClick={() => window.location.reload()}
+          className="rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-sm font-medium transition-colors"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" strokeWidth={2} /> {t('btn_retry')}
+        </Button>
+      </div>
+    );
+  }
 
  const firstName = user?.firstName || t('fallback_name');
 
@@ -120,25 +120,25 @@ export default function ConsumerDashboardPage() {
  {/* --- HEADER --- */}
  <DashboardHeader firstName={firstName} />
 
- {/* --- SECCIÓN PRINCIPAL --- */}
- <div className="flex flex-col gap-12 lg:gap-16 mt-8">
- 
- {/* PRIMER BLOQUE: Próxima Cita */}
- <div className="w-full">
- <NextAppointmentHero 
- appointment={nextAppointment}
- onNavigate={(id) => router.push(`/patient/appointments/${id}`)}
- onSearch={() => router.push('/discover')}
- />
- </div>
+      {/* --- SECCIÓN PRINCIPAL --- */}
+      <div className="flex flex-col gap-8 mt-6">
+        
+        {/* PRIMER BLOQUE: Próxima Cita */}
+        <div className="w-full">
+          <NextAppointmentHero 
+            appointment={nextAppointment}
+            onNavigate={(id) => router.push(`/patient/appointments/${id}`)}
+            onSearch={() => router.push('/discover')}
+          />
+        </div>
 
- {/* SEGUNDO BLOQUE: Módulos (Full Width) */}
- <div className="w-full">
- <QuickAccessCards />
- </div>
+        {/* SEGUNDO BLOQUE: Módulos (Full Width) */}
+        <div className="w-full">
+          <QuickAccessCards />
+        </div>
 
- {/* TERCER BLOQUE: Salud y Métricas */}
- <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+        {/* TERCER BLOQUE: Salud y Métricas */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
  <div className="lg:col-span-4 xl:col-span-4">
  <HealthScoreWidget 
  scoreData={scoreData}

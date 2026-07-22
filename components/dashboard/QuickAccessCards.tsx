@@ -5,12 +5,13 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Clock, User, ArrowRight, Wallet, Package, Star, ShoppingBag } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function QuickAccessCards() {
  const router = useRouter();
  const t = useTranslations('PatientDashboard');
 
- // Definición de módulos de acceso (Iconos y estéticas puramente monocromáticas)
+ // Definición de módulos de acceso con semántica Soft Health
  const cards = [
  {
  id: 'history',
@@ -18,6 +19,8 @@ export function QuickAccessCards() {
  desc: t('card_history_desc', { defaultValue: 'Diagnósticos, recetas y laboratorios.' }),
  icon: Clock,
  href: '/patient/dashboard/appointments',
+ colorClass: 'text-teal-600 dark:text-teal-400',
+ bgClass: 'bg-teal-50 dark:bg-teal-500/10'
  },
  {
  id: 'wallet',
@@ -25,6 +28,8 @@ export function QuickAccessCards() {
  desc: t('card_wallet_desc', { defaultValue: 'Saldo, recargas y transacciones.' }),
  icon: Wallet,
  href: '/patient/dashboard/wallet',
+ colorClass: 'text-amber-600 dark:text-amber-400',
+ bgClass: 'bg-amber-50 dark:bg-amber-500/10'
  },
  {
  id: 'packages',
@@ -32,6 +37,8 @@ export function QuickAccessCards() {
  desc: t('card_packages_desc', { defaultValue: 'Consultas y paquetes prepagados.' }),
  icon: Package,
  href: '/patient/dashboard/packages',
+ colorClass: 'text-emerald-600 dark:text-emerald-400',
+ bgClass: 'bg-emerald-50 dark:bg-emerald-500/10'
  },
  {
  id: 'orders',
@@ -39,6 +46,8 @@ export function QuickAccessCards() {
  desc: t('card_orders_desc', { defaultValue: 'Seguimiento de farmacia e insumos.' }),
  icon: ShoppingBag,
  href: '/patient/dashboard/orders',
+ colorClass: 'text-indigo-600 dark:text-indigo-400',
+ bgClass: 'bg-indigo-50 dark:bg-indigo-500/10'
  },
  {
  id: 'reviews',
@@ -46,6 +55,8 @@ export function QuickAccessCards() {
  desc: t('card_reviews_desc', { defaultValue: 'Auditoría de servicios médicos.' }),
  icon: Star,
  href: '/patient/dashboard/reviews',
+ colorClass: 'text-yellow-600 dark:text-yellow-400',
+ bgClass: 'bg-yellow-50 dark:bg-yellow-500/10'
  },
  {
  id: 'profile',
@@ -53,42 +64,40 @@ export function QuickAccessCards() {
  desc: t('card_profile_desc', { defaultValue: 'Identidad, demografía y vitales.' }),
  icon: User,
  href: '/patient/dashboard/profile',
+ colorClass: 'text-blue-600 dark:text-blue-400',
+ bgClass: 'bg-blue-50 dark:bg-blue-500/10'
  }
  ];
 
  return (
  <div className="w-full">
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-6">
+ <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 px-1">
  Accesos a Módulos
  </h3>
  
- {/* Blueprint Grid Layout */}
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
  {cards.map((card) => (
  <div
  key={card.id}
  onClick={() => router.push(card.href)}
- // 1. APLICAMOS EL HOVER AL CONTENEDOR PADRE: Fondo, elevación, sombra sólida y z-index relativo
- className="group relative z-0 hover:z-10 cursor-pointer border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 flex flex-col justify-between min-h-[220px] transition-all duration-300 hover:bg-black dark:hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] dark:hover:shadow-[6px_6px_0_0_#fff]"
+ className="group cursor-pointer rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-8 flex flex-col justify-between min-h-[220px] shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
  >
  <div className="flex items-start justify-between mb-8">
- {/* 2. INVERSIÓN DEL CONTENEDOR DEL ICONO: Para contrastar con la tarjeta que ahora será negra/blanca */}
- <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] transition-colors duration-300 shrink-0 group-hover:border-white dark:group-hover:border-black group-hover:bg-white group-hover:text-black dark:group-hover:bg-black dark:group-hover:text-white">
- <card.icon className="w-5 h-5" strokeWidth={1.5} />
+ <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center transition-colors duration-300", card.bgClass, card.colorClass)}>
+ <card.icon className="w-6 h-6" strokeWidth={2} />
  </div>
  
- {/* 3. ICONO DE FLECHA */}
- <ArrowRight className="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-white dark:group-hover:text-black transition-colors duration-300" strokeWidth={1.5} />
+ <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 dark:bg-gray-800/50 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
+ <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" strokeWidth={2} />
+ </div>
  </div>
  
  <div>
- {/* 4. TÍTULO: Pasa de negro a blanco al hacer hover */}
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2 transition-colors duration-300 group-hover:text-white dark:group-hover:text-black">
+ <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
  {card.title}
  </h3>
  
- {/* 5. DESCRIPCIÓN: Pasa de un gris medio a un gris claro/oscuro para no perderse en el nuevo fondo */}
- <p className="text-xs text-gray-500 font-light leading-relaxed transition-colors duration-300 group-hover:text-gray-300 dark:group-hover:text-gray-600">
+ <p className="text-sm text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
  {card.desc}
  </p>
  </div>
