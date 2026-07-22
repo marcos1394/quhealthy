@@ -29,6 +29,7 @@ export function AppointmentEmptyState({ activeTab, searchQuery }: AppointmentEmp
  return t('empty_hint', { defaultValue: 'Explora el catálogo de especialistas para agendar tu próxima valoración médica.' });
  };
 
+  return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
