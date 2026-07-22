@@ -97,33 +97,33 @@ export function ServicesManager({
   };
 
   return (
-    <div className="flex flex-col bg-gray-50 dark:bg-[#050505] min-h-screen transition-colors duration-500 font-sans">
-      {/* --- CABECERA ARQUITECTÓNICA --- */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 border-b border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] gap-6 shrink-0">
+    <div className="flex flex-col min-h-screen transition-colors duration-500 font-sans p-6 md:p-8">
+      {/* --- CABECERA --- */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm gap-6 shrink-0 mb-6">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
             <Server
-              className="w-6 h-6 text-black dark:text-white"
-              strokeWidth={1.5}
+              className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+              strokeWidth={2}
             />
           </div>
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
-              {t("title", { defaultValue: "GESTOR DE CATÁLOGO" })}
+            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1">
+              {t("title", { defaultValue: "Gestor de Catálogo" })}
             </p>
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <h2 className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
-                SERVICIOS Y PRODUCTOS
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-none">
+                Servicios y Productos
               </h2>
 
               <div className="flex items-center gap-2 mt-2 sm:mt-0">
                 {services.length > 0 && (
-                  <span className="border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3" strokeWidth={1.5} />
+                  <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-500" strokeWidth={2} />
                     {services.length}{" "}
                     {services.length === 1
-                      ? t("service_single", { defaultValue: "REGISTRO" })
-                      : t("service_plural", { defaultValue: "REGISTROS" })}
+                      ? t("service_single", { defaultValue: "Registro" })
+                      : t("service_plural", { defaultValue: "Registros" })}
                   </span>
                 )}
 
@@ -131,13 +131,13 @@ export function ServicesManager({
                   typeof maxLimit === "number" && (
                     <span
                       className={cn(
-                        "border px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest flex items-center gap-1.5",
+                        "px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5",
                         canAdd
-                          ? "border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black"
-                          : "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400",
+                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                          : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
                       )}
                     >
-                      CONSUMO: {currentUsage} /{" "}
+                      Consumo: {currentUsage} /{" "}
                       {maxLimit === null ? "∞" : maxLimit}
                     </span>
                   )}
@@ -146,32 +146,32 @@ export function ServicesManager({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 w-full md:w-auto border border-black/20 dark:border-white/20">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <button
             onClick={() => setShowTemplates(!showTemplates)}
             disabled={!canAdd}
-            className="flex-1 md:flex-none h-12 px-6 border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
+            className="flex-1 md:flex-none h-12 px-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
           >
-            <Tag className="w-3.5 h-3.5" strokeWidth={1.5} />
+            <Tag className="w-4 h-4 text-gray-500" strokeWidth={2} />
             <span className="hidden sm:inline">
-              {t("templates", { defaultValue: "PLANTILLAS BASE" })}
+              {t("templates", { defaultValue: "Plantillas" })}
             </span>
           </button>
 
           <button
             onClick={onAdd}
             disabled={!canAdd}
-            className="flex-1 md:flex-none h-12 px-6 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none disabled:opacity-50"
+            className="flex-1 md:flex-none h-12 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 disabled:opacity-50 shadow-sm"
           >
-            <Plus className="w-4 h-4" strokeWidth={1.5} />
+            <Plus className="w-4 h-4" strokeWidth={2} />
             {!canAdd
-              ? t("limit_reached_btn", { defaultValue: "LÍMITE AGOTADO" })
-              : t("new_service", { defaultValue: "AÑADIR REGISTRO" })}
+              ? t("limit_reached_btn", { defaultValue: "Límite Agotado" })
+              : t("new_service", { defaultValue: "Añadir Registro" })}
           </button>
         </div>
       </div>
 
-      <div className="p-6 md:p-8 space-y-6">
+      <div className="space-y-6">
         {/* --- PANEL DE PLANTILLAS --- */}
         <AnimatePresence>
           {showTemplates && canAdd && (
@@ -198,17 +198,17 @@ export function ServicesManager({
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              <div className="p-4 border-l-4 border-l-red-500 border border-black/10 dark:border-white/10 bg-red-50 dark:bg-red-900/10 mb-6 flex flex-col">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-red-700 dark:text-red-400 flex items-center gap-2 mb-1">
-                  <Info className="w-4 h-4" strokeWidth={1.5} />{" "}
+              <div className="p-4 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/30 mb-6 flex flex-col">
+                <p className="text-sm font-bold text-red-700 dark:text-red-400 flex items-center gap-2 mb-1">
+                  <Info className="w-5 h-5" strokeWidth={2} />{" "}
                   {t("limit_alert_title", {
-                    defaultValue: "ALERTA DE CAPACIDAD MÁXIMA",
+                    defaultValue: "Alerta de Capacidad Máxima",
                   })}
                 </p>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-red-600 dark:text-red-500 leading-relaxed">
+                <p className="text-xs font-semibold text-red-600 dark:text-red-500 leading-relaxed ml-7">
                   {t("limit_alert_desc", {
                     defaultValue:
-                      "ELIMINE O ARCHIVE REGISTROS OBSOLETOS PARA LIBERAR ESPACIO EN LA BASE DE DATOS.",
+                      "Elimine o archive registros obsoletos para liberar espacio en la base de datos.",
                   })}
                 </p>
               </div>
@@ -225,17 +225,17 @@ export function ServicesManager({
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              <div className="p-4 border-l-4 border-l-amber-500 border border-black/10 dark:border-white/10 bg-amber-50 dark:bg-amber-900/10 mb-6 flex flex-col">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400 flex items-center gap-2 mb-1">
-                  <AlertCircle className="w-4 h-4" strokeWidth={1.5} />{" "}
+              <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-900/10 dark:border-amber-900/30 mb-6 flex flex-col">
+                <p className="text-sm font-bold text-amber-700 dark:text-amber-400 flex items-center gap-2 mb-1">
+                  <AlertCircle className="w-5 h-5" strokeWidth={2} />{" "}
                   {t("unsaved_changes", {
-                    defaultValue: "MODIFICACIONES PENDIENTES",
+                    defaultValue: "Modificaciones Pendientes",
                   })}
                 </p>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500 leading-relaxed">
+                <p className="text-xs font-semibold text-amber-600 dark:text-amber-500 leading-relaxed ml-7">
                   {t("unsaved_desc", {
                     defaultValue:
-                      "EXISTEN REGISTROS EN ESTADO BORRADOR. CONFIRME LOS DATOS ANTES DE SALIR.",
+                      "Existen registros en estado borrador. Confirme los datos antes de salir.",
                   })}
                 </p>
               </div>
@@ -266,40 +266,40 @@ export function ServicesManager({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-24 text-center border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]"
+            className="flex flex-col items-center justify-center py-24 text-center rounded-3xl border border-gray-100 dark:border-gray-800 border-dashed bg-white dark:bg-[#0a0a0a] shadow-sm"
           >
-            <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
-              <Server className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+            <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-6">
+              <Server className="w-8 h-8 text-emerald-500" strokeWidth={2} />
             </div>
-            <p className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">
+            <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               {t("empty_title", {
-                defaultValue: "CATÁLOGO DE SERVICIOS VACÍO",
+                defaultValue: "Catálogo de Servicios Vacío",
               })}
             </p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-8 max-w-sm leading-relaxed">
+            <p className="text-sm font-medium text-gray-500 mb-8 max-w-sm leading-relaxed">
               {t("empty_desc", {
                 defaultValue:
-                  "INICIE LA CONFIGURACIÓN DE LOS PROCEDIMIENTOS CLÍNICOS Y SERVICIOS.",
+                  "Inicie la configuración de los procedimientos clínicos y servicios.",
               })}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm px-6">
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm px-6">
               <button
                 onClick={() => setShowTemplates(true)}
                 disabled={!canAdd}
-                className="flex-1 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-none disabled:opacity-50"
+                className="flex-1 h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
               >
-                <Tag className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
-                {t("templates", { defaultValue: "USAR PLANTILLAS" })}
+                <Tag className="w-4 h-4" strokeWidth={2} />{" "}
+                {t("templates", { defaultValue: "Usar Plantillas" })}
               </button>
               <button
                 onClick={onAdd}
                 disabled={!canAdd}
-                className="flex-1 h-12 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none disabled:opacity-50"
+                className="flex-1 h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 disabled:opacity-50 shadow-sm"
               >
-                <Plus className="w-4 h-4" strokeWidth={1.5} />
+                <Plus className="w-4 h-4" strokeWidth={2} />
                 {!canAdd
                   ? t("limit_reached_btn")
-                  : t("create_first", { defaultValue: "CREAR REGISTRO" })}
+                  : t("create_first", { defaultValue: "Crear Registro" })}
               </button>
             </div>
           </motion.div>
@@ -310,40 +310,44 @@ export function ServicesManager({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-6 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] mt-12 flex flex-col md:flex-row gap-6"
+            className="p-6 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] mt-8 flex flex-col md:flex-row gap-8 shadow-sm"
           >
-            <div className="md:w-1/3 flex flex-col gap-2 border-b md:border-b-0 md:border-r border-black/10 dark:border-white/10 pb-4 md:pb-0 pr-0 md:pr-6">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+            <div className="md:w-1/3 flex flex-col gap-2 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 pb-6 md:pb-0 pr-0 md:pr-8">
+              <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <TrendingUp
-                  className="w-4 h-4 text-gray-500"
-                  strokeWidth={1.5}
-                />
-                {t("tip_title", { defaultValue: "OPTIMIZACIÓN DE CATÁLOGO" })}
-              </p>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed">
-                RECOMENDACIONES PARA MEJORAR LA TASA DE CONVERSIÓN EN
-                PLATAFORMA.
-              </p>
-            </div>
-            <ul className="md:w-2/3 flex flex-col gap-3 justify-center">
-              <li className="flex items-start gap-3">
-                <Check
-                  className="w-3.5 h-3.5 shrink-0 text-black dark:text-white mt-0.5"
+                  className="w-5 h-5 text-emerald-500"
                   strokeWidth={2}
                 />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400 leading-relaxed">
-                  INTEGRE IMÁGENES TÉCNICAS DESCRIPTIVAS PARA AUMENTAR LA
-                  RETENCIÓN (+40%).
+                {t("tip_title", { defaultValue: "Optimización de Catálogo" })}
+              </p>
+              <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                Recomendaciones para mejorar la tasa de conversión en la
+                plataforma.
+              </p>
+            </div>
+            <ul className="md:w-2/3 flex flex-col gap-4 justify-center">
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check
+                    className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"
+                    strokeWidth={2.5}
+                  />
+                </div>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Integre imágenes técnicas descriptivas para aumentar la
+                  retención (+40%).
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <Check
-                  className="w-3.5 h-3.5 shrink-0 text-black dark:text-white mt-0.5"
-                  strokeWidth={2}
-                />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-400 leading-relaxed">
-                  AJUSTE LOS TIEMPOS OPERATIVOS PARA EVITAR SOLAPAMIENTOS EN LA
-                  AGENDA.
+                <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check
+                    className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"
+                    strokeWidth={2.5}
+                  />
+                </div>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Ajuste los tiempos operativos para evitar solapamientos en la
+                  agenda.
                 </span>
               </li>
             </ul>

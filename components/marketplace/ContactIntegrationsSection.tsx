@@ -89,21 +89,21 @@ export function ContactIntegrationsSection() {
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+    <div className="flex flex-col bg-transparent">
       {/* Header Interior */}
-      <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+      <div className="border-b border-gray-100 dark:border-gray-800 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] rounded-t-3xl">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
             <LinkIcon
-              className="w-5 h-5 text-black dark:text-white"
-              strokeWidth={1.5}
+              className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+              strokeWidth={2}
             />
           </div>
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
               Medios de Contacto e Integraciones
             </h2>
-            <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+            <p className="text-sm font-medium text-gray-500">
               Conecta tus redes sociales, WhatsApp y correo para centralizar
               comunicación en el CRM.
             </p>
@@ -111,16 +111,16 @@ export function ContactIntegrationsSection() {
         </div>
       </div>
 
-      <div>
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-b-3xl p-6 md:p-8">
         {loading && connections.length === 0 ? (
           <div className="flex flex-col justify-center items-center py-16 gap-4">
             <QhSpinner size="md" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
               Validando Conexiones...
             </span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PLATFORMS.map((platform, index) => {
               const activeConnection = connections.find(
                 (c) => c.platform === platform.id,
@@ -131,38 +131,50 @@ export function ContactIntegrationsSection() {
                 <div
                   key={platform.id}
                   className={cn(
-                    "p-6 md:p-8 flex flex-col justify-between transition-all duration-300 border-b border-gray-200 dark:border-gray-800 group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer",
-                    // Aseguramos que la columna izquierda tenga borde derecho en desktop
-                    index % 2 === 0 ? "md:border-r" : "",
+                    "p-6 rounded-2xl border flex flex-col justify-between transition-all duration-300 relative shadow-sm hover:shadow-md",
                     isConnected
-                      ? "bg-gray-50 dark:bg-[#050505]"
-                      : "bg-white dark:bg-[#0a0a0a]",
+                      ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10"
+                      : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-emerald-300 dark:hover:border-emerald-700",
                   )}
                 >
                   <div className="flex items-start gap-4 mb-8">
                     <div
                       className={cn(
-                        "w-12 h-12 flex items-center justify-center border transition-colors shrink-0",
+                        "w-12 h-12 rounded-xl flex items-center justify-center transition-colors shrink-0 shadow-sm",
                         isConnected
-                          ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:bg-transparent group-hover:text-white dark:group-hover:text-black"
-                          : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black",
+                          ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+                          : "bg-gray-50 dark:bg-[#050505] text-gray-400 border border-gray-200 dark:border-gray-800",
                       )}
                     >
-                      <platform.icon className="w-5 h-5" strokeWidth={1.5} />
+                      <platform.icon className="w-6 h-6" strokeWidth={2} />
                     </div>
                     <div className="flex-1">
                       <div className="flex flex-col xl:flex-row xl:justify-between xl:items-start gap-2 mb-2">
-                        <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">
+                        <h3
+                          className={cn(
+                            "text-sm font-bold transition-colors",
+                            isConnected
+                              ? "text-emerald-800 dark:text-emerald-300"
+                              : "text-gray-900 dark:text-white",
+                          )}
+                        >
                           {platform.name}
                         </h3>
                         {isConnected && (
-                          <span className="self-start border border-black bg-black text-white dark:border-white dark:bg-white dark:text-black group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black transition-colors px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shrink-0">
-                            <Check className="w-3 h-3" strokeWidth={2} />{" "}
+                          <span className="self-start bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shrink-0 shadow-sm">
+                            <Check className="w-4 h-4" strokeWidth={2} />{" "}
                             Enlazado
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors font-light leading-relaxed">
+                      <p
+                        className={cn(
+                          "text-sm font-medium leading-relaxed transition-colors",
+                          isConnected
+                            ? "text-emerald-700/80 dark:text-emerald-400/80"
+                            : "text-gray-500",
+                        )}
+                      >
                         {platform.description}
                       </p>
                     </div>
@@ -170,32 +182,35 @@ export function ContactIntegrationsSection() {
 
                   <div className="mt-auto">
                     {isConnected ? (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/50 bg-white/50 dark:bg-[#0a0a0a]/50 shadow-sm">
                         <div className="flex items-center gap-3">
                           {activeConnection.profileImageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={activeConnection.profileImageUrl}
                               alt="Profile"
-                              className="w-8 h-8 border border-gray-300 dark:border-gray-700 object-cover"
+                              className="w-10 h-10 rounded-full border border-emerald-100 dark:border-emerald-800 object-cover"
                             />
                           ) : (
-                            <div className="w-8 h-8 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505]">
-                              <platform.icon className="w-3.5 h-3.5 text-gray-400" />
+                            <div className="w-10 h-10 rounded-full border border-emerald-100 dark:border-emerald-800 flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/20">
+                              <platform.icon className="w-4 h-4 text-emerald-500" />
                             </div>
                           )}
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors truncate max-w-[120px]">
+                          <span className="text-xs font-bold text-emerald-900 dark:text-emerald-100 truncate max-w-[120px]">
                             {activeConnection.platformUserName ||
                               "Cuenta Enlazada"}
                           </span>
                         </div>
                         <button
                           onClick={() =>
-                            handleDisconnect(activeConnection.id, platform.name)
+                            handleDisconnect(
+                              activeConnection.id,
+                              platform.name,
+                            )
                           }
-                          className="h-8 px-4 border border-red-500 text-red-600 dark:text-red-400 text-[9px] font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center gap-2"
+                          className="h-10 px-4 rounded-xl border border-red-200 dark:border-red-900/50 text-red-600 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-900/20 text-xs font-bold transition-colors flex items-center justify-center gap-2"
                         >
-                          <Unlink className="w-3 h-3" strokeWidth={2} />{" "}
+                          <Unlink className="w-4 h-4" strokeWidth={2} />{" "}
                           Desconectar
                         </button>
                       </div>
@@ -203,12 +218,12 @@ export function ContactIntegrationsSection() {
                       <button
                         onClick={() => handleConnect(platform.id)}
                         disabled={loading}
-                        className="w-full h-12 border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest text-black dark:text-white group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:text-white dark:group-hover:text-black hover:!bg-white hover:!text-black dark:hover:!bg-black dark:hover:!text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full h-12 rounded-xl border border-gray-200 dark:border-gray-800 text-sm font-bold text-gray-700 dark:text-gray-300 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 dark:hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                       >
                         {loading ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <RefreshCw className="w-5 h-5 animate-spin" />
                         ) : (
-                          <LinkIcon className="w-4 h-4" strokeWidth={1.5} />
+                          <LinkIcon className="w-5 h-5" strokeWidth={2} />
                         )}
                         Configurar Protocolo
                       </button>

@@ -38,9 +38,9 @@ export function CancellationPolicySection({
       name: t("templates.flexible.name"),
       icon: Shield,
       selectedClass:
-        "border-black bg-gray-50 text-black dark:border-white dark:bg-gray-900 dark:text-white",
+        "border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-900/20 dark:text-emerald-400",
       unselectedClass:
-        "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white",
+        "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-emerald-300 dark:hover:border-emerald-700",
       text: t("templates.flexible.text"),
     },
     {
@@ -48,9 +48,9 @@ export function CancellationPolicySection({
       name: t("templates.moderate.name"),
       icon: ShieldCheck,
       selectedClass:
-        "border-black bg-gray-50 text-black dark:border-white dark:bg-gray-900 dark:text-white",
+        "border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-900/20 dark:text-emerald-400",
       unselectedClass:
-        "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white",
+        "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-emerald-300 dark:hover:border-emerald-700",
       text: t("templates.moderate.text"),
     },
     {
@@ -58,42 +58,42 @@ export function CancellationPolicySection({
       name: t("templates.strict.name"),
       icon: ShieldAlert,
       selectedClass:
-        "border-black bg-gray-50 text-black dark:border-white dark:bg-gray-900 dark:text-white",
+        "border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-900/20 dark:text-emerald-400",
       unselectedClass:
-        "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white",
+        "border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-[#0a0a0a] hover:border-emerald-300 dark:hover:border-emerald-700",
       text: t("templates.strict.text"),
     },
   ];
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+    <div className="flex flex-col bg-transparent">
       {/* Header Interior */}
-      <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+      <div className="border-b border-gray-100 dark:border-gray-800 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] rounded-t-3xl">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
             <ShieldAlert
-              className="w-5 h-5 text-black dark:text-white"
-              strokeWidth={1.5}
+              className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+              strokeWidth={2}
             />
           </div>
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
               {t("title")}
             </h2>
-            <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+            <p className="text-sm font-medium text-gray-500">
               {t("description")}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="p-6 md:p-8 space-y-8">
-        {/* Plantillas Rápidas (Grid Blueprint) */}
+      <div className="p-6 md:p-8 space-y-8 bg-white dark:bg-[#0a0a0a] rounded-b-3xl">
+        {/* Plantillas Rápidas */}
         <div className="space-y-4">
-          <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block">
+          <Label className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 block">
             {t("templates_label")}
           </Label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {POLICY_TEMPLATES.map((template) => {
               const Icon = template.icon;
               const isSelected = policyText === template.text;
@@ -103,7 +103,7 @@ export function CancellationPolicySection({
                   key={template.id}
                   onClick={() => onChange(template.text)}
                   className={cn(
-                    "flex flex-col items-start gap-4 p-6 border-b border-r text-left transition-all duration-300 relative group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] hover:z-10 cursor-pointer group-hover:!text-white dark:group-hover:!text-black",
+                    "flex flex-col items-start gap-4 p-6 rounded-2xl border text-left transition-all duration-300 relative group cursor-pointer shadow-sm hover:shadow-md",
                     isSelected
                       ? template.selectedClass
                       : template.unselectedClass,
@@ -111,18 +111,24 @@ export function CancellationPolicySection({
                 >
                   <div className="flex items-center gap-3">
                     <Icon
-                      className="w-4 h-4 group-hover:!text-white dark:group-hover:!text-black transition-colors"
-                      strokeWidth={isSelected ? 2 : 1.5}
+                      className={cn(
+                        "w-5 h-5 transition-colors",
+                        isSelected ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400 group-hover:text-emerald-500"
+                      )}
+                      strokeWidth={2}
                     />
-                    <span className="text-[10px] font-bold uppercase tracking-widest group-hover:!text-white dark:group-hover:!text-black transition-colors">
+                    <span className={cn(
+                      "text-sm font-bold transition-colors",
+                      isSelected ? "text-emerald-800 dark:text-emerald-300" : "text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
+                    )}>
                       {template.name}
                     </span>
                   </div>
                   <p
                     className={cn(
-                      "text-xs font-light leading-relaxed transition-colors group-hover:text-gray-300 dark:group-hover:text-gray-600",
+                      "text-sm font-medium leading-relaxed transition-colors",
                       isSelected
-                        ? "text-gray-700 dark:text-gray-300"
+                        ? "text-emerald-700/80 dark:text-emerald-400/80"
                         : "text-gray-500",
                     )}
                   >
@@ -131,7 +137,7 @@ export function CancellationPolicySection({
                   {isSelected && (
                     <div className="absolute top-4 right-4">
                       <CheckCircle2
-                        className="w-4 h-4 group-hover:!text-white dark:group-hover:!text-black transition-colors"
+                        className="w-5 h-5 text-emerald-600 dark:text-emerald-400"
                         strokeWidth={2}
                       />
                     </div>
@@ -142,19 +148,19 @@ export function CancellationPolicySection({
           </div>
         </div>
 
-        {/* Editor Personalizado (Flush Textarea) */}
+        {/* Editor Personalizado */}
         <div className="space-y-4 pt-4">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-            <Label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-              <FileText className="w-4 h-4" strokeWidth={1.5} />
+            <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+              <FileText className="w-4 h-4 text-gray-400" strokeWidth={2} />
               {t("editor_label")}
             </Label>
             <span
               className={cn(
-                "text-[9px] font-bold uppercase tracking-widest px-2 py-1 border",
+                "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full",
                 charCount > charLimit
-                  ? "border-red-500 text-red-500"
-                  : "border-gray-300 dark:border-gray-700 text-gray-500",
+                  ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300",
               )}
             >
               {charCount}/{charLimit}
@@ -165,23 +171,28 @@ export function CancellationPolicySection({
             value={policyText || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={t("editor_placeholder")}
-            className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm p-4 min-h-[160px] focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors resize-none font-light leading-relaxed text-black dark:text-white"
+            className={cn(
+              "rounded-2xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm p-5 min-h-[160px] focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors resize-none font-medium leading-relaxed text-gray-900 dark:text-white shadow-sm",
+              charCount > charLimit ? "border-red-300 dark:border-red-500/50 ring-1 ring-red-500/20" : ""
+            )}
           />
-          <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+          <p className="text-xs text-gray-500 font-medium">
             {t("editor_hint")}
           </p>
         </div>
 
-        {/* Tip Educativo (Margin Note Format) */}
-        <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505] mt-8">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2">
-            <TrendingDown className="w-4 h-4" strokeWidth={1.5} />{" "}
-            {t("tip_title")}
-          </p>
-          <div
-            className="text-xs text-gray-500 font-light leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: t("tip_desc") }}
-          />
+        {/* Tip Educativo */}
+        <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/30 p-5 bg-emerald-50/50 dark:bg-emerald-900/10 mt-8 flex gap-4 shadow-sm">
+          <TrendingDown className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+          <div>
+            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-400 mb-2">
+              {t("tip_title")}
+            </p>
+            <div
+              className="text-sm text-emerald-700/80 dark:text-emerald-400/80 font-medium leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: t("tip_desc") }}
+            />
+          </div>
         </div>
       </div>
     </div>

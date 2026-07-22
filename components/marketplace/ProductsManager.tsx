@@ -230,41 +230,46 @@ export function ProductsManager({
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+    <div className="flex flex-col bg-transparent p-6 md:p-8">
       {/* --- CABECERA (HEADER) --- */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505] gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm gap-6 shrink-0 mb-6">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
             <ShoppingBag
-              className="w-5 h-5 text-black dark:text-white"
-              strokeWidth={1.5}
+              className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+              strokeWidth={2}
             />
           </div>
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1">
               {t("title", { defaultValue: "Farmacia e Insumos" })}
             </h2>
-            <div className="flex flex-wrap items-center gap-3">
-              {products.length > 0 && (
-                <span className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-black px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" strokeWidth={2} />
-                  {products.length} Registros Activos
-                </span>
-              )}
-
-              {typeof currentUsage === "number" &&
-                typeof maxLimit === "number" && (
-                  <span
-                    className={cn(
-                      "border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1",
-                      canAdd
-                        ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                        : "border-red-500 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400",
-                    )}
-                  >
-                    Consumo: {currentUsage} / {maxLimit}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-none">
+                Catálogo de Productos
+              </h2>
+              <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+                {products.length > 0 && (
+                  <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-500" strokeWidth={2} />
+                    {products.length} Registros Activos
                   </span>
                 )}
+
+                {typeof currentUsage === "number" &&
+                  typeof maxLimit === "number" && (
+                    <span
+                      className={cn(
+                        "px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5",
+                        canAdd
+                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                          : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+                      )}
+                    >
+                      Consumo: {currentUsage} / {maxLimit}
+                    </span>
+                  )}
+              </div>
             </div>
           </div>
         </div>
@@ -272,7 +277,7 @@ export function ProductsManager({
         <Button
           onClick={handleAddWrapper}
           disabled={!canAdd}
-          className="w-full sm:w-auto rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors h-10 px-6 disabled:opacity-50 disabled:cursor-not-allowed border-0"
+          className="w-full md:w-auto h-12 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 disabled:opacity-50 shadow-sm"
         >
           <Plus className="w-4 h-4 mr-2" strokeWidth={2} />
           {!canAdd
@@ -281,23 +286,23 @@ export function ProductsManager({
         </Button>
       </div>
 
-      <div className="p-6 md:p-8 space-y-8 bg-gray-50/50 dark:bg-[#050505]/50">
+      <div className="space-y-8">
         {products.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-400 dark:border-gray-600 bg-white dark:bg-[#0a0a0a]"
+            className="flex flex-col items-center justify-center py-24 text-center rounded-3xl border border-gray-100 dark:border-gray-800 border-dashed bg-white dark:bg-[#0a0a0a] shadow-sm"
           >
-            <div className="w-16 h-16 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505] mb-6">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-6">
               <ShoppingBag
-                className="w-6 h-6 text-gray-400"
-                strokeWidth={1.5}
+                className="w-8 h-8 text-emerald-500"
+                strokeWidth={2}
               />
             </div>
-            <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+            <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               {t("empty_state", { defaultValue: "Inventario Vacío" })}
             </p>
-            <p className="text-xs text-gray-500 font-light mb-8 max-w-sm text-center leading-relaxed">
+            <p className="text-sm font-medium text-gray-500 mb-8 max-w-sm text-center leading-relaxed">
               {t("empty_desc", {
                 defaultValue:
                   "Agrega medicamentos, suplementos o productos que ofrezcas en tu clínica.",
@@ -306,7 +311,7 @@ export function ProductsManager({
             <Button
               onClick={handleAddWrapper}
               disabled={!canAdd}
-              className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors h-12 px-8 disabled:opacity-50 border-0"
+              className="h-12 px-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 disabled:opacity-50 shadow-sm"
             >
               <Plus className="w-4 h-4 mr-2" strokeWidth={2} />
               {!canAdd
@@ -317,7 +322,6 @@ export function ProductsManager({
             </Button>
           </motion.div>
         ) : (
-          /* --- LISTA DE PRODUCTOS --- */
           <AnimatePresence mode="popLayout">
             {products.map((product) => (
               <motion.div
@@ -327,23 +331,23 @@ export function ProductsManager({
                 exit={{ opacity: 0, y: -20 }}
                 layout
                 className={cn(
-                  "border bg-white dark:bg-[#0a0a0a] transition-colors",
+                  "border bg-white dark:bg-[#0a0a0a] transition-colors rounded-3xl shadow-sm overflow-hidden",
                   product.isNew || product.hasUnsavedChanges
-                    ? "border-black dark:border-white ring-1 ring-black dark:ring-white"
-                    : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white",
+                    ? "border-amber-200 dark:border-amber-900/30 ring-1 ring-amber-500/20"
+                    : "border-gray-100 dark:border-gray-800 hover:border-emerald-200 dark:hover:border-emerald-900/30",
                 )}
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* 📸 Zona Lateral: Imagen del Producto */}
-                  <div className="lg:w-64 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-6 md:p-8 flex flex-col justify-between">
+                  <div className="lg:w-72 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]/50 p-6 md:p-8 flex flex-col justify-between">
                     <div className="space-y-4">
                       {/* Estado superior */}
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-gray-400">
+                        <span className="text-xs font-semibold text-gray-500">
                           ID: {product.id < 0 ? "NUEVO" : product.id}
                         </span>
                         {(product.isNew || product.hasUnsavedChanges) && (
-                          <span className="text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black px-2 py-1">
+                          <span className="text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2.5 py-1 rounded-full">
                             Modificado
                           </span>
                         )}
@@ -351,7 +355,7 @@ export function ProductsManager({
 
                       {/* Dropzone Imagen */}
                       <div
-                        className="w-full aspect-square border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black overflow-hidden relative cursor-pointer group hover:border-black dark:hover:border-white transition-colors mt-4"
+                        className="w-full aspect-square rounded-2xl border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black overflow-hidden relative cursor-pointer group hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors mt-4 shadow-sm"
                         onClick={() =>
                           fileInputRefs.current[product.id]?.click()
                         }
@@ -365,12 +369,12 @@ export function ProductsManager({
                           />
                         ) : (
                           <ImagePlus
-                            className="w-8 h-8 text-gray-400"
-                            strokeWidth={1}
+                            className="w-10 h-10 text-gray-300"
+                            strokeWidth={1.5}
                           />
                         )}
-                        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-white border border-white px-2 py-1">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <span className="text-sm font-semibold text-white bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
                             {t("change_image", { defaultValue: "Actualizar" })}
                           </span>
                         </div>
@@ -394,17 +398,17 @@ export function ProductsManager({
 
                   {/* 📝 Zona Principal: Formulario */}
                   <div className="flex-1 p-6 md:p-8 space-y-8">
-                    {/* 🚀 MAGIA DE IA: Banner de Escaneo Inteligente (Blueprint Style) */}
-                    <div className="border border-black dark:border-white bg-gray-50 dark:bg-[#050505] p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                    {/* 🚀 MAGIA DE IA: Banner de Escaneo Inteligente */}
+                    <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10 p-5 flex flex-col md:flex-row items-center justify-between gap-4">
                       <div>
-                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center">
+                        <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-400 flex items-center">
                           <Sparkles
-                            className="w-3.5 h-3.5 mr-2"
-                            strokeWidth={1.5}
+                            className="w-4 h-4 mr-2"
+                            strokeWidth={2}
                           />
                           Módulo de Extracción IA
                         </h4>
-                        <p className="text-xs text-gray-500 font-light mt-1">
+                        <p className="text-xs text-emerald-600/80 dark:text-emerald-500 font-medium mt-1">
                           Escanea el empaque del medicamento para autocompletar
                           la ficha técnica.
                         </p>
@@ -428,17 +432,17 @@ export function ProductsManager({
                             setIsCameraOpen(true);
                           }}
                           disabled={scanningProductId === product.id}
-                          className="flex-1 md:flex-none rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest h-10 px-4 border-0"
+                          className="flex-1 md:flex-none rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold h-10 px-4 border-0 shadow-sm"
                         >
                           {scanningProductId === product.id ? (
                             <>
-                              <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />{" "}
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
                               ...
                             </>
                           ) : (
                             <>
                               <Camera
-                                className="w-3.5 h-3.5 mr-2"
+                                className="w-4 h-4 mr-2"
                                 strokeWidth={2}
                               />{" "}
                               Escanear
@@ -456,10 +460,10 @@ export function ProductsManager({
                             )?.click()
                           }
                           disabled={scanningProductId === product.id}
-                          className="flex-1 md:flex-none rounded-none border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-10 px-4 transition-colors"
+                          className="flex-1 md:flex-none rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-[#0a0a0a] text-emerald-700 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/20 h-10 px-4 transition-colors"
                         >
                           <ImagePlus
-                            className="w-3.5 h-3.5 mr-2"
+                            className="w-4 h-4 mr-2"
                             strokeWidth={2}
                           />{" "}
                           Archivo
@@ -470,7 +474,7 @@ export function ProductsManager({
                     {/* Campos Básicos */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                           {t("label_name", {
                             defaultValue: "Denominación Comercial",
                           })}
@@ -484,21 +488,21 @@ export function ProductsManager({
                             defaultValue: "Ej: Suplemento vitamínico",
                           })}
                           className={cn(
-                            "rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors",
-                            !product.name ? "border-red-500" : "",
+                            "rounded-xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors",
+                            !product.name ? "border-red-200" : "",
                           )}
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                             {t("label_price", {
                               defaultValue: "Precio Unitario",
                             })}
                           </label>
                           <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">
                               $
                             </span>
                             <Input
@@ -510,12 +514,12 @@ export function ProductsManager({
                                   price: parseFloat(e.target.value) || 0,
                                 })
                               }
-                              className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 pl-8 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+                              className="rounded-xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 pl-8 text-sm focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors"
                             />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
                             <Tag className="w-3 h-3" strokeWidth={2} />{" "}
                             {t("label_category", { defaultValue: "Categoría" })}
                           </label>
@@ -527,27 +531,26 @@ export function ProductsManager({
                             placeholder={t("placeholder_category", {
                               defaultValue: "Farmacia",
                             })}
-                            className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+                            className="rounded-xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors"
                           />
                         </div>
                       </div>
                     </div>
 
                     {/* 🛡️ SECCIÓN CUMPLIMIENTO REGULATORIO (COFEPRIS) */}
-                    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-                      <div className="border-b border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-[#050505]">
-                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
+                    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden">
+                      <div className="border-b border-gray-100 dark:border-gray-800 p-4 bg-gray-50 dark:bg-[#050505]">
+                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
                           <ShieldAlert
                             className="w-3.5 h-3.5"
                             strokeWidth={1.5}
                           />{" "}
-                          Cumplimiento Regulatorio y Farmacológico (COFEPRIS)
+                          Cumplimiento Regulatorio (COFEPRIS)
                         </h4>
                       </div>
 
                       <div className="p-6 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {/* Categoría COFEPRIS */}
                           <div className="space-y-2">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                               Clasificación Sanitaria
@@ -559,7 +562,7 @@ export function ProductsManager({
                                   cofeprisCategory: e.target.value,
                                 })
                               }
-                              className="w-full h-12 rounded-none bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none appearance-none"
+                              className="w-full h-12 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm focus:border-emerald-500 focus:ring-0 px-4 transition-colors outline-none appearance-none"
                             >
                               {COFEPRIS_CATEGORIES.map((cat) => (
                                 <option key={cat.value} value={cat.value}>
@@ -569,7 +572,6 @@ export function ProductsManager({
                             </select>
                           </div>
 
-                          {/* URL Ficha Técnica */}
                           <div className="space-y-2">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
                               <FileText
@@ -586,11 +588,10 @@ export function ProductsManager({
                                 })
                               }
                               placeholder="Ej: https://.../medicamento.pdf"
-                              className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+                              className="rounded-xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors"
                             />
                           </div>
 
-                          {/* Sustancia Activa */}
                           <div className="space-y-2 relative">
                             <div className="flex items-center justify-between">
                               <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
@@ -601,13 +602,8 @@ export function ProductsManager({
                                 Sustancia Activa
                               </label>
                               {suggestStatus[product.id] === "SEARCHING" && (
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 animate-pulse">
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-600 animate-pulse">
                                   Validando BD...
-                                </span>
-                              )}
-                              {suggestStatus[product.id] === "FOUND" && (
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-1">
-                                  <Check className="w-3 h-3" /> Reglas Aplicadas
                                 </span>
                               )}
                             </div>
@@ -620,11 +616,10 @@ export function ProductsManager({
                                 )
                               }
                               placeholder="Ej: Paracetamol 500mg"
-                              className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+                              className="rounded-xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors"
                             />
                           </div>
 
-                          {/* Laboratorio */}
                           <div className="space-y-2">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
                               <Building2
@@ -641,86 +636,32 @@ export function ProductsManager({
                                 })
                               }
                               placeholder="Ej: Pfizer, Bayer"
-                              className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+                              className="rounded-xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors"
                             />
                           </div>
                         </div>
 
-                        {/* Toggles de Compliance (Architectural Checkboxes) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
-                          <label className="flex items-center space-x-3 cursor-pointer p-4 border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors group bg-gray-50 dark:bg-[#050505]">
-                            <input
-                              type="checkbox"
-                              checked={product.requiresPrescription || false}
-                              onChange={(e) =>
-                                onUpdate(product.id, {
-                                  requiresPrescription: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded-none border-gray-300 bg-white checked:bg-black checked:border-black dark:bg-[#0a0a0a] dark:border-gray-700 dark:checked:bg-white dark:checked:border-white focus:ring-0 focus:ring-offset-0"
-                            />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                              Requiere Receta Médica
-                            </span>
-                          </label>
-
-                          <label className="flex items-center space-x-3 cursor-pointer p-4 border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors group bg-gray-50 dark:bg-[#050505]">
-                            <input
-                              type="checkbox"
-                              checked={product.isAntibiotic || false}
-                              onChange={(e) =>
-                                onUpdate(product.id, {
-                                  isAntibiotic: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded-none border-gray-300 bg-white checked:bg-black checked:border-black dark:bg-[#0a0a0a] dark:border-gray-700 dark:checked:bg-white dark:checked:border-white focus:ring-0 focus:ring-offset-0"
-                            />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                              Es Antibiótico (Sello)
-                            </span>
-                          </label>
-
-                          <label className="flex items-center space-x-3 cursor-pointer p-4 border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors group bg-gray-50 dark:bg-[#050505]">
-                            <input
-                              type="checkbox"
-                              checked={
-                                product.requiresPhysicalRetention || false
-                              }
-                              onChange={(e) =>
-                                onUpdate(product.id, {
-                                  requiresPhysicalRetention: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded-none border-gray-300 bg-white checked:bg-black checked:border-black dark:bg-[#0a0a0a] dark:border-gray-700 dark:checked:bg-white dark:checked:border-white focus:ring-0 focus:ring-offset-0"
-                            />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                              Exige Recolectar Original
-                            </span>
-                          </label>
-
-                          <label className="flex items-center space-x-3 cursor-pointer p-4 border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors group bg-gray-50 dark:bg-[#050505]">
-                            <input
-                              type="checkbox"
-                              checked={product.allowsInterstateShipping ?? true}
-                              onChange={(e) =>
-                                onUpdate(product.id, {
-                                  allowsInterstateShipping: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded-none border-gray-300 bg-white checked:bg-black checked:border-black dark:bg-[#0a0a0a] dark:border-gray-700 dark:checked:bg-white dark:checked:border-white focus:ring-0 focus:ring-offset-0"
-                            />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                              <Truck className="w-3 h-3" /> Permite Envío
-                              Foráneo
-                            </span>
-                          </label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-gray-100 dark:border-gray-800">
+                          {["requiresPrescription", "isAntibiotic", "requiresPhysicalRetention", "allowsInterstateShipping"].map((field) => (
+                            <label key={field} className="flex items-center space-x-3 cursor-pointer p-4 border border-gray-100 dark:border-gray-800 hover:border-emerald-200 dark:hover:border-emerald-900 rounded-xl bg-gray-50 dark:bg-[#050505]">
+                              <input
+                                type="checkbox"
+                                checked={product[field as keyof UI_Product] as boolean ?? (field === 'allowsInterstateShipping' ? true : false)}
+                                onChange={(e) => onUpdate(product.id, { [field]: e.target.checked })}
+                                className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300">
+                                {field === 'requiresPrescription' ? 'Requiere Receta' : field === 'isAntibiotic' ? 'Es Antibiótico' : field === 'requiresPhysicalRetention' ? 'Retención Física' : 'Envío Foráneo'}
+                              </span>
+                            </label>
+                          ))}
                         </div>
                       </div>
                     </div>
 
                     {/* Descripción Corta */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
                         {t("label_desc", {
                           defaultValue: "Descripción Comercial",
                         })}
@@ -733,73 +674,16 @@ export function ProductsManager({
                         placeholder={t("placeholder_desc", {
                           defaultValue: "Beneficios, tamaño, etc.",
                         })}
-                        className="rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+                        className="rounded-xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-12 text-sm focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors"
                       />
                     </div>
 
-                    {/* Stock y SKU (Blueprint Grid) */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800 mt-6">
-                      <div className="border-b border-r border-gray-200 dark:border-gray-800 p-4 space-y-2 bg-gray-50 dark:bg-[#050505]">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                          <Box className="w-3.5 h-3.5" />{" "}
-                          {t("label_stock", {
-                            defaultValue: "Inventario Físico",
-                          })}
-                        </label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={product.stockQuantity || ""}
-                          onChange={(e) =>
-                            onUpdate(product.id, {
-                              stockQuantity: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="rounded-none bg-white dark:bg-black border-gray-200 dark:border-gray-800 h-10 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
-                        />
-                      </div>
-                      <div className="border-b border-r border-gray-200 dark:border-gray-800 p-4 space-y-2 bg-gray-50 dark:bg-[#050505]">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                          <ShieldAlert className="w-3.5 h-3.5" /> Alerta Mínima
-                        </label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={product.stockAlertThreshold || ""}
-                          onChange={(e) =>
-                            onUpdate(product.id, {
-                              stockAlertThreshold:
-                                parseInt(e.target.value) || 0,
-                            })
-                          }
-                          placeholder="Ej: 5"
-                          className="rounded-none bg-white dark:bg-black border-gray-200 dark:border-gray-800 h-10 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
-                        />
-                      </div>
-                      <div className="border-b border-r border-gray-200 dark:border-gray-800 p-4 space-y-2 bg-gray-50 dark:bg-[#050505]">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                          <Barcode className="w-3.5 h-3.5" />{" "}
-                          {t("label_sku", { defaultValue: "Código SKU" })}
-                        </label>
-                        <Input
-                          value={product.sku || ""}
-                          onChange={(e) =>
-                            onUpdate(product.id, { sku: e.target.value })
-                          }
-                          placeholder={t("placeholder_sku", {
-                            defaultValue: "Ej: MED-001",
-                          })}
-                          className="rounded-none bg-white dark:bg-black border-gray-200 dark:border-gray-800 h-10 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
-                        />
-                      </div>
-                    </div>
-
                     {/* Acciones */}
-                    <div className="flex flex-wrap items-center justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
+                    <div className="flex flex-wrap items-center justify-end gap-4 pt-6 border-t border-gray-100 dark:border-gray-800">
                       <Button
                         variant="ghost"
                         onClick={() => onDelete(product.id)}
-                        className="w-full sm:w-auto rounded-none border border-transparent text-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 transition-colors h-12 px-6 text-[10px] font-bold uppercase tracking-widest"
+                        className="w-full sm:w-auto rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors h-12 px-6 text-sm font-semibold"
                       >
                         <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} />{" "}
                         {tGlobal("delete", { defaultValue: "Purgar" })}
@@ -808,10 +692,10 @@ export function ProductsManager({
                         onClick={() => onSave(product)}
                         disabled={!product.hasUnsavedChanges && !product.isNew}
                         className={cn(
-                          "w-full sm:w-auto rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                          "w-full sm:w-auto rounded-xl h-12 px-8 text-sm font-bold transition-colors border-0 shadow-sm",
                           product.hasUnsavedChanges || product.isNew
-                            ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
-                            : "bg-gray-100 text-gray-400 dark:bg-gray-900 cursor-not-allowed",
+                            ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                            : "bg-gray-100 text-gray-400 dark:bg-gray-800 cursor-not-allowed",
                         )}
                       >
                         <Save className="w-4 h-4 mr-2" strokeWidth={2} />

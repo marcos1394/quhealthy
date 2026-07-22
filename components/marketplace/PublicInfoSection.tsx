@@ -116,22 +116,22 @@ export function PublicInfoSection({
   const qualityScore = getQualityScore();
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
+    <div className="flex flex-col bg-transparent">
       {/* Header Interior */}
-      <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
+      <div className="border-b border-gray-100 dark:border-gray-800 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] rounded-t-3xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
               <FileText
-                className="w-5 h-5 text-black dark:text-white"
-                strokeWidth={1.5}
+                className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+                strokeWidth={2}
               />
             </div>
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                 Información Pública
               </h2>
-              <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
+              <p className="text-sm font-medium text-gray-500">
                 Biografía y Video de Bienvenida
               </p>
             </div>
@@ -140,16 +140,16 @@ export function PublicInfoSection({
           <Button
             variant="outline"
             onClick={() => setShowPreviewTips(!showPreviewTips)}
-            className="rounded-none border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors h-10 px-6"
+            className="rounded-xl border-gray-200 dark:border-gray-800 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors h-10 px-6"
           >
-            <Eye className="w-3.5 h-3.5 mr-2" strokeWidth={2} />
+            <Eye className="w-4 h-4 mr-2" strokeWidth={2} />
             {showPreviewTips ? "Ocultar Tips" : "Ver Tips de Bio"}
           </Button>
         </div>
       </div>
 
-      <div className="p-6 md:p-8 space-y-12">
-        {/* Writing Tips (Margin Note Format) */}
+      <div className="p-6 md:p-8 space-y-12 bg-white dark:bg-[#0a0a0a] rounded-b-3xl">
+        {/* Writing Tips */}
         <AnimatePresence>
           {showPreviewTips && (
             <motion.div
@@ -158,39 +158,29 @@ export function PublicInfoSection({
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505] mb-8">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-3">
-                  <Info className="w-4 h-4" strokeWidth={1.5} /> Estructura
-                  Recomendada
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-500 font-light">
-                  <div className="flex items-center gap-3">
-                    <Check
-                      className="w-3.5 h-3.5 text-black dark:text-white shrink-0"
-                      strokeWidth={2}
-                    />
-                    <span>Comienza con tu especialidad principal</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check
-                      className="w-3.5 h-3.5 text-black dark:text-white shrink-0"
-                      strokeWidth={2}
-                    />
-                    <span>Menciona años de experiencia y certificaciones</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check
-                      className="w-3.5 h-3.5 text-black dark:text-white shrink-0"
-                      strokeWidth={2}
-                    />
-                    <span>Habla de tu enfoque o filosofía de atención</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check
-                      className="w-3.5 h-3.5 text-black dark:text-white shrink-0"
-                      strokeWidth={2}
-                    />
-                    <span>Usa un tono cercano y profesional</span>
+              <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/30 p-5 bg-emerald-50/50 dark:bg-emerald-900/10 mb-8 flex gap-4 shadow-sm">
+                <Info className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-emerald-800 dark:text-emerald-400 mb-4">
+                    Estructura Recomendada
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-emerald-700/80 dark:text-emerald-400/80 font-medium">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0" strokeWidth={2.5} />
+                      <span>Comienza con tu especialidad principal</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0" strokeWidth={2.5} />
+                      <span>Menciona experiencia y certificaciones</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0" strokeWidth={2.5} />
+                      <span>Habla de tu enfoque de atención</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0" strokeWidth={2.5} />
+                      <span>Usa un tono cercano y profesional</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -201,7 +191,7 @@ export function PublicInfoSection({
         {/* Descripción Pública */}
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
-            <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+            <Label className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
               Biografía / Reseña Profesional
             </Label>
             <div className="flex items-center gap-4">
@@ -209,12 +199,12 @@ export function PublicInfoSection({
               {charCount > 50 && (
                 <span
                   className={cn(
-                    "text-[9px] font-bold uppercase tracking-widest border px-2 py-0.5",
+                    "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full",
                     qualityScore >= 75
-                      ? "border-black dark:border-white text-black dark:text-white"
+                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                       : qualityScore >= 50
-                        ? "border-gray-400 text-gray-500"
-                        : "border-amber-500 text-amber-600",
+                        ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                        : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
                   )}
                 >
                   {qualityScore >= 75
@@ -228,7 +218,7 @@ export function PublicInfoSection({
               {/* Character Counter */}
               <span
                 className={cn(
-                  "text-[9px] font-bold uppercase tracking-widest",
+                  "text-[10px] font-bold uppercase tracking-widest",
                   getCharCountColor(),
                 )}
               >
@@ -238,9 +228,9 @@ export function PublicInfoSection({
           </div>
 
           {/* Strict Progress Line */}
-          <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+          <div className="w-full h-1 bg-gray-100 dark:bg-gray-800 relative rounded-full overflow-hidden">
             <motion.div
-              className={cn("absolute top-0 left-0 h-full", getProgressColor())}
+              className={cn("absolute top-0 left-0 h-full rounded-full", getProgressColor())}
               initial={{ width: 0 }}
               animate={{ width: `${charPercent}%` }}
               transition={{ duration: 0.3 }}
@@ -254,34 +244,33 @@ export function PublicInfoSection({
             onChange={(e) => onChange("description", e.target.value)}
             maxLength={charLimit}
             className={cn(
-              "rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 p-4 text-sm font-light focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors resize-none leading-relaxed text-black dark:text-white",
+              "rounded-2xl bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 p-5 text-sm font-medium focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors resize-none leading-relaxed text-gray-900 dark:text-white shadow-sm",
               charPercent >= 90
-                ? "border-red-500 focus-visible:border-red-500"
+                ? "border-red-300 dark:border-red-500/50 ring-1 ring-red-500/20"
                 : "",
             )}
           />
-          <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
-            Información visible en la cabecera de tu perfil público y resultados
-            de búsqueda.
+          <p className="text-xs text-gray-500 font-medium">
+            Información visible en la cabecera de tu perfil público y resultados de búsqueda.
           </p>
         </div>
 
         {/* Video de Bienvenida */}
-        <div className="border-t border-gray-200 dark:border-gray-800 pt-12 space-y-6">
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-12 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black shrink-0">
+              <div className="w-12 h-12 rounded-xl border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
                 <Video
-                  className="w-4 h-4 text-black dark:text-white"
-                  strokeWidth={1.5}
+                  className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+                  strokeWidth={2}
                 />
               </div>
               <div>
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block mb-0.5">
+                <Label className="text-sm font-bold text-gray-900 dark:text-white block mb-0.5">
                   Video Pitch / Presentación
                 </Label>
                 {isPremium && (
-                  <span className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+                  <span className="text-xs font-semibold text-gray-500">
                     Impacto directo en conversión
                   </span>
                 )}
@@ -289,12 +278,12 @@ export function PublicInfoSection({
             </div>
 
             {!isPremium ? (
-              <span className="border border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-900/10 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
-                <Crown className="w-3 h-3" strokeWidth={2} /> Feature Premium
+              <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit shadow-sm">
+                <Crown className="w-4 h-4" strokeWidth={2} /> Feature Premium
               </span>
             ) : (
-              <span className="border border-black bg-black text-white dark:border-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
-                <Check className="w-3 h-3" strokeWidth={2} /> Activo
+              <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit shadow-sm">
+                <Check className="w-4 h-4" strokeWidth={2} /> Activo
               </span>
             )}
           </div>
@@ -302,7 +291,7 @@ export function PublicInfoSection({
           {/* Video Upload UI */}
           <div className="space-y-4">
             {settings.videoUrl ? (
-              <div className="relative group border border-gray-200 dark:border-gray-800 bg-black aspect-video overflow-hidden">
+              <div className="relative group rounded-3xl border border-gray-200 dark:border-gray-800 bg-black aspect-video overflow-hidden shadow-sm">
                 <video
                   src={settings.videoUrl}
                   controls
@@ -311,9 +300,9 @@ export function PublicInfoSection({
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     onClick={() => onVideoDelete && onVideoDelete()}
-                    className="rounded-none border border-red-500 bg-black/50 text-red-500 hover:bg-red-500 hover:text-white h-10 px-4 text-[9px] font-bold uppercase tracking-widest backdrop-blur-sm"
+                    className="rounded-xl border border-white/20 bg-black/50 text-white hover:bg-red-500 hover:border-red-500 h-10 px-4 text-xs font-bold backdrop-blur-sm transition-colors"
                   >
-                    <Trash2 className="w-3.5 h-3.5 mr-2" /> Revocar Video
+                    <Trash2 className="w-4 h-4 mr-2" /> Revocar Video
                   </Button>
                 </div>
               </div>
@@ -321,29 +310,29 @@ export function PublicInfoSection({
               <div
                 onClick={() => isPremium && videoInputRef.current?.click()}
                 className={cn(
-                  "border border-dashed aspect-video md:aspect-[21/9] flex flex-col items-center justify-center transition-colors group",
+                  "border-2 border-dashed rounded-3xl aspect-video md:aspect-[21/9] flex flex-col items-center justify-center transition-colors group",
                   isPremium
-                    ? "border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a] cursor-pointer"
+                    ? "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]/50 hover:border-emerald-500 dark:hover:border-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 cursor-pointer"
                     : "border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] cursor-not-allowed opacity-60",
                 )}
               >
-                <div className="w-14 h-14 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-4 group-hover:border-black dark:group-hover:border-white transition-colors">
+                <div className="w-16 h-16 rounded-full bg-white dark:bg-black flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
                   {isUploadingVideo ? (
                     <RefreshCw
-                      className="w-6 h-6 text-black dark:text-white animate-spin"
-                      strokeWidth={1.5}
+                      className="w-8 h-8 text-emerald-600 animate-spin"
+                      strokeWidth={2}
                     />
                   ) : (
                     <UploadCloud
-                      className="w-6 h-6 text-black dark:text-white"
-                      strokeWidth={1.5}
+                      className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                      strokeWidth={2}
                     />
                   )}
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">
                   Subir Archivo de Video
                 </p>
-                <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+                <p className="text-xs text-gray-500 font-medium">
                   MP4 o WebM • Máx 20MB
                 </p>
               </div>
@@ -361,21 +350,20 @@ export function PublicInfoSection({
 
           {/* Info/Upgrade Section */}
           {!isPremium && (
-            <div className="border-l-2 border-amber-500 pl-6 py-4 bg-amber-50 dark:bg-amber-900/10 mt-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="rounded-2xl border border-amber-200 dark:border-amber-900/30 p-5 bg-amber-50 dark:bg-amber-900/10 mt-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400 flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4" strokeWidth={1.5} /> Mejora tu
-                  Conversión
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-400 flex items-center gap-2 mb-3">
+                  <Sparkles className="w-5 h-5" strokeWidth={2} /> Mejora tu Conversión
                 </p>
-                <ul className="space-y-2 text-xs text-amber-800/80 dark:text-amber-300/80 font-light">
+                <ul className="space-y-2 text-sm text-amber-700/80 dark:text-amber-400/80 font-medium">
                   <li className="flex items-center gap-2">
-                    <Zap className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                    <Zap className="w-4 h-4 shrink-0" strokeWidth={2} />
                     <span>
                       <strong>+40% conversión</strong> en reservas confirmadas
                     </span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Zap className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                    <Zap className="w-4 h-4 shrink-0" strokeWidth={2} />
                     <span>Transmite confianza visual antes de agendar</span>
                   </li>
                 </ul>
@@ -384,7 +372,7 @@ export function PublicInfoSection({
               {onUpgrade && (
                 <Button
                   onClick={onUpgrade}
-                  className="rounded-none bg-amber-500 text-white hover:bg-amber-600 h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors shrink-0"
+                  className="rounded-xl bg-amber-500 text-white hover:bg-amber-600 h-12 px-6 text-sm font-bold transition-colors shrink-0 shadow-sm border-0"
                 >
                   <Crown className="w-4 h-4 mr-2" strokeWidth={2} />
                   Upgrade Premium
@@ -394,34 +382,33 @@ export function PublicInfoSection({
           )}
         </div>
 
-        {/* Success Examples (Blueprint Grid) */}
-        <div className="pt-8">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-4">
-            <TrendingUp className="w-4 h-4" strokeWidth={1.5} /> Impacto de
-            Expediente Completo
+        {/* Success Examples */}
+        <div className="pt-12 border-t border-gray-100 dark:border-gray-800 mt-12">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-6">
+            <TrendingUp className="w-4 h-4" strokeWidth={2} /> Impacto de Expediente Completo
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800">
-            <div className="p-6 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center text-center">
-              <p className="text-2xl font-semibold tracking-tighter text-black dark:text-white mb-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10 flex flex-col items-center justify-center text-center shadow-sm">
+              <p className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 mb-1">
                 +65%
               </p>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+              <p className="text-xs font-semibold text-emerald-800/70 dark:text-emerald-400/70">
                 Visualizaciones
               </p>
             </div>
-            <div className="p-6 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center text-center">
-              <p className="text-2xl font-semibold tracking-tighter text-black dark:text-white mb-1">
+            <div className="p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10 flex flex-col items-center justify-center text-center shadow-sm">
+              <p className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 mb-1">
                 +40%
               </p>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+              <p className="text-xs font-semibold text-emerald-800/70 dark:text-emerald-400/70">
                 Conversión
               </p>
             </div>
-            <div className="p-6 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center text-center">
-              <p className="text-2xl font-semibold tracking-tighter text-black dark:text-white mb-1">
+            <div className="p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10 flex flex-col items-center justify-center text-center shadow-sm">
+              <p className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 mb-1">
                 +85%
               </p>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
+              <p className="text-xs font-semibold text-emerald-800/70 dark:text-emerald-400/70">
                 Confianza Media
               </p>
             </div>

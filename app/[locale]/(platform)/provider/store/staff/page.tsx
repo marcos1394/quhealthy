@@ -118,9 +118,9 @@ export default function StaffSetupPage() {
  // --- RENDER ---
  if (isLoading) {
  return (
- <div className="min-h-screen flex flex-col justify-center items-center gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
+ <div className="min-h-screen flex flex-col justify-center items-center gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
  <QhSpinner size="lg" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
+ <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
  {t('loading')}
  </p>
  </div>
@@ -130,17 +130,17 @@ export default function StaffSetupPage() {
  const hasUnsavedChanges = staff.some(m => m.hasUnsavedChanges || m.isNew);
 
  return (
- <div className="min-h-screen bg-white dark:bg-[#0a0a0a] p-6 md:p-12 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
- <div className="max-w-4xl mx-auto space-y-12 pb-24">
+ <div className="min-h-screen bg-gray-50/30 dark:bg-[#050505]/30 p-6 md:p-12 font-sans transition-colors duration-300">
+ <div className="max-w-4xl mx-auto space-y-8 pb-24">
 
- {/* 🚀 Top Bar Navigation (Blueprint) */}
- <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6 sticky top-0 bg-white dark:bg-[#0a0a0a] z-40 pt-4">
+ {/* 🚀 Top Bar Navigation */}
+ <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-6 sticky top-0 bg-gray-50/30 dark:bg-[#050505]/30 backdrop-blur-md z-40 pt-4">
  <Button
  variant="ghost"
  onClick={() => router.push('/provider/store')}
- className="rounded-none text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors px-4"
+ className="rounded-xl text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-white dark:hover:bg-gray-900 shadow-sm transition-colors px-4 h-12"
  >
- <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={2} />
+ <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} />
  {t('back')}
  </Button>
 
@@ -148,38 +148,37 @@ export default function StaffSetupPage() {
  onClick={handleSaveAll}
  disabled={isSavingAll || !hasUnsavedChanges}
  className={cn(
- "rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+ "rounded-xl h-12 px-8 text-sm font-bold transition-colors border-0 shadow-sm",
  isSavingAll || !hasUnsavedChanges 
  ? "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed" 
- : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+ : "bg-emerald-600 text-white hover:bg-emerald-700"
  )}
  >
  {isSavingAll ? (
- <><Loader2 className="w-4 h-4 mr-3 animate-spin" /> {t('btn_saving')}</>
+ <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('btn_saving')}</>
  ) : (
- <><Save className="w-4 h-4 mr-3" strokeWidth={2} /> {t('btn_save')}</>
+ <><Save className="w-4 h-4 mr-2" strokeWidth={2} /> {t('btn_save')}</>
  )}
  </Button>
  </div>
 
  {/* Header Contextual */}
- <div className="flex flex-col md:flex-row md:items-center gap-6">
- <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
- <Users className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="flex flex-col md:flex-row md:items-center gap-6 bg-white dark:bg-[#0a0a0a] p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
+ <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
+ <Users className="w-8 h-8 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
  </div>
  <div>
- <h1 className="text-3xl font-semibold text-black dark:text-white tracking-tight mb-2">
+ <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">
  {t('title')}
  </h1>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+ <p className="text-sm font-medium text-gray-500">
  {t('subtitle')}
  </p>
  </div>
  </div>
 
  {/* Integración del Componente Visual */}
- {/* Nota: Es probable que <StaffManager /> también necesite una pasada de refactorización visual si tiene sombras o curvas */}
- <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+ <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm overflow-hidden">
  <StaffManager
  staff={staff}
  onAdd={handleAddMember}
