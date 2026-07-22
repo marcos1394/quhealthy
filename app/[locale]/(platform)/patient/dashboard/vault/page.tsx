@@ -334,6 +334,7 @@ export default function PatientVaultPage() {
   };
 
  return (
+return (
  <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
  <motion.div
  initial={{ opacity: 0, y: 10 }}
@@ -342,25 +343,25 @@ export default function PatientVaultPage() {
  className="max-w-6xl mx-auto px-4 py-8 md:py-12 space-y-12"
  >
  {/* --- CABECERA EDITORIAL --- */}
- <div className="flex flex-col md:flex-row md:items-center gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
- <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
- <ShieldCheck className="w-7 h-7 text-black dark:text-white" strokeWidth={1.5} />
+ <div className="flex flex-col md:flex-row md:items-center gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
+ <div className="w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
+ <ShieldCheck className="w-8 h-8 text-indigo-600 dark:text-indigo-400" strokeWidth={2} />
  </div>
  <div>
- <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-white tracking-tight uppercase">
+ <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
  {t('title', { defaultValue: 'Expediente Clínico' })}
  </h1>
- <p className="text-gray-500 dark:text-gray-400 mt-3 text-base font-light leading-relaxed max-w-2xl">
+ <p className="text-gray-500 dark:text-gray-400 mt-2 text-base font-medium max-w-2xl">
  {t('subtitle', { defaultValue: 'Tu bóveda de salud encriptada para toda la familia. Sube estudios o recetas y nuestra IA extraerá los datos automáticamente.' })}
  </p>
  </div>
  </div>
 
  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
- <TabsList className="flex overflow-x-auto bg-transparent border-b border-gray-200 dark:border-gray-800 h-14 w-full justify-start rounded-none p-0 hide-scrollbar gap-2 mb-8">
+ <TabsList className="flex overflow-x-auto bg-gray-50/50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 rounded-2xl h-14 w-full justify-start p-1 hide-scrollbar gap-1 mb-8">
  <TabsTrigger 
  value="titular"
- className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black border border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111111] transition-all text-[10px] font-bold uppercase tracking-widest px-6 h-full"
+ className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-indigo-600 dark:data-[state=active]:bg-[#111111] dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm border-0 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-all text-sm font-semibold px-6 h-full"
  >
  Mi Expediente
  </TabsTrigger>
@@ -368,7 +369,7 @@ export default function PatientVaultPage() {
  <TabsTrigger 
  key={member.id}
  value={member.id.toString()}
- className="rounded-none data-[state=active]:bg-black data-[state=active]:text-white dark:data-[state=active]:bg-white dark:data-[state=active]:text-black border border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-gray-50 dark:bg-[#050505] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111111] transition-all text-[10px] font-bold uppercase tracking-widest px-6 h-full whitespace-nowrap"
+ className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-indigo-600 dark:data-[state=active]:bg-[#111111] dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm border-0 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-all text-sm font-semibold px-6 h-full whitespace-nowrap"
  >
  {member.firstName}
  </TabsTrigger>
@@ -387,32 +388,32 @@ export default function PatientVaultPage() {
  </section>
 
  {/* --- RESUMEN DE IA (HEALTH SUMMARY) --- */}
- <section className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-6 space-y-4">
- <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4 gap-4">
- <div className="flex items-center gap-3">
- <div className="w-8 h-8 border border-black dark:border-white bg-black dark:bg-white flex items-center justify-center shrink-0">
- <BrainCircuit className="w-4 h-4 text-white dark:text-black" strokeWidth={2} />
+ <section className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl p-6 space-y-4">
+ <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4 gap-4">
+ <div className="flex items-center gap-4">
+ <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center shrink-0">
+ <BrainCircuit className="w-6 h-6 text-teal-600 dark:text-teal-400" strokeWidth={2} />
  </div>
  <div>
- <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+ <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
  Panorama Clínico Inteligente
  </h2>
- <p className="text-xs text-gray-500 font-medium mt-0.5">
+ <p className="text-sm text-gray-500 font-medium mt-0.5">
  Generado por IA en base a todo el expediente (notas, vacunas y estudios).
  </p>
  </div>
  </div>
- <div className="flex items-center gap-2">
+ <div className="flex items-center gap-3">
      {panoramaData[activeTab] && (
          <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
              <DialogTrigger asChild>
-                 <Button variant="outline" className="px-4 py-2 border border-black dark:border-white text-black dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors h-10 rounded-none">
+                 <Button variant="outline" className="px-5 py-2 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors h-11 rounded-xl">
                      Ver Historial
                  </Button>
              </DialogTrigger>
-             <DialogContent className="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a] max-h-[80vh] overflow-y-auto">
+             <DialogContent className="rounded-3xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] max-h-[80vh] overflow-y-auto">
                  <DialogHeader>
-                     <DialogTitle className="text-black dark:text-white uppercase tracking-widest font-bold text-sm">Historial de Análisis Clínicos</DialogTitle>
+                     <DialogTitle className="text-gray-900 dark:text-white font-bold text-lg">Historial de Análisis Clínicos</DialogTitle>
                  </DialogHeader>
                  <div className="py-4 space-y-6">
                      {isLoadingHistory ? (
@@ -421,11 +422,11 @@ export default function PatientVaultPage() {
                          <p className="text-sm text-gray-500 italic text-center">No hay historial disponible.</p>
                      ) : (
                          panoramaHistory.map((hist, idx) => (
-                             <div key={idx} className="border-l-2 border-black dark:border-white pl-4 space-y-2">
-                                 <h4 className="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">
+                             <div key={idx} className="border-l-2 border-teal-500 pl-4 space-y-2">
+                                 <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                                      {new Date(hist.createdAt).toLocaleDateString()} a las {new Date(hist.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                  </h4>
-                                 <p className="text-sm text-black dark:text-white leading-relaxed">
+                                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                      {hist.clinicalSummary}
                                  </p>
                              </div>
@@ -433,7 +434,7 @@ export default function PatientVaultPage() {
                      )}
                  </div>
                  <DialogFooter>
-                     <Button variant="ghost" onClick={() => setIsHistoryOpen(false)} className="rounded-none uppercase font-bold text-[10px] tracking-widest">
+                     <Button variant="ghost" onClick={() => setIsHistoryOpen(false)} className="rounded-xl font-semibold text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white">
                          Cerrar
                      </Button>
                  </DialogFooter>
@@ -443,7 +444,7 @@ export default function PatientVaultPage() {
      <button
      onClick={handleGeneratePanorama}
      disabled={isGeneratingPanorama}
-     className="px-4 py-2 border border-black dark:border-white bg-white dark:bg-black text-black dark:text-white text-xs font-bold uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors disabled:opacity-50 h-10 flex items-center"
+     className="px-6 py-2 bg-teal-600 dark:bg-teal-500 text-white text-sm font-bold hover:bg-teal-700 dark:hover:bg-teal-600 transition-colors disabled:opacity-50 h-11 flex items-center rounded-xl"
      >
      {isGeneratingPanorama ? 'Generando...' : 'Generar Análisis'}
      </button>
@@ -491,32 +492,34 @@ export default function PatientVaultPage() {
  {/* --- CARTILLA DIGITAL DEL PACIENTE ACTIVO (SOLO <= 12 AÑOS) --- */}
  {showVaccinationCard && (
  <section className="space-y-6 pt-4">
- <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-5">
- <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
- <Syringe className="w-4 h-4" strokeWidth={1.5} />
+ <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-5">
+ <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+ <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
+ <Syringe className="w-4 h-4 text-amber-600 dark:text-amber-400" strokeWidth={2} />
+ </div>
  Cartillas de Salud
  </h2>
  </div>
  <Accordion type="single" collapsible className="grid grid-cols-1 gap-6">
  <AccordionItem 
  value="vaccination-card" 
- className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none data-[state=open]:border-black dark:data-[state=open]:border-white transition-colors"
+ className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden shadow-sm transition-colors"
  >
- <AccordionTrigger className="bg-gray-50 dark:bg-[#050505] px-6 py-4 hover:no-underline hover:bg-gray-100 dark:hover:bg-[#111111] transition-colors border-b border-transparent data-[state=open]:border-gray-200 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
- <div className="flex items-center gap-3">
- <div className="w-8 h-8 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center shrink-0">
- <Syringe className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
+ <AccordionTrigger className="bg-gray-50/50 dark:bg-gray-900/50 px-6 py-5 hover:no-underline hover:bg-gray-100 dark:hover:bg-[#111111] transition-colors border-b border-transparent data-[state=open]:border-gray-100 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
+ <div className="flex items-center gap-4">
+ <div className="w-10 h-10 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-gray-800 flex items-center justify-center shrink-0">
+ <Syringe className="w-5 h-5 text-gray-700 dark:text-gray-300" strokeWidth={1.5} />
  </div>
  <div className="text-left">
- <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+ <h2 className="text-sm font-bold text-gray-900 dark:text-white">
  Cartilla Digital
  </h2>
- <p className="text-xs text-gray-500 font-medium mt-0.5">
+ <p className="text-sm text-gray-500 mt-0.5">
  Haz clic para ver el historial de dosis
  </p>
  </div>
  </div>
- <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white" />
+ <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200 text-gray-500" />
  </AccordionTrigger>
  <AccordionContent className="p-0 border-t-0">
  <DigitalVaccinationCard memberId={activeDependentId} hideHeader={true} />
@@ -528,10 +531,12 @@ export default function PatientVaultPage() {
 
  {/* --- LISTA DE DOCUMENTOS CON FILTROS --- */}
  <section className="space-y-6">
- <div className="flex flex-col gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
+ <div className="flex flex-col gap-4 border-b border-gray-100 dark:border-gray-800 pb-5">
  <div className="flex items-center justify-between">
- <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
- <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
+ <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+ <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
+ <FolderOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" strokeWidth={2} />
+ </div>
  Documentos
  </h2>
   <div className="flex items-center gap-3">
@@ -541,20 +546,20 @@ export default function PatientVaultPage() {
   placeholder="Buscar documento..." 
   value={searchQuery}
   onChange={(e) => setSearchQuery(e.target.value)}
-  className="pl-9 h-10 w-full sm:w-64 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white transition-colors"
+  className="pl-10 h-11 w-full sm:w-64 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-sm focus-visible:ring-1 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 transition-colors"
   />
   </div>
 
   <Dialog open={isNewFolderOpen} onOpenChange={setIsNewFolderOpen}>
     <DialogTrigger asChild>
-      <Button variant="outline" className="rounded-none border-gray-200 dark:border-gray-800 h-10">
+      <Button variant="outline" className="rounded-xl border-gray-200 dark:border-gray-800 h-11 text-sm font-semibold">
         <Plus className="w-4 h-4 mr-2" />
         Nueva Carpeta
       </Button>
     </DialogTrigger>
-    <DialogContent className="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
+    <DialogContent className="rounded-3xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 shadow-xl">
       <DialogHeader>
-        <DialogTitle className="text-black dark:text-white uppercase tracking-widest font-bold text-sm">Crear Nueva Carpeta</DialogTitle>
+        <DialogTitle className="text-gray-900 dark:text-white font-bold text-lg">Crear Nueva Carpeta</DialogTitle>
       </DialogHeader>
       <div className="py-4">
         <Input 
@@ -562,15 +567,15 @@ export default function PatientVaultPage() {
           value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') handleCreateFolder(); }}
-          className="rounded-none border-gray-300 dark:border-gray-700 focus-visible:border-black dark:focus-visible:border-white"
+          className="rounded-xl border-gray-200 dark:border-gray-800 h-12 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
           autoFocus
         />
       </div>
-      <DialogFooter>
-        <Button variant="ghost" onClick={() => setIsNewFolderOpen(false)} className="rounded-none uppercase font-bold text-[10px] tracking-widest">
+      <DialogFooter className="gap-3">
+        <Button variant="ghost" onClick={() => setIsNewFolderOpen(false)} className="rounded-xl font-semibold text-sm text-gray-500">
           Cancelar
         </Button>
-        <Button onClick={handleCreateFolder} className="rounded-none bg-black text-white dark:bg-white dark:text-black uppercase font-bold text-[10px] tracking-widest">
+        <Button onClick={handleCreateFolder} className="rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 font-bold text-sm px-6">
           Crear
         </Button>
       </DialogFooter>
@@ -578,9 +583,9 @@ export default function PatientVaultPage() {
   </Dialog>
   </div>
   </div>
-  <div className="flex bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-2 items-center flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 overflow-x-auto hide-scrollbar">
+  <div className="flex bg-gray-50/50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800 rounded-2xl p-2.5 items-center flex-wrap gap-2 text-sm font-medium text-gray-500 overflow-x-auto hide-scrollbar">
     <div 
-      className="flex items-center gap-1 cursor-pointer hover:text-black dark:hover:text-white transition-colors"
+      className="flex items-center gap-1.5 cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors"
       onClick={() => setCurrentFolderId(null)}
       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
       onDrop={(e) => {

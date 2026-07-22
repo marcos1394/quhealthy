@@ -126,10 +126,10 @@ export function HealthVaultFolderCard({
           e.dataTransfer.effectAllowed = 'move';
         }
       }}
-      className={cn(
-        "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-none p-6 transition-all duration-300 flex items-center justify-between group hover:border-black dark:hover:border-white",
+      <div className={cn(
+        "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 transition-all duration-300 flex items-center justify-between group shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700",
         !isEditing && "cursor-grab active:cursor-grabbing",
-        isDragOver && "border-black dark:border-white ring-1 ring-black dark:ring-white bg-gray-50 dark:bg-[#111]",
+        isDragOver && "border-blue-500 ring-1 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/10",
         isProcessingDrop && "opacity-50 pointer-events-none"
       )}
     >
@@ -139,14 +139,14 @@ export function HealthVaultFolderCard({
           {...dragHandleAttributes} 
           {...dragHandleListeners}
           className={cn(
-            "p-4 border border-black dark:border-white bg-black dark:bg-white transition-colors shrink-0 flex items-center justify-center",
-            setDragHandleRef && "cursor-grab active:cursor-grabbing hover:bg-gray-800 dark:hover:bg-gray-200"
+            "w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-500/10 transition-colors shrink-0 flex items-center justify-center",
+            setDragHandleRef && "cursor-grab active:cursor-grabbing hover:bg-blue-100 dark:hover:bg-blue-500/20"
           )}
         >
           {setDragHandleRef ? (
-            <GripVertical className="w-6 h-6 text-white dark:text-black" strokeWidth={1.5} />
+            <GripVertical className="w-5 h-5 text-blue-400 dark:text-blue-500" strokeWidth={2} />
           ) : (
-            <FolderOpen className="w-6 h-6 text-white dark:text-black" strokeWidth={1.5} />
+            <FolderOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" strokeWidth={2} />
           )}
         </div>
         <div className="flex-1 min-w-0">
@@ -156,7 +156,7 @@ export function HealthVaultFolderCard({
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
-                className="font-bold text-black dark:text-white rounded-none border-gray-300 dark:border-gray-700 h-8 uppercase tracking-widest text-xs"
+                className="font-bold text-gray-900 dark:text-white rounded-xl border-gray-200 dark:border-gray-700 h-9"
                 placeholder="Nombre de carpeta"
                 autoFocus
               />
@@ -165,14 +165,14 @@ export function HealthVaultFolderCard({
                   variant="outline"
                   onClick={(e) => { e.stopPropagation(); setIsEditing(false); setEditName(folderName); }}
                   disabled={isSaving}
-                  className="flex-1 rounded-none border-gray-300 dark:border-gray-700 h-8 text-[10px] font-bold uppercase tracking-widest"
+                  className="flex-1 rounded-xl border-gray-200 dark:border-gray-700 h-9 text-xs font-semibold text-gray-600"
                 >
                   <X className="w-3 h-3 mr-1" /> Cancelar
                 </Button>
                 <Button
                   onClick={handleSaveRename}
                   disabled={isSaving}
-                  className="flex-1 rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-8 text-[10px] font-bold uppercase tracking-widest"
+                  className="flex-1 rounded-xl bg-blue-600 text-white hover:bg-blue-700 h-9 text-xs font-bold border-0"
                 >
                   {isSaving ? <QhSpinner className="w-3 h-3 mr-1" /> : <Save className="w-3 h-3 mr-1" />}
                   Guardar
@@ -181,10 +181,10 @@ export function HealthVaultFolderCard({
             </div>
           ) : (
             <>
-              <h3 className="font-bold text-black dark:text-white truncate text-base capitalize">
+              <h3 className="font-bold text-gray-900 dark:text-white truncate text-base capitalize">
                 {folderName}
               </h3>
-              <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">
                 {itemCount} {itemCount === 1 ? 'Elemento' : 'Elementos'}
               </p>
             </>
@@ -199,7 +199,7 @@ export function HealthVaultFolderCard({
               variant="ghost" 
               size="icon" 
               onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-              className="rounded-none hover:bg-gray-100 dark:hover:bg-[#111111] h-8 w-8"
+              className="rounded-full hover:bg-gray-100 dark:hover:bg-[#111111] h-8 w-8"
               title="Renombrar carpeta"
             >
               <Edit2 className="w-4 h-4 text-gray-500" />
@@ -212,27 +212,27 @@ export function HealthVaultFolderCard({
                   variant="ghost" 
                   size="icon" 
                   onClick={(e) => e.stopPropagation()}
-                  className="rounded-none hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 h-8 w-8"
+                  className="rounded-full hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 h-8 w-8"
                   title="Eliminar carpeta"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="rounded-none border-black dark:border-white">
+              <AlertDialogContent className="rounded-3xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-black dark:text-white uppercase tracking-widest font-bold text-sm">¿Eliminar Carpeta?</AlertDialogTitle>
+                  <AlertDialogTitle className="text-gray-900 dark:text-white font-bold text-lg">¿Eliminar Carpeta?</AlertDialogTitle>
                   <AlertDialogDescription className="text-gray-500 font-medium">
                     Esto eliminará de forma permanente todos los archivos dentro de "{folderName}" y sus subcarpetas. Esta acción no se puede deshacer.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={(e) => e.stopPropagation()} className="rounded-none uppercase font-bold text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+                <AlertDialogFooter className="gap-3">
+                  <AlertDialogCancel onClick={(e) => e.stopPropagation()} className="rounded-xl font-semibold text-sm">Cancelar</AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={async (e) => {
                       e.stopPropagation();
                       await onDelete();
                     }}
-                    className="rounded-none bg-red-600 text-white hover:bg-red-700 uppercase font-bold text-[10px] tracking-widest border-none"
+                    className="rounded-xl bg-red-600 text-white hover:bg-red-700 font-bold text-sm border-none"
                   >
                     Eliminar Todo
                   </AlertDialogAction>
