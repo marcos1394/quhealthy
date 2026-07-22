@@ -1,17 +1,34 @@
-"use client"
+"use client";
 /* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/no-giant-component */;
+/* eslint-disable react-doctor/no-giant-component */
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import Link from 'next/link';
+import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
- MapPin, Clock, MessageCircle, Instagram, Star, CheckCircle2, 
- ChevronRight, Sparkles, ArrowRight, Loader2, AlertCircle, 
- Video, Building2, Globe, ShieldCheck, Tag as TagIcon,
- ShoppingBag, GraduationCap, Box, PlayCircle, Info
+  MapPin,
+  Clock,
+  MessageCircle,
+  Instagram,
+  Star,
+  CheckCircle2,
+  ChevronRight,
+  Sparkles,
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+  Video,
+  Building2,
+  Globe,
+  ShieldCheck,
+  Tag as TagIcon,
+  ShoppingBag,
+  GraduationCap,
+  Box,
+  PlayCircle,
+  Info,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,10 +37,10 @@ import { cn, generateSlug } from "@/lib/utils";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
 import { useBookingStore } from "@/hooks/useBookingStore";
-import { CourseCurriculumView } from '@/components/store/CourseCurriculumView';
+import { CourseCurriculumView } from "@/components/store/CourseCurriculumView";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
-import { QhSpinner } from '@/components/ui/QhSpinner';
+import { QhSpinner } from "@/components/ui/QhSpinner";
 import { CheckoutModal } from "@/components/store/CheckoutModal";
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
@@ -37,711 +54,1077 @@ import { CertificationGrid } from "@/components/ui/gallery/CertificationGrid";
 import { StorefrontHero } from "@/components/store/StorefrontHero";
 import { StickyBookingBar } from "@/components/store/StickyBookingBar";
 
-type TabType = 'servicios' | 'paquetes' | 'productos' | 'cursos';
+type TabType = "servicios" | "paquetes" | "productos" | "cursos";
 
 const formatPrice = (price: number) => {
- return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return price.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 };
 
 export default function PublicStorePage() {
- const params = useParams();
- const router = useRouter();
- const searchParams = useSearchParams();
- const locale = useLocale();
- const slug = params?.slug as string;
- const t = useTranslations('StorePublic');
- 
- const autoBookServiceId = searchParams?.get('autoBook');
+  const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const locale = useLocale();
+  const slug = params?.slug as string;
+  const t = useTranslations("StorePublic");
 
- const [activeTab, setActiveTab] = useState<TabType>('servicios');
- const [visibleProducts, setVisibleProducts] = useState(12);
- const { cart, addToCart, removeFromCart, setProvider, updateQuantity } = useBookingStore();
- const { user } = useSessionStore();
- const userId = user?.id;
- const [showQuScoreModal, setShowQuScoreModal] = useState(false);
- 
- const { singleScore, fetchSingleScore } = useProviderScore();
+  const autoBookServiceId = searchParams?.get("autoBook");
 
- const { favoriteIds: favoriteProviderIds } = useMyFavorites('PROVIDER');
- const { favoriteIds: favoritePackageIds } = useMyFavorites('PACKAGE');
- const { favoriteIds: favoriteServiceIds } = useMyFavorites('SERVICE');
- const { favoriteIds: favoriteProductIds } = useMyFavorites('PRODUCT');
- const { favoriteIds: favoriteCourseIds } = useMyFavorites('COURSE');
+  const [activeTab, setActiveTab] = useState<TabType>("servicios");
+  const [visibleProducts, setVisibleProducts] = useState(12);
+  const { cart, addToCart, removeFromCart, setProvider, updateQuantity } =
+    useBookingStore();
+  const { user } = useSessionStore();
+  const userId = user?.id;
+  const [showQuScoreModal, setShowQuScoreModal] = useState(false);
 
- const { store, isLoading, isError } = useStorefront(slug);
+  const { singleScore, fetchSingleScore } = useProviderScore();
 
- useEffect(() => {
- if (store && slug) {
- setProvider(
- store.providerId,
- slug,
- store.displayName,
- store.primaryColor || '#000000'
- );
- fetchSingleScore(store.providerId);
- }
- }, [store?.providerId, store?.displayName, store?.primaryColor, slug, setProvider, fetchSingleScore]);
+  const { favoriteIds: favoriteProviderIds } = useMyFavorites("PROVIDER");
+  const { favoriteIds: favoritePackageIds } = useMyFavorites("PACKAGE");
+  const { favoriteIds: favoriteServiceIds } = useMyFavorites("SERVICE");
+  const { favoriteIds: favoriteProductIds } = useMyFavorites("PRODUCT");
+  const { favoriteIds: favoriteCourseIds } = useMyFavorites("COURSE");
 
- // AUTO-BOOK LOGIC
- useEffect(() => {
- if (store && autoBookServiceId && !isLoading) {
- const serviceId = Number(autoBookServiceId);
- const serviceToBook = store.services?.find((s: StorefrontItem) => s.id === serviceId);
- 
- if (serviceToBook) {
- setProvider(store.providerId, slug, store.displayName, store.primaryColor || '#000000');
- addToCart(serviceToBook, slug);
- router.replace(`/${locale}/patient/booking/${slug}`);
- }
- }
- }, [store, autoBookServiceId, isLoading, locale, slug, addToCart, setProvider, router]);
+  const { store, isLoading, isError } = useStorefront(slug);
 
- const handleAddToCart = (item: StorefrontItem) => {
- addToCart(item, slug);
- };
+  useEffect(() => {
+    if (store && slug) {
+      setProvider(
+        store.providerId,
+        slug,
+        store.displayName,
+        store.primaryColor || "#000000",
+      );
+      fetchSingleScore(store.providerId);
+    }
+  }, [
+    store?.providerId,
+    store?.displayName,
+    store?.primaryColor,
+    slug,
+    setProvider,
+    fetchSingleScore,
+  ]);
 
- if (isLoading) {
- return (
- <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
- <QhSpinner size="lg" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
- Cargando la Tienda...
- </p>
- </div>
- );
- }
+  // AUTO-BOOK LOGIC
+  useEffect(() => {
+    if (store && autoBookServiceId && !isLoading) {
+      const serviceId = Number(autoBookServiceId);
+      const serviceToBook = store.services?.find(
+        (s: StorefrontItem) => s.id === serviceId,
+      );
 
- if (isError || !store) {
- return (
- <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center px-6 text-center transition-colors duration-300">
- <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
- <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
- </div>
- <h1 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">Directorio Inaccesible</h1>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto mb-8">
- EL CATÁLOGO SOLICITADO NO EXISTE O SE ENCUENTRA TEMPORALMENTE FUERA DE SERVICIO.
- </p>
- <Button 
- variant="outline" 
- onClick={() => window.history.back()} 
- className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
- >
- Retornar a Búsqueda
- </Button>
- </div>
- );
- }
+      if (serviceToBook) {
+        setProvider(
+          store.providerId,
+          slug,
+          store.displayName,
+          store.primaryColor || "#000000",
+        );
+        addToCart(serviceToBook, slug);
+        router.replace(`/${locale}/patient/booking/${slug}`);
+      }
+    }
+  }, [
+    store,
+    autoBookServiceId,
+    isLoading,
+    locale,
+    slug,
+    addToCart,
+    setProvider,
+    router,
+  ]);
 
- const safePrimaryColor = store.primaryColor || '#000000';
- const hasValidPrimaryColor = store.primaryColor && store.primaryColor !== '#000000' && store.primaryColor !== '#ffffff';
+  const handleAddToCart = (item: StorefrontItem) => {
+    addToCart(item, slug);
+  };
 
- const renderModalityBadge = (modality?: string) => {
- if (modality === 'ONLINE') return <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Video className="w-3 h-3" strokeWidth={1.5} /> {t('modality_online')}</span>;
- if (modality === 'IN_PERSON') return <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Building2 className="w-3 h-3" strokeWidth={1.5} /> {t('modality_in_person')}</span>;
- if (modality === 'HYBRID') return <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5"><Globe className="w-3 h-3" strokeWidth={1.5} /> {t('modality_hybrid')}</span>;
- return null;
- };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
+        <QhSpinner size="lg" />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+          Cargando la Tienda...
+        </p>
+      </div>
+    );
+  }
 
- return (
- <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+  if (isError || !store) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center px-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+          <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">
+          Directorio Inaccesible
+        </h1>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto mb-8">
+          EL CATÁLOGO SOLICITADO NO EXISTE O SE ENCUENTRA TEMPORALMENTE FUERA DE
+          SERVICIO.
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => window.history.back()}
+          className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
+        >
+          Retornar a Búsqueda
+        </Button>
+      </div>
+    );
+  }
 
- {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
- <ActiveCreditsBanner providerId={store.providerId} brandColor={store.primaryColor} />
+  const safePrimaryColor = store.primaryColor || "#000000";
+  const hasValidPrimaryColor =
+    store.primaryColor &&
+    store.primaryColor !== "#000000" &&
+    store.primaryColor !== "#ffffff";
 
- </div>
- </div>
+  const renderModalityBadge = (modality?: string) => {
+    if (modality === "ONLINE")
+      return (
+        <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+          <Video className="w-3 h-3" strokeWidth={1.5} /> {t("modality_online")}
+        </span>
+      );
+    if (modality === "IN_PERSON")
+      return (
+        <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+          <Building2 className="w-3 h-3" strokeWidth={1.5} />{" "}
+          {t("modality_in_person")}
+        </span>
+      );
+    if (modality === "HYBRID")
+      return (
+        <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+          <Globe className="w-3 h-3" strokeWidth={1.5} /> {t("modality_hybrid")}
+        </span>
+      );
+    return null;
+  };
 
- {/* --- NAVEGACIÓN TABULAR ARQUITECTÓNICA --- */}
- <div className="sticky top-0 z-40 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800">
- <div className="max-w-5xl mx-auto px-6">
- <div className="flex w-full overflow-x-auto custom-scrollbar">
- 
- <button 
- onClick={() => setActiveTab('servicios')} 
- className={cn(
- "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
- activeTab === 'servicios' 
- ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
- : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
- )} 
- style={activeTab === 'servicios' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
- >
- {t('tab_services', { defaultValue: 'Servicios' })} 
- <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.services?.length || 0}</span>
- </button>
- 
- <button 
- onClick={() => setActiveTab('paquetes')} 
- className={cn(
- "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
- activeTab === 'paquetes' 
- ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
- : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
- )} 
- style={activeTab === 'paquetes' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
- >
- {t('tab_packages', { defaultValue: 'Paquetes' })} 
- <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
- </button>
+  return (
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+      {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
+      <ActiveCreditsBanner
+        providerId={store.providerId}
+        brandColor={store.primaryColor}
+      />
 
- <button 
- onClick={() => setActiveTab('productos')} 
- className={cn(
- "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
- activeTab === 'productos' 
- ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
- : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
- )} 
- style={activeTab === 'productos' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
- >
- <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} /> PRODUCTOS 
- <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.products?.length || 0}</span>
- </button>
+      {/* --- HERO SECTION Y CONFIANZA --- */}
+      <StorefrontHero
+        store={store}
+        scoreData={singleScore}
+        isFavorited={favoriteProviderIds.has(store.providerId)}
+      />
 
- <button 
- onClick={() => setActiveTab('cursos')} 
- className={cn(
- "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
- activeTab === 'cursos' 
- ? (!hasValidPrimaryColor ? "border-black text-black dark:border-white dark:text-white" : "") 
- : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
- )} 
- style={activeTab === 'cursos' && hasValidPrimaryColor ? { borderBottomColor: safePrimaryColor, color: safePrimaryColor } : {}}
- >
- <GraduationCap className="w-3.5 h-3.5" strokeWidth={1.5} /> CURSOS 
- <span className="border border-current px-1.5 py-0.5 text-[9px]">{store.courses?.length || 0}</span>
- </button>
+      {/* --- NAVEGACIÓN TABULAR ARQUITECTÓNICA --- */}
+      <div className="sticky top-0 z-40 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex w-full overflow-x-auto custom-scrollbar">
+            <button
+              onClick={() => setActiveTab("servicios")}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === "servicios"
+                  ? !hasValidPrimaryColor
+                    ? "border-black text-black dark:border-white dark:text-white"
+                    : ""
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
+              )}
+              style={
+                activeTab === "servicios" && hasValidPrimaryColor
+                  ? {
+                      borderBottomColor: safePrimaryColor,
+                      color: safePrimaryColor,
+                    }
+                  : {}
+              }
+            >
+              {t("tab_services", { defaultValue: "Servicios" })}
+              <span className="border border-current px-1.5 py-0.5 text-[9px]">
+                {store.services?.length || 0}
+              </span>
+            </button>
 
- </div>
- </div>
- </div>
+            <button
+              onClick={() => setActiveTab("paquetes")}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === "paquetes"
+                  ? !hasValidPrimaryColor
+                    ? "border-black text-black dark:border-white dark:text-white"
+                    : ""
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
+              )}
+              style={
+                activeTab === "paquetes" && hasValidPrimaryColor
+                  ? {
+                      borderBottomColor: safePrimaryColor,
+                      color: safePrimaryColor,
+                    }
+                  : {}
+              }
+            >
+              {t("tab_packages", { defaultValue: "Paquetes" })}
+              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+            </button>
 
- {/* --- CONTENIDO PRINCIPAL --- */}
- <div className="max-w-5xl mx-auto px-6 mt-10">
- <AnimatePresence mode="wait">
+            <button
+              onClick={() => setActiveTab("productos")}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === "productos"
+                  ? !hasValidPrimaryColor
+                    ? "border-black text-black dark:border-white dark:text-white"
+                    : ""
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
+              )}
+              style={
+                activeTab === "productos" && hasValidPrimaryColor
+                  ? {
+                      borderBottomColor: safePrimaryColor,
+                      color: safePrimaryColor,
+                    }
+                  : {}
+              }
+            >
+              <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
+              PRODUCTOS
+              <span className="border border-current px-1.5 py-0.5 text-[9px]">
+                {store.products?.length || 0}
+              </span>
+            </button>
 
- {/* VISTA 1: SERVICIOS CORREGIDA */}
- {activeTab === 'servicios' && (
- <motion.div key="servicios" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
- {store.services && store.services.length > 0 ? (
- store.services.map((service) => (
- <div 
- key={service.id} 
- className="bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
- style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
- >
- 
- <div className="flex-1 flex flex-col gap-4">
- {/* Cabecera Interna: Controla etiquetas y botón favoritos en una sola fila */}
- <div className="flex items-start justify-between gap-4 w-full">
- <div className="flex flex-wrap items-center gap-3">
- {service.category && (
- <span 
- className={cn(
- "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest bg-transparent",
- !hasValidPrimaryColor && "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
- )}
- style={hasValidPrimaryColor ? { borderColor: safePrimaryColor, color: safePrimaryColor } : {}}
- >
- {service.category}
- </span>
- )}
- {renderModalityBadge(service.modality)}
- <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500">
- <Clock className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {service.durationMinutes || 0} MIN
- </span>
- </div>
+            <button
+              onClick={() => setActiveTab("cursos")}
+              className={cn(
+                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                activeTab === "cursos"
+                  ? !hasValidPrimaryColor
+                    ? "border-black text-black dark:border-white dark:text-white"
+                    : ""
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
+              )}
+              style={
+                activeTab === "cursos" && hasValidPrimaryColor
+                  ? {
+                      borderBottomColor: safePrimaryColor,
+                      color: safePrimaryColor,
+                    }
+                  : {}
+              }
+            >
+              <GraduationCap className="w-3.5 h-3.5" strokeWidth={1.5} /> CURSOS
+              <span className="border border-current px-1.5 py-0.5 text-[9px]">
+                {store.courses?.length || 0}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
 
- {/* El botón favoritos ahora vive aquí de forma segura, aislado de los precios inferiores */}
- <div className="shrink-0">
- <FavoriteButton 
- entityType="SERVICE" 
- entityId={service.id} 
- initialIsFavorite={favoriteServiceIds.has(service.id)} 
- brandColor={safePrimaryColor}
- />
- </div>
- </div>
+      {/* --- CONTENIDO PRINCIPAL --- */}
+      <div className="max-w-5xl mx-auto px-6 mt-10">
+        <AnimatePresence mode="wait">
+          {/* VISTA 1: SERVICIOS CORREGIDA */}
+          {activeTab === "servicios" && (
+            <motion.div
+              key="servicios"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-6"
+            >
+              {store.services && store.services.length > 0 ? (
+                store.services.map((service) => (
+                  <div
+                    key={service.id}
+                    className="bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    style={
+                      hasValidPrimaryColor
+                        ? ({
+                            "--store-color": safePrimaryColor,
+                          } as React.CSSProperties)
+                        : undefined
+                    }
+                  >
+                    <div className="flex-1 flex flex-col gap-4">
+                      {/* Cabecera Interna: Controla etiquetas y botón favoritos en una sola fila */}
+                      <div className="flex items-start justify-between gap-4 w-full">
+                        <div className="flex flex-wrap items-center gap-3">
+                          {service.category && (
+                            <span
+                              className={cn(
+                                "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest bg-transparent",
+                                !hasValidPrimaryColor &&
+                                  "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400",
+                              )}
+                              style={
+                                hasValidPrimaryColor
+                                  ? {
+                                      borderColor: safePrimaryColor,
+                                      color: safePrimaryColor,
+                                    }
+                                  : {}
+                              }
+                            >
+                              {service.category}
+                            </span>
+                          )}
+                          {renderModalityBadge(service.modality)}
+                          <span className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-500">
+                            <Clock
+                              className="w-3 h-3 mr-1.5"
+                              strokeWidth={1.5}
+                            />{" "}
+                            {service.durationMinutes || 0} MIN
+                          </span>
+                        </div>
 
- <div className="space-y-2">
- <Link href={`/${locale}/market/item/${service.id}-${generateSlug(service.name)}`} className="hover:underline">
- <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white">
- {service.name}
- </h3>
- </Link>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
- {service.description}
- </p>
- </div>
+                        {/* El botón favoritos ahora vive aquí de forma segura, aislado de los precios inferiores */}
+                        <div className="shrink-0">
+                          <FavoriteButton
+                            entityType="SERVICE"
+                            entityId={service.id}
+                            initialIsFavorite={favoriteServiceIds.has(
+                              service.id,
+                            )}
+                            brandColor={safePrimaryColor}
+                          />
+                        </div>
+                      </div>
 
- <div className="flex flex-wrap gap-3 pt-2">
- {service.searchTags && service.searchTags.map((tag, idx) => (
- <span key={idx} className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-400">
- <TagIcon className="w-3 h-3 mr-1.5" strokeWidth={1.5} /> {tag}
- </span>
- ))}
- </div>
- 
- {/* --- GALERÍA DEL SERVICIO --- */}
- {service.galleryImages && service.galleryImages.length > 0 && (
- <div className="mt-6 space-y-6">
- {/* Galería general (fotos del procedimiento) */}
- {service.galleryImages.some(img => img.galleryType === 'SERVICE_WORK') && (
- <ImageGalleryViewer 
- images={service.galleryImages.filter(img => img.galleryType === 'SERVICE_WORK')}
- className="max-w-xl"
- />
- )}
+                      <div className="space-y-2">
+                        <Link
+                          href={`/${locale}/market/item/${service.id}-${generateSlug(service.name)}`}
+                          className="hover:underline"
+                        >
+                          <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white">
+                            {service.name}
+                          </h3>
+                        </Link>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
+                          {service.description}
+                        </p>
+                      </div>
 
- {/* Casos Antes / Después */}
- {service.galleryImages.some(img => img.galleryType === 'BEFORE_AFTER') && (
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
- {service.galleryImages
- .filter(img => img.galleryType === 'BEFORE_AFTER')
- .map(pair => (
- <BeforeAfterComparator key={pair.id} imagePair={pair} />
- ))
- }
- </div>
- )}
- </div>
- )}
- </div>
+                      <div className="flex flex-wrap gap-3 pt-2">
+                        {service.searchTags &&
+                          service.searchTags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-400"
+                            >
+                              <TagIcon
+                                className="w-3 h-3 mr-1.5"
+                                strokeWidth={1.5}
+                              />{" "}
+                              {tag}
+                            </span>
+                          ))}
+                      </div>
 
- {/* Panel Lateral de Precios y Cierre */}
- <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[160px] self-stretch justify-end">
- <div className="flex flex-col items-start md:items-end">
- {service.compareAtPrice && service.compareAtPrice > service.price && (
- <span className="text-[10px] font-bold text-gray-400 line-through mb-1">${formatPrice(service.compareAtPrice)}</span>
- )}
- <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
- {service.requiresEvaluation ? t('requires_eval', { defaultValue: 'REQUIERE VALORACIÓN' }) : `$${formatPrice(service.price)}`}
- </span>
- </div>
- 
- {(() => {
- const isInCart = cart.some(c => c.id === service.id && c.type === service.type);
- return (
- <Button 
- onClick={() => isInCart ? removeFromCart(service.id) : handleAddToCart(service)} 
- className={cn(
- "rounded-none px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
- isInCart ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white" : "text-white"
- )} 
- style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
- >
- {isInCart ? 'REMOVER' : t('btn_book', { defaultValue: 'AGREGAR' })} {!isInCart && <ArrowRight className="w-4 h-4 ml-2 opacity-70" />}
- </Button>
- );
- })()}
- </div>
+                      {/* --- GALERÍA DEL SERVICIO --- */}
+                      {service.galleryImages &&
+                        service.galleryImages.length > 0 && (
+                          <div className="mt-6 space-y-6">
+                            {/* Galería general (fotos del procedimiento) */}
+                            {service.galleryImages.some(
+                              (img) => img.galleryType === "SERVICE_WORK",
+                            ) && (
+                              <ImageGalleryViewer
+                                images={service.galleryImages.filter(
+                                  (img) => img.galleryType === "SERVICE_WORK",
+                                )}
+                                className="max-w-xl"
+                              />
+                            )}
 
- </div>
- ))
- ) : (
- <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('empty_services', { defaultValue: 'CATÁLOGO DE SERVICIOS NO DISPONIBLE.' })}</p>
- </div>
- )}
- </motion.div>
- )}
+                            {/* Casos Antes / Después */}
+                            {service.galleryImages.some(
+                              (img) => img.galleryType === "BEFORE_AFTER",
+                            ) && (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {service.galleryImages
+                                  .filter(
+                                    (img) => img.galleryType === "BEFORE_AFTER",
+                                  )
+                                  .map((pair) => (
+                                    <BeforeAfterComparator
+                                      key={pair.id}
+                                      imagePair={pair}
+                                    />
+                                  ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                    </div>
 
- {/* VISTA 2: PAQUETES */}
- {activeTab === 'paquetes' && (
- <motion.div key="paquetes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
- {store.packages && store.packages.length > 0 ? (
- store.packages.map((pkg) => (
- <div 
- key={pkg.id} 
- className="border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col md:flex-row gap-6 md:items-start hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
- style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
- >
- 
- <div className="flex-1 flex flex-col gap-4">
- <div className="flex items-start justify-between gap-4 w-full">
- <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
- <Sparkles className="w-3 h-3" strokeWidth={2} /> {t('badge_special', { defaultValue: 'OFERTA ESTRUCTURAL' })}
- </span>
- <FavoriteButton 
- entityType="PACKAGE" 
- entityId={pkg.id} 
- initialIsFavorite={favoritePackageIds.has(pkg.id)} 
- brandColor={safePrimaryColor}
- />
- </div>
+                    {/* Panel Lateral de Precios y Cierre */}
+                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[160px] self-stretch justify-end">
+                      <div className="flex flex-col items-start md:items-end">
+                        {service.compareAtPrice &&
+                          service.compareAtPrice > service.price && (
+                            <span className="text-[10px] font-bold text-gray-400 line-through mb-1">
+                              ${formatPrice(service.compareAtPrice)}
+                            </span>
+                          )}
+                        <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                          {service.requiresEvaluation
+                            ? t("requires_eval", {
+                                defaultValue: "REQUIERE VALORACIÓN",
+                              })
+                            : `$${formatPrice(service.price)}`}
+                        </span>
+                      </div>
 
- <div className="space-y-4">
- <Link href={`/${locale}/market/item/${pkg.id}-${generateSlug(pkg.name)}`} className="hover:underline">
- <h3 className="font-bold text-xl uppercase tracking-wider text-black dark:text-white">{pkg.name}</h3>
- </Link>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">{pkg.description}</p>
- 
- <ul className="space-y-3 mt-6 border-t border-gray-200 dark:border-gray-800 pt-6">
- <li className="flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
- <CheckCircle2 className="w-3.5 h-3.5 mr-3" strokeWidth={2} style={{ color: safePrimaryColor }} /> 
- {t('includes_services', { defaultValue: 'INCLUYE MÚLTIPLES SESIONES' })}
- </li>
- <li className="flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
- <CheckCircle2 className="w-3.5 h-3.5 mr-3" strokeWidth={2} style={{ color: safePrimaryColor }} /> 
- {t('preferential_price', { defaultValue: 'VALORACIÓN PREFERENCIAL' })}
- </li>
- </ul>
+                      {(() => {
+                        const isInCart = cart.some(
+                          (c) => c.id === service.id && c.type === service.type,
+                        );
+                        return (
+                          <Button
+                            onClick={() =>
+                              isInCart
+                                ? removeFromCart(service.id)
+                                : handleAddToCart(service)
+                            }
+                            className={cn(
+                              "rounded-none px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                              isInCart
+                                ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white"
+                                : "text-white",
+                            )}
+                            style={
+                              !isInCart
+                                ? { backgroundColor: safePrimaryColor }
+                                : {}
+                            }
+                          >
+                            {isInCart
+                              ? "REMOVER"
+                              : t("btn_book", { defaultValue: "AGREGAR" })}{" "}
+                            {!isInCart && (
+                              <ArrowRight className="w-4 h-4 ml-2 opacity-70" />
+                            )}
+                          </Button>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    {t("empty_services", {
+                      defaultValue: "CATÁLOGO DE SERVICIOS NO DISPONIBLE.",
+                    })}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
 
- {/* --- GALERÍA DEL PAQUETE --- */}
- {pkg.galleryImages && pkg.galleryImages.length > 0 && (
- <div className="mt-6 space-y-6 pt-6 border-t border-gray-200 dark:border-gray-800">
- {/* Galería general (fotos del resultado) */}
- {pkg.galleryImages.some(img => img.galleryType === 'SERVICE_WORK') && (
- <ImageGalleryViewer 
- images={pkg.galleryImages.filter(img => img.galleryType === 'SERVICE_WORK')}
- className="max-w-xl"
- />
- )}
+          {/* VISTA 2: PAQUETES */}
+          {activeTab === "paquetes" && (
+            <motion.div
+              key="paquetes"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-6"
+            >
+              {store.packages && store.packages.length > 0 ? (
+                store.packages.map((pkg) => (
+                  <div
+                    key={pkg.id}
+                    className="border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group p-6 md:p-10 flex flex-col md:flex-row gap-6 md:items-start hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    style={
+                      hasValidPrimaryColor
+                        ? ({
+                            "--store-color": safePrimaryColor,
+                          } as React.CSSProperties)
+                        : undefined
+                    }
+                  >
+                    <div className="flex-1 flex flex-col gap-4">
+                      <div className="flex items-start justify-between gap-4 w-full">
+                        <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                          <Sparkles className="w-3 h-3" strokeWidth={2} />{" "}
+                          {t("badge_special", {
+                            defaultValue: "OFERTA ESTRUCTURAL",
+                          })}
+                        </span>
+                        <FavoriteButton
+                          entityType="PACKAGE"
+                          entityId={pkg.id}
+                          initialIsFavorite={favoritePackageIds.has(pkg.id)}
+                          brandColor={safePrimaryColor}
+                        />
+                      </div>
 
- {/* Casos Antes / Después */}
- {pkg.galleryImages.some(img => img.galleryType === 'BEFORE_AFTER') && (
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
- {pkg.galleryImages
- .filter(img => img.galleryType === 'BEFORE_AFTER')
- .map(pair => (
- <BeforeAfterComparator key={pair.id} imagePair={pair} />
- ))
- }
- </div>
- )}
- </div>
- )}
- </div>
- </div>
+                      <div className="space-y-4">
+                        <Link
+                          href={`/${locale}/market/item/${pkg.id}-${generateSlug(pkg.name)}`}
+                          className="hover:underline"
+                        >
+                          <h3 className="font-bold text-xl uppercase tracking-wider text-black dark:text-white">
+                            {pkg.name}
+                          </h3>
+                        </Link>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
+                          {pkg.description}
+                        </p>
 
- <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[180px] self-stretch md:self-auto">
- <div className="text-left sm:text-right">
- {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && (
- <span className="text-[10px] font-bold text-gray-400 line-through block mb-1">${formatPrice(pkg.compareAtPrice)}</span>
- )}
- <span className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">${formatPrice(pkg.price)}</span>
- </div>
- 
- {(() => {
- const isInCart = cart.some(c => c.id === pkg.id && c.type === pkg.type);
- return (
- <Button 
- onClick={() => isInCart ? removeFromCart(pkg.id) : handleAddToCart(pkg)} 
- className={cn(
- "rounded-none px-8 h-14 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
- isInCart 
- ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800" 
- : "text-white"
- )} 
- style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
- >
- {isInCart ? 'REMOVER' : t('btn_promo', { defaultValue: 'ADQUIRIR PAQUETE' })}
- </Button>
- );
- })()}
- </div>
- </div>
- ))
- ) : (
- <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('empty_packages', { defaultValue: 'NO HAY PAQUETES CONFIGURADOS.' })}</p>
- </div>
- )}
- </motion.div>
- )}
+                        <ul className="space-y-3 mt-6 border-t border-gray-200 dark:border-gray-800 pt-6">
+                          <li className="flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                            <CheckCircle2
+                              className="w-3.5 h-3.5 mr-3"
+                              strokeWidth={2}
+                              style={{ color: safePrimaryColor }}
+                            />
+                            {t("includes_services", {
+                              defaultValue: "INCLUYE MÚLTIPLES SESIONES",
+                            })}
+                          </li>
+                          <li className="flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                            <CheckCircle2
+                              className="w-3.5 h-3.5 mr-3"
+                              strokeWidth={2}
+                              style={{ color: safePrimaryColor }}
+                            />
+                            {t("preferential_price", {
+                              defaultValue: "VALORACIÓN PREFERENCIAL",
+                            })}
+                          </li>
+                        </ul>
 
- {/* VISTA 3: PRODUCTOS CORREGIDA */}
- {activeTab === 'productos' && (
- <motion.div key="productos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
- {store.products && store.products.length > 0 ? (
- <div className="flex flex-col gap-8">
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
- {store.products.slice(0, visibleProducts).map((product) => {
- const isOutOfStock = product.stockQuantity === 0 && !product.isDigital;
- const isLowStock = !product.isDigital && product.stockQuantity != null && product.stockQuantity > 0 && product.stockQuantity <= 5;
+                        {/* --- GALERÍA DEL PAQUETE --- */}
+                        {pkg.galleryImages && pkg.galleryImages.length > 0 && (
+                          <div className="mt-6 space-y-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+                            {/* Galería general (fotos del resultado) */}
+                            {pkg.galleryImages.some(
+                              (img) => img.galleryType === "SERVICE_WORK",
+                            ) && (
+                              <ImageGalleryViewer
+                                images={pkg.galleryImages.filter(
+                                  (img) => img.galleryType === "SERVICE_WORK",
+                                )}
+                                className="max-w-xl"
+                              />
+                            )}
 
- return (
- <div 
- key={product.id} 
- className={cn(
- "bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all flex flex-col group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10", 
- isOutOfStock ? "opacity-60" : ""
- )}
- style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
- >
- 
- {/* Box Image */}
- <div className="h-48 border-b border-gray-200 dark:border-gray-800 relative flex items-center justify-center bg-gray-50 dark:bg-[#050505] overflow-hidden">
- {product.imageUrl ? (
- // eslint-disable-next-line @next/next/no-img-element
- <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover transition-all" />
- ) : (
- <Box className="w-10 h-10 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
- )}
+                            {/* Casos Antes / Después */}
+                            {pkg.galleryImages.some(
+                              (img) => img.galleryType === "BEFORE_AFTER",
+                            ) && (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {pkg.galleryImages
+                                  .filter(
+                                    (img) => img.galleryType === "BEFORE_AFTER",
+                                  )
+                                  .map((pair) => (
+                                    <BeforeAfterComparator
+                                      key={pair.id}
+                                      imagePair={pair}
+                                    />
+                                  ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
- {isOutOfStock && (
- <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
- <span className="border border-red-500 bg-red-50 text-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
- INVENTARIO AGOTADO
- </span>
- </div>
- )}
- </div>
+                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[180px] self-stretch md:self-auto">
+                      <div className="text-left sm:text-right">
+                        {pkg.compareAtPrice &&
+                          pkg.compareAtPrice > pkg.price && (
+                            <span className="text-[10px] font-bold text-gray-400 line-through block mb-1">
+                              ${formatPrice(pkg.compareAtPrice)}
+                            </span>
+                          )}
+                        <span className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                          ${formatPrice(pkg.price)}
+                        </span>
+                      </div>
 
- <div className="p-6 flex flex-col flex-1">
- <div className="flex justify-between items-start gap-4 mb-4">
- <span 
- className={cn(
- "border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-transparent",
- !hasValidPrimaryColor && "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400"
- )}
- style={hasValidPrimaryColor ? { borderColor: safePrimaryColor, color: safePrimaryColor } : {}}
- >
- {product.category || 'BIEN FÍSICO'}
- </span>
- 
- {/* Botón integrado de forma segura en la esquina superior del bloque de datos */}
- <div className="shrink-0">
- <FavoriteButton 
- entityType="PRODUCT" 
- entityId={product.id} 
- initialIsFavorite={favoriteProductIds.has(product.id)} 
- brandColor={safePrimaryColor}
- />
- </div>
- </div>
+                      {(() => {
+                        const isInCart = cart.some(
+                          (c) => c.id === pkg.id && c.type === pkg.type,
+                        );
+                        return (
+                          <Button
+                            onClick={() =>
+                              isInCart
+                                ? removeFromCart(pkg.id)
+                                : handleAddToCart(pkg)
+                            }
+                            className={cn(
+                              "rounded-none px-8 h-14 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                              isInCart
+                                ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
+                                : "text-white",
+                            )}
+                            style={
+                              !isInCart
+                                ? { backgroundColor: safePrimaryColor }
+                                : {}
+                            }
+                          >
+                            {isInCart
+                              ? "REMOVER"
+                              : t("btn_promo", {
+                                  defaultValue: "ADQUIRIR PAQUETE",
+                                })}
+                          </Button>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    {t("empty_packages", {
+                      defaultValue: "NO HAY PAQUETES CONFIGURADOS.",
+                    })}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
 
- {isLowStock && (
- <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-3 flex items-center">
- <AlertCircle className="w-3 h-3 mr-1" strokeWidth={2} /> STOCK ACTUAL: {product.stockQuantity}
- </span>
- )}
+          {/* VISTA 3: PRODUCTOS CORREGIDA */}
+          {activeTab === "productos" && (
+            <motion.div
+              key="productos"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              {store.products && store.products.length > 0 ? (
+                <div className="flex flex-col gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {store.products.slice(0, visibleProducts).map((product) => {
+                      const isOutOfStock =
+                        product.stockQuantity === 0 && !product.isDigital;
+                      const isLowStock =
+                        !product.isDigital &&
+                        product.stockQuantity != null &&
+                        product.stockQuantity > 0 &&
+                        product.stockQuantity <= 5;
 
- <Link href={`/${locale}/market/item/${product.id}-${generateSlug(product.name)}`} className="hover:underline">
- <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white line-clamp-1 mb-2">
- {product.name}
- </h3>
- </Link>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 line-clamp-2 mb-6 flex-1 leading-relaxed">
- {product.description}
- </p>
+                      return (
+                        <div
+                          key={product.id}
+                          className={cn(
+                            "bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-gray-800 transition-all flex flex-col group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10",
+                            isOutOfStock ? "opacity-60" : "",
+                          )}
+                          style={
+                            hasValidPrimaryColor
+                              ? ({
+                                  "--store-color": safePrimaryColor,
+                                } as React.CSSProperties)
+                              : undefined
+                          }
+                        >
+                          {/* Box Image */}
+                          <div className="h-48 border-b border-gray-200 dark:border-gray-800 relative flex items-center justify-center bg-gray-50 dark:bg-[#050505] overflow-hidden">
+                            {product.imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={product.imageUrl}
+                                alt={product.name}
+                                className="w-full h-full object-cover transition-all"
+                              />
+                            ) : (
+                              <Box
+                                className="w-10 h-10 text-gray-300 dark:text-gray-700"
+                                strokeWidth={1.5}
+                              />
+                            )}
 
- <div className="flex items-end justify-between pt-6 border-t border-gray-200 dark:border-gray-800 mt-auto">
- <div className="flex flex-col">
- {product.compareAtPrice && product.compareAtPrice > product.price && (
- <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">${formatPrice(product.compareAtPrice)}</span>
- )}
- <span className="text-xl font-semibold tracking-tight text-black dark:text-white leading-none">${formatPrice(product.price)}</span>
- </div>
+                            {isOutOfStock && (
+                              <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
+                                <span className="border border-red-500 bg-red-50 text-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
+                                  INVENTARIO AGOTADO
+                                </span>
+                              </div>
+                            )}
+                          </div>
 
- {(() => {
- const cartItem = cart.find(c => c.id === product.id && c.type === product.type);
- const isInCart = !!cartItem;
- 
- if (isInCart) {
- return (
- <div className="flex items-center h-10 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
- <button 
- onClick={() => {
- if (cartItem.cartQuantity && cartItem.cartQuantity > 1) {
- updateQuantity(product.id, cartItem.cartQuantity - 1);
- } else {
- removeFromCart(product.id);
- }
- }}
- className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
- >
- -
- </button>
- <span className="w-10 text-center text-[10px] font-bold text-black dark:text-white">
- {cartItem.cartQuantity || 1}
- </span>
- <button 
- onClick={() => updateQuantity(product.id, (cartItem.cartQuantity || 1) + 1)}
- className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
- >
- +
- </button>
- </div>
- );
- }
+                          <div className="p-6 flex flex-col flex-1">
+                            <div className="flex justify-between items-start gap-4 mb-4">
+                              <span
+                                className={cn(
+                                  "border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-transparent",
+                                  !hasValidPrimaryColor &&
+                                    "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400",
+                                )}
+                                style={
+                                  hasValidPrimaryColor
+                                    ? {
+                                        borderColor: safePrimaryColor,
+                                        color: safePrimaryColor,
+                                      }
+                                    : {}
+                                }
+                              >
+                                {product.category || "BIEN FÍSICO"}
+                              </span>
 
- return (
- <Button
- disabled={isOutOfStock}
- onClick={() => handleAddToCart(product)}
- className={cn(
- "rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors",
- isOutOfStock ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed" : "text-white"
- )}
- style={!isOutOfStock ? { backgroundColor: safePrimaryColor } : {}}
- >
- {isOutOfStock ? 'AGOTADO' : 'AGREGAR'}
- </Button>
- );
- })()}
- </div>
- </div>
- </div>
- );
- })}
- </div>
- {visibleProducts < store.products.length && (
- <div className="flex justify-center mt-4">
- <Button
- onClick={() => setVisibleProducts((prev) => prev + 12)}
- variant="outline"
- className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
- >
- {t('load_more', { defaultValue: 'Mostrar más' })}
- </Button>
- </div>
- )}
- </div>
- ) : (
- <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
- <ShoppingBag className="w-8 h-8 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
- <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">INVENTARIO VACÍO</h3>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">EL ESPECIALISTA NO CUENTA CON PRODUCTOS FÍSICOS LISTADOS.</p>
- </div>
- )}
- </motion.div>
- )}
+                              {/* Botón integrado de forma segura en la esquina superior del bloque de datos */}
+                              <div className="shrink-0">
+                                <FavoriteButton
+                                  entityType="PRODUCT"
+                                  entityId={product.id}
+                                  initialIsFavorite={favoriteProductIds.has(
+                                    product.id,
+                                  )}
+                                  brandColor={safePrimaryColor}
+                                />
+                              </div>
+                            </div>
 
- {/* VISTA 4: CURSOS DIGITALES */}
- {activeTab === 'cursos' && (
- <motion.div key="cursos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
- {store.courses && store.courses.length > 0 ? (
- store.courses.map((course) => (
- <div 
- key={course.id} 
- className="flex flex-col sm:flex-row border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
- style={hasValidPrimaryColor ? { '--store-color': safePrimaryColor } as React.CSSProperties : undefined}
- >
- <div className="w-full sm:w-1/3 h-48 sm:h-auto border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] relative flex items-center justify-center overflow-hidden">
- {course.imageUrl ? (
- // eslint-disable-next-line @next/next/no-img-element
- <img src={course.imageUrl} alt={course.name} className="w-full h-full object-cover transition-all" />
- ) : (
- <PlayCircle className="w-10 h-10 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
- )}
- </div>
- 
- <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
- <div>
- <div className="flex items-start justify-between gap-4 mb-4">
- <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit text-black dark:text-white">
- <GraduationCap className="w-3 h-3" strokeWidth={1.5} /> ACTIVO INTANGIBLE
- </span>
- <FavoriteButton 
- entityType="COURSE" 
- entityId={course.id} 
- initialIsFavorite={favoriteCourseIds.has(course.id)} 
- brandColor={safePrimaryColor}
- />
- </div>
- <Link href={`/${locale}/market/item/${course.id}-${generateSlug(course.name)}`} className="hover:underline">
- <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white mb-2">
- {course.name}
- </h3>
- </Link>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed mb-6 max-w-xl">
- {course.description}
- </p>
- <CourseCurriculumView catalogItemId={course.id} />
- </div>
- <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-gray-200 dark:border-gray-800 pt-6">
- <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
- ${formatPrice(course.price)}
- </span>
- {(() => {
- const isInCart = cart.some(c => c.id === course.id && c.type === course.type);
- return (
- <Button 
- onClick={() => isInCart ? removeFromCart(course.id) : handleAddToCart(course)} 
- className={cn(
- "rounded-none w-full sm:w-auto h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
- isInCart 
- ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800" 
- : "text-white"
- )} 
- style={!isInCart ? { backgroundColor: safePrimaryColor } : {}}
- >
- {isInCart ? 'REMOVER DE SELECCIÓN' : 'ADQUIRIR ACCESO DIGITAL'}
- </Button>
- );
- })()}
- </div>
- </div>
- </div>
- ))
- ) : (
- <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
- <GraduationCap className="w-8 h-8 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
- <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">SIN RESULTADOS DIGITALES</h3>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">EL ESPECIALISTA NO HA PUBLICADO CONTENIDO FORMATIVO.</p>
- </div>
- )}
- </motion.div>
- )}
+                            {isLowStock && (
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-3 flex items-center">
+                                <AlertCircle
+                                  className="w-3 h-3 mr-1"
+                                  strokeWidth={2}
+                                />{" "}
+                                STOCK ACTUAL: {product.stockQuantity}
+                              </span>
+                            )}
 
- </AnimatePresence>
+                            <Link
+                              href={`/${locale}/market/item/${product.id}-${generateSlug(product.name)}`}
+                              className="hover:underline"
+                            >
+                              <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white line-clamp-1 mb-2">
+                                {product.name}
+                              </h3>
+                            </Link>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 line-clamp-2 mb-6 flex-1 leading-relaxed">
+                              {product.description}
+                            </p>
 
- {/* --- GALERÍAS DE LA TIENDA (Instalaciones, Equipo, Certificaciones) --- */}
- {store.galleryImages && store.galleryImages.length > 0 && (
- <div className="mt-16 pt-16 border-t border-gray-200 dark:border-gray-800 space-y-16">
- 
- {/* Fotos de Instalaciones */}
- {store.galleryImages.some(img => img.galleryType === 'OFFICE') && (
- <div>
- <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">Instalaciones</h3>
- <ImageGalleryViewer 
- images={store.galleryImages.filter(img => img.galleryType === 'OFFICE')} 
- />
- </div>
- )}
+                            <div className="flex items-end justify-between pt-6 border-t border-gray-200 dark:border-gray-800 mt-auto">
+                              <div className="flex flex-col">
+                                {product.compareAtPrice &&
+                                  product.compareAtPrice > product.price && (
+                                    <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">
+                                      ${formatPrice(product.compareAtPrice)}
+                                    </span>
+                                  )}
+                                <span className="text-xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                                  ${formatPrice(product.price)}
+                                </span>
+                              </div>
 
- {/* Fotos de Equipo Médico */}
- {store.galleryImages.some(img => img.galleryType === 'EQUIPMENT') && (
- <div>
- <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">Equipamiento y Tecnología</h3>
- <ImageGalleryViewer 
- images={store.galleryImages.filter(img => img.galleryType === 'EQUIPMENT')} 
- />
- </div>
- )}
+                              {(() => {
+                                const cartItem = cart.find(
+                                  (c) =>
+                                    c.id === product.id &&
+                                    c.type === product.type,
+                                );
+                                const isInCart = !!cartItem;
 
- {/* Certificaciones */}
- {store.galleryImages.some(img => img.galleryType === 'CERTIFICATION') && (
- <div>
- <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">Certificaciones y Respaldo Médico</h3>
- <CertificationGrid images={store.galleryImages} />
- </div>
- )}
- </div>
- )}
- 
- {/* 🚀 CARRUSELES DE CROSS-SELLING (FASE 1) */}
- <div className="mt-12 px-6 lg:px-0">
- <CrossSellingCarousel 
- itemType="COURSE" 
- title="Sugerencias Académicas" 
- subtitle="Otros pacientes también exploraron estos cursos" 
- />
- <CrossSellingCarousel 
- itemType="PRODUCT" 
- title="Complementos Recomendados" 
- />
- </div>
- </div>
+                                if (isInCart) {
+                                  return (
+                                    <div className="flex items-center h-10 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                                      <button
+                                        onClick={() => {
+                                          if (
+                                            cartItem.cartQuantity &&
+                                            cartItem.cartQuantity > 1
+                                          ) {
+                                            updateQuantity(
+                                              product.id,
+                                              cartItem.cartQuantity - 1,
+                                            );
+                                          } else {
+                                            removeFromCart(product.id);
+                                          }
+                                        }}
+                                        className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                                      >
+                                        -
+                                      </button>
+                                      <span className="w-10 text-center text-[10px] font-bold text-black dark:text-white">
+                                        {cartItem.cartQuantity || 1}
+                                      </span>
+                                      <button
+                                        onClick={() =>
+                                          updateQuantity(
+                                            product.id,
+                                            (cartItem.cartQuantity || 1) + 1,
+                                          )
+                                        }
+                                        className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                                      >
+                                        +
+                                      </button>
+                                    </div>
+                                  );
+                                }
 
- <QuScoreModal 
- isOpen={showQuScoreModal}
- onClose={() => setShowQuScoreModal(false)}
- scoreData={singleScore}
- />
+                                return (
+                                  <Button
+                                    disabled={isOutOfStock}
+                                    onClick={() => handleAddToCart(product)}
+                                    className={cn(
+                                      "rounded-none h-10 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors",
+                                      isOutOfStock
+                                        ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed"
+                                        : "text-white",
+                                    )}
+                                    style={
+                                      !isOutOfStock
+                                        ? { backgroundColor: safePrimaryColor }
+                                        : {}
+                                    }
+                                  >
+                                    {isOutOfStock ? "AGOTADO" : "AGREGAR"}
+                                  </Button>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {visibleProducts < store.products.length && (
+                    <div className="flex justify-center mt-4">
+                      <Button
+                        onClick={() => setVisibleProducts((prev) => prev + 12)}
+                        variant="outline"
+                        className="rounded-none border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors"
+                      >
+                        {t("load_more", { defaultValue: "Mostrar más" })}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <ShoppingBag
+                    className="w-8 h-8 text-gray-400 mx-auto mb-4"
+                    strokeWidth={1.5}
+                  />
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                    INVENTARIO VACÍO
+                  </h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    EL ESPECIALISTA NO CUENTA CON PRODUCTOS FÍSICOS LISTADOS.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
 
- <StickyBookingBar providerSlug={slug} brandColor={safePrimaryColor} />
- </div>
- );
+          {/* VISTA 4: CURSOS DIGITALES */}
+          {activeTab === "cursos" && (
+            <motion.div
+              key="cursos"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-6"
+            >
+              {store.courses && store.courses.length > 0 ? (
+                store.courses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="flex flex-col sm:flex-row border border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-all group hover:-translate-y-1 hover:shadow-[6px_6px_0_0_var(--store-color,#000)] dark:hover:shadow-[6px_6px_0_0_var(--store-color,#fff)] hover:[border-color:var(--store-color,black)] dark:hover:[border-color:var(--store-color,white)] relative hover:z-10"
+                    style={
+                      hasValidPrimaryColor
+                        ? ({
+                            "--store-color": safePrimaryColor,
+                          } as React.CSSProperties)
+                        : undefined
+                    }
+                  >
+                    <div className="w-full sm:w-1/3 h-48 sm:h-auto border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] relative flex items-center justify-center overflow-hidden">
+                      {course.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={course.imageUrl}
+                          alt={course.name}
+                          className="w-full h-full object-cover transition-all"
+                        />
+                      ) : (
+                        <PlayCircle
+                          className="w-10 h-10 text-gray-300 dark:text-gray-700"
+                          strokeWidth={1.5}
+                        />
+                      )}
+                    </div>
+
+                    <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
+                      <div>
+                        <div className="flex items-start justify-between gap-4 mb-4">
+                          <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit text-black dark:text-white">
+                            <GraduationCap
+                              className="w-3 h-3"
+                              strokeWidth={1.5}
+                            />{" "}
+                            ACTIVO INTANGIBLE
+                          </span>
+                          <FavoriteButton
+                            entityType="COURSE"
+                            entityId={course.id}
+                            initialIsFavorite={favoriteCourseIds.has(course.id)}
+                            brandColor={safePrimaryColor}
+                          />
+                        </div>
+                        <Link
+                          href={`/${locale}/market/item/${course.id}-${generateSlug(course.name)}`}
+                          className="hover:underline"
+                        >
+                          <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white mb-2">
+                            {course.name}
+                          </h3>
+                        </Link>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed mb-6 max-w-xl">
+                          {course.description}
+                        </p>
+                        <CourseCurriculumView catalogItemId={course.id} />
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-gray-200 dark:border-gray-800 pt-6">
+                        <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                          ${formatPrice(course.price)}
+                        </span>
+                        {(() => {
+                          const isInCart = cart.some(
+                            (c) => c.id === course.id && c.type === course.type,
+                          );
+                          return (
+                            <Button
+                              onClick={() =>
+                                isInCart
+                                  ? removeFromCart(course.id)
+                                  : handleAddToCart(course)
+                              }
+                              className={cn(
+                                "rounded-none w-full sm:w-auto h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                                isInCart
+                                  ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
+                                  : "text-white",
+                              )}
+                              style={
+                                !isInCart
+                                  ? { backgroundColor: safePrimaryColor }
+                                  : {}
+                              }
+                            >
+                              {isInCart
+                                ? "REMOVER DE SELECCIÓN"
+                                : "ADQUIRIR ACCESO DIGITAL"}
+                            </Button>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+                  <GraduationCap
+                    className="w-8 h-8 text-gray-400 mx-auto mb-4"
+                    strokeWidth={1.5}
+                  />
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                    SIN RESULTADOS DIGITALES
+                  </h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    EL ESPECIALISTA NO HA PUBLICADO CONTENIDO FORMATIVO.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* --- GALERÍAS DE LA TIENDA (Instalaciones, Equipo, Certificaciones) --- */}
+        {store.galleryImages && store.galleryImages.length > 0 && (
+          <div className="mt-16 pt-16 border-t border-gray-200 dark:border-gray-800 space-y-16">
+            {/* Fotos de Instalaciones */}
+            {store.galleryImages.some(
+              (img) => img.galleryType === "OFFICE",
+            ) && (
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">
+                  Instalaciones
+                </h3>
+                <ImageGalleryViewer
+                  images={store.galleryImages.filter(
+                    (img) => img.galleryType === "OFFICE",
+                  )}
+                />
+              </div>
+            )}
+
+            {/* Fotos de Equipo Médico */}
+            {store.galleryImages.some(
+              (img) => img.galleryType === "EQUIPMENT",
+            ) && (
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">
+                  Equipamiento y Tecnología
+                </h3>
+                <ImageGalleryViewer
+                  images={store.galleryImages.filter(
+                    (img) => img.galleryType === "EQUIPMENT",
+                  )}
+                />
+              </div>
+            )}
+
+            {/* Certificaciones */}
+            {store.galleryImages.some(
+              (img) => img.galleryType === "CERTIFICATION",
+            ) && (
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6">
+                  Certificaciones y Respaldo Médico
+                </h3>
+                <CertificationGrid images={store.galleryImages} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 🚀 CARRUSELES DE CROSS-SELLING (FASE 1) */}
+        <div className="mt-12 px-6 lg:px-0">
+          <CrossSellingCarousel
+            itemType="COURSE"
+            title="Sugerencias Académicas"
+            subtitle="Otros pacientes también exploraron estos cursos"
+          />
+          <CrossSellingCarousel
+            itemType="PRODUCT"
+            title="Complementos Recomendados"
+          />
+        </div>
+      </div>
+
+      <QuScoreModal
+        isOpen={showQuScoreModal}
+        onClose={() => setShowQuScoreModal(false)}
+        scoreData={singleScore}
+      />
+
+      <StickyBookingBar providerSlug={slug} brandColor={safePrimaryColor} />
+    </div>
+  );
 }
