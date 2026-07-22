@@ -357,6 +357,22 @@ export function VisualIdentitySection({
 
         </div>
 
+        {/* Galería de Consultorio y Certificaciones */}
+        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+              Galería de Imágenes
+            </h3>
+            <p className="text-xs text-gray-500 font-medium">
+              Sube fotos de tu consultorio, equipo médico, diplomas o certificaciones relevantes.
+            </p>
+          </div>
+          <GalleryUploadManager 
+            galleryType="OFFICE" 
+            maxImages={10} 
+          />
+        </div>
+
       </div>
     </div>
   );
