@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Calculator, Play, Ban, AlertCircle, ArrowUpRight, ArrowDownRight, RefreshCcw, CheckCircle2, History, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cashRegisterService } from '@/services/cash-register.service';
@@ -58,27 +58,12 @@ export default function CashRegisterPage() {
  const setIsExpenseModalOpen = (val: any) => dispatch({ type: 'SET_ISEXPENSEMODALOPEN', payload: val });
 
 
-
-
-
-
- 
- // Para abrir caja
-
-
-
-
-
  const updateBreakdown = (denom: string, count: number) => {
  const newBreakdown = { ...breakdown, [denom]: count };
  setBreakdown(newBreakdown);
  const total = Object.entries(newBreakdown).reduce((acc, [d, c]: [string, any]) => acc + (parseFloat(d) * c), 0);
  setInitialBalance(total > 0 ? total.toString() : '');
  };
-
- // Modales
-
-
 
  const fetchHistory = async () => {
  try {
@@ -121,7 +106,7 @@ export default function CashRegisterPage() {
  const handleOpenRegister = async () => {
  const parsedBalance = parseFloat(initialBalance || '0');
  if (parsedBalance < 0) {
- toast.error('EL BALANCE INICIAL NO PUEDE SER NEGATIVO.');
+ toast.error('El balance inicial no puede ser negativo.');
  return;
  }
  const hasBreakdownValues = showBreakdown && Object.values(breakdown).some((v: any) => v > 0);
@@ -135,11 +120,11 @@ export default function CashRegisterPage() {
  initialBalance: parsedBalance,
  initialDenominations: cleanDenoms,
  });
- toast.success('PROTOCOLO DE APERTURA EXITOSO.');
+ toast.success('Caja abierta correctamente.');
  fetchCurrentRegister();
  } catch (error: any) {
  console.error(error);
- toast.error(error.response?.data?.message || 'FALLO EN APERTURA DE CAJA.');
+ toast.error(error.response?.data?.message || 'Fallo al abrir caja.');
  } finally {
  setIsOpening(false);
  }
@@ -147,10 +132,10 @@ export default function CashRegisterPage() {
 
  if (isLoading) {
  return (
- <div className="flex flex-col items-center justify-center min-h-[60vh] bg-gray-50 dark:bg-[#050505]">
- <QhSpinner size="lg" className="text-black dark:text-white" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
- EXTRAYENDO ESTADO CONTABLE...
+ <div className="flex flex-col items-center justify-center min-h-[60vh] bg-gray-50/50 dark:bg-[#050505]">
+ <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+ <p className="text-sm font-semibold text-gray-500 mt-6 animate-pulse">
+ Consultando estado contable...
  </p>
  </div>
  );
@@ -159,33 +144,33 @@ export default function CashRegisterPage() {
  // --- VISTA 1: CAJA CERRADA ---
  if (!register) {
  return (
- <div className="max-w-4xl mx-auto space-y-8 bg-gray-50 dark:bg-[#050505] min-h-screen pt-8 px-6 md:px-10">
- <div className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white flex flex-col rounded-none">
+ <div className="max-w-4xl mx-auto space-y-8 bg-gray-50/50 dark:bg-[#050505] min-h-screen pt-8 px-6 md:px-10">
+ <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col rounded-3xl shadow-sm overflow-hidden">
  
- <div className="border-b border-black/20 dark:border-white/20 p-6 md:p-8 flex items-start gap-5 bg-white dark:bg-[#0a0a0a]">
- <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
- <Calculator className="w-6 h-6 text-gray-500" strokeWidth={1.5} />
+ <div className="border-b border-gray-100 dark:border-gray-800 p-6 md:p-8 flex items-start gap-5 bg-white dark:bg-[#0a0a0a]">
+ <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-[#111] flex items-center justify-center shrink-0">
+ <Calculator className="w-6 h-6 text-gray-500" strokeWidth={2} />
  </div>
  <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
+ <p className="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-1">
  Estado Operativo: Inactivo
  </p>
- <h2 className="text-2xl md:text-3xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
- CAJA CERRADA
+ <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-none">
+ Caja Cerrada
  </h2>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2 max-w-lg leading-relaxed">
- ES NECESARIO EJECUTAR EL PROTOCOLO DE APERTURA PARA HABILITAR LA RECEPCIÓN DE FONDOS. INDIQUE EL FONDO DE CAMBIO INICIAL.
+ <p className="text-xs font-medium text-gray-500 mt-3 max-w-lg leading-relaxed">
+ Es necesario abrir caja para habilitar la recepción de fondos. Indique el fondo de cambio inicial.
  </p>
  </div>
  </div>
 
- <div className="flex flex-col bg-gray-50 dark:bg-[#050505]">
- <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
- <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
- <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">1</span>
- BALANCE INICIAL EN CAJA *
+ <div className="flex flex-col bg-gray-50/50 dark:bg-[#050505]">
+ <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+ <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
+ <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600">1</span>
+ Balance Inicial en Caja *
  </label>
- <div className="relative">
+ <div className="relative mt-2">
  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">$</span>
  <input 
  type="number"
@@ -201,7 +186,7 @@ export default function CashRegisterPage() {
  });
  }
  }}
- className="w-full h-14 pl-9 pr-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-black dark:text-white text-xl font-semibold focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-300 dark:placeholder:text-gray-700"
+ className="w-full h-14 pl-9 pr-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-xl font-semibold focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-700"
  placeholder="0.00"
  />
  </div>
@@ -211,29 +196,31 @@ export default function CashRegisterPage() {
  <button 
  type="button" 
  onClick={() => setShowBreakdown(!showBreakdown)}
- className="w-full flex items-center justify-between p-6 md:p-8 border-b border-black/10 dark:border-white/10 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none group"
+ className="w-full flex items-center justify-between p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group"
  >
- <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-3">
- <Calculator className="w-4 h-4" strokeWidth={1.5} />
- {showBreakdown ? 'OCULTAR MATRIZ DE DESGLOSE' : 'HABILITAR MATRIZ DE DESGLOSE (OPCIONAL)'}
+ <span className="text-sm font-semibold flex items-center gap-3 text-gray-700 dark:text-gray-200">
+ <Calculator className="w-4 h-4 text-emerald-600" strokeWidth={2} />
+ {showBreakdown ? 'Ocultar Matriz de Desglose' : 'Habilitar Matriz de Desglose (Opcional)'}
  </span>
  </button>
 
+ <AnimatePresence>
  {showBreakdown && (
  <motion.div 
  initial={{ opacity: 0, height: 0 }} 
  animate={{ opacity: 1, height: 'auto' }} 
- className="border-b border-black/10 dark:border-white/10 overflow-hidden bg-gray-50 dark:bg-[#050505]"
+ exit={{ opacity: 0, height: 0 }}
+ className="border-b border-gray-100 dark:border-gray-800 overflow-hidden bg-gray-50/50 dark:bg-[#050505]"
  >
- <div className="p-4 border-b border-black/10 dark:border-white/10">
- <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest text-center">
- CANTIDAD FÍSICA DE BILLETES Y MONEDAS
+ <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+ <p className="text-xs font-semibold text-gray-500 text-center">
+ Cantidad física de billetes y monedas
  </p>
  </div>
- <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-black/10 dark:border-white/10">
+ <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-gray-100 dark:border-gray-800">
  {['1000', '500', '200', '100', '50', '20', '10', '5', '2', '1', '0.5'].map(denom => (
- <div key={denom} className="border-r border-b border-black/10 dark:border-white/10 p-4 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
- <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">
+ <div key={denom} className="border-r border-b border-gray-100 dark:border-gray-800 p-4 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]">
+ <span className="text-sm font-bold text-gray-900 dark:text-white mb-3">
  ${denom}
  </span>
  <input 
@@ -241,7 +228,7 @@ export default function CashRegisterPage() {
  min="0"
  value={breakdown[denom] || ''} 
  onChange={(e) => updateBreakdown(denom, parseInt(e.target.value) || 0)}
- className="w-full h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white text-xs font-semibold text-center focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-300 dark:placeholder:text-gray-700"
+ className="w-full h-10 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white text-xs font-semibold text-center focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-700"
  placeholder="0"
  />
  </div>
@@ -249,16 +236,17 @@ export default function CashRegisterPage() {
  </div>
  </motion.div>
  )}
+ </AnimatePresence>
  </div>
  
- <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20">
+ <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a]">
  <Button 
  onClick={handleOpenRegister} 
  disabled={isOpening || !initialBalance}
- className="w-full h-14 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 rounded-none text-[10px] uppercase tracking-widest font-bold transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
+ className="w-full h-14 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 border-0 text-sm font-bold transition-colors flex items-center justify-center gap-3 disabled:opacity-50 shadow-sm"
  >
- {isOpening ? <QhSpinner size="sm" className="text-current" /> : <Play className="w-4 h-4" strokeWidth={1.5} />}
- {isOpening ? 'PROCESANDO APERTURA...' : 'INICIALIZAR CAJA'}
+ {isOpening ? <QhSpinner size="sm" className="text-current" /> : <Play className="w-4 h-4" strokeWidth={2} />}
+ {isOpening ? 'Procesando apertura...' : 'Inicializar Caja'}
  </Button>
  </div>
  </div>
@@ -269,144 +257,164 @@ export default function CashRegisterPage() {
 
  // --- VISTA 2: CAJA ABIERTA (DASHBOARD) ---
  return (
- <div className="max-w-7xl mx-auto space-y-8 bg-gray-50 dark:bg-[#050505] min-h-screen pt-8 px-6 md:px-10 pb-16 transition-colors">
+ <div className="max-w-7xl mx-auto space-y-8 bg-gray-50/50 dark:bg-[#050505] min-h-screen pt-8 px-6 md:px-10 pb-16 transition-colors">
  
- {/* TABS HEADER (Blueprint style) */}
- <div className="flex items-center gap-0 border-b border-black/20 dark:border-white/20 pb-4">
+ {/* TABS HEADER */}
+ <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-4">
  <button
  onClick={() => setActiveTab('current')}
  className={cn(
- "px-6 h-12 flex items-center justify-center border border-b-0 transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none",
+ "px-6 h-12 flex items-center justify-center rounded-xl transition-colors text-sm font-bold",
  activeTab === 'current'
- ? "border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white"
- : "border-transparent bg-transparent text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111]"
+ ? "bg-white dark:bg-[#0a0a0a] text-emerald-600 border border-gray-200 dark:border-gray-800 shadow-sm"
+ : "bg-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111]"
  )}
  >
- <Calculator className="w-4 h-4 mr-2" strokeWidth={1.5} /> CAJA ACTIVA
+ <Calculator className="w-4 h-4 mr-2" strokeWidth={2} /> Caja Activa
  </button>
  <button
  onClick={() => setActiveTab('history')}
  className={cn(
- "px-6 h-12 flex items-center justify-center border border-b-0 transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none",
+ "px-6 h-12 flex items-center justify-center rounded-xl transition-colors text-sm font-bold",
  activeTab === 'history'
- ? "border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white"
- : "border-transparent bg-transparent text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111]"
+ ? "bg-white dark:bg-[#0a0a0a] text-emerald-600 border border-gray-200 dark:border-gray-800 shadow-sm"
+ : "bg-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#111]"
  )}
  >
- <History className="w-4 h-4 mr-2" strokeWidth={1.5} /> HISTÓRICO CONTABLE
+ <History className="w-4 h-4 mr-2" strokeWidth={2} /> Historial
  </button>
  </div>
 
  {activeTab === 'current' && (
- <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+ <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
  
  {/* Header Info */}
- <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-b border-black/20 dark:border-white/20 pb-6">
+ <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-white dark:bg-[#0a0a0a] p-6 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
  <div className="flex items-center gap-5">
- <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] text-black dark:text-white flex items-center justify-center shrink-0">
- <Calculator className="w-6 h-6" strokeWidth={1.5} />
+ <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+ <Calculator className="w-6 h-6" strokeWidth={2} />
  </div>
  <div>
  <div className="flex items-center gap-3 mb-1">
- <h1 className="text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
- TURNO ACTUAL
+ <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-none">
+ Turno Actual
  </h1>
- <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
- <span className="w-1.5 h-1.5 bg-emerald-500" /> ABIERTA
+ <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5 border border-emerald-100 dark:border-emerald-800">
+ <span className="w-2 h-2 rounded-full bg-emerald-500" /> Abierta
  </span>
  </div>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
- APERTURA: {new Date(register.openedAt).toLocaleString()}
+ <p className="text-xs font-semibold text-gray-500 mt-2">
+ Apertura: {new Date(register.openedAt).toLocaleString()}
  </p>
  </div>
  </div>
  
- <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
- <button onClick={() => setIsExpenseModalOpen(true)} className="flex-1 sm:flex-none h-12 px-6 flex items-center justify-center gap-2 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none">
- <ArrowUpRight className="w-4 h-4" strokeWidth={1.5} /> SALIDA EFECTIVO
+ <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+ <button onClick={() => setIsExpenseModalOpen(true)} className="flex-1 sm:flex-none h-12 px-6 flex items-center justify-center gap-2 rounded-xl bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors text-sm font-bold border border-gray-200 dark:border-gray-700 shadow-sm">
+ <ArrowUpRight className="w-4 h-4" strokeWidth={2} /> Salida Efectivo
  </button>
- <button onClick={fetchCurrentRegister} className="flex-1 sm:flex-none h-12 px-6 flex items-center justify-center gap-2 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none">
- <RefreshCcw className="w-4 h-4" strokeWidth={1.5} /> ACTUALIZAR
+ <button onClick={fetchCurrentRegister} className="w-12 h-12 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition-colors border border-gray-200 dark:border-gray-700 shadow-sm">
+ <RefreshCcw className="w-4 h-4" strokeWidth={2} />
  </button>
- <button onClick={() => setIsCloseModalOpen(true)} className="flex-1 sm:flex-none h-12 px-6 flex items-center justify-center gap-2 border border-red-500 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white dark:bg-red-900/10 dark:text-red-400 dark:hover:bg-red-600 transition-colors text-[10px] font-bold uppercase tracking-widest rounded-none">
- <Ban className="w-4 h-4" strokeWidth={1.5} /> CERRAR CAJA
+ <button onClick={() => setIsCloseModalOpen(true)} className="flex-1 sm:flex-none h-12 px-6 flex items-center justify-center gap-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/10 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors text-sm font-bold border border-red-100 dark:border-red-900/30 shadow-sm">
+ <Ban className="w-4 h-4" strokeWidth={2} /> Cerrar Caja
  </button>
  </div>
  </div>
 
- {/* Stats: Blueprint Grid Matriz */}
- <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505]">
- <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">BALANCE INICIAL</p>
- <p className="text-3xl font-semibold tracking-tight text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors leading-none">${register.initialBalance.toFixed(2)}</p>
+ {/* Stats: Soft Health Grid */}
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+ <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col justify-between min-h-[140px] shadow-sm">
+ <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#111] flex items-center justify-center mb-4">
+ <Calculator className="w-5 h-5 text-gray-500" strokeWidth={2} />
  </div>
- <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">INGRESOS DEL DÍA</p>
- <p className="text-3xl font-semibold tracking-tight text-emerald-600 dark:text-emerald-400 leading-none">
+ <div>
+ <p className="text-xs font-semibold text-gray-500 mb-1">Balance Inicial</p>
+ <p className="text-2xl font-bold text-gray-900 dark:text-white leading-none">${register.initialBalance.toFixed(2)}</p>
+ </div>
+ </div>
+ <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col justify-between min-h-[140px] shadow-sm">
+ <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-4">
+ <ArrowDownRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+ </div>
+ <div>
+ <p className="text-xs font-semibold text-gray-500 mb-1">Ingresos del Día</p>
+ <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 leading-none">
  +${report?.transactions.filter((t: any) => t.transactionType === 'INCOME').reduce((acc: number, t: any) => acc + t.amount, 0).toFixed(2) || '0.00'}
  </p>
  </div>
- <div className="border-b border-r border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 flex flex-col justify-between min-h-[140px] group transition-all duration-300 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors mb-2">EGRESOS DEL DÍA</p>
- <p className="text-3xl font-semibold tracking-tight text-red-600 dark:text-red-400 leading-none">
+ </div>
+ <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col justify-between min-h-[140px] shadow-sm">
+ <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4">
+ <ArrowUpRight className="w-5 h-5 text-red-600 dark:text-red-400" strokeWidth={2} />
+ </div>
+ <div>
+ <p className="text-xs font-semibold text-gray-500 mb-1">Egresos del Día</p>
+ <p className="text-2xl font-bold text-red-600 dark:text-red-400 leading-none">
  -${report?.transactions.filter((t: any) => t.transactionType === 'EXPENSE').reduce((acc: number, t: any) => acc + t.amount, 0).toFixed(2) || '0.00'}
  </p>
  </div>
- <div className="border-b border-r border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black p-6 flex flex-col justify-between min-h-[140px] relative overflow-hidden">
- <div className="absolute top-0 right-0 p-4 opacity-10">
- <Calculator className="w-16 h-16 text-white dark:text-black" />
  </div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 relative z-10">BALANCE ESPERADO</p>
- <p className="text-3xl font-semibold tracking-tight text-white dark:text-black leading-none relative z-10">
+ <div className="bg-emerald-600 dark:bg-emerald-700 text-white p-6 rounded-2xl flex flex-col justify-between min-h-[140px] relative overflow-hidden shadow-sm">
+ <div className="absolute -top-4 -right-4 p-4 opacity-20">
+ <Banknote className="w-24 h-24 text-white" />
+ </div>
+ <div className="relative z-10 w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-4 backdrop-blur-sm">
+ <CheckCircle2 className="w-5 h-5 text-white" strokeWidth={2} />
+ </div>
+ <div className="relative z-10">
+ <p className="text-xs font-semibold text-emerald-100 mb-1">Balance Esperado</p>
+ <p className="text-2xl font-bold text-white leading-none">
  ${register.expectedClosingBalance?.toFixed(2) || register.initialBalance.toFixed(2)}
  </p>
  </div>
  </div>
+ </div>
 
  {/* Transactions List */}
- <div className="bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 flex flex-col transition-colors rounded-none">
- <div className="p-6 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
- <h3 className="font-semibold text-lg uppercase tracking-tight text-black dark:text-white leading-none">LIBRO MAYOR (RECIENTES)</h3>
+ <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
+ <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+ <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-none">Libro Mayor</h3>
  </div>
  
  {report?.transactions && report.transactions.length > 0 ? (
- <div className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-[#0a0a0a]">
+ <div className="divide-y divide-gray-100 dark:divide-gray-800">
  {report.transactions.map((tx: any) => (
- <div key={tx.id} className="p-6 hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
+ <div key={tx.id} className="p-6 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer">
  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div className="flex items-start sm:items-center gap-4">
  <div className={cn(
- "w-10 h-10 border flex items-center justify-center shrink-0 transition-colors",
+ "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-colors",
  tx.transactionType === 'INCOME' 
- ? "border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400" 
- : "border-red-500/30 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400"
+ ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400" 
+ : "bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800 text-red-600 dark:text-red-400"
  )}>
- {tx.transactionType === 'INCOME' ? <ArrowDownRight className="w-5 h-5" strokeWidth={1.5} /> : <ArrowUpRight className="w-5 h-5" strokeWidth={1.5} />}
+ {tx.transactionType === 'INCOME' ? <ArrowDownRight className="w-5 h-5" strokeWidth={2} /> : <ArrowUpRight className="w-5 h-5" strokeWidth={2} />}
  </div>
  <div>
- <p className="font-semibold text-sm uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors">{tx.description}</p>
+ <p className="text-sm font-bold text-gray-900 dark:text-white">{tx.description}</p>
  <div className="flex items-center gap-3 mt-1.5">
- <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 border border-black/20 dark:border-white/20 px-2 py-0.5 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent group-hover:text-white dark:group-hover:text-black group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
+ <span className="text-xs font-semibold text-gray-500 bg-gray-100 dark:bg-[#111] px-2 py-0.5 rounded-md">
  {tx.referenceType}
  </span>
- <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
- {new Date(tx.createdAt).toLocaleTimeString()} HRS
+ <span className="text-xs font-semibold text-gray-400">
+ {new Date(tx.createdAt).toLocaleTimeString()} hrs
  </span>
  </div>
  </div>
  </div>
- <div className="sm:text-right ml-14 sm:ml-0">
+ <div className="sm:text-right ml-16 sm:ml-0">
  <p className={cn(
- "font-semibold text-xl tracking-tight leading-none",
+ "text-lg font-bold leading-none",
  tx.transactionType === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
  )}>
  {tx.transactionType === 'INCOME' ? '+' : '-'}${tx.amount.toFixed(2)}
  </p>
  </div>
  </div>
- {/* Desglose de denominaciones (Blueprint Style) */}
+ {/* Desglose de denominaciones */}
  {tx.denominations && Object.keys(tx.denominations).length > 0 && (
- <div className="mt-4 ml-14 flex flex-wrap gap-2">
+ <div className="mt-4 ml-16 flex flex-wrap gap-2">
  {Object.entries(tx.denominations)
  .filter(([, count]: [string, any]) => count > 0)
  .sort(([a], [b]) => parseFloat(b) - parseFloat(a))
@@ -414,10 +422,10 @@ export default function CashRegisterPage() {
  <span 
  key={denom}
  className={cn(
- "text-[9px] font-bold uppercase tracking-widest px-2 py-1 border",
+ "text-xs font-bold px-2 py-1 rounded-md border",
  tx.transactionType === 'INCOME' 
- ? 'border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/10 dark:text-emerald-400' 
- : 'border-red-500/30 bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-400'
+ ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-800/30' 
+ : 'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/10 dark:text-red-400 dark:border-red-800/30'
  )}
  >
  {String(count)} × ${denom}
@@ -429,12 +437,12 @@ export default function CashRegisterPage() {
  ))}
  </div>
  ) : (
- <div className="p-16 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-[#050505]">
- <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
- <Banknote className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+ <div className="p-16 flex flex-col items-center justify-center text-center">
+ <div className="w-16 h-16 rounded-3xl bg-gray-50 dark:bg-[#111] flex items-center justify-center mb-6">
+ <Banknote className="w-6 h-6 text-gray-400" strokeWidth={2} />
  </div>
- <h4 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">CERO MOVIMIENTOS</h4>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">LOS INGRESOS Y EGRESOS EN EFECTIVO SE REGISTRARÁN AQUÍ.</p>
+ <h4 className="text-base font-bold text-gray-900 dark:text-white mb-2">Cero Movimientos</h4>
+ <p className="text-sm font-medium text-gray-500">Los ingresos y egresos en efectivo se registrarán aquí.</p>
  </div>
  )}
  </div>
@@ -444,62 +452,62 @@ export default function CashRegisterPage() {
  {/* --- PESTAÑA DE HISTORIAL --- */}
  {activeTab === 'history' && (
  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
- <div className="bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 flex flex-col transition-colors rounded-none">
- <div className="p-6 border-b border-black/10 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#0a0a0a]">
- <h3 className="font-semibold text-lg uppercase tracking-tight text-black dark:text-white leading-none">REGISTROS ANTERIORES</h3>
- <button onClick={fetchHistory} className="h-10 px-4 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center gap-2">
- <RefreshCcw className="w-3 h-3" strokeWidth={1.5} /> SINCRONIZAR
+ <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
+ <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+ <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-none">Registros Anteriores</h3>
+ <button onClick={fetchHistory} className="h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold flex items-center gap-2 shadow-sm">
+ <RefreshCcw className="w-3.5 h-3.5" strokeWidth={2} /> Actualizar
  </button>
  </div>
  
  {isHistoryLoading ? (
- <div className="p-16 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-[#050505]">
- <QhSpinner className="mb-4 text-black dark:text-white" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">EXTRAYENDO HISTORIAL...</p>
+ <div className="p-16 flex flex-col items-center justify-center text-center">
+ <QhSpinner className="mb-4 text-emerald-600 dark:text-emerald-400" />
+ <p className="text-xs font-semibold text-gray-500 animate-pulse">Consultando historial...</p>
  </div>
  ) : history.length > 0 ? (
  <div className="overflow-x-auto custom-scrollbar">
  <table className="w-full text-left min-w-[800px]">
- <thead className="bg-white dark:bg-[#0a0a0a] text-[9px] font-bold uppercase tracking-widest text-gray-500 border-b border-black/10 dark:border-white/10">
+ <thead className="bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-500 border-b border-gray-100 dark:border-gray-800">
  <tr>
- <th className="px-6 py-4 whitespace-nowrap">ESTADO</th>
- <th className="px-6 py-4 whitespace-nowrap">APERTURA</th>
- <th className="px-6 py-4 whitespace-nowrap">CIERRE</th>
- <th className="px-6 py-4 whitespace-nowrap">M. INICIAL</th>
- <th className="px-6 py-4 whitespace-nowrap">M. FINAL</th>
- <th className="px-6 py-4 whitespace-nowrap text-right">DESCUADRE</th>
+ <th className="px-6 py-4 whitespace-nowrap">Estado</th>
+ <th className="px-6 py-4 whitespace-nowrap">Apertura</th>
+ <th className="px-6 py-4 whitespace-nowrap">Cierre</th>
+ <th className="px-6 py-4 whitespace-nowrap">Balance Inicial</th>
+ <th className="px-6 py-4 whitespace-nowrap">Balance Final</th>
+ <th className="px-6 py-4 whitespace-nowrap text-right">Descuadre</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-black/10 dark:divide-white/10 bg-white dark:bg-[#0a0a0a]">
+ <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-[#0a0a0a]">
  {history.map((h: any) => (
- <tr key={h.id} className="hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 group hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 cursor-pointer">
- <td className="px-6 py-6">
+ <tr key={h.id} className="hover:bg-gray-50 dark:hover:bg-[#111] transition-colors">
+ <td className="px-6 py-4">
  {h.status === 'OPEN' ? (
- <span className="border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
- <span className="w-1.5 h-1.5 bg-emerald-500" /> ABIERTA
+ <span className="bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/30 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5 w-fit">
+ <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Abierta
  </span>
  ) : (
- <span className="border border-gray-500/30 bg-gray-50 dark:bg-gray-900/10 text-gray-600 dark:text-gray-400 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
- <span className="w-1.5 h-1.5 bg-gray-500" /> CERRADA
+ <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5 w-fit">
+ <span className="w-1.5 h-1.5 rounded-full bg-gray-500" /> Cerrada
  </span>
  )}
  </td>
- <td className="px-6 py-6 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+ <td className="px-6 py-4 text-xs font-semibold text-gray-700 dark:text-gray-300">
  {new Date(h.openedAt).toLocaleString()}
  </td>
- <td className="px-6 py-6 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+ <td className="px-6 py-4 text-xs font-semibold text-gray-700 dark:text-gray-300">
  {h.closedAt ? new Date(h.closedAt).toLocaleString() : <span className="text-gray-400">—</span>}
  </td>
- <td className="px-6 py-6 text-sm font-semibold tracking-tight text-black dark:text-white">
+ <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white">
  ${h.initialBalance.toFixed(2)}
  </td>
- <td className="px-6 py-6 text-sm font-semibold tracking-tight text-black dark:text-white">
+ <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white">
  ${(h.actualClosingBalance || 0).toFixed(2)}
  </td>
- <td className="px-6 py-6 text-right">
+ <td className="px-6 py-4 text-right">
  {h.balanceDifference !== undefined && h.balanceDifference !== null ? (
  <span className={cn(
- "text-sm font-semibold tracking-tight",
+ "text-sm font-bold",
  h.balanceDifference > 0 ? "text-emerald-600 dark:text-emerald-400" : h.balanceDifference < 0 ? "text-red-600 dark:text-red-400" : "text-gray-500"
  )}>
  {h.balanceDifference > 0 ? '+' : ''}${h.balanceDifference.toFixed(2)}
@@ -512,12 +520,12 @@ export default function CashRegisterPage() {
  </table>
  </div>
  ) : (
- <div className="p-16 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-[#050505]">
- <div className="w-16 h-16 border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] flex items-center justify-center mb-6">
- <AlertCircle className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
+ <div className="p-16 flex flex-col items-center justify-center text-center">
+ <div className="w-16 h-16 rounded-3xl bg-gray-50 dark:bg-[#111] flex items-center justify-center mb-6">
+ <AlertCircle className="w-6 h-6 text-gray-400" strokeWidth={2} />
  </div>
- <h4 className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white mb-2">REGISTRO VACÍO</h4>
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">EL SISTEMA AÚN NO CUENTA CON HISTORIAL DE CAJAS CERRADAS.</p>
+ <h4 className="text-base font-bold text-gray-900 dark:text-white mb-2">Registro Vacío</h4>
+ <p className="text-sm font-medium text-gray-500">El sistema aún no cuenta con historial de cajas cerradas.</p>
  </div>
  )}
  </div>

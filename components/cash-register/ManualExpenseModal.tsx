@@ -176,11 +176,11 @@ export const ManualExpenseModal = ({
           ? cleanDenoms(expenseDenoms)
           : undefined,
       });
-      toast.success("GASTO REGISTRADO EXITOSAMENTE.");
+      toast.success("Gasto registrado exitosamente.");
       onSuccess();
     } catch (error) {
       console.error("Error procesando gasto:", error);
-      toast.error("FALLO AL REGISTRAR EL GASTO EN CAJA.");
+      toast.error("Fallo al registrar el gasto en caja.");
     } finally {
       setIsProcessing(false);
     }
@@ -196,59 +196,59 @@ export const ManualExpenseModal = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col rounded-none"
+          className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col rounded-3xl"
         >
-          {/* HEADER ARQUITECTÓNICO */}
-          <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-black/20 dark:border-white/20 shrink-0">
+          {/* HEADER */}
+          <div className="flex items-start md:items-center justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 shrink-0">
             <div className="flex items-center gap-5">
-              <div className="w-14 h-14 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white flex items-center justify-center shrink-0">
-                <Banknote className="w-6 h-6" strokeWidth={1.5} />
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <Banknote className="w-6 h-6" strokeWidth={2} />
               </div>
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                <p className="text-xs font-semibold text-gray-500 mb-1">
                   Operación Contable
                 </p>
-                <h2 className="text-xl md:text-2xl font-semibold uppercase tracking-tight text-black dark:text-white leading-none">
-                  REGISTRO DE GASTO
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-none">
+                  Registro de Gasto
                 </h2>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-12 h-12 flex items-center justify-center border border-transparent hover:border-black/20 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors shrink-0"
+              className="w-12 h-12 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 shrink-0"
             >
-              <X className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
+              <X className="w-5 h-5" strokeWidth={2} />
             </button>
           </div>
 
-          {/* BODY (BLUEPRINT GRID) */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-[#050505] flex flex-col">
+          {/* BODY */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50/50 dark:bg-[#050505]/50 flex flex-col">
             <div className="grid grid-cols-1 gap-0">
               {/* Concepto del Gasto */}
-              <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
-                <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
-                  <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">
+              <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
+                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600">
                     1
                   </span>
-                  CONCEPTO DE LA SALIDA *
+                  Concepto de la salida *
                 </label>
                 <input
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="EJ. INSUMOS, PAPELERÍA..."
-                  className="w-full h-14 px-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                  placeholder="Ej. Insumos, Papelería..."
+                  className="w-full h-14 px-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600 placeholder:font-normal"
                 />
               </div>
 
               {/* Monto Total (Si no hay desglose) */}
               {!hasDenoms && (
-                <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a]">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
-                    <span className="w-4 h-4 flex items-center justify-center border border-black/20 dark:border-white/20">
+                <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+                  <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
+                    <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600">
                       2
                     </span>
-                    MONTO TOTAL A RETIRAR *
+                    Monto total a retirar *
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">
@@ -261,7 +261,7 @@ export const ManualExpenseModal = ({
                       value={totalAmountStr}
                       onChange={(e) => setTotalAmountStr(e.target.value)}
                       placeholder="0.00"
-                      className="w-full h-14 pl-9 pr-4 bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-black dark:text-white text-xl font-semibold focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                      className="w-full h-14 pl-9 pr-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-xl font-bold focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-700"
                     />
                   </div>
                 </div>
@@ -272,68 +272,71 @@ export const ManualExpenseModal = ({
                 <button
                   type="button"
                   onClick={() => setShowDenominations(!showDenominations)}
-                  className="w-full flex items-center justify-between p-6 md:p-8 border-b border-black/10 dark:border-white/10 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none group"
+                  className="w-full flex items-center justify-between p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors group"
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-widest">
-                    DESGLOSAR DENOMINACIONES (OPCIONAL)
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    Desglosar Denominaciones (Opcional)
                   </span>
                   {showDenominations ? (
-                    <ChevronUp className="w-4 h-4" />
+                    <ChevronUp className="w-5 h-5 text-gray-500" />
                   ) : (
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-5 h-5 text-gray-500" />
                   )}
                 </button>
 
-                {showDenominations && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    className="border-b border-black/10 dark:border-white/10 overflow-hidden"
-                  >
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-gray-50 dark:bg-[#050505] border-t border-l border-black/10 dark:border-white/10">
-                      {DENOMINATIONS.map((denom) => {
-                        const available = currentDenominations?.[denom] || 0;
-                        if (available <= 0) return null;
-                        return (
-                          <div
-                            key={`exp-${denom}`}
-                            className="border-r border-b border-black/10 dark:border-white/10 p-4 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]"
-                          >
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
-                              {denomLabel(denom)}
-                            </span>
-                            <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 mb-3">
-                              DISP: {available}
-                            </span>
-                            <input
-                              type="number"
-                              min="0"
-                              max={available}
-                              value={expenseDenoms[denom] || ""}
-                              onChange={(e) =>
-                                updateExpenseDenom(
-                                  denom,
-                                  parseInt(e.target.value) || 0,
-                                )
-                              }
-                              className="w-full h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] text-black dark:text-white text-xs font-semibold text-center focus:outline-none focus:ring-0 focus:border-black dark:focus:border-white transition-colors rounded-none placeholder:text-gray-300 dark:placeholder:text-gray-700"
-                              placeholder="0"
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                )}
+                <AnimatePresence>
+                  {showDenominations && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="border-b border-gray-100 dark:border-gray-800 overflow-hidden"
+                    >
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-gray-50/50 dark:bg-[#050505]/50 border-t border-l border-gray-100 dark:border-gray-800">
+                        {DENOMINATIONS.map((denom) => {
+                          const available = currentDenominations?.[denom] || 0;
+                          if (available <= 0) return null;
+                          return (
+                            <div
+                              key={`exp-${denom}`}
+                              className="border-r border-b border-gray-100 dark:border-gray-800 p-4 flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a]"
+                            >
+                              <span className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                                {denomLabel(denom)}
+                              </span>
+                              <span className="text-xs font-semibold text-gray-400 mb-3">
+                                Disp: {available}
+                              </span>
+                              <input
+                                type="number"
+                                min="0"
+                                max={available}
+                                value={expenseDenoms[denom] || ""}
+                                onChange={(e) =>
+                                  updateExpenseDenom(
+                                    denom,
+                                    parseInt(e.target.value) || 0,
+                                  )
+                                }
+                                className="w-full h-10 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white text-xs font-semibold text-center focus:outline-none focus:ring-0 focus:border-emerald-500 transition-colors placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                                placeholder="0"
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Total Calculado */}
               {hasDenoms && (
-                <div className="p-6 md:p-8 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] flex items-center justify-between">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                    TOTAL DESGLOSADO
+                <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center justify-between">
+                  <span className="text-xs font-semibold text-gray-500">
+                    Total Desglosado
                   </span>
-                  <span className="text-3xl font-semibold tracking-tight text-black dark:text-white">
+                  <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                     ${expenseTotal.toFixed(2)}
                   </span>
                 </div>
@@ -341,17 +344,17 @@ export const ManualExpenseModal = ({
 
               {/* Alerta de Límite Excedido */}
               {isOverBalance && (
-                <div className="p-6 md:p-8 flex items-start gap-4 border-b border-black/10 dark:border-white/10 bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500 transition-colors">
+                <div className="p-6 md:p-8 flex items-start gap-4 border-b border-gray-100 dark:border-gray-800 bg-red-50 dark:bg-red-900/10 border-l-4 border-l-red-500 transition-colors">
                   <AlertCircle
                     className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
-                    strokeWidth={1.5}
+                    strokeWidth={2}
                   />
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-red-700 dark:text-red-400 mb-1">
-                      FONDO INSUFICIENTE
+                    <p className="text-xs font-bold uppercase tracking-widest text-red-700 dark:text-red-400 mb-1">
+                      Fondo Insuficiente
                     </p>
                     <p className="text-xs font-semibold text-red-800 dark:text-red-300">
-                      EL MONTO SUPERA EL BALANCE ACTUAL DEL SISTEMA ($
+                      El monto supera el balance actual del sistema ($
                       {maxExpectedBalance.toFixed(2)}).
                     </p>
                   </div>
@@ -361,26 +364,26 @@ export const ManualExpenseModal = ({
           </div>
 
           {/* FOOTER DE COMANDOS */}
-          <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-black/20 dark:border-white/20 flex flex-col sm:flex-row justify-end gap-4 shrink-0">
+          <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-end gap-4 shrink-0">
             <button
               onClick={onClose}
-              className="w-full sm:w-auto h-14 px-8 border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none"
+              className="w-full sm:w-auto h-12 px-8 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] text-sm font-bold transition-colors shadow-sm"
             >
-              CANCELAR
+              Cancelar
             </button>
             <button
               onClick={handleRegisterExpense}
               disabled={!isValid || isProcessing || isOverBalance}
-              className="w-full sm:w-auto h-14 px-10 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-3 disabled:opacity-50 rounded-none"
+              className="w-full sm:w-auto h-12 px-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 border-0 text-sm font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
             >
               {isProcessing ? (
                 <>
-                  <QhSpinner size="sm" className="text-current" /> PROCESANDO...
+                  <QhSpinner size="sm" className="text-current" /> Procesando...
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} />{" "}
-                  REGISTRAR GASTO
+                  <CheckCircle2 className="w-4 h-4" strokeWidth={2} />{" "}
+                  Registrar Gasto
                 </>
               )}
             </button>
