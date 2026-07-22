@@ -95,6 +95,7 @@ export const MarketplaceHeader = ({
               >
                 <SlidersHorizontal className="w-5 h-5" strokeWidth={1.5} />
               </Button>
+            </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl p-1">
               <DropdownMenuItem 
                 onClick={() => setSearchType('STORE')}
