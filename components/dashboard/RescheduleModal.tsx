@@ -82,135 +82,134 @@ export function RescheduleModal({ isOpen, onClose, appointment, onSuccess }: Res
  return (
  <AnimatePresence>
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
- <motion.div
- initial={{ opacity: 0, scale: 0.95, y: 20 }}
- animate={{ opacity: 1, scale: 1, y: 0 }}
- exit={{ opacity: 0, scale: 0.95, y: 20 }}
- className="bg-white dark:bg-[#0a0a0a] w-full max-w-lg border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
- >
- {/* Encabezado */}
- <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
- <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
- Reprogramar Cita
- </h2>
- <button
- onClick={onClose}
- className="w-8 h-8 flex items-center justify-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors border border-transparent hover:border-black dark:hover:border-white"
- >
- <X className="w-4 h-4" />
- </button>
- </div>
+  <motion.div
+  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+  animate={{ opacity: 1, scale: 1, y: 0 }}
+  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+  className="bg-white dark:bg-[#0a0a0a] w-full max-w-lg rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+  >
+  {/* Encabezado */}
+  <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#0a0a0a]">
+  <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+  Reprogramar Cita
+  </h2>
+  <button
+  onClick={onClose}
+  className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#222] text-gray-500 transition-colors shrink-0"
+  >
+  <X className="w-5 h-5" strokeWidth={2} />
+  </button>
+  </div>
 
  {/* Formulario */}
  <div className="p-6 overflow-y-auto">
  <form id="reschedule-form" onSubmit={handleSubmit} className="space-y-6">
- 
- {/* Fecha */}
- <div className="space-y-2">
- <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
- 1. Nueva Fecha
- </label>
- <DatePicker
- value={selectedDate}
- onChange={setSelectedDate}
- placeholder="Selecciona una fecha"
- disabled={isPastDate}
- className="w-full"
- />
- </div>
+  {/* Fecha */}
+  <div className="space-y-3">
+  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+  1. Nueva Fecha
+  </label>
+  <DatePicker
+  value={selectedDate}
+  onChange={setSelectedDate}
+  placeholder="Selecciona una fecha"
+  disabled={isPastDate}
+  className="w-full"
+  />
+  </div>
 
- {/* Horas Disponibles */}
- <div className="space-y-3">
- <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
- 2. Horario Disponible
- {isLoadingSlots && <Loader2 className="w-3 h-3 animate-spin text-black dark:text-white" />}
- </label>
+  {/* Horas Disponibles */}
+  <div className="space-y-3">
+  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+  2. Horario Disponible
+  {isLoadingSlots && <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />}
+  </label>
 
- {!selectedDate ? (
- <div className="p-6 border border-dashed border-gray-300 dark:border-gray-700 text-center bg-gray-50 dark:bg-[#050505]">
- <CalendarIcon className="w-6 h-6 mx-auto mb-2 text-gray-400" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
- Selecciona una fecha para ver disponibilidad
- </p>
- </div>
- ) : isLoadingSlots ? (
- <div className="p-6 border border-gray-200 dark:border-gray-800 text-center flex flex-col items-center justify-center">
- <Loader2 className="w-6 h-6 animate-spin text-black dark:text-white mb-2" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
- Consultando agenda...
- </p>
- </div>
- ) : availableSlots.length === 0 ? (
- <div className="p-6 border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 text-center text-red-600 dark:text-red-400">
- <p className="text-[10px] font-bold uppercase tracking-widest">
- No hay horarios disponibles este día
- </p>
- </div>
- ) : (
- <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
- {availableSlots.map((slot) => (
- <button
- key={slot}
- type="button"
- onClick={() => setSelectedTime(slot)}
- className={`
- py-3 text-[11px] font-bold tracking-widest transition-colors border
- ${selectedTime === slot 
- ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white' 
- : 'bg-white text-gray-700 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-300 dark:border-gray-800 dark:hover:border-white'
- }
- `}
- >
- {slot}
- </button>
- ))}
- </div>
- )}
- </div>
+  {!selectedDate ? (
+  <div className="p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center bg-gray-50/50 dark:bg-[#111]/30">
+  <CalendarIcon className="w-8 h-8 mx-auto mb-3 text-gray-400" strokeWidth={1.5} />
+  <p className="text-sm font-medium text-gray-500">
+  Selecciona una fecha para ver disponibilidad
+  </p>
+  </div>
+  ) : isLoadingSlots ? (
+  <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-800 text-center flex flex-col items-center justify-center bg-gray-50/50 dark:bg-[#111]/30">
+  <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-3" />
+  <p className="text-sm font-medium text-gray-500">
+  Consultando agenda...
+  </p>
+  </div>
+  ) : availableSlots.length === 0 ? (
+  <div className="p-6 rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50 dark:bg-rose-900/10 text-center text-rose-600 dark:text-rose-400">
+  <p className="text-sm font-medium">
+  No hay horarios disponibles este día
+  </p>
+  </div>
+  ) : (
+  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+  {availableSlots.map((slot) => (
+  <button
+  key={slot}
+  type="button"
+  onClick={() => setSelectedTime(slot)}
+  className={`
+  py-3 text-sm font-semibold transition-all rounded-xl border shadow-sm
+  ${selectedTime === slot 
+  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' 
+  : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-[#111] dark:text-gray-300 dark:border-gray-800 dark:hover:border-gray-700'
+  }
+  `}
+  >
+  {slot}
+  </button>
+  ))}
+  </div>
+  )}
+  </div>
 
- {/* Motivo */}
- <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-900">
- <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
- 3. Motivo del cambio (Opcional)
- </label>
- <textarea
- value={reason}
- onChange={(e) => setReason(e.target.value)}
- placeholder="Ej. Inconveniente de última hora..."
- className="w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-3 text-sm focus:outline-none focus:border-black dark:focus:border-white transition-colors text-black dark:text-white resize-none h-24"
- maxLength={500}
- />
- </div>
+  {/* Motivo */}
+  <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+  3. Motivo del cambio (Opcional)
+  </label>
+  <textarea
+  value={reason}
+  onChange={(e) => setReason(e.target.value)}
+  placeholder="Ej. Inconveniente de última hora..."
+  className="w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30 p-4 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-gray-900 dark:text-white resize-none h-28 shadow-inner"
+  maxLength={500}
+  />
+  </div>
  </form>
  </div>
 
- {/* Footer */}
- <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex justify-end gap-3 shrink-0">
- <Button
- type="button"
- variant="outline"
- onClick={onClose}
- disabled={isSubmitting}
- className="rounded-none h-12 px-6 text-[10px] font-bold uppercase tracking-widest border-gray-300 dark:border-gray-700"
- >
- Cancelar
- </Button>
- <Button
- type="submit"
- form="reschedule-form"
- disabled={isSubmitting || !selectedDate || !selectedTime}
- className="rounded-none h-12 px-8 text-[10px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
- >
- {isSubmitting ? (
- <>
- <Loader2 className="w-4 h-4 mr-2 animate-spin" />
- Procesando...
- </>
- ) : (
- "Confirmar"
- )}
- </Button>
- </div>
+  {/* Footer */}
+  <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col-reverse sm:flex-row justify-end gap-3 shrink-0">
+  <Button
+  type="button"
+  variant="outline"
+  onClick={onClose}
+  disabled={isSubmitting}
+  className="rounded-xl h-12 px-6 text-sm font-semibold border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111]"
+  >
+  Cancelar
+  </Button>
+  <Button
+  type="submit"
+  form="reschedule-form"
+  disabled={isSubmitting || !selectedDate || !selectedTime}
+  className="rounded-xl h-12 px-8 text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-sm"
+  >
+  {isSubmitting ? (
+  <>
+  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+  Procesando...
+  </>
+  ) : (
+  "Confirmar Reprogramación"
+  )}
+  </Button>
+  </div>
  </motion.div>
  </div>
  </AnimatePresence>

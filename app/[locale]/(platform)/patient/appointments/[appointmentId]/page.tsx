@@ -102,7 +102,7 @@ export default function PatientAppointmentDetailsPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <QhSpinner size="lg" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+        <p className="text-sm font-semibold tracking-wide text-gray-600 dark:text-gray-400 mt-6 animate-pulse">
           Cargando detalles de tu cita...
         </p>
       </div>
@@ -112,22 +112,20 @@ export default function PatientAppointmentDetailsPage() {
   if (error || !appointment) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] px-6 text-center transition-colors duration-300">
-        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
-          <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
+        <div className="w-16 h-16 rounded-3xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mb-6">
+          <AlertCircle className="w-7 h-7 text-rose-600 dark:text-rose-400" strokeWidth={2} />
         </div>
-        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
           Cita no encontrada
         </h2>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
-          El registro solicitado no existe o carece de permisos de
-          visualización.
+        <p className="text-sm font-medium text-gray-500 max-w-sm mx-auto mb-8">
+          El registro solicitado no existe o carece de permisos de visualización.
         </p>
         <Button
           onClick={() => router.push("/patient/dashboard/appointments")}
-          className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
+          className="rounded-xl bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-sm font-semibold shadow-sm transition-all"
         >
-          <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} /> Retornar al
-          Directorio
+          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} /> Retornar al Directorio
         </Button>
       </div>
     );
@@ -149,13 +147,13 @@ export default function PatientAppointmentDetailsPage() {
 
   const statusColorMap: Record<string, string> = {
     PENDING_PAYMENT:
-      "border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-900/10 dark:text-amber-400",
+      "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border-0",
     SCHEDULED:
-      "border-black text-black bg-gray-50 dark:border-white dark:bg-[#050505] dark:text-white",
+      "bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 border-0",
     COMPLETED:
-      "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 dark:text-emerald-400",
+      "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border-0",
     CANCELLED:
-      "border-red-500 text-red-600 bg-red-50 dark:bg-red-900/10 dark:text-red-400",
+      "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border-0",
   };
 
   const statusLabels: Record<string, string> = {
@@ -173,29 +171,29 @@ export default function PatientAppointmentDetailsPage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300 pb-24">
       <div className="max-w-6xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12">
         {/* --- HEADER --- */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
           <div className="flex items-center gap-6">
             <button
               onClick={() => router.push("/patient/dashboard/appointments")}
-              className="w-14 h-14 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors shrink-0"
+              className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#222] text-gray-600 dark:text-gray-300 transition-colors shrink-0"
             >
-              <ArrowLeft className="w-6 h-6" strokeWidth={1.5} />
+              <ArrowLeft className="w-6 h-6" strokeWidth={2} />
             </button>
             <div>
-              <div className="mb-2 flex flex-wrap items-center gap-3">
-                <span className="bg-black text-white dark:bg-white dark:text-black px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-semibold">
                   Folio: #{appointment.id}
                 </span>
                 <span
                   className={cn(
-                    "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest",
+                    "px-3 py-1 rounded-full text-xs font-semibold",
                     badgeClass,
                   )}
                 >
                   {statusLabel}
                 </span>
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Detalles de la Cita
               </h1>
             </div>
@@ -206,45 +204,45 @@ export default function PatientAppointmentDetailsPage() {
           {/* --- COLUMNA IZQUIERDA: DETALLES PRINCIPALES --- */}
           <div className="flex-1 space-y-12">
             {/* Bloque: Fecha y Hora */}
-            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-              <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4" strokeWidth={1.5} />
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
+              <div className="border-b border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between bg-gray-50/50 dark:bg-[#111]/30">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-teal-500" strokeWidth={2} />
                   Fecha y Horario
                 </h3>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-gray-800">
-                <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
-                  <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0 bg-white dark:bg-black">
+              <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-gray-800">
+                <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-teal-50 dark:bg-teal-900/20">
                     <Calendar
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
+                      className="w-6 h-6 text-teal-600 dark:text-teal-400"
+                      strokeWidth={2}
                     />
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                    <p className="text-xs font-medium text-gray-500 mb-1">
                       Fecha Acordada
                     </p>
-                    <p className="text-xl font-semibold text-black dark:text-white tracking-tight uppercase">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white tracking-tight capitalize">
                       {dateFormatted}
                     </p>
                   </div>
                 </div>
-                <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
-                  <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0 bg-white dark:bg-black">
+                <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-blue-50 dark:bg-blue-900/20">
                     <Clock
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
+                      className="w-6 h-6 text-blue-600 dark:text-blue-400"
+                      strokeWidth={2}
                     />
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                    <p className="text-xs font-medium text-gray-500 mb-1">
                       Horario
                     </p>
-                    <p className="text-xl font-semibold text-black dark:text-white tracking-tight">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
                       {timeFormatted} HRS{" "}
-                      <span className="text-xs font-light text-gray-500 ml-2">
-                        [{appointment.durationMinutes} MIN]
+                      <span className="text-sm font-medium text-gray-400 ml-1">
+                        ({appointment.durationMinutes} min)
                       </span>
                     </p>
                   </div>
@@ -253,37 +251,36 @@ export default function PatientAppointmentDetailsPage() {
             </div>
 
             {/* Bloque: Datos del Especialista y Servicio */}
-            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-              <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                  <User className="w-4 h-4" strokeWidth={1.5} />
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
+              <div className="border-b border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between bg-gray-50/50 dark:bg-[#111]/30">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                  <User className="w-4 h-4 text-indigo-500" strokeWidth={2} />
                   Información de la Consulta
                 </h3>
               </div>
               <div className="p-8 space-y-8">
-                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                  <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 overflow-hidden">
-                    <span className="text-xl font-bold uppercase">
+                <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+                  <div className="w-16 h-16 rounded-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#111] flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <span className="text-xl font-bold text-gray-500">
                       {(appointment.providerNameSnapshot || "E").charAt(0)}
                     </span>
                   </div>
-                  <div className="flex flex-col justify-center h-16">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                  <div className="flex flex-col justify-center text-center sm:text-left h-16">
+                    <p className="text-xs font-medium text-gray-500 mb-1">
                       Especialista Asignado
                     </p>
-                    <p className="text-xl font-semibold tracking-tight uppercase text-black dark:text-white">
-                      {appointment.providerNameSnapshot ||
-                        "Especialista General"}
+                    <p className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                      {appointment.providerNameSnapshot || "Especialista General"}
                     </p>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
-                    <Stethoscope className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
+                  <p className="text-xs font-medium text-gray-500 mb-2 flex items-center gap-2">
+                    <Stethoscope className="w-4 h-4 text-teal-500" strokeWidth={2} />{" "}
                     Servicio Programado
                   </p>
-                  <p className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase">
+                  <p className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
                     {appointment.serviceNameSnapshot ||
                       appointment.serviceName ||
                       "Consulta Integral"}
@@ -291,12 +288,12 @@ export default function PatientAppointmentDetailsPage() {
                 </div>
 
                 {appointment.consumerSymptoms && (
-                  <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
-                      <FileText className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
+                  <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
+                    <p className="text-xs font-medium text-gray-500 mb-3 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-amber-500" strokeWidth={2} />{" "}
                       Observaciones del Paciente
                     </p>
-                    <div className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] p-5 text-xs font-light text-black dark:text-white leading-relaxed uppercase tracking-wide">
+                    <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30 p-5 text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
                       "{appointment.consumerSymptoms}"
                     </div>
                   </div>
@@ -305,54 +302,51 @@ export default function PatientAppointmentDetailsPage() {
             </div>
 
             {/* Bloque: Ubicación / Conexión */}
-            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-              <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                  <MapPin className="w-4 h-4" strokeWidth={1.5} />
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
+              <div className="border-b border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between bg-gray-50/50 dark:bg-[#111]/30">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-emerald-500" strokeWidth={2} />
                   Ubicación y Modalidad
                 </h3>
               </div>
               <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="w-14 h-14 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
+                <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0", isOnline ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400")}>
                   {isOnline ? (
-                    <Video className="w-6 h-6" strokeWidth={1.5} />
+                    <Video className="w-6 h-6" strokeWidth={2} />
                   ) : (
-                    <MapPin className="w-6 h-6" strokeWidth={1.5} />
+                    <MapPin className="w-6 h-6" strokeWidth={2} />
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                  <p className="text-xs font-medium text-gray-500 mb-1">
                     Modalidad:{" "}
-                    {isOnline ? "TELEMEDICINA" : "ATENCIÓN PRESENCIAL"}
+                    <span className="font-bold">{isOnline ? "Telemedicina" : "Atención Presencial"}</span>
                   </p>
 
                   {isOnline ? (
                     <div className="space-y-3 mt-2">
-                      <p className="text-xs font-light leading-relaxed text-black dark:text-white">
-                        El enlace cifrado para la transmisión se activará
-                        minutos antes de su consulta.
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        El enlace cifrado para la transmisión se activará minutos antes de su consulta.
                       </p>
                       {appointment.meetLink ? (
                         <a
                           href={appointment.meetLink}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[9px] font-bold uppercase tracking-widest px-4 py-2 transition-colors"
+                          className="inline-flex items-center rounded-xl bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 px-5 py-2.5 text-sm font-semibold shadow-sm transition-all"
                         >
-                          <Video className="w-3 h-3 mr-2" strokeWidth={1.5} />{" "}
+                          <Video className="w-4 h-4 mr-2" strokeWidth={2} />{" "}
                           Iniciar Transmisión
                         </a>
                       ) : (
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500 flex items-center gap-1.5">
-                          <Clock className="w-3 h-3" strokeWidth={2} /> Enlace
-                          en generación
+                        <span className="text-sm font-bold text-amber-500 flex items-center gap-1.5">
+                          <Clock className="w-4 h-4" strokeWidth={2} /> Enlace en generación
                         </span>
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm font-semibold tracking-tight text-black dark:text-white uppercase leading-relaxed mt-2">
-                      {appointment.locationAddress ||
-                        "DIRECCIÓN NO ESPECIFICADA. CONTACTE AL PROVEEDOR."}
+                    <p className="text-lg font-bold tracking-tight text-gray-900 dark:text-white leading-relaxed mt-2">
+                      {appointment.locationAddress || "Dirección no especificada. Contacte al proveedor."}
                     </p>
                   )}
                 </div>
@@ -364,44 +358,42 @@ export default function PatientAppointmentDetailsPage() {
           <div className="w-full lg:w-80 xl:w-96 shrink-0 space-y-8">
             {/* Bloque: Check-In QR */}
             {appointment.status === "SCHEDULED" && qrCodeUrl && (
-              <div className="border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
-                <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex flex-col items-center justify-center text-center bg-white dark:bg-[#0a0a0a]">
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-1">
-                    <QrCode className="w-4 h-4" strokeWidth={1.5} />{" "}
-                    Identificación QR
-                  </h3>
-                  <p className="text-[9px] font-light uppercase tracking-widest text-gray-500">
-                    Escanear en Módulo de Recepción
-                  </p>
+              <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-8 flex flex-col items-center justify-center text-center shadow-sm">
+                <div className="mb-4 w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <QrCode className="w-8 h-8" strokeWidth={2} />
                 </div>
-                <div className="p-8 flex items-center justify-center">
-                  <div className="bg-white p-3 border border-gray-300">
-                    <Image
-                      src={qrCodeUrl}
-                      alt="Código QR Check-in"
-                      width={180}
-                      height={180}
-                      className="w-48 h-48 mix-blend-multiply"
-                    />
-                  </div>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                  Identificación QR
+                </h4>
+                <p className="text-xs font-medium text-gray-500 mb-6">
+                  Escanear en Módulo de Recepción
+                </p>
+                <div className="w-48 h-48 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center">
+                  <Image
+                    src={qrCodeUrl}
+                    alt="Código QR Check-in"
+                    width={180}
+                    height={180}
+                    className="w-full h-full mix-blend-multiply"
+                  />
                 </div>
               </div>
             )}
 
             {/* Bloque: Finanzas y Recibos */}
-            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-              <div className="border-b border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505]">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                  <Receipt className="w-4 h-4" strokeWidth={1.5} /> Resumen
-                  Financiero
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                  <Receipt className="w-4 h-4 text-amber-500" strokeWidth={2} /> 
+                  Resumen Financiero
                 </h3>
               </div>
               <div className="p-6 md:p-8 space-y-8">
                 <div className="flex flex-col items-end">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                  <span className="text-sm font-medium text-gray-500 mb-1">
                     Importe Final
                   </span>
-                  <span className="text-3xl font-semibold tracking-tight text-black dark:text-white">
+                  <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                     {new Intl.NumberFormat("es-MX", {
                       style: "currency",
                       currency: appointment.currency || "MXN",
@@ -409,37 +401,38 @@ export default function PatientAppointmentDetailsPage() {
                   </span>
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
                   {appointment.paymentStatus === "SETTLED" ? (
                     <Button
                       onClick={downloadInvoice}
                       disabled={isDownloading}
-                      className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6"
+                      className="w-full rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-12 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6"
+                      variant="outline"
                     >
                       Descargar Factura
                       {isDownloading ? (
                         <QhSpinner size="sm" />
                       ) : (
-                        <FileText className="w-4 h-4" strokeWidth={1.5} />
+                        <FileText className="w-4 h-4" strokeWidth={2} />
                       )}
                     </Button>
                   ) : (
                     <div className="space-y-4">
-                      <div className="border-l-2 border-amber-500 bg-amber-50 dark:bg-amber-900/10 p-3">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">
+                      <div className="border-l-2 border-amber-500 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-r-xl">
+                        <p className="text-xs font-bold text-amber-600 dark:text-amber-500">
                           Estado: Requiere Liquidación
                         </p>
                       </div>
                       <Button
                         onClick={handlePayNow}
                         disabled={isProcessingPayment}
-                        className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-between px-6 disabled:opacity-50"
+                        className="w-full rounded-xl bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6 disabled:opacity-50"
                       >
                         Pagar Ahora
                         {isProcessingPayment ? (
                           <QhSpinner size="sm" />
                         ) : (
-                          <CreditCard className="w-4 h-4" strokeWidth={1.5} />
+                          <CreditCard className="w-4 h-4" strokeWidth={2} />
                         )}
                       </Button>
                     </div>
@@ -448,15 +441,15 @@ export default function PatientAppointmentDetailsPage() {
               </div>
             </div>
 
-            {/* Bloque de Comandos (Chat / Reprogramar / Cancelar) */}
-            <div className="space-y-4">
+            {/* Comandos de Acción */}
+            <div className="space-y-3">
               {canJoinVideo && (
                 <Button
                   onClick={() => appointment.meetLink ? window.open(appointment.meetLink, '_blank') : router.push(`/patient/video-call/${appointment.id}`)}
-                  className="w-full rounded-none bg-blue-600 text-white hover:bg-blue-700 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 border-0"
+                  className="w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 h-14 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6"
                 >
                   Unirse a Video Consulta
-                  <Video className="w-4 h-4" strokeWidth={1.5} />
+                  <Video className="w-4 h-4" strokeWidth={2} />
                 </Button>
               )}
 
@@ -466,32 +459,34 @@ export default function PatientAppointmentDetailsPage() {
                   <Button
                     onClick={handleStartChat}
                     disabled={isStartingChat}
-                    className="w-full rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-between px-6 disabled:opacity-50"
+                    className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] h-14 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6 disabled:opacity-50"
+                    variant="outline"
                   >
                     Contactar al Especialista
                     {isStartingChat ? (
                       <QhSpinner size="sm" />
                     ) : (
-                      <MessageSquare className="w-4 h-4" strokeWidth={1.5} />
+                      <MessageSquare className="w-4 h-4 text-indigo-500" strokeWidth={2} />
                     )}
                   </Button>
                 )}
 
               {appointment.status === "SCHEDULED" && (
-                <div className="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-800 pt-6">
+                <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-800 pt-6">
                   <Button
                     variant="outline"
                     onClick={() => setIsRescheduleModalOpen(true)}
-                    className="w-full rounded-none border border-gray-300 dark:border-gray-700 text-gray-600 hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6"
+                    className="w-full rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-14 text-sm font-semibold transition-all shadow-sm flex justify-start px-6"
                   >
-                    <RotateCcw className="w-3.5 h-3.5 mr-3" strokeWidth={2} />{" "}
+                    <RotateCcw className="w-4 h-4 mr-3" strokeWidth={2} />{" "}
                     Reprogramar Cita
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full rounded-none border border-red-500 bg-transparent text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-900/50 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-6"
+                    className="w-full rounded-xl border border-rose-100 dark:border-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:border-rose-200 h-14 text-sm font-semibold transition-all shadow-sm flex justify-start px-6"
+                    onClick={() => handleCancelAppointment(appointment.id)}
                   >
-                    <XCircle className="w-3.5 h-3.5 mr-3" strokeWidth={2} />{" "}
+                    <XCircle className="w-4 h-4 mr-3" strokeWidth={2} />{" "}
                     Cancelar Cita
                   </Button>
                 </div>
