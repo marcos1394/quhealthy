@@ -30,6 +30,9 @@ export interface DoctorCardData {
   name: string;
   specialty: string;
   imageUrl?: string;
+  bannerUrl?: string;
+  primaryColor?: string;
+  bio?: string;
   rating?: number;
   reviewCount?: number;
   clinic?: string;
