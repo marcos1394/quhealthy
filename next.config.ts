@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
 
   // === 1. CONFIGURACIÓN TURBOPACK ===
   turbopack: {},
+  
+  experimental: {
+    externalDir: true,
+  },
 
   // === 2. BYPASS DE ERRORES ===
   typescript: {
