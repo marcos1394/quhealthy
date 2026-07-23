@@ -1,6 +1,14 @@
 import { Metadata } from "next";
-import { MapPin, Activity, Building2, BarChart3, Database } from "lucide-react";
-import dynamic from "next/dynamic";
+import Link from "next/link";
+import { 
+  MapPin, 
+  Activity, 
+  Building2, 
+  BarChart3, 
+  Database,
+  ChevronRight,
+  Table as TableIcon
+} from "lucide-react";
 
 import { MapWrapper } from "@/components/intelligence/MapWrapper";
 import { IntelligenceSummaryRow } from "@/components/intelligence/IntelligenceSummaryRow";
@@ -17,101 +25,157 @@ export const metadata: Metadata = {
 
 export default function IntelligencePage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-24 transition-colors duration-300 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
-      {/* Hero Section Arquitectónico */}
-      <div className="border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] pt-24 pb-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-5 mb-6">
-            <div className="w-12 h-12 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
-              <Activity className="h-6 w-6" strokeWidth={1.5} />
-            </div>
-            <h1 className="text-3xl font-bold uppercase tracking-tight text-black dark:text-white">
-              Inteligencia Epidemiológica
-            </h1>
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] pb-24 transition-colors duration-500 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
+      
+      {/* ── HERO SECTION ARQUITECTÓNICO ──────────────────────────────────── */}
+      <div className="pt-28 pb-12 md:pt-36 md:pb-16 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 space-y-6">
+          
+          {/* Breadcrumb Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800/60 text-xs font-semibold text-gray-600 dark:text-gray-300 shadow-sm">
+            <Link
+              href="/"
+              className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            >
+              QuHealthy
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+            <span className="text-gray-900 dark:text-white font-bold">
+              Auditoría de Salud
+            </span>
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-3xl mb-12 leading-relaxed">
-            SISTEMA DE TELEMETRÍA Y CENSO GEORREFERENCIADO DE INFRAESTRUCTURA
-            CLÍNICA EN MÉXICO. MONITOREO DE REDES DE SALUD PÚBLICA Y PRIVADA EN
-            TIEMPO REAL.
-          </p>
 
-          <IntelligenceSummaryRow />
+          {/* Title & Subtitle */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400 shadow-sm">
+                <Activity className="h-6 w-6" strokeWidth={2} />
+              </div>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+                Inteligencia <span className="text-emerald-600 dark:text-emerald-400">Epidemiológica</span>
+              </h1>
+            </div>
+
+            <p className="text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-3xl pt-1">
+              Sistema de telemetría y censo georreferenciado de la infraestructura clínica en México. Monitoreo integral de redes de salud pública y privada en tiempo real.
+            </p>
+          </div>
+
+          {/* Summary Row */}
+          <div className="pt-4">
+            <IntelligenceSummaryRow />
+          </div>
+
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
+      {/* ── CONTENIDO PRINCIPAL ────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mt-10 space-y-10">
+        
+        {/* Query Builder */}
         <QueryBuilder />
 
-        {/* Mapa Principal */}
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
-          <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-1">
-                <MapPin className="h-4 w-4" strokeWidth={1.5} />
-                Cartografía Nacional
-              </h2>
-              <p className="text-[9px] uppercase tracking-widest text-gray-500">
-                DISTRIBUCIÓN GEOGRÁFICA DE UNIDADES MÉDICAS REGISTRADAS.
+        {/* MAPA PRINCIPAL */}
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col">
+          
+          {/* Header del Mapa */}
+          <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <MapPin className="h-4 w-4" strokeWidth={2} />
+                </div>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                  Cartografía Nacional de Infraestructura
+                </h2>
+              </div>
+              <p className="text-xs font-medium text-gray-500 pl-10">
+                Distribución geográfica y geolocalización de unidades médicas registradas.
               </p>
             </div>
-            <div className="hidden sm:flex items-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest">
-              <Database className="h-3.5 w-3.5" strokeWidth={1.5} />
-              <span>DATOS OFICIALES VIGENTES</span>
+
+            <div className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold shadow-sm">
+              <Database className="h-3.5 w-3.5" strokeWidth={2} />
+              <span>Datos Oficiales Vigentes</span>
             </div>
           </div>
+
+          {/* Mapa Wrapper Container */}
           <div className="p-0 bg-gray-100 dark:bg-[#111] relative min-h-[500px]">
             <MapWrapper />
           </div>
         </div>
 
-        {/* Paneles de Datos Analíticos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
-            <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-1">
-                <BarChart3 className="h-4 w-4" strokeWidth={1.5} />
-                Densidad por Estado
-              </h3>
-              <p className="text-[9px] uppercase tracking-widest text-gray-500">
-                CONCENTRACIÓN DE INFRAESTRUCTURA TERRITORIAL.
+        {/* GRÁFICAS DE DATOS ANALÍTICOS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          {/* Chart 1: Estado */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between space-y-6">
+            <div className="space-y-1 pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <BarChart3 className="h-4 w-4" strokeWidth={2} />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Densidad por Entidad Federativa
+                </h3>
+              </div>
+              <p className="text-xs font-medium text-gray-500 pl-10">
+                Concentración territorial de infraestructura de salud.
               </p>
             </div>
-            <div className="p-6">
+
+            <div className="pt-2">
               <StateDistributionChart />
             </div>
           </div>
 
-          <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
-            <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3 mb-1">
-                <Building2 className="h-4 w-4" strokeWidth={1.5} />
-                Segmentación Institucional
-              </h3>
-              <p className="text-[9px] uppercase tracking-widest text-gray-500">
-                DESGLOSE DE ACTIVOS POR DEPENDENCIA RECTORA.
+          {/* Chart 2: Institución */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between space-y-6">
+            <div className="space-y-1 pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <Building2 className="h-4 w-4" strokeWidth={2} />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Segmentación por Institución
+                </h3>
+              </div>
+              <p className="text-xs font-medium text-gray-500 pl-10">
+                Desglose de activos por dependencia rectora y sector.
               </p>
             </div>
-            <div className="p-6">
+
+            <div className="pt-2">
               <InstitutionDistributionChart />
             </div>
           </div>
+
         </div>
 
-        {/* Tabla Explorable */}
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] flex flex-col">
-          <div className="p-6 border-b border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
-            <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
-              Registro Tabular Interactivo
-            </h2>
-            <p className="text-[9px] uppercase tracking-widest text-gray-500">
-              EXPLORACIÓN GRANULAR Y EXTRACCIÓN DE DATOS PARAMETRIZADOS.
+        {/* TABLA DE EXPLORACIÓN GRANULAR */}
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 overflow-hidden">
+          <div className="space-y-1 pb-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                <TableIcon className="h-4 w-4" strokeWidth={2} />
+              </div>
+              <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                Registro Tabular Interactivo
+              </h2>
+            </div>
+            <p className="text-xs font-medium text-gray-500 pl-10">
+              Exploración granular y extracción de datos parametrizados.
             </p>
           </div>
-          <div className="p-6 overflow-x-auto">
+
+          <div className="overflow-x-auto">
             <HealthcareExplorerTable />
           </div>
         </div>
+
       </div>
+
     </div>
   );
 }

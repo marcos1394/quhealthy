@@ -1,5 +1,8 @@
 "use client";
+
+/* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
@@ -16,12 +19,14 @@ import {
   History,
   Mail,
   ArrowRight,
+  Sparkles,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-// Actualizado al nuevo esquema de colores (black/white/gray)
+// Renderizado de texto con sintaxis Markdown (**negrita** y *cursiva*)
 const parseBoldAndItalic = (text: string) => {
   const parts = text.split(/(\*\*.*?\*\*)/g);
   return parts.map((part, i) => {
@@ -29,7 +34,7 @@ const parseBoldAndItalic = (text: string) => {
       return (
         <strong
           key={`b-${i}`}
-          className="text-black dark:text-white font-medium"
+          className="text-gray-900 dark:text-white font-bold"
         >
           {part.slice(2, -2)}
         </strong>
@@ -59,9 +64,9 @@ const renderText = (text: string) => {
       const intro = parts[0];
       const items = parts.slice(1);
       return (
-        <div key={idx} className="mb-6">
-          {intro && <p className="mb-3">{parseBoldAndItalic(intro)}</p>}
-          <ul className="list-disc pl-6 space-y-2 marker:text-black dark:marker:text-white font-light text-gray-600 dark:text-gray-300">
+        <div key={idx} className="mb-4">
+          {intro && <p className="mb-2 text-xs md:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-normal">{parseBoldAndItalic(intro)}</p>}
+          <ul className="list-disc pl-5 space-y-1.5 marker:text-emerald-600 dark:marker:text-emerald-400 font-normal text-xs md:text-sm text-gray-600 dark:text-gray-300">
             {items.map((item, i) => (
               <li key={i}>{parseBoldAndItalic(item)}</li>
             ))}
@@ -72,7 +77,7 @@ const renderText = (text: string) => {
     return (
       <p
         key={idx}
-        className="mb-6 text-gray-600 dark:text-gray-300 font-light leading-relaxed"
+        className="mb-4 text-xs md:text-sm text-gray-600 dark:text-gray-300 font-normal leading-relaxed"
       >
         {parseBoldAndItalic(block)}
       </p>
@@ -85,20 +90,20 @@ export default function CookiesPage() {
   const [activeSection, setActiveSection] = useState("intro");
 
   const sections = [
-    { id: "intro", title: t("intro_title"), icon: Cookie },
-    { id: "legal-frameworks", title: t("legal_title"), icon: ShieldCheck },
-    { id: "tipos", title: t("types_title"), icon: Settings },
-    { id: "duration", title: t("duration_title"), icon: Clock },
-    { id: "sensitive-data", title: t("sensitive_title"), icon: ShieldAlert },
-    { id: "rights", title: t("rights_title"), icon: UserCheck },
-    { id: "consentimiento", title: t("consent_title"), icon: Settings },
-    { id: "terceros", title: t("thirdparty_title"), icon: Globe },
-    { id: "children", title: t("children_title"), icon: Users },
-    { id: "changes", title: t("changes_title"), icon: History },
-    { id: "contacto", title: t("contact_title"), icon: Mail },
+    { id: "intro", title: t("intro_title", { defaultValue: "1. Introducción" }), icon: Cookie },
+    { id: "legal-frameworks", title: t("legal_title", { defaultValue: "2. Marco Legal y Normativo" }), icon: ShieldCheck },
+    { id: "tipos", title: t("types_title", { defaultValue: "3. Categorías de Cookies" }), icon: Settings },
+    { id: "duration", title: t("duration_title", { defaultValue: "4. Duración y Almacenamiento" }), icon: Clock },
+    { id: "sensitive-data", title: t("sensitive_title", { defaultValue: "5. Datos de Salud Sensibles" }), icon: ShieldAlert },
+    { id: "rights", title: t("rights_title", { defaultValue: "6. Derechos de los Usuarios" }), icon: UserCheck },
+    { id: "consentimiento", title: t("consent_title", { defaultValue: "7. Gestión del Consentimiento" }), icon: Settings },
+    { id: "terceros", title: t("thirdparty_title", { defaultValue: "8. Cookies de Terceros" }), icon: Globe },
+    { id: "children", title: t("children_title", { defaultValue: "9. Privacidad de Menores" }), icon: Users },
+    { id: "changes", title: t("changes_title", { defaultValue: "10. Cambios en la Política" }), icon: History },
+    { id: "contacto", title: t("contact_title", { defaultValue: "11. Contacto de Privacidad" }), icon: Mail },
   ];
 
-  // UX Improvement: ScrollSpy
+  // UX ScrollSpy Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -108,7 +113,7 @@ export default function CookiesPage() {
           }
         });
       },
-      { rootMargin: "-20% 0px -80% 0px" },
+      { rootMargin: "-20% 0px -80% 0px" }
     );
 
     sections.forEach((sec) => {
@@ -119,15 +124,15 @@ export default function CookiesPage() {
     return () => observer.disconnect();
   }, [t]);
 
-  // UX Improvement: Smooth Scroll con compensación
+  // Smooth scroll handler con offset
   const scrollToSection = (
     e: React.MouseEvent<HTMLAnchorElement>,
-    id: string,
+    id: string
   ) => {
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
-      const offset = 120;
+      const offset = 100;
       const elementPosition =
         element.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({
@@ -145,358 +150,372 @@ export default function CookiesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20">
-      {/* Header Editorial */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-20 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-[#0a0a0a]">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+      
+      {/* ── HERO SECTION ──────────────────────────────────────────────────── */}
+      <section className="pt-28 pb-16 md:pt-36 md:pb-20 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-6 md:px-12 max-w-5xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="space-y-6"
           >
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-8">
+            {/* Breadcrumb Pill */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800/60 text-xs font-semibold text-gray-600 dark:text-gray-300 shadow-sm">
               <Link
                 href="/"
-                className="hover:text-black dark:hover:text-white transition-colors"
+                className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
               >
                 QuHealthy
               </Link>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-black dark:text-white">
-                {t("breadcrumb")}
+              <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+              <span className="text-gray-900 dark:text-white font-bold">
+                {t("breadcrumb", { defaultValue: "Política de Cookies" })}
               </span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-black dark:text-white mb-6 leading-tight">
-              {t("title")}
-            </h1>
-            <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light max-w-3xl leading-relaxed mb-6">
-              {t("subtitle")}
-            </p>
-            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-              {t("date")}
+
+            <div className="space-y-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+                <Cookie className="w-3.5 h-3.5" strokeWidth={2} />
+                <span>Uso de Rastreadores y Privacidad</span>
+              </span>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.15]">
+                {t("title", { defaultValue: "Política de Uso de Cookies y Rastreadores" })}
+              </h1>
+
+              <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium max-w-3xl leading-relaxed pt-1">
+                {t("subtitle", { defaultValue: "Explicación transparente de cómo empleamos las cookies para garantizar la seguridad, personalizar tu experiencia y cumplir con las normativas internacionales." })}
+              </p>
+            </div>
+
+            <p className="text-xs font-bold font-mono text-gray-400">
+              {t("date", { defaultValue: "Última actualización: 15 de Enero, 2025" })}
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Content Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-6 md:px-12 max-w-5xl">
-          <div className="flex flex-col md:flex-row gap-16 lg:gap-24 items-start">
-            {/* Sidebar Navigation: ScrollSpy Activo */}
+      {/* ── SECCIÓN DE CONTENIDO ──────────────────────────────────────────── */}
+      <section className="py-12 md:py-20">
+        <div className="container mx-auto px-6 md:px-12 max-w-6xl">
+          <div className="flex flex-col lg:flex-row gap-12 items-start">
+            
+            {/* ── NAVEGACIÓN LATERAL (SCROLLSPY) ─────────────────────────── */}
             <motion.aside
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{
-                duration: 0.7,
-                delay: 0.2,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="w-full md:w-64 shrink-0 md:sticky md:top-32 hidden lg:block"
+              transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+              className="w-full lg:w-64 shrink-0 lg:sticky lg:top-28 hidden lg:block"
             >
-              <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-6">
-                {t("toc")}
-              </h3>
-              <nav className="flex flex-col space-y-1 relative border-l border-gray-200 dark:border-gray-800">
-                {sections.map((sec) => {
-                  const isActive = activeSection === sec.id;
-                  return (
-                    <a
-                      key={sec.id}
-                      href={`#${sec.id}`}
-                      onClick={(e) => scrollToSection(e, sec.id)}
-                      className={`relative pl-5 py-2 text-sm transition-all duration-300 ${
-                        isActive
-                          ? "text-black dark:text-white font-medium"
-                          : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 font-normal"
-                      }`}
-                    >
-                      {/* Indicador activo animado */}
-                      {isActive && (
-                        <motion.div
-                          layoutId="activeCookieSection"
-                          className="absolute left-[-1px] top-0 bottom-0 w-[2px] bg-black dark:bg-white"
-                          initial={false}
-                          transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30,
-                          }}
-                        />
-                      )}
-                      {sec.title}
-                    </a>
-                  );
-                })}
-              </nav>
+              <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-sm space-y-3">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-2">
+                  {t("toc", { defaultValue: "Tabla de Contenido" })}
+                </p>
+
+                <nav className="flex flex-col space-y-1 relative">
+                  {sections.map((sec) => {
+                    const isActive = activeSection === sec.id;
+                    const Icon = sec.icon;
+                    return (
+                      <a
+                        key={sec.id}
+                        href={`#${sec.id}`}
+                        onClick={(e) => scrollToSection(e, sec.id)}
+                        className={cn(
+                          "flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all leading-tight",
+                          isActive
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 font-bold border border-emerald-200/60 dark:border-emerald-900/40"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-gray-900 dark:hover:text-white"
+                        )}
+                      >
+                        <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                        <span className="truncate">{sec.title}</span>
+                      </a>
+                    );
+                  })}
+                </nav>
+              </div>
             </motion.aside>
 
-            {/* Document Body: Tipografía y espaciado mejorados */}
+            {/* ── CUERPO DEL DOCUMENTO ──────────────────────────────────── */}
             <motion.article
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.7,
-                delay: 0.3,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="flex-1 prose prose-gray dark:prose-invert prose-lg max-w-none 
- prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-black dark:prose-headings:text-white"
+              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+              className="flex-1 space-y-10"
             >
-              <h2 id="intro" className="text-2xl mt-0 mb-6 scroll-mt-32">
-                {t("intro_title")}
-              </h2>
-              {renderText(t("intro_desc"))}
-
-              <h2
-                id="legal-frameworks"
-                className="text-2xl mt-16 mb-6 scroll-mt-32"
-              >
-                {t("legal_title")}
-              </h2>
-              {renderText(t("legal_desc"))}
-
-              <h2 id="tipos" className="text-2xl mt-16 mb-8 scroll-mt-32">
-                {t("types_title")}
-              </h2>
-
-              {/* Tipos de Cookies (Estilo Arquitectónico, sin cajas) */}
-              <div className="grid gap-10 my-8">
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <ShieldAlert
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
-                    />
-                    <h3 className="text-lg font-semibold text-black dark:text-white m-0">
-                      {t("types_essential")}
-                    </h3>
+              
+              {/* Sección 1: Introducción */}
+              <section id="intro" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Cookie className="w-4 h-4" strokeWidth={2} />
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 font-light text-base m-0 leading-relaxed">
-                    {t("types_essential_desc")}
-                  </p>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("intro_title", { defaultValue: "1. Introducción" })}
+                  </h2>
+                </div>
+                {renderText(t("intro_desc", { defaultValue: "Esta Política de Cookies explica qué son las cookies, cómo las utilizamos en la plataforma QuHealthy y las opciones que tienes para gestionar tus preferencias..." }))}
+              </section>
+
+              {/* Sección 2: Marco Legal */}
+              <section id="legal-frameworks" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <ShieldCheck className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("legal_title", { defaultValue: "2. Marco Legal y Normativo" })}
+                  </h2>
+                </div>
+                {renderText(t("legal_desc", { defaultValue: "Operamos en estricto apego al Reglamento General de Protección de Datos (GDPR) de la Unión Europea y la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP) de México..." }))}
+              </section>
+
+              {/* Sección 3: Categorías de Cookies */}
+              <section id="tipos" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Settings className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("types_title", { defaultValue: "3. Categorías de Cookies" })}
+                  </h2>
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Settings
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
-                    />
-                    <h3 className="text-lg font-semibold text-black dark:text-white m-0">
-                      {t("types_functional")}
-                    </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Esenciales */}
+                  <div className="bg-gray-50/50 dark:bg-[#050505] p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <ShieldAlert className="w-4 h-4" strokeWidth={2} />
+                      <h3 className="text-xs font-bold text-gray-900 dark:text-white">
+                        {t("types_essential", { defaultValue: "Cookies Esenciales" })}
+                      </h3>
+                    </div>
+                    <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                      {t("types_essential_desc", { defaultValue: "Requeridas para la autenticación, seguridad de sesión y cifrado SSL." })}
+                    </p>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 font-light text-base m-0 leading-relaxed">
-                    {t("types_functional_desc")}
-                  </p>
+
+                  {/* Funcionales */}
+                  <div className="bg-gray-50/50 dark:bg-[#050505] p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <Settings className="w-4 h-4" strokeWidth={2} />
+                      <h3 className="text-xs font-bold text-gray-900 dark:text-white">
+                        {t("types_functional", { defaultValue: "Cookies Funcionales" })}
+                      </h3>
+                    </div>
+                    <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                      {t("types_functional_desc", { defaultValue: "Almacenan tus preferencias de idioma, tema visual y configuración regional." })}
+                    </p>
+                  </div>
+
+                  {/* Analíticas */}
+                  <div className="bg-gray-50/50 dark:bg-[#050505] p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <BarChart3 className="w-4 h-4" strokeWidth={2} />
+                      <h3 className="text-xs font-bold text-gray-900 dark:text-white">
+                        {t("types_analytics", { defaultValue: "Cookies Analíticas" })}
+                      </h3>
+                    </div>
+                    <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                      {t("types_analytics_desc", { defaultValue: "Nos ayudan a entender el comportamiento de navegación para optimizar la velocidad y UX." })}
+                    </p>
+                  </div>
+
+                  {/* Marketing */}
+                  <div className="bg-gray-50/50 dark:bg-[#050505] p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                      <Cookie className="w-4 h-4" strokeWidth={2} />
+                      <h3 className="text-xs font-bold text-gray-900 dark:text-white">
+                        {t("types_marketing", { defaultValue: "Cookies de Marketing" })}
+                      </h3>
+                    </div>
+                    <div className="text-xs font-medium text-gray-500 leading-relaxed">
+                      {renderText(t("types_marketing_desc", { defaultValue: "Utilizadas para medir campañas informativas sin rastrear tu expediente de salud." }))}
+                    </div>
+                  </div>
                 </div>
+              </section>
 
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <BarChart3
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
-                    />
-                    <h3 className="text-lg font-semibold text-black dark:text-white m-0">
-                      {t("types_analytics")}
-                    </h3>
+              {/* Sección 4: Duración & Tabla */}
+              <section id="duration" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Clock className="w-4 h-4" strokeWidth={2} />
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 font-light text-base m-0 leading-relaxed">
-                    {t("types_analytics_desc")}
-                  </p>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("duration_title", { defaultValue: "4. Duración y Almacenamiento" })}
+                  </h2>
                 </div>
+                
+                {renderText(t("duration_desc", { defaultValue: "A continuación detallamos el inventario técnico de las cookies activas en la plataforma:" }))}
 
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Cookie
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
-                    />
-                    <h3 className="text-lg font-semibold text-black dark:text-white m-0">
-                      {t("types_marketing")}
-                    </h3>
-                  </div>
-                  <div className="text-gray-600 dark:text-gray-300 font-light text-base m-0 leading-relaxed">
-                    {renderText(t("types_marketing_desc"))}
-                  </div>
+                {/* Tabla Estilizada */}
+                <div className="border border-gray-100 dark:border-gray-800 rounded-2xl overflow-x-auto shadow-sm">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50/80 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 font-bold">
+                        <th className="p-3.5">{t("duration_th_cookie", { defaultValue: "Cookie" })}</th>
+                        <th className="p-3.5">{t("duration_th_category", { defaultValue: "Categoría" })}</th>
+                        <th className="p-3.5">{t("duration_th_purpose", { defaultValue: "Propósito" })}</th>
+                        <th className="p-3.5">{t("duration_th_duration", { defaultValue: "Duración" })}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800/80 font-medium text-gray-600 dark:text-gray-300">
+                      <tr>
+                        <td className="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">{t("duration_row1_cookie", { defaultValue: "__qh_session" })}</td>
+                        <td className="p-3.5"><span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px] font-bold">{t("duration_row1_category", { defaultValue: "Esencial" })}</span></td>
+                        <td className="p-3.5">{t("duration_row1_purpose", { defaultValue: "Mantiene la sesión de usuario segura" })}</td>
+                        <td className="p-3.5 font-mono">{t("duration_row1_duration", { defaultValue: "Sesión" })}</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">{t("duration_row2_cookie", { defaultValue: "__qh_auth_token" })}</td>
+                        <td className="p-3.5"><span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px] font-bold">{t("duration_row2_category", { defaultValue: "Esencial" })}</span></td>
+                        <td className="p-3.5">{t("duration_row2_purpose", { defaultValue: "Token cifrado JWT de autenticación" })}</td>
+                        <td className="p-3.5 font-mono">{t("duration_row2_duration", { defaultValue: "7 Días" })}</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">{t("duration_row3_cookie", { defaultValue: "quhealthy_cookie_consent" })}</td>
+                        <td className="p-3.5"><span className="px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[10px] font-bold">{t("duration_row3_category", { defaultValue: "Funcional" })}</span></td>
+                        <td className="p-3.5">{t("duration_row3_purpose", { defaultValue: "Guarda la preferencia de cookies" })}</td>
+                        <td className="p-3.5 font-mono">{t("duration_row3_duration", { defaultValue: "1 Año" })}</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">{t("duration_row4_cookie", { defaultValue: "NEXT_LOCALE" })}</td>
+                        <td className="p-3.5"><span className="px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[10px] font-bold">{t("duration_row4_category", { defaultValue: "Funcional" })}</span></td>
+                        <td className="p-3.5">{t("duration_row4_purpose", { defaultValue: "Idioma seleccionado (es/en)" })}</td>
+                        <td className="p-3.5 font-mono">{t("duration_row4_duration", { defaultValue: "1 Año" })}</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">{t("duration_row5_cookie", { defaultValue: "_ga" })}</td>
+                        <td className="p-3.5"><span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 text-[10px] font-bold">{t("duration_row5_category", { defaultValue: "Analítica" })}</span></td>
+                        <td className="p-3.5">{t("duration_row5_purpose", { defaultValue: "Métricas anónimas de visita" })}</td>
+                        <td className="p-3.5 font-mono">{t("duration_row5_duration", { defaultValue: "2 Años" })}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              </div>
+              </section>
 
-              <h2 id="duration" className="text-2xl mt-16 mb-6 scroll-mt-32">
-                {t("duration_title")}
-              </h2>
-              {renderText(t("duration_desc"))}
+              {/* Sección 5: Datos de Salud Sensibles */}
+              <section id="sensitive-data" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <ShieldAlert className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("sensitive_title", { defaultValue: "5. Datos de Salud Sensibles" })}
+                  </h2>
+                </div>
+                {renderText(t("sensitive_desc", { defaultValue: "Garantía Cero Rastreo Médico: Las cookies nunca se utilizan para asociar expedientes clínicos, diagnósticos o recetas médicas con perfiles de marketing..." }))}
+              </section>
 
-              {/* Table for Duration: Diseño Flush y Limpio */}
-              <div className="overflow-x-auto my-10">
-                <table className="w-full text-left border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b-2 border-black dark:border-white">
-                      <th className="py-4 pr-4 font-bold text-black dark:text-white uppercase tracking-widest text-xs">
-                        {t("duration_th_cookie")}
-                      </th>
-                      <th className="py-4 pr-4 font-bold text-black dark:text-white uppercase tracking-widest text-xs">
-                        {t("duration_th_category")}
-                      </th>
-                      <th className="py-4 pr-4 font-bold text-black dark:text-white uppercase tracking-widest text-xs">
-                        {t("duration_th_purpose")}
-                      </th>
-                      <th className="py-4 font-bold text-black dark:text-white uppercase tracking-widest text-xs">
-                        {t("duration_th_duration")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                    <tr className="group">
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
-                        {t("duration_row1_cookie")}
-                      </td>
-                      <td className="py-4 pr-4">
-                        <span className="text-xs border border-gray-300 dark:border-gray-700 px-2 py-1 rounded-full text-gray-500">
-                          {t("duration_row1_category")}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 font-light">
-                        {t("duration_row1_purpose")}
-                      </td>
-                      <td className="py-4 font-medium text-black dark:text-white">
-                        {t("duration_row1_duration")}
-                      </td>
-                    </tr>
-                    <tr className="group">
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
-                        {t("duration_row2_cookie")}
-                      </td>
-                      <td className="py-4 pr-4">
-                        <span className="text-xs border border-gray-300 dark:border-gray-700 px-2 py-1 rounded-full text-gray-500">
-                          {t("duration_row2_category")}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 font-light">
-                        {t("duration_row2_purpose")}
-                      </td>
-                      <td className="py-4 font-medium text-black dark:text-white">
-                        {t("duration_row2_duration")}
-                      </td>
-                    </tr>
-                    <tr className="group">
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
-                        {t("duration_row3_cookie")}
-                      </td>
-                      <td className="py-4 pr-4">
-                        <span className="text-xs border border-gray-300 dark:border-gray-700 px-2 py-1 rounded-full text-gray-500">
-                          {t("duration_row3_category")}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 font-light">
-                        {t("duration_row3_purpose")}
-                      </td>
-                      <td className="py-4 font-medium text-black dark:text-white">
-                        {t("duration_row3_duration")}
-                      </td>
-                    </tr>
-                    <tr className="group">
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
-                        {t("duration_row4_cookie")}
-                      </td>
-                      <td className="py-4 pr-4">
-                        <span className="text-xs border border-gray-300 dark:border-gray-700 px-2 py-1 rounded-full text-gray-500">
-                          {t("duration_row4_category")}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 font-light">
-                        {t("duration_row4_purpose")}
-                      </td>
-                      <td className="py-4 font-medium text-black dark:text-white">
-                        {t("duration_row4_duration")}
-                      </td>
-                    </tr>
-                    <tr className="group">
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 font-mono text-xs group-hover:text-black dark:group-hover:text-white transition-colors">
-                        {t("duration_row5_cookie")}
-                      </td>
-                      <td className="py-4 pr-4">
-                        <span className="text-xs border border-gray-300 dark:border-gray-700 px-2 py-1 rounded-full text-gray-500">
-                          {t("duration_row5_category")}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-gray-600 dark:text-gray-400 font-light">
-                        {t("duration_row5_purpose")}
-                      </td>
-                      <td className="py-4 font-medium text-black dark:text-white">
-                        {t("duration_row5_duration")}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              {/* Sección 6: Derechos de los Usuarios */}
+              <section id="rights" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <UserCheck className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("rights_title", { defaultValue: "6. Derechos de los Usuarios" })}
+                  </h2>
+                </div>
+                {renderText(t("rights_desc", { defaultValue: "Puedes retirar tu consentimiento para las cookies no esenciales en cualquier momento sin afectar tu acceso a las funciones básicas..." }))}
+              </section>
 
-              <h2
-                id="sensitive-data"
-                className="text-2xl mt-16 mb-6 scroll-mt-32"
-              >
-                {t("sensitive_title")}
-              </h2>
-              {renderText(t("sensitive_desc"))}
+              {/* Sección 7: Consentimiento & Botón */}
+              <section id="consentimiento" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Settings className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("consent_title", { defaultValue: "7. Gestión del Consentimiento" })}
+                  </h2>
+                </div>
+                {renderText(t("consent_desc", { defaultValue: "Haz clic a continuación si deseas restablecer el banner de preferencias de cookies para este navegador:" }))}
 
-              <h2 id="rights" className="text-2xl mt-16 mb-6 scroll-mt-32">
-                {t("rights_title")}
-              </h2>
-              {renderText(t("rights_desc"))}
-
-              <h2
-                id="consentimiento"
-                className="text-2xl mt-16 mb-6 scroll-mt-32"
-              >
-                {t("consent_title")}
-              </h2>
-              {renderText(t("consent_desc"))}
-
-              {/* Action Button */}
-              <div className="my-8">
-                <Button
+                <button
+                  type="button"
                   onClick={handleManagePreferences}
-                  className="bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-100 text-white rounded-none h-12 px-8 text-xs font-bold uppercase tracking-widest transition-all"
+                  className="h-11 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center gap-2"
                 >
-                  {t("manage_btn")}
-                </Button>
-              </div>
+                  <Settings className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("manage_btn", { defaultValue: "Restablecer Preferencias de Cookies" })}</span>
+                </button>
+              </section>
 
-              <h2 id="terceros" className="text-2xl mt-16 mb-6 scroll-mt-32">
-                {t("thirdparty_title")}
-              </h2>
-              {renderText(t("thirdparty_desc"))}
+              {/* Sección 8: Terceros */}
+              <section id="terceros" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Globe className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("thirdparty_title", { defaultValue: "8. Cookies de Terceros" })}
+                  </h2>
+                </div>
+                {renderText(t("thirdparty_desc", { defaultValue: "Servicios como Stripe (procesamiento de pago) o Cloudflare (protección DDoS) pueden colocar cookies técnicas esenciales..." }))}
+              </section>
 
-              <h2 id="children" className="text-2xl mt-16 mb-6 scroll-mt-32">
-                {t("children_title")}
-              </h2>
-              {renderText(t("children_desc"))}
+              {/* Sección 9: Menores */}
+              <section id="children" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Users className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("children_title", { defaultValue: "9. Privacidad de Menores" })}
+                  </h2>
+                </div>
+                {renderText(t("children_desc", { defaultValue: "No recopilamos intencionalmente datos de menores de edad mediante cookies publicitarias..." }))}
+              </section>
 
-              <h2 id="changes" className="text-2xl mt-16 mb-6 scroll-mt-32">
-                {t("changes_title")}
-              </h2>
-              {renderText(t("changes_desc"))}
+              {/* Sección 10: Cambios */}
+              <section id="changes" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <History className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("changes_title", { defaultValue: "10. Cambios en la Política" })}
+                  </h2>
+                </div>
+                {renderText(t("changes_desc", { defaultValue: "Esta política puede actualizarse periódicamente. Notificaremos cualquier cambio sustancial por correo..." }))}
+              </section>
 
-              <h2 id="contacto" className="text-2xl mt-16 mb-6 scroll-mt-32">
-                {t("contact_title")}
-              </h2>
-              {renderText(t("contact_desc"))}
+              {/* Sección 11: Contacto */}
+              <section id="contacto" className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-3 scroll-mt-28">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <Mail className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t("contact_title", { defaultValue: "11. Contacto de Privacidad" })}
+                  </h2>
+                </div>
+                {renderText(t("contact_desc", { defaultValue: "Para consultas relacionadas con cookies o privacidad de datos:" }))}
 
-              {/* Footer Section */}
-              <div className="mt-24 pt-8 border-t border-gray-200 dark:border-gray-800">
-                <a
-                  href={`mailto:${t("contact_link")}`}
-                  className="inline-flex items-center gap-2 text-black dark:text-white font-medium border-b border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white transition-colors no-underline pb-1"
-                >
-                  <Mail className="w-4 h-4" />
-                  {t("contact_link")} <ArrowRight className="w-3 h-3 ml-1" />
-                </a>
-              </div>
+                <div className="pt-2">
+                  <a
+                    href={`mailto:${t("contact_link", { defaultValue: "privacy@quhealthy.org" })}`}
+                    className="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>{t("contact_link", { defaultValue: "privacy@quhealthy.org" })}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </section>
+
             </motion.article>
+
           </div>
         </div>
       </section>
+
     </div>
   );
 }

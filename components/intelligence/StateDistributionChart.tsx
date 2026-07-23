@@ -1,7 +1,11 @@
 "use client";
 
+/* eslint-disable react-doctor/prefer-module-scope-static-value */
+
 import { useIntelligenceAggregate } from "@/hooks/useIntelligence";
 import { useBIStore } from "@/store/intelligence.store";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { AlertCircle } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -13,22 +17,51 @@ import {
   Cell,
 } from "recharts";
 
+// Tooltip personalizado acorde al sistema de diseño QuHealthy
+function CustomTooltip({ active, payload }: any) {
+  if (active && payload && payload.length) {
+    const item = payload[0];
+    return (
+      <div className="bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-3 shadow-xl font-sans text-xs space-y-1">
+        <p className="font-bold text-gray-900 dark:text-white">
+          {item.payload.label}
+        </p>
+        <p className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
+          Total: {item.value?.toLocaleString()} unidades
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
+
 export function StateDistributionChart() {
   const { data: rawData, loading, error } = useIntelligenceAggregate("entidad");
   const setFilter = useBIStore((state) => state.setFilter);
 
+  // ── ESTADO: CARGANDO ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
-        PROCESANDO DATOS...
+      <div className="h-[320px] flex flex-col items-center justify-center gap-3 font-sans">
+        <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
+        <span className="text-xs font-semibold text-gray-400 animate-pulse">
+          Procesando censo por entidad federativa...
+        </span>
       </div>
     );
   }
 
+  // ── ESTADO: ERROR ──────────────────────────────────────────────────────────
   if (error || !rawData) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-[10px] font-bold uppercase tracking-widest text-red-500">
-        ERROR DE CONSULTA
+      <div className="h-[320px] flex flex-col items-center justify-center gap-2 text-center font-sans p-6">
+        <AlertCircle className="w-6 h-6 text-red-500 shrink-0" strokeWidth={2} />
+        <p className="text-xs font-bold text-gray-900 dark:text-white">
+          Error al consultar datos por estado
+        </p>
+        <p className="text-[11px] font-medium text-gray-400">
+          No fue posible conectar con el motor de analítica epidemiológica.
+        </p>
       </div>
     );
   }
@@ -36,59 +69,58 @@ export function StateDistributionChart() {
   const data = rawData;
   const chartHeight = Math.max(300, data.length * 40);
 
+  // Paleta de degradado dinámico en tonos verde esmeralda
+  const emeraldPalette = [
+    "#059669", // emerald-600
+    "#10b981", // emerald-500
+    "#34d399", // emerald-400
+    "#0d9488", // teal-600
+  ];
+
   return (
-    <div className="h-[400px] w-full overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-[#0a0a0a] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800">
+    <div className="h-[380px] w-full overflow-y-auto pr-2 custom-scrollbar font-sans">
       <div style={{ height: chartHeight, width: "100%" }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             layout="vertical"
             data={data}
-            margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+            margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
               horizontal={false}
-              stroke="#e5e7eb"
-              strokeOpacity={0.5}
+              stroke="currentColor"
+              className="text-gray-100 dark:text-gray-800/60"
             />
             <XAxis type="number" hide />
             <YAxis
               dataKey="label"
               type="category"
-              width={180}
-              axisLine={{ stroke: "#000", strokeWidth: 1 }}
+              width={160}
+              axisLine={false}
               tickLine={false}
               tick={{
-                fill: "#6b7280",
-                fontSize: 9,
-                fontFamily: "monospace",
-                fontWeight: "bold",
+                fill: "#9ca3af",
+                fontSize: 11,
+                fontWeight: 600,
               }}
             />
             <Tooltip
-              cursor={{ fill: "rgba(0,0,0,0.05)" }}
-              contentStyle={{
-                backgroundColor: "#ffffff",
-                borderRadius: "0px",
-                border: "1px solid #000000",
-                boxShadow: "4px 4px 0 0 #000",
-                color: "#000000",
-                fontSize: "10px",
-                textTransform: "uppercase",
-                fontWeight: "bold",
-                letterSpacing: "0.1em",
-              }}
-              itemStyle={{ color: "#000000" }}
+              cursor={{ fill: "rgba(16, 185, 129, 0.06)" }}
+              content={<CustomTooltip />}
             />
             <Bar
               dataKey="total"
-              radius={[0, 0, 0, 0]}
-              onClick={(data) => setFilter("estado", data.label)}
-              className="cursor-pointer hover:opacity-70 transition-opacity"
-              barSize={20}
+              radius={[0, 8, 8, 0]}
+              onClick={(entry) => setFilter("estado", entry.label)}
+              className="cursor-pointer hover:opacity-85 transition-opacity"
+              barSize={18}
             >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill="#111111" />
+              {data.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={emeraldPalette[index % emeraldPalette.length]}
+                />
               ))}
             </Bar>
           </BarChart>

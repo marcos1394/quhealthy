@@ -1,27 +1,31 @@
 "use client";
 
 import { useIntelligenceSummary } from "@/hooks/useIntelligence";
-import { Users, MapPin, Building, Map } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Users, MapPin, Building, Map, AlertCircle } from "lucide-react";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export function IntelligenceSummaryRow() {
   const { data, loading, error } = useIntelligenceSummary();
 
+  // ── ESTADO: CARGANDO ───────────────────────────────────────────────────────
   if (loading || !data) {
     return (
-      <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] p-8 flex items-center justify-center">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 animate-pulse">
-          EXTRAYENDO MÉTRICAS PRINCIPALES...
+      <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-8 shadow-sm flex flex-col items-center justify-center gap-3">
+        <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-semibold text-gray-400 animate-pulse">
+          Extrayendo métricas principales...
         </p>
       </div>
     );
   }
 
+  // ── ESTADO: ERROR ──────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="border border-red-500 bg-red-50 dark:bg-red-900/10 p-8 flex items-center justify-center">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400">
-          ERROR DE LECTURA DE MÉTRICAS.
+      <div className="bg-white dark:bg-[#0a0a0a] border border-red-200 dark:border-red-900/40 rounded-3xl p-6 shadow-sm flex items-center justify-center gap-3">
+        <AlertCircle className="w-5 h-5 text-red-500 shrink-0" strokeWidth={2} />
+        <p className="text-xs font-semibold text-red-600 dark:text-red-400">
+          Error de lectura al recuperar las métricas de la infraestructura.
         </p>
       </div>
     );
@@ -29,68 +33,51 @@ export function IntelligenceSummaryRow() {
 
   const kpis = [
     {
-      title: "ACTIVOS IDENTIFICADOS",
+      title: "Activos Identificados",
       value: data.totalEstablishments.toLocaleString(),
-      icon: (
-        <Building
-          className="h-5 w-5 text-black dark:text-white"
-          strokeWidth={1.5}
-        />
-      ),
+      icon: Building,
     },
     {
-      title: "GEORREFERENCIADOS",
+      title: "Georreferenciados",
       value: data.georeferencedEstablishments.toLocaleString(),
-      icon: (
-        <MapPin
-          className="h-5 w-5 text-black dark:text-white"
-          strokeWidth={1.5}
-        />
-      ),
+      icon: MapPin,
     },
     {
-      title: "SECTOR PRIVADO",
+      title: "Sector Privado",
       value: data.privateEstablishments.toLocaleString(),
-      icon: (
-        <Users
-          className="h-5 w-5 text-black dark:text-white"
-          strokeWidth={1.5}
-        />
-      ),
+      icon: Users,
     },
     {
-      title: "ENTIDADES CUBIERTAS",
+      title: "Entidades Cubiertas",
       value: "32 / 32",
-      icon: (
-        <Map className="h-5 w-5 text-black dark:text-white" strokeWidth={1.5} />
-      ),
+      icon: Map,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff]">
-      {kpis.map((kpi, idx) => (
-        <div
-          key={idx}
-          className={cn(
-            "p-6 flex flex-col justify-center",
-            idx !== 0 &&
-              "border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-gray-800 lg:border-t-0",
-          )}
-        >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
-              {kpi.icon}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-sans">
+      {kpis.map((kpi, idx) => {
+        const Icon = kpi.icon;
+        return (
+          <div
+            key={idx}
+            className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm hover:border-emerald-500/30 transition-all flex flex-col justify-between space-y-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                <Icon className="h-5 w-5" strokeWidth={2} />
+              </div>
+              <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider leading-tight">
+                {kpi.title}
+              </h3>
             </div>
-            <h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-500 leading-tight">
-              {kpi.title}
-            </h3>
+
+            <p className="text-2xl sm:text-3xl font-bold font-mono text-gray-900 dark:text-white tracking-tight">
+              {kpi.value}
+            </p>
           </div>
-          <p className="text-3xl font-black tracking-tight text-black dark:text-white">
-            {kpi.value}
-          </p>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
