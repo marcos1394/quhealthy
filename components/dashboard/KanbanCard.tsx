@@ -1,6 +1,4 @@
 "use client";
-/* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 
 import React, { useState, useEffect } from "react";
 import {
@@ -73,33 +71,33 @@ const LiveTimer = ({
   }, [startTime]);
 
   let colorClass =
-    "text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors border-black/10 dark:border-white/10";
-  let icon = <Timer className="w-3 h-3" strokeWidth={1.5} />;
+    "text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700";
+  let icon = <Timer className="w-3.5 h-3.5" strokeWidth={2} />;
 
   if (type === "WAITING") {
     if (elapsedMinutes < 15) {
       colorClass =
-        "text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors border-black/20 dark:border-white/20";
+        "text-amber-700 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800/50";
     } else if (elapsedMinutes < 30) {
       colorClass =
-        "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white";
+        "text-orange-700 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800/50";
     } else {
       colorClass =
-        "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white animate-pulse";
-      icon = <Activity className="w-3 h-3" strokeWidth={1.5} />;
+        "text-red-700 bg-red-50 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800/50 animate-pulse";
+      icon = <Activity className="w-3.5 h-3.5" strokeWidth={2} />;
     }
   } else if (type === "CONSULTATION") {
     colorClass =
-      "text-white bg-black dark:bg-white dark:text-black border-black dark:border-white";
+      "text-blue-700 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800/50";
     icon = (
-      <PlayCircle className="w-3 h-3 animate-spin-slow" strokeWidth={1.5} />
+      <PlayCircle className="w-3.5 h-3.5 animate-spin-slow" strokeWidth={2} />
     );
   }
 
   return (
     <span
       className={cn(
-        "text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-none flex items-center gap-1.5 border transition-colors",
+        "text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1.5 border transition-colors shadow-sm",
         colorClass,
       )}
     >
@@ -156,40 +154,40 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     <div
       draggable
       onDragStart={(e) => onDragStart(e, appt.id)}
-      className="flex flex-col bg-white dark:bg-[#0a0a0a] rounded-none border border-black/20 dark:border-white/20 cursor-grab active:cursor-grabbing group hover:bg-black hover:border-black dark:hover:bg-white dark:hover:border-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] dark:hover:shadow-[8px_8px_0_0_rgba(255,255,255,0.1)] relative hover:z-10 mb-3"
+      className="flex flex-col bg-white dark:bg-[#111] rounded-xl border border-gray-200 dark:border-gray-800 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow relative mb-3 overflow-hidden shadow-sm"
     >
       {/* Header del Ticket (Modalidad) */}
       <div
         className={cn(
-          "flex items-center justify-between p-3 border-b border-black/10 dark:border-white/10 shrink-0",
+          "flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-800 shrink-0",
           isVideoCall
-            ? "bg-black text-white dark:bg-white dark:text-black"
-            : "bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors",
+            ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400"
+            : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400"
         )}
       >
-        <span className="text-[9px] font-bold uppercase tracking-widest">
+        <span className="text-xs font-bold uppercase tracking-wide">
           {isVideoCall
-            ? t("card.online", { defaultValue: "CONSULTA REMOTA (VÍDEO)" })
-            : t("card.in_person", { defaultValue: "ATENCIÓN PRESENCIAL" })}
+            ? t("card.online", { defaultValue: "Remoto (Vídeo)" })
+            : t("card.in_person", { defaultValue: "Presencial" })}
         </span>
         {isVideoCall ? (
-          <Video className="w-3.5 h-3.5" strokeWidth={1.5} />
+          <Video className="w-4 h-4" strokeWidth={2} />
         ) : (
-          <User className="w-3.5 h-3.5" strokeWidth={1.5} />
+          <User className="w-4 h-4" strokeWidth={2} />
         )}
       </div>
 
       {/* Cuerpo del Ticket */}
       <div className="p-4 flex flex-col gap-3">
         {/* Paciente y Servicio */}
-        <div className="flex flex-col gap-1">
-          <p className="font-semibold text-xs uppercase tracking-widest text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors truncate">
+        <div className="flex flex-col gap-1.5">
+          <p className="font-bold text-sm text-gray-900 dark:text-white truncate">
             {appt.consumer?.name ||
-              t("card.patient", { defaultValue: "PACIENTE DESCONOCIDO" })}
+              t("card.patient", { defaultValue: "Paciente Desconocido" })}
           </p>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors truncate">
+          <p className="text-xs font-medium text-gray-500 truncate">
             {appt.service?.name ||
-              t("medical_appointment", { defaultValue: "CONSULTA MÉDICA" })}
+              t("medical_appointment", { defaultValue: "Consulta Médica" })}
           </p>
         </div>
 
@@ -197,8 +195,8 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {/* Hora de inicio original (siempre visible como referencia, a menos que esté completada) */}
           {columnId !== "COMPLETED" && (
-            <span className="text-[9px] font-bold uppercase tracking-widest border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors text-gray-500 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors px-2 py-1 flex items-center gap-1.5 shrink-0">
-              <Clock className="w-3 h-3" strokeWidth={1.5} />
+            <span className="text-xs font-bold border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-md flex items-center gap-1.5 shrink-0 shadow-sm">
+              <Clock className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} />
               {formatLocalTime(appt.startTime, "HH:mm")}
             </span>
           )}
@@ -211,23 +209,23 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           ) : (
             columnId === "COMPLETED" &&
             (appt.arrivedAt || appt.startedAt) && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full">
                 {appt.arrivedAt && appt.startedAt && (
                   <span
-                    className="text-[9px] font-bold uppercase tracking-widest border border-black/20 dark:border-white/20 text-black dark:text-white group-hover:text-white dark:group-hover:text-black transition-colors px-2 py-1 flex items-center gap-1.5 bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent transition-colors"
-                    title="TIEMPO DE ESPERA AUDITADO"
+                    className="text-xs font-bold border border-amber-200 dark:border-amber-800/50 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-1 flex flex-1 justify-center items-center gap-1.5 rounded-md shadow-sm"
+                    title="Tiempo de espera auditado"
                   >
-                    <Timer className="w-3 h-3" strokeWidth={1.5} />
-                    {getDiffMinutes(appt.arrivedAt, appt.startedAt)}M
+                    <Timer className="w-3.5 h-3.5" strokeWidth={2} />
+                    {getDiffMinutes(appt.arrivedAt, appt.startedAt)}m
                   </span>
                 )}
                 {appt.startedAt && appt.completedAt && (
                   <span
-                    className="text-[9px] font-bold uppercase tracking-widest border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-1 flex items-center gap-1.5"
-                    title="TIEMPO DE ATENCIÓN EFECTIVO"
+                    className="text-xs font-bold border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-1 flex flex-1 justify-center items-center gap-1.5 rounded-md shadow-sm"
+                    title="Tiempo de atención efectivo"
                   >
-                    <Check className="w-3 h-3" strokeWidth={1.5} />
-                    {getDiffMinutes(appt.startedAt, appt.completedAt)}M
+                    <Check className="w-3.5 h-3.5" strokeWidth={2} />
+                    {getDiffMinutes(appt.startedAt, appt.completedAt)}m
                   </span>
                 )}
               </div>
@@ -238,16 +236,16 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 
       {/* Botón de Comandos (Solo visible en Progreso) */}
       {columnId === "IN_PROGRESS" && (
-        <div className="border-t border-black/10 dark:border-white/10 shrink-0">
+        <div className="border-t border-gray-100 dark:border-gray-800 shrink-0 p-3 bg-gray-50 dark:bg-gray-900/20">
           <Link
             href={`/provider/consultation/${appt.id}`}
             passHref
             className="w-full block"
           >
-            <button className="w-full h-10 px-4 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 border-0 rounded-none">
-              <PlayCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+            <button className="w-full h-10 px-4 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold flex items-center justify-center gap-2 rounded-lg shadow-sm border-0">
+              <PlayCircle className="w-4 h-4" strokeWidth={2} />
               {t("actions.open_monitor", {
-                defaultValue: "APERTURAR CONSOLA CLÍNICA",
+                defaultValue: "Abrir Consola Clínica",
               })}
             </button>
           </Link>

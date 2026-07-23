@@ -281,25 +281,25 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
         bg: "#166534",
         border: "#14532d",
         text: "#ffffff",
-        label: t("confirmed", { defaultValue: "CONFIRMADO" }),
+        label: t("confirmed", { defaultValue: "Confirmado" }),
       },
       pending: {
         bg: "#b45309",
         border: "#78350f",
         text: "#ffffff",
-        label: t("pending", { defaultValue: "PENDIENTE" }),
+        label: t("pending", { defaultValue: "Pendiente" }),
       },
       cancelled: {
         bg: "#991b1b",
         border: "#7f1d1d",
         text: "#ffffff",
-        label: t("cancelled", { defaultValue: "ANULADO" }),
+        label: t("cancelled", { defaultValue: "Anulado" }),
       },
       completed: {
         bg: "#1e3a8a",
         border: "#1e3a8a",
         text: "#ffffff",
-        label: t("completed", { defaultValue: "COMPLETADO" }),
+        label: t("completed", { defaultValue: "Completado" }),
       },
     };
     return (
@@ -307,7 +307,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
         bg: "#3f3f46",
         border: "#27272a",
         text: "#ffffff",
-        label: t("no_status", { defaultValue: "SIN ESTADO" }),
+        label: t("no_status", { defaultValue: "Sin estado" }),
       }
     );
   };
@@ -412,11 +412,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
               }}
               locale={fullCalendarLocale}
               buttonText={{
-                today: t("buttons.today", { defaultValue: "HOY" }),
-                month: t("buttons.month", { defaultValue: "MES" }),
-                week: t("buttons.week", { defaultValue: "SEMANA" }),
-                day: t("buttons.day", { defaultValue: "DÍA" }),
-                list: t("buttons.list", { defaultValue: "LISTA" }),
+                today: t("buttons.today", { defaultValue: "Hoy" }),
+                month: t("buttons.month", { defaultValue: "Mes" }),
+                week: t("buttons.week", { defaultValue: "Semana" }),
+                day: t("buttons.day", { defaultValue: "Día" }),
+                list: t("buttons.list", { defaultValue: "Lista" }),
               }}
               height="auto"
               allDaySlot={false}
@@ -694,7 +694,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                 <div>
                   <p className="text-xs font-semibold text-gray-500 mb-1">
                     {t("event_detail.booking_id", {
-                      defaultValue: "ID OPERACIÓN",
+                      defaultValue: "ID Operación",
                     })}
                     : #{selectedEvent.id}
                   </p>
@@ -724,13 +724,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                     <div>
                       <p className="text-xs font-semibold text-gray-500 mb-1">
                         {t("event_detail.patient", {
-                          defaultValue: "PACIENTE ASIGNADO",
+                          defaultValue: "Paciente Asignado",
                         })}
                       </p>
                       <p className="text-sm font-bold text-gray-900 dark:text-white">
                         {selectedEvent.extendedProps?.clientName ||
                           t("event_detail.new_patient", {
-                            defaultValue: "USUARIO EXTERNO",
+                            defaultValue: "Usuario Externo",
                           })}
                       </p>
                     </div>
@@ -774,7 +774,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                   <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
                     <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
                       {t("event_detail.modality", {
-                        defaultValue: "CANAL DE ATENCIÓN",
+                        defaultValue: "Canal de Atención",
                       })}
                     </p>
                     <div className="flex items-center gap-3 text-sm font-bold text-gray-900 dark:text-white mt-1">
@@ -786,10 +786,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                       <span>
                         {selectedEvent.extendedProps?.modality === "ONLINE"
                           ? t("event_detail.online", {
-                              defaultValue: "SALA VIRTUAL",
+                              defaultValue: "Sala Virtual",
                             })
                           : t("event_detail.in_office", {
-                              defaultValue: "INSTALACIÓN FÍSICA",
+                              defaultValue: "Instalación Física",
                             })}
                       </span>
                     </div>
@@ -798,14 +798,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                   <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
                     <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
                       {t("event_detail.payment", {
-                        defaultValue: "ESTADO FINANCIERO",
+                        defaultValue: "Estado Financiero",
                       })}
                     </p>
                     <p className="text-sm font-bold text-gray-900 dark:text-white mt-2">
                       {selectedEvent.extendedProps?.paymentStatus === "SETTLED"
-                        ? t("event_detail.paid", { defaultValue: "LIQUIDADO" })
+                        ? t("event_detail.paid", { defaultValue: "Liquidado" })
                         : t("event_detail.payment_pending", {
-                            defaultValue: "PENDIENTE DE COBRO",
+                            defaultValue: "Pendiente de Cobro",
                           })}
                     </p>
                   </div>
@@ -816,7 +816,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                   <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
                     <p className="text-xs font-semibold text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-800 pb-3">
                       {t("event_detail.notes", {
-                        defaultValue: "OBSERVACIONES CLÍNICAS",
+                        defaultValue: "Observaciones Clínicas",
                       })}
                     </p>
                     <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
@@ -844,7 +844,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                       <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} />
                     )}
                     {t("event_detail.cancel_appointment", {
-                      defaultValue: "ANULAR CITA",
+                      defaultValue: "Anular Cita",
                     })}
                   </button>
                 )}
@@ -853,7 +853,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ locationId }) => {
                   className="w-full sm:w-auto h-12 px-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 text-sm font-bold hover:bg-gray-50 dark:hover:bg-[#111] transition-colors rounded-xl shadow-sm"
                 >
                   {t("event_detail.close", {
-                    defaultValue: "CERRAR EXPEDIENTE",
+                    defaultValue: "Cerrar Expediente",
                   })}
                 </button>
               </div>
