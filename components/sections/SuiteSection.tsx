@@ -2,311 +2,341 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Lightbulb, ShoppingBag, BookOpen, ArrowRight, Calendar, User, CreditCard, PlayCircle, Award, Package, Plus } from "lucide-react";
+import { 
+  Lightbulb, 
+  ShoppingBag, 
+  BookOpen, 
+  ArrowRight, 
+  Calendar, 
+  User, 
+  CreditCard, 
+  PlayCircle, 
+  Award, 
+  Package, 
+  Plus, 
+  Sparkles, 
+  CheckCircle2, 
+  Layers 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
-// --- Architectural Blueprint Mockups ---
+// ── MOCKUPS CONCEPTUALES EN ESTILO GLASSMORPHISM & ESMERALDA ───────────────
 
 const AbstractQuHealthyMockup = () => (
- <div className="w-full h-full relative flex items-center justify-center p-8 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 overflow-hidden group">
- {/* Architectural Grid */}
- <div 
- className="absolute inset-0 opacity-20 dark:opacity-20 pointer-events-none" 
- style={{ backgroundImage: 'linear-gradient(to right, #9ca3af 1px, transparent 1px), linear-gradient(to bottom, #9ca3af 1px, transparent 1px)', backgroundSize: '24px 24px' }} 
- />
- 
- {/* Wireframe Panel */}
- <motion.div 
- animate={{ y: [0, -5, 0] }}
- transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
- className="relative z-10 w-full max-w-[280px] bg-white dark:bg-black border border-black dark:border-white p-6"
- >
- <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">
- <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center">
- <Calendar className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
- </div>
- <div className="space-y-1">
- <div className="h-1.5 w-16 bg-black dark:bg-white" />
- <div className="h-1.5 w-10 bg-gray-300 dark:bg-gray-700 ml-auto" />
- </div>
- </div>
- 
- <div className="space-y-4">
- {[1, 2, 3].map((i) => (
- <div key={i} className="flex items-start gap-4 p-3 border border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white transition-colors cursor-pointer">
- <div className="w-1.5 h-1.5 bg-black dark:bg-white mt-1" />
- <div className="flex-1 space-y-2">
- <div className="h-1.5 w-full bg-gray-300 dark:bg-gray-700" />
- <div className="h-1.5 w-2/3 bg-gray-200 dark:bg-gray-800" />
- </div>
- </div>
- ))}
- </div>
- </motion.div>
+  <div className="w-full h-full relative flex items-center justify-center p-8 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm backdrop-blur-md group">
+    {/* Grid de Fondo Suave */}
+    <div 
+      className="absolute inset-0 opacity-[0.04] dark:opacity-[0.02] pointer-events-none" 
+      style={{ backgroundImage: 'linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} 
+    />
+    
+    {/* Glow Ambient Effect */}
+    <div className="absolute w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
- {/* Floating Element */}
- <motion.div 
- animate={{ y: [0, 5, 0] }}
- transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
- className="absolute right-4 bottom-12 w-48 bg-black dark:bg-white border border-white dark:border-black p-5 z-20"
- >
- <div className="flex items-center gap-3 mb-4">
- <div className="w-6 h-6 border border-white dark:border-black flex items-center justify-center">
- <User className="w-3 h-3 text-white dark:text-black" />
- </div>
- <div className="h-1.5 w-16 bg-gray-500 dark:bg-gray-400" />
- </div>
- <div className="space-y-2">
- <div className="h-1.5 w-full bg-gray-600 dark:bg-gray-300" />
- <div className="h-1.5 w-4/5 bg-gray-600 dark:bg-gray-300" />
- </div>
- </motion.div>
- </div>
+    {/* Tarjeta de Agenda Clínica */}
+    <motion.div 
+      animate={{ y: [0, -6, 0] }}
+      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      className="relative z-10 w-full max-w-[290px] bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-lg space-y-4"
+    >
+      <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+            <Calendar className="w-4.5 h-4.5" strokeWidth={2} />
+          </div>
+          <div className="space-y-1">
+            <div className="h-2 w-20 bg-gray-900 dark:bg-white rounded-full" />
+            <div className="h-1.5 w-12 bg-emerald-600 dark:text-emerald-400 rounded-full" />
+          </div>
+        </div>
+      </div>
+      
+      <div className="space-y-2.5">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 hover:border-emerald-500/30 transition-all cursor-pointer">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+            <div className="flex-1 space-y-1.5">
+              <div className="h-2 w-full bg-gray-200 dark:bg-gray-800 rounded-full" />
+              <div className="h-1.5 w-2/3 bg-gray-100 dark:bg-gray-900 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+
+    {/* Elemento Flotante: Perfil de Paciente */}
+    <motion.div 
+      animate={{ y: [0, 6, 0] }}
+      transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      className="absolute right-6 bottom-10 w-48 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-xl z-20 space-y-2"
+    >
+      <div className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+          <User className="w-4 h-4" strokeWidth={2} />
+        </div>
+        <div className="space-y-1 flex-1">
+          <div className="h-2 w-16 bg-gray-900 dark:bg-white rounded-full" />
+          <div className="h-1.5 w-10 bg-emerald-600 dark:text-emerald-400 rounded-full" />
+        </div>
+      </div>
+    </motion.div>
+  </div>
 );
 
 const AbstractQuMarketMockup = () => (
- <div className="w-full h-full relative flex items-center justify-center p-8 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 overflow-hidden group">
- {/* Dot Grid */}
- <div 
- className="absolute inset-0 opacity-30 dark:opacity-20" 
- style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #9ca3af 1px, transparent 0)', backgroundSize: '16px 16px' }} 
- />
+  <div className="w-full h-full relative flex items-center justify-center p-8 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm backdrop-blur-md group">
+    {/* Dot Pattern */}
+    <div 
+      className="absolute inset-0 opacity-[0.05] dark:opacity-[0.03]" 
+      style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #000 1px, transparent 0)', backgroundSize: '16px 16px' }} 
+    />
 
- <div className="flex gap-6 items-end relative z-10 w-full max-w-[340px]">
- {/* Wireframe Product Card */}
- <motion.div 
- animate={{ y: [0, -5, 0] }}
- transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
- className="flex-1 bg-white dark:bg-black border border-black dark:border-white p-4"
- >
- <div className="aspect-square border border-gray-200 dark:border-gray-800 mb-4 flex items-center justify-center bg-gray-50 dark:bg-[#0a0a0a]">
- <Package className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
- </div>
- <div className="h-2 w-3/4 bg-black dark:bg-white mb-2" />
- <div className="h-1.5 w-1/2 bg-gray-300 dark:bg-gray-700 mb-6" />
- <div className="flex justify-between items-center border-t border-gray-200 dark:border-gray-800 pt-4">
- <div className="h-3 w-12 bg-black dark:bg-white" />
- <div className="w-6 h-6 border border-black dark:border-white flex items-center justify-center">
- <Plus className="w-3 h-3" />
- </div>
- </div>
- </motion.div>
+    <div className="flex gap-4 items-end relative z-10 w-full max-w-[320px]">
+      {/* Tarjeta de Producto */}
+      <motion.div 
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        className="flex-1 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-lg space-y-3"
+      >
+        <div className="aspect-square rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
+          <Package className="w-7 h-7" strokeWidth={2} />
+        </div>
+        <div className="h-2 w-3/4 bg-gray-900 dark:bg-white rounded-full" />
+        <div className="h-1.5 w-1/2 bg-gray-300 dark:bg-gray-700 rounded-full" />
+        <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
+          <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">$499</span>
+          <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+          </div>
+        </div>
+      </motion.div>
 
- {/* Wireframe Checkout Card */}
- <motion.div 
- animate={{ y: [0, 5, 0] }}
- transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
- className="flex-1 bg-black dark:bg-white p-5 mb-8 border border-white dark:border-black"
- >
- <div className="flex justify-between items-center mb-6 border-b border-gray-800 dark:border-gray-200 pb-4">
- <CreditCard className="w-5 h-5 text-white dark:text-black" strokeWidth={1.5} />
- <div className="h-1.5 w-8 bg-gray-500 dark:bg-gray-400" />
- </div>
- <div className="space-y-3 mb-8">
- <div className="h-1.5 w-full bg-gray-700 dark:bg-gray-200" />
- <div className="h-1.5 w-4/5 bg-gray-700 dark:bg-gray-200" />
- </div>
- <div className="h-8 w-full bg-white dark:bg-black flex items-center justify-center">
- <div className="h-1.5 w-1/3 bg-black dark:bg-white" />
- </div>
- </motion.div>
- </div>
- </div>
+      {/* Tarjeta de Checkout / Pago */}
+      <motion.div 
+        animate={{ y: [0, 6, 0] }}
+        transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="flex-1 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-xl mb-4 space-y-3"
+      >
+        <div className="flex justify-between items-center pb-2 border-b border-gray-100 dark:border-gray-800">
+          <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400">
+            <CreditCard className="w-4 h-4" strokeWidth={2} />
+          </div>
+          <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">Seguro</span>
+        </div>
+        <div className="space-y-1.5">
+          <div className="h-2 w-full bg-gray-200 dark:bg-gray-800 rounded-full" />
+          <div className="h-2 w-4/5 bg-gray-100 dark:bg-gray-900 rounded-full" />
+        </div>
+        <div className="h-8 w-full rounded-xl bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
+          <span>Pago Rápido</span>
+        </div>
+      </motion.div>
+    </div>
+  </div>
 );
 
 const AbstractQuBlocksMockup = () => (
- <div className="w-full h-full relative flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 overflow-hidden group">
- {/* Diagonal Stripes Grid */}
- <div 
- className="absolute inset-0 opacity-10 dark:opacity-10 pointer-events-none" 
- style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} 
- />
+  <div className="w-full h-full relative flex flex-col items-center justify-center p-8 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm backdrop-blur-md group">
+    {/* Diagonal Pattern */}
+    <div 
+      className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02] pointer-events-none" 
+      style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 40%)', backgroundSize: '16px 16px' }} 
+    />
 
- {/* Wireframe Video Player */}
- <motion.div 
- whileHover={{ scale: 1.02 }}
- className="relative z-10 w-full max-w-[320px] aspect-video bg-black dark:bg-white border border-black dark:border-white mb-8 flex items-center justify-center cursor-pointer"
- >
- <div className="w-12 h-12 border border-white dark:border-black flex items-center justify-center group-hover:bg-white dark:group-hover:bg-black transition-colors duration-300">
- <PlayCircle className="w-5 h-5 text-white dark:text-black group-hover:text-black dark:group-hover:text-white transition-colors" strokeWidth={1} />
- </div>
- 
- {/* Strict Progress Bar */}
- <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 dark:bg-gray-200">
- <div className="h-full w-1/3 bg-white dark:bg-black" />
- </div>
- </motion.div>
+    {/* Reproductor de Video Educativo */}
+    <motion.div 
+      whileHover={{ scale: 1.02 }}
+      className="relative z-10 w-full max-w-[300px] aspect-video rounded-2xl bg-gray-900 text-white border border-gray-800 mb-6 flex items-center justify-center shadow-lg overflow-hidden cursor-pointer"
+    >
+      <div className="w-11 h-11 rounded-full bg-emerald-600/90 text-white flex items-center justify-center shadow-md backdrop-blur-xs group-hover:scale-110 transition-transform">
+        <PlayCircle className="w-6 h-6" strokeWidth={2} />
+      </div>
+      
+      {/* Progress Bar */}
+      <div className="absolute bottom-0 inset-x-0 h-1 bg-gray-800">
+        <div className="h-full w-2/5 bg-emerald-500 rounded-r-full" />
+      </div>
+    </motion.div>
 
- {/* Wireframe Certificate/Award */}
- <motion.div 
- animate={{ y: [0, -5, 0] }}
- transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
- className="relative z-20 w-full max-w-[280px] bg-white dark:bg-black border border-black dark:border-white p-4 flex items-center gap-5"
- >
- <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center">
- <Award className="w-4 h-4 text-black dark:text-white" strokeWidth={1.5} />
- </div>
- <div className="flex-1 space-y-2 border-l border-gray-200 dark:border-gray-800 pl-4">
- <div className="h-1.5 w-3/4 bg-black dark:bg-white" />
- <div className="h-1.5 w-1/2 bg-gray-400 dark:bg-gray-600" />
- </div>
- </motion.div>
- </div>
+    {/* Certificado / Reconocimiento */}
+    <motion.div 
+      animate={{ y: [0, -5, 0] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      className="relative z-20 w-full max-w-[270px] bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 flex items-center gap-3.5 shadow-xl"
+    >
+      <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+        <Award className="w-4.5 h-4.5" strokeWidth={2} />
+      </div>
+      <div className="flex-1 space-y-1">
+        <div className="h-2 w-3/4 bg-gray-900 dark:bg-white rounded-full" />
+        <div className="h-1.5 w-1/2 bg-emerald-600 dark:text-emerald-400 rounded-full" />
+      </div>
+    </motion.div>
+  </div>
 );
 
+// ── COMPONENTE PRINCIPAL SECCIÓN SUITE ──────────────────────────────────────
 
 const SuiteSection: React.FC = () => {
- const t = useTranslations('Suite');
+  const t = useTranslations('Suite');
 
- const suiteProducts = [
- {
- name: "QuHealthy",
- description: t('products.quhealthy.description'),
- icon: Lightbulb,
- features: [
- t('products.quhealthy.features.0'),
- t('products.quhealthy.features.1'),
- t('products.quhealthy.features.2'),
- t('products.quhealthy.features.3'),
- ],
- explore: t('products.quhealthy.explore'),
- Mockup: AbstractQuHealthyMockup
- },
- {
- name: "QuMarket",
- description: t('products.qumarket.description'),
- icon: ShoppingBag,
- features: [
- t('products.qumarket.features.0'),
- t('products.qumarket.features.1'),
- t('products.qumarket.features.2'),
- t('products.qumarket.features.3'),
- ],
- explore: t('products.qumarket.explore'),
- Mockup: AbstractQuMarketMockup
- },
- {
- name: "QuBlocks",
- description: t('products.qublocks.description'),
- icon: BookOpen,
- features: [
- t('products.qublocks.features.0'),
- t('products.qublocks.features.1'),
- t('products.qublocks.features.2'),
- t('products.qublocks.features.3'),
- ],
- explore: t('products.qublocks.explore'),
- Mockup: AbstractQuBlocksMockup
- }
- ];
+  const suiteProducts = [
+    {
+      name: "QuHealthy",
+      description: t('products.quhealthy.description'),
+      icon: Lightbulb,
+      features: [
+        t('products.quhealthy.features.0'),
+        t('products.quhealthy.features.1'),
+        t('products.quhealthy.features.2'),
+        t('products.quhealthy.features.3'),
+      ],
+      explore: t('products.quhealthy.explore'),
+      Mockup: AbstractQuHealthyMockup
+    },
+    {
+      name: "QuMarket",
+      description: t('products.qumarket.description'),
+      icon: ShoppingBag,
+      features: [
+        t('products.qumarket.features.0'),
+        t('products.qumarket.features.1'),
+        t('products.qumarket.features.2'),
+        t('products.qumarket.features.3'),
+      ],
+      explore: t('products.qumarket.explore'),
+      Mockup: AbstractQuMarketMockup
+    },
+    {
+      name: "QuBlocks",
+      description: t('products.qublocks.description'),
+      icon: BookOpen,
+      features: [
+        t('products.qublocks.features.0'),
+        t('products.qublocks.features.1'),
+        t('products.qublocks.features.2'),
+        t('products.qublocks.features.3'),
+      ],
+      explore: t('products.qublocks.explore'),
+      Mockup: AbstractQuBlocksMockup
+    }
+  ];
 
- return (
- <section id="suite" className="py-24 md:py-32 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
- <div className="container mx-auto px-6 md:px-12 xl:px-24">
+  return (
+    <section id="suite" className="py-20 md:py-28 bg-white dark:bg-[#0a0a0a] transition-colors duration-500 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
+      <div className="container mx-auto px-6 md:px-12 xl:px-20 max-w-7xl">
 
- {/* Editorial Header */}
- <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-24 md:mb-32">
- <div className="border border-black dark:border-white px-4 py-1.5 mb-8">
- <span className="text-[10px] font-bold tracking-widest uppercase text-black dark:text-white">
- {t('badge')}
- </span>
- </div>
- <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold text-black dark:text-white tracking-tight leading-[1.1] mb-6">
- {t('title')}
- </h2>
- <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light leading-relaxed">
- {t('description')}
- </p>
- </div>
+        {/* ── ENCABEZADO PRINCIPAL ────────────────────────────────────────── */}
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-20 md:mb-28 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40 shadow-sm">
+            <Layers className="w-3.5 h-3.5" strokeWidth={2} />
+            <span>{t('badge', { defaultValue: "Ecosistema Integrado" })}</span>
+          </div>
 
- <div className="space-y-32 border-t border-gray-200 dark:border-gray-800 pt-32">
- {suiteProducts.map((product, index) => {
- const isEven = index % 2 === 0;
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white tracking-tight leading-[1.12]">
+            {t('title')}
+          </h2>
 
- return (
- <div key={product.name} className={cn("grid lg:grid-cols-2 gap-12 lg:gap-24 items-center", !isEven ? "lg:flex-row-reverse" : "")}>
+          <p className="text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-xl pt-1">
+            {t('description')}
+          </p>
+        </div>
 
- {/* ====================
- TEXT CONTENT (Editorial Rigor)
- ==================== */}
- <motion.div
- initial={{ opacity: 0, y: 30 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true, margin: "-100px" }}
- transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
- className={cn("space-y-8 lg:max-w-xl", !isEven ? "lg:col-start-2" : "")}
- >
- <div className="flex items-center gap-6 mb-8">
- <div className="w-14 h-14 border border-black dark:border-white flex items-center justify-center">
- <product.icon className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />
- </div>
- <h3 className="text-4xl lg:text-5xl font-semibold text-black dark:text-white tracking-tight">
- {product.name}
- </h3>
- </div>
+        {/* ── DESGLOSE DE PRODUCTOS DEL ECOSISTEMA ─────────────────────────── */}
+        <div className="space-y-24 md:space-y-32 border-t border-gray-100 dark:border-gray-800 pt-20">
+          {suiteProducts.map((product, index) => {
+            const isEven = index % 2 === 0;
 
- <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed font-light">
- {product.description}
- </p>
+            return (
+              <div 
+                key={product.name} 
+                className={cn(
+                  "grid lg:grid-cols-2 gap-12 lg:gap-20 items-center"
+                )}
+              >
 
- <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-10" />
+                {/* COLUMNA TEXTO */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className={cn("space-y-6 lg:max-w-xl", !isEven && "lg:order-2")}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                      <product.icon className="w-6 h-6" strokeWidth={2} />
+                    </div>
+                    <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+                      {product.name}
+                    </h3>
+                  </div>
 
- <ul className="space-y-6">
- {product.features.map((feature, i) => (
- <li key={i} className="flex items-start gap-5 group">
- <div className="w-1.5 h-1.5 bg-black dark:bg-white mt-2 group-hover:scale-150 transition-transform" />
- <span className="text-black dark:text-gray-300 font-light text-base leading-relaxed tracking-wide">
- {feature}
- </span>
- </li>
- ))}
- </ul>
+                  <p className="text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {product.description}
+                  </p>
 
- <div className="pt-12">
- <Link 
- href="/discover" 
- className="group inline-flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white transition-colors pb-1"
- >
- {product.explore}
- <ArrowRight className="w-3 h-3 ml-3 group-hover:translate-x-1 transition-transform" />
- </Link>
- </div>
- </motion.div>
+                  <div className="w-full h-px bg-gray-100 dark:bg-gray-800/80 my-6" />
 
- {/* ====================
- VISUAL CONTENT (Architectural Wireframes)
- ==================== */}
- <motion.div
- initial={{ opacity: 0, scale: 0.98 }}
- whileInView={{ opacity: 1, scale: 1 }}
- viewport={{ once: true, margin: "-100px" }}
- transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
- className={cn("relative w-full aspect-square lg:aspect-[4/5]", !isEven ? "lg:col-start-1 lg:row-start-1" : "")}
- >
- <product.Mockup />
- </motion.div>
+                  {/* Lista de Atributos Clave */}
+                  <ul className="space-y-3">
+                    {product.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-3 group">
+                        <div className="w-5 h-5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 shadow-2xs">
+                          <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2.5} />
+                        </div>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 leading-snug">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
 
- </div>
- );
- })}
- </div>
+                  {/* Link Explorar */}
+                  <div className="pt-4">
+                    <Link 
+                      href="/discover" 
+                      className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:bg-emerald-50/50 hover:border-emerald-500/30 dark:hover:bg-emerald-950/20 transition-all shadow-xs group"
+                    >
+                      <span>{product.explore}</span>
+                      <ArrowRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+                    </Link>
+                  </div>
+                </motion.div>
 
- {/* Blueprint Footer */}
- <div className="flex justify-between items-center mt-32 pt-8 border-t border-gray-200 dark:border-gray-800">
- <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
- {t('footer')}
- </p>
- <div className="flex gap-1">
- <div className="w-1.5 h-1.5 bg-gray-300 dark:bg-gray-700" />
- <div className="w-1.5 h-1.5 bg-gray-300 dark:bg-gray-700" />
- <div className="w-1.5 h-1.5 bg-gray-300 dark:bg-gray-700" />
- </div>
- </div>
- </div>
- </section>
- );
+                {/* COLUMNA MOCKUP CONCEPTUAL */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className={cn("relative w-full aspect-square lg:aspect-[4/3]", !isEven && "lg:order-1")}
+                >
+                  <product.Mockup />
+                </motion.div>
+
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── FOOTER DE LA SECCIÓN ────────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-24 pt-8 border-t border-gray-100 dark:border-gray-800 text-xs font-semibold text-gray-400">
+          <p>
+            {t('footer', { defaultValue: "Todos los módulos operan de manera sincronizada e interoperable." })}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 opacity-60" />
+            <span className="w-2 h-2 rounded-full bg-emerald-300 opacity-30" />
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
 };
 
 export default SuiteSection;

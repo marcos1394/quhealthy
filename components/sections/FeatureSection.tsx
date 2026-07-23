@@ -1,133 +1,165 @@
-"use client"
-/* eslint-disable react-doctor/prefer-module-scope-static-value */;
+"use client";
+
+/* eslint-disable react-doctor/prefer-module-scope-static-value */
+
 import React from "react";
 import { motion } from "framer-motion";
-import { UserCheck, Calendar, Map, Search, MessageSquare, Star, ArrowRight } from "lucide-react";
+import {
+  UserCheck,
+  Calendar,
+  Map,
+  Search,
+  MessageSquare,
+  Star,
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+} from "lucide-react";
 import { FEATURES } from "@/lib/constants";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 // Mapeo seguro de los iconos que vienen de constants.ts
 const iconMap: Record<string, React.ElementType> = {
- UserCheck, Calendar, Map, Search, MessageSquare, Star
+  UserCheck,
+  Calendar,
+  Map,
+  Search,
+  MessageSquare,
+  Star,
 };
 
 const FeaturesSection = () => {
- const t = useTranslations('Features');
+  const t = useTranslations("Features");
 
- // Variantes de animación arquitectónica
- const containerVariants = {
- hidden: { opacity: 0 },
- show: { opacity: 1, transition: { staggerChildren: 0.1 } }
- };
+  // Variantes de animación
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+  };
 
- const itemVariants = {
- hidden: { opacity: 0, y: 20 },
- show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } }
- };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 16 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
 
- return (
- <section id="features" className="py-24 md:py-32 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 border-b border-gray-200 dark:border-gray-800 selection:bg-gray-200 dark:selection:bg-white/20">
- <div className="container mx-auto px-6 md:px-12 max-w-7xl">
+  return (
+    <section
+      id="features"
+      className="py-20 md:py-28 bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 border-b border-gray-100 dark:border-gray-800 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30"
+    >
+      <div className="container mx-auto px-6 md:px-12 max-w-7xl">
+        
+        {/* ── ENCABEZADO EDITORIAL ─────────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 md:mb-20">
+          <div className="max-w-3xl space-y-3">
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>{t("badge", { defaultValue: "Capacidades de la Plataforma" })}</span>
+            </div>
 
- {/* Editorial Header */}
- <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20 md:mb-24">
- <div className="max-w-3xl">
- {/* Pill Badge Arquitectónico */}
- <div className="border-l-2 border-black dark:border-white pl-4 mb-8">
- <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
- {t('badge')}
- </span>
- </div>
- 
- <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold text-black dark:text-white tracking-tight leading-[1.1] mb-6">
- {t('title_start')}
- <br className="hidden md:block" />
- <span className="font-serif italic text-gray-400 dark:text-gray-500 font-light pr-2">
- {t('title_highlight')}
- </span>
- </h2>
- <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-light max-w-xl leading-relaxed">
- {t('description')}
- </p>
- </div>
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white tracking-tight leading-[1.12]">
+              {t("title_start")}{" "}
+              <span className="font-serif italic text-emerald-600 dark:text-emerald-400 font-normal">
+                {t("title_highlight")}
+              </span>
+            </h2>
 
- <div className="hidden md:block pb-2">
- <Link 
- href="/discover" 
- className="group inline-flex items-center text-[10px] font-bold uppercase tracking-widest text-black dark:text-white border-b border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white transition-colors pb-1"
- >
- {t('cta_button')} <ArrowRight className="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform" />
- </Link>
- </div>
- </div>
+            <p className="text-xs sm:text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium max-w-xl leading-relaxed pt-1">
+              {t("description")}
+            </p>
+          </div>
 
- {/* Architectural Grid (Blueprint Style) */}
- <motion.div 
- variants={containerVariants}
- initial="hidden"
- whileInView="show"
- viewport={{ once: true, margin: "-100px" }}
- className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-gray-200 dark:border-gray-800"
- >
- {FEATURES.map((feature: any, index: number) => {
- // Buscamos el icono basado en el nombre del componente en constants (o pasamos fallback)
- const IconComponent = feature.icon || UserCheck;
+          <div className="hidden md:block pb-1">
+            <Link
+              href="/discover"
+              className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm group"
+            >
+              <span>{t("cta_button", { defaultValue: "Explorar Funcionalidades" })}</span>
+              <ArrowRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+            </Link>
+          </div>
+        </div>
 
- return (
- <motion.div
- key={index}
- variants={itemVariants}
- className="group relative p-10 lg:p-12 border-b border-r border-gray-200 dark:border-gray-800 flex flex-col bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-500"
- >
- {/* Icon Container (Arquitectónico) */}
- <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center mb-10 group-hover:border-black dark:group-hover:border-white transition-colors duration-500">
- <IconComponent className="w-5 h-5 text-black dark:text-white opacity-60 group-hover:opacity-100 transition-opacity duration-500" strokeWidth={1.5} />
- </div>
+        {/* ── GRILLA DE CARACTERÍSTICAS (TARJETAS INDEPENDIENTES) ─────────── */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+        >
+          {FEATURES.map((feature: any, index: number) => {
+            const IconComponent = feature.icon || UserCheck;
 
- <div className="flex flex-col flex-1">
- <div className="flex items-center gap-3 mb-4">
- <span className="text-[10px] font-bold text-gray-300 dark:text-gray-700">
- 0{index + 1}
- </span>
- <h3 className="text-xl font-semibold text-black dark:text-white tracking-tight leading-tight group-hover:underline decoration-1 underline-offset-4 transition-all">
- {t(`items.${index}.title`)}
- </h3>
- </div>
+            return (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-7 md:p-8 shadow-sm hover:border-emerald-500/30 hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div className="space-y-6">
+                  
+                  {/* Icono + Número de Ítem */}
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover:scale-105 transition-transform">
+                      <IconComponent className="w-6 h-6" strokeWidth={2} />
+                    </div>
 
- <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-light mb-8 flex-grow">
- {t(`items.${index}.description`)}
- </p>
+                    <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-900/40">
+                      0{index + 1}
+                    </span>
+                  </div>
 
- <div className="mt-auto">
- <Link 
- href="/discover" 
- className="inline-flex items-center text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors"
- >
- {t('explore')}
- <ArrowRight className="w-3 h-3 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
- </Link>
- </div>
- </div>
- </motion.div>
- );
- })}
- </motion.div>
+                  {/* Título & Descripción */}
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                      {t(`items.${index}.title`)}
+                    </h3>
 
- {/* Footer CTA Minimalist (Mobile Only, since Desktop has it on top) */}
- <div className="mt-12 md:hidden flex justify-center">
- <Link 
- href="/discover"
- className="w-full flex items-center justify-center bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-8 py-5 text-[10px] font-bold uppercase tracking-widest transition-all group border-0"
- >
- {t('cta_button')}
- <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" />
- </Link>
- </div>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {t(`items.${index}.description`)}
+                    </p>
+                  </div>
 
- </div>
- </section>
- );
+                </div>
+
+                {/* Enlace Acción */}
+                <div className="pt-6 border-t border-gray-100 dark:border-gray-800/80 mt-6">
+                  <Link
+                    href="/discover"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors"
+                  >
+                    <span>{t("explore", { defaultValue: "Conocer más" })}</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+                  </Link>
+                </div>
+
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* ── BOTÓN CTA INFERIOR (MÓVIL) ──────────────────────────────────── */}
+        <div className="mt-10 md:hidden flex justify-center">
+          <Link
+            href="/discover"
+            className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 group"
+          >
+            <span>{t("cta_button", { defaultValue: "Explorar Funcionalidades" })}</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+          </Link>
+        </div>
+
+      </div>
+    </section>
+  );
 };
 
 export default FeaturesSection;

@@ -1,10 +1,11 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-doctor/no-pass-data-to-parent */
 /* eslint-disable react-doctor/no-giant-component */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Popover,
@@ -19,21 +20,22 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify";
-import { cn } from "@/lib/utils";
 import {
-  Loader2,
+  Check,
+  ChevronsUpDown,
+  Plus,
   Star,
   Search,
   X,
   Info,
   CheckCircle2,
-  ChevronRight,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+import { cn } from "@/lib/utils";
 import {
   CategoryResponse,
   SubCategoryResponse,
@@ -197,7 +199,6 @@ export default function CategorySelector({
     if (touchStartY.current !== null) {
       const touchEndY = e.changedTouches[0].clientY;
       const diff = Math.abs(touchStartY.current - touchEndY);
-      // Si la diferencia es menor a 5px, se considera un tap (no un scroll)
       if (diff < 5) {
         e.preventDefault();
         handleCatChange(id);
@@ -239,13 +240,9 @@ export default function CategorySelector({
     try {
       const subs = await onGetSubCategories(catId);
       setSubCategories(subs);
-      toast.success(`Sector configurado: ${categoryName}`, {
-        icon: (
-          <span role="img" aria-label="building">
-            🏛️
-          </span>
-        ),
-      });
+      if (categoryName) {
+        toast.success(`Categoría configurada: ${categoryName}`);
+      }
     } catch (e) {
       handleApiError(e);
     } finally {
@@ -256,14 +253,9 @@ export default function CategorySelector({
   const handleSubChange = (subId: number) => {
     const subName = subCategories.find((s: any) => s.id === subId)?.name;
     onSelectionChange(selectedCategoryId || 0, subId, selectedTagIds);
-    if (subName)
-      toast.success(`Enfoque: ${subName}`, {
-        icon: (
-          <span role="img" aria-label="dart">
-            🎯
-          </span>
-        ),
-      });
+    if (subName) {
+      toast.success(`Enfoque seleccionado: ${subName}`);
+    }
   };
 
   const handleTagToggle = (tagId: number) => {
@@ -282,197 +274,181 @@ export default function CategorySelector({
   );
 
   const completionSteps = [
-    { label: "Sector Principal", completed: (selectedCategoryId || 0) > 0 },
+    { label: "Categoría Principal", completed: (selectedCategoryId || 0) > 0 },
     {
       label: "Enfoque Específico",
       completed: (selectedSubCategoryId || 0) > 0,
     },
-    { label: "Etiquetas", completed: selectedTagIds.length > 0 },
+    { label: "Etiquetas Especializadas", completed: selectedTagIds.length > 0 },
   ];
   const progress =
     (completionSteps.filter((s) => s.completed).length / 3) * 100;
 
-  // ---------------------------------------------------------------------------
-  // EMPTY STATE (Architectural Waiting State)
-  // ---------------------------------------------------------------------------
+  // ── ESTADO INICIAL / ESPERANDO CATEGORÍAS ───────────────────────────────
   if (categories.length === 0 && !selectedCategoryId && !error) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center p-12 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 transition-colors"
+        className="bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-3xl p-8 flex flex-col items-center justify-center text-center font-sans"
       >
-        <QhSpinner size="md" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mt-6 mb-2">
-          Esperando Configuración de Sector
+        <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400 mb-3" />
+        <p className="text-xs font-bold text-gray-900 dark:text-white">
+          Cargando catálogo de disciplinas...
         </p>
-        <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
-          Selecciona tu disciplina primaria para habilitar opciones
+        <p className="text-[11px] font-medium text-gray-400 mt-1">
+          Selecciona previamente tu sector para desplegar las categorías disponibles.
         </p>
       </motion.div>
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // ERROR STATE
-  // ---------------------------------------------------------------------------
+  // ── ESTADO DE ERROR ───────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="border border-red-200 dark:border-red-900/50 bg-white dark:bg-[#0a0a0a] p-6 relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-red-500" />
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 border border-red-200 dark:border-red-900 flex items-center justify-center shrink-0">
-            <AlertCircle className="w-5 h-5 text-red-500" />
+      <div className="bg-white dark:bg-[#0a0a0a] border border-red-200 dark:border-red-900/40 rounded-3xl p-6 shadow-sm space-y-4 font-sans">
+        <div className="flex items-start gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 flex items-center justify-center text-red-500 shrink-0">
+            <AlertCircle className="w-5 h-5" strokeWidth={2} />
           </div>
-          <div className="flex-1">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-2">
-              Error de Carga
+          <div className="space-y-1">
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+              Error al consultar catálogo
             </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-light mb-4">
+            <p className="text-xs font-medium text-gray-500 leading-relaxed">
               {error}
             </p>
-            <Button
-              onClick={() => window.location.reload()}
-              className="rounded-none bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-10 px-6 text-[9px] font-bold uppercase tracking-widest"
-            >
-              Reintentar
-            </Button>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="h-9 px-4 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold shadow-sm transition-colors"
+        >
+          Reintentar
+        </button>
       </div>
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // MAIN COMPONENT
-  // ---------------------------------------------------------------------------
+  // ── RENDERIZADO PRINCIPAL ──────────────────────────────────────────────────
   return (
-    <div className="bg-white dark:bg-[#0a0a0a] p-8 md:p-10 border border-gray-200 dark:border-gray-800 space-y-10 transition-colors relative">
-      {/* Background Grid Pattern (Blueprint) */}
-      <div
-        className="absolute inset-0 opacity-10 dark:opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
-
-      {/* Progress Header */}
-      <div className="relative z-10 space-y-4">
-        <div className="flex items-end justify-between">
-          <h3 className="text-sm font-bold tracking-tight text-black dark:text-white uppercase">
-            Configuración de Especialidad
+    <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8 shadow-sm space-y-8 font-sans transition-all">
+      
+      {/* ── BANDA DE PROGRESO DE CONFIGURACIÓN ───────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-xs">
+          <h3 className="font-bold text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+            <Star className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <span>Configuración de Especialidad</span>
           </h3>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white bg-gray-100 dark:bg-gray-900 px-2 py-1">
+
+          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-900/40">
             {Math.round(progress)}%
           </span>
         </div>
 
-        {/* Strict Progress Line */}
-        <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+        {/* Linea de Progreso */}
+        <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute top-0 left-0 h-full bg-black dark:bg-white"
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="h-full bg-emerald-600 rounded-full"
           />
         </div>
 
-        {/* Step Indicators */}
-        <div className="flex flex-wrap gap-4 pt-2">
+        {/* Indicadores de Paso */}
+        <div className="flex flex-wrap gap-3 pt-1">
           {completionSteps.map((step, index) => (
             <div
               key={index}
               className={cn(
-                "flex items-center gap-2 transition-all",
+                "flex items-center gap-1.5 text-xs font-semibold transition-all",
                 step.completed
-                  ? "text-black dark:text-white"
-                  : "text-gray-400 dark:text-gray-600",
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-gray-400"
               )}
             >
               <div
                 className={cn(
-                  "w-4 h-4 flex items-center justify-center border transition-all",
+                  "w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold transition-all",
                   step.completed
-                    ? "border-black dark:border-white bg-black dark:bg-white text-white dark:text-black"
-                    : "border-gray-300 dark:border-gray-700 bg-transparent",
+                    ? "bg-emerald-600 text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-400"
                 )}
               >
                 {step.completed ? (
                   <Check className="w-3 h-3" strokeWidth={3} />
                 ) : (
-                  <span className="text-[8px] font-bold">{index + 1}</span>
+                  <span>{index + 1}</span>
                 )}
               </div>
-              <span className="text-[9px] font-bold uppercase tracking-widest hidden sm:inline">
-                {step.label}
-              </span>
+              <span className="hidden sm:inline">{step.label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Step 1: Category */}
+      {/* ── PASO 1: CATEGORÍA PRINCIPAL ─────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 space-y-4"
+        className="space-y-2.5"
       >
-        <label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-          <span className="w-5 h-5 border border-black dark:border-white flex items-center justify-center">
-            1
-          </span>
-          Sector Principal
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">
+              1
+            </span>
+            <span>Categoría Médica / Disciplina Principal *</span>
+          </label>
+
           {(selectedCategoryId || 0) > 0 && (
-            <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
           )}
-        </label>
+        </div>
+
         <Popover open={openCat} onOpenChange={setOpenCat}>
           <PopoverTrigger asChild>
-            <Button
+            <button
               type="button"
-              variant="outline"
               role="combobox"
-              aria-controls="category-list"
               aria-expanded={openCat}
               disabled={categories.length === 0}
               className={cn(
-                "w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
-                "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
-                (selectedCategoryId || 0) > 0
-                  ? "border-black dark:border-white"
-                  : "",
+                "w-full h-11 px-4 rounded-xl border text-xs font-semibold transition-all flex items-center justify-between shadow-sm",
+                "bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 hover:border-emerald-500/50",
+                (selectedCategoryId || 0) > 0 && "border-emerald-500/40 bg-emerald-50/10 dark:bg-emerald-950/10"
               )}
             >
               <span className="truncate">
                 {selectedCategoryId && selectedCategoryId > 0
-                  ? categories.find((cat) => cat.id === selectedCategoryId)
-                      ?.name
-                  : "Selecciona tu sector..."}
+                  ? categories.find((cat) => cat.id === selectedCategoryId)?.name
+                  : "Selecciona una categoría..."}
               </span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-gray-400" />
+            </button>
           </PopoverTrigger>
+
           <PopoverContent
-            className="w-[var(--radix-popover-trigger-width)] p-0 rounded-none border border-gray-200 dark:border-gray-800 shadow-xl"
+            className="w-[var(--radix-popover-trigger-width)] p-0 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden font-sans"
             align="start"
-            sideOffset={4}
+            sideOffset={6}
           >
-            <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
+            <Command className="bg-white dark:bg-[#0a0a0a]">
               <CommandInput
-                placeholder="Buscar sector..."
-                className="h-10 text-xs"
+                placeholder="Buscar categoría..."
+                className="h-10 text-xs font-semibold"
                 value={catSearchQuery}
                 onValueChange={setCatSearchQuery}
               />
-              <CommandList className="max-h-[300px] overflow-y-auto">
+              <CommandList className="max-h-60 overflow-y-auto custom-scrollbar p-1">
                 <CommandEmpty className="py-4 text-center text-xs flex flex-col items-center justify-center gap-2">
-                  <span className="text-gray-500">
-                    No se encontraron sectores.
-                  </span>
+                  <span className="text-gray-400">No se encontraron categorías.</span>
                   {onCreateCategory && catSearchQuery && (
-                    <Button
+                    <button
                       type="button"
                       disabled={isCreatingItem}
                       onClick={async () => {
@@ -485,38 +461,33 @@ export default function CategorySelector({
                         }
                         setIsCreatingItem(false);
                       }}
-                      className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black rounded-none h-8"
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-1"
                     >
                       {isCreatingItem ? (
-                        <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                        <QhSpinner size="sm" className="text-white" />
                       ) : (
-                        <Plus className="w-3 h-3 mr-1" />
+                        <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
                       )}
-                      Crear "{catSearchQuery}"
-                    </Button>
+                      <span>Crear "{catSearchQuery}"</span>
+                    </button>
                   )}
                 </CommandEmpty>
+
                 <CommandGroup>
                   {categories.map((cat) => (
                     <CommandItem
                       key={cat.id}
                       value={cat.name}
-                      disabled={false}
                       onSelect={() => {
                         handleCatChange(cat.id);
                         setOpenCat(false);
                       }}
-                      className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none data-[disabled]:opacity-100 data-[disabled]:pointer-events-auto"
+                      className="cursor-pointer p-2.5 rounded-xl text-xs font-semibold text-gray-800 dark:text-gray-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center justify-between"
                     >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedCategoryId === cat.id
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                      {cat.name}
+                      <span>{cat.name}</span>
+                      {selectedCategoryId === cat.id && (
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+                      )}
                     </CommandItem>
                   ))}
                 </CommandGroup>
@@ -526,130 +497,116 @@ export default function CategorySelector({
         </Popover>
       </motion.div>
 
-      {/* Step 2: Subcategory */}
+      {/* ── PASO 2: ENFOQUE ESPECÍFICO (SUBCATEGORÍA) ────────────────────── */}
       <AnimatePresence>
         {(selectedCategoryId || 0) > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="relative z-10 space-y-4 overflow-hidden"
+            className="space-y-2.5 overflow-hidden pt-2 border-t border-gray-100 dark:border-gray-800"
           >
-            <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-2" />
-            <label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-              <span className="w-5 h-5 border border-black dark:border-white flex items-center justify-center">
-                2
-              </span>
-              Enfoque Específico
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">
+                  2
+                </span>
+                <span>Enfoque Específico / Subespecialidad *</span>
+              </label>
+
               {(selectedSubCategoryId || 0) > 0 && (
-                <CheckCircle2 className="w-3.5 h-3.5 ml-1 text-gray-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
               )}
-            </label>
+            </div>
+
             <Popover open={openSub} onOpenChange={setOpenSub}>
               <PopoverTrigger asChild>
-                <Button
+                <button
                   type="button"
-                  variant="outline"
                   role="combobox"
-                  aria-controls="subcategory-list"
                   aria-expanded={openSub}
                   disabled={isLoadingSub}
                   className={cn(
-                    "w-full h-14 rounded-none text-xs font-medium transition-all justify-between px-3",
-                    "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111]",
-                    (selectedSubCategoryId || 0) > 0
-                      ? "border-black dark:border-white"
-                      : "",
+                    "w-full h-11 px-4 rounded-xl border text-xs font-semibold transition-all flex items-center justify-between shadow-sm",
+                    "bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white border-gray-200 dark:border-gray-800 hover:border-emerald-500/50",
+                    (selectedSubCategoryId || 0) > 0 && "border-emerald-500/40 bg-emerald-50/10 dark:bg-emerald-950/10"
                   )}
                 >
                   <span className="truncate flex items-center gap-2">
                     {isLoadingSub ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span className="text-[10px] uppercase tracking-widest">
-                          Sincronizando...
-                        </span>
+                        <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+                        <span className="text-xs text-gray-400 font-normal">Sincronizando subcategorías...</span>
                       </>
                     ) : selectedSubCategoryId && selectedSubCategoryId > 0 ? (
-                      subCategories.find(
-                        (sub: any) => sub.id === selectedSubCategoryId,
-                      )?.name
+                      subCategories.find((sub: any) => sub.id === selectedSubCategoryId)?.name
                     ) : (
-                      "¿Cuál es tu enfoque principal?"
+                      "Selecciona un enfoque o área específica..."
                     )}
                   </span>
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-gray-400" />
+                </button>
               </PopoverTrigger>
 
               <PopoverContent
-                className="w-[var(--radix-popover-trigger-width)] p-0 rounded-none border border-gray-200 dark:border-gray-800 shadow-xl"
+                className="w-[var(--radix-popover-trigger-width)] p-0 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden font-sans"
                 align="start"
-                sideOffset={4}
+                sideOffset={6}
               >
-                <Command className="bg-white dark:bg-[#0a0a0a] rounded-none">
+                <Command className="bg-white dark:bg-[#0a0a0a]">
                   <CommandInput
-                    placeholder="Buscar enfoque..."
-                    className="h-10 text-xs"
+                    placeholder="Buscar subespecialidad..."
+                    className="h-10 text-xs font-semibold"
                     value={subSearchQuery}
                     onValueChange={setSubSearchQuery}
                   />
-                  <CommandList className="max-h-[300px] overflow-y-auto">
+                  <CommandList className="max-h-60 overflow-y-auto custom-scrollbar p-1">
                     <CommandEmpty className="py-4 text-center text-xs flex flex-col items-center justify-center gap-2">
-                      <span className="text-gray-500">
-                        No se encontraron enfoques.
-                      </span>
-                      {onCreateSubCategory &&
-                        subSearchQuery &&
-                        selectedCategoryId && (
-                          <Button
-                            type="button"
-                            disabled={isCreatingItem}
-                            onClick={async () => {
-                              setIsCreatingItem(true);
-                              const newSub = await onCreateSubCategory(
-                                selectedCategoryId,
-                                subSearchQuery,
-                              );
-                              if (newSub) {
-                                handleSubChange(newSub.id);
-                                setOpenSub(false);
-                                setSubSearchQuery("");
-                              }
-                              setIsCreatingItem(false);
-                            }}
-                            className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black rounded-none h-8"
-                          >
-                            {isCreatingItem ? (
-                              <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                            ) : (
-                              <Plus className="w-3 h-3 mr-1" />
-                            )}
-                            Crear "{subSearchQuery}"
-                          </Button>
-                        )}
+                      <span className="text-gray-400">No se encontraron enfoques.</span>
+                      {onCreateSubCategory && subSearchQuery && selectedCategoryId && (
+                        <button
+                          type="button"
+                          disabled={isCreatingItem}
+                          onClick={async () => {
+                            setIsCreatingItem(true);
+                            const newSub = await onCreateSubCategory(
+                              selectedCategoryId,
+                              subSearchQuery
+                            );
+                            if (newSub) {
+                              handleSubChange(newSub.id);
+                              setOpenSub(false);
+                              setSubSearchQuery("");
+                            }
+                            setIsCreatingItem(false);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-1"
+                        >
+                          {isCreatingItem ? (
+                            <QhSpinner size="sm" className="text-white" />
+                          ) : (
+                            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                          )}
+                          <span>Crear "{subSearchQuery}"</span>
+                        </button>
+                      )}
                     </CommandEmpty>
+
                     <CommandGroup>
                       {subCategories.map((sub: any) => (
                         <CommandItem
                           key={sub.id}
                           value={sub.name}
-                          disabled={false}
                           onSelect={() => {
                             handleSubChange(sub.id);
                             setOpenSub(false);
                           }}
-                          className="cursor-pointer py-3 text-xs uppercase tracking-wide hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800/50 last:border-0 rounded-none data-[disabled]:opacity-100 data-[disabled]:pointer-events-auto"
+                          className="cursor-pointer p-2.5 rounded-xl text-xs font-semibold text-gray-800 dark:text-gray-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center justify-between"
                         >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedSubCategoryId === sub.id
-                                ? "opacity-100"
-                                : "opacity-0",
-                            )}
-                          />
-                          {sub.name}
+                          <span>{sub.name}</span>
+                          {selectedSubCategoryId === sub.id && (
+                            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+                          )}
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -661,101 +618,81 @@ export default function CategorySelector({
         )}
       </AnimatePresence>
 
-      {/* Step 3: Tags */}
+      {/* ── PASO 3: ETIQUETAS Y FILTROS ──────────────────────────────────── */}
       <AnimatePresence>
         {(selectedSubCategoryId || 0) > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="relative z-10 space-y-5 overflow-hidden"
+            className="space-y-4 overflow-hidden pt-2 border-t border-gray-100 dark:border-gray-800"
           >
-            <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-2" />
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <label className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                <span className="w-5 h-5 border border-black dark:border-white flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">
                   3
                 </span>
-                Etiquetas / Filtros
-                <span className="text-gray-400 font-light lowercase tracking-normal ml-1">
-                  (Opcional)
-                </span>
+                <span>Etiquetas y Filtros de Búsqueda</span>
+                <span className="text-gray-400 text-[11px] font-medium lowercase">(opcional)</span>
               </label>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border border-gray-200 dark:border-gray-800 px-3 py-1 bg-gray-50 dark:bg-[#050505]">
-                {selectedTagIds.length} Seleccionadas
+
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-900/40 self-start sm:self-auto">
+                {selectedTagIds.length} seleccionadas
               </span>
             </div>
 
-            {/* Search Input (Flush) */}
+            {/* Input de Búsqueda de Tags */}
             <div className="relative">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-                strokeWidth={1.5}
-              />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" strokeWidth={2} />
               <Input
                 value={tagSearchQuery}
                 onChange={(e) => setTagSearchQuery(e.target.value)}
-                placeholder="Buscar especialidades adicionales..."
-                className="pl-11 rounded-none bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-14 text-xs focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white"
+                placeholder="Filtrar etiquetas o agregar palabras clave..."
+                className="h-10 pl-10 pr-9 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-sm"
               />
               {tagSearchQuery && (
                 <button
                   type="button"
                   onClick={() => setTagSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
             </div>
 
-            {/* Tags Grid */}
-            <div className="flex flex-wrap gap-2 pt-2">
+            {/* Grid de Tags (Pills) */}
+            <div className="flex flex-wrap gap-2 pt-1">
               {filteredTags.map((tag) => {
                 const isSelected = selectedTagIds.includes(tag.id);
                 return (
-                  <motion.button
+                  <button
                     key={tag.id}
                     type="button"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ y: -2 }}
                     onClick={() => handleTagToggle(tag.id)}
                     className={cn(
-                      "px-4 py-2.5 rounded-none border transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2",
+                      "px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm",
                       isSelected
-                        ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
-                        : "bg-white dark:bg-[#0a0a0a] text-gray-500 border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white",
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50"
                     )}
                   >
-                    {/* Indicador de color (LED Arquitectónico) si el backend lo provee */}
-                    <span
-                      className="w-1.5 h-1.5"
-                      style={{
-                        backgroundColor: isSelected
-                          ? tag.color
-                            ? "white"
-                            : "currentColor"
-                          : tag.color || "#000",
-                      }}
-                    />
-                    {tag.name}
-                  </motion.button>
+                    <span>{tag.name}</span>
+                    {isSelected && <Check className="w-3.5 h-3.5" strokeWidth={2.5} />}
+                  </button>
                 );
               })}
             </div>
 
             {tagSearchQuery && filteredTags.length === 0 && (
-              <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center">
-                <Info
-                  className="w-5 h-5 text-gray-400 mb-3"
-                  strokeWidth={1.5}
-                />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4">
-                  No hay resultados para "{tagSearchQuery}"
+              <div className="p-6 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-dashed border-gray-200 dark:border-gray-800 text-center space-y-3">
+                <Info className="w-5 h-5 text-gray-400 mx-auto" strokeWidth={2} />
+                <p className="text-xs font-medium text-gray-400">
+                  No se encontraron etiquetas que coincidan con "{tagSearchQuery}"
                 </p>
+
                 {onCreateTag && (
-                  <Button
+                  <button
                     type="button"
                     disabled={isCreatingItem}
                     onClick={async () => {
@@ -767,15 +704,15 @@ export default function CategorySelector({
                       }
                       setIsCreatingItem(false);
                     }}
-                    className="text-[10px] font-bold uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black rounded-none h-9 px-4"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm"
                   >
                     {isCreatingItem ? (
-                      <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                      <QhSpinner size="sm" className="text-white" />
                     ) : (
-                      <Plus className="w-3 h-3 mr-1" />
+                      <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
                     )}
-                    Crear "{tagSearchQuery}"
-                  </Button>
+                    <span>Crear etiqueta "{tagSearchQuery}"</span>
+                  </button>
                 )}
               </div>
             )}
@@ -783,29 +720,27 @@ export default function CategorySelector({
         )}
       </AnimatePresence>
 
-      {/* Completion Stamp (Blueprint Validation) */}
+      {/* Stamp de Configuración Completa */}
       {progress === 100 && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 border border-black dark:border-white p-4 flex items-center gap-4 bg-gray-50 dark:bg-[#050505]"
+          className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3"
         >
-          <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
-            <Check
-              className="w-4 h-4 text-black dark:text-white"
-              strokeWidth={2}
-            />
+          <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+            <Check className="w-4 h-4" strokeWidth={2.5} />
           </div>
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-              Configuración Técnica Completa
+            <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+              Especialidad Configurada Correctamente
             </h4>
-            <p className="text-[9px] font-light uppercase tracking-widest text-gray-500">
-              Sector validado con {selectedTagIds.length} atributos.
+            <p className="text-[11px] font-medium text-gray-500">
+              Categoría y subespecialidades asociadas a tu perfil comercial.
             </p>
           </div>
         </motion.div>
       )}
+
     </div>
   );
 }

@@ -1,86 +1,103 @@
 "use client";
+
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSessionStore } from "@/stores/SessionStore";
+import { cn } from "@/lib/utils";
 
 const CtaSection: React.FC = () => {
- const t = useTranslations('Cta');
- const { isAuthenticated, role } = useSessionStore();
+  const t = useTranslations('Cta');
+  const { isAuthenticated, role } = useSessionStore();
 
- const benefits = [
- t('benefits.0'),
- t('benefits.1'),
- t('benefits.2')
- ];
+  const benefits = [
+    t('benefits.0'),
+    t('benefits.1'),
+    t('benefits.2')
+  ];
 
- return (
- <section className="py-24 md:py-32 bg-black dark:bg-white transition-colors duration-300 selection:bg-white/30 dark:selection:bg-black/30">
- <div className="container mx-auto px-6 md:px-12 xl:px-24">
- <motion.div
- initial={{ opacity: 0, y: 30 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true, margin: "-50px" }}
- transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
- className="max-w-5xl mx-auto flex flex-col items-center text-center"
- >
- {/* Headline Editorial */}
- <h2 className="text-5xl md:text-6xl lg:text-[6rem] font-semibold tracking-tight text-white dark:text-black leading-[1.05] mb-8">
- {t('title_start')} <br className="hidden md:block" />
- <span className="font-serif italic text-gray-400 dark:text-gray-500 font-light pr-2">
- {t('title_highlight')}
- </span>
- </h2>
+  return (
+    <section className="py-20 md:py-28 bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
+      <div className="container mx-auto px-6 md:px-12 xl:px-20 max-w-7xl">
+        
+        {/* ── CONTENEDOR HERO DE ALTO IMPACTO (CARD) ─────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative rounded-3xl bg-gray-900 dark:bg-[#0a0a0a] text-white p-8 sm:p-14 md:p-20 border border-gray-800 shadow-2xl overflow-hidden text-center max-w-5xl mx-auto space-y-8"
+        >
+          {/* Glowing Ambient Light Effect */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
 
- <p className="text-lg md:text-xl text-gray-400 dark:text-gray-500 font-light max-w-2xl leading-relaxed mb-16">
- {t('description')}
- </p>
+          {/* Badge de Entrada */}
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 shadow-sm relative z-10">
+            <Sparkles className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+            <span>Únete al Ecosistema QuHealthy</span>
+          </div>
 
- {/* Benefits Inline (Estilo Arquitectónico Suizo) */}
- <div className="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 mb-16">
- {benefits.map((benefit, idx) => (
- <div key={idx} className="flex items-center gap-3">
- {/* Cuadrado geométrico en lugar de un icono de check para mayor rigor visual */}
- <div className="w-1.5 h-1.5 bg-white dark:bg-black" /> 
- <span className="text-[10px] font-bold uppercase tracking-widest text-white dark:text-black">
- {benefit}
- </span>
- </div>
- ))}
- </div>
+          {/* Headline Editorial */}
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12] max-w-3xl mx-auto relative z-10">
+            {t('title_start')}{" "}
+            <span className="font-serif italic text-emerald-400 font-normal">
+              {t('title_highlight')}
+            </span>
+          </h2>
 
- {/* CTAs a corte vivo */}
- <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto">
- <Link
- href={isAuthenticated ? (role === 'ROLE_PROVIDER' ? '/dashboard' : '/appointments') : '/provider/register'}
- className="group inline-flex items-center justify-center bg-white dark:bg-black text-black dark:text-white px-8 h-14 rounded-none text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors w-full sm:w-auto"
- >
- {isAuthenticated ? "Ir a mi Panel" : t('button_primary')}
- <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" />
- </Link>
+          {/* Descripción */}
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 font-medium max-w-xl mx-auto leading-relaxed relative z-10">
+            {t('description')}
+          </p>
 
- {!isAuthenticated && (
- <Link
- href="/contact"
- className="group inline-flex items-center justify-center border border-white/30 dark:border-black/30 text-white dark:text-black px-8 h-14 rounded-none text-[10px] font-bold uppercase tracking-widest hover:border-white dark:hover:border-black transition-colors w-full sm:w-auto"
- >
- {t('button_secondary')}
- </Link>
- )}
- </div>
+          {/* Beneficios Integrados en Pills */}
+          <div className="flex flex-wrap justify-center items-center gap-2.5 sm:gap-3 relative z-10 pt-2">
+            {benefits.map((benefit, idx) => (
+              <div 
+                key={idx} 
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gray-200 backdrop-blur-md shadow-xs"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" strokeWidth={2.5} />
+                <span>{benefit}</span>
+              </div>
+            ))}
+          </div>
 
- {/* Trust indicator - Blueprint Footer */}
- <div className="w-full max-w-lg mt-24 pt-8 border-t border-white/20 dark:border-black/20">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
- {t('trust_indicator')}
- </p>
- </div>
- </motion.div>
- </div>
- </section>
- );
+          {/* Botones de Acción / CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto relative z-10 pt-4">
+            <Link
+              href={isAuthenticated ? (role === 'ROLE_PROVIDER' ? '/dashboard' : '/appointments') : '/provider/register'}
+              className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 group w-full sm:w-auto"
+            >
+              <span>{isAuthenticated ? "Ir a mi Panel" : t('button_primary')}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+            </Link>
+
+            {!isAuthenticated && (
+              <Link
+                href="/contact"
+                className="h-12 px-8 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/10 transition-all flex items-center justify-center w-full sm:w-auto"
+              >
+                {t('button_secondary')}
+              </Link>
+            )}
+          </div>
+
+          {/* Indicador de Confianza / Seguridad */}
+          <div className="pt-8 border-t border-white/10 max-w-md mx-auto relative z-10">
+            <p className="text-xs font-medium text-gray-400 flex items-center justify-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" strokeWidth={2} />
+              <span>{t('trust_indicator')}</span>
+            </p>
+          </div>
+
+        </motion.div>
+
+      </div>
+    </section>
+  );
 };
 
 export default CtaSection;
