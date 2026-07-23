@@ -1,4 +1,5 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
 
@@ -18,6 +19,9 @@ import {
   Watch,
   ArrowRight,
   Check,
+  Sparkles,
+  Shield,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { consumerProfileService } from "@/services/consumerProfile.service";
@@ -31,11 +35,11 @@ import { cn } from "@/lib/utils";
 
 const STEPS = [
   { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
-  { id: "identity", title: "Datos Demográficos", icon: UserPlus },
-  { id: "vitals", title: "Antropometría y Vitales", icon: Activity },
-  { id: "lifestyle", title: "Estilo de Vida", icon: Apple },
-  { id: "clinical", title: "Historial Clínico", icon: HeartPulse },
-  { id: "goals", title: "Tus Objetivos", icon: Target },
+  { id: "identity", title: "Datos Demográficos y NOM-024", icon: UserPlus },
+  { id: "vitals", title: "Antropometría y Signos Vitales", icon: Activity },
+  { id: "lifestyle", title: "Estilo de Vida y Hábitos", icon: Apple },
+  { id: "clinical", title: "Historial Clínico (CIE-10)", icon: HeartPulse },
+  { id: "goals", title: "Objetivos de Salud", icon: Target },
   { id: "wearables", title: "Dispositivos Médicos", icon: Watch },
   { id: "dependents", title: "Familia y Dependientes", icon: UserPlus },
 ];
@@ -53,51 +57,44 @@ export default function ConsumerOnboardingWizard() {
     handleBack,
   } = useConsumerOnboarding(STEPS.length);
 
-  // ---- Step Renders ----
-
+  // ── ESTADO: CARGA INICIAL DE EXPEDIENTE ───────────────────────────────────
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
-        <QhSpinner size="lg" className="mb-6" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-          Construyendo Expediente Base...
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center gap-3 transition-colors duration-500 font-sans">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-semibold text-gray-400 animate-pulse">
+          Sintetizando expediente clínico base...
         </p>
       </div>
     );
   }
 
+  // ── RENDERIZADO CONTENIDO DE CADA PASO ────────────────────────────────────
   const renderStepContent = () => {
     switch (currentStep) {
+      // ── PASO 0: CONSENTIMIENTO E IA ───────────────────────────────────────
       case 0:
         return (
-          <div className="space-y-8">
-            <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505]">
-              <div className="flex items-center gap-3 mb-3">
-                <BrainCircuit
-                  className="w-5 h-5 text-black dark:text-white"
-                  strokeWidth={1.5}
-                />
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                  Motor de Recomendaciones con IA
-                </h3>
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 space-y-2">
+              <div className="flex items-center gap-2.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
+                <BrainCircuit className="w-5 h-5 shrink-0" strokeWidth={2} />
+                <span>Motor de Recomendaciones y Prevención por IA</span>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed max-w-2xl">
-                Para brindarte recomendaciones hiper-personalizadas (rutinas,
-                prevención, dietas), QuHealthy utiliza inteligencia artificial.
-                Tus datos de salud serán analizados mediante algoritmos de forma
-                segura y anonimizada bajo la normativa LFPDPPP.
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed">
+                Para ofrecerte análisis preventivos e hiper-personalizados (metabolismo, hábitos, interacción farmacológica), QuHealthy emplea modelos avanzados de inteligencia artificial. Tus datos biométricos y clínicos son procesados con encriptación estricta y anonimizados bajo el cumplimiento de la LFPDPPP y la NOM-024-SSA3.
               </p>
             </div>
 
             <label
               className={cn(
-                "flex items-start gap-4 p-6 border transition-colors cursor-pointer group",
+                "flex items-start gap-4 p-5 rounded-2xl border transition-all cursor-pointer group shadow-sm",
                 data.algorithmicConsentAccepted
-                  ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]"
-                  : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white",
+                  ? "border-emerald-500/50 bg-emerald-50/20 dark:bg-emerald-950/10"
+                  : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-emerald-500/30"
               )}
             >
-              <div className="relative flex items-start">
+              <div className="relative flex items-center pt-0.5">
                 <input
                   type="checkbox"
                   className="sr-only"
@@ -108,10 +105,10 @@ export default function ConsumerOnboardingWizard() {
                 />
                 <div
                   className={cn(
-                    "w-5 h-5 border flex items-center justify-center transition-colors mt-0.5",
+                    "w-5 h-5 rounded-lg border flex items-center justify-center transition-colors",
                     data.algorithmicConsentAccepted
-                      ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black"
-                      : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black",
+                      ? "bg-emerald-600 border-emerald-600 text-white"
+                      : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]"
                   )}
                 >
                   {data.algorithmicConsentAccepted && (
@@ -119,39 +116,43 @@ export default function ConsumerOnboardingWizard() {
                   )}
                 </div>
               </div>
-              <div>
-                <p className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
-                  Acepto el análisis algorítmico
+
+              <div className="space-y-0.5">
+                <p className="text-xs font-bold text-gray-900 dark:text-white">
+                  Acepto la Asistencia y Análisis Algorítmico
                 </p>
-                <p className="text-[10px] text-gray-500 font-light uppercase tracking-wide">
-                  Consiento el tratamiento de mis datos de salud y biométricos.
+                <p className="text-[11px] font-medium text-gray-500">
+                  Consiento el tratamiento seguro de mis datos de salud para fines de medicina preventiva y seguimiento clínico.
                 </p>
               </div>
             </label>
           </div>
         );
+
+      // ── PASO 1: DEMOGRÁFICOS Y NOM-024 ────────────────────────────────────
       case 1:
         return (
-          <div className="space-y-8">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">
-                Sexo Biológico (Relevancia Clínica)
+          <div className="space-y-6">
+            {/* Sexo Biológico */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                Sexo Biológico (Relevancia Clínica)*
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2.5">
                 {[
                   { id: "MALE", label: "Masculino" },
                   { id: "FEMALE", label: "Femenino" },
-                  { id: "OTHER", label: "Otro" },
+                  { id: "OTHER", label: "Otro / Intersex" },
                 ].map((option) => (
                   <button
                     key={option.id}
                     type="button"
                     onClick={() => updateData({ biologicalSex: option.id })}
                     className={cn(
-                      "h-12 border text-[10px] sm:text-xs font-bold transition-all uppercase tracking-widest",
+                      "h-11 rounded-xl border text-xs font-bold transition-all px-2",
                       data.biologicalSex === option.id
-                        ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white",
+                        ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                        : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50"
                     )}
                   >
                     {option.label}
@@ -159,9 +160,11 @@ export default function ConsumerOnboardingWizard() {
                 ))}
               </div>
             </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">
-                Tipo de Sangre
+
+            {/* Tipo de Sangre */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                Grupo Sanguíneo y Factor Rh
               </label>
               <div className="grid grid-cols-4 gap-2">
                 {[
@@ -174,19 +177,17 @@ export default function ConsumerOnboardingWizard() {
                   { id: "AB+", label: "AB+" },
                   { id: "AB-", label: "AB-" },
                   { id: "", label: "Desconozco" },
-                ].map((option, idx) => (
+                ].map((option) => (
                   <button
-                    key={option.id}
+                    key={option.id || "unknown"}
                     type="button"
                     onClick={() => updateData({ bloodType: option.id })}
                     className={cn(
-                      "h-12 border font-bold transition-all",
+                      "h-11 rounded-xl border text-xs font-bold transition-all",
                       data.bloodType === option.id
-                        ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white",
-                      option.id === ""
-                        ? "col-span-4 text-[10px] uppercase tracking-widest"
-                        : "text-sm sm:text-base",
+                        ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                        : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50",
+                      option.id === "" && "col-span-4"
                     )}
                   >
                     {option.label}
@@ -195,126 +196,145 @@ export default function ConsumerOnboardingWizard() {
               </div>
             </div>
 
-            {/* --- DATOS NOM-024 --- */}
-            <div className="pt-6 border-t border-gray-200 dark:border-gray-800 mt-8">
-              <div className="border-l-2 border-black dark:border-white pl-4 py-2 mb-6 bg-gray-50 dark:bg-[#050505]">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
-                  Datos Requeridos (NOM-024)
+            {/* SECCIÓN NOM-024 */}
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
+              <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
+                <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Requerimientos de Identidad Clínica (NOM-024)</span>
                 </p>
-                <p className="text-xs text-gray-500 font-light">
-                  Información oficial requerida para tu expediente clínico.
+                <p className="text-[11px] font-medium text-gray-500">
+                  Información oficial necesaria para la interoperabilidad del expediente clínico electrónico.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">CURP</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    CURP
+                  </label>
                   <input
                     type="text"
-                    placeholder="Tu CURP (18 caracteres)"
-                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none uppercase"
+                    placeholder="Clave de 18 caracteres"
+                    className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-bold font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 uppercase transition-all"
                     value={data.curp || ""}
                     onChange={(e) => updateData({ curp: e.target.value.toUpperCase() })}
                     maxLength={18}
                   />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Derechohabiencia</label>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    Derechohabiencia
+                  </label>
                   <CreatableSelect
                     options={[
-                      { label: 'IMSS', value: 'IMSS' },
-                      { label: 'ISSSTE', value: 'ISSSTE' },
-                      { label: 'INSABI / SSA', value: 'INSABI' },
-                      { label: 'PEMEX / SEDENA / SEMAR', value: 'PEMEX' },
-                      { label: 'Seguro Médico Privado', value: 'SEGURO_PRIVADO' },
-                      { label: 'Ninguna', value: 'NINGUNA' }
+                      { label: "IMSS", value: "IMSS" },
+                      { label: "ISSSTE", value: "ISSSTE" },
+                      { label: "IMSS-Bienestar / SSA", value: "INSABI" },
+                      { label: "PEMEX / SEDENA / SEMAR", value: "PEMEX" },
+                      { label: "Seguro Médico Privado", value: "SEGURO_PRIVADO" },
+                      { label: "Ninguna", value: "NINGUNA" },
                     ]}
-                    value={data.healthInsurance || ''}
+                    value={data.healthInsurance || ""}
                     onChange={(val) => updateData({ healthInsurance: val })}
-                    placeholder="SELECCIONAR O CREAR"
+                    placeholder="Seleccionar o escribir institución"
                   />
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Domicilio Completo</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Domicilio Completo
+                </label>
                 <textarea
-                  placeholder="Calle, número, colonia, código postal, ciudad, estado"
-                  className="w-full min-h-[80px] rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 p-4 transition-colors outline-none resize-none"
+                  placeholder="Calle, número, colonia, código postal, municipio, estado"
+                  className="w-full min-h-[72px] rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 p-3.5 transition-all resize-none"
                   value={data.address || ""}
                   onChange={(e) => updateData({ address: e.target.value })}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Grupo Étnico</label>
-                  <CreatableSelect
-                    options={[
-                      { label: 'Ninguno', value: 'Ninguno' },
-                      { label: 'Náhuatl', value: 'Náhuatl' },
-                      { label: 'Maya', value: 'Maya' },
-                      { label: 'Zapoteco', value: 'Zapoteco' },
-                      { label: 'Mixteco', value: 'Mixteco' },
-                      { label: 'Otomí', value: 'Otomí' },
-                      { label: 'Totonaca', value: 'Totonaca' },
-                      { label: 'Tsotsil', value: 'Tsotsil' },
-                      { label: 'Tzeltal', value: 'Tzeltal' },
-                      { label: 'Mazahua', value: 'Mazahua' },
-                      { label: 'Huasteco', value: 'Huasteco' }
-                    ]}
-                    value={data.ethnicGroup || ''}
-                    onChange={(val) => updateData({ ethnicGroup: val })}
-                    placeholder="SELECCIONAR O CREAR"
-                  />
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Pertenencia a Grupo Étnico / Lengua Indígena
+                </label>
+                <CreatableSelect
+                  options={[
+                    { label: "Ninguno", value: "Ninguno" },
+                    { label: "Náhuatl", value: "Náhuatl" },
+                    { label: "Maya", value: "Maya" },
+                    { label: "Zapoteco", value: "Zapoteco" },
+                    { label: "Mixteco", value: "Mixteco" },
+                    { label: "Otomí", value: "Otomí" },
+                    { label: "Totonaca", value: "Totonaca" },
+                    { label: "Tsotsil", value: "Tsotsil" },
+                    { label: "Tzeltal", value: "Tzeltal" },
+                  ]}
+                  value={data.ethnicGroup || ""}
+                  onChange={(val) => updateData({ ethnicGroup: val })}
+                  placeholder="Seleccionar o ingresar grupo"
+                />
+              </div>
+
+              {/* Contacto de Emergencia */}
+              <div className="pt-2 space-y-3">
+                <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                  Contacto de Emergencia
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400">
+                      Nombre Completo
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej. Dra. María Pérez"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
+                      value={data.emergencyContactName || ""}
+                      onChange={(e) => updateData({ emergencyContactName: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400">
+                      Teléfono
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="Ej. 55 1234 5678"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
+                      value={data.emergencyContactPhone || ""}
+                      onChange={(e) => updateData({ emergencyContactPhone: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <h4 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mt-8 mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
-                Contacto de Emergencia
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Nombre Completo</label>
-                  <input
-                    type="text"
-                    placeholder="Ej. María Pérez"
-                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
-                    value={data.emergencyContactName || ""}
-                    onChange={(e) => updateData({ emergencyContactName: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">Teléfono</label>
-                  <input
-                    type="tel"
-                    placeholder="Ej. 55 1234 5678"
-                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
-                    value={data.emergencyContactPhone || ""}
-                    onChange={(e) => updateData({ emergencyContactPhone: e.target.value })}
-                  />
-                </div>
-              </div>
             </div>
-
           </div>
         );
+
+      // ── PASO 2: VITALES Y ANTROPOMETRÍA ──────────────────────────────────
       case 2:
         return (
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
-                Medidas Corporales
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                Medidas Corporales Básicas
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                     Peso Actual (kg)
                   </label>
                   <input
                     type="number"
-                    placeholder="Ej. 75"
-                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    step="0.1"
+                    placeholder="Ej. 72.5"
+                    className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                     value={data.weightKg}
                     onChange={(e) =>
                       updateData({
@@ -323,14 +343,15 @@ export default function ConsumerOnboardingWizard() {
                     }
                   />
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                    Estatura (cm)
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    Estatura / Talla (cm)
                   </label>
                   <input
                     type="number"
                     placeholder="Ej. 175"
-                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                     value={data.heightCm}
                     onChange={(e) =>
                       updateData({
@@ -342,16 +363,22 @@ export default function ConsumerOnboardingWizard() {
               </div>
             </div>
 
+            {/* Cálculo de IMC */}
             {data.weightKg && data.heightCm && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="p-6 bg-black text-white dark:bg-white dark:text-black flex justify-between items-center border border-black dark:border-white"
+                className="p-5 rounded-2xl bg-emerald-600 text-white shadow-md flex items-center justify-between"
               >
-                <span className="text-[10px] font-bold uppercase tracking-widest">
-                  Índice de Masa Corporal (IMC)
-                </span>
-                <span className="text-2xl font-semibold tracking-tighter">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-100 block">
+                    Índice de Masa Corporal (IMC Calculado)
+                  </span>
+                  <span className="text-xs font-medium text-emerald-50">
+                    Estimación metabólica inicial
+                  </span>
+                </div>
+                <span className="text-3xl font-bold font-mono tracking-tight">
                   {(
                     Number(data.weightKg) /
                     Math.pow(Number(data.heightCm) / 100, 2)
@@ -360,19 +387,21 @@ export default function ConsumerOnboardingWizard() {
               </motion.div>
             )}
 
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2 pt-4">
-                Signos Vitales (Promedio Histórico)
+            {/* Promedio de Signos Vitales */}
+            <div className="space-y-3 pt-2">
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                Signos Vitales Promedio
               </h3>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                    Ritmo Cardíaco Reposo (bpm)
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    Ritmo Cardíaco en Reposo (bpm)
                   </label>
                   <input
                     type="number"
-                    placeholder="Ej. 65"
-                    className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                    placeholder="Ej. 68"
+                    className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                     value={data.restingHeartRate}
                     onChange={(e) =>
                       updateData({
@@ -383,15 +412,16 @@ export default function ConsumerOnboardingWizard() {
                     }
                   />
                 </div>
-                <div className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                       Presión Sistólica (Alta)
                     </label>
                     <input
                       type="number"
                       placeholder="Ej. 120"
-                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={data.averageBloodPressureSystolic}
                       onChange={(e) =>
                         updateData({
@@ -402,17 +432,17 @@ export default function ConsumerOnboardingWizard() {
                       }
                     />
                   </div>
-                  <span className="text-2xl font-light pb-2 text-gray-300 dark:text-gray-700">
-                    /
-                  </span>
-                  <div className="flex-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+
+                  <span className="text-2xl font-light text-gray-300 pt-5">/</span>
+
+                  <div className="flex-1 space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                       Presión Diastólica (Baja)
                     </label>
                     <input
                       type="number"
                       placeholder="Ej. 80"
-                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={data.averageBloodPressureDiastolic}
                       onChange={(e) =>
                         updateData({
@@ -428,31 +458,34 @@ export default function ConsumerOnboardingWizard() {
             </div>
           </div>
         );
+
+      // ── PASO 3: ESTILO DE VIDA ───────────────────────────────────────────
       case 3:
         return (
-          <div className="space-y-8">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">
-                Dieta Predominante
+          <div className="space-y-6">
+            {/* Dieta */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                Preferencia de Alimentación / Dieta Predominante
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {[
-                  { id: "", label: "Sin dieta específica" },
+                  { id: "", label: "Sin Dieta Específica" },
                   { id: "MEDITERRANEAN", label: "Mediterránea" },
                   { id: "VEGAN", label: "Vegana" },
                   { id: "VEGETARIAN", label: "Vegetariana" },
-                  { id: "KETO", label: "Keto / Cetogénica" },
+                  { id: "KETO", label: "Cetogénica (Keto)" },
                   { id: "PALEO", label: "Paleo" },
                 ].map((option) => (
                   <button
-                    key={option.id}
+                    key={option.id || "none"}
                     type="button"
                     onClick={() => updateData({ dietaryPreference: option.id })}
                     className={cn(
-                      "h-12 border text-[10px] font-bold transition-all uppercase tracking-widest",
+                      "h-11 rounded-xl border text-xs font-bold transition-all px-2",
                       data.dietaryPreference === option.id
-                        ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white",
+                        ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                        : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50"
                     )}
                   >
                     {option.label}
@@ -460,15 +493,17 @@ export default function ConsumerOnboardingWizard() {
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                  Días de ejercicio a la semana
+
+            {/* Ejercicio */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Días de Ejercicio por Semana
                 </label>
                 <input
                   type="number"
                   placeholder="Ej. 3"
-                  className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                  className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                   value={data.exerciseDaysPerWeek}
                   onChange={(e) =>
                     updateData({
@@ -479,14 +514,15 @@ export default function ConsumerOnboardingWizard() {
                   }
                 />
               </div>
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                  Minutos por día
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Minutos por Sesión
                 </label>
                 <input
                   type="number"
                   placeholder="Ej. 45"
-                  className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                  className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                   value={data.exerciseMinutesPerDay}
                   onChange={(e) =>
                     updateData({
@@ -498,15 +534,18 @@ export default function ConsumerOnboardingWizard() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                  Horas promedio de sueño al día
+
+            {/* Sueño y Estrés */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Horas Promedio de Sueño
                 </label>
                 <input
                   type="number"
+                  step="0.5"
                   placeholder="Ej. 7.5"
-                  className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                  className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                   value={data.sleepHoursAvg}
                   onChange={(e) =>
                     updateData({
@@ -517,13 +556,14 @@ export default function ConsumerOnboardingWizard() {
                   }
                 />
               </div>
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                    Nivel de estrés general (1-10)
+
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    Nivel de Estrés Perpercibido
                   </label>
-                  <span className="text-[10px] font-bold text-black dark:text-white border border-gray-200 dark:border-gray-800 px-2 py-0.5">
-                    Nivel {data.stressLevel}
+                  <span className="text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                    Nivel {data.stressLevel}/10
                   </span>
                 </div>
                 <input
@@ -531,26 +571,26 @@ export default function ConsumerOnboardingWizard() {
                   min="1"
                   max="10"
                   step="1"
-                  className="w-full h-1 bg-gray-200 dark:bg-gray-800 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:dark:bg-white [&::-webkit-slider-thumb]:rounded-none [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:dark:bg-white [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-none transition-all"
+                  className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                   value={data.stressLevel}
                   onChange={(e) =>
                     updateData({ stressLevel: Number(e.target.value) })
                   }
                 />
-                <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-gray-400 mt-3">
-                  <span>Muy Bajo (1)</span>
-                  <span>Extremo (10)</span>
+                <div className="flex justify-between text-[10px] font-semibold text-gray-400 pt-0.5">
+                  <span>Bajo (1)</span>
+                  <span>Alto (10)</span>
                 </div>
               </div>
             </div>
 
-            {/* Checkbox Arquitectónico (Smoker) */}
+            {/* Fumador */}
             <label
               className={cn(
-                "flex items-center gap-4 p-5 border transition-colors cursor-pointer group mt-4",
+                "flex items-center gap-3.5 p-4 rounded-2xl border transition-all cursor-pointer group shadow-sm",
                 data.isSmoker
-                  ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]"
-                  : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white",
+                  ? "border-emerald-500/50 bg-emerald-50/20 dark:bg-emerald-950/10"
+                  : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-emerald-500/30"
               )}
             >
               <div className="relative flex items-center">
@@ -562,39 +602,39 @@ export default function ConsumerOnboardingWizard() {
                 />
                 <div
                   className={cn(
-                    "w-5 h-5 border flex items-center justify-center transition-colors",
+                    "w-5 h-5 rounded-lg border flex items-center justify-center transition-colors",
                     data.isSmoker
-                      ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black"
-                      : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black",
+                      ? "bg-emerald-600 border-emerald-600 text-white"
+                      : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]"
                   )}
                 >
-                  {data.isSmoker && (
-                    <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                  )}
+                  {data.isSmoker && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
                 </div>
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
-                Soy fumador(a) regular
+              <span className="text-xs font-bold text-gray-900 dark:text-white">
+                Fumador(a) regular o consumo de tabaco / vapeo
               </span>
             </label>
           </div>
         );
+
+      // ── PASO 4: HISTORIAL CLÍNICO (CIE-10) ───────────────────────────────
       case 4:
         return (
-          <div className="space-y-8">
-            <div className="border-l-2 border-black dark:border-white pl-4 py-2 bg-gray-50 dark:bg-[#050505]">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-1">
-                Catálogo Oficial CIE-10
+          <div className="space-y-6">
+            <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
+              <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                <HeartPulse className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Catálogo Internacional CIE-10 / OMS</span>
               </p>
-              <p className="text-xs text-gray-500 font-light">
-                Utiliza términos médicos estandarizados para mapear tus
-                padecimientos crónicos.
+              <p className="text-[11px] font-medium text-gray-500">
+                Selecciona padecimientos o diagnósticos estandarizados para integrarlos a tu expediente médico.
               </p>
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                Enfermedades Crónicas / Diagnósticos
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                Enfermedades Crónicas / Diagnósticos Previos
               </label>
               <Icd10Autocomplete
                 selectedConditions={data.medicalConditions}
@@ -604,13 +644,13 @@ export default function ConsumerOnboardingWizard() {
               />
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                Alergias Conocidas
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                Alergias Conocidas (Medicamentos o Alimentos)
               </label>
               <textarea
-                placeholder="Ej. Penicilina, Nueces, etc..."
-                className="w-full rounded-none bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-4 text-sm font-light focus:border-black dark:focus:border-white focus:ring-0 transition-colors outline-none resize-none min-h-[100px]"
+                placeholder="Ej. Penicilina, Mariscos, AINEs..."
+                className="w-full rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-3.5 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none min-h-[90px]"
                 onChange={(e) =>
                   updateData({ allergies: [{ name: e.target.value }] })
                 }
@@ -618,29 +658,33 @@ export default function ConsumerOnboardingWizard() {
             </div>
           </div>
         );
+
+      // ── PASO 5: OBJETIVOS ────────────────────────────────────────────────
       case 5:
         return (
           <div className="space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
-              ¿Cuáles son tus objetivos principales?
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+              ¿Cuáles son tus prioridades y objetivos de salud?
             </h3>
-            <div className="grid grid-cols-1 gap-3">
+
+            <div className="grid grid-cols-1 gap-2.5">
               {[
-                "Bajar de Peso",
-                "Mejorar longevidad",
-                "Manejar estrés y ansiedad",
-                "Mejorar calidad de sueño",
-                "Ganar masa muscular",
+                "Pérdida de Peso y Control Metabolico",
+                "Optimización de Longevidad y Salud Cardiovascular",
+                "Manejo de Estrés, Ansiedad y Salud Mental",
+                "Mejora de la Calidad del Sueño y Descanso",
+                "Aumento de Masa Muscular y Rendimiento Deportivo",
+                "Control de Padecimientos Crónicos",
               ].map((goal) => {
                 const isSelected = data.healthGoals.includes(goal);
                 return (
                   <label
                     key={goal}
                     className={cn(
-                      "flex items-center gap-4 p-5 border transition-colors cursor-pointer group",
+                      "flex items-center gap-3.5 p-4 rounded-2xl border transition-all cursor-pointer group shadow-sm",
                       isSelected
-                        ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]"
-                        : "border-gray-200 dark:border-gray-800 hover:border-black dark:hover:border-white",
+                        ? "border-emerald-500/50 bg-emerald-50/20 dark:bg-emerald-950/10"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-emerald-500/30"
                     )}
                   >
                     <div className="relative flex items-center">
@@ -657,18 +701,16 @@ export default function ConsumerOnboardingWizard() {
                       />
                       <div
                         className={cn(
-                          "w-5 h-5 border flex items-center justify-center transition-colors",
+                          "w-5 h-5 rounded-lg border flex items-center justify-center transition-colors",
                           isSelected
-                            ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black"
-                            : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black",
+                            ? "bg-emerald-600 border-emerald-600 text-white"
+                            : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]"
                         )}
                       >
-                        {isSelected && (
-                          <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                        )}
+                        {isSelected && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
                       </div>
                     </div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-black dark:text-white">
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
                       {goal}
                     </span>
                   </label>
@@ -677,10 +719,15 @@ export default function ConsumerOnboardingWizard() {
             </div>
           </div>
         );
+
+      // ── PASO 6: WEARABLES ────────────────────────────────────────────────
       case 6:
         return <WearablesStep />;
+
+      // ── PASO 7: DEPENDIENTES ──────────────────────────────────────────────
       case 7:
         return <DependentsStep />;
+
       default:
         return null;
     }
@@ -692,115 +739,127 @@ export default function ConsumerOnboardingWizard() {
     return false;
   };
 
-  const showSkipButton = true;
+  const StepIcon = STEPS[currentStep].icon;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
-      {/* Header / Progress (Architectural) */}
-      <div className="bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-serif italic tracking-tight text-black dark:text-white">
-              QuHealthy.
-            </h1>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 border border-gray-200 dark:border-gray-800 px-3 py-1">
-              Paso 0{currentStep + 1} / 0{STEPS.length}
-            </div>
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-20">
+      
+      {/* ── HEADER DE PROGRESO FLOTANTE (GLASSMORPHISM) ────────────────────── */}
+      <header className="bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 p-5 sm:p-6 sticky top-0 z-50 transition-all">
+        <div className="max-w-3xl mx-auto space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
+              <span>QuHealthy</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">•</span>
+              <span className="text-xs font-semibold text-gray-400">Expediente Consumidor</span>
+            </span>
+
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+              <span>Paso {currentStep + 1} de {STEPS.length}</span>
+            </span>
           </div>
 
-          <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+          {/* Progress Bar */}
+          <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
             <motion.div
-              className="absolute top-0 left-0 h-full bg-black dark:bg-white"
+              className="h-full bg-emerald-600 rounded-full"
               initial={{ width: 0 }}
               animate={{
                 width: `${((currentStep + 1) / STEPS.length) * 100}%`,
               }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             />
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content Area */}
-      <div className="flex-1 w-full max-w-4xl mx-auto px-6 py-12 md:py-16 flex flex-col">
+      {/* ── CONTENEDOR PRINCIPAL DEL PASO ──────────────────────────────────── */}
+      <div className="flex-1 w-full max-w-3xl mx-auto px-6 pt-8 sm:pt-12 flex flex-col">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 p-8 md:p-12"
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-10 shadow-sm flex flex-col justify-between space-y-8"
           >
-            <div className="flex flex-col md:flex-row md:items-center gap-6 mb-12 border-b border-gray-200 dark:border-gray-800 pb-8">
-              <div className="w-16 h-16 border border-black dark:border-white flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0">
-                {React.createElement(STEPS[currentStep].icon, {
-                  className: "w-6 h-6 text-black dark:text-white",
-                  strokeWidth: 1.5,
-                })}
+            {/* Step Header */}
+            <div className="flex items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                <StepIcon className="w-6 h-6" strokeWidth={2} />
               </div>
+
               <div>
-                <h2 className="text-3xl font-semibold text-black dark:text-white tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                   {STEPS[currentStep].title}
                 </h2>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2">
-                  Sección {currentStep + 1}
+                <p className="text-xs font-semibold text-gray-400 pt-0.5">
+                  Sección {currentStep + 1} de {STEPS.length}
                 </p>
               </div>
             </div>
 
             {/* Step Content */}
-            <div className="min-h-[300px]">{renderStepContent()}</div>
+            <div className="min-h-[280px]">{renderStepContent()}</div>
 
-            {/* Actions (Flush Buttons) */}
-            <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row items-center gap-4">
-              <div className="flex w-full md:w-auto gap-4">
+            {/* Actions Footer */}
+            <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 {currentStep > 0 && (
                   <button
+                    type="button"
                     onClick={handleBack}
                     disabled={loading}
-                    className="flex-1 md:flex-none h-14 px-8 border border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors"
+                    className="flex-1 sm:flex-none h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     Retroceder
                   </button>
                 )}
-                {showSkipButton && (
-                  <button
-                    onClick={handleSkip}
-                    disabled={loading}
-                    className="flex-1 md:flex-none h-14 px-8 border border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors"
-                  >
-                    Omitir
-                  </button>
-                )}
+
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  disabled={loading}
+                  className="flex-1 sm:flex-none h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Omitir
+                </button>
               </div>
 
               <button
+                type="button"
                 onClick={handleNext}
                 disabled={isNextDisabled() || loading}
                 className={cn(
-                  "w-full md:flex-1 h-14 px-8 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-4 group",
+                  "w-full sm:w-auto h-11 px-7 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50",
                   isNextDisabled() || loading
-                    ? "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-800"
-                    : "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0",
+                    ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
                 )}
               >
-                {loading
-                  ? "Sincronizando..."
-                  : currentStep === STEPS.length - 1
-                    ? "Completar Registro"
-                    : "Guardar y Continuar"}
-                {!loading && (
-                  <ArrowRight
-                    className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                    strokeWidth={2}
-                  />
+                {loading ? (
+                  <>
+                    <QhSpinner size="sm" className="text-white" />
+                    <span>Sincronizando...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      {currentStep === STEPS.length - 1
+                        ? "Completar Registro"
+                        : "Guardar y Continuar"}
+                    </span>
+                    <ArrowRight className="w-4 h-4" strokeWidth={2} />
+                  </>
                 )}
               </button>
             </div>
+
           </motion.div>
         </AnimatePresence>
       </div>
+
     </div>
   );
 }

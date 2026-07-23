@@ -13,6 +13,7 @@ export type ActionType =
   | 'register_biometric'
   | 'generate_summary'
   | 'download'
+  | 'confirm'
   | 'authenticate';
 
 export interface BaseAction {
@@ -62,10 +63,16 @@ export interface UploadAction extends BaseAction {
   };
 }
 
+export interface ConfirmAction extends BaseAction {
+  type: 'confirm';
+  payload?: Record<string, any>;
+}
+
 export type HealthOSAction = 
   | NavigateAction 
   | OpenAction 
   | ReserveAction 
   | PayAction 
   | UploadAction 
+  | ConfirmAction
   | BaseAction;

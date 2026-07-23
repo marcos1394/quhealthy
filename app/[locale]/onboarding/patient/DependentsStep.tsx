@@ -1,9 +1,10 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-gray-on-colored-background */
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */
 /* eslint-disable react-doctor/no-giant-component */
-"use client";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -12,19 +13,19 @@ import {
   Heart,
   Plus,
   X,
-  Loader2,
   Trash2,
   Activity,
-  Shield,
+  Users,
+  Calendar as CalendarIcon,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { dependentService } from "@/services/dependent.service";
 import { Dependent, DependentRequest } from "@/types/dependent";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Input } from "@/components/ui/input";
-import { es } from "date-fns/locale";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export const DependentsStep = () => {
   const [{ dependents, loading, isModalOpen, saving, extraData }, dispatch] =
@@ -191,22 +192,46 @@ export const DependentsStep = () => {
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
   };
 
+  const getRelationshipLabel = (rel: string) => {
+    switch (rel) {
+      case "CHILD":
+        return "Hijo(a)";
+      case "PARENT":
+        return "Padre/Madre";
+      case "SPOUSE":
+        return "Cónyuge";
+      case "SIBLING":
+        return "Hermano(a)";
+      default:
+        return "Familiar";
+    }
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-sans">
       {/* Header Editorial */}
-      <div className="border-b border-gray-200 dark:border-gray-800 pb-6">
-        <h3 className="text-2xl font-semibold text-black dark:text-white tracking-tight">
-          Familiares a cargo
+      <div className="space-y-2 pb-6 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+            <Users className="w-3.5 h-3.5" strokeWidth={2} />
+            <span>Núcleo Familiar</span>
+          </span>
+        </div>
+        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight pt-1">
+          Familiares a Cargo
         </h3>
-        <p className="text-gray-500 font-light mt-2 max-w-2xl text-sm">
-          Registra perfiles médicos secundarios para gestionar esquemas de
-          vacunación y citas de dependientes (menores o adultos mayores).
+        <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
+          Registra perfiles médicos secundarios para gestionar esquemas de vacunación, seguimiento de salud y agendamiento de citas para tus dependientes.
         </p>
       </div>
 
+      {/* Lista de Dependientes / Loading State */}
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-black dark:text-white" />
+        <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+          <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
+          <p className="text-xs font-semibold text-gray-400 animate-pulse">
+            Cargando expedientes familiares...
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -215,70 +240,90 @@ export const DependentsStep = () => {
               {dependents.map((dep: any) => (
                 <div
                   key={dep.id}
-                  className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-5 group hover:border-black dark:hover:border-white transition-colors relative flex items-start gap-4"
+                  className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-sm hover:border-emerald-500/30 transition-all flex items-start justify-between gap-4 group"
                 >
-                  <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 text-black dark:text-white group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
-                    {dep.relationship === "CHILD" ? (
-                      <Baby className="w-5 h-5" strokeWidth={1.5} />
-                    ) : (
-                      <Heart className="w-5 h-5" strokeWidth={1.5} />
-                    )}
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                      {dep.relationship === "CHILD" ? (
+                        <Baby className="w-5 h-5" strokeWidth={2} />
+                      ) : (
+                        <Heart className="w-5 h-5" strokeWidth={2} />
+                      )}
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                        {dep.firstName} {dep.lastName}
+                      </h4>
+                      <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
+                        <span className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-700 dark:text-gray-300">
+                          {getRelationshipLabel(dep.relationship)}
+                        </span>
+                        <span>•</span>
+                        <span>{calculateAge(dep.dateOfBirth)} años</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
-                      {dep.firstName} {dep.lastName}
-                    </h4>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-light">
-                      {dep.relationship} <span className="mx-1">•</span>{" "}
-                      {calculateAge(dep.dateOfBirth)} años
-                    </p>
-                  </div>
+
                   <button
+                    type="button"
                     onClick={() => handleDelete(dep.id)}
-                    className="w-8 h-8 flex items-center justify-center border border-transparent text-gray-400 hover:text-red-500 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                    className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 text-gray-400 hover:text-red-500 hover:border-red-200 dark:hover:border-red-900/40 flex items-center justify-center transition-colors shrink-0"
+                    title="Eliminar Expediente"
                   >
-                    <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                    <Trash2 className="w-4 h-4" strokeWidth={2} />
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="border border-dashed border-gray-300 dark:border-gray-700 p-10 text-center bg-gray-50 dark:bg-[#050505]">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                No hay dependientes registrados en este expediente.
+            <div className="bg-gray-50/50 dark:bg-[#050505] border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl p-10 text-center space-y-2">
+              <Users className="w-8 h-8 text-gray-400 mx-auto" strokeWidth={1.5} />
+              <p className="text-xs font-bold text-gray-900 dark:text-white">
+                No hay dependientes registrados
+              </p>
+              <p className="text-xs font-medium text-gray-400 max-w-sm mx-auto">
+                Agrega a tus familiares para llevar el control integrado de su historial de salud.
               </p>
             </div>
           )}
 
           <button
+            type="button"
             onClick={() => setIsModalOpen(true)}
-            className="w-full h-14 border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/10 text-xs font-bold text-gray-900 dark:text-white transition-all shadow-sm flex items-center justify-center gap-2"
           >
-            <Plus className="w-4 h-4" /> Agregar Perfil Dependiente
+            <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+            <span>Agregar Perfil Dependiente</span>
           </button>
         </div>
       )}
 
-      {/* MODAL FORMULARIO (Architectural Overlay) */}
+      {/* ── MODAL FORMULARIO ──────────────────────────────────────────────── */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-2xl border border-black dark:border-white shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all">
+          <div className="bg-white dark:bg-[#0a0a0a] w-full max-w-2xl border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            
             {/* Header Modal */}
-            <div className="border-b border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505] flex justify-between items-center shrink-0">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex justify-between items-center shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black">
-                  <UserPlus
-                    className="w-4 h-4 text-black dark:text-white"
-                    strokeWidth={1.5}
-                  />
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                  <UserPlus className="w-5 h-5" strokeWidth={2} />
                 </div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                  Creación de Expediente Secundario
-                </h3>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    Creación de Expediente Secundario
+                  </h3>
+                  <p className="text-xs font-medium text-gray-400">
+                    Ingresa los datos personales de tu familiar
+                  </p>
+                </div>
               </div>
+
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4" strokeWidth={2} />
               </button>
@@ -288,31 +333,35 @@ export const DependentsStep = () => {
               onSubmit={handleSave}
               className="flex flex-col overflow-hidden flex-1"
             >
-              <div className="p-6 overflow-y-auto space-y-6">
+              <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+                
                 {/* Nombre y Apellidos */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                       Nombre(s) *
                     </label>
                     <input
                       required
                       type="text"
-                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                      placeholder="Ej. Mateo"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={formData.firstName}
                       onChange={(e) =>
                         setFormData({ ...formData, firstName: e.target.value })
                       }
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                       Apellidos *
                     </label>
                     <input
                       required
                       type="text"
-                      className="w-full h-12 rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-4 transition-colors outline-none"
+                      placeholder="Ej. Sandoval Ruiz"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={formData.lastName}
                       onChange={(e) =>
                         setFormData({ ...formData, lastName: e.target.value })
@@ -322,10 +371,10 @@ export const DependentsStep = () => {
                 </div>
 
                 {/* Fecha y Sexo */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2 flex flex-col">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                      Fecha Nacimiento *
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5 flex flex-col">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                      Fecha de Nacimiento *
                     </label>
                     <DatePicker
                       value={
@@ -350,14 +399,15 @@ export const DependentsStep = () => {
                         }
                       }}
                       disabled={(date) => date > new Date()}
-                      placeholder="Selecciona la fecha"
-                      className="h-12 border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white text-sm"
-                      popoverClassName="rounded-none border-black dark:border-white bg-white dark:bg-[#050505]"
+                      placeholder="Seleccionar fecha"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20"
+                      popoverClassName="rounded-2xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                      Sexo *
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                      Sexo Biológico *
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
@@ -371,10 +421,10 @@ export const DependentsStep = () => {
                             setFormData({ ...formData, gender: option.id })
                           }
                           className={cn(
-                            "h-12 border text-[10px] font-bold transition-all uppercase tracking-widest",
+                            "h-11 rounded-xl border text-xs font-bold transition-all",
                             formData.gender === option.id
-                              ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                              : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white",
+                              ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                              : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50",
                           )}
                         >
                           {option.label}
@@ -385,17 +435,17 @@ export const DependentsStep = () => {
                 </div>
 
                 {/* Parentesco */}
-                <div className="space-y-3">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                    Parentesco *
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    Parentesco / Relación *
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
                       { id: "CHILD", label: "Hijo / Hija" },
                       { id: "PARENT", label: "Padre / Madre" },
-                      { id: "SPOUSE", label: "Pareja / Cónyuge" },
+                      { id: "SPOUSE", label: "Cónyuge / Pareja" },
                       { id: "SIBLING", label: "Hermano / Hermana" },
-                      { id: "OTHER", label: "Otro" },
+                      { id: "OTHER", label: "Otro Familiar" },
                     ].map((option) => (
                       <button
                         key={option.id}
@@ -404,13 +454,10 @@ export const DependentsStep = () => {
                           setFormData({ ...formData, relationship: option.id })
                         }
                         className={cn(
-                          "h-12 border text-[10px] font-bold transition-all uppercase tracking-widest",
+                          "h-11 rounded-xl border text-xs font-bold transition-all px-2",
                           formData.relationship === option.id
-                            ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                            : "bg-white text-gray-600 border-gray-200 hover:border-black dark:bg-[#0a0a0a] dark:text-gray-400 dark:border-gray-800 dark:hover:border-white",
-                          option.id === "OTHER"
-                            ? "col-span-2 md:col-span-1"
-                            : "",
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                            : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50",
                         )}
                       >
                         {option.label}
@@ -419,21 +466,23 @@ export const DependentsStep = () => {
                   </div>
                 </div>
 
-                {/* Biometría (Architectural Note) */}
-                <div className="border-l-2 border-black dark:border-white pl-5 py-2 bg-gray-50 dark:bg-[#050505]">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-4 flex items-center gap-2">
-                    <Activity className="w-3 h-3" /> Biometría Inicial
+                {/* Biometría Inicial */}
+                <div className="p-5 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-3">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>Biometría Inicial (Opcional)</span>
                   </p>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="block text-[9px] uppercase tracking-widest text-gray-500">
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-gray-500">
                         Peso (kg)
                       </label>
                       <input
                         type="number"
                         step="0.1"
                         placeholder="Ej. 15.5"
-                        className="w-full h-10 rounded-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-3 outline-none"
+                        className="w-full h-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-3"
                         value={extraData.weightKg}
                         onChange={(e) =>
                           setExtraData({
@@ -443,14 +492,15 @@ export const DependentsStep = () => {
                         }
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="block text-[9px] uppercase tracking-widest text-gray-500">
+
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-semibold text-gray-500">
                         Estatura (cm)
                       </label>
                       <input
                         type="number"
                         placeholder="Ej. 95"
-                        className="w-full h-10 rounded-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm focus:border-black dark:focus:border-white focus:ring-0 px-3 outline-none"
+                        className="w-full h-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-3"
                         value={extraData.heightCm}
                         onChange={(e) =>
                           setExtraData({
@@ -464,40 +514,52 @@ export const DependentsStep = () => {
                 </div>
 
                 {/* Notas Médicas */}
-                <div className="space-y-2 pb-4">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                     Notas Clínicas Adicionales
                   </label>
                   <textarea
                     rows={3}
-                    placeholder="Alergias, condiciones preexistentes, etc."
-                    className="w-full rounded-none border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-sm focus:border-black dark:focus:border-white focus:ring-0 p-4 transition-colors outline-none resize-none"
+                    placeholder="Escribe alergias conocidas, tipo de sangre, condiciones preexistentes, etc."
+                    className="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 p-3.5 transition-all resize-none"
                     value={formData.medicalNotes}
                     onChange={(e) =>
                       setFormData({ ...formData, medicalNotes: e.target.value })
                     }
                   />
                 </div>
+
               </div>
 
-              {/* Footer Modal Actions */}
-              <div className="border-t border-gray-200 dark:border-gray-800 p-6 flex items-center justify-end gap-4 shrink-0 bg-white dark:bg-[#0a0a0a]">
+              {/* Actions Footer */}
+              <div className="border-t border-gray-100 dark:border-gray-800 p-5 sm:p-6 flex items-center justify-end gap-3 shrink-0 bg-white dark:bg-[#0a0a0a]">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-6 h-12 border border-gray-200 dark:border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors"
+                  className="h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   Cancelar
                 </button>
+
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-8 h-12 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="h-11 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
-                  {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  {saving ? "Procesando..." : "Guardar Registro"}
+                  {saving ? (
+                    <>
+                      <QhSpinner size="sm" className="text-white" />
+                      <span>Procesando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Guardar Registro</span>
+                      <ArrowRight className="w-4 h-4" strokeWidth={2} />
+                    </>
+                  )}
                 </button>
               </div>
+
             </form>
           </div>
         </div>
