@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { HealthOSResponse, HealthOSIntent, HealthOSAction } from '@quhealthy/health-os-contract';
 
 export interface Message {
@@ -46,7 +47,9 @@ const initialResetState = {
   toolResults: {},
 };
 
-export const useHealthOSStore = create<HealthOSState>((set) => ({
+export const useHealthOSStore = create<HealthOSState>()(
+  persist(
+    (set) => ({
   conversation: [],
   widgets: [],
   patientContext: {},
@@ -122,4 +125,13 @@ export const useHealthOSStore = create<HealthOSState>((set) => ({
       patientContext: {},
       sessionContext: {},
     }),
-}));
+  }),
+  {
+    name: 'healthos-chat-storage', // key in localStorage
+    partialize: (state) => ({ 
+      conversation: state.conversation, 
+      patientContext: state.patientContext 
+    }), // we only persist the conversation and user context
+  }
+)
+);

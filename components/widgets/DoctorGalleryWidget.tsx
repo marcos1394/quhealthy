@@ -27,11 +27,11 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
     <div className="w-full relative group py-2">
       <div className="flex justify-between items-center mb-2 px-1">
         <h4 className="text-sm font-semibold text-muted-foreground">Resultados Encontrados ({data.doctors.length})</h4>
-        <div className="hidden sm:flex gap-1">
-          <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={() => scroll('left')}>
+        <div className="flex gap-1">
+          <Button variant="outline" size="icon" className="h-7 w-7 rounded-full bg-background/50 hover:bg-background/80 shadow-sm transition-all" onClick={() => scroll('left')}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="h-6 w-6 rounded-full" onClick={() => scroll('right')}>
+          <Button variant="outline" size="icon" className="h-7 w-7 rounded-full bg-background/50 hover:bg-background/80 shadow-sm transition-all" onClick={() => scroll('right')}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -39,7 +39,7 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
       
       <div 
         ref={scrollContainerRef}
-        className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar"
+        className="flex overflow-x-auto gap-4 pb-4 snap-x scroll-smooth touch-pan-x"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {data.doctors.map((doctor: DoctorCardData, idx: number) => {
