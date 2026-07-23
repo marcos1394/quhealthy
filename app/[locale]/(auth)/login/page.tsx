@@ -430,7 +430,7 @@ export default function LoginPage() {
                       {t("password_label", { defaultValue: "Contraseña" })}
                     </label>
                     <Link
-                      href="/recovery"
+                      href="/forgot-password"
                       className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
                     >
                       {t("forgot_password", { defaultValue: "¿Olvidaste tu contraseña?" })}

@@ -6,12 +6,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const isEnglish = locale === 'en';
 
   return {
-    title: isEnglish ? "Sign In | QuHealthy" : "Iniciar Sesión | QuHealthy",
+    title: isEnglish ? "Authentication | QuHealthy" : "Autenticación | QuHealthy",
     description: isEnglish 
       ? "Sign in, create an account or recover your password on QuHealthy." 
       : "Inicia sesión, regístrate o recupera tu cuenta en QuHealthy.",
     robots: {
-      index: false,           // ← Importante: no indexar páginas de auth
+      index: false, // No indexar páginas de autenticación/registro
       follow: true,
     },
   };
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+    <div className="min-h-screen w-full bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 antialiased">
       {children}
     </div>
   );

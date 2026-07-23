@@ -2,6 +2,8 @@
 /* eslint-disable react-doctor/no-event-handler */
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */
 "use client";
+
+/* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect } from "react";
@@ -10,13 +12,10 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
+
 import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 import {
-  Loader2,
   ShieldCheck,
   Smartphone,
   Clock,
@@ -83,14 +82,16 @@ export default function VerifyPhonePage() {
     try {
       await verifyPhone({ code, identifier: user.email });
       setSuccess(true);
-      toast.success(t("success_title"), { position: "top-center" });
+      toast.success(t("success_title", { defaultValue: "Teléfono verificado correctamente" }), {
+        theme: "colored",
+      });
       setTimeout(() => {
         router.push(
           role === "ROLE_PROVIDER" ? "/onboarding" : "/patient/dashboard",
         );
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Error");
+      setError(err.message || "Error al verificar el teléfono");
       handleApiError(err);
       setCode("");
       setIsLoading(false);
@@ -105,7 +106,9 @@ export default function VerifyPhonePage() {
     setError("");
     try {
       await resendVerification({ email: user.email, type: "SMS" });
-      toast.success(t("resend_button"));
+      toast.success(t("resend_button", { defaultValue: "Código reenviado" }), {
+        theme: "colored",
+      });
       setCodeTimer(300);
       setCanResend(false);
       setResendCooldown(60);
@@ -126,51 +129,87 @@ export default function VerifyPhonePage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gray-50 dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+    <div className="flex min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+      
+      {/* ── PANEL IZQUIERDO (HERO VISUAL) ─────────────────────────────────── */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
         <img
           src="/hero_medical_lifestyle.png"
           alt="Phone Verify"
-          className="absolute inset-0 w-full h-full object-cover object-top opacity-90"
+          className="absolute inset-0 w-full h-full object-cover object-top mix-blend-luminosity opacity-40 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-        <div className="relative z-10 p-16 mt-auto">
-          <h2 className="text-4xl md:text-5xl font-medium text-white mb-6 tracking-tight">
-            {t("area_title")}
-          </h2>
-          <div className="flex items-center gap-3 backdrop-blur-md bg-white/10 p-4 rounded-none border border-white/20 w-max">
-            <Shield className="w-8 h-8 text-white" strokeWidth={1.5} />
-            <div>
-              <p className="text-white font-medium text-sm">
-                {t("secure_connection")}
-              </p>
-              <p className="text-gray-300 text-xs font-light max-w-xs">
-                {t("info")}
-              </p>
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
+
+        {/* Header Marca */}
+        <div className="relative z-10 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-2xl font-bold tracking-tight text-white">
+              QuHealthy<span className="text-emerald-400">.</span>
+            </span>
+          </Link>
+
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Verificación SMS</span>
+          </span>
+        </div>
+
+        {/* Mensaje Hero */}
+        <div className="relative z-10 space-y-8 max-w-lg">
+          <div className="space-y-3">
+            <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
+              {t("area_title", { defaultValue: "Protección de Contacto Móvil" })}
+            </h2>
+            <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
+              Verificamos tu número telefónico para coordinar recordatorios de citas y alertas médicas en tiempo real.
+            </p>
+          </div>
+
+          {/* Shield Card */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 shadow-xl space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                <Shield className="w-5 h-5 text-emerald-400" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
+                  {t("secure_connection", { defaultValue: "Canal Directo Encriptado" })}
+                </h3>
+                <p className="text-[11px] text-gray-300 font-medium mt-0.5">
+                  {t("info", { defaultValue: "Garantía de confidencialidad en tus vías de notificación." })}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-16">
+      {/* ── PANEL DERECHO (FORMULARIO) ─────────────────────────────────── */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-md"
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-md space-y-6"
         >
-          <div className="mb-10 text-center lg:text-left">
-            <Link href="/" className="inline-block mb-8">
-              <span className="text-2xl font-serif italic tracking-tight text-black dark:text-white">
-                QuHealthy.
+          {/* Header & Logo Mobile */}
+          <div className="text-center lg:text-left space-y-2">
+            <Link href="/" className="inline-block lg:hidden mb-4">
+              <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                QuHealthy<span className="text-emerald-600 dark:text-emerald-400">.</span>
               </span>
             </Link>
-            <h1 className="text-3xl font-medium text-black dark:text-white mb-2 tracking-tight">
-              {t("title")}
+
+            <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+              <Smartphone className="w-4 h-4" strokeWidth={2} />
+              <span>Verificación de Teléfono</span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("title", { defaultValue: "Verifica tu Teléfono" })}
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 font-light">
-              {t("desc")}
+            <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("desc", { defaultValue: "Ingresa el código de 6 dígitos que enviamos vía mensaje SMS." })}
             </p>
           </div>
 
@@ -181,175 +220,180 @@ export default function VerifyPhonePage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-6"
+                className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5"
               >
-                <div className="flex items-center justify-between bg-gray-50 dark:bg-[#0a0a0a] rounded-none p-4 border border-gray-200 dark:border-gray-800">
+                {/* Timer Bar */}
+                <div className="flex items-center justify-between bg-gray-50/50 dark:bg-[#050505] p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {t("code_valid_for")}
+                    <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                      {t("code_valid_for", { defaultValue: "Código válido por:" })}
                     </span>
                   </div>
-                  <Badge
-                    variant="outline"
+                  <span
                     className={cn(
-                      "font-mono text-sm border-0",
+                      "font-mono text-xs font-bold px-2.5 py-1 rounded-lg border shadow-sm",
                       codeTimer < 60
-                        ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-                        : "bg-black text-white dark:bg-white dark:text-black rounded-none",
+                        ? "bg-red-50 text-red-600 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/40"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/40"
                     )}
                   >
                     {formatTime(codeTimer)}
-                  </Badge>
+                  </span>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t("code_label")}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                      {t("code_label", { defaultValue: "Código de Verificación (SMS)" })}
                     </label>
-                    <Input
+                    <input
                       type="text"
                       value={code}
                       onChange={(e) => handleCodeChange(e.target.value)}
-                      placeholder={t("code_placeholder")}
+                      placeholder={t("code_placeholder", { defaultValue: "000000" })}
                       maxLength={6}
                       autoFocus
                       className={cn(
-                        "h-16 text-center text-4xl tracking-[0.5em] font-mono bg-white dark:bg-black border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black/10 rounded-none",
-                        error && "border-red-500",
+                        "w-full h-14 text-center text-3xl font-mono font-bold tracking-[0.35em] bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-300 shadow-sm",
+                        error && "border-red-300 text-red-600 focus:ring-red-500/20"
                       )}
                       disabled={isLoading || success}
                     />
-                    <p className="text-xs text-gray-500 text-center font-light">
-                      {code.length}/6 {t("digits_status")}
+                    <p className="text-[11px] font-semibold text-gray-400 text-center">
+                      {code.length}/6 {t("digits_status", { defaultValue: "dígitos ingresados" })}
                     </p>
                   </div>
 
+                  {/* Alerta de Error */}
                   <AnimatePresence>
                     {error && (
                       <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
                       >
-                        <Alert
-                          variant="destructive"
-                          className="bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:border-red-900 dark:text-red-200"
-                        >
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription className="text-sm font-medium">
+                        <div className="p-4 rounded-2xl border border-red-200 bg-red-50/60 dark:bg-red-950/20 dark:border-red-900/40 flex items-start gap-3 shadow-sm">
+                          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" strokeWidth={2} />
+                          <p className="text-xs font-semibold text-red-700 dark:text-red-400 leading-relaxed">
                             {error}
-                          </AlertDescription>
-                        </Alert>
+                          </p>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  <Button
+                  <button
                     type="submit"
-                    className="w-full h-14 text-base font-semibold text-white bg-black hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 shadow-none rounded-none"
+                    className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
                     disabled={isLoading || code.length !== 6}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="animate-spin mr-2 w-5 h-5" />
-                        {t("verifying")}
+                        <QhSpinner size="sm" className="text-current" />
+                        <span>{t("verifying", { defaultValue: "Verificando código..." })}</span>
                       </>
                     ) : (
                       <>
-                        <ShieldCheck className="mr-2 w-5 h-5" />
-                        {t("verify_button")}
+                        <ShieldCheck className="w-4 h-4" strokeWidth={2} />
+                        <span>{t("verify_button", { defaultValue: "Verificar Número" })}</span>
                       </>
                     )}
-                  </Button>
+                  </button>
                 </form>
 
-                <div className="text-center space-y-3">
+                {/* Reenvío de código */}
+                <div className="text-center pt-1">
                   {canResend && resendCooldown === 0 ? (
-                    <Button
-                      variant="ghost"
+                    <button
+                      type="button"
                       onClick={handleResendCode}
                       disabled={isResending}
-                      className="text-black dark:text-white hover:bg-gray-100 dark:hover:bg-[#111111]"
+                      className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                     >
                       {isResending ? (
                         <>
-                          <Loader2 className="animate-spin mr-2 w-4 h-4" />
-                          {t("resending")}
+                          <QhSpinner size="sm" className="text-current" />
+                          <span>{t("resending", { defaultValue: "Reenviando..." })}</span>
                         </>
                       ) : (
                         <>
-                          <RefreshCw className="mr-2 w-4 h-4" />
-                          {t("resend_button")}
+                          <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
+                          <span>{t("resend_button", { defaultValue: "Reenviar código SMS" })}</span>
                         </>
                       )}
-                    </Button>
+                    </button>
                   ) : (
-                    <p className="text-sm text-gray-500 font-light">
+                    <p className="text-xs font-medium text-gray-400">
                       {resendCooldown > 0
-                        ? `${t("can_resend_in")} ${resendCooldown}s`
-                        : `${t("cant_resend_yet")} ${formatTime(codeTimer)}`}
+                        ? `${t("can_resend_in", { defaultValue: "Reenviar en" })} ${resendCooldown}s`
+                        : `${t("cant_resend_yet", { defaultValue: "Podrás solicitar otro código en" })} ${formatTime(codeTimer)}`}
                     </p>
                   )}
                 </div>
 
-                <div className="bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-none p-3 flex items-start gap-2">
-                  <Info className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-light">
-                    {t("info")}
+                {/* Info Card */}
+                <div className="bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 flex items-start gap-2.5">
+                  <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {t("info", { defaultValue: "Si no recibes el mensaje SMS, verifica que tu número esté registrado correctamente en tu perfil." })}
                   </p>
                 </div>
 
+                {/* Skip Link */}
                 <div className="text-center pt-2">
-                  <Button
-                    variant="ghost"
+                  <button
+                    type="button"
                     onClick={handleSkip}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
                   >
-                    {t("skip")}
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
+                    <span>{t("skip", { defaultValue: "Omitir por ahora" })}</span>
+                    <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                  </button>
                 </div>
               </motion.div>
             ) : (
+              /* Success State */
               <motion.div
                 key="success"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-8 space-y-8"
+                className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm text-center space-y-5"
               >
-                <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-[#111111] rounded-none flex items-center justify-center">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center mx-auto shadow-sm">
                   <CheckCircle2
-                    className="w-8 h-8 text-black dark:text-white"
-                    strokeWidth={1.5}
+                    className="w-7 h-7 text-emerald-600 dark:text-emerald-400"
+                    strokeWidth={2}
                   />
                 </div>
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-medium text-black dark:text-white tracking-tight">
-                    {t("success_title")}
+
+                <div className="space-y-1.5">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {t("success_title", { defaultValue: "¡Teléfono Verificado!" })}
                   </h2>
-                  <p className="text-gray-500 dark:text-gray-400 font-light">
-                    {t("success_desc")}
+                  <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                    {t("success_desc", { defaultValue: "Tu número telefónico ha sido vinculado de forma segura a tu cuenta." })}
                   </p>
                 </div>
-                <div className="bg-gray-100 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2
-                      className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5"
-                      strokeWidth={1.5}
-                    />
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-black dark:text-white mb-0.5">
-                        {t("success_status")}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t("success_redirect")}
-                      </p>
-                    </div>
+
+                <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-900/40 text-left flex items-start gap-3 shadow-sm">
+                  <CheckCircle2
+                    className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+                    strokeWidth={2}
+                  />
+                  <div>
+                    <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300">
+                      {t("success_status", { defaultValue: "Verificación Completada" })}
+                    </p>
+                    <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mt-0.5">
+                      {t("success_redirect", { defaultValue: "Redirigiendo a tu panel de control..." })}
+                    </p>
                   </div>
                 </div>
-                <Button
+
+                <button
+                  type="button"
                   onClick={() =>
                     router.push(
                       role === "ROLE_PROVIDER"
@@ -357,16 +401,17 @@ export default function VerifyPhonePage() {
                         : "/patient/dashboard",
                     )
                   }
-                  className="w-full h-14 text-base font-semibold text-white bg-black hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 shadow-none rounded-none"
+                  className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 mt-2"
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {t("continue")}
-                </Button>
+                  <Sparkles className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("continue", { defaultValue: "Continuar" })}</span>
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
       </div>
+
     </div>
   );
 }
