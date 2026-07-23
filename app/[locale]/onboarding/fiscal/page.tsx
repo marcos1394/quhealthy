@@ -1,13 +1,13 @@
 "use client";
+
 /* eslint-disable react-doctor/click-events-have-key-events */
 /* eslint-disable react-doctor/no-giant-component */
 
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   UploadCloud,
-  Loader2,
   CheckCircle2,
   ArrowLeft,
   Building2,
@@ -19,8 +19,9 @@ import {
   FileKey,
   ShieldCheck,
   Check,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useFiscalOnboarding } from "@/hooks/useFiscalOnboarding";
 import { onboardingService } from "@/services/onboarding.service";
@@ -87,87 +88,88 @@ export default function FiscalPage() {
     (personType === "FISICA" ||
       actaConstitutiva?.verificationStatus === "APPROVED");
 
-  // ---------------------------------------------------------------------------
-  // LOADING STATE
-  // ---------------------------------------------------------------------------
+  // ── ESTADO: CARGANDO ───────────────────────────────────────────────────────
   if (isLoading)
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center gap-4 transition-colors">
-        <QhSpinner size="lg" label="Sincronizando Sistema Fiscal..." />
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center gap-3 transition-colors font-sans">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-semibold text-gray-400 animate-pulse">
+          Sincronizando sistema y expediente fiscal...
+        </p>
       </div>
     );
 
-  // ---------------------------------------------------------------------------
-  // SUCCESS (ALL DONE) STATE
-  // ---------------------------------------------------------------------------
+  // ── ESTADO: ÉXITO (TODOS LOS DOCUMENTOS VALIDADOS) ─────────────────────────
   if (allDone)
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6 transition-colors selection:bg-gray-200 dark:selection:bg-white/20">
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex items-center justify-center p-6 transition-colors duration-500 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
           className="w-full max-w-2xl"
         >
-          <div className="border border-black dark:border-white bg-gray-50 dark:bg-[#050505]">
-            <div className="p-10 md:p-16 text-center border-b border-gray-200 dark:border-gray-800">
-              <div className="w-20 h-20 mx-auto border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black mb-8">
-                <Check
-                  className="w-8 h-8 text-black dark:text-white"
-                  strokeWidth={2}
-                />
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-8 sm:p-12 shadow-sm space-y-8">
+            
+            {/* Success Banner */}
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mx-auto shadow-sm">
+                <Check className="w-8 h-8" strokeWidth={2.5} />
               </div>
-              <h2 className="text-3xl font-semibold mb-4 text-black dark:text-white tracking-tight">
-                Expediente Fiscal Validado
-              </h2>
-              <p className="text-gray-500 dark:text-gray-400 font-light text-lg">
-                Tus documentos fiscales y certificados CSD fueron aprobados
-                correctamente.
-              </p>
+
+              <div className="space-y-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Validación Fiscal Completa</span>
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight pt-2">
+                  Expediente Fiscal Verificado
+                </h2>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 max-w-md mx-auto leading-relaxed">
+                  Tus documentos fiscales y certificados de sello digital (CSD) fueron aprobados con éxito.
+                </p>
+              </div>
             </div>
 
-            {/* Extracted Fiscal Data (Architectural Grid) */}
+            {/* Extracted Fiscal Data */}
             {taxCertificate?.extractedData && (
-              <div className="p-8 md:p-12">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-6">
-                  Datos Extraídos (SAT)
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+              <div className="space-y-3 pt-2">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  Datos Fiscales Extraídos (SAT)
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {taxCertificate.extractedData.rfc && (
-                    <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6">
-                      <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-2">
-                        RFC
-                      </p>
-                      <p className="text-sm text-black dark:text-white font-mono">
+                    <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">RFC</span>
+                      <p className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">
                         {taxCertificate.extractedData.rfc}
                       </p>
                     </div>
                   )}
+
                   {taxCertificate.extractedData.nombre_o_razon_social && (
-                    <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6">
-                      <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-2">
-                        Razón Social
-                      </p>
-                      <p className="text-xs text-black dark:text-white font-bold">
+                    <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Razón Social</span>
+                      <p className="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">
                         {taxCertificate.extractedData.nombre_o_razon_social}
                       </p>
                     </div>
                   )}
+
                   {taxCertificate.extractedData.regimen_fiscal && (
-                    <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6">
-                      <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-2">
-                        Régimen Fiscal
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-300 font-light">
+                    <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Régimen Fiscal</span>
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 line-clamp-1">
                         {taxCertificate.extractedData.regimen_fiscal}
                       </p>
                     </div>
                   )}
+
                   {taxCertificate.extractedData.domicilio_fiscal && (
-                    <div className="border-b border-r border-gray-200 dark:border-gray-800 p-6">
-                      <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-2">
-                        Domicilio Fiscal
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-300 font-light">
+                    <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">Domicilio Fiscal</span>
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 line-clamp-1">
                         {taxCertificate.extractedData.domicilio_fiscal}
                       </p>
                     </div>
@@ -176,116 +178,113 @@ export default function FiscalPage() {
               </div>
             )}
 
-            <div className="p-8 md:p-12 border-t border-gray-200 dark:border-gray-800">
-              <Button
+            {/* Final Action Button */}
+            <div className="pt-4">
+              <button
+                type="button"
                 onClick={handleContinue}
-                className="w-full rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-14 text-[10px] font-bold uppercase tracking-widest transition-colors border-0"
+                className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
               >
-                Completar Configuración{" "}
-                <ArrowLeft className="w-4 h-4 ml-3 rotate-180" />
-              </Button>
+                <span>Completar Configuración</span>
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </button>
             </div>
+
           </div>
         </motion.div>
       </div>
     );
 
-  // ---------------------------------------------------------------------------
-  // MAIN FISCAL ONBOARDING COMPONENT
-  // ---------------------------------------------------------------------------
+  // ── ESTADO PRINCIPAL: FORMULARIO DE CARGA DE DOCUMENTOS ───────────────────
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white pt-8 pb-24 px-6 md:px-12 transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
-      <div className="max-w-4xl mx-auto relative z-10 space-y-12">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6">
-          <Button
-            variant="ghost"
-            className="rounded-none hover:bg-gray-50 dark:hover:bg-gray-900 px-4 text-[10px] font-bold uppercase tracking-widest"
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pt-28 pb-20 px-6 md:px-12 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Header / Nav */}
+        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm"
             onClick={() => router.back()}
           >
-            <ArrowLeft className="mr-3 w-4 h-4" />
-            {t("back") || "Atrás"}
-          </Button>
-          <div className="border border-black dark:border-white px-4 py-1.5 flex items-center gap-2">
-            <Shield className="w-3.5 h-3.5" strokeWidth={1.5} />
-            <span className="text-[10px] font-bold uppercase tracking-widest">
-              Entorno Seguro
-            </span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>{t("back", { defaultValue: "Volver" })}</span>
+          </button>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+            <Shield className="w-3.5 h-3.5" strokeWidth={2} />
+            <span>Entorno Cifrado CSD</span>
           </div>
         </div>
 
+        {/* Hero Title */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="space-y-3"
         >
-          <div className="flex items-center justify-between">
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-              Datos Fiscales
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+              Configuración <span className="text-emerald-600 dark:text-emerald-400">Fiscal</span>
             </h1>
-            <div className="border border-gray-200 dark:border-gray-800 px-4 py-2 bg-gray-50 dark:bg-[#050505] flex items-center gap-3">
+
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 shadow-sm text-xs font-bold text-gray-700 dark:text-gray-300 self-start sm:self-auto">
               {personType === "FISICA" ? (
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               ) : (
-                <Building2 className="w-4 h-4" />
+                <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               )}
-              <span className="text-[10px] font-bold uppercase tracking-widest">
-                {personType === "FISICA" ? "Persona Física" : "Persona Moral"}
-              </span>
+              <span>{personType === "FISICA" ? "Persona Física" : "Persona Moral"}</span>
             </div>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 font-light leading-relaxed max-w-2xl">
-            Sube tus documentos fiscales oficiales para habilitar la facturación
-            y verificar tu identidad tributaria en la plataforma.
+
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">
+            Proporciona tus archivos fiscales oficiales emitidos por el SAT para habilitar la facturación automatizada de tus consultas y validar tu identidad tributaria.
           </p>
         </motion.div>
 
-        <div className="space-y-8">
-          {/* Constancia Fiscal (CSF) */}
-          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-            <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
-                  <Landmark
-                    className="w-5 h-5 text-black dark:text-white"
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                    Constancia de Situación Fiscal
-                  </h3>
-                  <p className="text-[10px] text-gray-500 font-light mt-1">
-                    Archivo oficial emitido por el SAT (PDF o Imagen).
-                  </p>
-                </div>
+        {/* CARDS DE DOCUMENTOS */}
+        <div className="space-y-6">
+          
+          {/* 1. Constancia de Situación Fiscal (CSF) */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                <Landmark className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Constancia de Situación Fiscal (CSF)
+                </h3>
+                <p className="text-xs font-medium text-gray-500">
+                  Documento oficial emitido por el SAT en formato PDF o Imagen.
+                </p>
               </div>
             </div>
-            <div className="p-6 md:p-8">
+
+            <div>
               {taxCertificate?.verificationStatus === "APPROVED" ? (
-                <div className="space-y-6">
-                  <div className="border border-black dark:border-white p-4 flex items-center gap-4 bg-gray-50 dark:bg-[#050505]">
-                    <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                      Constancia fiscal validada
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      Constancia de Situación Fiscal Validada
                     </span>
                   </div>
+
                   {taxCertificate.extractedData?.rfc && (
-                    <div className="border-l-2 border-gray-200 dark:border-gray-800 pl-6 space-y-4 py-2">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <span className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
-                          RFC
-                        </span>
-                        <span className="text-sm font-bold font-mono text-black dark:text-white">
+                    <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-gray-400 uppercase">RFC Registrado</span>
+                        <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
                           {taxCertificate.extractedData.rfc}
                         </span>
                       </div>
                       {taxCertificate.extractedData.regimen_fiscal && (
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <span className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
-                            Régimen
-                          </span>
-                          <span className="text-xs text-gray-600 dark:text-gray-300 font-light sm:text-right">
+                        <div className="flex justify-between items-center text-xs border-t border-gray-100 dark:border-gray-800 pt-2">
+                          <span className="font-bold text-gray-400 uppercase">Régimen</span>
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">
                             {taxCertificate.extractedData.regimen_fiscal}
                           </span>
                         </div>
@@ -294,21 +293,21 @@ export default function FiscalPage() {
                   )}
                 </div>
               ) : taxCertificate?.verificationStatus === "REJECTED" ? (
-                <div className="space-y-6">
-                  <div className="border-l-2 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/10">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 flex items-center gap-2 mb-1">
-                      <AlertTriangle className="w-3.5 h-3.5" /> Rechazado
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
+                    <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" /> Documento Rechazado
                     </p>
-                    <p className="text-xs text-red-700 dark:text-red-300 font-light">
-                      {taxCertificate.rejectionReason ||
-                        "Documento rechazado, intenta de nuevo."}
+                    <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                      {taxCertificate.rejectionReason || "No pudimos validar tu constancia. Por favor reintenta con un archivo legible."}
                     </p>
                   </div>
+
                   <UploadZone
                     isUploading={isUploading}
                     inputRef={csfInputRef}
                     onChange={handleCsfUpload}
-                    label="Haz clic para subir CSF"
+                    label="Subir nueva Constancia (PDF o Imagen)"
                   />
                 </div>
               ) : (
@@ -316,57 +315,53 @@ export default function FiscalPage() {
                   isUploading={isUploading}
                   inputRef={csfInputRef}
                   onChange={handleCsfUpload}
-                  label="Haz clic para subir CSF"
+                  label="Haz clic para seleccionar tu Constancia de Situación Fiscal"
                 />
               )}
             </div>
           </div>
 
-          {/* Acta Constitutiva (Solo Persona Moral) */}
+          {/* 2. Acta Constitutiva (Solo Persona Moral) */}
           {personType === "MORAL" && (
-            <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-              <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
-                    <Building2
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                      Acta Constitutiva
-                    </h3>
-                    <p className="text-[10px] text-gray-500 font-light mt-1">
-                      Requerida exclusivamente para personas morales.
-                    </p>
-                  </div>
+            <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                  <Building2 className="w-5 h-5" strokeWidth={2} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    Acta Constitutiva
+                  </h3>
+                  <p className="text-xs font-medium text-gray-500">
+                    Documento notarial requerido exclusivamente para personas morales.
+                  </p>
                 </div>
               </div>
-              <div className="p-6 md:p-8">
+
+              <div>
                 {actaConstitutiva?.verificationStatus === "APPROVED" ? (
-                  <div className="border border-black dark:border-white p-4 flex items-center gap-4 bg-gray-50 dark:bg-[#050505]">
-                    <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                      Acta constitutiva validada
+                  <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      Acta Constitutiva Validada
                     </span>
                   </div>
                 ) : actaConstitutiva?.verificationStatus === "REJECTED" ? (
-                  <div className="space-y-6">
-                    <div className="border-l-2 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/10">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 flex items-center gap-2 mb-1">
-                        <AlertTriangle className="w-3.5 h-3.5" /> Rechazado
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
+                      <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                        <AlertTriangle className="w-4 h-4" /> Documento Rechazado
                       </p>
-                      <p className="text-xs text-red-700 dark:text-red-300 font-light">
-                        {actaConstitutiva.rejectionReason ||
-                          "Documento rechazado, intenta de nuevo."}
+                      <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                        {actaConstitutiva.rejectionReason || "Por favor sube un documento notarial legible."}
                       </p>
                     </div>
+
                     <UploadZone
                       isUploading={isUploading}
                       inputRef={actaInputRef}
                       onChange={handleActaUpload}
-                      label="Haz clic para subir Acta"
+                      label="Subir Acta Constitutiva (PDF)"
                     />
                   </div>
                 ) : (
@@ -374,94 +369,73 @@ export default function FiscalPage() {
                     isUploading={isUploading}
                     inputRef={actaInputRef}
                     onChange={handleActaUpload}
-                    label="Haz clic para subir Acta"
+                    label="Haz clic para seleccionar tu Acta Constitutiva"
                   />
                 )}
               </div>
             </div>
           )}
 
-          {/* CSD — Certificado de Sello Digital (.cer) */}
-          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-            <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-[#0a0a0a] shrink-0">
-                  <ShieldCheck
-                    className="w-5 h-5 text-black dark:text-white"
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                    Certificado de Sello Digital (.cer)
-                  </h3>
-                  <p className="text-[10px] text-gray-500 font-light mt-1">
-                    Archivo público para firmar facturas electrónicas (CFDI).
-                  </p>
-                </div>
+          {/* 3. CSD - Certificado de Sello Digital (.cer) */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                <ShieldCheck className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Certificado de Sello Digital (.cer)
+                </h3>
+                <p className="text-xs font-medium text-gray-500">
+                  Archivo público necesario para timbrar facturas electrónicas (CFDI).
+                </p>
               </div>
             </div>
-            <div className="p-6 md:p-8">
+
+            <div>
               {csdCertificate?.verificationStatus === "APPROVED" ? (
-                <div className="space-y-6">
-                  <div className="border border-black dark:border-white p-4 flex items-center gap-4 bg-gray-50 dark:bg-[#050505]">
-                    <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
                       Certificado CSD Validado
                     </span>
                   </div>
+
                   {csdCertificate.extractedData && (
-                    <div className="border-l-2 border-gray-200 dark:border-gray-800 pl-6 space-y-4 py-2">
-                      {csdCertificate.extractedData.rfc && (
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <span className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
-                            RFC
-                          </span>
-                          <span className="text-sm font-bold font-mono text-black dark:text-white">
-                            {csdCertificate.extractedData.rfc}
-                          </span>
-                        </div>
-                      )}
+                    <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-2 text-xs font-medium">
                       {csdCertificate.extractedData.serial_number && (
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <span className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
-                            No. Serie
-                          </span>
-                          <span className="text-xs text-gray-600 dark:text-gray-300 font-mono">
-                            {csdCertificate.extractedData.serial_number}
-                          </span>
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-gray-400 uppercase">No. Serie</span>
+                          <span className="font-mono text-gray-900 dark:text-white">{csdCertificate.extractedData.serial_number}</span>
                         </div>
                       )}
                       {csdCertificate.extractedData.valid_to && (
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <span className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
-                            Vigente hasta
-                          </span>
-                          <span className="text-xs text-gray-600 dark:text-gray-300 font-light">
-                            {csdCertificate.extractedData.valid_to}
-                          </span>
+                        <div className="flex justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-2">
+                          <span className="font-bold text-gray-400 uppercase">Vigente Hasta</span>
+                          <span className="text-gray-700 dark:text-gray-300">{csdCertificate.extractedData.valid_to}</span>
                         </div>
                       )}
                     </div>
                   )}
                 </div>
               ) : csdCertificate?.verificationStatus === "REJECTED" ? (
-                <div className="space-y-6">
-                  <div className="border-l-2 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/10">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 flex items-center gap-2 mb-1">
-                      <AlertTriangle className="w-3.5 h-3.5" /> Rechazado
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
+                    <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" /> Archivo Rechazado
                     </p>
-                    <p className="text-xs text-red-700 dark:text-red-300 font-light">
-                      {csdCertificate.rejectionReason ||
-                        "Archivo rechazado, intenta de nuevo."}
+                    <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                      {csdCertificate.rejectionReason || "Asegúrate de subir el archivo .cer correspondiente a tu CSD."}
                     </p>
                   </div>
+
                   <CsdUploadZone
                     isUploading={isUploading}
                     inputRef={csdCerInputRef}
                     onChange={handleCsdCerUpload}
                     accept=".cer"
-                    label="Subir archivo .cer"
+                    label="Subir Certificado .cer"
                   />
                 </div>
               ) : (
@@ -470,57 +444,53 @@ export default function FiscalPage() {
                   inputRef={csdCerInputRef}
                   onChange={handleCsdCerUpload}
                   accept=".cer"
-                  label="Subir archivo .cer"
+                  label="Seleccionar archivo .cer"
                 />
               )}
             </div>
           </div>
 
-          {/* CSD — Llave Privada (.key) */}
-          <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-            <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-[#0a0a0a] shrink-0">
-                  <KeyRound
-                    className="w-5 h-5 text-black dark:text-white"
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                    Llave Privada (.key)
-                  </h3>
-                  <p className="text-[10px] text-gray-500 font-light mt-1">
-                    Archivo de seguridad para la validación del sello digital.
-                  </p>
-                </div>
+          {/* 4. CSD - Llave Privada (.key) */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                <KeyRound className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Llave Privada (.key)
+                </h3>
+                <p className="text-xs font-medium text-gray-500">
+                  Archivo de clave privada para la generación cifrada de sellos fiscales.
+                </p>
               </div>
             </div>
-            <div className="p-6 md:p-8">
+
+            <div>
               {csdKey?.verificationStatus === "APPROVED" ? (
-                <div className="border border-black dark:border-white p-4 flex items-center gap-4 bg-gray-50 dark:bg-[#050505]">
-                  <CheckCircle2 className="w-5 h-5 text-black dark:text-white" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                    Llave privada validada y encriptada
+                <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="text-xs font-bold text-gray-900 dark:text-white">
+                    Llave Privada Validada y Encriptada
                   </span>
                 </div>
               ) : csdKey?.verificationStatus === "REJECTED" ? (
-                <div className="space-y-6">
-                  <div className="border-l-2 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/10">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 flex items-center gap-2 mb-1">
-                      <AlertTriangle className="w-3.5 h-3.5" /> Rechazado
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
+                    <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" /> Archivo Rechazado
                     </p>
-                    <p className="text-xs text-red-700 dark:text-red-300 font-light">
-                      {csdKey.rejectionReason ||
-                        "Archivo rechazado, intenta de nuevo."}
+                    <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                      {csdKey.rejectionReason || "Por favor verifica que la llave privada corresponda al certificado CSD."}
                     </p>
                   </div>
+
                   <CsdUploadZone
                     isUploading={isUploading}
                     inputRef={csdKeyInputRef}
                     onChange={handleCsdKeyUpload}
                     accept=".key"
-                    label="Subir archivo .key"
+                    label="Subir Llave Privada .key"
                   />
                 </div>
               ) : (
@@ -529,34 +499,31 @@ export default function FiscalPage() {
                   inputRef={csdKeyInputRef}
                   onChange={handleCsdKeyUpload}
                   accept=".key"
-                  label="Subir archivo .key"
+                  label="Seleccionar archivo .key"
                 />
               )}
             </div>
           </div>
 
-          {/* Security Footer (Architectural Note) */}
-          <div className="border-l-2 border-black dark:border-white pl-6 py-4 bg-gray-50 dark:bg-[#050505]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2 flex items-center gap-2">
-              <FileKey className="w-4 h-4" strokeWidth={1.5} /> Archivos CSD
-              Seguros
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed max-w-3xl">
-              Tu llave privada (.key) y certificado (.cer) se almacenan de forma
-              cifrada en bóvedas de alta seguridad y solo serán utilizados para
-              la emisión automatizada de facturas CFDI a través del PAC
-              contratado.
+          {/* Bóveda de Seguridad Informativa */}
+          <div className="bg-gray-900 dark:bg-[#0a0a0a] border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-xl text-white space-y-2">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+              <FileKey className="w-4 h-4" />
+              <span>Bóveda Cifrada de Alta Seguridad</span>
+            </div>
+            <p className="text-xs font-medium text-gray-300 leading-relaxed">
+              Tus llaves y certificados digitales se almacenan cifrados con algoritmos AES-256 en servidores protegidos. Solo se emplean para la generación automatizada de comprobantes fiscales (CFDI) a través del PAC autorizado.
             </p>
           </div>
+
         </div>
+
       </div>
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// ARCHITECTURAL DROPZONES
-// ---------------------------------------------------------------------------
+// ── COMPONENTES DE CARGA (DROPZONES) ─────────────────────────────────────────
 
 function UploadZone({
   isUploading,
@@ -574,26 +541,28 @@ function UploadZone({
       <div
         onClick={() => !isUploading && inputRef.current?.click()}
         className={cn(
-          "h-48 w-full border border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors group",
+          "h-44 w-full rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all",
           isUploading
-            ? "border-gray-300 dark:border-gray-700 opacity-70 cursor-not-allowed bg-gray-50 dark:bg-[#050505]"
-            : "border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a]",
+            ? "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] opacity-60 cursor-not-allowed"
+            : "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10"
         )}
       >
         {isUploading ? (
-          <QhSpinner size="md" />
+          <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400 mb-2" />
         ) : (
-          <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-4 group-hover:border-black dark:group-hover:border-white transition-colors">
-            <UploadCloud
-              className="w-5 h-5 text-black dark:text-white"
-              strokeWidth={1.5}
-            />
+          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm mb-3">
+            <UploadCloud className="w-6 h-6" strokeWidth={2} />
           </div>
         )}
-        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white text-center">
-          {isUploading ? "Analizando archivo..." : label}
+
+        <p className="text-xs font-bold text-gray-900 dark:text-white">
+          {isUploading ? "Analizando y procesando documento..." : label}
+        </p>
+        <p className="text-[11px] font-medium text-gray-400 mt-1">
+          Soporta formatos PDF, PNG o JPEG (Máximo 10MB)
         </p>
       </div>
+
       <input
         type="file"
         ref={inputRef}
@@ -623,29 +592,28 @@ function CsdUploadZone({
       <div
         onClick={() => !isUploading && inputRef.current?.click()}
         className={cn(
-          "h-32 w-full border border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors group",
+          "h-32 w-full rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all",
           isUploading
-            ? "border-gray-300 dark:border-gray-700 opacity-70 cursor-not-allowed bg-gray-50 dark:bg-[#050505]"
-            : "border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white hover:bg-gray-100 dark:hover:bg-[#0a0a0a]",
+            ? "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] opacity-60 cursor-not-allowed"
+            : "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10"
         )}
       >
         {isUploading ? (
-          <QhSpinner size="sm" />
+          <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400 mb-1" />
         ) : (
-          <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black mb-3 group-hover:border-black dark:group-hover:border-white transition-colors">
-            <UploadCloud
-              className="w-4 h-4 text-black dark:text-white"
-              strokeWidth={1.5}
-            />
+          <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm mb-2">
+            <UploadCloud className="w-5 h-5" strokeWidth={2} />
           </div>
         )}
-        <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white text-center">
-          {isUploading ? "Validando archivo..." : label}
+
+        <p className="text-xs font-bold text-gray-900 dark:text-white">
+          {isUploading ? "Validando CSD..." : label}
         </p>
-        <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light mt-1.5">
-          {accept} • Máx 1MB
+        <p className="text-[10px] font-semibold font-mono text-gray-400 mt-0.5">
+          {accept} • Archivo CSD Máx 2MB
         </p>
       </div>
+
       <input
         type="file"
         ref={inputRef}

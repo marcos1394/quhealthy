@@ -24,6 +24,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@quhealthy/health-os-contract": [
+        "../health-os-contract/src"
       ]
     },
     "target": "ES2017"

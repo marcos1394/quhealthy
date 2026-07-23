@@ -1,14 +1,13 @@
 "use client";
+
 /* eslint-disable react-doctor/no-giant-component */
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ShieldCheck,
   UploadCloud,
-  X,
   Loader2,
   CheckCircle2,
   ScanFace,
@@ -17,10 +16,12 @@ import {
   Lock,
   AlertCircle,
   FileCheck,
-  Sparkles,
+  ShieldCheck,
   Shield,
-  Info,
   Check,
+  Sparkles,
+  ArrowRight,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -125,42 +126,43 @@ export default function KycPage() {
     const f = e.target.files?.[0];
     if (f) handleUpload(f, type);
   };
+
   const handleUpload = async (file: File, type: KycDocumentType) => {
     if (file.size > 20 * 1024 * 1024) {
-      toast.warning("Max 10MB.");
+      toast.warning("El archivo excede el límite de 10MB.");
       return;
     }
     await uploadDocument(file, type);
   };
 
-  // Strict Badges
+  // Badges de Estado Estilizados
   const getStatusBadge = (status?: KycVerificationStatus) => {
     switch (status) {
       case "APPROVED":
         return (
-          <span className="bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1">
-            <Check className="w-3 h-3" />
-            {t("approved")}
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+            <Check className="w-3 h-3" strokeWidth={2.5} />
+            <span>{t("approved", { defaultValue: "Aprobado" })}</span>
           </span>
         );
       case "REJECTED":
         return (
-          <span className="bg-red-500 text-white border border-red-500 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" />
-            {t("rejected")}
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 text-xs font-bold border border-red-200 dark:border-red-900/40">
+            <AlertCircle className="w-3 h-3" strokeWidth={2} />
+            <span>{t("rejected", { defaultValue: "Rechazado" })}</span>
           </span>
         );
       case "PROCESSING":
         return (
-          <span className="bg-blue-500 text-white border border-blue-500 px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 animate-pulse">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            {t("verifying")}
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 text-xs font-bold border border-blue-200 dark:border-blue-900/40 animate-pulse">
+            <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />
+            <span>{t("verifying", { defaultValue: "Verificando..." })}</span>
           </span>
         );
       default:
         return (
-          <span className="bg-gray-100 dark:bg-gray-900 text-gray-500 border border-gray-200 dark:border-gray-800 px-2 py-1 text-[9px] font-bold uppercase tracking-widest">
-            {t("pending")}
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-bold border border-gray-200 dark:border-gray-700">
+            <span>{t("pending", { defaultValue: "Pendiente" })}</span>
           </span>
         );
     }
@@ -185,27 +187,23 @@ export default function KycPage() {
 
     return (
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
-          "relative group border p-6 flex flex-col gap-4 transition-colors",
-          isApproved
-            ? "border-black dark:border-white bg-gray-50 dark:bg-[#050505]"
-            : "",
-          isRejected ? "border-red-500 bg-red-50 dark:bg-red-900/10" : "",
-          isProcessing ? "border-blue-500 bg-blue-50 dark:bg-blue-900/10" : "",
-          !isApproved && !isRejected && !isProcessing
-            ? "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
-            : "",
+          "bg-white dark:bg-[#0a0a0a] border rounded-3xl p-6 sm:p-7 shadow-sm transition-all space-y-4",
+          isApproved && "border-emerald-500/40 dark:border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/10",
+          isRejected && "border-red-200 dark:border-red-900/40 bg-red-50/30 dark:bg-red-950/10",
+          isProcessing && "border-blue-200 dark:border-blue-900/40",
+          !isApproved && !isRejected && !isProcessing && "border-gray-100 dark:border-gray-800"
         )}
       >
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div className="flex-1">
-            <Label className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white block mb-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <Label className="text-sm font-bold text-gray-900 dark:text-white block">
               {label}
             </Label>
             {description && (
-              <p className="text-[9px] uppercase tracking-widest text-gray-500 font-light">
+              <p className="text-xs font-medium text-gray-500 leading-relaxed">
                 {description}
               </p>
             )}
@@ -219,81 +217,86 @@ export default function KycPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="border-l-2 border-red-500 pl-3 py-1"
+              className="p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-xs text-red-700 dark:text-red-300 font-medium space-y-1"
             >
-              <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-400 mb-0.5">
-                {t("rejection_reason")}
-              </p>
-              <p className="text-xs text-red-600 dark:text-red-400 font-light">
-                {docData.rejectionReason}
-              </p>
+              <p className="font-bold uppercase tracking-wider text-[10px]">Motivo del rechazo:</p>
+              <p>{docData.rejectionReason}</p>
             </motion.div>
           )}
         </AnimatePresence>
 
         {docData?.fileUrl ? (
-          <div className="relative h-48 w-full bg-gray-100 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 group/preview flex items-center justify-center p-2">
+          <div className="relative h-52 w-full rounded-2xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 overflow-hidden group/preview flex items-center justify-center p-2 shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={docData.fileUrl}
-              alt="Preview"
-              className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-screen"
+              alt="Vista previa del documento"
+              className="w-full h-full object-contain"
             />
             {!isApproved && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-all duration-300">
-                <Button
-                  size="sm"
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-all duration-300">
+                <button
+                  type="button"
                   onClick={() => inputRef.current?.click()}
-                  className="rounded-none bg-white text-black hover:bg-gray-200 h-10 px-6 text-[10px] font-bold uppercase tracking-widest"
+                  className="h-10 px-5 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-bold text-xs shadow-md transition-colors flex items-center gap-2"
                 >
-                  <UploadCloud className="w-3 h-3 mr-2" /> {t("change_image")}
-                </Button>
+                  <UploadCloud className="w-4 h-4" />
+                  <span>{t("change_image", { defaultValue: "Cambiar Imagen" })}</span>
+                </button>
               </div>
             )}
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row gap-4 h-auto sm:h-36">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => !isUp && inputRef.current?.click()}
-              className="flex-1 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:bg-gray-100 dark:hover:bg-[#0a0a0a] hover:border-black dark:hover:border-white flex flex-col items-center justify-center gap-3 transition-colors group/upload p-6"
+              className="h-32 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 flex flex-col items-center justify-center gap-2.5 p-4 transition-all group/upload"
             >
               {isUp ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin text-black dark:text-white" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                    {t("uploading")}
+                  <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("uploading", { defaultValue: "Subiendo..." })}
                   </span>
                 </>
               ) : (
                 <>
-                  <UploadCloud
-                    className="w-6 h-6 text-gray-400 group-hover/upload:text-black dark:group-hover/upload:text-white transition-colors"
-                    strokeWidth={1.5}
-                  />
+                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover/upload:scale-105 transition-transform">
+                    <UploadCloud className="w-5 h-5" strokeWidth={2} />
+                  </div>
                   <div className="text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 block mb-1">
-                      {t("upload_image")}
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                      {t("upload_image", { defaultValue: "Subir Archivo" })}
                     </span>
-                    <span className="text-[9px] uppercase tracking-widest text-gray-400 font-light">
-                      {t("file_hint")}
+                    <span className="text-[10px] font-semibold text-gray-400">
+                      {t("file_hint", { defaultValue: "PNG, JPG • Máx 10MB" })}
                     </span>
                   </div>
                 </>
               )}
             </button>
+
             <button
               type="button"
               onClick={() => !isUp && startCamera(type)}
-              className="sm:w-32 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-black dark:hover:border-white flex flex-col items-center justify-center gap-3 transition-colors p-6 sm:p-0"
+              className="h-32 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] hover:border-emerald-500/50 flex flex-col items-center justify-center gap-2.5 p-4 transition-all shadow-sm group/cam"
             >
-              <Camera className="w-5 h-5" strokeWidth={1.5} />
-              <span className="text-[10px] font-bold uppercase tracking-widest">
-                {t("camera")}
-              </span>
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm group-hover/cam:scale-105 transition-transform">
+                <Camera className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div className="text-center">
+                <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                  {t("camera", { defaultValue: "Usar Cámara" })}
+                </span>
+                <span className="text-[10px] font-semibold text-gray-400">
+                  Captura directa en vivo
+                </span>
+              </div>
             </button>
           </div>
         )}
+
         <input
           type="file"
           ref={inputRef}
@@ -307,10 +310,12 @@ export default function KycPage() {
 
   const handleFinishStep = () => {
     if (isKycComplete()) {
-      toast.success(t("success_toast"));
+      toast.success(t("success_toast", { defaultValue: "¡Verificación completada con éxito!" }));
       router.push("/onboarding");
       router.refresh();
-    } else toast.warn(t("pending_toast"));
+    } else {
+      toast.warn(t("pending_toast", { defaultValue: "Por favor completa todos los documentos requeridos." }));
+    }
   };
 
   const calculateProgress = () => {
@@ -332,8 +337,11 @@ export default function KycPage() {
 
   if (isInitialLoading)
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
-        <QhSpinner size="lg" label={t("loading")} />
+      <div className="min-h-[80vh] flex flex-col items-center justify-center gap-3 bg-gray-50/50 dark:bg-[#050505] selection:bg-emerald-100 font-sans">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-semibold text-gray-400 animate-pulse">
+          {t("loading", { defaultValue: "Cargando expediente de verificación..." })}
+        </p>
       </div>
     );
 
@@ -344,73 +352,73 @@ export default function KycPage() {
   const progress = calculateProgress();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white pt-8 pb-20 px-6 md:px-12 selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
-      {/* Camera Modal (Architectural Framing) */}
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pt-28 pb-20 px-6 md:px-12 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 font-sans">
+      
+      {/* ── MODAL DE CÁMARA ──────────────────────────────────────────────── */}
       <AnimatePresence>
         {isCameraOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4 md:p-12"
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-12"
           >
-            <div className="relative w-full max-w-5xl aspect-video bg-black border border-gray-800">
+            <div className="relative w-full max-w-4xl aspect-video bg-black rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 muted
                 className="w-full h-full object-cover"
-              />{" "}
-              {/* Grayscale gives security cam vibe, remove if needed */}
+              />
               <canvas ref={canvasRef} className="hidden" />
-              {/* Overlay Grid */}
+
+              {/* Guía Visual / Overlay */}
               <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
                 <div
-                  className="absolute inset-0 opacity-20"
+                  className="absolute inset-0 opacity-15"
                   style={{
                     backgroundImage:
                       "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
                     backgroundSize: "40px 40px",
                   }}
                 />
+
                 <motion.div
-                  animate={{ scale: [1, 1.02, 1] }}
+                  animate={{ scale: [1, 1.01, 1] }}
                   transition={{ duration: 3, repeat: Infinity }}
                   className={cn(
-                    "border border-white/60 relative",
-                    activeCaptureType === "SELFIE" ? "w-64 h-80" : "w-96 h-60",
+                    "border-2 border-emerald-400 rounded-3xl relative shadow-2xl bg-emerald-500/5",
+                    activeCaptureType === "SELFIE" ? "w-64 h-80 rounded-full" : "w-[380px] h-[240px]",
                   )}
-                >
-                  {/* Crosshairs */}
-                  <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-red-500" />
-                  <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-red-500" />
-                  <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-red-500" />
-                  <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-red-500" />
-                </motion.div>
-                <div className="mt-8 bg-black border border-white px-4 py-2">
-                  <p className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                    <ScanFace className="w-4 h-4" />
+                />
+
+                <div className="mt-6 bg-black/80 backdrop-blur-md border border-gray-800 px-4 py-2 rounded-full shadow-lg">
+                  <p className="text-white text-xs font-bold flex items-center gap-2">
+                    <ScanFace className="w-4 h-4 text-emerald-400" />
                     {activeCaptureType === "SELFIE"
-                      ? t("camera_selfie_hint")
-                      : t("camera_doc_hint")}
+                      ? t("camera_selfie_hint", { defaultValue: "Centra tu rostro dentro del círculo" })
+                      : t("camera_doc_hint", { defaultValue: "Alinea tu documento dentro del marco" })}
                   </p>
                 </div>
               </div>
-              <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-12 z-10">
-                <Button
-                  variant="ghost"
+
+              {/* Controles Inferiores */}
+              <div className="absolute bottom-6 inset-x-0 flex justify-center items-center gap-6 z-10">
+                <button
+                  type="button"
                   onClick={stopCamera}
-                  className="rounded-none bg-black text-white hover:bg-white hover:text-black border border-white h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors"
+                  className="h-11 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors text-xs font-bold shadow-sm"
                 >
                   Cancelar
-                </Button>
+                </button>
+
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={capturePhoto}
-                  className="w-16 h-16 rounded-none border border-white bg-black hover:bg-white hover:text-black transition-colors flex items-center justify-center group"
+                  className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 transition-colors flex items-center justify-center text-white shadow-lg"
                 >
-                  <Camera className="w-6 h-6 text-white group-hover:text-black" />
+                  <Camera className="w-6 h-6" />
                 </motion.button>
               </div>
             </div>
@@ -418,321 +426,297 @@ export default function KycPage() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-6xl mx-auto space-y-12">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6">
-          <Button
-            variant="ghost"
-            className="rounded-none hover:bg-gray-50 dark:hover:bg-gray-900 px-4 text-[10px] font-bold uppercase tracking-widest"
+      <div className="max-w-6xl mx-auto space-y-10">
+        
+        {/* Header de Navegación */}
+        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+          <button
+            type="button"
             onClick={() => router.back()}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm"
           >
-            <ArrowLeft className="mr-3 w-4 h-4" />
-            {t("back")}
-          </Button>
-          <div className="border border-black dark:border-white px-4 py-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-              <ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} /> KYC
-              Validation
-            </span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>{t("back", { defaultValue: "Volver" })}</span>
+          </button>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+            <ShieldCheck className="w-3.5 h-3.5" strokeWidth={2} />
+            <span>Validación Biométrica KYC</span>
           </div>
         </div>
 
-        {/* Title & Progress */}
+        {/* Hero Title & Progress */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
           className="space-y-6"
         >
-          <h1 className="text-4xl md:text-5xl font-semibold text-black dark:text-white tracking-tight">
-            {t("title")}
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 max-w-2xl font-light leading-relaxed">
-            {t("desc")}
-          </p>
+          <div className="space-y-2">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+              {t("title", { defaultValue: "Verificación de Identidad" })}
+            </h1>
+            <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
+              {t("desc", { defaultValue: "Sube una identificación oficial vigente y una prueba de vida (selfie) para verificar tu cuenta en cumplimiento con normativas de seguridad médica." })}
+            </p>
+          </div>
 
-          <div className="max-w-xl pt-4">
-            <div className="flex justify-between items-end mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                {t("progress")}
+          {/* Barra de Progreso */}
+          <div className="max-w-xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-sm space-y-2.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-gray-400 uppercase tracking-wider">
+                {t("progress", { defaultValue: "Progreso de Verificación" })}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
+              <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
                 {Math.round(progress)}%
               </span>
             </div>
-            <div className="w-full h-px bg-gray-200 dark:bg-gray-800 relative">
+            <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
               <motion.div
-                className="absolute top-0 left-0 h-full bg-black dark:bg-white"
+                className="h-full bg-emerald-600 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
               />
             </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* LEFT: Documents */}
-          <div className="lg:col-span-2 space-y-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
-            >
-              <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8 bg-gray-50 dark:bg-[#050505]">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center bg-white dark:bg-black shrink-0">
-                    <FileCheck
-                      className="w-5 h-5 text-black dark:text-white"
-                      strokeWidth={1.5}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                      {t("id_title")}
-                    </h3>
-                    <p className="text-[10px] uppercase tracking-widest text-gray-500 font-light mt-1">
-                      {t("id_desc")}
-                    </p>
-                  </div>
+        {/* GRID PRINCIPAL */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* COLUMNA IZQUIERDA: ZONAS DE CARGA */}
+          <div className="lg:col-span-8 space-y-6">
+            
+            {/* Card Documento de Identidad */}
+            <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                  <FileCheck className="w-5 h-5" strokeWidth={2} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    {t("id_title", { defaultValue: "Documento de Identificación" })}
+                  </h3>
+                  <p className="text-xs font-medium text-gray-500">
+                    {t("id_desc", { defaultValue: "Selecciona tu tipo de documento oficial y sube ambas caras." })}
+                  </p>
                 </div>
               </div>
-              <div className="p-6 md:p-8 space-y-6">
-                {/* Flat Tabs */}
-                <Tabs
-                  value={activeTab}
-                  onValueChange={(v) => setActiveTab(v as UiDocType)}
-                  className="w-full"
-                >
-                  <TabsList className="flex w-full bg-transparent border-b border-gray-200 dark:border-gray-800 rounded-none h-12 p-0 space-x-6">
-                    <TabsTrigger
-                      value="ine"
-                      disabled={isIdentityApproved}
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-transparent data-[state=active]:bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-400 data-[state=active]:text-black dark:data-[state=active]:text-white shadow-none px-0 h-full"
-                    >
-                      {t("ine_tab")}
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="passport"
-                      disabled={isIdentityApproved}
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-transparent data-[state=active]:bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-400 data-[state=active]:text-black dark:data-[state=active]:text-white shadow-none px-0 h-full"
-                    >
-                      {t("passport_tab")}
-                    </TabsTrigger>
-                    {personType === "MORAL" && (
-                      <TabsTrigger
-                        value="acta"
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-black dark:data-[state=active]:border-white bg-transparent data-[state=active]:bg-transparent text-[10px] font-bold uppercase tracking-widest text-gray-400 data-[state=active]:text-black dark:data-[state=active]:text-white shadow-none px-0 h-full"
-                      >
-                        Acta Const.
-                      </TabsTrigger>
-                    )}
-                  </TabsList>
-                </Tabs>
 
-                {activeTab === "ine" && (
-                  <div className="grid grid-cols-1 gap-6">
-                    {renderUploadZone({
-                      type: "INE_FRONT",
-                      label: t("ine_front"),
-                      description: t("ine_front_desc"),
-                      inputRef: ineFrontInput,
-                    })}
-                    {renderUploadZone({
-                      type: "INE_BACK",
-                      label: t("ine_back"),
-                      description: t("ine_back_desc"),
-                      inputRef: ineBackInput,
-                    })}
-                  </div>
-                )}
-                {activeTab === "passport" &&
-                  renderUploadZone({
-                    type: "PASSPORT",
-                    label: t("passport_label"),
-                    description: t("passport_desc"),
-                    inputRef: passportInput,
-                  })}
-                {activeTab === "acta" &&
-                  personType === "MORAL" &&
-                  renderUploadZone({
-                    type: "ACTA_CONSTITUTIVA",
-                    label: "Acta Constitutiva",
-                    description: "Documento constitutivo de la empresa",
-                    inputRef: actaInput,
-                  })}
-              </div>
-            </motion.div>
+              {/* Tabs de Documentos */}
+              <Tabs
+                value={activeTab}
+                onValueChange={(v) => setActiveTab(v as UiDocType)}
+                className="w-full space-y-6"
+              >
+                <TabsList className="flex w-full bg-gray-50/50 dark:bg-[#050505] p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800">
+                  <TabsTrigger
+                    value="ine"
+                    disabled={isIdentityApproved}
+                    className="flex-1 rounded-xl text-xs font-bold py-2.5 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all text-gray-600 dark:text-gray-400"
+                  >
+                    {t("ine_tab", { defaultValue: "Credencial INE / IFE" })}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="passport"
+                    disabled={isIdentityApproved}
+                    className="flex-1 rounded-xl text-xs font-bold py-2.5 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all text-gray-600 dark:text-gray-400"
+                  >
+                    {t("passport_tab", { defaultValue: "Pasaporte" })}
+                  </TabsTrigger>
+                  {personType === "MORAL" && (
+                    <TabsTrigger
+                      value="acta"
+                      className="flex-1 rounded-xl text-xs font-bold py-2.5 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all text-gray-600 dark:text-gray-400"
+                    >
+                      Acta Constitutiva
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+              </Tabs>
 
-            {/* Selfie */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className={cn(
-                "border border-gray-200 dark:border-gray-800 transition-all",
-                isIdentityApproved
-                  ? "bg-white dark:bg-[#0a0a0a]"
-                  : "bg-gray-50 dark:bg-[#050505] opacity-50",
+              {activeTab === "ine" && (
+                <div className="space-y-6">
+                  {renderUploadZone({
+                    type: "INE_FRONT",
+                    label: t("ine_front", { defaultValue: "INE / IFE (Frente)" }),
+                    description: t("ine_front_desc", { defaultValue: "Fotografía frontal clara del documento oficial." }),
+                    inputRef: ineFrontInput,
+                  })}
+                  {renderUploadZone({
+                    type: "INE_BACK",
+                    label: t("ine_back", { defaultValue: "INE / IFE (Reverso)" }),
+                    description: t("ine_back_desc", { defaultValue: "Reverso del documento con código de barras visible." }),
+                    inputRef: ineBackInput,
+                  })}
+                </div>
               )}
-            >
-              <div className="border-b border-gray-200 dark:border-gray-800 p-6 md:p-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 flex items-center justify-center bg-white dark:bg-black shrink-0">
-                    <ScanFace
-                      className={cn(
-                        "w-5 h-5",
-                        isIdentityApproved
-                          ? "text-black dark:text-white"
-                          : "text-gray-400",
-                      )}
-                      strokeWidth={1.5}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                      {t("selfie_title")}
-                    </h3>
-                    <p className="text-[10px] uppercase tracking-widest text-gray-500 font-light mt-1">
-                      {t("selfie_desc")}
-                    </p>
-                  </div>
+
+              {activeTab === "passport" &&
+                renderUploadZone({
+                  type: "PASSPORT",
+                  label: t("passport_label", { defaultValue: "Pasaporte Vigente" }),
+                  description: t("passport_desc", { defaultValue: "Página de datos personales con fotografía." }),
+                  inputRef: passportInput,
+                })}
+
+              {activeTab === "acta" &&
+                personType === "MORAL" &&
+                renderUploadZone({
+                  type: "ACTA_CONSTITUTIVA",
+                  label: "Acta Constitutiva",
+                  description: "Documento legal de constitución corporativa",
+                  inputRef: actaInput,
+                })}
+            </div>
+
+            {/* Card Prueba de Vida (Selfie) */}
+            <div className={cn(
+              "bg-white dark:bg-[#0a0a0a] border rounded-3xl p-6 sm:p-8 shadow-sm transition-all space-y-6",
+              isIdentityApproved ? "border-gray-100 dark:border-gray-800" : "border-gray-100 dark:border-gray-800 opacity-60 pointer-events-none"
+            )}>
+              <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                  <ScanFace className="w-5 h-5" strokeWidth={2} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    {t("selfie_title", { defaultValue: "Prueba de Vida Biométrica" })}
+                  </h3>
+                  <p className="text-xs font-medium text-gray-500">
+                    {t("selfie_desc", { defaultValue: "Selfie facial para validar coincidencia con tu identificación." })}
+                  </p>
                 </div>
               </div>
-              <div className="p-6 md:p-8">
+
+              <div>
                 {isIdentityApproved ? (
                   renderUploadZone({
                     type: "SELFIE",
-                    label: t("selfie_label"),
-                    description: t("selfie_hint"),
+                    label: t("selfie_label", { defaultValue: "Fotografía Selfie" }),
+                    description: t("selfie_hint", { defaultValue: "Asegúrate de tener buena iluminación y mirar al frente." }),
                     inputRef: selfieInput,
                   })
                 ) : (
-                  <div className="border-l-2 border-gray-300 dark:border-gray-700 pl-4 py-2">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2 mb-1">
-                      <Lock className="w-3 h-3" /> {t("step_locked")}
-                    </p>
-                    <p className="text-xs text-gray-400 font-light">
-                      {t("step_locked_desc")}
-                    </p>
+                  <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                    <Lock className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                        {t("step_locked", { defaultValue: "Paso Bloqueado Temporalmente" })}
+                      </p>
+                      <p className="text-[11px] font-medium text-gray-400">
+                        {t("step_locked_desc", { defaultValue: "Primero debes aprobar tu documento de identidad para proceder con la selfie." })}
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
-            </motion.div>
-          </div>
-
-          {/* RIGHT: Summary (Sticky Panel) */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="lg:sticky lg:top-8 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
-          >
-            <div className="border-b border-gray-200 dark:border-gray-800 p-6 bg-gray-50 dark:bg-[#050505]">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-3">
-                <ShieldCheck className="w-4 h-4" /> {t("status_title")}
-              </h3>
             </div>
 
-            <div className="p-6 space-y-6">
-              <div className="space-y-4">
+          </div>
+
+          {/* COLUMNA DERECHA: PANEL DE ESTADO Y RESUMEN */}
+          <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
+            
+            <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+              
+              <div className="pb-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                  <ShieldCheck className="w-4 h-4" strokeWidth={2} />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  {t("status_title", { defaultValue: "Estado del Proceso" })}
+                </h3>
+              </div>
+
+              <div className="space-y-3">
                 {[
                   {
                     done: isIdentityApproved,
                     icon: ShieldCheck,
-                    label: t("identification"),
+                    label: t("identification", { defaultValue: "Identificación Oficial" }),
                   },
                   {
-                    done:
-                      documents["SELFIE"]?.verificationStatus === "APPROVED",
+                    done: documents["SELFIE"]?.verificationStatus === "APPROVED",
                     icon: ScanFace,
-                    label: t("proof_of_life"),
+                    label: t("proof_of_life", { defaultValue: "Prueba Biométrica" }),
                   },
                   ...(personType === "MORAL"
                     ? [
                         {
-                          done:
-                            documents["ACTA_CONSTITUTIVA"]
-                              ?.verificationStatus === "APPROVED",
+                          done: documents["ACTA_CONSTITUTIVA"]?.verificationStatus === "APPROVED",
                           icon: FileCheck,
-                          label: "Acta Const.",
+                          label: "Acta Constitutiva",
                         },
                       ]
                     : []),
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50 pb-4 last:border-0 last:pb-0"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={cn(
-                          "w-8 h-8 border flex items-center justify-center shrink-0",
-                          item.done
-                            ? "border-black dark:border-white bg-black dark:bg-white text-white dark:text-black"
-                            : "border-gray-300 dark:border-gray-700 text-gray-400",
-                        )}
-                      >
-                        {item.done ? (
-                          <Check className="w-4 h-4" strokeWidth={2} />
-                        ) : (
-                          <item.icon className="w-4 h-4" strokeWidth={1.5} />
-                        )}
+                ].map((item, i) => {
+                  const ItemIcon = item.icon;
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            "w-7 h-7 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
+                            item.done
+                              ? "bg-emerald-600 text-white"
+                              : "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-400",
+                          )}
+                        >
+                          {item.done ? (
+                            <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                          ) : (
+                            <ItemIcon className="w-3.5 h-3.5" strokeWidth={2} />
+                          )}
+                        </div>
+                        <span className="text-xs font-bold text-gray-900 dark:text-white">
+                          {item.label}
+                        </span>
                       </div>
-                      <span
-                        className={cn(
-                          "text-[10px] font-bold uppercase tracking-widest",
-                          item.done
-                            ? "text-black dark:text-white"
-                            : "text-gray-500",
-                        )}
-                      >
-                        {item.label}
-                      </span>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              <div className="pt-6 border-t border-gray-200 dark:border-gray-800">
-                <Button
+              <div className="pt-2">
+                <button
+                  type="button"
                   onClick={handleFinishStep}
                   disabled={!isKycComplete()}
-                  className={cn(
-                    "w-full h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-all",
-                    isKycComplete()
-                      ? "bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
-                      : "bg-gray-100 dark:bg-gray-900 text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-800",
-                  )}
+                  className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isKycComplete() ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 mr-3" />{" "}
-                      {t("confirm_continue")}
-                    </>
-                  ) : (
-                    t("complete_docs")
-                  )}
-                </Button>
+                  <span>{t("confirm_continue", { defaultValue: "Continuar con Siguiente Paso" })}</span>
+                  <ArrowRight className="w-4 h-4" strokeWidth={2} />
+                </button>
+
                 {!isKycComplete() && (
-                  <p className="text-[9px] text-center text-gray-500 uppercase tracking-widest mt-4 font-light">
-                    {t("complete_docs_hint")}
+                  <p className="text-[11px] font-medium text-gray-400 text-center pt-3">
+                    {t("complete_docs_hint", { defaultValue: "Completa la validación de todos los documentos requeridos para continuar." })}
                   </p>
                 )}
               </div>
 
               {/* Data Protection Note */}
-              <div className="border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-[#050505]">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2 mb-2">
-                  <Shield className="w-3 h-3" /> {t("data_protected_title")}
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1.5">
+                <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>{t("data_protected_title", { defaultValue: "Privacidad Garantizada" })}</span>
                 </p>
-                <p className="text-[10px] text-gray-500 font-light leading-relaxed">
-                  {t("data_protected_desc")}
+                <p className="text-[11px] font-medium text-gray-500 leading-relaxed">
+                  {t("data_protected_desc", { defaultValue: "Tus datos biométricos e identificaciones se procesan bajo protocolos de cifrado de extremo a extremo." })}
                 </p>
               </div>
+
             </div>
-          </motion.div>
+
+          </div>
+
         </div>
+
       </div>
     </div>
   );
