@@ -33,8 +33,26 @@ export const useActionEngine = () => {
         break;
 
       case 'pay':
-        // Integración con payment.service.ts o pasarela Stripe
+        // Integración real con Stripe
         console.log('Iniciando pago:', action.payload);
+        if (action.payload?.appointmentId) {
+          try {
+            // Utilizamos el axiosInstance que ya inyecta el JWT
+            const axiosInstance = (await import('@/lib/axios')).default;
+            const response = await axiosInstance.post('/api/payments/checkout/appointment', {
+              appointmentId: action.payload.appointmentId,
+              requestBnpl: false,
+              qupointsDiscountMxn: 0
+            });
+            
+            if (response.data && response.data.url) {
+              window.location.assign(response.data.url);
+            }
+          } catch (error) {
+            console.error('Error al iniciar el checkout de Stripe:', error);
+            alert('Hubo un error al iniciar el pago. Inténtalo de nuevo.');
+          }
+        }
         break;
 
       case 'start_chat':
