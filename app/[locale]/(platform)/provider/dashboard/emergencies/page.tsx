@@ -1,14 +1,15 @@
-"use client"
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { AlertTriangle, Clock, Activity, FileText, UserPlus, FileCheck } from "lucide-react";
-import { useSessionStore } from "@/stores/SessionStore";
-import { emergencyService, EmergencyQueueItem, TriageLevel } from "@/services/emergency.service";
-import { toast } from "react-toastify";
-import { QhSpinner } from "@/components/ui/QhSpinner";
-import { cn } from "@/lib/utils";
+"use client";
 
-// Mock component placeholders, to be created next
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useState, useEffect, useCallback } from "react";
+import { AlertTriangle, UserPlus, Activity } from "lucide-react";
+import { toast } from "react-toastify";
+
+import { useSessionStore } from "@/stores/SessionStore";
+import { emergencyService, EmergencyQueueItem } from "@/services/emergency.service";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+
 import { TriageMonitor } from "@/components/emergencies/TriageMonitor";
 import { EmergencyConsole } from "@/components/emergencies/EmergencyConsole";
 import { RegisterEmergencyModal } from "@/components/emergencies/RegisterEmergencyModal";
@@ -21,10 +22,9 @@ export default function EmergenciesPage() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
 
-  const fetchQueue = async () => {
+  const fetchQueue = useCallback(async () => {
     if (!user?.id) return;
     try {
-      // In a real scenario we'd use useQuery, but fetching directly here for simplicity
       const data = await emergencyService.getEmergencyQueue(user.id);
       setQueue(data);
     } catch (error) {
@@ -33,14 +33,14 @@ export default function EmergenciesPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     fetchQueue();
-    // Auto-refresh the queue every 30 seconds
+    // Auto-actualización de la cola cada 30 segundos
     const interval = setInterval(fetchQueue, 30000);
     return () => clearInterval(interval);
-  }, [user?.id]);
+  }, [fetchQueue]);
 
   const handlePatientSelect = (emergency: EmergencyQueueItem) => {
     setSelectedEmergency(emergency);
@@ -48,40 +48,67 @@ export default function EmergenciesPage() {
   };
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center"><QhSpinner size="lg" /></div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 bg-gray-50/50 dark:bg-[#050505]">
+        <QhSpinner size="lg" className="text-red-600 dark:text-red-400" />
+        <p className="text-sm font-semibold text-gray-500 animate-pulse">Sincronizando sala de urgencias...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 md:p-10 space-y-8 max-w-7xl mx-auto h-full flex flex-col">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
-            Urgencias y Triage
-          </h1>
-          <p className="text-gray-500 mt-2 font-medium">
-            Monitor central de pacientes en sala de emergencias (Cumplimiento NOM-004)
-          </p>
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] pt-8 px-4 md:px-10 pb-16 transition-colors duration-500">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* --- HEADER --- */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center shrink-0 shadow-sm">
+              <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" strokeWidth={2} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">
+                Atención Médica Inmediata • NOM-004
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-none">
+                Urgencias y Triage
+              </h1>
+            </div>
+          </div>
+
+          <button 
+            type="button"
+            onClick={() => setIsRegisterModalOpen(true)}
+            className="h-12 px-6 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-sm flex items-center justify-center gap-2 text-xs md:text-sm shrink-0"
+          >
+            <UserPlus className="w-4 h-4" strokeWidth={2} />
+            <span>Ingresar Paciente</span>
+          </button>
         </div>
-        <button 
-          onClick={() => setIsRegisterModalOpen(true)}
-          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl font-bold transition-all shadow-lg shadow-red-500/30"
-        >
-          <UserPlus className="w-5 h-5" />
-          Ingresar Paciente
-        </button>
+
+        {/* --- MONITOR CENTRAL DE SANGRE / SENSADO --- */}
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col rounded-3xl shadow-sm overflow-hidden min-h-[600px] min-w-0">
+          <div className="p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-between shrink-0">
+            <h2 className="text-xs md:text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2.5">
+              <Activity className="w-4 h-4 text-red-600 dark:text-red-400" strokeWidth={2} /> 
+              Monitor Sala de Espera
+            </h2>
+            <span className="text-xs font-semibold text-gray-500 bg-white dark:bg-[#0a0a0a] px-3 py-1 rounded-full border border-gray-200 dark:border-gray-800 shadow-sm">
+              {queue.length} Pacientes en Espera
+            </span>
+          </div>
+
+          <div className="p-6 flex-1 flex flex-col min-w-0 overflow-x-auto">
+            <TriageMonitor 
+              queue={queue} 
+              onPatientSelect={handlePatientSelect} 
+            />
+          </div>
+        </div>
+
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 bg-white border border-gray-100 rounded-3xl p-6 shadow-sm overflow-hidden flex flex-col">
-        <TriageMonitor 
-          queue={queue} 
-          onPatientSelect={handlePatientSelect} 
-        />
-      </div>
-
-      {/* Modals & Slide-overs */}
+      {/* --- MODALES Y SLIDE-OVERS --- */}
       <RegisterEmergencyModal 
         isOpen={isRegisterModalOpen} 
         onClose={() => setIsRegisterModalOpen(false)} 
