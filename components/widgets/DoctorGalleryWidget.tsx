@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { DoctorGalleryWidget as DoctorGalleryWidgetType, DoctorCardData, HealthOSAction } from '@quhealthy/health-os-contract';
 import { DoctorCardWidget } from './DoctorCardWidget';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -12,14 +12,31 @@ interface Props {
 export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   const { data, actions } = widget;
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setShowLeftScroll(scrollLeft > 0);
+      setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, [data.doctors]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 320;
       scrollContainerRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
+      setTimeout(checkScroll, 350); // Re-check after smooth scroll finishes
     }
   };
 
@@ -27,28 +44,44 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
     <div className="w-full relative group py-2">
       <div className="flex justify-between items-center mb-2 px-1">
         <h4 className="text-sm font-semibold text-muted-foreground">Resultados Encontrados ({data.doctors.length})</h4>
-        <div className="flex gap-1">
-          <Button variant="outline" size="icon" className="h-7 w-7 rounded-full bg-background/50 hover:bg-background/80 shadow-sm transition-all" onClick={() => scroll('left')}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" className="h-7 w-7 rounded-full bg-background/50 hover:bg-background/80 shadow-sm transition-all" onClick={() => scroll('right')}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
       
+      {/* Botones Flotantes */}
+      {showLeftScroll && (
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="absolute left-[-16px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/95 hover:bg-background border-border shadow-lg transition-all hidden md:flex opacity-0 group-hover:opacity-100" 
+          onClick={() => scroll('left')}
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+      )}
+
+      {showRightScroll && (
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="absolute right-[-16px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/95 hover:bg-background border-border shadow-lg transition-all hidden md:flex opacity-0 group-hover:opacity-100" 
+          onClick={() => scroll('right')}
+        >
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      )}
+
       <div 
         ref={scrollContainerRef}
-        className="flex overflow-x-auto gap-4 pb-4 snap-x scroll-smooth touch-pan-x"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        onScroll={checkScroll}
+        className="flex overflow-x-auto gap-4 pb-4 pt-1 snap-x scroll-smooth touch-pan-x"
+        // Mostramos el scrollbar en desktop para mejor usabilidad, y lo ocultamos en webkit para mobile si se desea
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {data.doctors.map((doctor: DoctorCardData, idx: number) => {
-          // Construimos un mini-widget simulado para reusar el DoctorCardWidget
           const mockWidget = {
             id: `doc-card-${idx}`,
             type: 'DoctorCardWidget' as const,
             data: doctor,
-            actions: actions || [] // Pasamos las acciones del gallery hacia cada tarjeta (ej. 'reserve')
+            actions: actions || []
           };
           
           return (

@@ -9,6 +9,13 @@ export interface Message {
   response?: HealthOSResponse;
 }
 
+export interface ChatSession {
+  id: string;
+  title: string;
+  updatedAt: string;
+  conversation: Message[];
+}
+
 interface PatientContext {
   id?: string;
   name?: string;
@@ -16,8 +23,10 @@ interface PatientContext {
 }
 
 interface HealthOSState {
+  sessions: ChatSession[];
+  activeSessionId: string | null;
   conversation: Message[];
-  widgets: any[]; // Widgets correspondientes al mensaje actual
+  widgets: any[];
   activeIntent?: HealthOSIntent;
   patientContext: PatientContext;
   sessionContext: Record<string, any>;
@@ -31,6 +40,8 @@ interface HealthOSState {
   updateAssistantStream: (chunk: Partial<HealthOSResponse>) => void;
   finalizeStream: () => void;
   resetConversation: () => void;
+  loadSession: (sessionId: string) => void;
+  deleteSession: (sessionId: string) => void;
   resetState: () => void;
   setPatientContext: (context: Partial<PatientContext>) => void;
   setIntent: (intent: HealthOSIntent) => void;
@@ -45,93 +56,157 @@ const initialResetState = {
   streamingState: 'idle' as const,
   selectedEntities: {},
   toolResults: {},
+  activeSessionId: null,
 };
 
 export const useHealthOSStore = create<HealthOSState>()(
   persist(
     (set) => ({
-  conversation: [],
-  widgets: [],
-  patientContext: {},
-  sessionContext: {},
-  pendingActions: [],
-  streamingState: 'idle',
-  selectedEntities: {},
-  toolResults: {},
-
-  addUserMessage: (text) =>
-    set((state) => ({
-      conversation: [
-        ...state.conversation,
-        { id: crypto.randomUUID(), role: 'user', content: text },
-      ],
-      streamingState: 'processing',
-    })),
-
-  updateAssistantStream: (chunk) =>
-    set((state) => {
-      // Si no hay un mensaje del asistente activo al final, crearlo
-      const lastMsg = state.conversation[state.conversation.length - 1];
-      let newConversation = [...state.conversation];
-
-      if (!lastMsg || lastMsg.role !== 'assistant') {
-        newConversation.push({
-          id: chunk.id || crypto.randomUUID(),
-          role: 'assistant',
-          response: chunk as HealthOSResponse,
-        });
-      } else {
-        // Actualizar el chunk actual
-        const updatedResponse = {
-          ...lastMsg.response,
-          ...chunk,
-          widgets: chunk.widgets
-            ? [...(lastMsg.response?.widgets || []), ...chunk.widgets]
-            : lastMsg.response?.widgets,
-        } as HealthOSResponse;
-
-        newConversation[newConversation.length - 1] = {
-          ...lastMsg,
-          response: updatedResponse,
-        };
-      }
-
-      return {
-        conversation: newConversation,
-        streamingState: 'streaming',
-        activeIntent: chunk.intent || state.activeIntent,
-      };
-    }),
-
-  finalizeStream: () => set({ streamingState: 'idle' }),
-
-  setPatientContext: (context) =>
-    set((state) => ({
-      patientContext: { ...state.patientContext, ...context },
-    })),
-
-  setIntent: (intent) => set({ activeIntent: intent }),
-
-  // 🔄 Reiniciar conversación / Limpiar chat
-  resetConversation: () => set(initialResetState),
-
-  // 🔄 Restablecer estado completo manteniendo contexto
-  resetState: () => set(initialResetState),
-
-  // 🧹 Limpieza completa incluyendo context
-  clearState: () =>
-    set({
-      ...initialResetState,
+      sessions: [],
+      activeSessionId: null,
+      conversation: [],
+      widgets: [],
       patientContext: {},
       sessionContext: {},
+      pendingActions: [],
+      streamingState: 'idle',
+      selectedEntities: {},
+      toolResults: {},
+
+      addUserMessage: (text) =>
+        set((state) => {
+          const newConversation = [
+            ...state.conversation,
+            { id: crypto.randomUUID(), role: 'user' as const, content: text },
+          ];
+
+          let sessionId = state.activeSessionId;
+          let newSessions = [...state.sessions];
+
+          if (!sessionId) {
+            sessionId = crypto.randomUUID();
+            newSessions.unshift({
+              id: sessionId,
+              title: text.substring(0, 30) + (text.length > 30 ? '...' : ''),
+              updatedAt: new Date().toISOString(),
+              conversation: newConversation,
+            });
+          } else {
+            const idx = newSessions.findIndex((s) => s.id === sessionId);
+            if (idx !== -1) {
+              newSessions[idx] = {
+                ...newSessions[idx],
+                updatedAt: new Date().toISOString(),
+                conversation: newConversation,
+              };
+            }
+          }
+
+          return {
+            conversation: newConversation,
+            streamingState: 'processing',
+            activeSessionId: sessionId,
+            sessions: newSessions,
+          };
+        }),
+
+      updateAssistantStream: (chunk) =>
+        set((state) => {
+          const lastMsg = state.conversation[state.conversation.length - 1];
+          let newConversation = [...state.conversation];
+
+          if (!lastMsg || lastMsg.role !== 'assistant') {
+            newConversation.push({
+              id: chunk.id || crypto.randomUUID(),
+              role: 'assistant',
+              response: chunk as HealthOSResponse,
+            });
+          } else {
+            const updatedResponse = {
+              ...lastMsg.response,
+              ...chunk,
+              widgets: chunk.widgets
+                ? [...(lastMsg.response?.widgets || []), ...chunk.widgets]
+                : lastMsg.response?.widgets,
+            } as HealthOSResponse;
+
+            newConversation[newConversation.length - 1] = {
+              ...lastMsg,
+              response: updatedResponse,
+            };
+          }
+
+          let newSessions = [...state.sessions];
+          if (state.activeSessionId) {
+            const idx = newSessions.findIndex((s) => s.id === state.activeSessionId);
+            if (idx !== -1) {
+              newSessions[idx] = {
+                ...newSessions[idx],
+                updatedAt: new Date().toISOString(),
+                conversation: newConversation,
+              };
+            }
+          }
+
+          return {
+            conversation: newConversation,
+            streamingState: 'streaming',
+            activeIntent: chunk.intent || state.activeIntent,
+            sessions: newSessions,
+          };
+        }),
+
+      finalizeStream: () => set({ streamingState: 'idle' }),
+
+      setPatientContext: (context) =>
+        set((state) => ({
+          patientContext: { ...state.patientContext, ...context },
+        })),
+
+      setIntent: (intent) => set({ activeIntent: intent }),
+
+      resetConversation: () => set(initialResetState),
+
+      loadSession: (sessionId: string) =>
+        set((state) => {
+          const session = state.sessions.find((s) => s.id === sessionId);
+          if (session) {
+            return {
+              ...initialResetState,
+              activeSessionId: session.id,
+              conversation: session.conversation,
+            };
+          }
+          return {};
+        }),
+
+      deleteSession: (sessionId: string) =>
+        set((state) => {
+          const newSessions = state.sessions.filter((s) => s.id !== sessionId);
+          if (state.activeSessionId === sessionId) {
+            return { ...initialResetState, sessions: newSessions };
+          }
+          return { sessions: newSessions };
+        }),
+
+      resetState: () => set(initialResetState),
+
+      clearState: () =>
+        set({
+          ...initialResetState,
+          sessions: [],
+          patientContext: {},
+          sessionContext: {},
+        }),
     }),
-  }),
-  {
-    name: 'healthos-chat-storage', // key in localStorage
-    partialize: (state) => ({ 
-      conversation: state.conversation, 
-      patientContext: state.patientContext 
-    }), // we only persist the conversation and user context
-  }
-)
+    {
+      name: 'healthos-chat-storage',
+      partialize: (state) => ({
+        sessions: state.sessions,
+        activeSessionId: state.activeSessionId,
+        conversation: state.conversation,
+        patientContext: state.patientContext,
+      }),
+    }
+  )
 );
