@@ -22,9 +22,10 @@ export const useActionEngine = () => {
 
       case 'reserve':
         console.log('Reservando:', action.payload);
-        if (action.payload && action.payload.entityId) {
-          const name = action.payload.entityName || action.payload.entityId;
-          const intentText = `Quiero agendar cita con el Dr. ${name} (ID: ${action.payload.entityId})`;
+        const reservePayload = (action.payload as any) || {};
+        if (reservePayload && reservePayload.entityId) {
+          const name = reservePayload.entityName || reservePayload.entityId;
+          const intentText = `Quiero agendar cita con el Dr. ${name} (ID: ${reservePayload.entityId})`;
           
           // Emit a custom event so the Copilot page can intercept it and send it to the AI
           window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: intentText }));

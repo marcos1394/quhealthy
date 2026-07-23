@@ -42,6 +42,7 @@ export interface ReserveAction extends BaseAction {
   payload: {
     entityId: string;
     entityType: 'appointment' | 'service';
+    entityName?: string;
     scheduleTime?: string;
   };
 }
