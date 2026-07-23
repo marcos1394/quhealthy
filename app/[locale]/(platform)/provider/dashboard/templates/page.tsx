@@ -1,19 +1,47 @@
 "use client";
 
+/* eslint-disable react-doctor/button-has-type */
+
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Search, Plus, Filter, FileText, Share2, Globe, User, Clock, Star, Edit, Trash2, Settings, Edit2, Save, PlusCircle, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { clinicalTemplateService, ClinicalTemplateResponse, ClinicalTemplateRequest, ClinicalTemplateField, ClinicalTemplateSchema } from "@/services/clinicalTemplates.service";
+import { 
+  Search, 
+  Plus, 
+  Filter, 
+  FileText, 
+  Globe, 
+  User, 
+  Star, 
+  Trash2, 
+  Settings, 
+  Edit2, 
+  Save, 
+  PlusCircle, 
+  Heart,
+  ArrowLeft,
+  X,
+  Link2,
+  CheckCircle2,
+  Sparkles
+} from "lucide-react";
+import { toast } from "react-toastify";
+import { format } from "date-fns";
+
+import { 
+  clinicalTemplateService, 
+  ClinicalTemplateResponse, 
+  ClinicalTemplateRequest, 
+  ClinicalTemplateField 
+} from "@/services/clinicalTemplates.service";
 import { catalogService } from "@/services/catalog.service";
 import { CatalogItemDTO } from "@/types/catalog";
 import { useSessionStore } from "@/stores/SessionStore";
-import { format } from "date-fns";
-import { toast } from "react-toastify";
 import { handleApiError } from "@/lib/handleApiError";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { cn } from "@/lib/utils";
 
 export default function TemplatesExplorerPage() {
   const t = useTranslations("Templates");
@@ -21,7 +49,7 @@ export default function TemplatesExplorerPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { user } = useSessionStore();
-  const providerId = user?.id; // Usamos el ID del provider (el user logueado)
+  const providerId = user?.id;
 
   const [personalTemplates, setPersonalTemplates] = useState<ClinicalTemplateResponse[]>([]);
   const [communityTemplates, setCommunityTemplates] = useState<ClinicalTemplateResponse[]>([]);
@@ -56,7 +84,7 @@ export default function TemplatesExplorerPage() {
       setIsLoading(true);
       if (providerId) {
         const personal = await clinicalTemplateService.getTemplates(providerId);
-        setPersonalTemplates(personal.filter(t => !t.isPublic)); // Mis plantillas privadas
+        setPersonalTemplates(personal.filter(t => !t.isPublic));
       }
       
       const community = await clinicalTemplateService.getCommunityTemplates();
@@ -99,7 +127,7 @@ export default function TemplatesExplorerPage() {
     if (confirm("¿Estás seguro de eliminar esta plantilla?")) {
       try {
         await clinicalTemplateService.deleteTemplate(id);
-        toast.success("Plantilla eliminada");
+        toast.success("Plantilla eliminada exitosamente", { theme: "colored" });
         loadTemplates();
       } catch (error) {
         handleApiError(error, "Error al eliminar plantilla");
@@ -116,10 +144,10 @@ export default function TemplatesExplorerPage() {
     try {
       if (editingId) {
         await clinicalTemplateService.updateTemplate(editingId, currentTemplate);
-        toast.success("Plantilla actualizada");
+        toast.success("Plantilla actualizada", { theme: "colored" });
       } else {
         await clinicalTemplateService.createTemplate(currentTemplate);
-        toast.success("Plantilla creada");
+        toast.success("Plantilla creada", { theme: "colored" });
       }
       setIsEditing(false);
       loadTemplates();
@@ -173,7 +201,7 @@ export default function TemplatesExplorerPage() {
     if (!providerId) return;
     try {
       await clinicalTemplateService.cloneTemplate(tmpl.id, providerId);
-      toast.success("Plantilla guardada en tu biblioteca");
+      toast.success("Plantilla guardada en tu biblioteca", { theme: "colored" });
       loadTemplates();
       setActiveTab("personal");
     } catch(err) {
@@ -201,7 +229,7 @@ export default function TemplatesExplorerPage() {
         service.metadata.clinicalTemplateId = templateToLink.id;
         
         await catalogService.updateItem(service.id, service);
-        toast.success(`Plantilla vinculada a ${service.name}`);
+        toast.success(`Plantilla vinculada a ${service.name}`, { theme: "colored" });
         setLinkServiceModalOpen(false);
       }
     } catch (err) {
@@ -209,307 +237,434 @@ export default function TemplatesExplorerPage() {
     }
   };
 
+  // =========================================================================
+  // VISTA 1: CONSTRUCTOR DE FORMULARIO (MODO EDICIÓN/CREACIÓN)
+  // =========================================================================
   if (isEditing) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#050505] pb-24 font-sans">
-        <div className="max-w-5xl mx-auto py-12 px-6">
-          <div className="flex justify-between items-center mb-8 pb-4 border-b border-black dark:border-white">
-            <div>
-              <h1 className="text-2xl font-bold uppercase tracking-widest text-black dark:text-white">
-                {editingId ? 'Editar Plantilla' : 'Nueva Plantilla'}
-              </h1>
-              <p className="text-xs text-gray-500 uppercase tracking-widest mt-2">
-                Constructor Visual de Fichas Clínicas
-              </p>
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] pt-8 px-4 md:px-10 pb-16 transition-colors duration-500 font-sans">
+        <div className="max-w-5xl mx-auto space-y-8">
+          
+          {/* Header Form Builder */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200 dark:border-gray-800">
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="w-10 h-10 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center shrink-0 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors shadow-sm"
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" strokeWidth={2} />
+              </button>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-0.5">Constructor Visual de Fichas Clínicas</p>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                  {editingId ? 'Editar Plantilla' : 'Nueva Plantilla'}
+                </h1>
+              </div>
             </div>
-            <div className="flex gap-4">
-              <Button variant="outline" className="border-black dark:border-white rounded-none uppercase text-[10px]" onClick={() => setIsEditing(false)}>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm"
+              >
                 Cancelar
-              </Button>
-              <Button className="bg-black text-white dark:bg-white dark:text-black rounded-none uppercase text-[10px]" onClick={saveTemplate}>
-                <Save className="w-4 h-4 mr-2" /> Guardar Plantilla
-              </Button>
+              </button>
+              <button
+                type="button"
+                onClick={saveTemplate}
+                className="h-11 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold flex items-center justify-center gap-2 shadow-sm"
+              >
+                <Save className="w-4 h-4" strokeWidth={2} />
+                <span>Guardar Plantilla</span>
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Panel de Configuración General */}
-            <div className="space-y-6">
-              <div className="bg-white dark:bg-[#0a0a0a] p-6 border border-gray-200 dark:border-gray-800">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest mb-6 flex items-center text-black dark:text-white">
-                  <Settings className="w-4 h-4 mr-2" /> Configuración Base
-                </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Panel Izquierdo: Configuración Base */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 rounded-3xl shadow-sm space-y-5">
+                <div className="flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-gray-800">
+                  <Settings className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                  <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                    Configuración Base
+                  </h3>
+                </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Nombre de Plantilla</label>
-                    <Input 
-                      className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black focus-visible:ring-black dark:focus-visible:ring-white"
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                      Nombre de la Plantilla
+                    </label>
+                    <input 
+                      type="text"
+                      className="w-full h-11 px-3.5 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
                       value={currentTemplate.name}
                       onChange={(e) => setCurrentTemplate({...currentTemplate, name: e.target.value})}
-                      placeholder="Ej: Ficha de Deportistas"
+                      placeholder="Ej. Ficha de Evaluación Deportiva"
                     />
                   </div>
+
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Categoría</label>
-                    <Input 
-                      className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black focus-visible:ring-black dark:focus-visible:ring-white"
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                      Categoría
+                    </label>
+                    <input 
+                      type="text"
+                      className="w-full h-11 px-3.5 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
                       value={currentTemplate.category}
                       onChange={(e) => setCurrentTemplate({...currentTemplate, category: e.target.value})}
+                      placeholder="Ej. Cardiología, General..."
                     />
                   </div>
+
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Descripción</label>
-                    <Input 
-                      className="rounded-none border-gray-300 dark:border-gray-700 bg-white dark:bg-black focus-visible:ring-black dark:focus-visible:ring-white"
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                      Descripción
+                    </label>
+                    <textarea 
+                      rows={3}
+                      className="w-full p-3 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
                       value={currentTemplate.description}
                       onChange={(e) => setCurrentTemplate({...currentTemplate, description: e.target.value})}
+                      placeholder="Breve resumen del propósito clínico..."
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Form Builder */}
-            <div className="md:col-span-2">
-              <div className="border border-black dark:border-white p-8 bg-white dark:bg-black min-h-[500px]">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-sm font-bold uppercase tracking-widest flex items-center text-black dark:text-white">
-                    <FileText className="w-5 h-5 mr-2" /> Constructor de Formulario
-                  </h3>
-                  <Button onClick={addField} variant="outline" className="rounded-none border-black dark:border-white text-black dark:text-white uppercase text-[10px] h-8">
-                    <PlusCircle className="w-3 h-3 mr-2" /> Añadir Campo
-                  </Button>
+            {/* Panel Derecho: Form Builder */}
+            <div className="lg:col-span-2">
+              <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 md:p-8 rounded-3xl shadow-sm min-h-[500px] flex flex-col justify-between">
+                
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                        Estructura de Campos
+                      </h3>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={addField}
+                      className="h-9 px-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 hover:bg-emerald-100 transition-colors text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                    >
+                      <PlusCircle className="w-4 h-4" strokeWidth={2} />
+                      <span>Añadir Campo</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    {currentTemplate.schema?.fields?.length === 0 && (
+                      <div className="text-center py-12 text-gray-400 text-xs font-semibold border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-8">
+                        No hay campos definidos en esta plantilla. Haz clic en "Añadir Campo" para estructurar la evaluación.
+                      </div>
+                    )}
+                    
+                    {currentTemplate.schema?.fields?.map((field, index) => (
+                      <div key={field.id} className="bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800/80 p-4 rounded-2xl relative group shadow-sm space-y-3">
+                        
+                        <button 
+                          type="button"
+                          onClick={() => removeField(index)}
+                          className="absolute top-3.5 right-3.5 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" strokeWidth={2} />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-8">
+                          <div>
+                            <label className="block text-[11px] font-bold text-gray-500 mb-1 uppercase tracking-wider">
+                              Etiqueta / Pregunta
+                            </label>
+                            <input 
+                              type="text"
+                              className="w-full h-10 px-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
+                              value={field.label}
+                              onChange={(e) => updateField(index, { label: e.target.value })}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-gray-500 mb-1 uppercase tracking-wider">
+                              Tipo de Campo
+                            </label>
+                            <Select value={field.type} onValueChange={(val: any) => updateField(index, { type: val })}>
+                              <SelectTrigger className="w-full h-10 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white shadow-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl">
+                                <SelectItem value="text" className="text-xs font-semibold">Texto Corto</SelectItem>
+                                <SelectItem value="textarea" className="text-xs font-semibold">Párrafo Largo</SelectItem>
+                                <SelectItem value="number" className="text-xs font-semibold">Número</SelectItem>
+                                <SelectItem value="date" className="text-xs font-semibold">Fecha</SelectItem>
+                                <SelectItem value="select" className="text-xs font-semibold">Lista Desplegable (Select)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        
+                        {/* Opciones extra si es select */}
+                        {field.type === 'select' && (
+                          <div className="pt-3 border-t border-gray-200/60 dark:border-gray-800">
+                            <label className="block text-[11px] font-bold text-gray-500 mb-1 uppercase tracking-wider">
+                              Opciones (separadas por coma)
+                            </label>
+                            <input 
+                              type="text"
+                              className="w-full h-10 px-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
+                              value={field.options?.join(', ') || ''}
+                              onChange={(e) => {
+                                const opts = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                updateField(index, { options: opts });
+                              }}
+                              placeholder="Ej. Apto, No Apto, Evaluación Pendiente"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  {currentTemplate.schema?.fields?.length === 0 && (
-                    <div className="text-center py-12 text-gray-400 text-xs uppercase tracking-widest border border-dashed border-gray-300 dark:border-gray-700">
-                      No hay campos en esta plantilla. Haz clic en "Añadir Campo".
-                    </div>
-                  )}
-                  
-                  {currentTemplate.schema?.fields?.map((field, index) => (
-                    <div key={field.id} className="border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-[#0a0a0a] group relative">
-                      <button 
-                        onClick={() => removeField(index)}
-                        className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                      
-                      <div className="grid grid-cols-2 gap-4 mr-8">
-                        <div>
-                          <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Etiqueta (Pregunta)</label>
-                          <Input 
-                            className="rounded-none h-8 text-xs bg-white dark:bg-black border-gray-200 dark:border-gray-800 focus-visible:ring-black dark:focus-visible:ring-white"
-                            value={field.label}
-                            onChange={(e) => updateField(index, { label: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Tipo de Campo</label>
-                          <Select value={field.type} onValueChange={(val: any) => updateField(index, { type: val })}>
-                            <SelectTrigger className="rounded-none h-8 text-xs bg-white dark:bg-black border-gray-200 dark:border-gray-800">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="text">Texto Corto</SelectItem>
-                              <SelectItem value="textarea">Párrafo Largo</SelectItem>
-                              <SelectItem value="number">Número</SelectItem>
-                              <SelectItem value="date">Fecha</SelectItem>
-                              <SelectItem value="select">Lista Desplegable (Select)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      
-                      {/* Opciones extra si es select */}
-                      {field.type === 'select' && (
-                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                          <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">
-                            Opciones (separadas por coma)
-                          </label>
-                          <Input 
-                            className="rounded-none h-8 text-xs bg-white dark:bg-black border-gray-200 dark:border-gray-800 focus-visible:ring-black dark:focus-visible:ring-white"
-                            value={field.options?.join(', ') || ''}
-                            onChange={(e) => {
-                              const opts = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                              updateField(index, { options: opts });
-                            }}
-                            placeholder="Apto, No Apto, Evaluación Pendiente"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
     );
   }
 
+  // =========================================================================
+  // VISTA 2: EXPLORADOR Y BIBLIOTECA (MODO VISTA DE LISTA/GRID)
+  // =========================================================================
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] pb-24 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 space-y-8">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] pt-8 px-4 md:px-10 pb-16 transition-colors duration-500 font-sans">
+      <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* Encabezado */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white uppercase">
-              Explorador de Plantillas
-            </h1>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-2 max-w-xl">
-              Gestiona tus plantillas clínicas personales o descubre protocolos compartidos por la comunidad médica de Quhealthy.
-            </p>
+        {/* Encabezado Principal */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center shrink-0 shadow-sm">
+              <FileText className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">
+                Estructura & Protocolos Clínicos
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-none">
+                Explorador de Plantillas
+              </h1>
+            </div>
           </div>
-          <Button 
+
+          <button 
+            type="button"
             onClick={handleNewTemplate}
-            className="rounded-none bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 h-12 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-2 border-0"
+            className="h-12 px-6 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2 text-xs md:text-sm shrink-0"
           >
-            <Plus className="w-4 h-4" strokeWidth={1.5} /> Nueva Plantilla
-          </Button>
+            <Plus className="w-4 h-4" strokeWidth={2} />
+            <span>Nueva Plantilla</span>
+          </button>
         </div>
 
-        {/* Buscador y Filtros */}
-        <div className="flex flex-col lg:flex-row gap-4 items-center bg-white dark:bg-[#0a0a0a] p-4 border border-gray-200 dark:border-gray-800">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={1.5} />
+        {/* Buscador y Control de Pestañas */}
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white dark:bg-[#0a0a0a] p-3 md:p-4 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm">
+          
+          {/* Buscador */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
             <input 
               type="text" 
-              placeholder="Buscar plantillas por nombre, especialidad o tipo..."
-              className="w-full h-12 pl-12 pr-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all text-black dark:text-white placeholder:text-gray-400"
+              placeholder="Buscar por nombre, especialidad o concepto..."
+              className="w-full h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-2xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="w-full lg:w-auto rounded-none border border-gray-200 dark:border-gray-800 h-12 text-[10px] font-bold uppercase tracking-widest px-6 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors">
-            <Filter className="w-4 h-4 mr-2" strokeWidth={1.5} /> Filtros
-          </Button>
+
+          {/* Selector de Pestañas Pill */}
+          <div className="flex items-center bg-gray-100 dark:bg-gray-800/50 p-1 rounded-2xl shrink-0">
+            <button 
+              type="button"
+              onClick={() => setActiveTab("personal")}
+              className={cn(
+                "h-9 px-5 text-xs font-bold rounded-xl flex items-center gap-2 transition-all",
+                activeTab === "personal"
+                  ? "bg-white text-emerald-700 dark:bg-[#0a0a0a] dark:text-emerald-400 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              )}
+            >
+              <User className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+              <span>Mis Plantillas</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => setActiveTab("community")}
+              className={cn(
+                "h-9 px-5 text-xs font-bold rounded-xl flex items-center gap-2 transition-all",
+                activeTab === "community"
+                  ? "bg-white text-emerald-700 dark:bg-[#0a0a0a] dark:text-emerald-400 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              )}
+            >
+              <Globe className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+              <span>Comunidad</span>
+            </button>
+          </div>
+
         </div>
 
-        {/* Pestañas */}
-        <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-800">
-          <button 
-            onClick={() => setActiveTab("personal")}
-            className={`px-8 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${
-              activeTab === "personal" 
-              ? "border-b-2 border-black text-black dark:border-white dark:text-white" 
-              : "text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-900"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <User className="w-4 h-4" strokeWidth={1.5} /> Mis Plantillas
-            </span>
-          </button>
-          <button 
-            onClick={() => setActiveTab("community")}
-            className={`px-8 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${
-              activeTab === "community" 
-              ? "border-b-2 border-black text-black dark:border-white dark:text-white" 
-              : "text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-900"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Globe className="w-4 h-4" strokeWidth={1.5} /> Comunidad
-            </span>
-          </button>
-        </div>
-
-        {/* Contenido */}
+        {/* Contenido Grid */}
         {isLoading ? (
-          <div className="flex justify-center p-12">
-            <div className="w-8 h-8 border-2 border-black border-t-transparent dark:border-white dark:border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex flex-col items-center justify-center min-h-[350px] gap-4 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-8 shadow-sm">
+            <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+            <p className="text-xs font-semibold text-gray-500 animate-pulse">Cargando biblioteca de plantillas...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeTab === "personal" ? (
-              // Lista de Plantillas Personales usando el nuevo diseño de tarjetas
+              
+              // Plantillas Personales
               personalTemplates.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase())).map(tmpl => (
-                <div key={tmpl.id} className="border border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors">
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 bg-gray-100 dark:bg-gray-800 text-black dark:text-white">
+                <div 
+                  key={tmpl.id} 
+                  className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 rounded-3xl shadow-sm hover:border-emerald-500/30 transition-all flex flex-col justify-between group"
+                >
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 text-[11px] font-bold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/40 shadow-sm">
                         {tmpl.category || 'General'}
                       </span>
                       {tmpl.type === 'SYSTEM' && (
-                        <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 bg-black text-white dark:bg-white dark:text-black">
-                          SISTEMA
+                        <span className="inline-flex items-center px-2.5 py-1 text-[11px] font-bold rounded-lg border border-gray-200 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 shadow-sm">
+                          Sistema
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-lg mb-2 text-black dark:text-white leading-tight">{tmpl.name}</h3>
-                    <p className="text-xs text-gray-500 line-clamp-2">{tmpl.description || 'Sin descripción'}</p>
-                    <div className="mt-4 text-[10px] uppercase tracking-widest text-gray-400">
-                      {tmpl.schema?.fields?.length || 0} campos definidos
+
+                    <h3 className="font-bold text-base text-gray-900 dark:text-white leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                      {tmpl.name}
+                    </h3>
+
+                    <p className="text-xs font-medium text-gray-500 line-clamp-2 leading-relaxed">
+                      {tmpl.description || 'Sin descripción asignada.'}
+                    </p>
+
+                    <div className="text-[11px] font-semibold text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800/80">
+                      {tmpl.schema?.fields?.length || 0} campos estructurados
                     </div>
                   </div>
                   
-                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-900 flex justify-end gap-2">
-                    {tmpl.type !== 'SYSTEM' && (
-                      <div className="flex w-full gap-2">
-                        <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none w-full border border-gray-200 dark:border-gray-800" onClick={() => handleOpenLinkModal(tmpl)}>
-                          Vincular a Servicio
-                        </Button>
-                        <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-800 text-black dark:text-white rounded-none border border-gray-200 dark:border-gray-800" onClick={() => handleEditTemplate(tmpl)}>
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-none border border-gray-200 dark:border-gray-800" onClick={() => handleDeleteTemplate(tmpl.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
+                    {tmpl.type !== 'SYSTEM' ? (
+                      <div className="flex items-center w-full gap-2">
+                        <button 
+                          type="button"
+                          onClick={() => handleOpenLinkModal(tmpl)}
+                          className="flex-1 h-9 px-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm truncate flex items-center justify-center gap-1.5"
+                        >
+                          <Link2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                          <span className="truncate">Vincular Servicio</span>
+                        </button>
+
+                        <button 
+                          type="button"
+                          onClick={() => handleEditTemplate(tmpl)}
+                          className="w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors flex items-center justify-center shrink-0 shadow-sm"
+                        >
+                          <Edit2 className="w-4 h-4" strokeWidth={2} />
+                        </button>
+
+                        <button 
+                          type="button"
+                          onClick={() => handleDeleteTemplate(tmpl.id)}
+                          className="w-9 h-9 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors flex items-center justify-center shrink-0 shadow-sm"
+                        >
+                          <Trash2 className="w-4 h-4" strokeWidth={2} />
+                        </button>
                       </div>
-                    )}
-                    {tmpl.type === 'SYSTEM' && (
-                      <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none border border-gray-200 dark:border-gray-800" onClick={() => setPreviewTemplate(tmpl)}>
+                    ) : (
+                      <button 
+                        type="button"
+                        onClick={() => setPreviewTemplate(tmpl)}
+                        className="w-full h-9 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm"
+                      >
                         Ver Detalle
-                      </Button>
+                      </button>
                     )}
                   </div>
                 </div>
               ))
             ) : (
-              // Lista de Plantillas de Comunidad
+              
+              // Plantillas de Comunidad
               communityTemplates.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase())).map(tmpl => (
-                <div key={tmpl.id} className="border border-gray-200 dark:border-gray-800 p-6 flex flex-col justify-between bg-white dark:bg-[#0a0a0a] hover:border-black dark:hover:border-white transition-colors">
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <span className="bg-blue-50 text-blue-600 dark:bg-blue-900/10 dark:text-blue-400 text-[9px] font-bold uppercase tracking-widest px-2 py-1 border border-blue-200 dark:border-blue-800">
+                <div 
+                  key={tmpl.id} 
+                  className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 rounded-3xl shadow-sm hover:border-emerald-500/30 transition-all flex flex-col justify-between group"
+                >
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 text-[11px] font-bold rounded-lg border border-sky-200 bg-sky-50 text-sky-700 dark:bg-sky-950/30 dark:text-sky-400 dark:border-sky-900/40 shadow-sm">
                         {tmpl.category || tmpl.type}
                       </span>
-                      <div className="flex gap-4">
-                        <div className="flex items-center gap-1 text-red-500 cursor-pointer" onClick={() => handleLike(tmpl.id)}>
-                          <Heart className="w-4 h-4 fill-current" strokeWidth={1.5} />
+                      <div className="flex items-center gap-3">
+                        <button 
+                          type="button"
+                          onClick={() => handleLike(tmpl.id)}
+                          className="flex items-center gap-1 text-red-500 hover:scale-105 transition-transform"
+                        >
+                          <Heart className="w-4 h-4 fill-current" strokeWidth={2} />
                           <span className="text-xs font-bold">{tmpl.likes || 0}</span>
-                        </div>
+                        </button>
                         <div className="flex items-center gap-1 text-amber-500">
-                          <Star className="w-3.5 h-3.5 fill-current" strokeWidth={1.5} />
+                          <Star className="w-3.5 h-3.5 fill-current" strokeWidth={2} />
                           <span className="text-xs font-bold">{tmpl.rating?.toFixed(1) || '0.0'}</span>
                         </div>
                       </div>
                     </div>
-                    <h3 className="font-bold text-lg mb-2 text-black dark:text-white leading-tight">{tmpl.name}</h3>
-                    <p className="text-xs text-gray-500 line-clamp-2">{tmpl.description || 'Sin descripción'}</p>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-4">
-                      <User className="w-3.5 h-3.5" strokeWidth={1.5} />
-                      <span>{tmpl.authorName || (tmpl.type === 'SYSTEM' ? 'Sistema QuHealthy' : 'Anónimo')}</span>
-                    </div>
-                    <div className="mt-4 text-[10px] uppercase tracking-widest text-gray-400">
-                      {tmpl.schema?.fields?.length || 0} campos definidos • {tmpl.downloads || 0} descargas
+
+                    <h3 className="font-bold text-base text-gray-900 dark:text-white leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                      {tmpl.name}
+                    </h3>
+
+                    <p className="text-xs font-medium text-gray-500 line-clamp-2 leading-relaxed">
+                      {tmpl.description || 'Sin descripción provista por el autor.'}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-[11px] font-semibold text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <User className="w-3.5 h-3.5" strokeWidth={2} />
+                        <span>{tmpl.authorName || (tmpl.type === 'SYSTEM' ? 'Sistema QuHealthy' : 'Anónimo')}</span>
+                      </span>
+                      <span>{tmpl.schema?.fields?.length || 0} campos</span>
                     </div>
                   </div>
                   
-                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-900 flex justify-end">
-                    <div className="flex w-full gap-2">
-                      <Button variant="ghost" size="sm" className="uppercase text-[10px] text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none w-1/3 border border-gray-200 dark:border-gray-800" onClick={() => setPreviewTemplate(tmpl)}>
-                        Ver Detalle
-                      </Button>
-                      <Button className="h-8 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-none px-4 border-0 w-2/3" onClick={() => handleClone(tmpl)}>
-                        Usar Plantilla
-                      </Button>
-                    </div>
+                  <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setPreviewTemplate(tmpl)}
+                      className="w-1/3 h-9 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm"
+                    >
+                      Detalle
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => handleClone(tmpl)}
+                      className="w-2/3 h-9 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-1.5"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+                      <span>Usar Plantilla</span>
+                    </button>
                   </div>
                 </div>
               ))
@@ -517,60 +672,122 @@ export default function TemplatesExplorerPage() {
           </div>
         )}
 
-        {/* Modal de Vista Previa */}
+        {/* --- MODAL VISTA PREVIA --- */}
         <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
-            <DialogHeader>
-              <DialogTitle className="text-xl uppercase tracking-widest">{previewTemplate?.name}</DialogTitle>
-              <DialogDescription className="text-xs uppercase tracking-widest">{previewTemplate?.description}</DialogDescription>
-            </DialogHeader>
-            <div className="mt-6 space-y-4">
+          <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[85vh]">
+            
+            <div className="flex items-center justify-between p-6 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 shrink-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                </div>
+                <div>
+                  <DialogTitle className="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                    {previewTemplate?.name}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs font-medium text-gray-500">
+                    {previewTemplate?.description || "Vista previa de estructura clínica"}
+                  </DialogDescription>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setPreviewTemplate(null)} 
+                className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
+              >
+                <X className="w-4 h-4 text-gray-500" strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-4 bg-gray-50/50 dark:bg-[#050505] custom-scrollbar">
               {previewTemplate?.schema?.fields?.map((field) => (
-                <div key={field.id} className="border border-gray-200 dark:border-gray-800 p-4 bg-gray-50 dark:bg-[#0a0a0a]">
-                  <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">
+                <div key={field.id} className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-4 rounded-2xl shadow-sm space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                     {field.label} {field.required && <span className="text-red-500">*</span>}
                   </label>
                   {field.type === 'textarea' ? (
-                     <textarea disabled className="w-full h-20 bg-white dark:bg-black border-gray-200 dark:border-gray-800 p-2 text-xs" />
+                    <textarea disabled className="w-full h-16 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl p-2.5 text-xs text-gray-400 resize-none" />
                   ) : field.type === 'select' ? (
-                     <Select disabled>
-                        <SelectTrigger className="rounded-none h-8 text-xs bg-white dark:bg-black border-gray-200 dark:border-gray-800"><SelectValue placeholder="Seleccionar opción..." /></SelectTrigger>
-                     </Select>
+                    <div className="w-full h-10 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl px-3 flex items-center text-xs text-gray-400">
+                      Seleccionar opción...
+                    </div>
                   ) : (
-                     <Input disabled type={field.type} className="rounded-none h-8 text-xs bg-white dark:bg-black border-gray-200 dark:border-gray-800" />
+                    <input disabled type={field.type} className="w-full h-10 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl px-3 text-xs text-gray-400" />
                   )}
                 </div>
               ))}
             </div>
+
           </DialogContent>
         </Dialog>
 
-        {/* Modal de Vinculación */}
+        {/* --- MODAL VINCULACIÓN A SERVICIO --- */}
         <Dialog open={linkServiceModalOpen} onOpenChange={setLinkServiceModalOpen}>
-          <DialogContent className="rounded-none border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
-            <DialogHeader>
-              <DialogTitle className="uppercase tracking-widest">Vincular a Servicio</DialogTitle>
-              <DialogDescription className="text-xs">Selecciona un servicio para usar esta plantilla por defecto en la consulta.</DialogDescription>
-            </DialogHeader>
-            <div className="py-6">
-              <label className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Servicios disponibles</label>
-              <Select value={selectedServiceId.toString()} onValueChange={(val: any) => setSelectedServiceId(Number(val))}>
-                <SelectTrigger className="rounded-none h-10 bg-white dark:bg-black border-gray-300 dark:border-gray-700">
-                  <SelectValue placeholder="Elige un servicio..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {providerServices.map(s => s.id ? (
-                    <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
-                  ) : null)}
-                </SelectContent>
-              </Select>
+          <DialogContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            
+            <div className="flex items-center justify-between p-6 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 shrink-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shrink-0">
+                  <Link2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                </div>
+                <div>
+                  <DialogTitle className="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                    Vincular a Servicio
+                  </DialogTitle>
+                  <DialogDescription className="text-xs font-medium text-gray-500">
+                    Asocia esta plantilla a una prestación activa de tu catálogo.
+                  </DialogDescription>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setLinkServiceModalOpen(false)} 
+                className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
+              >
+                <X className="w-4 h-4 text-gray-500" strokeWidth={2} />
+              </button>
             </div>
-            <DialogFooter>
-               <Button variant="outline" className="rounded-none uppercase text-[10px] h-10" onClick={() => setLinkServiceModalOpen(false)}>Cancelar</Button>
-               <Button className="rounded-none uppercase text-[10px] h-10 bg-black text-white dark:bg-white dark:text-black" onClick={handleLinkService}>Vincular</Button>
-            </DialogFooter>
+
+            <div className="p-6 bg-white dark:bg-[#0a0a0a] space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Servicios Disponibles en Catálogo
+                </label>
+                <Select value={selectedServiceId.toString()} onValueChange={(val: any) => setSelectedServiceId(Number(val))}>
+                  <SelectTrigger className="w-full h-11 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-900 dark:text-white shadow-sm">
+                    <SelectValue placeholder="Selecciona un servicio..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl">
+                    {providerServices.map(s => s.id ? (
+                      <SelectItem key={s.id} value={s.id.toString()} className="text-xs font-semibold">{s.name}</SelectItem>
+                    ) : null)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="p-5 bg-white dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0">
+              <button 
+                type="button"
+                onClick={() => setLinkServiceModalOpen(false)}
+                className="h-10 px-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button"
+                onClick={handleLinkService}
+                disabled={!selectedServiceId}
+                className="h-10 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
+                <span>Vincular</span>
+              </button>
+            </div>
+
           </DialogContent>
         </Dialog>
+
       </div>
     </div>
   );
