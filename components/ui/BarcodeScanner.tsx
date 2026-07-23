@@ -1,7 +1,9 @@
-"use client"
-/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
+"use client";
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+/* eslint-disable react-doctor/no-react19-deprecated-apis */
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useEffect, useState, useRef } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import { Camera, Keyboard, Search } from 'lucide-react';
 import { cn } from "@/lib/utils";
@@ -15,7 +17,7 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
     const [manualInput, setManualInput] = useState('');
     const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-    // Handle Physical Scanner (Keyboard emulation)
+    // Escáner Físico (Lectura de teclado emulada rápida)
     useEffect(() => {
         if (mode !== 'physical') return;
 
@@ -23,7 +25,7 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         let timeoutId: NodeJS.Timeout;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Ignore if typing in an input
+            // Ignorar si el usuario está escribiendo directamente en un input o textarea
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
                 return;
             }
@@ -37,8 +39,8 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
                 buffer += e.key;
                 clearTimeout(timeoutId);
                 timeoutId = setTimeout(() => {
-                    buffer = ''; // Reset if typing is too slow (human typing instead of scanner)
-                }, 50); // Scanners typically type very fast
+                    buffer = ''; // Reiniciar si la escritura es lenta (tecleo humano)
+                }, 50);
             }
         };
 
@@ -49,31 +51,46 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         };
     }, [mode, onScan]);
 
-    // Handle Camera Scanner
+    // Escáner de Cámara con Html5QrcodeScanner
     useEffect(() => {
+        let scannerInstance: Html5QrcodeScanner | null = null;
+
         if (mode === 'camera') {
-            scannerRef.current = new Html5QrcodeScanner(
-                'qr-reader',
-                { fps: 10, qrbox: { width: 250, height: 150 }, supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA] },
-                false
-            );
+            const timer = setTimeout(() => {
+                try {
+                    scannerInstance = new Html5QrcodeScanner(
+                        'qr-reader',
+                        {
+                            fps: 10,
+                            qrbox: { width: 220, height: 140 },
+                            supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+                        },
+                        false
+                    );
 
-            scannerRef.current.render(
-                (decodedText) => {
-                    onScan(decodedText);
-                    // Optional: we can close scanner or keep it running. Let's beep and continue.
-                },
-                (error) => {
-                    // Ignored. html5-qrcode frequently logs missing patterns as errors.
+                    scannerRef.current = scannerInstance;
+
+                    scannerInstance.render(
+                        (decodedText) => {
+                            onScan(decodedText);
+                        },
+                        () => {
+                            // Ignorar callbacks continuos de patròn no detectado
+                        }
+                    );
+                } catch (err) {
+                    console.error("Error al inicializar la cámara:", err);
                 }
-            );
-        }
+            }, 100);
 
-        return () => {
-            if (scannerRef.current) {
-                scannerRef.current.clear().catch(console.error);
-            }
-        };
+            return () => {
+                clearTimeout(timer);
+                if (scannerRef.current) {
+                    scannerRef.current.clear().catch(console.error);
+                    scannerRef.current = null;
+                }
+            };
+        }
     }, [mode, onScan]);
 
     const handleManualSubmit = (e: React.FormEvent) => {
@@ -85,68 +102,74 @@ export function BarcodeScanner({ onScan }: BarcodeScannerProps) {
     };
 
     return (
-        <div className="w-full flex flex-col gap-6">
-            {/* Tabs */}
-            <div className="flex w-full items-center bg-gray-100 dark:bg-gray-800/50 p-1.5 rounded-2xl shadow-inner">
+        <div className="w-full flex flex-col gap-5 overflow-hidden">
+            {/* Pestañas para cambiar modo */}
+            <div className="flex w-full items-center bg-gray-100 dark:bg-gray-800/50 p-1 rounded-2xl">
                 <button
                     type="button"
                     className={cn(
-                        "flex-1 h-10 px-4 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all",
+                        "flex-1 h-9 px-3 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all",
                         mode === 'physical'
                             ? "bg-white text-emerald-700 dark:bg-[#0a0a0a] dark:text-emerald-400 shadow-sm"
                             : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                     )}
                     onClick={() => setMode('physical')}
                 >
-                    <Keyboard className="w-4 h-4" strokeWidth={2} />
-                    Lector Físico
+                    <Keyboard className="w-4 h-4 shrink-0" strokeWidth={2} />
+                    <span className="truncate">Lector Físico</span>
                 </button>
                 <button
                     type="button"
                     className={cn(
-                        "flex-1 h-10 px-4 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all",
+                        "flex-1 h-9 px-3 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all",
                         mode === 'camera'
                             ? "bg-white text-emerald-700 dark:bg-[#0a0a0a] dark:text-emerald-400 shadow-sm"
                             : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                     )}
                     onClick={() => setMode('camera')}
                 >
-                    <Camera className="w-4 h-4" strokeWidth={2} />
-                    Cámara
+                    <Camera className="w-4 h-4 shrink-0" strokeWidth={2} />
+                    <span className="truncate">Cámara</span>
                 </button>
             </div>
 
             {mode === 'physical' ? (
-                <div className="flex flex-col gap-4">
-                    <div className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-6 text-center rounded-2xl flex flex-col items-center justify-center gap-3">
-                        <div className="w-12 h-12 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl flex items-center justify-center shadow-sm">
-                            <Keyboard className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex flex-col gap-4 w-full">
+                    <div className="bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-5 text-center rounded-2xl flex flex-col items-center justify-center gap-2">
+                        <div className="w-10 h-10 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-center shadow-sm">
+                            <Keyboard className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                         </div>
-                        <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                        <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
                             Listo para escanear código de barras
                         </p>
-                        <p className="text-xs text-gray-500 font-medium">Asegúrate de no tener el cursor en un campo de texto.</p>
+                        <p className="text-[11px] text-gray-500 font-medium">
+                            Asegúrate de no tener el cursor en un campo de texto.
+                        </p>
                     </div>
 
-                    <form onSubmit={handleManualSubmit} className="flex gap-2">
-                        <input 
-                            placeholder="O ingrese SKU / código manualmente..."
-                            value={manualInput}
-                            onChange={(e) => setManualInput(e.target.value)}
-                            className="flex-1 h-12 px-5 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 placeholder:font-normal font-mono rounded-xl shadow-sm"
-                        />
+                    {/* Formulario de Búsqueda Manual Adaptativo */}
+                    <form onSubmit={handleManualSubmit} className="flex flex-col sm:flex-row gap-2 w-full">
+                        <div className="relative flex-1 min-w-0">
+                            <input 
+                                type="text"
+                                placeholder="SKU / Código..."
+                                value={manualInput}
+                                onChange={(e) => setManualInput(e.target.value)}
+                                className="w-full h-11 px-3.5 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 font-mono rounded-xl shadow-sm"
+                            />
+                        </div>
                         <button 
                             type="submit" 
-                            className="h-12 px-6 bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-colors rounded-xl shadow-sm flex items-center justify-center gap-2"
+                            className="h-11 px-4 bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors rounded-xl shadow-sm flex items-center justify-center gap-2 shrink-0"
                         >
-                            <Search className="w-4 h-4" />
-                            Buscar
+                            <Search className="w-4 h-4 shrink-0" />
+                            <span>Buscar</span>
                         </button>
                     </form>
                 </div>
             ) : (
-                <div className="w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 rounded-3xl shadow-sm">
-                    <div id="qr-reader" className="w-full overflow-hidden rounded-2xl" />
+                <div className="w-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-3 rounded-2xl shadow-sm overflow-hidden">
+                    <div id="qr-reader" className="w-full overflow-hidden rounded-xl" />
                 </div>
             )}
         </div>
