@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
   // === 1. CONFIGURACIÓN TURBOPACK ===
   turbopack: {},
   
+  transpilePackages: ['@quhealthy/health-os-contract'],
+  
   experimental: {
     externalDir: true,
   },

@@ -21,12 +21,10 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./*"
-      ],
-      "@quhealthy/health-os-contract": [
-        "../health-os-contract/src"
       ]
     },
     "target": "ES2017"
@@ -36,8 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "../health-os-contract/src/**/*.ts"
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

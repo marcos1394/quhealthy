@@ -27,7 +27,9 @@ export const useActionEngine = () => {
         // Aquí interactuaría con el appointment.service.ts
         console.log('Reservando:', action.payload);
         // Simulamos un delay y luego enviamos al checkout
-        alert(`Reserva iniciada para: ${action.payload.entityId} a las ${action.payload.scheduleTime}`);
+        if (action.payload) {
+          alert(`Reserva iniciada para: ${action.payload.entityId} a las ${action.payload.scheduleTime}`);
+        }
         break;
 
       case 'pay':
