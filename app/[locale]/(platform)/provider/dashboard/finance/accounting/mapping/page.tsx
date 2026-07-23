@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { accountingService, AccountDTO } from "@/services/accounting.service";
@@ -117,173 +116,228 @@ export default function AccountingMappingPage() {
     };
 
     if (isLoading) {
-        return <div className="flex justify-center p-12"><QhSpinner /></div>;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+                <QhSpinner size="lg" className="text-emerald-600" />
+                <p className="text-sm font-semibold text-gray-500 animate-pulse">Cargando configuración...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-6 pb-12 animate-in fade-in duration-500">
             <div>
-                <h2 className="text-lg font-semibold uppercase tracking-tight">Mapeo Automático de Cuentas</h2>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Mapeo Automático de Cuentas</h2>
+                <p className="text-sm font-medium text-gray-500 mt-1">
                     Configura las reglas para generar pólizas automáticamente
                 </p>
             </div>
 
             <Tabs defaultValue="categories" className="w-full">
-                <TabsList className="bg-gray-100 dark:bg-[#111] p-1 w-full justify-start rounded-md border border-gray-200 dark:border-[#222]">
-                    <TabsTrigger value="categories" className="text-xs uppercase tracking-widest px-6 data-[state=active]:bg-white dark:data-[state=active]:bg-[#222] data-[state=active]:shadow-sm">
+                <TabsList className="bg-gray-100/80 dark:bg-gray-900 p-1 w-full sm:w-auto inline-flex justify-start rounded-2xl border border-gray-200/50 dark:border-gray-800 h-auto">
+                    <TabsTrigger 
+                        value="categories" 
+                        className="text-sm font-bold px-6 py-2.5 rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-[#111] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm transition-all"
+                    >
                         Categorías (Resultados)
                     </TabsTrigger>
-                    <TabsTrigger value="treasury" className="text-xs uppercase tracking-widest px-6 data-[state=active]:bg-white dark:data-[state=active]:bg-[#222] data-[state=active]:shadow-sm">
+                    <TabsTrigger 
+                        value="treasury" 
+                        className="text-sm font-bold px-6 py-2.5 rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-[#111] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm transition-all"
+                    >
                         Tesorería (Activo)
                     </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="categories" className="mt-6 space-y-6">
-                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
-                        <h3 className="text-xs font-bold uppercase tracking-widest mb-4">Nueva Regla por Categoría</h3>
-                        <div className="grid grid-cols-3 gap-4 items-end">
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-3xl p-8 shadow-sm">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Nueva Regla por Categoría</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Categoría del Gasto/Ingreso</Label>
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Categoría del Gasto/Ingreso</Label>
                                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#0a0a0a]">
                                         <SelectValue placeholder="Seleccionar Categoría" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="rounded-xl border-gray-200 dark:border-gray-800">
                                         {Object.entries(CATEGORY_TRANSLATIONS).map(([key, value]) => (
-                                            <SelectItem key={key} value={key}>{value}</SelectItem>
+                                            <SelectItem key={key} value={key} className="rounded-lg">{value}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Cuenta de Resultados</Label>
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Cuenta de Resultados</Label>
                                 <Select value={categoryAccountId} onValueChange={setCategoryAccountId}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#0a0a0a]">
                                         <SelectValue placeholder="Seleccionar Cuenta" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="rounded-xl border-gray-200 dark:border-gray-800 max-h-60">
                                         {accounts.map(acc => (
-                                            <SelectItem key={acc.id} value={acc.id.toString()}>{acc.code} - {acc.name}</SelectItem>
+                                            <SelectItem key={acc.id} value={acc.id.toString()} className="rounded-lg">{acc.code} - {acc.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <Button onClick={handleSaveCategoryMapping} disabled={isSaving || !selectedCategory || !categoryAccountId} className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 uppercase tracking-widest text-[10px] font-bold h-10">
+                            <Button 
+                                onClick={handleSaveCategoryMapping} 
+                                disabled={isSaving || !selectedCategory || !categoryAccountId} 
+                                className="h-11 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm w-full md:w-auto"
+                            >
+                                {isSaving ? <QhSpinner size="sm" className="mr-2" /> : null}
                                 Añadir Regla
                             </Button>
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-[10px] uppercase tracking-widest bg-gray-50 dark:bg-[#111] text-gray-500">
-                                <tr>
-                                    <th className="px-6 py-3 font-bold border-b border-gray-200 dark:border-gray-800">Categoría</th>
-                                    <th className="px-6 py-3 font-bold border-b border-gray-200 dark:border-gray-800">Tipo</th>
-                                    <th className="px-6 py-3 font-bold border-b border-gray-200 dark:border-gray-800">Cuenta Mapeada</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {categoryMappings.map((m) => {
-                                    const acc = accounts.find(a => a.id === m.accountId);
-                                    return (
-                                        <tr key={m.id} className="border-b border-gray-100 dark:border-gray-900 hover:bg-gray-50 dark:hover:bg-[#111]">
-                                            <td className="px-6 py-4 font-medium">{CATEGORY_TRANSLATIONS[m.budgetCategory] || m.budgetCategory}</td>
-                                            <td className="px-6 py-4">{m.budgetType}</td>
-                                            <td className="px-6 py-4 text-gray-500">{acc ? `${acc.code} - ${acc.name}` : m.accountId}</td>
-                                        </tr>
-                                    );
-                                })}
-                                {categoryMappings.length === 0 && (
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50/80 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-800">
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-8 text-center text-gray-400">No hay reglas de categoría configuradas</td>
+                                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Categoría</th>
+                                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
+                                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Cuenta Mapeada</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                    {categoryMappings.map((m) => {
+                                        const acc = accounts.find(a => a.id === m.accountId);
+                                        return (
+                                            <tr key={m.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors">
+                                                <td className="p-4 text-sm font-bold text-gray-900 dark:text-white">
+                                                    {CATEGORY_TRANSLATIONS[m.budgetCategory] || m.budgetCategory}
+                                                </td>
+                                                <td className="p-4">
+                                                    <span className={`inline-flex px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${
+                                                        m.budgetType === 'INCOME' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                                    }`}>
+                                                        {m.budgetType === 'INCOME' ? 'Ingreso' : 'Egreso'}
+                                                    </span>
+                                                </td>
+                                                <td className="p-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                    {acc ? `${acc.code} - ${acc.name}` : m.accountId}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                    {categoryMappings.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="px-6 py-12 text-center text-sm font-semibold text-gray-500">
+                                                No hay reglas de categoría configuradas
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </TabsContent>
 
                 <TabsContent value="treasury" className="mt-6 space-y-6">
-                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
-                        <h3 className="text-xs font-bold uppercase tracking-widest mb-4">Nueva Regla de Tesorería</h3>
-                        <div className="grid grid-cols-4 gap-4 items-end">
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-3xl p-8 shadow-sm">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Nueva Regla de Tesorería</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Método de Pago</Label>
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Método de Pago</Label>
                                 <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#0a0a0a]">
                                         <SelectValue placeholder="Método" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="rounded-xl border-gray-200 dark:border-gray-800 max-h-60">
                                         {satPaymentMethods.map(m => (
-                                            <SelectItem key={m.code} value={m.code}>{m.code} - {m.name}</SelectItem>
+                                            <SelectItem key={m.code} value={m.code} className="rounded-lg">{m.code} - {m.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Banco (Opcional)</Label>
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Banco (Opcional)</Label>
                                 <Select value={selectedBank} onValueChange={setSelectedBank}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#0a0a0a]">
                                         <SelectValue placeholder="Banco" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">Cualquiera</SelectItem>
+                                    <SelectContent className="rounded-xl border-gray-200 dark:border-gray-800 max-h-60">
+                                        <SelectItem value="none" className="rounded-lg font-semibold text-gray-500">Cualquiera (Todos)</SelectItem>
                                         {satBanks.map(b => (
-                                            <SelectItem key={b.code} value={b.code}>{b.shortName}</SelectItem>
+                                            <SelectItem key={b.code} value={b.code} className="rounded-lg">{b.shortName}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Cuenta de Activo</Label>
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Cuenta de Activo</Label>
                                 <Select value={bankAccountId} onValueChange={setBankAccountId}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#0a0a0a]">
                                         <SelectValue placeholder="Seleccionar Cuenta" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="rounded-xl border-gray-200 dark:border-gray-800 max-h-60">
                                         {accounts.map(acc => (
-                                            <SelectItem key={acc.id} value={acc.id.toString()}>{acc.code} - {acc.name}</SelectItem>
+                                            <SelectItem key={acc.id} value={acc.id.toString()} className="rounded-lg">{acc.code} - {acc.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <Button onClick={handleSaveBankMapping} disabled={isSaving || !selectedPaymentMethod || !bankAccountId} className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 uppercase tracking-widest text-[10px] font-bold h-10">
+                            <Button 
+                                onClick={handleSaveBankMapping} 
+                                disabled={isSaving || !selectedPaymentMethod || !bankAccountId} 
+                                className="h-11 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm w-full"
+                            >
+                                {isSaving ? <QhSpinner size="sm" className="mr-2" /> : null}
                                 Añadir Regla
                             </Button>
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-[10px] uppercase tracking-widest bg-gray-50 dark:bg-[#111] text-gray-500">
-                                <tr>
-                                    <th className="px-6 py-3 font-bold border-b border-gray-200 dark:border-gray-800">Método de Pago</th>
-                                    <th className="px-6 py-3 font-bold border-b border-gray-200 dark:border-gray-800">Banco SAT</th>
-                                    <th className="px-6 py-3 font-bold border-b border-gray-200 dark:border-gray-800">Cuenta Mapeada</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bankMappings.map((m) => {
-                                    const method = satPaymentMethods.find(x => x.code === m.satPaymentMethodCode);
-                                    const bank = satBanks.find(x => x.code === m.satBankCode);
-                                    const acc = accounts.find(a => a.id === m.accountId);
-                                    return (
-                                        <tr key={m.id} className="border-b border-gray-100 dark:border-gray-900 hover:bg-gray-50 dark:hover:bg-[#111]">
-                                            <td className="px-6 py-4 font-medium">{method ? `${method.code} - ${method.name}` : m.satPaymentMethodCode}</td>
-                                            <td className="px-6 py-4">{bank ? bank.shortName : (m.satBankCode || 'Cualquiera')}</td>
-                                            <td className="px-6 py-4 text-gray-500">{acc ? `${acc.code} - ${acc.name}` : m.accountId}</td>
-                                        </tr>
-                                    );
-                                })}
-                                {bankMappings.length === 0 && (
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50/80 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-800">
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-8 text-center text-gray-400">No hay reglas de tesorería configuradas</td>
+                                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Método de Pago</th>
+                                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Banco SAT</th>
+                                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Cuenta Mapeada</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                    {bankMappings.map((m) => {
+                                        const method = satPaymentMethods.find(x => x.code === m.satPaymentMethodCode);
+                                        const bank = satBanks.find(x => x.code === m.satBankCode);
+                                        const acc = accounts.find(a => a.id === m.accountId);
+                                        return (
+                                            <tr key={m.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors">
+                                                <td className="p-4 text-sm font-bold text-gray-900 dark:text-white">
+                                                    <span className="inline-block px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono mr-2 text-gray-600 dark:text-gray-400">
+                                                        {m.satPaymentMethodCode}
+                                                    </span>
+                                                    {method ? method.name : ''}
+                                                </td>
+                                                <td className="p-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    {bank ? (
+                                                        <span className="flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                                            {bank.shortName}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-gray-400 italic">Cualquiera (Todos)</span>
+                                                    )}
+                                                </td>
+                                                <td className="p-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                    {acc ? `${acc.code} - ${acc.name}` : m.accountId}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                    {bankMappings.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="px-6 py-12 text-center text-sm font-semibold text-gray-500">
+                                                No hay reglas de tesorería configuradas
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </TabsContent>
             </Tabs>

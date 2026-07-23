@@ -84,46 +84,46 @@ export function ApprovalChainConfig({ providerId }: ApprovalChainConfigProps) {
     };
 
     if (isLoading) {
-        return <div className="flex justify-center p-8"><QhSpinner size="sm" /></div>;
+        return <div className="flex justify-center p-12"><QhSpinner size="md" className="text-emerald-600" /></div>;
     }
 
     return (
         <div className="space-y-4">
             {chain.length === 0 ? (
-                <div className="text-center p-8 border border-dashed border-black/20 dark:border-white/20 bg-gray-50 dark:bg-white/5">
-                    <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-4">
+                <div className="text-center p-12 border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 rounded-2xl flex flex-col items-center justify-center gap-4">
+                    <p className="text-sm font-bold text-gray-500">
                         No hay una cadena de aprobación configurada
                     </p>
                     <Button 
                         onClick={addStep}
-                        className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 rounded-none h-8 px-4 text-[10px] font-bold uppercase tracking-widest"
+                        className="bg-emerald-600 text-white hover:bg-emerald-700 transition-colors h-10 px-6 rounded-xl font-bold shadow-sm"
                     >
-                        <Plus className="w-3 h-3 mr-2" />
+                        <Plus className="w-4 h-4 mr-2" />
                         Crear Primer Paso
                     </Button>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {chain.map((step, index) => (
-                        <div key={index} className="flex flex-col md:flex-row gap-4 p-4 border border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] items-start md:items-center relative">
-                            <div className="flex items-center gap-2">
-                                <GripVertical className="w-4 h-4 text-gray-300 cursor-move" />
-                                <div className="w-6 h-6 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xs font-bold">
+                        <div key={index} className="flex flex-col md:flex-row gap-4 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm hover:shadow-md transition-shadow items-start md:items-center relative group">
+                            <div className="flex items-center gap-3">
+                                <GripVertical className="w-5 h-5 text-gray-300 cursor-move group-hover:text-gray-400" />
+                                <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center text-sm font-bold shadow-sm">
                                     {step.stepOrder}
                                 </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1 w-full">
-                                <div className="space-y-1">
-                                    <Label className="text-[9px] uppercase tracking-wider text-gray-500">Rol Mínimo</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1 w-full pl-2 md:pl-0">
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">Rol Mínimo</Label>
                                     <Select 
                                         value={step.minimumRole || ""} 
                                         onValueChange={(val) => updateStep(index, 'minimumRole', val)}
                                     >
-                                        <SelectTrigger className="h-8 text-xs rounded-none">
+                                        <SelectTrigger className="h-10 text-sm rounded-xl border-gray-200 shadow-sm bg-white dark:bg-[#111]">
                                             <SelectValue placeholder="Seleccione un rol" />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-none">
+                                        <SelectContent className="rounded-xl border-gray-200">
                                             <SelectItem value="FINANCE_VIEWER">Observador Financiero</SelectItem>
                                             <SelectItem value="FINANCE_OPERATOR">Operador Financiero</SelectItem>
                                             <SelectItem value="FINANCE_APPROVER">Aprobador Financiero</SelectItem>
@@ -132,16 +132,16 @@ export function ApprovalChainConfig({ providerId }: ApprovalChainConfigProps) {
                                     </Select>
                                 </div>
                                 
-                                <div className="space-y-1">
-                                    <Label className="text-[9px] uppercase tracking-wider text-gray-500">Alcance</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">Alcance</Label>
                                     <Select 
                                         value={step.scope} 
                                         onValueChange={(val) => updateStep(index, 'scope', val as ApprovalScope)}
                                     >
-                                        <SelectTrigger className="h-8 text-xs rounded-none">
+                                        <SelectTrigger className="h-10 text-sm rounded-xl border-gray-200 shadow-sm bg-white dark:bg-[#111]">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-none">
+                                        <SelectContent className="rounded-xl border-gray-200">
                                             <SelectItem value={ApprovalScope.ALL}>Todo (Gasto y Transf.)</SelectItem>
                                             <SelectItem value={ApprovalScope.EXECUTION}>Solo Gastos</SelectItem>
                                             <SelectItem value={ApprovalScope.TRANSFER}>Solo Transferencias</SelectItem>
@@ -149,22 +149,22 @@ export function ApprovalChainConfig({ providerId }: ApprovalChainConfigProps) {
                                     </Select>
                                 </div>
                                 
-                                <div className="space-y-1">
-                                    <Label className="text-[9px] uppercase tracking-wider text-gray-500">Aprobador Específico (Opcional)</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">Aprobador Específico</Label>
                                     <Input 
-                                        placeholder="ID de usuario..."
-                                        className="h-8 text-xs rounded-none" 
+                                        placeholder="ID usuario (opcional)"
+                                        className="h-10 text-sm rounded-xl border-gray-200 shadow-sm bg-white dark:bg-[#111]" 
                                         value={step.approverId || ''} 
                                         onChange={(e) => updateStep(index, 'approverId', e.target.value ? parseInt(e.target.value) : undefined)} 
                                     />
                                 </div>
 
-                                <div className="space-y-1">
-                                    <Label className="text-[9px] uppercase tracking-wider text-gray-500">Monto Mínimo (Opcional)</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">Monto Mínimo</Label>
                                     <Input 
                                         type="number"
                                         placeholder="Sin mínimo"
-                                        className="h-8 text-xs rounded-none" 
+                                        className="h-10 text-sm rounded-xl border-gray-200 shadow-sm bg-white dark:bg-[#111]" 
                                         value={step.amountThreshold || ''} 
                                         onChange={(e) => updateStep(index, 'amountThreshold', e.target.value ? parseFloat(e.target.value) : undefined)} 
                                     />
@@ -174,29 +174,29 @@ export function ApprovalChainConfig({ providerId }: ApprovalChainConfigProps) {
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-none absolute top-2 right-2 md:static"
+                                className="h-10 w-10 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl absolute top-3 right-3 md:static opacity-0 group-hover:opacity-100 transition-opacity md:opacity-100"
                                 onClick={() => removeStep(index)}
                             >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-5 h-5" />
                             </Button>
                         </div>
                     ))}
                     
-                    <div className="flex items-center justify-between pt-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-800 gap-4">
                         <Button 
                             variant="outline" 
                             onClick={addStep}
-                            className="border-black dark:border-white text-black dark:text-white rounded-none h-8 px-4 text-[10px] font-bold uppercase tracking-widest"
+                            className="w-full sm:w-auto h-11 px-6 rounded-xl font-bold border-gray-200 shadow-sm gap-2"
                         >
-                            <Plus className="w-3 h-3 mr-2" /> Agregar Paso
+                            <Plus className="w-4 h-4" /> Agregar Paso
                         </Button>
                         
                         <Button 
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 rounded-none h-8 px-4 text-[10px] font-bold uppercase tracking-widest gap-2"
+                            className="w-full sm:w-auto h-11 px-6 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm gap-2 transition-colors"
                         >
-                            {isSaving ? <QhSpinner size="sm" /> : <Save className="w-3 h-3" />} Guardar Cadena
+                            {isSaving ? <QhSpinner size="sm" /> : <Save className="w-4 h-4" />} Guardar Cadena
                         </Button>
                     </div>
                 </div>

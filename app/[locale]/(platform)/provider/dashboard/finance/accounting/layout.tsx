@@ -17,22 +17,22 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
 
     return (
         <div className="space-y-6">
-            <div className="border-b border-black/10 dark:border-white/10 pb-2">
-                <nav className="flex items-center gap-6">
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-200 dark:border-gray-800 p-2 shadow-sm overflow-x-auto custom-scrollbar">
+                <nav className="flex items-center gap-2 min-w-max">
                     {tabs.map((tab) => {
                         const isExactlyActive = tab.href === "/provider/dashboard/finance/accounting" 
-                            ? pathname === tab.href 
-                            : pathname?.startsWith(tab.href);
+                            ? pathname === tab.href || pathname === "/es/provider/dashboard/finance/accounting"
+                            : pathname?.includes(tab.href);
 
                         return (
                             <Link 
                                 key={tab.href}
                                 href={tab.href}
                                 className={cn(
-                                    "text-[10px] font-bold uppercase tracking-widest pb-2 border-b-2 transition-colors",
+                                    "text-sm font-bold px-4 py-2.5 rounded-xl transition-all",
                                     isExactlyActive 
-                                        ? "border-black dark:border-white text-black dark:text-white" 
-                                        : "border-transparent text-gray-500 hover:text-black dark:hover:text-white"
+                                        ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" 
+                                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-900/50"
                                 )}
                             >
                                 {tab.name}
@@ -42,7 +42,7 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
                 </nav>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-2">
                 {children}
             </div>
         </div>

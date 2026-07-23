@@ -1,11 +1,13 @@
 "use client"
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Save, X, Calendar } from 'lucide-react';
+import { Save, Calendar, Info } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { QhSpinner } from '@/components/ui/QhSpinner';
 import { financeService } from '@/services/finance.service';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface CreateFiscalYearForm {
     year: number;
@@ -44,60 +46,62 @@ export const CreateFiscalYearDrawer = ({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent position="right" size="lg" className="p-0 border-l border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex flex-col h-full rounded-none">
-                <SheetHeader className="p-6 border-b border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0 text-left">
+            <SheetContent position="right" size="lg" className="p-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col h-full shadow-2xl">
+                <SheetHeader className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 text-left">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0">
-                                <Calendar className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
+                            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center shrink-0">
+                                <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div>
-                                <SheetTitle className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-1">
-                                    NUEVO AÑO FISCAL
+                                <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                                    Nuevo Año Fiscal
                                 </SheetTitle>
-                                <SheetDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                                    ALINEADO A CALENDARIO SAT
+                                <SheetDescription className="text-sm font-medium text-gray-500">
+                                    Alineado a calendario SAT
                                 </SheetDescription>
                             </div>
                         </div>
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                     <form id="create-fiscal-year-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-500/20 mb-6">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-blue-800 dark:text-blue-300">Nota Legal SAT</p>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl mb-6">
+                            <p className="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                                <Info className="w-4 h-4" /> Nota Legal SAT
+                            </p>
+                            <p className="text-sm text-blue-600 dark:text-blue-400 mt-2 font-medium">
                                 Para cumplir con las regulaciones de la autoridad fiscal en México, el sistema configurará automáticamente la vigencia del ejercicio fiscal del 1 de enero al 31 de diciembre del año seleccionado.
                             </p>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Año (YYYY) *</label>
-                            <input 
+                            <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Año (YYYY) *</Label>
+                            <Input 
                                 type="number"
                                 {...register("year", { required: true, min: 2000, max: 2100 })}
-                                className="w-full h-12 px-4 bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                className="w-full h-12 px-4 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm font-mono text-base bg-white dark:bg-[#111]"
                                 placeholder="Ej. 2027"
                             />
-                            {errors.year && <span className="text-xs text-red-500 font-bold uppercase">AÑO INVÁLIDO</span>}
+                            {errors.year && <span className="text-xs text-red-500 font-bold">AÑO INVÁLIDO</span>}
                         </div>
                         
                     </form>
                 </div>
 
-                <div className="p-6 border-t border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] shrink-0">
+                <div className="p-6 md:p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 shrink-0">
                     <button 
                         type="submit"
                         form="create-fiscal-year-form"
                         disabled={isSubmitting}
-                        className="w-full h-12 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-0 rounded-none disabled:opacity-50"
+                        className="w-full h-12 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 rounded-xl shadow-sm disabled:opacity-50"
                     >
                         {isSubmitting ? (
-                            <><QhSpinner size="sm" className="text-current" /> CREANDO...</>
+                            <><QhSpinner size="sm" className="mr-2" /> Creando...</>
                         ) : (
-                            <><Save className="w-4 h-4" strokeWidth={1.5} /> CONFIRMAR AÑO</>
+                            <><Save className="w-4 h-4" /> Confirmar Año</>
                         )}
                     </button>
                 </div>

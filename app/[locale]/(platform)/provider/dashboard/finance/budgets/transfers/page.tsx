@@ -52,115 +52,119 @@ export default function TransfersPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-                <QhSpinner size="lg" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Cargando reasignaciones...</p>
+                <QhSpinner size="lg" className="text-emerald-600" />
+                <p className="text-sm font-semibold text-gray-500 animate-pulse">Cargando reasignaciones...</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
+        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-6 gap-4">
                 <div>
-                    <h2 className="text-lg font-semibold uppercase tracking-tight">Reasignaciones Presupuestales</h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Reasignaciones Presupuestales</h2>
+                    <p className="text-sm font-medium text-gray-500 mt-1">
                         Transferencias de fondos entre partidas
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button 
                         onClick={() => setIsDrawerOpen(true)}
-                        className="rounded-none h-9 text-[10px] font-bold uppercase tracking-widest gap-2"
+                        className="rounded-xl h-11 px-6 bg-emerald-600 text-white hover:bg-emerald-700 border-0 text-sm font-bold shadow-sm"
                     >
-                        <Plus className="w-3.5 h-3.5" />
+                        <Plus className="w-4 h-4 mr-2" />
                         Nueva Solicitud
                     </Button>
-                    <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                        <ArrowLeftRight className="w-4 h-4 text-gray-500" />
+                    <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 flex items-center justify-center shadow-sm">
+                        <ArrowLeftRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                     </div>
                 </div>
             </div>
 
-            <div className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-gray-50 dark:bg-[#050505] border-b border-black/20 dark:border-white/20">
-                            <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Fecha</th>
-                            <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Origen → Destino</th>
-                            <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Motivo</th>
-                            <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 text-right">Monto</th>
-                            <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 text-center">Estado</th>
-                            <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transfers.length > 0 ? (
-                            transfers.map((t) => (
-                                <tr key={t.id} className="border-b border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                                    <td className="p-4 text-xs font-mono">
-                                        {new Date(t.requestedAt).toLocaleDateString()}
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-xs font-semibold text-red-600 dark:text-red-400 flex items-center gap-1">
-                                                - {t.fromLineItem.name}
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-800">
+                                <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha</th>
+                                <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Origen → Destino</th>
+                                <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Motivo</th>
+                                <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Monto</th>
+                                <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Estado</th>
+                                <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {transfers.length > 0 ? (
+                                transfers.map((t) => (
+                                    <tr key={t.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/20 transition-colors group">
+                                        <td className="p-4 text-sm font-medium text-gray-600 dark:text-gray-400">
+                                            {new Date(t.requestedAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col gap-1.5">
+                                                <span className="text-sm font-semibold text-orange-600 dark:text-orange-400 flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/10 px-2 py-0.5 rounded-md w-fit">
+                                                    - {t.fromLineItem.name}
+                                                </span>
+                                                <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/10 px-2 py-0.5 rounded-md w-fit">
+                                                    + {t.toLineItem.name}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4 text-sm font-medium text-gray-600 dark:text-gray-400 max-w-[200px] truncate" title={t.reason}>
+                                            {t.reason}
+                                        </td>
+                                        <td className="p-4 text-right text-sm font-bold font-mono text-gray-900 dark:text-white">
+                                            ${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            <span className={`inline-flex px-2.5 py-1 text-xs font-bold rounded-full shadow-sm ${
+                                                t.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                                                t.status === 'REJECTED' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                                t.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' :
+                                                'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                            }`}>
+                                                {t.status === 'APPROVED' ? 'Aprobado' : 
+                                                 t.status === 'REJECTED' ? 'Rechazado' :
+                                                 t.status === 'CANCELLED' ? 'Cancelado' : 'Pendiente'}
                                             </span>
-                                            <span className="text-xs font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
-                                                + {t.toLineItem.name}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4 text-xs text-gray-600 dark:text-gray-400 max-w-[200px] truncate">
-                                        {t.reason}
-                                    </td>
-                                    <td className="p-4 text-right text-sm font-mono font-bold">
-                                        ${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="p-4 text-center">
-                                        <span className={`px-2 py-1 text-[9px] font-bold uppercase tracking-widest rounded ${
-                                            t.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                            t.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                                            t.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
-                                            'bg-amber-100 text-amber-700'
-                                        }`}>
-                                            {t.status}
-                                        </span>
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex items-center justify-center gap-2">
-                                            {t.status === 'PENDING' && (
-                                                <>
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="icon" 
-                                                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                                        onClick={() => handleApprove(t.id)}
-                                                    >
-                                                        <CheckCircle className="w-4 h-4" />
-                                                    </Button>
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="icon" 
-                                                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                        onClick={() => handleReject(t.id)}
-                                                    >
-                                                        <XCircle className="w-4 h-4" />
-                                                    </Button>
-                                                </>
-                                            )}
-                                        </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex items-center justify-center gap-2">
+                                                {t.status === 'PENDING' && (
+                                                    <>
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="icon" 
+                                                            className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
+                                                            onClick={() => handleApprove(t.id)}
+                                                        >
+                                                            <CheckCircle className="w-5 h-5" />
+                                                        </Button>
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="icon" 
+                                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                                                            onClick={() => handleReject(t.id)}
+                                                        >
+                                                            <XCircle className="w-5 h-5" />
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} className="p-12 text-center text-sm font-semibold text-gray-500">
+                                        No hay transferencias registradas
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={6} className="p-8 text-center text-[10px] font-bold uppercase tracking-widest text-gray-500 border-dashed border-t border-black/10 dark:border-white/10">
-                                    No hay transferencias registradas
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <CreateTransferDrawer 

@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowRight, FileText } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { budgetService, BudgetDTO } from "@/services/budget.service";
 import { toast } from "react-toastify";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { CreateBudgetDrawer } from "./CreateBudgetDrawer";
+import { cn } from "@/lib/utils";
 
 export default function BudgetsPage() {
     const router = useRouter();
@@ -35,8 +35,8 @@ export default function BudgetsPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-                <QhSpinner size="lg" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <QhSpinner size="lg" className="text-emerald-600" />
+                <p className="text-sm font-semibold text-gray-500 animate-pulse">
                     Cargando presupuestos...
                 </p>
             </div>
@@ -44,19 +44,19 @@ export default function BudgetsPage() {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex items-center justify-between">
+        <div className="space-y-6 animate-in fade-in duration-500 pb-16">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#0a0a0a] p-6 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm">
                 <div>
-                    <h2 className="text-lg font-semibold uppercase tracking-tight">Presupuestos</h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Presupuestos</h2>
+                    <p className="text-sm font-medium text-gray-500 mt-1">
                         Planeación financiera por periodo
                     </p>
                 </div>
                 <Button 
                     onClick={() => setIsDrawerOpen(true)}
-                    className="rounded-none h-10 px-6 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 border-0 text-[9px] font-bold uppercase tracking-widest transition-colors"
+                    className="rounded-xl h-11 px-6 bg-emerald-600 text-white hover:bg-emerald-700 border-0 text-sm font-bold shadow-sm flex items-center shrink-0"
                 >
-                    <Plus className="w-4 h-4 mr-2" /> Nuevo Presupuesto
+                    <Plus className="w-5 h-5 mr-2" /> Nuevo Presupuesto
                 </Button>
             </div>
 
@@ -64,39 +64,45 @@ export default function BudgetsPage() {
                 {budgets.map((budget) => (
                     <div 
                         key={budget.id} 
-                        className="border border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a] p-6 hover:border-black dark:hover:border-white transition-colors cursor-pointer group flex flex-col justify-between"
+                        className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-6 rounded-3xl shadow-sm hover:shadow-md hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all cursor-pointer group flex flex-col justify-between h-full"
                         onClick={() => router.push(`/provider/dashboard/finance/budgets/${budget.id}`)}
                     >
                         <div>
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="w-10 h-10 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                                    <FileText className="w-4 h-4" />
+                            <div className="flex items-start justify-between mb-5">
+                                <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 flex items-center justify-center shadow-sm group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 group-hover:border-emerald-100 dark:group-hover:border-emerald-800/50 transition-colors">
+                                    <FileText className="w-5 h-5 text-gray-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
                                 </div>
-                                <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 border ${
-                                    budget.status === 'ACTIVE' ? 'border-green-500/30 text-green-600 bg-green-50 dark:bg-green-900/10' : 
-                                    budget.status === 'SUPERSEDED' ? 'border-amber-500/30 text-amber-600 bg-amber-50 dark:bg-amber-900/10' :
-                                    budget.status === 'CLOSED' ? 'border-red-500/30 text-red-600 bg-red-50 dark:bg-red-900/10' :
-                                    budget.status === 'ARCHIVED' ? 'border-gray-500/30 text-gray-600 bg-gray-50 dark:bg-gray-900/10' :
-                                    'border-blue-500/30 text-blue-600 bg-blue-50 dark:bg-blue-900/10'
-                                }`}>
-                                    {budget.status || 'DRAFT'}
+                                <span className={cn(
+                                    "px-3 py-1 text-xs font-bold rounded-full shadow-sm border",
+                                    budget.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border-emerald-200/50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/50' : 
+                                    budget.status === 'SUPERSEDED' ? 'bg-amber-100 text-amber-700 border-amber-200/50 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50' :
+                                    budget.status === 'CLOSED' ? 'bg-red-100 text-red-700 border-red-200/50 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50' :
+                                    budget.status === 'ARCHIVED' ? 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-[#111] dark:text-gray-300 dark:border-gray-800' :
+                                    'bg-blue-100 text-blue-700 border-blue-200/50 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50'
+                                )}>
+                                    {budget.status === 'ACTIVE' ? 'Activo' : budget.status || 'Borrador'}
                                 </span>
                             </div>
-                            <h3 className="font-semibold text-sm uppercase tracking-widest mb-1">
-                                {budget.name} <span className="text-[10px] text-gray-500 ml-1">v{budget.version || 1}</span>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                {budget.name} <span className="text-xs font-medium text-gray-400 ml-1">v{budget.version || 1}</span>
                             </h3>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-6">
-                                Ingresos: ${budget.totalProjectedIncome?.toLocaleString() || 0} | Gastos: ${budget.totalProjectedExpense?.toLocaleString() || 0}
-                            </p>
+                            <div className="space-y-1.5 mb-6">
+                                <p className="text-sm font-medium text-gray-500 flex justify-between">
+                                    <span>Ingresos:</span> <span className="font-semibold text-gray-700 dark:text-gray-300">${budget.totalProjectedIncome?.toLocaleString() || 0}</span>
+                                </p>
+                                <p className="text-sm font-medium text-gray-500 flex justify-between">
+                                    <span>Gastos:</span> <span className="font-semibold text-gray-700 dark:text-gray-300">${budget.totalProjectedExpense?.toLocaleString() || 0}</span>
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex items-center justify-end text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
-                            VER DETALLE <ArrowRight className="w-3 h-3 ml-2" />
+                        <div className="flex items-center justify-end text-sm font-bold text-gray-400 group-hover:text-emerald-600 transition-colors mt-4">
+                            Ver detalle <ArrowRight className="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-1" />
                         </div>
                     </div>
                 ))}
                 {budgets.length === 0 && (
-                    <div className="col-span-full p-8 text-center border border-dashed border-black/20 dark:border-white/20">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">NO HAY PRESUPUESTOS REGISTRADOS</p>
+                    <div className="col-span-full p-12 text-center border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm">
+                        <p className="text-sm font-semibold text-gray-500">No hay presupuestos registrados</p>
                     </div>
                 )}
             </div>

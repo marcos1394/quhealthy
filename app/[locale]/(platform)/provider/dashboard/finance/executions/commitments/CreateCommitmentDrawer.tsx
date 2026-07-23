@@ -85,25 +85,25 @@ export function CreateCommitmentDrawer({ open, onOpenChange, onSuccess }: Create
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border-black/10 dark:border-white/10 p-0 overflow-y-auto">
-                <div className="p-6 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
+            <SheetContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border-none p-0 overflow-hidden flex flex-col h-full rounded-l-3xl shadow-2xl">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
                     <SheetHeader>
-                        <SheetTitle className="text-sm font-bold uppercase tracking-widest">
+                        <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">
                             Nuevo Compromiso
                         </SheetTitle>
-                        <SheetDescription className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">
+                        <SheetDescription className="text-sm font-medium text-gray-500">
                             Apartar fondos para gastos futuros
                         </SheetDescription>
                     </SheetHeader>
                 </div>
                 
-                <div className="p-6 space-y-6">
+                <div className="p-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Presupuesto</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Presupuesto</Label>
                         <select 
                             value={selectedBudgetId || ""}
                             onChange={(e) => handleBudgetChange(Number(e.target.value))}
-                            className="w-full h-10 px-3 text-sm border border-black/20 dark:border-white/20 bg-transparent rounded-none focus:outline-none focus:border-black dark:focus:border-white"
+                            className="w-full h-11 px-3 text-sm border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all"
                         >
                             <option value="" disabled>Selecciona un presupuesto...</option>
                             {budgets.map(b => (
@@ -113,12 +113,12 @@ export function CreateCommitmentDrawer({ open, onOpenChange, onSuccess }: Create
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Partida Afectada</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Partida Afectada</Label>
                         <select 
                             value={lineItemId || ""}
                             onChange={(e) => setLineItemId(Number(e.target.value))}
                             disabled={!selectedBudgetId}
-                            className="w-full h-10 px-3 text-sm border border-black/20 dark:border-white/20 bg-transparent rounded-none focus:outline-none focus:border-black dark:focus:border-white disabled:opacity-50"
+                            className="w-full h-11 px-3 text-sm border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900"
                         >
                             <option value="" disabled>Selecciona partida de gasto...</option>
                             {lineItems.map(l => (
@@ -128,42 +128,43 @@ export function CreateCommitmentDrawer({ open, onOpenChange, onSuccess }: Create
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Monto a Comprometer</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Monto a Comprometer</Label>
                         <Input 
                             type="number"
                             placeholder="0.00"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="h-10 text-sm font-mono border-black/20 dark:border-white/20 rounded-none focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white"
+                            className="h-11 text-sm font-mono border-gray-200 dark:border-gray-800 rounded-xl focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm transition-all"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Motivo / Proveedor / OC</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Motivo / Proveedor / OC</Label>
                         <Textarea 
                             placeholder="Ej. Orden de Compra #1024, Contrato de Servicios..."
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            className="min-h-[100px] text-sm border-black/20 dark:border-white/20 rounded-none focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white"
+                            className="min-h-[100px] text-sm border-gray-200 dark:border-gray-800 rounded-xl focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm transition-all resize-none"
                         />
                     </div>
-
-                    <div className="pt-4 border-t border-black/10 dark:border-white/10 flex justify-end gap-3">
-                        <Button 
-                            variant="ghost" 
-                            onClick={() => onOpenChange(false)}
-                            className="rounded-none h-10 px-6 text-[10px] font-bold uppercase tracking-widest"
-                        >
-                            Cancelar
-                        </Button>
-                        <Button 
-                            onClick={handleSave} 
-                            disabled={isLoading}
-                            className="rounded-none h-10 px-6 text-[10px] font-bold uppercase tracking-widest"
-                        >
-                            {isLoading ? <QhSpinner size="sm" /> : "Guardar Compromiso"}
-                        </Button>
-                    </div>
+                </div>
+                
+                <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex justify-end gap-3 mt-auto">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => onOpenChange(false)}
+                        className="rounded-xl h-11 px-6 text-sm font-bold border-gray-200 shadow-sm"
+                    >
+                        Cancelar
+                    </Button>
+                    <Button 
+                        onClick={handleSave} 
+                        disabled={isLoading}
+                        className="rounded-xl h-11 px-6 text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
+                    >
+                        {isLoading ? <QhSpinner size="sm" className="mr-2" /> : null}
+                        {isLoading ? "Guardando..." : "Guardar Compromiso"}
+                    </Button>
                 </div>
             </SheetContent>
         </Sheet>

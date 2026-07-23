@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { budgetService, BudgetDTO, BudgetLineItemDTO } from "@/services/budget.service";
+import { ArrowLeftRight, X } from "lucide-react";
 
 interface CreateTransferDrawerProps {
     open: boolean;
@@ -47,7 +48,7 @@ export function CreateTransferDrawer({ open, onOpenChange, onSuccess }: CreateTr
             const data = await budgetService.listBudgets();
             setBudgets(data);
         } catch {
-            toast.error("Error al cargar presupuestos");
+            toast.error("Error al cargar presupuestos", { theme: "colored" });
         }
     };
 
@@ -59,7 +60,7 @@ export function CreateTransferDrawer({ open, onOpenChange, onSuccess }: CreateTr
             const items = await budgetService.getBudgetLineItems(id);
             setLineItems(items);
         } catch {
-            toast.error("Error al cargar partidas");
+            toast.error("Error al cargar partidas", { theme: "colored" });
         }
     };
 
@@ -94,25 +95,31 @@ export function CreateTransferDrawer({ open, onOpenChange, onSuccess }: CreateTr
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border-black/10 dark:border-white/10 p-0 overflow-y-auto">
-                <div className="p-6 border-b border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#050505]">
-                    <SheetHeader>
-                        <SheetTitle className="text-sm font-bold uppercase tracking-widest">
-                            Nueva Reasignación
-                        </SheetTitle>
-                        <SheetDescription className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">
-                            Transferir fondos entre partidas
-                        </SheetDescription>
-                    </SheetHeader>
-                </div>
+            <SheetContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-gray-800 p-0 overflow-y-auto sm:rounded-l-3xl shadow-2xl flex flex-col h-full">
+                <SheetHeader className="p-8 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/10 shrink-0 rounded-tl-3xl">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 flex items-center justify-center shadow-sm">
+                            <ArrowLeftRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <SheetClose className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] flex items-center justify-center transition-colors shadow-sm">
+                            <X className="w-5 h-5 text-gray-500" strokeWidth={2} />
+                        </SheetClose>
+                    </div>
+                    <SheetTitle className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                        Nueva Reasignación
+                    </SheetTitle>
+                    <SheetDescription className="text-sm font-medium text-gray-500 mt-1">
+                        Transferir fondos entre partidas presupuestales
+                    </SheetDescription>
+                </SheetHeader>
                 
-                <div className="p-6 space-y-6">
+                <div className="p-8 space-y-6 flex-1 custom-scrollbar">
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Presupuesto</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Presupuesto *</Label>
                         <select 
                             value={selectedBudgetId || ""}
                             onChange={(e) => handleBudgetChange(Number(e.target.value))}
-                            className="w-full h-10 px-3 text-sm border border-black/20 dark:border-white/20 bg-transparent rounded-none focus:outline-none focus:border-black dark:focus:border-white"
+                            className="w-full h-12 px-4 text-sm font-medium border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all"
                         >
                             <option value="" disabled>Selecciona un presupuesto...</option>
                             {budgets.map(b => (
@@ -122,12 +129,12 @@ export function CreateTransferDrawer({ open, onOpenChange, onSuccess }: CreateTr
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Partida Origen (Reduce fondos)</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Partida Origen (Reduce fondos) *</Label>
                         <select 
                             value={fromLineItemId || ""}
                             onChange={(e) => setFromLineItemId(Number(e.target.value))}
                             disabled={!selectedBudgetId}
-                            className="w-full h-10 px-3 text-sm border border-black/20 dark:border-white/20 bg-transparent rounded-none focus:outline-none focus:border-black dark:focus:border-white disabled:opacity-50"
+                            className="w-full h-12 px-4 text-sm font-medium border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all disabled:opacity-50"
                         >
                             <option value="" disabled>Selecciona partida origen...</option>
                             {lineItems.map(l => (
@@ -137,12 +144,12 @@ export function CreateTransferDrawer({ open, onOpenChange, onSuccess }: CreateTr
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Partida Destino (Recibe fondos)</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Partida Destino (Recibe fondos) *</Label>
                         <select 
                             value={toLineItemId || ""}
                             onChange={(e) => setToLineItemId(Number(e.target.value))}
                             disabled={!selectedBudgetId}
-                            className="w-full h-10 px-3 text-sm border border-black/20 dark:border-white/20 bg-transparent rounded-none focus:outline-none focus:border-black dark:focus:border-white disabled:opacity-50"
+                            className="w-full h-12 px-4 text-sm font-medium border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-sm transition-all disabled:opacity-50"
                         >
                             <option value="" disabled>Selecciona partida destino...</option>
                             {lineItems.map(l => (
@@ -152,40 +159,46 @@ export function CreateTransferDrawer({ open, onOpenChange, onSuccess }: CreateTr
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Monto a Transferir</Label>
-                        <Input 
-                            type="number"
-                            placeholder="0.00"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="h-10 text-sm font-mono border-black/20 dark:border-white/20 rounded-none focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white"
-                        />
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Monto a Transferir *</Label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                            <Input 
+                                type="number"
+                                placeholder="0.00"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                className="h-12 pl-8 pr-4 text-sm font-mono font-bold border-gray-200 dark:border-gray-800 rounded-xl focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Motivo</Label>
+                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Motivo de Reasignación *</Label>
                         <Textarea 
                             placeholder="Escribe la justificación de esta transferencia..."
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            className="min-h-[100px] text-sm border-black/20 dark:border-white/20 rounded-none focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white"
+                            className="min-h-[120px] text-sm font-medium border-gray-200 dark:border-gray-800 rounded-xl focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm resize-none"
                         />
                     </div>
-
-                    <div className="pt-4 border-t border-black/10 dark:border-white/10 flex justify-end gap-3">
+                </div>
+                
+                <div className="p-8 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 rounded-bl-3xl">
+                    <div className="flex gap-3">
                         <Button 
-                            variant="ghost" 
+                            variant="outline" 
                             onClick={() => onOpenChange(false)}
-                            className="rounded-none h-10 px-6 text-[10px] font-bold uppercase tracking-widest"
+                            className="flex-1 h-12 rounded-xl text-sm font-bold border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 shadow-sm"
                         >
                             Cancelar
                         </Button>
                         <Button 
                             onClick={handleSave} 
                             disabled={isLoading}
-                            className="rounded-none h-10 px-6 text-[10px] font-bold uppercase tracking-widest"
+                            className="flex-1 h-12 rounded-xl text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
                         >
-                            {isLoading ? <QhSpinner size="sm" /> : "Solicitar Transferencia"}
+                            {isLoading ? <QhSpinner size="sm" className="mr-2" /> : null}
+                            Solicitar
                         </Button>
                     </div>
                 </div>
