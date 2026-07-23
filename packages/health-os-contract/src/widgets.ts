@@ -12,7 +12,9 @@ export type WidgetType =
   | 'PaymentWidget'
   | 'MarketplaceWidget'
   | 'DependentWidget'
-  | 'PrescriptionWidget'
+  | 'DoctorGalleryWidget'
+  | 'DoctorMapWidget'
+  | 'DoctorReviewsWidget'
   | 'HealthInsightWidget';
 
 export interface BaseWidget<T = any> {
@@ -29,10 +31,32 @@ export interface DoctorCardData {
   specialty: string;
   imageUrl?: string;
   rating?: number;
+  reviewCount?: number;
+  clinic?: string;
+  languages?: string[];
   nextAvailableSlot?: string;
 }
 
 export type DoctorCardWidget = BaseWidget<DoctorCardData>;
+
+export interface DoctorGalleryData {
+  doctors: DoctorCardData[];
+}
+
+export type DoctorGalleryWidget = BaseWidget<DoctorGalleryData>;
+
+export interface AppointmentData {
+  appointmentId: string;
+  doctorId: string;
+  doctorName: string;
+  date: string;
+  time: string;
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+  location?: string;
+  price?: number;
+}
+
+export type AppointmentWidget = BaseWidget<AppointmentData>;
 
 export interface CalendarData {
   availableSlots: Array<{
