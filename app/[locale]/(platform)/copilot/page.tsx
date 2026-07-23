@@ -18,7 +18,9 @@ import {
   MessageSquare,
   Plus,
   Trash2,
-  Clock
+  Clock,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -30,6 +32,8 @@ import { es } from 'date-fns/locale';
 export default function CopilotPage() {
   const [inputText, setInputText] = useState('');
   const [showSlashCommands, setShowSlashCommands] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   const { 
     conversation, 
     streamingState, 
@@ -59,6 +63,15 @@ export default function CopilotPage() {
     }
     setShowSlashCommands(inputText === '/');
   }, [inputText]);
+
+  // Interceptar CustomEvent desde Engine
+  useEffect(() => {
+    const handleIntent = (e: CustomEvent) => {
+      sendIntentToAgent(e.detail);
+    };
+    window.addEventListener('healthos:send_intent', handleIntent as EventListener);
+    return () => window.removeEventListener('healthos:send_intent', handleIntent as EventListener);
+  }, [streamingState]);
 
   const sendIntentToAgent = async (text: string) => {
     if (!text.trim() || streamingState !== 'idle') return;
@@ -113,59 +126,69 @@ export default function CopilotPage() {
   ];
 
   return (
-    <div className="flex h-[calc(100vh-5rem)] max-w-6xl mx-auto w-full p-3 sm:p-6 font-sans gap-4 selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
+    <div className="flex h-[calc(100vh-5rem)] max-w-6xl mx-auto w-full p-3 sm:p-6 font-sans gap-4 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 overflow-hidden">
       
       {/* ── SIDEBAR HISTORIAL (Desktop) ──────────────────────── */}
-      <div className="hidden lg:flex flex-col w-72 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden shrink-0">
-        <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-[#050505]">
-          <h2 className="font-semibold text-sm text-gray-900 dark:text-white flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-emerald-600" /> Consultas
-          </h2>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={resetConversation}
-            className="h-8 w-8 rounded-full hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+      <AnimatePresence initial={false}>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ width: 0, opacity: 0, marginRight: 0 }}
+            animate={{ width: 288, opacity: 1, marginRight: 16 }}
+            exit={{ width: 0, opacity: 0, marginRight: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="hidden lg:flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden shrink-0"
           >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
-        <ScrollArea className="flex-1 p-2">
-          <div className="space-y-1">
-            {sessions.length === 0 ? (
-              <p className="text-xs text-gray-400 text-center py-6">No hay consultas previas.</p>
-            ) : (
-              sessions.map((session) => (
-                <div 
-                  key={session.id} 
-                  className={cn(
-                    "group flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all",
-                    activeSessionId === session.id 
-                      ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400" 
-                      : "hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300"
-                  )}
-                  onClick={() => loadSession(session.id)}
-                >
-                  <div className="flex flex-col min-w-0 overflow-hidden">
-                    <span className="text-xs font-semibold truncate">{session.title}</span>
-                    <span className="text-[10px] text-gray-400 truncate">
-                      {formatDistanceToNow(new Date(session.updatedAt), { addSuffix: true, locale: es })}
-                    </span>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 shrink-0 rounded-full transition-opacity"
-                    onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
-        </ScrollArea>
-      </div>
+            <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-[#050505]">
+              <h2 className="font-semibold text-sm text-gray-900 dark:text-white flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-emerald-600" /> Consultas
+              </h2>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={resetConversation}
+                className="h-8 w-8 rounded-full hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <ScrollArea className="flex-1 p-2">
+              <div className="space-y-1">
+                {sessions.length === 0 ? (
+                  <p className="text-xs text-gray-400 text-center py-6">No hay consultas previas.</p>
+                ) : (
+                  sessions.map((session) => (
+                    <div 
+                      key={session.id} 
+                      className={cn(
+                        "group flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all",
+                        activeSessionId === session.id 
+                          ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400" 
+                          : "hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300"
+                      )}
+                      onClick={() => loadSession(session.id)}
+                    >
+                      <div className="flex flex-col min-w-0 overflow-hidden">
+                        <span className="text-xs font-semibold truncate">{session.title}</span>
+                        <span className="text-[10px] text-gray-400 truncate">
+                          {formatDistanceToNow(new Date(session.updatedAt), { addSuffix: true, locale: es })}
+                        </span>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 shrink-0 rounded-full transition-opacity"
+                        onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── CONTENEDOR PRINCIPAL CHAT ──────────────────────── */}
       <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col transition-all relative">
@@ -173,6 +196,16 @@ export default function CopilotPage() {
         {/* ── ENCABEZADO COPILOT ─────────────────────────────────────────── */}
         <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="hidden lg:flex w-10 h-10 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 shrink-0"
+              title={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}
+            >
+              {isSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
+            </Button>
+            
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0">
               <BrainCircuit className="w-5 h-5" strokeWidth={2} />
             </div>
@@ -406,7 +439,7 @@ export default function CopilotPage() {
               className="h-10 w-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white p-0 shrink-0 shadow-sm transition-all disabled:opacity-40 mb-0.5"
             >
               {streamingState !== 'idle' ? (
-                <QhSpinner size="sm" className="text-white" />
+               <QhSpinner size="sm" className="text-white" />
               ) : (
                 <Send className="w-4 h-4" strokeWidth={2} />
               )}

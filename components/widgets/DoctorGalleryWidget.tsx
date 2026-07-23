@@ -81,7 +81,14 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
             id: `doc-card-${idx}`,
             type: 'DoctorCardWidget' as const,
             data: doctor,
-            actions: actions || []
+            actions: (actions || []).map(a => ({
+              ...a,
+              payload: {
+                ...a.payload,
+                entityId: doctor.id,
+                entityName: doctor.name
+              }
+            }))
           };
           
           return (
@@ -93,4 +100,4 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
       </div>
     </div>
   );
-};
+}

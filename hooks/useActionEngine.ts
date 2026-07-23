@@ -1,11 +1,8 @@
 import { useRouter } from 'next/navigation';
 import { HealthOSAction } from '@quhealthy/health-os-contract';
-import { useHealthOSStore } from '@/stores/useHealthOSStore';
 
 export const useActionEngine = () => {
   const router = useRouter();
-  // We can pull pendingActions from the store if we want to queue them
-  // const addPendingAction = useHealthOSStore((state) => state.addPendingAction);
 
   const dispatchAction = async (action: HealthOSAction) => {
     console.log('ActionEngine -> dispatching:', action);
@@ -24,20 +21,27 @@ export const useActionEngine = () => {
         break;
 
       case 'reserve':
-        // Aquí interactuaría con el appointment.service.ts
         console.log('Reservando:', action.payload);
-        // Simulamos un delay y luego enviamos al checkout
-        if (action.payload) {
-          alert(`Reserva iniciada para: ${action.payload.entityId} a las ${action.payload.scheduleTime}`);
+        if (action.payload && action.payload.entityId) {
+          const name = action.payload.entityName || action.payload.entityId;
+          const intentText = `Quiero agendar cita con el Dr. ${name} (ID: ${action.payload.entityId})`;
+          
+          // Emit a custom event so the Copilot page can intercept it and send it to the AI
+          window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: intentText }));
+          
+          // Ensure we are on the copilot page
+          if (!window.location.pathname.includes('/copilot')) {
+            router.push('/copilot');
+          }
+        } else {
+          console.warn("Faltan datos de entidad en la acción reserve.");
         }
         break;
 
       case 'pay':
-        // Integración real con Stripe
         console.log('Iniciando pago:', action.payload);
         if (action.payload?.referenceId) {
           try {
-            // Utilizamos el axiosInstance que ya inyecta el JWT
             const axiosInstance = (await import('@/lib/axios')).default;
             const response = await axiosInstance.post('/api/payments/checkout/appointment', {
               appointmentId: action.payload.referenceId,
