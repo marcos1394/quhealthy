@@ -1,437 +1,328 @@
-"use client"
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-module-scope-static-value */
-/* eslint-disable react-doctor/no-giant-component */;
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Shield, Lock, Eye, Database, UserCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { 
+  X, 
+  Shield, 
+  Lock, 
+  Eye, 
+  Database, 
+  UserCheck, 
+  AlertCircle, 
+  CheckCircle2,
+  ShieldCheck
+} from 'lucide-react';
 import {
- Dialog,
- DialogContent,
- DialogDescription,
- DialogHeader,
- DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-
-/**
- * PrivacyModal Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. CREDIBILIDAD
- * - GDPR compliance mentions
- * - Clear data usage
- * - Security certifications
- * - Professional language
- * 
- * 2. MINIMIZAR ANSIEDAD
- * - Transparent data collection
- * - User rights highlighted
- * - No hidden clauses
- * - Easy to understand
- * 
- * 3. RECONOCIMIENTO
- * - Icon-based sections
- * - Visual hierarchy
- * - Scannable content
- * - Quick summary
- */
+import { cn } from '@/lib/utils';
 
 interface PrivacyModalProps {
- isOpen: boolean;
- onClose: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
- const lastUpdated = "15 de Enero, 2025";
+  const lastUpdated = "15 de Enero, 2025";
 
- const keyCommitments = [
- "Nunca vendemos tu información personal",
- "Cifrado de extremo a extremo",
- "Puedes eliminar tu cuenta en cualquier momento",
- "Cumplimiento total con GDPR y leyes mexicanas"
- ];
+  const keyCommitments = [
+    "Nunca vendemos ni comercializamos tu información personal",
+    "Cifrado de grado médico de extremo a extremo",
+    "Puedes solicitar la eliminación de tu cuenta en cualquier momento",
+    "Cumplimiento integral con GDPR, HIPAA y legislación mexicana"
+  ];
 
- return (
- <Dialog open={isOpen} onOpenChange={onClose}>
- <DialogContent className="flex flex-col overflow-hidden bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-none max-w-4xl max-h-[90vh] p-0">
- 
- {/* Header */}
- <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
- <div className="flex items-start justify-between">
- <div className="flex items-start gap-3">
- <div className="p-2 bg-gray-100 dark:bg-[#111111] rounded-none">
- <Shield className="w-6 h-6 text-black dark:text-white" />
- </div>
- <div>
- <DialogTitle className="text-2xl font-black text-black dark:text-white mb-1">
- Política de Privacidad
- </DialogTitle>
- <DialogDescription className="text-gray-500 dark:text-gray-400">
- QuHealthy - Última actualización: {lastUpdated}
- </DialogDescription>
- </div>
- </div>
- </div>
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[88vh] font-sans">
+        
+        {/* --- HEADER --- */}
+        <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shrink-0">
+                <Shield className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              </div>
+              <div>
+                <DialogTitle className="text-lg md:text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                  Aviso y Política de Privacidad
+                </DialogTitle>
+                <DialogDescription className="text-xs font-semibold text-gray-500 mt-0.5">
+                  QuHealthy • Última actualización: {lastUpdated}
+                </DialogDescription>
+              </div>
+            </div>
 
- {/* Key Commitments */}
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- className="mt-4 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-4"
- >
- <div className="flex items-start gap-3">
- <Lock className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5" />
- <div className="flex-1">
- <p className="text-sm font-semibold text-black dark:text-white mb-2">
- Nuestro Compromiso Contigo:
- </p>
- <ul className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
- {keyCommitments.map((commitment, index) => (
- <li key={index} className="flex items-start gap-2">
- <CheckCircle2 className="w-3 h-3 flex-shrink-0 mt-0.5" />
- <span>{commitment}</span>
- </li>
- ))}
- </ul>
- </div>
- </div>
- </motion.div>
- </DialogHeader>
+            <button 
+              type="button"
+              onClick={onClose} 
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
+            >
+              <X className="w-4 h-4 text-gray-500" strokeWidth={2} />
+            </button>
+          </div>
 
- {/* Content */}
- <div className="flex-1 overflow-y-auto px-6 py-2">
- <div className="space-y-6 py-6 text-gray-700 dark:text-gray-300">
- 
- {/* Introduction */}
- <section className="space-y-3">
- <p className="text-sm leading-relaxed">
- En QuHealthy, tu privacidad es fundamental. Esta Política de Privacidad explica cómo recopilamos, usamos, compartimos y protegemos tu información personal cuando utilizas nuestra plataforma.
- </p>
- <p className="text-sm leading-relaxed">
- Al utilizar QuHealthy, aceptas las prácticas descritas en esta política. Si no estás de acuerdo, por favor no uses nuestros servicios.
- </p>
- </section>
+          {/* Tarjeta de Compromisos de Privacidad */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 rounded-2xl p-4 shadow-sm"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center shrink-0 mt-0.5">
+                <Lock className="w-4 h-4 text-emerald-700 dark:text-emerald-400" strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300 mb-1.5">
+                  Nuestro Compromiso de Privacidad:
+                </p>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-400/90">
+                  {keyCommitments.map((commitment, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                      <span className="leading-snug">{commitment}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        </DialogHeader>
 
- {/* Section 1: Data Collection */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-blue-500/10 text-black dark:text-white border-blue-500/20">
- <Database className="w-3 h-3 mr-1" />
- 1
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Información que Recopilamos
- </h3>
- </div>
- 
- <div className="space-y-3 ml-4">
- <div>
- <h4 className="text-sm font-semibold text-black dark:text-white mb-2">
- 1.1 Información que Proporcionas Directamente:
- </h4>
- <ul className="list-disc list-inside space-y-1 text-sm text-gray-500 dark:text-gray-400">
- <li>Datos de registro: nombre, email, teléfono, contraseña</li>
- <li>Información de perfil: foto, especialidad (para proveedores)</li>
- <li>Datos médicos: historial, alergias, condiciones (opcional)</li>
- <li>Información de pago: tarjetas, métodos de pago</li>
- <li>Comunicaciones: mensajes, reseñas, comentarios</li>
- </ul>
- </div>
+        {/* --- CONTENIDO SCROLLABLE --- */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/40 dark:bg-[#050505] custom-scrollbar">
+          
+          {/* Introducción */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-2">
+            <p className="text-xs font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
+              En QuHealthy, tu privacidad es fundamental. Esta Política de Privacidad explica de forma transparente cómo recopilamos, usamos, compartimos y protegemos tu información personal y médica cuando utilizas nuestra plataforma.
+            </p>
+            <p className="text-xs font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
+              Al hacer uso de nuestros servicios, aceptas las prácticas descritas en este documento.
+            </p>
+          </div>
 
- <div>
- <h4 className="text-sm font-semibold text-black dark:text-white mb-2">
- 1.2 Información Recopilada Automáticamente:
- </h4>
- <ul className="list-disc list-inside space-y-1 text-sm text-gray-500 dark:text-gray-400">
- <li>Datos de uso: páginas visitadas, tiempo de uso, clicks</li>
- <li>Información del dispositivo: IP, navegador, sistema operativo</li>
- <li>Ubicación geográfica: ciudad, país (con tu permiso)</li>
- <li>Cookies y tecnologías similares</li>
- </ul>
- </div>
- </div>
- </section>
+          {/* Sección 1: Recopilación */}
+          <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-bold flex items-center justify-center shrink-0">
+                1
+              </span>
+              <Database className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                Información que Recopilamos
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-8">
+              <div className="bg-gray-50/50 dark:bg-[#050505] p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1.5">
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                  1.1 Datos que Proporcionas Directamente:
+                </h4>
+                <ul className="list-disc list-inside space-y-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                  <li>Datos de registro: nombre, email, teléfono, contraseña</li>
+                  <li>Información de perfil: foto, especialidad y cédula</li>
+                  <li>Datos médicos opcionales: historial, alergias, antecedentes</li>
+                  <li>Información para facturación y pagos</li>
+                </ul>
+              </div>
 
- {/* Section 2: Data Usage */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
- <Eye className="w-3 h-3 mr-1" />
- 2
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Cómo Utilizamos tu Información
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- Utilizamos tu información personal para:
- </p>
- 
- <ul className="list-disc list-inside space-y-2 text-sm text-gray-500 dark:text-gray-400 ml-8">
- <li><strong>Proporcionar servicios:</strong> Procesar citas, pagos y comunicaciones</li>
- <li><strong>Mejorar la plataforma:</strong> Analizar el uso y optimizar funcionalidades</li>
- <li><strong>Personalización:</strong> Recomendaciones de proveedores según tus necesidades</li>
- <li><strong>Comunicación:</strong> Recordatorios de citas, actualizaciones del servicio</li>
- <li><strong>Seguridad:</strong> Prevenir fraude y proteger tu cuenta</li>
- <li><strong>Cumplimiento legal:</strong> Responder a requisitos legales y regulatorios</li>
- </ul>
- </section>
+              <div className="bg-gray-50/50 dark:bg-[#050505] p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1.5">
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                  1.2 Datos Recopilados Automáticamente:
+                </h4>
+                <ul className="list-disc list-inside space-y-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                  <li>Telemetría de uso y navegación en la plataforma</li>
+                  <li>Información técnica del dispositivo e IP</li>
+                  <li>Ubicación geográfica general para búsqueda local</li>
+                  <li>Cookies esenciales de sesión</li>
+                </ul>
+              </div>
+            </div>
+          </section>
 
- {/* Section 3: Data Sharing */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-emerald-500/10 text-black dark:text-white border-emerald-500/20">
- <UserCheck className="w-3 h-3 mr-1" />
- 3
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Compartir tu Información
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- <strong>Nunca vendemos tu información personal.</strong> Solo compartimos datos en estos casos:
- </p>
- 
- <div className="space-y-2 ml-4">
- <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800">
- <h4 className="text-sm font-semibold text-black dark:text-white mb-1">Con Proveedores de Servicios:</h4>
- <p className="text-xs text-gray-500 dark:text-gray-400">
- Compartimos información necesaria con los profesionales de salud/belleza que reservas.
- </p>
- </div>
- 
- <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800">
- <h4 className="text-sm font-semibold text-black dark:text-white mb-1">Con Procesadores de Pago:</h4>
- <p className="text-xs text-gray-500 dark:text-gray-400">
- Stripe y otros procesadores reciben solo la información necesaria para completar transacciones.
- </p>
- </div>
- 
- <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800">
- <h4 className="text-sm font-semibold text-black dark:text-white mb-1">Por Requerimiento Legal:</h4>
- <p className="text-xs text-gray-500 dark:text-gray-400">
- Cuando sea requerido por ley, orden judicial o autoridades gubernamentales.
- </p>
- </div>
- </div>
- </section>
+          {/* Sección 2: Uso de datos */}
+          <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-bold flex items-center justify-center shrink-0">
+                2
+              </span>
+              <Eye className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                Cómo Utilizamos tu Información
+              </h3>
+            </div>
+            
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-gray-600 dark:text-gray-300 pl-8">
+              <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /><strong>Procesamiento de citas:</strong> Gestión de agendamiento y avisos.</li>
+              <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /><strong>Mejora continua:</strong> Optimización de flujos y herramientas clínicas.</li>
+              <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /><strong>Notificaciones:</strong> Recordatorios de consulta y confirmaciones.</li>
+              <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /><strong>Seguridad activa:</strong> Prevención de fraude y protección de cuentas.</li>
+            </ul>
+          </section>
 
- {/* Section 4: Data Security */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
- <Lock className="w-3 h-3 mr-1" />
- 4
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Seguridad de tus Datos
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- Implementamos múltiples capas de seguridad:
- </p>
- 
- <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ml-4">
- <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-3">
- <div className="flex items-center gap-2 mb-1">
- <Shield className="w-4 h-4 text-black dark:text-white" />
- <h4 className="text-sm font-semibold text-black dark:text-white">Cifrado SSL</h4>
- </div>
- <p className="text-xs text-gray-500 dark:text-gray-400">
- Todas las comunicaciones están cifradas
- </p>
- </div>
- 
- <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-3">
- <div className="flex items-center gap-2 mb-1">
- <Lock className="w-4 h-4 text-black dark:text-white" />
- <h4 className="text-sm font-semibold text-black dark:text-white">Autenticación 2FA</h4>
- </div>
- <p className="text-xs text-gray-500 dark:text-gray-400">
- Protección adicional disponible
- </p>
- </div>
- 
- <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-3">
- <div className="flex items-center gap-2 mb-1">
- <Database className="w-4 h-4 text-black dark:text-white" />
- <h4 className="text-sm font-semibold text-black dark:text-white">Almacenamiento Seguro</h4>
- </div>
- <p className="text-xs text-gray-500 dark:text-gray-400">
- Servidores protegidos y monitoreados
- </p>
- </div>
- 
- <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-none p-3">
- <div className="flex items-center gap-2 mb-1">
- <UserCheck className="w-4 h-4 text-black dark:text-white" />
- <h4 className="text-sm font-semibold text-black dark:text-white">Acceso Limitado</h4>
- </div>
- <p className="text-xs text-gray-500 dark:text-gray-400">
- Solo personal autorizado
- </p>
- </div>
- </div>
- </section>
+          {/* Sección 3: Compartir información */}
+          <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-bold flex items-center justify-center shrink-0">
+                3
+              </span>
+              <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                Traspaso y Compartición de Datos
+              </h3>
+            </div>
+            
+            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 pl-8">
+              Garantía Estricta: Nunca vendemos ni rentamos tus datos a terceros con fines comerciales.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pl-8">
+              <div className="bg-gray-50/50 dark:bg-[#050505] p-3 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">Especialistas</h4>
+                <p className="text-[11px] font-medium text-gray-500">Solo con los profesionales con quienes agendas cita activa.</p>
+              </div>
+              <div className="bg-gray-50/50 dark:bg-[#050505] p-3 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">Procesadores de Pago</h4>
+                <p className="text-[11px] font-medium text-gray-500">Pasarelas cifradas (Stripe) estrictamente para cobros.</p>
+              </div>
+              <div className="bg-gray-50/50 dark:bg-[#050505] p-3 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">Requerimiento Legal</h4>
+                <p className="text-[11px] font-medium text-gray-500">Exclusivamente bajo orden judicial o regulatoria válida.</p>
+              </div>
+            </div>
+          </section>
 
- {/* Section 5: Your Rights */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
- 5
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Tus Derechos
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- Tienes derecho a:
- </p>
- 
- <ul className="space-y-2 text-sm ml-4">
- {[
- { title: 'Acceso', desc: 'Solicitar una copia de tus datos personales' },
- { title: 'Corrección', desc: 'Actualizar información incorrecta o incompleta' },
- { title: 'Eliminación', desc: 'Solicitar la eliminación de tu cuenta y datos' },
- { title: 'Portabilidad', desc: 'Recibir tus datos en formato estructurado' },
- { title: 'Objeción', desc: 'Oponerte al procesamiento de tus datos' },
- { title: 'Restricción', desc: 'Limitar cómo usamos tu información' }
- ].map((right, index) => (
- <li key={index} className="flex items-start gap-2 text-gray-500 dark:text-gray-400">
- <CheckCircle2 className="w-4 h-4 text-black dark:text-white flex-shrink-0 mt-0.5" />
- <span>
- <strong className="text-black dark:text-white">{right.title}:</strong> {right.desc}
- </span>
- </li>
- ))}
- </ul>
- 
- <p className="text-sm text-blue-300 ml-4 mt-3">
- Para ejercer estos derechos, contáctanos en <strong>privacy@quhealthy.org</strong>
- </p>
- </section>
+          {/* Sección 4: Capas de Seguridad */}
+          <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-bold flex items-center justify-center shrink-0">
+                4
+              </span>
+              <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                Infraestructura de Seguridad
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 pl-8">
+              <div className="bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-xl p-3 text-center space-y-1">
+                <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2} />
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">Cifrado TLS/SSL</h4>
+                <p className="text-[10px] text-gray-400 font-medium">Tráfico protegido</p>
+              </div>
 
- {/* Section 6: Cookies */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
- 6
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Cookies y Tecnologías Similares
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- Utilizamos cookies para mejorar tu experiencia. Puedes controlarlas desde la configuración de tu navegador.
- </p>
- 
- <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-3 border border-gray-200 dark:border-gray-800 ml-4">
- <h4 className="text-sm font-semibold text-black dark:text-white mb-2">Tipos de cookies:</h4>
- <ul className="list-disc list-inside space-y-1 text-xs text-gray-500 dark:text-gray-400">
- <li><strong>Esenciales:</strong> Necesarias para el funcionamiento básico</li>
- <li><strong>Funcionales:</strong> Recuerdan tus preferencias</li>
- <li><strong>Analíticas:</strong> Nos ayudan a entender el uso de la plataforma</li>
- <li><strong>Publicitarias:</strong> Personalizan anuncios (puedes desactivarlas)</li>
- </ul>
- </div>
- </section>
+              <div className="bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-xl p-3 text-center space-y-1">
+                <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2} />
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">Autenticación 2FA</h4>
+                <p className="text-[10px] text-gray-400 font-medium">Capas de acceso</p>
+              </div>
 
- {/* Section 7: Children's Privacy */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
- 7
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Privacidad de Menores
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- QuHealthy no está dirigido a menores de 18 años. Si descubrimos que hemos recopilado información de un menor sin consentimiento parental, la eliminaremos inmediatamente.
- </p>
- </section>
+              <div className="bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-xl p-3 text-center space-y-1">
+                <Database className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2} />
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">Bases Aisladas</h4>
+                <p className="text-[10px] text-gray-400 font-medium">Cifrado en reposo</p>
+              </div>
 
- {/* Section 8: Changes */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
- 8
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Cambios a esta Política
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- Podemos actualizar esta política ocasionalmente. Te notificaremos de cambios significativos por email o mediante un aviso destacado en la plataforma.
- </p>
- </section>
+              <div className="bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-xl p-3 text-center space-y-1">
+                <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-auto" strokeWidth={2} />
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white">Auditoría Cómputo</h4>
+                <p className="text-[10px] text-gray-400 font-medium">Logs de acceso</p>
+              </div>
+            </div>
+          </section>
 
- {/* Section 9: Contact */}
- <section className="space-y-3">
- <div className="flex items-center gap-2">
- <Badge className="bg-black text-white dark:bg-white dark:text-black rounded-none border-0">
- 9
- </Badge>
- <h3 className="text-lg font-bold text-black dark:text-white">
- Contacto
- </h3>
- </div>
- 
- <p className="text-sm leading-relaxed ml-4">
- Para preguntas sobre privacidad:
- </p>
- 
- <div className="bg-gray-50 dark:bg-[#111111] rounded-lg p-4 space-y-2 text-sm ml-4">
- <p><strong>Email:</strong> privacy@quhealthy.org</p>
- <p><strong>Responsable de Datos:</strong> QuHealthy Data Protection Officer</p>
- <p><strong>Teléfono:</strong> +52 55 1234 5678</p>
- <p><strong>Dirección:</strong> Av. Reforma 123, CDMX, México</p>
- </div>
- </section>
+          {/* Sección 5: Derechos ARCO */}
+          <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-bold flex items-center justify-center shrink-0">
+                5
+              </span>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                Tus Derechos de Privacidad (Derechos ARCO)
+              </h3>
+            </div>
+            
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-gray-600 dark:text-gray-300 pl-8">
+              {[
+                { title: 'Acceso', desc: 'Solicita copia de todos tus datos.' },
+                { title: 'Rectificación', desc: 'Corrige información desactualizada.' },
+                { title: 'Cancelación', desc: 'Solicita la eliminación total de tus registros.' },
+                { title: 'Oposición', desc: 'Opónte a usos específicos de procesamiento.' }
+              ].map((right, index) => (
+                <li key={index} className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <span><strong className="text-gray-900 dark:text-white">{right.title}:</strong> {right.desc}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 pl-8 pt-1">
+              Para ejercer cualquiera de tus derechos escribe a: privacy@quhealthy.org
+            </p>
+          </section>
 
- {/* Important Notice */}
- <div className="bg-gray-50 dark:bg-[#111111] border-t border-gray-200 dark:border-gray-800 rounded-none p-4 flex items-start gap-3">
- <AlertCircle className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5" />
- <div className="text-xs text-gray-600 dark:text-gray-400">
- <p className="font-semibold text-black dark:text-white mb-1">
- Cumplimiento GDPR y Leyes Mexicanas
- </p>
- <p>
- Esta política cumple con el Reglamento General de Protección de Datos (GDPR) de la UE y la Ley Federal de Protección de Datos Personales en Posesión de Particulares de México.
- </p>
- </div>
- </div>
- </div>
- </div>
+          {/* Sección 6: Contacto */}
+          <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-bold flex items-center justify-center shrink-0">
+                6
+              </span>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                Contacto Oficial de Privacidad
+              </h3>
+            </div>
+            <div className="bg-gray-50 dark:bg-[#050505] rounded-xl p-3.5 border border-gray-100 dark:border-gray-800 space-y-1 text-xs font-semibold text-gray-700 dark:text-gray-300 ml-8">
+              <p><span className="text-gray-400">Email:</span> privacy@quhealthy.org</p>
+              <p><span className="text-gray-400">Oficial de Protección:</span> QuHealthy Data Protection Officer</p>
+              <p><span className="text-gray-400">Dirección:</span> Av. Reforma 123, CDMX, México</p>
+            </div>
+          </section>
 
- {/* Footer */}
- <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 flex-shrink-0">
- <Button
- variant="outline"
- onClick={onClose}
- className="border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-800"
- >
- Cerrar
- </Button>
- <Button
- onClick={onClose}
- className="bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-none"
- >
- <Shield className="w-4 h-4 mr-2" />
- Entendido
- </Button>
- </div>
- </DialogContent>
- </Dialog>
- );
+          {/* Cumplimiento normativo */}
+          <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+            <AlertCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+            <div className="text-xs font-medium text-emerald-800 dark:text-emerald-300 space-y-0.5">
+              <p className="font-bold text-emerald-900 dark:text-emerald-200">
+                Cumplimiento GDPR & Leyes Mexicanas (LFPDPPP)
+              </p>
+              <p>
+                Esta política garantiza los más altos estándares normativos europeos e internacionales para el resguardo de información clínica sensible.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* --- FOOTER --- */}
+        <div className="p-5 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center justify-end gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-11 px-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm"
+          >
+            Cerrar
+          </button>
+          
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-11 px-7 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
+          >
+            <ShieldCheck className="w-4 h-4" strokeWidth={2} />
+            <span>Entendido</span>
+          </button>
+        </div>
+
+      </DialogContent>
+    </Dialog>
+  );
 }

@@ -1,7 +1,7 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
-/* eslint-disable react-doctor/prefer-useReducer */
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -12,29 +12,26 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Loader2,
   User,
   Stethoscope,
   ArrowRight,
   Shield,
   Check,
   AlertTriangle,
+  AlertCircle,
+  KeyRound,
+  Sparkles,
 } from "lucide-react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { Turnstile } from "@marsidev/react-turnstile";
 
-// Components
+// Componentes
 import SocialAuthButtons from "@/components/auth/SocialButtons";
-
-// ShadCN UI Components
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthResponse } from "@/types/auth";
@@ -46,17 +43,16 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("Auth");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [, setCaptchaToken] = useState<string>("");
 
-  const [captchaToken, setCaptchaToken] = useState<string>("");
-
-  // 🚀 REFERENCIAS DE CONTROL
+  // Referencias de control
   const turnstileRef = useRef<any>(null);
-  // 🚀 CANDADO: Nos asegura que el usuario hizo clic en el botón antes de intentar el login
   const isIntentionalSubmitRef = useRef(false);
 
   const [userType, setUserType] = useState<"consumer" | "provider">("consumer");
@@ -138,7 +134,9 @@ export default function LoginPage() {
         role: userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER",
       });
 
-      toast.success(t("title"));
+      toast.success(t("title", { defaultValue: "Sesión iniciada correctamente" }), {
+        theme: "colored",
+      });
       await handleAuthNavigation(response);
     } catch (err: any) {
       console.error(err);
@@ -146,7 +144,7 @@ export default function LoginPage() {
 
       if (errorMessage.includes("verificar")) {
         setError(
-          "Debes verificar tu correo antes de entrar. Revisa tu bandeja de entrada.",
+          "Debes verificar tu correo antes de entrar. Revisa tu bandeja de entrada."
         );
       } else {
         setError(errorMessage);
@@ -157,7 +155,7 @@ export default function LoginPage() {
       turnstileRef.current?.reset();
       setCaptchaToken("");
       setLoading(false);
-      isIntentionalSubmitRef.current = false; // Cerramos el candado
+      isIntentionalSubmitRef.current = false;
     }
   };
 
@@ -172,7 +170,6 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // 🚀 ABRIMOS EL CANDADO: Indicamos que fue un clic real del usuario
     isIntentionalSubmitRef.current = true;
     turnstileRef.current?.execute();
   };
@@ -180,71 +177,92 @@ export default function LoginPage() {
   const benefits =
     userType === "consumer"
       ? [
-          t("consumer_benefits.0"),
-          t("consumer_benefits.1"),
-          t("consumer_benefits.2"),
+          t("consumer_benefits.0", { defaultValue: "Acceso inmediato a tu expediente médico digital" }),
+          t("consumer_benefits.1", { defaultValue: "Agenda y gestión de citas en tiempo real" }),
+          t("consumer_benefits.2", { defaultValue: "Comunicación directa y segura con especialistas" }),
         ]
       : [
-          t("provider_benefits.0"),
-          t("provider_benefits.1"),
-          t("provider_benefits.2"),
+          t("provider_benefits.0", { defaultValue: "Gestión omnicanal de pacientes y agenda" }),
+          t("provider_benefits.1", { defaultValue: "Fichas clínicas personalizables e IA asistida" }),
+          t("provider_benefits.2", { defaultValue: "Facturación electrónica y control financiero" }),
         ];
-
-  const RoleIcon = userType === "consumer" ? User : Stethoscope;
 
   return (
     <GoogleOAuthProvider
       clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
     >
-      <div className="flex min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
-        {/* Left Panel - Editorial Image (Hidden on Mobile) */}
-        <div className="hidden lg:flex lg:w-1/2 relative bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
+      <div className="flex min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+        
+        {/* ── PANEL IZQUIERDO (HERO VISUAL & BENEFICIOS) ────────────────── */}
+        <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
           <motion.img
             key={userType}
-            initial={{ opacity: 0.5, scale: 1.05 }}
-            animate={{ opacity: 0.9, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0.4, scale: 1.05 }}
+            animate={{ opacity: 0.7, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             src={
               userType === "consumer"
                 ? "/suite_patient_app.png"
                 : "/hero_medical_lifestyle.png"
             }
             alt="QuHealthy Authentication"
-            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply dark:mix-blend-normal"
+            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-50"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 dark:from-black/90 dark:via-black/50 dark:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
 
-          <div className="relative z-10 p-16 mt-auto">
-            <h2 className="text-4xl lg:text-5xl font-semibold text-white mb-8 tracking-tight leading-[1.1]">
-              {t(userType === "consumer" ? "consumer_area" : "provider_area")}
-            </h2>
+          {/* Header Marca */}
+          <div className="relative z-10 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-2xl font-bold tracking-tight text-white">
+                QuHealthy<span className="text-emerald-400">.</span>
+              </span>
+            </Link>
 
-            <div className="space-y-4 mb-10">
-              {benefits.map((benefit, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 text-gray-200 font-light text-lg"
-                >
-                  <div className="p-1.5 rounded-full border border-white/30">
-                    <Check className="w-4 h-4 text-white" strokeWidth={2} />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Acceso Seguro</span>
+            </span>
+          </div>
+
+          {/* Área de Beneficios Dinámica */}
+          <div className="relative z-10 space-y-8 max-w-lg">
+            <div className="space-y-4">
+              <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
+                {t(userType === "consumer" ? "consumer_area" : "provider_area", {
+                  defaultValue:
+                    userType === "consumer"
+                      ? "Portal Digital de Pacientes"
+                      : "Ecosistema Médico Profesional",
+                })}
+              </h2>
+
+              <div className="space-y-3 pt-2">
+                {benefits.map((benefit, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 text-gray-200 text-xs sm:text-sm font-medium"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2.5} />
+                    </div>
+                    <span>{benefit}</span>
                   </div>
-                  <span>{benefit}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <div className="border-t border-white/20 pt-8 w-full max-w-md">
-              <div className="flex items-start gap-5">
-                <Shield
-                  className="w-6 h-6 text-white mt-0.5 opacity-80"
-                  strokeWidth={1.5}
-                />
+            {/* Shield Card */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 shadow-xl space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-emerald-400" strokeWidth={2} />
+                </div>
                 <div>
-                  <p className="text-white text-[10px] font-bold uppercase tracking-widest mb-2">
-                    {t("secure_connection")}
-                  </p>
-                  <p className="text-gray-300 text-sm font-light leading-relaxed">
-                    {t("secure_desc")}
+                  <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
+                    {t("secure_connection", { defaultValue: "Conexión Cifrada de Extremo a Extremo" })}
+                  </h3>
+                  <p className="text-[11px] text-gray-300 font-medium mt-0.5">
+                    {t("secure_desc", { defaultValue: "Cumplimiento con estándares HIPAA y certificaciones internacionales de salud." })}
                   </p>
                 </div>
               </div>
@@ -252,275 +270,280 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Panel - Minimalist Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24">
+        {/* ── PANEL DERECHO (FORMULARIO) ─────────────────────────────────── */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-md"
+            transition={{ duration: 0.4 }}
+            className="w-full max-w-md space-y-6"
           >
-            {/* Header */}
-            <div className="mb-16 text-center lg:text-left">
-              <Link href="/" className="inline-block mb-12">
-                <span className="text-2xl font-serif italic tracking-tight text-black dark:text-white">
-                  QuHealthy.
+            {/* Header & Logo Mobile */}
+            <div className="text-center lg:text-left space-y-2">
+              <Link href="/" className="inline-block lg:hidden mb-4">
+                <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  QuHealthy<span className="text-emerald-600 dark:text-emerald-400">.</span>
                 </span>
               </Link>
-              <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-white mb-4 tracking-tight">
-                {t("title")}
+
+              <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+                <KeyRound className="w-4 h-4" strokeWidth={2} />
+                <span>Autenticación de Usuario</span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("title", { defaultValue: "Iniciar Sesión" })}
               </h1>
-              <p className="text-gray-500 dark:text-gray-400 font-light leading-relaxed">
-                {t("subtitle")}
+              <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                {t("subtitle", { defaultValue: "Ingresa tus credenciales para acceder a tu panel de control." })}
               </p>
             </div>
 
-            {/* User Type Selector */}
+            {/* Selector de Rol en Pestaña Pill */}
             <Tabs
               defaultValue="consumer"
               value={userType}
               onValueChange={handleTabChange}
-              className="w-full mb-8"
+              className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-900 h-14 p-1 rounded-xl">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800/50 h-12 p-1 rounded-2xl">
                 <TabsTrigger
                   value="consumer"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-black dark:data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-500 h-full rounded-lg text-sm font-medium transition-all"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                 >
-                  <User className="w-4 h-4 mr-2" /> {t("consumer_tab")}
+                  <User className="w-4 h-4 shrink-0" strokeWidth={2} />
+                  <span>{t("consumer_tab", { defaultValue: "Soy Paciente" })}</span>
                 </TabsTrigger>
+
                 <TabsTrigger
                   value="provider"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-black dark:data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-500 h-full rounded-lg text-sm font-medium transition-all"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                 >
-                  <Stethoscope className="w-4 h-4 mr-2" /> {t("provider_tab")}
+                  <Stethoscope className="w-4 h-4 shrink-0" strokeWidth={2} />
+                  <span>{t("provider_tab", { defaultValue: "Soy Médico / Staff" })}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
 
-            {/* Social Login */}
-            <SocialAuthButtons
-              accountRole={
-                userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER"
-              }
-              onSuccess={handleAuthNavigation}
-            />
-
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-800" />
-              </div>
-              <div className="relative flex justify-center text-sm font-light">
-                <span className="px-4 bg-white dark:bg-[#0a0a0a] text-gray-500 dark:text-gray-400">
-                  {t("or_continue")}
-                </span>
-              </div>
-            </div>
-
-            {/* Expired Session Banner */}
-            <AnimatePresence>
-              {sessionExpired && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mb-6 overflow-hidden"
-                >
-                  <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
-                        Tu sesión ha expirado
-                      </p>
-                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
-                        Por tu seguridad, inicia sesión de nuevo.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setSessionExpired(false)}
-                      className="ml-auto text-amber-400 hover:text-amber-600 dark:hover:text-amber-200 transition-colors"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Error Alert */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mb-8 overflow-hidden"
-                >
-                  <Alert
-                    variant="destructive"
-                    className="bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:border-red-900 dark:text-red-200"
-                  >
-                    <AlertDescription className="text-sm font-medium">
-                      {error}
-                    </AlertDescription>
-                  </Alert>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="email"
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                >
-                  {t("email_label")}
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder={
-                      userType === "consumer"
-                        ? t("email_placeholder_consumer")
-                        : t("email_placeholder_provider")
-                    }
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="pl-11 h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label
-                    htmlFor="password"
-                    className="text-gray-700 dark:text-gray-300 font-medium"
-                  >
-                    {t("password_label")}
-                  </Label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm text-black dark:text-white hover:underline font-medium transition-colors"
-                  >
-                    {t("forgot_password")}
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder={t("password_placeholder")}
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="pl-11 pr-12 h-14 bg-white dark:bg-[#111111] border-gray-200 dark:border-gray-800 text-black dark:text-white focus:border-black dark:focus:border-white focus:ring-black/10 dark:focus:ring-white/10 rounded-xl transition-all"
-                    required
-                  />
-                  <button
-                    type="button"
-                    aria-label={
-                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                    }
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff size={20} strokeWidth={1.5} />
-                    ) : (
-                      <Eye size={20} strokeWidth={1.5} />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember Me */}
-              <div className="flex items-center space-x-3 pt-2">
-                <Checkbox
-                  id="remember"
-                  checked={formData.rememberMe}
-                  onCheckedChange={handleRememberMeChange}
-                  className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white border-gray-300 dark:border-gray-700 w-5 h-5"
-                />
-                <label
-                  htmlFor="remember"
-                  className="text-sm text-gray-600 dark:text-gray-400 font-medium cursor-pointer select-none"
-                >
-                  {t("remember_me")}
-                </label>
-              </div>
-
-              {/* 🚀 FIX: Turnstile con candados de seguridad */}
-              <Turnstile
-                ref={turnstileRef}
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-                onSuccess={(token) => {
-                  setCaptchaToken(token);
-                  // Solo procesamos el login si el usuario apretó el botón
-                  if (isIntentionalSubmitRef.current) {
-                    processLogin(token);
-                  }
-                }}
-                onError={(errorCode) => {
-                  console.error("Turnstile error code:", errorCode);
-                  toast.error(
-                    "Error al validar la seguridad. Por favor, intenta de nuevo.",
-                  );
-                  setLoading(false);
-                  isIntentionalSubmitRef.current = false;
-                  turnstileRef.current?.reset();
-                }}
-                options={{
-                  theme: "auto",
-                  size: "invisible",
-                  execution: "execute", // 🚀 Evita que arranque automáticamente al cargar la página
-                }}
+            {/* Contenedor Principal del Formulario */}
+            <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              
+              {/* Social Login */}
+              <SocialAuthButtons
+                accountRole={
+                  userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER"
+                }
+                onSuccess={handleAuthNavigation}
               />
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={!isFormValid() || loading}
-                className="w-full h-14 text-base font-semibold text-white bg-black hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 shadow-none rounded-xl transition-all mt-4"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 w-5 h-5" />
-                    {t("loading")}
-                  </>
-                ) : (
-                  <>
-                    {t("submit_button")}
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-100 dark:border-gray-800" />
+                </div>
+                <div className="relative flex justify-center text-[11px] font-semibold">
+                  <span className="px-3 bg-white dark:bg-[#0a0a0a] text-gray-400 uppercase tracking-wider">
+                    {t("or_continue", { defaultValue: "o usa tu correo" })}
+                  </span>
+                </div>
+              </div>
+
+              {/* Expired Session Banner */}
+              <AnimatePresence>
+                {sessionExpired && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex items-center gap-3 p-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-2xl shadow-sm">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={2} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
+                          Tu sesión ha expirado
+                        </p>
+                        <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                          Por tu seguridad, inicia sesión nuevamente.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSessionExpired(false)}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </motion.div>
                 )}
-              </Button>
-            </form>
+              </AnimatePresence>
+
+              {/* Error Alert */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="p-4 rounded-2xl border border-red-200 bg-red-50/60 dark:bg-red-950/20 dark:border-red-900/40 flex items-start gap-3 shadow-sm">
+                      <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" strokeWidth={2} />
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-400 leading-relaxed">
+                        {error}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                
+                {/* Email Field */}
+                <div className="space-y-1.5">
+                  <label htmlFor="email" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("email_label", { defaultValue: "Correo Electrónico" })}
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder={
+                        userType === "consumer"
+                          ? t("email_placeholder_consumer", { defaultValue: "tu@ejemplo.com" })
+                          : t("email_placeholder_provider", { defaultValue: "doctor@clinica.com" })
+                      }
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full h-12 pl-10 pr-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label htmlFor="password" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                      {t("password_label", { defaultValue: "Contraseña" })}
+                    </label>
+                    <Link
+                      href="/recovery"
+                      className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                    >
+                      {t("forgot_password", { defaultValue: "¿Olvidaste tu contraseña?" })}
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t("password_placeholder", { defaultValue: "••••••••" })}
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className="w-full h-12 pl-10 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
+                      required
+                    />
+                    <button
+                      type="button"
+                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff size={16} strokeWidth={2} />
+                      ) : (
+                        <Eye size={16} strokeWidth={2} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember Me */}
+                <div className="flex items-center space-x-2.5 pt-1">
+                  <Checkbox
+                    id="remember"
+                    checked={formData.rememberMe}
+                    onCheckedChange={handleRememberMeChange}
+                    className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600 rounded-md border-gray-300 dark:border-gray-700 w-4 h-4"
+                  />
+                  <label
+                    htmlFor="remember"
+                    className="text-xs text-gray-600 dark:text-gray-400 font-semibold cursor-pointer select-none"
+                  >
+                    {t("remember_me", { defaultValue: "Recordar sesión en este equipo" })}
+                  </label>
+                </div>
+
+                {/* Turnstile Captcha Invisible */}
+                <Turnstile
+                  ref={turnstileRef}
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                  onSuccess={(token) => {
+                    setCaptchaToken(token);
+                    if (isIntentionalSubmitRef.current) {
+                      processLogin(token);
+                    }
+                  }}
+                  onError={(errorCode) => {
+                    console.error("Turnstile error code:", errorCode);
+                    toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
+                    setLoading(false);
+                    isIntentionalSubmitRef.current = false;
+                    turnstileRef.current?.reset();
+                  }}
+                  options={{
+                    theme: "auto",
+                    size: "invisible",
+                    execution: "execute",
+                  }}
+                />
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={!isFormValid() || loading}
+                  className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
+                >
+                  {loading ? (
+                    <>
+                      <QhSpinner size="sm" className="text-current" />
+                      <span>{t("loading", { defaultValue: "Iniciando sesión..." })}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{t("submit_button", { defaultValue: "Ingresar a mi Cuenta" })}</span>
+                      <ArrowRight className="w-4 h-4" strokeWidth={2} />
+                    </>
+                  )}
+                </button>
+              </form>
+
+            </div>
 
             {/* Signup Link */}
-            <div className="mt-12 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-light mb-4">
-                {t("no_account")}
+            <div className="text-center pt-2">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3">
+                {t("no_account", { defaultValue: "¿Aún no tienes una cuenta registrada?" })}
               </p>
 
               <Link
                 href={
                   userType === "consumer" ? "/register" : "/provider/register"
                 }
-                className="inline-flex items-center justify-center w-full h-14 text-sm font-semibold rounded-xl border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 transition-all group"
+                className="inline-flex items-center justify-center w-full h-11 text-xs font-bold rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all shadow-sm"
               >
-                {t("create_account")}
+                {t("create_account", { defaultValue: "Crear Cuenta Gratuitamente" })}
               </Link>
             </div>
+
           </motion.div>
         </div>
+
       </div>
     </GoogleOAuthProvider>
   );
