@@ -1,0 +1,15 @@
+{
+  "name": "@quhealthy/health-os-contract",
+  "version": "1.0.0",
+  "description": "Health OS Interfaces, Intents, Widgets, and Actions Definitions",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "license": "UNLICENSED"
+}
