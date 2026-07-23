@@ -35,12 +35,12 @@ export const useActionEngine = () => {
       case 'pay':
         // Integración real con Stripe
         console.log('Iniciando pago:', action.payload);
-        if (action.payload?.appointmentId) {
+        if (action.payload?.referenceId) {
           try {
             // Utilizamos el axiosInstance que ya inyecta el JWT
             const axiosInstance = (await import('@/lib/axios')).default;
             const response = await axiosInstance.post('/api/payments/checkout/appointment', {
-              appointmentId: action.payload.appointmentId,
+              appointmentId: action.payload.referenceId,
               requestBnpl: false,
               qupointsDiscountMxn: 0
             });
