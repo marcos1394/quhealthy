@@ -33,7 +33,13 @@ import { es } from 'date-fns/locale';
 export default function CopilotPage() {
   const [inputText, setInputText] = useState('');
   const [showSlashCommands, setShowSlashCommands] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setIsSidebarOpen(true);
+    }
+  }, []);
 
   const { user } = useSessionStore();
   const userName = user?.firstName || 'Usuario';
@@ -132,15 +138,24 @@ export default function CopilotPage() {
   return (
     <div className="flex h-[calc(100vh-5rem)] max-w-6xl mx-auto w-full p-3 sm:p-6 font-sans gap-4 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 overflow-hidden">
       
-      {/* ── SIDEBAR HISTORIAL (Desktop) ──────────────────────── */}
+      {/* ── SIDEBAR HISTORIAL ──────────────────────── */}
       <AnimatePresence initial={false}>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="lg:hidden absolute inset-0 z-10 bg-black/20 dark:bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
         {isSidebarOpen && (
           <motion.div 
             initial={{ width: 0, opacity: 0, marginRight: 0 }}
             animate={{ width: 288, opacity: 1, marginRight: 16 }}
             exit={{ width: 0, opacity: 0, marginRight: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="hidden lg:flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden shrink-0"
+            className="absolute inset-y-3 left-3 z-20 lg:static lg:inset-auto flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xl lg:shadow-sm overflow-hidden shrink-0"
           >
             <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-[#050505]">
               <h2 className="font-semibold text-sm text-gray-900 dark:text-white flex items-center gap-2">
@@ -169,7 +184,10 @@ export default function CopilotPage() {
                           ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400" 
                           : "hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300"
                       )}
-                      onClick={() => loadSession(session.id)}
+                      onClick={() => { 
+                        loadSession(session.id); 
+                        if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                      }}
                     >
                       <div className="flex flex-col min-w-0 overflow-hidden">
                         <span className="text-xs font-semibold truncate">{session.title}</span>
@@ -204,7 +222,7 @@ export default function CopilotPage() {
               variant="ghost"
               size="icon"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="hidden lg:flex w-10 h-10 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 shrink-0"
+              className="flex w-10 h-10 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 shrink-0 items-center justify-center"
               title={isSidebarOpen ? "Ocultar historial" : "Mostrar historial"}
             >
               {isSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
@@ -217,7 +235,7 @@ export default function CopilotPage() {
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white tracking-tight">
-                  Health OS Copilot
+                  Qu
                 </h1>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-900/40">
                   <Sparkles className="w-2.5 h-2.5" />
@@ -304,12 +322,12 @@ export default function CopilotPage() {
                   )}
 
                   <div className={cn(
-                    "flex flex-col max-w-[85%] space-y-2",
+                    "flex flex-col max-w-[95%] lg:max-w-[85%] space-y-2",
                     msg.role === 'user' ? 'items-end' : 'items-start'
                   )}>
                     {msg.content && (
                       <div className={cn(
-                        "px-4 py-3 text-sm font-medium leading-relaxed whitespace-pre-wrap shadow-2xs",
+                        "px-4 py-3 text-sm font-medium leading-relaxed whitespace-pre-wrap shadow-2xs break-words max-w-full overflow-hidden",
                         msg.role === 'user' 
                           ? 'bg-quhealthy-green text-white rounded-2xl rounded-tr-xs dark:bg-emerald-700' 
                           : 'bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-xs'
@@ -319,13 +337,13 @@ export default function CopilotPage() {
                     )}
 
                     {msg.response?.text && (
-                      <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 text-sm font-medium leading-relaxed shadow-2xs whitespace-pre-wrap">
+                      <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 text-sm font-medium leading-relaxed shadow-2xs whitespace-pre-wrap break-words max-w-full overflow-hidden">
                         {msg.response.text}
                       </div>
                     )}
 
                     {msg.response?.widgets && msg.response.widgets.length > 0 && (
-                      <div className="mt-2 w-full max-w-[90vw] md:max-w-full">
+                      <div className="mt-2 w-full max-w-full overflow-hidden">
                         <WidgetRenderer widgets={msg.response.widgets} />
                       </div>
                     )}
@@ -451,7 +469,7 @@ export default function CopilotPage() {
           </div>
 
           <div className="flex items-center justify-between px-1.5 pt-2 text-[11px] text-gray-400 font-medium">
-            <span>Health OS Copilot analiza intenciones clínicas en tiempo real.</span>
+            <span>Qu analiza intenciones clínicas y de bienestar en tiempo real.</span>
             <span className="hidden sm:inline-flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 font-mono text-[10px] border border-gray-200 dark:border-gray-700">Enter ↵</kbd> enviar • 
               <kbd className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 font-mono text-[10px] border border-gray-200 dark:border-gray-700">Shift + Enter</kbd> salto de línea
