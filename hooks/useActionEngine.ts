@@ -66,6 +66,41 @@ export const useActionEngine = () => {
         console.log('Iniciando comunicación:', action.type);
         break;
 
+      case 'download':
+        console.log('Descargando documento:', action.payload);
+        if (action.payload?.documentId) {
+          try {
+            const axiosInstance = (await import('@/lib/axios')).default;
+            const response = await axiosInstance.get(`/api/onboarding/consumer/vault/document/${action.payload.documentId}`, {
+              responseType: 'blob'
+            });
+            
+            // Extract filename from header if possible, else default
+            const disposition = response.headers['content-disposition'];
+            let filename = `document_${action.payload.documentId}`;
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+              const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+              const matches = filenameRegex.exec(disposition);
+              if (matches != null && matches[1]) { 
+                filename = matches[1].replace(/['"]/g, '');
+              }
+            }
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error('Error al descargar el documento:', error);
+            alert('No se pudo descargar el documento en este momento.');
+          }
+        }
+        break;
+
       default:
         console.warn('Action no implementada en el Engine:', action);
     }

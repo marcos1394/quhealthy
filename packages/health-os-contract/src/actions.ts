@@ -69,6 +69,13 @@ export interface ConfirmAction extends BaseAction {
   payload?: Record<string, any>;
 }
 
+export interface DownloadAction extends BaseAction {
+  type: 'download';
+  payload: {
+    documentId: string;
+  };
+}
+
 export type HealthOSAction = 
   | NavigateAction 
   | OpenAction 
@@ -76,4 +83,5 @@ export type HealthOSAction =
   | PayAction 
   | UploadAction 
   | ConfirmAction
+  | DownloadAction
   | BaseAction;

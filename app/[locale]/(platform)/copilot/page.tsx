@@ -21,7 +21,9 @@ import {
   Trash2,
   Clock,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Paperclip,
+  X
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -34,6 +36,8 @@ export default function CopilotPage() {
   const [inputText, setInputText] = useState('');
   const [showSlashCommands, setShowSlashCommands] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [attachment, setAttachment] = useState<{ file: File; base64: string; url: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
@@ -83,22 +87,33 @@ export default function CopilotPage() {
     return () => window.removeEventListener('healthos:send_intent', handleIntent as EventListener);
   }, [streamingState]);
 
-  const sendIntentToAgent = async (text: string) => {
-    if (!text.trim() || streamingState !== 'idle') return;
+  const sendIntentToAgent = async (text: string, currentAttachment: typeof attachment = null) => {
+    if ((!text.trim() && !currentAttachment) || streamingState !== 'idle') return;
 
+    const attachmentToSend = currentAttachment;
+    
     setInputText('');
+    setAttachment(null);
     setShowSlashCommands(false);
     
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
 
-    addUserMessage(text);
+    addUserMessage(text + (attachmentToSend ? '\n[Imagen adjunta]' : ''));
 
     try {
       updateAssistantStream({ text: 'Analizando tu petición clínica...' });
 
-      const response = await healthOSService.sendIntent(text);
+      let attachmentsData = undefined;
+      if (attachmentToSend) {
+        attachmentsData = [{
+          mimeType: attachmentToSend.file.type,
+          base64Data: attachmentToSend.base64
+        }];
+      }
+
+      const response = await healthOSService.sendIntent(text || 'Analiza esta imagen', {}, attachmentsData);
       
       setTimeout(() => {
         updateAssistantStream(response);
@@ -114,7 +129,25 @@ export default function CopilotPage() {
     }
   };
 
-  const handleSend = () => sendIntentToAgent(inputText);
+  const handleSend = () => sendIntentToAgent(inputText, attachment);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64String = (event.target?.result as string).split(',')[1];
+        setAttachment({
+          file,
+          base64: base64String,
+          url: URL.createObjectURL(file)
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+    // reset input value so the same file can be selected again
+    if (e.target) e.target.value = '';
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -441,31 +474,71 @@ export default function CopilotPage() {
             </div>
           )}
 
-          <div className="relative flex items-end gap-2 p-2 rounded-2xl bg-gray-50/80 dark:bg-[#050505] border border-gray-200/80 dark:border-gray-800 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all shadow-sm">
+          <div className="relative flex items-end gap-2 p-2 rounded-2xl bg-gray-50/80 dark:bg-[#050505] border border-gray-200/80 dark:border-gray-800 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all shadow-sm flex-wrap">
             
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              placeholder="Escribe tu consulta o usa '/' para ver comandos..."
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={streamingState !== 'idle'}
-              className="flex-1 bg-transparent border-none outline-none resize-none text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 px-3 py-2 max-h-40 min-h-[44px] custom-scrollbar leading-relaxed"
-            />
+            {attachment && (
+              <div className="w-full flex mb-2 px-2">
+                <div className="relative inline-flex items-center gap-2 p-1.5 pr-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                    <img src={attachment.url} alt="Adjunto" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex flex-col min-w-0 pr-6">
+                    <span className="text-xs font-semibold text-gray-900 dark:text-white truncate max-w-[120px]">{attachment.file.name}</span>
+                    <span className="text-[10px] text-gray-500">{(attachment.file.size / 1024).toFixed(1)} KB</span>
+                  </div>
+                  <button 
+                    onClick={() => setAttachment(null)}
+                    className="absolute top-1 right-1 w-5 h-5 bg-white dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 flex items-center justify-center hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            )}
 
-            <Button 
-              type="button"
-              onClick={handleSend} 
-              disabled={!inputText.trim() || streamingState !== 'idle'}
-              className="h-10 w-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white p-0 shrink-0 shadow-sm transition-all disabled:opacity-40 mb-0.5"
-            >
-              {streamingState !== 'idle' ? (
-               <QhSpinner size="sm" className="text-white" />
-              ) : (
-                <Send className="w-4 h-4" strokeWidth={2} />
-              )}
-            </Button>
+            <div className="flex items-end w-full gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                className="h-10 w-10 shrink-0 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-xl mb-0.5"
+                title="Adjuntar archivo o foto"
+              >
+                <Paperclip className="w-5 h-5" />
+              </Button>
+              <input 
+                type="file" 
+                className="hidden" 
+                ref={fileInputRef} 
+                accept="image/*,application/pdf"
+                onChange={handleFileChange}
+              />
+              
+              <textarea
+                ref={textareaRef}
+                rows={1}
+                placeholder="Escribe tu consulta, usa '/' para comandos o adjunta una receta..."
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={streamingState !== 'idle'}
+                className="flex-1 bg-transparent border-none outline-none resize-none text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 px-3 py-2.5 max-h-40 min-h-[44px] custom-scrollbar leading-relaxed self-end"
+              />
+
+              <Button 
+                type="button"
+                onClick={handleSend} 
+                disabled={(!inputText.trim() && !attachment) || streamingState !== 'idle'}
+                className="h-10 w-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white p-0 shrink-0 shadow-sm transition-all disabled:opacity-40 mb-0.5 self-end"
+              >
+                {streamingState !== 'idle' ? (
+                 <QhSpinner size="sm" className="text-white" />
+                ) : (
+                  <Send className="w-4 h-4" strokeWidth={2} />
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between px-1.5 pt-2 text-[11px] text-gray-400 font-medium">

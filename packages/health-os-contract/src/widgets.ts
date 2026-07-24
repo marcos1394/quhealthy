@@ -15,7 +15,8 @@ export type WidgetType =
   | 'DoctorGalleryWidget'
   | 'DoctorMapWidget'
   | 'DoctorReviewsWidget'
-  | 'HealthInsightWidget';
+  | 'HealthInsightWidget'
+  | 'VaultDocumentWidget';
 
 export interface BaseWidget<T = any> {
   id: string; // Unique identifier for the widget instance
@@ -80,3 +81,20 @@ export interface PaymentData {
 }
 
 export type PaymentWidget = BaseWidget<PaymentData>;
+
+export interface VaultDocumentData {
+  id: string;
+  title: string;
+  documentType: string;
+  contentType?: string;
+  fileSizeBytes?: number;
+  aiExtractedData?: string;
+  createdAt: string;
+  thumbnailUrl?: string;
+}
+
+export interface VaultDocumentGalleryData {
+  documents: VaultDocumentData[];
+}
+
+export type VaultDocumentWidget = BaseWidget<VaultDocumentGalleryData>;
