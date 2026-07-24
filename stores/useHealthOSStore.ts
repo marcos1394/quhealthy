@@ -7,6 +7,11 @@ export interface Message {
   role: 'user' | 'assistant';
   content?: string;
   response?: HealthOSResponse;
+  attachment?: {
+    base64Data: string;
+    mimeType: string;
+    fileName?: string;
+  };
 }
 
 export interface ChatSession {
@@ -36,7 +41,7 @@ interface HealthOSState {
   toolResults: Record<string, any>;
 
   // Acciones
-  addUserMessage: (text: string) => void;
+  addUserMessage: (text: string, attachment?: { base64Data: string; mimeType: string; fileName?: string; }) => void;
   updateAssistantStream: (chunk: Partial<HealthOSResponse>) => void;
   finalizeStream: () => void;
   resetConversation: () => void;
@@ -73,11 +78,11 @@ export const useHealthOSStore = create<HealthOSState>()(
       selectedEntities: {},
       toolResults: {},
 
-      addUserMessage: (text) =>
+      addUserMessage: (text, attachment) =>
         set((state) => {
           const newConversation = [
             ...state.conversation,
-            { id: crypto.randomUUID(), role: 'user' as const, content: text },
+            { id: crypto.randomUUID(), role: 'user' as const, content: text, attachment },
           ];
 
           let sessionId = state.activeSessionId;

@@ -137,8 +137,13 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
 
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-30">
               {images.map((_, idx) => (
-                <div
+                <button
                   key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(idx);
+                  }}
+                  aria-label={`Ir a la imagen ${idx + 1}`}
                   className={cn(
                     "h-1 transition-all rounded-full border border-black/20",
                     idx === currentImageIndex
@@ -179,7 +184,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
         >
           <FavoriteButton
             entityType="PROVIDER"
-            entityId={parseInt(data.id) || 0} // Fallback to 0 if id is uuid
+            entityId={data.id}
             initialIsFavorite={false} // Chat context
             brandColor={brandColor}
           />

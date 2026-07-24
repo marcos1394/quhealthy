@@ -49,6 +49,18 @@ export const useActionEngine = () => {
         }
         break;
 
+      case 'change_date':
+        console.log('Cambiando fecha:', action.payload);
+        if (action.payload?.date) {
+          const formattedDate = new Date(action.payload.date).toLocaleDateString('es-MX', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+          });
+          const intentText = `Muéstrame los horarios disponibles para el ${formattedDate}`;
+          const hiddenCtx = `Acción explícita de cambiar fecha de calendario a: ${action.payload.date}`;
+          window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: { text: intentText, hiddenContext: hiddenCtx } }));
+        }
+        break;
+
       case 'pay':
         console.log('Iniciando pago:', action.payload);
         if (action.payload?.referenceId) {

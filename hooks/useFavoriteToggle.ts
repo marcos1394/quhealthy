@@ -6,7 +6,7 @@ import { favoriteService } from '@/services/favorite.service';
 
 export const useFavoriteToggle = (
     entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE',
-    entityId: number,
+    entityId: number | string,
     initialState: boolean = false
 ) => {
     const [isFavorite, setIsFavorite] = useState(initialState);

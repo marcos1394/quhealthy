@@ -32,7 +32,17 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
           <Calendar
             mode="single"
             selected={date}
-            onSelect={setDate}
+            onSelect={(newDate) => {
+              if (newDate) {
+                setDate(newDate);
+                if (onAction) {
+                  onAction({
+                    type: 'change_date',
+                    payload: { date: newDate.toISOString() }
+                  });
+                }
+              }
+            }}
             className="rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
           />
         </div>
@@ -41,28 +51,36 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Horarios disponibles</h4>
           <ScrollArea className="w-full whitespace-nowrap pb-4">
             <div className="flex w-max space-x-3 px-1">
-              {data.availableSlots.map((slot) => (
-                <Button
-                  key={slot.id}
-                  variant="outline"
-                  className="flex gap-2 border-quhealthy-green/20 dark:border-emerald-800/30 text-quhealthy-green dark:text-emerald-400 hover:bg-quhealthy-green hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white transition-colors rounded-xl"
-                  onClick={() => {
-                    const reserveAction = actions?.find(a => a.type === 'reserve');
-                    if (reserveAction && onAction) {
-                      onAction({
-                        ...reserveAction,
-                        payload: {
-                          ...reserveAction.payload,
-                          scheduleTime: slot.startTime,
-                        }
-                      });
-                    }
-                  }}
-                >
-                  <Clock className="w-4 h-4" />
-                  {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Button>
-              ))}
+              {(!data.availableSlots || data.availableSlots.length === 0) ? (
+                <div className="w-full text-center py-6 px-4">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Sin horarios disponibles. Prueba seleccionando otra fecha.
+                  </p>
+                </div>
+              ) : (
+                data.availableSlots.map((slot) => (
+                  <Button
+                    key={slot.id}
+                    variant="outline"
+                    className="flex gap-2 border-quhealthy-green/20 dark:border-emerald-800/30 text-quhealthy-green dark:text-emerald-400 hover:bg-quhealthy-green hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white transition-colors rounded-xl"
+                    onClick={() => {
+                      const reserveAction = actions?.find(a => a.type === 'reserve');
+                      if (reserveAction && onAction) {
+                        onAction({
+                          ...reserveAction,
+                          payload: {
+                            ...reserveAction.payload,
+                            scheduleTime: slot.startTime,
+                          }
+                        });
+                      }
+                    }}
+                  >
+                    <Clock className="w-4 h-4" />
+                    {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Button>
+                ))
+              )}
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>

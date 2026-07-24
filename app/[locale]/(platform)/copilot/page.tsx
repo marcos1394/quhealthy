@@ -172,6 +172,7 @@ export default function CopilotPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [attachment, setAttachment] = useState<{ file: File; base64: string; url: string } | null>(null);
   const [selectedCommand, setSelectedCommand] = useState<{ cmd: string; desc: string; icon: any } | null>(null);
+  const [slashIndex, setSlashIndex] = useState(0);
   const [justFinished, setJustFinished] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -211,7 +212,16 @@ export default function CopilotPage() {
 
   // Auto scroll
   useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const scrollContainer = endOfMessagesRef.current?.closest('[data-radix-scroll-area-viewport]');
+    if (scrollContainer) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
+      if (isNearBottom || conversation.length <= 1) {
+        endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [conversation, streamingState]);
 
   // Auto-ajuste de altura y detectar comandos slash
@@ -220,7 +230,11 @@ export default function CopilotPage() {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
-    setShowSlashCommands(inputText.startsWith('/') && !selectedCommand);
+    const isSlash = inputText.startsWith('/') && !selectedCommand;
+    setShowSlashCommands(isSlash);
+    if (isSlash && slashIndex === 0) {
+      setSlashIndex(0); // Reset index on open
+    }
   }, [inputText, selectedCommand]);
 
   // Interceptar CustomEvent desde Engine
@@ -239,26 +253,28 @@ export default function CopilotPage() {
 
     if (!text.trim() && !currentAttachment) return;
 
-    // If agent is still processing, wait for it to finish before sending
-    if (streamingState !== 'idle') {
-      const waitForIdle = () => new Promise<void>((resolve) => {
-        const check = setInterval(() => {
-          const state = useHealthOSStore.getState().streamingState;
-          if (state === 'idle') {
-            clearInterval(check);
+    if (useHealthOSStore.getState().streamingState !== 'idle') {
+      await new Promise<void>((resolve) => {
+        let timeoutId: NodeJS.Timeout;
+        const unsubscribe = useHealthOSStore.subscribe((state) => {
+          if (state.streamingState === 'idle') {
+            unsubscribe();
+            clearTimeout(timeoutId);
             resolve();
           }
-        }, 300);
-        // Safety timeout: 15 seconds max wait
-        setTimeout(() => { clearInterval(check); resolve(); }, 15000);
+        });
+        timeoutId = setTimeout(() => {
+          unsubscribe();
+          resolve();
+        }, 15000);
       });
-      await waitForIdle();
     }
 
     const attachmentToSend = currentAttachment;
     const textToSend = selectedCommand ? `${selectedCommand.cmd} ${text}` : text;
     
     setInputText('');
+    if (attachment) URL.revokeObjectURL(attachment.url);
     setAttachment(null);
     setSelectedCommand(null);
     setShowSlashCommands(false);
@@ -267,7 +283,13 @@ export default function CopilotPage() {
       textareaRef.current.style.height = 'auto';
     }
 
-    addUserMessage(textToSend + (attachmentToSend ? '\n[Imagen adjunta]' : ''));
+    const savedAttachment = attachmentToSend ? {
+      base64Data: attachmentToSend.base64,
+      mimeType: attachmentToSend.file.type,
+      fileName: attachmentToSend.file.name
+    } : undefined;
+
+    addUserMessage(textToSend, savedAttachment);
 
     try {
       updateAssistantStream({ text: 'Analizando tu petición clínica...' });
@@ -308,6 +330,7 @@ export default function CopilotPage() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
+        if (attachment) URL.revokeObjectURL(attachment.url);
         const base64String = (event.target?.result as string).split(',')[1];
         setAttachment({
           file,
@@ -321,6 +344,26 @@ export default function CopilotPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (showSlashCommands) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSlashIndex(prev => Math.min(prev + 1, slashCommands.length - 1));
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSlashIndex(prev => Math.max(prev - 1, 0));
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        setSelectedCommand(slashCommands[slashIndex]);
+        setInputText('');
+        setShowSlashCommands(false);
+        return;
+      }
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -409,7 +452,12 @@ export default function CopilotPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 shrink-0 rounded-full transition-opacity"
-                        onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          if (window.confirm('¿Seguro que deseas eliminar el historial de esta consulta?')) {
+                            deleteSession(session.id); 
+                          }
+                        }}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
@@ -553,6 +601,24 @@ export default function CopilotPage() {
                             : 'bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-xs'
                         )} style={msg.role === 'user' ? { color: 'white' } : {}}>
                           {msg.content}
+                          
+                          {/* Render attachment thumbnail if present */}
+                          {msg.attachment && (
+                            <div className="mt-2 flex flex-col items-start gap-1">
+                              {msg.attachment.mimeType.startsWith('image/') ? (
+                                <img 
+                                  src={`data:${msg.attachment.mimeType};base64,${msg.attachment.base64Data}`} 
+                                  alt="Adjunto" 
+                                  className="w-32 h-32 object-cover rounded-xl border border-white/20 shadow-sm"
+                                />
+                              ) : (
+                                <div className="flex items-center gap-2 p-2 bg-black/10 rounded-lg max-w-[200px]">
+                                  <FileText className="w-5 h-5 shrink-0" />
+                                  <span className="text-xs truncate">{msg.attachment.fileName || 'Documento'}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -638,10 +704,26 @@ export default function CopilotPage() {
                         setShowSlashCommands(false);
                         textareaRef.current?.focus();
                       }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors group"
+                      onMouseEnter={() => setSlashIndex(i)}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl transition-colors group",
+                        slashIndex === i 
+                          ? "bg-emerald-50 dark:bg-emerald-950/30" 
+                          : "hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                      )}
                     >
-                      <div className="bg-gray-100 dark:bg-gray-800 p-1.5 rounded-lg group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors">
-                        <cmd.icon className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
+                      <div className={cn(
+                        "p-1.5 rounded-lg transition-colors",
+                        slashIndex === i 
+                          ? "bg-emerald-100 dark:bg-emerald-900/50" 
+                          : "bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50"
+                      )}>
+                        <cmd.icon className={cn(
+                          "w-4 h-4",
+                          slashIndex === i 
+                            ? "text-emerald-600 dark:text-emerald-400" 
+                            : "text-gray-600 dark:text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
+                        )} />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-900 dark:text-white">{cmd.cmd}</span>
@@ -676,14 +758,22 @@ export default function CopilotPage() {
               <div className="w-full flex mb-2 px-2">
                 <div className="relative inline-flex items-center gap-2 p-1.5 pr-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm">
                   <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                    <img src={attachment.url} alt="Adjunto" className="w-full h-full object-cover" />
+                    {attachment.file.type.startsWith('image/') ? (
+                      <img src={attachment.url} alt="Adjunto" className="w-full h-full object-cover" />
+                    ) : (
+                      <FileText className="w-5 h-5 text-gray-400" />
+                    )}
                   </div>
                   <div className="flex flex-col min-w-0 pr-6">
                     <span className="text-xs font-semibold text-gray-900 dark:text-white truncate max-w-[120px]">{attachment.file.name}</span>
                     <span className="text-[10px] text-gray-500">{(attachment.file.size / 1024).toFixed(1)} KB</span>
                   </div>
                   <button 
-                    onClick={() => setAttachment(null)}
+                    onClick={() => {
+                      if (attachment) URL.revokeObjectURL(attachment.url);
+                      setAttachment(null);
+                    }}
+                    aria-label="Eliminar adjunto"
                     className="absolute top-1 right-1 w-5 h-5 bg-white dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600 flex items-center justify-center hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors"
                   >
                     <X className="w-3 h-3" />

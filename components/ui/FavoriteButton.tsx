@@ -24,7 +24,7 @@ function getReadableTextColor(hex: string): string {
 
 interface FavoriteButtonProps {
  entityType: "PROVIDER" | "PACKAGE" | "COURSE" | "PRODUCT" | "SERVICE";
- entityId: number;
+ entityId: number | string;
  initialIsFavorite?: boolean;
  className?: string;
  brandColor?: string;
