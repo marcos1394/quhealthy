@@ -371,7 +371,7 @@ export default function CopilotPage() {
                   )}
 
                   <div className={cn(
-                    "flex flex-col max-w-[95%] lg:max-w-[85%] space-y-2",
+                    "flex flex-col max-w-[95%] lg:max-w-[85%] space-y-2 min-w-0",
                     msg.role === 'user' ? 'items-end' : 'items-start'
                   )}>
                     {msg.content && (
@@ -392,7 +392,7 @@ export default function CopilotPage() {
                     )}
 
                     {msg.response?.widgets && msg.response.widgets.length > 0 && (
-                      <div className="mt-2 w-full max-w-full overflow-hidden">
+                      <div className="mt-2 w-full max-w-full overflow-hidden min-w-0">
                         <WidgetRenderer widgets={msg.response.widgets} />
                       </div>
                     )}

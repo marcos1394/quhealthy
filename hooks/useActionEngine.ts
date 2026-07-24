@@ -25,8 +25,17 @@ export const useActionEngine = () => {
         const reservePayload = (action.payload as any) || {};
         if (reservePayload && reservePayload.entityId) {
           const name = reservePayload.entityName || reservePayload.entityId;
-          const intentText = `Quiero agendar cita con el Dr. ${name}`;
-          const hiddenCtx = `Doctor ID: ${reservePayload.entityId}`;
+          let intentText = `Quiero agendar cita con el Dr. ${name}`;
+          let hiddenCtx = `Doctor ID: ${reservePayload.entityId}`;
+          
+          if (reservePayload.scheduleTime) {
+            const dateStr = new Date(reservePayload.scheduleTime).toLocaleString('es-MX', { 
+              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+              hour: '2-digit', minute: '2-digit' 
+            });
+            intentText += ` para el ${dateStr}`;
+            hiddenCtx += `, Fecha y hora solicitada: ${reservePayload.scheduleTime}`;
+          }
           
           // Emit a custom event so the Copilot page can intercept it and send it to the AI
           window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: { text: intentText, hiddenContext: hiddenCtx } }));
