@@ -25,10 +25,11 @@ export const useActionEngine = () => {
         const reservePayload = (action.payload as any) || {};
         if (reservePayload && reservePayload.entityId) {
           const name = reservePayload.entityName || reservePayload.entityId;
-          const intentText = `Quiero agendar cita con el Dr. ${name} (ID: ${reservePayload.entityId})`;
+          const intentText = `Quiero agendar cita con el Dr. ${name}`;
+          const hiddenCtx = `Doctor ID: ${reservePayload.entityId}`;
           
           // Emit a custom event so the Copilot page can intercept it and send it to the AI
-          window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: intentText }));
+          window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: { text: intentText, hiddenContext: hiddenCtx } }));
           
           // Ensure we are on the copilot page
           if (!window.location.pathname.includes('/copilot')) {
@@ -71,29 +72,34 @@ export const useActionEngine = () => {
         if (action.payload?.documentId) {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
-            const response = await axiosInstance.get(`/api/onboarding/consumer/vault/document/${action.payload.documentId}`, {
-              responseType: 'blob'
-            });
+            const urlResponse = await axiosInstance.get(`/api/onboarding/consumer/vault/${action.payload.documentId}/url`);
             
-            // Extract filename from header if possible, else default
-            const disposition = response.headers['content-disposition'];
-            let filename = `document_${action.payload.documentId}`;
-            if (disposition && disposition.indexOf('attachment') !== -1) {
-              const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-              const matches = filenameRegex.exec(disposition);
-              if (matches != null && matches[1]) { 
-                filename = matches[1].replace(/['"]/g, '');
-              }
-            }
+            if (urlResponse.data && urlResponse.data.url) {
+              const fileUrl = urlResponse.data.url;
+              
+              // Fetch the actual file blob
+              const response = await fetch(fileUrl);
+              const blob = await response.blob();
 
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', filename);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
+              const disposition = response.headers.get('content-disposition');
+              let filename = `document_${action.payload.documentId}`;
+              if (disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) { 
+                  filename = matches[1].replace(/['"]/g, '');
+                }
+              }
+
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', filename);
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+              window.URL.revokeObjectURL(url);
+            }
           } catch (error) {
             console.error('Error al descargar el documento:', error);
             alert('No se pudo descargar el documento en este momento.');

@@ -90,7 +90,11 @@ export default function CopilotPage() {
     return () => window.removeEventListener('healthos:send_intent', handleIntent as EventListener);
   }, [streamingState]);
 
-  const sendIntentToAgent = async (text: string, currentAttachment: typeof attachment = null) => {
+  const sendIntentToAgent = async (payload: string | { text: string; hiddenContext?: string }, currentAttachment: typeof attachment = null) => {
+    const isObj = typeof payload === 'object' && payload !== null;
+    const text = isObj ? (payload as any).text : (payload as string);
+    const hiddenContext = isObj ? (payload as any).hiddenContext : '';
+
     if ((!text.trim() && !currentAttachment) || streamingState !== 'idle') return;
 
     const attachmentToSend = currentAttachment;
@@ -119,7 +123,8 @@ export default function CopilotPage() {
         }];
       }
 
-      const response = await healthOSService.sendIntent(textToSend || 'Analiza esta imagen', {}, attachmentsData);
+      const fullIntent = hiddenContext ? `${textToSend}\n[Contexto Oculto: ${hiddenContext}]` : (textToSend || 'Analiza esta imagen');
+      const response = await healthOSService.sendIntent(fullIntent, {}, attachmentsData);
       
       setTimeout(() => {
         updateAssistantStream(response);
