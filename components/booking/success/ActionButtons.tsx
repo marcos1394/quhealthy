@@ -39,18 +39,20 @@ export function ActionButtons({
   handleEnableAlert,
 }: Props) {
   return (
-    <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-12">
-      {/* Botonera Secundaria (Herramientas del Documento) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 border border-gray-200 dark:border-gray-800 mb-8 bg-gray-50 dark:bg-[#050505]">
+    <div className="mt-10 pt-8">
+      {/* Herramientas del Documento */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         <button
           onClick={handleAddToCalendar}
-          className="flex flex-col items-center justify-center gap-3 py-6 border-b sm:border-b-0 border-r border-gray-200 dark:border-gray-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group"
+          className="flex flex-col items-center justify-center gap-3 py-5 bg-white dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-quhealthy-green/40 dark:hover:border-emerald-800/40 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-950/20 transition-all shadow-sm group"
         >
-          <Calendar
-            className="w-5 h-5 text-gray-400 group-hover:text-white dark:group-hover:text-black"
-            strokeWidth={1.5}
-          />
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-white dark:group-hover:text-black">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center group-hover:bg-quhealthy-green/10 dark:group-hover:bg-emerald-900/30 transition-colors">
+            <Calendar
+              className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-quhealthy-green dark:group-hover:text-emerald-400 transition-colors"
+              strokeWidth={1.5}
+            />
+          </div>
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
             {t("btn_calendar", { defaultValue: "Agendar" })}
           </span>
         </button>
@@ -58,81 +60,87 @@ export function ActionButtons({
         <button
           onClick={downloadInvoice}
           disabled={isDownloading}
-          className="flex flex-col items-center justify-center gap-3 py-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group disabled:opacity-50"
+          className="flex flex-col items-center justify-center gap-3 py-5 bg-white dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-quhealthy-green/40 dark:hover:border-emerald-800/40 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-950/20 transition-all shadow-sm group disabled:opacity-50"
         >
-          {isDownloading ? (
-            <Loader2
-              className="w-5 h-5 animate-spin text-gray-400 group-hover:text-white dark:group-hover:text-black"
-              strokeWidth={1.5}
-            />
-          ) : (
-            <Download
-              className="w-5 h-5 text-gray-400 group-hover:text-white dark:group-hover:text-black"
-              strokeWidth={1.5}
-            />
-          )}
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-white dark:group-hover:text-black">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center group-hover:bg-quhealthy-green/10 dark:group-hover:bg-emerald-900/30 transition-colors">
+            {isDownloading ? (
+              <Loader2
+                className="w-5 h-5 animate-spin text-gray-500 dark:text-gray-400"
+                strokeWidth={1.5}
+              />
+            ) : (
+              <Download
+                className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-quhealthy-green dark:group-hover:text-emerald-400 transition-colors"
+                strokeWidth={1.5}
+              />
+            )}
+          </div>
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
             PDF
           </span>
         </button>
 
         <button
           onClick={handleShare}
-          className="flex flex-col items-center justify-center gap-3 py-6 border-r border-gray-200 dark:border-gray-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group"
+          className="flex flex-col items-center justify-center gap-3 py-5 bg-white dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-quhealthy-green/40 dark:hover:border-emerald-800/40 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-950/20 transition-all shadow-sm group"
         >
-          {copied ? (
-            <Check
-              className="w-5 h-5 text-black dark:text-white group-hover:text-white dark:group-hover:text-black"
-              strokeWidth={2}
-            />
-          ) : (
-            <Share
-              className="w-5 h-5 text-gray-400 group-hover:text-white dark:group-hover:text-black"
-              strokeWidth={1.5}
-            />
-          )}
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-white dark:group-hover:text-black">
+          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center group-hover:bg-quhealthy-green/10 dark:group-hover:bg-emerald-900/30 transition-colors">
+            {copied ? (
+              <Check
+                className="w-5 h-5 text-quhealthy-green dark:text-emerald-400"
+                strokeWidth={2}
+              />
+            ) : (
+              <Share
+                className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-quhealthy-green dark:group-hover:text-emerald-400 transition-colors"
+                strokeWidth={1.5}
+              />
+            )}
+          </div>
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
             {t("btn_share", { defaultValue: "Compartir" })}
           </span>
         </button>
 
         <button
           onClick={handleEnableAlert}
-          className="flex flex-col items-center justify-center gap-3 py-6 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group"
+          className="flex flex-col items-center justify-center gap-3 py-5 bg-white dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-quhealthy-green/40 dark:hover:border-emerald-800/40 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-950/20 transition-all shadow-sm group"
         >
-          <Bell
-            className="w-5 h-5 text-gray-400 group-hover:text-white dark:group-hover:text-black"
-            strokeWidth={1.5}
-          />
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-white dark:group-hover:text-black">
-            Alerta
+          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center group-hover:bg-quhealthy-green/10 dark:group-hover:bg-emerald-900/30 transition-colors">
+            <Bell
+              className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-quhealthy-green dark:group-hover:text-emerald-400 transition-colors"
+              strokeWidth={1.5}
+            />
+          </div>
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+            Recordatorio
           </span>
         </button>
       </div>
 
-      {/* Botonera Primaria (Navegación) */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      {/* Botones de Navegación */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button
           onClick={() => router.push("/patient/dashboard/appointments")}
-          className="flex-1 h-14 rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] font-bold uppercase tracking-widest transition-colors border-0 flex items-center justify-center px-8"
+          className="flex-1 h-12 rounded-xl bg-quhealthy-green hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 text-sm font-bold transition-colors border-0 flex items-center justify-center px-6 shadow-md shadow-emerald-900/20"
         >
-          {t("btn_appointments", { defaultValue: "Directorio de Citas" })}{" "}
-          <ArrowRight className="w-4 h-4 ml-3" strokeWidth={1.5} />
+          {t("btn_appointments", { defaultValue: "Ver Mis Citas" })}
+          <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />
         </Button>
         <Button
           onClick={() => router.push("/patient/dashboard")}
           variant="outline"
-          className="flex-1 h-14 rounded-none border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center px-8"
+          className="flex-1 h-12 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#050505] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 text-sm font-bold transition-colors flex items-center justify-center px-6"
         >
-          <Home className="w-4 h-4 mr-3" strokeWidth={1.5} />{" "}
-          {t("btn_home", { defaultValue: "Retorno al Panel" })}
+          <Home className="w-4 h-4 mr-2" strokeWidth={1.5} />
+          {t("btn_home", { defaultValue: "Ir al Panel" })}
         </Button>
       </div>
 
-      {/* Sello de Confianza Final */}
-      <div className="mt-8 flex items-center justify-center gap-2 text-[9px] font-bold uppercase tracking-widest text-gray-500">
-        <ShieldCheck className="w-4 h-4" strokeWidth={1.5} />{" "}
-        <span>LIQUIDACIÓN PROCESADA BAJO ESTÁNDARES CIFRADOS.</span>
+      {/* Sello de Confianza */}
+      <div className="mt-8 flex items-center justify-center gap-2 text-xs font-medium text-gray-400 dark:text-gray-500">
+        <ShieldCheck className="w-4 h-4 text-quhealthy-green dark:text-emerald-400" strokeWidth={1.5} />
+        <span>Transacción procesada bajo estándares de cifrado seguros.</span>
       </div>
     </div>
   );

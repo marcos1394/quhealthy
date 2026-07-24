@@ -237,7 +237,23 @@ export default function CopilotPage() {
     const text = isObj ? (payload as any).text : (payload as string);
     const hiddenContext = isObj ? (payload as any).hiddenContext : '';
 
-    if ((!text.trim() && !currentAttachment) || streamingState !== 'idle') return;
+    if (!text.trim() && !currentAttachment) return;
+
+    // If agent is still processing, wait for it to finish before sending
+    if (streamingState !== 'idle') {
+      const waitForIdle = () => new Promise<void>((resolve) => {
+        const check = setInterval(() => {
+          const state = useHealthOSStore.getState().streamingState;
+          if (state === 'idle') {
+            clearInterval(check);
+            resolve();
+          }
+        }, 300);
+        // Safety timeout: 15 seconds max wait
+        setTimeout(() => { clearInterval(check); resolve(); }, 15000);
+      });
+      await waitForIdle();
+    }
 
     const attachmentToSend = currentAttachment;
     const textToSend = selectedCommand ? `${selectedCommand.cmd} ${text}` : text;
@@ -504,60 +520,74 @@ export default function CopilotPage() {
             )}
 
             <AnimatePresence initial={false}>
-              {conversation.map((msg, idx) => (
+              {conversation.map((msg, idx) => {
+                const hasWidgets = msg.response?.widgets && msg.response.widgets.length > 0;
+                return (
                 <motion.div 
                   key={msg.id || idx}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className={cn(
+                  className="flex flex-col gap-2"
+                >
+                  {/* Message row: avatar + bubble */}
+                  <div className={cn(
                     "flex gap-3 items-start",
                     msg.role === 'user' ? 'justify-end' : 'justify-start'
-                  )}
-                >
-                  {msg.role === 'assistant' && (
-                    <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 shadow-2xs flex items-center justify-center overflow-visible">
-                      <QuMascot state="idle" size={20} />
-                    </Avatar>
-                  )}
-
-                  <div className={cn(
-                    "flex flex-col max-w-[85%] space-y-2 min-w-0",
-                    msg.role === 'user' ? 'items-end' : 'items-start'
                   )}>
-                    {msg.content && (
-                      <div className={cn(
-                        "px-4 py-3 text-sm font-medium leading-relaxed whitespace-pre-wrap shadow-2xs break-words max-w-full overflow-hidden",
-                        msg.role === 'user' 
-                          ? 'bg-quhealthy-green text-white rounded-2xl rounded-tr-xs dark:bg-emerald-700' 
-                          : 'bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-xs'
-                      )} style={msg.role === 'user' ? { color: 'white' } : {}}>
-                        {msg.content}
-                      </div>
+                    {msg.role === 'assistant' && (
+                      <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 shadow-2xs flex items-center justify-center overflow-visible">
+                        <QuMascot state="idle" size={20} />
+                      </Avatar>
                     )}
 
-                    {msg.response?.text && (
-                      <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 text-sm font-medium leading-relaxed shadow-2xs whitespace-pre-wrap break-words max-w-full overflow-hidden">
-                        {msg.response.text}
-                      </div>
-                    )}
+                    <div className={cn(
+                      "flex flex-col max-w-[85%] space-y-2 min-w-0",
+                      msg.role === 'user' ? 'items-end' : 'items-start'
+                    )}>
+                      {msg.content && (
+                        <div className={cn(
+                          "px-4 py-3 text-sm font-medium leading-relaxed whitespace-pre-wrap shadow-2xs break-words max-w-full overflow-hidden",
+                          msg.role === 'user' 
+                            ? 'bg-quhealthy-green text-white rounded-2xl rounded-tr-xs dark:bg-emerald-700' 
+                            : 'bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-xs'
+                        )} style={msg.role === 'user' ? { color: 'white' } : {}}>
+                          {msg.content}
+                        </div>
+                      )}
 
-                    {msg.response?.widgets && msg.response.widgets.length > 0 && (
-                      <div className="mt-2 w-full min-w-0 overflow-hidden">
-                        <WidgetRenderer widgets={msg.response.widgets} />
-                      </div>
+                      {msg.response?.text && (
+                        <div className="px-4 py-3 rounded-2xl rounded-tl-xs bg-gray-50/90 dark:bg-[#050505] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 text-sm font-medium leading-relaxed shadow-2xs whitespace-pre-wrap break-words max-w-full overflow-hidden">
+                          {msg.response.text}
+                        </div>
+                      )}
+
+                      {/* Inline widgets (non-gallery) */}
+                      {!hasWidgets ? null : !msg.response?.widgets?.some((w: any) => w.type === 'DoctorGalleryWidget' || w.type === 'ServiceGalleryWidget') && (
+                        <div className="mt-1 w-full min-w-0">
+                          <WidgetRenderer widgets={msg.response!.widgets!} />
+                        </div>
+                      )}
+                    </div>
+
+                    {msg.role === 'user' && (
+                      <Avatar className="h-8 w-8 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 shrink-0 mt-0.5 shadow-2xs">
+                        <AvatarFallback className="bg-transparent font-bold text-xs">
+                          <User className="w-4 h-4" />
+                        </AvatarFallback>
+                      </Avatar>
                     )}
                   </div>
 
-                  {msg.role === 'user' && (
-                    <Avatar className="h-8 w-8 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 shrink-0 mt-0.5 shadow-2xs">
-                      <AvatarFallback className="bg-transparent font-bold text-xs">
-                        <User className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
+                  {/* Full-width gallery widgets rendered outside the bubble row */}
+                  {hasWidgets && msg.response?.widgets?.some((w: any) => w.type === 'DoctorGalleryWidget' || w.type === 'ServiceGalleryWidget') && (
+                    <div className="w-full min-w-0 overflow-hidden pl-11">
+                      <WidgetRenderer widgets={msg.response!.widgets!} />
+                    </div>
                   )}
                 </motion.div>
-              ))}
+                );
+              })}
             </AnimatePresence>
 
             {streamingState === 'processing' && (

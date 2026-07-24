@@ -71,7 +71,8 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
       </CardContent>
       <CardFooter className="flex flex-col gap-4 pt-2 pb-5 px-6">
         <Button 
-          className="w-full rounded-xl h-12 bg-quhealthy-green hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 font-bold shadow-md shadow-emerald-900/20 transition-all" 
+          variant="success"
+          className="w-full rounded-xl h-12 font-bold shadow-md shadow-emerald-900/20 transition-all" 
           onClick={handlePayment} 
           disabled={isProcessing}
         >

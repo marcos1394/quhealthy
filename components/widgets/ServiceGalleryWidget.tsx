@@ -123,7 +123,8 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
             </div>
 
             <Button 
-              className="w-full mt-auto bg-quhealthy-green hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 rounded-xl" 
+              variant="success"
+              className="w-full mt-auto rounded-xl" 
               onClick={() => handleSelectService(service)}
             >
               Seleccionar

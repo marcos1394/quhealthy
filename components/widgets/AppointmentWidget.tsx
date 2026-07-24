@@ -82,10 +82,10 @@ export const AppointmentWidget: React.FC<Props> = ({ widget, onAction }) => {
             return (
               <Button
                 key={idx}
-                variant={isPrimary ? 'default' : 'outline'}
+                variant={isPrimary ? 'success' : 'outline'}
                 size="sm"
                 onClick={() => onAction && onAction(action)}
-                className={`flex-1 rounded-xl font-semibold transition-all ${isPrimary ? 'bg-quhealthy-green hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 shadow-md shadow-emerald-900/20' : 'border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300'}`}
+                className={`flex-1 rounded-xl font-semibold transition-all ${isPrimary ? 'shadow-md shadow-emerald-900/20' : 'border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300'}`}
               >
                 {isPrimary ? 'Proceder al Pago' : action.type === 'confirm' ? 'Confirmar Cita' : action.type}
               </Button>

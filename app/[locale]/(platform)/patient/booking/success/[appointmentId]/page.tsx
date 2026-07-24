@@ -140,9 +140,9 @@ export default function BookingSuccessPage() {
   // 1. Estado de Carga Blueprint
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-4 animate-pulse">
           {t("loading", {
             defaultValue: "Cargando confirmación de tu cita...",
           })}
@@ -154,20 +154,20 @@ export default function BookingSuccessPage() {
   // 2. Estado de Error Arquitectónico
   if (error || !appointment) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
-        <div className="w-16 h-16 border border-red-500 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
-          <AlertCircle className="w-6 h-6 text-red-500" strokeWidth={1.5} />
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+          <AlertCircle className="w-7 h-7 text-red-500 dark:text-red-400" strokeWidth={1.5} />
         </div>
-        <h2 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
           Cita no encontrada
         </h2>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-sm mx-auto mb-8">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8">
           El registro solicitado no existe o no tienes permisos para
           visualizarlo.
         </p>
         <Button
           onClick={() => router.push("/patient/dashboard")}
-          className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest border-0 transition-colors"
+          className="rounded-xl bg-quhealthy-green hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 h-12 px-8 text-sm font-bold border-0 transition-colors shadow-md shadow-emerald-900/20"
         >
           <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} />
           Volver al Panel Principal
@@ -178,7 +178,7 @@ export default function BookingSuccessPage() {
 
   // 3. Estado de Redirección por Seguridad
   if (user && appointment.consumerId !== user.id) {
-    return <div className="min-h-screen bg-white dark:bg-[#0a0a0a]"></div>;
+    return <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505]"></div>;
   }
 
   // ==========================================
@@ -192,7 +192,7 @@ export default function BookingSuccessPage() {
   ).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-300">
       {/* Background técnico de puntos sutiles */}
       <BackgroundEffects />
       <Confetti show={showConfetti} />

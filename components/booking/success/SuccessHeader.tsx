@@ -10,29 +10,29 @@ interface Props {
 
 export function SuccessHeader({ t, email }: Props) {
   return (
-    <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] mb-12">
+    <div className="bg-white dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-3xl shadow-sm mb-12">
       <div className="p-8 md:p-12 text-center flex flex-col items-center">
         {/* Sello de Aprobación */}
-        <div className="w-20 h-20 border-2 border-black dark:border-white flex items-center justify-center bg-black text-white dark:bg-white dark:text-black mb-8">
-          <Check className="w-10 h-10" strokeWidth={3} />
+        <div className="w-20 h-20 rounded-full bg-quhealthy-green/10 dark:bg-emerald-900/30 flex items-center justify-center mb-8">
+          <Check className="w-10 h-10 text-quhealthy-green dark:text-emerald-400" strokeWidth={3} />
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-black dark:text-white mb-3">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
           {t("title", { defaultValue: "Confirmación de Operación" })}
         </h1>
 
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto mb-8">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
           {t("subtitle", {
             defaultValue:
-              "SU RESERVA Y LIQUIDACIÓN HAN SIDO PROCESADAS EXITOSAMENTE EN LA RED.",
+              "Su reserva y liquidación han sido procesadas exitosamente en la red.",
           })}
         </p>
 
         {email && (
-          <div className="inline-flex items-center gap-3 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] px-6 py-3">
-            <Mail className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
-            <span className="text-[9px] font-bold uppercase tracking-widest text-black dark:text-white">
-              COMPROBANTE EMITIDO A: {email}
+          <div className="inline-flex items-center gap-3 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-xl px-4 py-2.5">
+            <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400" strokeWidth={1.5} />
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              Comprobante emitido a: {email}
             </span>
           </div>
         )}
