@@ -522,7 +522,7 @@ export default function CopilotPage() {
                   )}
 
                   <div className={cn(
-                    "flex flex-col max-w-[95%] lg:max-w-[85%] space-y-2 min-w-0",
+                    "flex flex-col max-w-[95%] lg:max-w-[85%] space-y-2 min-w-0 overflow-visible",
                     msg.role === 'user' ? 'items-end' : 'items-start'
                   )}>
                     {msg.content && (
@@ -543,7 +543,7 @@ export default function CopilotPage() {
                     )}
 
                     {msg.response?.widgets && msg.response.widgets.length > 0 && (
-                      <div className="mt-2 w-full min-w-0" style={{ maxWidth: 'calc(100vw - 5rem)' }}>
+                      <div className="mt-2 w-full min-w-0">
                         <WidgetRenderer widgets={msg.response.widgets} />
                       </div>
                     )}
