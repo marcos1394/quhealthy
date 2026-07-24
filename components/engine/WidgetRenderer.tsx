@@ -8,7 +8,8 @@ import {
   CalendarWidget, 
   AppointmentWidget, 
   PaymentWidget,
-  VaultDocumentWidget
+  VaultDocumentWidget,
+  ServiceGalleryWidget
 } from '../widgets';
 import { useActionEngine } from '@/hooks/useActionEngine';
 
@@ -64,6 +65,14 @@ export const WidgetRenderer: React.FC<Props> = ({ widgets }) => {
       case 'VaultDocumentWidget':
         return (
           <VaultDocumentWidget 
+            key={widget.id} 
+            widget={widget as any} 
+            onAction={dispatchAction} 
+          />
+        );
+      case 'ServiceGalleryWidget':
+        return (
+          <ServiceGalleryWidget 
             key={widget.id} 
             widget={widget as any} 
             onAction={dispatchAction} 

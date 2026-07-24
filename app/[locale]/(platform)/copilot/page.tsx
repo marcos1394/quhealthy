@@ -31,25 +31,64 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-// ── COMPONENTE MASCOTA "QU" (PUNTO) ──────────────────────────────────────────
-type MascotState = 'idle' | 'attending' | 'thinking' | 'searching' | 'success';
+// ── TIPOS DE ESTADO DE LA MASCOTA QU ─────────────────────────────────────────
+type MascotState = 'idle' | 'attending' | 'thinking' | 'searching' | 'success' | 'wink';
 
 interface QuMascotProps {
   state?: MascotState;
   size?: number;
   className?: string;
+  onClick?: () => void;
 }
 
-function QuMascot({ state = 'idle', size = 24, className = '' }: QuMascotProps) {
+// ── COMPONENTE MASCOTA "QU" (PUNTO) CON REACTIVIDAD DINÁMICA ─────────────────
+function QuMascot({ state = 'idle', size = 24, className = '', onClick }: QuMascotProps) {
+  const [internalState, setInternalState] = useState<MascotState>(state);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    setInternalState(state);
+  }, [state]);
+
+  const activeState = isHovered && internalState === 'idle' ? 'wink' : internalState;
+
+  // Cálculo dinámico de coordenadas geométricas de la boca
+  const getMouthPoints = () => {
+    switch (activeState) {
+      case 'thinking':
+      case 'searching':
+        return { leftY: 16.2, centerY: 16.2, rightY: 16.2 }; // Boca neutra / recta
+      case 'attending':
+        return { leftY: 15.6, centerY: 18.2, rightY: 15.6 }; // Sonrisa atenta
+      case 'success':
+      case 'wink':
+        return { leftY: 14.8, centerY: 18.8, rightY: 14.8 }; // Gran sonrisa feliz
+      case 'idle':
+      default:
+        return { leftY: 16.2, centerY: 18.0, rightY: 16.2 }; // Sonrisa suave estándar
+    }
+  };
+
+  const { leftY, centerY, rightY } = getMouthPoints();
+
   return (
     <svg 
-      className={cn("qu-mascot", className)} 
-      data-state={state} 
+      className={cn("qu-mascot cursor-pointer transition-transform duration-200 active:scale-90", className)} 
+      data-state={activeState} 
       viewBox="0 0 24 24" 
       width={size} 
       height={size}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => {
+        setInternalState('wink');
+        setTimeout(() => setInternalState(state), 1200);
+        if (onClick) onClick();
+      }}
     >
       <rect className="qp-bezel" x="1.2" y="1.2" width="21.6" height="21.6" rx="6" />
+      
+      {/* Matriz LED exterior */}
       <circle className="qp-dot" style={{ '--i': 0 } as React.CSSProperties} cx="3" cy="3" r="0.85" />
       <circle className="qp-dot" style={{ '--i': 1 } as React.CSSProperties} cx="12" cy="3" r="0.85" />
       <circle className="qp-dot" style={{ '--i': 2 } as React.CSSProperties} cx="21" cy="3" r="0.85" />
@@ -59,47 +98,51 @@ function QuMascot({ state = 'idle', size = 24, className = '' }: QuMascotProps) 
       <circle className="qp-dot" style={{ '--i': 6 } as React.CSSProperties} cx="12" cy="21" r="0.85" />
       <circle className="qp-dot" style={{ '--i': 7 } as React.CSSProperties} cx="21" cy="21" r="0.85" />
       
-      {/* Ojos */}
+      {/* Ojos (Guiño si el estado es 'wink') */}
       <circle className="qp-eye" cx="7.5" cy="7.5" r="1.05" />
-      <circle className="qp-eye" cx="16.5" cy="7.5" r="1.05" />
+      {activeState === 'wink' ? (
+        <line x1="15" y1="7.5" x2="18" y2="7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      ) : (
+        <circle className="qp-eye" cx="16.5" cy="7.5" r="1.05" />
+      )}
       
-      {/* Boca sonriente por defecto */}
-      <circle className="qp-mouth" cx="7.5" cy="16.2" r="0.85" />
-      <circle className="qp-mouth" cx="12" cy="18.1" r="0.85" />
-      <circle className="qp-mouth" cx="16.5" cy="16.2" r="0.85" />
+      {/* Boca sonriente dinámica */}
+      <circle className="qp-mouth" cx="7.5" cy={leftY} r="0.85" />
+      <circle className="qp-mouth" cx="12" cy={centerY} r="0.85" />
+      <circle className="qp-mouth" cx="16.5" cy={rightY} r="0.85" />
       
-      {/* Barra de escaneo */}
+      {/* Barra de escaneo para búsqueda / análisis */}
       <rect className="qp-scan" x="1.5" y="1" width="21" height="2" />
     </svg>
   );
 }
 
-// ── ESTILOS CSS INYECTADOS PARA ANIMACIONES DE QU ───────────────────────────
+// ── ESTILOS CSS GLOBAL / ANIMACIONES ─────────────────────────────────────────
 const QuMascotStyles = () => (
   <style jsx global>{`
     .qu-mascot { color: currentColor; overflow: visible; display: block; }
     .qp-bezel { fill: none; stroke: currentColor; stroke-width: 1; opacity: .18; transition: opacity .4s ease; }
     .qp-dot { fill: currentColor; opacity: .15; }
-    .qp-eye { fill: currentColor; transform-box: fill-box; transform-origin: center; }
-    .qp-mouth { fill: currentColor; opacity: .9; transition: cy .3s ease, cx .3s ease; }
+    .qp-eye { fill: currentColor; transform-box: fill-box; transform-origin: center; transition: all .2s ease; }
+    .qp-mouth { fill: currentColor; opacity: .9; transition: cy .25s ease; }
     .qp-scan { fill: currentColor; opacity: 0; }
 
     svg[data-state="idle"] .qp-bezel { opacity: .18; }
     svg[data-state="attending"] .qp-bezel { opacity: .3; }
     svg[data-state="thinking"] .qp-bezel { opacity: .22; }
-    svg[data-state="searching"] .qp-bezel { opacity: .32; }
-    svg[data-state="success"] .qp-bezel { opacity: .35; }
+    svg[data-state="searching"] .qp-bezel { opacity: .35; }
+    svg[data-state="success"] .qp-bezel { opacity: .45; stroke-width: 1.5; }
 
     svg[data-state="idle"] .qp-dot { animation: qp-shimmer 3s ease-in-out infinite; animation-delay: calc(var(--i) * -0.2s); }
     svg[data-state="attending"] .qp-dot { animation: qp-shimmer-bright 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.16s); }
     svg[data-state="thinking"] .qp-dot { animation: qp-flash 1.2s ease-in-out infinite; animation-delay: calc(var(--i) * -0.15s); }
     svg[data-state="searching"] .qp-dot { opacity: .2; animation: none; }
-    svg[data-state="success"] .qp-dot { animation: qp-burst .5s ease-out 1; animation-delay: calc(var(--i) * 0.03s); }
+    svg[data-state="success"] .qp-dot { animation: qp-burst .6s ease-out 1; animation-delay: calc(var(--i) * 0.04s); }
 
     @keyframes qp-shimmer { 0%,100%{opacity:.12;} 50%{opacity:.22;} }
-    @keyframes qp-shimmer-bright { 0%,100%{opacity:.18;} 50%{opacity:.32;} }
+    @keyframes qp-shimmer-bright { 0%,100%{opacity:.18;} 50%{opacity:.35;} }
     @keyframes qp-flash { 0%,100%{opacity:.15;} 6%{opacity:.9;} 25%{opacity:.15;} }
-    @keyframes qp-burst { 0%{opacity:.15;} 45%{opacity:1;} 100%{opacity:.2;} }
+    @keyframes qp-burst { 0%{opacity:.15;} 50%{opacity:1;} 100%{opacity:.25;} }
 
     svg[data-state="idle"] .qp-eye { animation: qp-blink 4.2s ease-in-out infinite; }
     svg[data-state="attending"] .qp-eye { animation: qp-drift 3s ease-in-out infinite; }
@@ -111,16 +154,10 @@ const QuMascotStyles = () => (
     @keyframes qp-drift { 0%,100%{transform:translateX(-.8px);} 50%{transform:translateX(.8px);} }
     @keyframes qp-look-up { 0%,100%{transform:translate(0,0);} 30%{transform:translate(.6px,-1.6px);} 60%{transform:translate(-.6px,-1.6px);} }
     @keyframes qp-scan-eyes { 0%,100%{transform:translateX(-2px);} 50%{transform:translateX(2px);} }
-    @keyframes qp-pop { 0%{transform:scale(1);} 40%{transform:scale(1.4);} 100%{transform:scale(1);} }
+    @keyframes qp-pop { 0%{transform:scale(1);} 40%{transform:scale(1.35);} 100%{transform:scale(1);} }
 
-    svg[data-state="searching"] .qp-scan { opacity: .32; animation: qp-sweep 1.1s linear infinite; }
+    svg[data-state="searching"] .qp-scan { opacity: .4; animation: qp-sweep 1.1s linear infinite; }
     @keyframes qp-sweep { from{transform:translateY(0);} to{transform:translateY(20px);} }
-
-    /* Boca neutra (línea recta) en estado Pensando y Buscando */
-    svg[data-state="thinking"] .qp-mouth,
-    svg[data-state="searching"] .qp-mouth {
-      cy: 16.2px;
-    }
 
     @media (prefers-reduced-motion: reduce){
       .qp-dot, .qp-eye, .qp-scan, .qp-bezel { animation: none !important; }
@@ -128,13 +165,14 @@ const QuMascotStyles = () => (
   `}</style>
 );
 
-// ── PÁGINA PRINCIPAL COPILOT ─────────────────────────────────────────────────
+// ── COPILOT PAGE ─────────────────────────────────────────────────────────────
 export default function CopilotPage() {
   const [inputText, setInputText] = useState('');
   const [showSlashCommands, setShowSlashCommands] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [attachment, setAttachment] = useState<{ file: File; base64: string; url: string } | null>(null);
   const [selectedCommand, setSelectedCommand] = useState<{ cmd: string; desc: string; icon: any } | null>(null);
+  const [justFinished, setJustFinished] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -162,9 +200,11 @@ export default function CopilotPage() {
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Determinar el estado visual de la mascota Qu
+  // Determinar el estado visual dinámico de Qu
   const getMascotState = (): MascotState => {
+    if (justFinished) return 'success';
     if (streamingState === 'processing') return 'thinking';
+    if (attachment) return 'searching';
     if (inputText.trim().length > 0) return 'attending';
     return 'idle';
   };
@@ -230,6 +270,10 @@ export default function CopilotPage() {
       setTimeout(() => {
         updateAssistantStream(response);
         finalizeStream();
+
+        // Celebración de Qu al completar la respuesta
+        setJustFinished(true);
+        setTimeout(() => setJustFinished(false), 2200);
       }, 600);
 
     } catch (error) {
@@ -378,8 +422,11 @@ export default function CopilotPage() {
               {isSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
             </Button>
             
-            {/* Avatar Header con la Mascota Qu */}
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0">
+            {/* Avatar interactivo de Qu */}
+            <div 
+              className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+              title="¡Haz click sobre Qu para interactuar!"
+            >
               <QuMascot state={getMascotState()} size={24} />
             </div>
 
@@ -422,8 +469,11 @@ export default function CopilotPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="h-full min-h-[340px] flex flex-col items-center justify-center text-center p-6 space-y-5"
               >
-                {/* Avatar Hero de Bienvenida */}
-                <div className="w-20 h-20 rounded-3xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                {/* Avatar Hero Interactivo de Qu */}
+                <div 
+                  className="w-20 h-20 rounded-3xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm hover:scale-105 transition-transform"
+                  title="Haz click en Qu para saludar"
+                >
                   <QuMascot state={getMascotState()} size={48} />
                 </div>
 
@@ -466,7 +516,7 @@ export default function CopilotPage() {
                   )}
                 >
                   {msg.role === 'assistant' && (
-                    <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 shadow-2xs flex items-center justify-center">
+                    <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 shadow-2xs flex items-center justify-center overflow-visible">
                       <QuMascot state="idle" size={20} />
                     </Avatar>
                   )}
@@ -493,7 +543,7 @@ export default function CopilotPage() {
                     )}
 
                     {msg.response?.widgets && msg.response.widgets.length > 0 && (
-                      <div className="mt-2 w-full max-w-full overflow-hidden min-w-0">
+                      <div className="mt-2 w-full min-w-0" style={{ maxWidth: 'calc(100vw - 5rem)' }}>
                         <WidgetRenderer widgets={msg.response.widgets} />
                       </div>
                     )}
@@ -516,7 +566,7 @@ export default function CopilotPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-3 justify-start items-center"
               >
-                <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs flex items-center justify-center">
+                <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs flex items-center justify-center overflow-visible">
                   <QuMascot state="thinking" size={20} />
                 </Avatar>
                 
