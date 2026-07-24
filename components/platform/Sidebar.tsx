@@ -41,6 +41,7 @@ import {
   Search,
   CheckCircle,
   FileText,
+  BrainCircuit,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
@@ -181,6 +182,12 @@ const patientLinks = [
     badge: null,
   },
   {
+    key: "copilot",
+    href: "/copilot",
+    icon: BrainCircuit,
+    badge: { count: "IA" },
+  },
+  {
     key: "appointments",
     href: "/patient/dashboard/appointments",
     icon: CalendarDays,
@@ -288,6 +295,7 @@ const NavItem = ({
     if (["favorites"].includes(key)) return "text-red-500";
     if (["wallet", "billing", "finance", "cash_register"].includes(key))
       return "text-emerald-500";
+    if (["copilot"].includes(key)) return "text-emerald-600 dark:text-emerald-400";
     if (["messages"].includes(key)) return "text-blue-500";
     if (["packages"].includes(key)) return "text-amber-500";
     if (["orders", "inventory"].includes(key)) return "text-purple-500";

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHealthOSStore } from '@/stores/useHealthOSStore';
 import { healthOSService } from '@/services/healthOS.service';
+import { useSessionStore } from '@/stores/SessionStore';
 import { WidgetRenderer } from '@/components/engine/WidgetRenderer';
 import { Button } from '@/components/ui/button';
 import { 
@@ -33,6 +34,9 @@ export default function CopilotPage() {
   const [inputText, setInputText] = useState('');
   const [showSlashCommands, setShowSlashCommands] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const { user } = useSessionStore();
+  const userName = user?.firstName || 'Usuario';
 
   const { 
     conversation, 
@@ -255,7 +259,7 @@ export default function CopilotPage() {
 
                 <div className="space-y-1.5 max-w-md">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    ¿En qué puedo ayudarte hoy, Marcos?
+                    ¿En qué puedo ayudarte hoy, {userName}?
                   </h3>
                   <p className="text-xs sm:text-sm font-medium text-gray-400 leading-relaxed">
                     Puedo buscar especialistas, agendar tus citas médicas o asistirte en el seguimiento de tu salud.
