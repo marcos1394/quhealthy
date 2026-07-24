@@ -39,7 +39,7 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
                   onAction({
                     type: 'change_date',
                     payload: { date: newDate.toISOString() }
-                  });
+                  } as any);
                 }
               }
             }}

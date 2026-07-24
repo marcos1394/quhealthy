@@ -7,7 +7,7 @@ export const useActionEngine = () => {
   const dispatchAction = async (action: HealthOSAction) => {
     console.log('ActionEngine -> dispatching:', action);
 
-    switch (action.type) {
+    switch (action.type as string) {
       case 'navigate':
         if (action.payload?.route) {
           router.push(action.payload.route);
