@@ -11,7 +11,6 @@ import {
   Send, 
   User, 
   Sparkles, 
-  BrainCircuit, 
   Stethoscope, 
   Search, 
   Calendar,
@@ -19,7 +18,6 @@ import {
   MessageSquare,
   Plus,
   Trash2,
-  Clock,
   PanelLeftClose,
   PanelLeftOpen,
   Paperclip,
@@ -33,6 +31,104 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+// ── COMPONENTE MASCOTA "QU" (PUNTO) ──────────────────────────────────────────
+type MascotState = 'idle' | 'attending' | 'thinking' | 'searching' | 'success';
+
+interface QuMascotProps {
+  state?: MascotState;
+  size?: number;
+  className?: string;
+}
+
+function QuMascot({ state = 'idle', size = 24, className = '' }: QuMascotProps) {
+  return (
+    <svg 
+      className={cn("qu-mascot", className)} 
+      data-state={state} 
+      viewBox="0 0 24 24" 
+      width={size} 
+      height={size}
+    >
+      <rect className="qp-bezel" x="1.2" y="1.2" width="21.6" height="21.6" rx="6" />
+      <circle className="qp-dot" style={{ '--i': 0 } as React.CSSProperties} cx="3" cy="3" r="0.85" />
+      <circle className="qp-dot" style={{ '--i': 1 } as React.CSSProperties} cx="12" cy="3" r="0.85" />
+      <circle className="qp-dot" style={{ '--i': 2 } as React.CSSProperties} cx="21" cy="3" r="0.85" />
+      <circle className="qp-dot" style={{ '--i': 3 } as React.CSSProperties} cx="3" cy="12" r="0.85" />
+      <circle className="qp-dot" style={{ '--i': 4 } as React.CSSProperties} cx="21" cy="12" r="0.85" />
+      <circle className="qp-dot" style={{ '--i': 5 } as React.CSSProperties} cx="3" cy="21" r="0.85" />
+      <circle className="qp-dot" style={{ '--i': 6 } as React.CSSProperties} cx="12" cy="21" r="0.85" />
+      <circle className="qp-dot" style={{ '--i': 7 } as React.CSSProperties} cx="21" cy="21" r="0.85" />
+      
+      {/* Ojos */}
+      <circle className="qp-eye" cx="7.5" cy="7.5" r="1.05" />
+      <circle className="qp-eye" cx="16.5" cy="7.5" r="1.05" />
+      
+      {/* Boca sonriente por defecto */}
+      <circle className="qp-mouth" cx="7.5" cy="16.2" r="0.85" />
+      <circle className="qp-mouth" cx="12" cy="18.1" r="0.85" />
+      <circle className="qp-mouth" cx="16.5" cy="16.2" r="0.85" />
+      
+      {/* Barra de escaneo */}
+      <rect className="qp-scan" x="1.5" y="1" width="21" height="2" />
+    </svg>
+  );
+}
+
+// ── ESTILOS CSS INYECTADOS PARA ANIMACIONES DE QU ───────────────────────────
+const QuMascotStyles = () => (
+  <style jsx global>{`
+    .qu-mascot { color: currentColor; overflow: visible; display: block; }
+    .qp-bezel { fill: none; stroke: currentColor; stroke-width: 1; opacity: .18; transition: opacity .4s ease; }
+    .qp-dot { fill: currentColor; opacity: .15; }
+    .qp-eye { fill: currentColor; transform-box: fill-box; transform-origin: center; }
+    .qp-mouth { fill: currentColor; opacity: .9; transition: cy .3s ease, cx .3s ease; }
+    .qp-scan { fill: currentColor; opacity: 0; }
+
+    svg[data-state="idle"] .qp-bezel { opacity: .18; }
+    svg[data-state="attending"] .qp-bezel { opacity: .3; }
+    svg[data-state="thinking"] .qp-bezel { opacity: .22; }
+    svg[data-state="searching"] .qp-bezel { opacity: .32; }
+    svg[data-state="success"] .qp-bezel { opacity: .35; }
+
+    svg[data-state="idle"] .qp-dot { animation: qp-shimmer 3s ease-in-out infinite; animation-delay: calc(var(--i) * -0.2s); }
+    svg[data-state="attending"] .qp-dot { animation: qp-shimmer-bright 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.16s); }
+    svg[data-state="thinking"] .qp-dot { animation: qp-flash 1.2s ease-in-out infinite; animation-delay: calc(var(--i) * -0.15s); }
+    svg[data-state="searching"] .qp-dot { opacity: .2; animation: none; }
+    svg[data-state="success"] .qp-dot { animation: qp-burst .5s ease-out 1; animation-delay: calc(var(--i) * 0.03s); }
+
+    @keyframes qp-shimmer { 0%,100%{opacity:.12;} 50%{opacity:.22;} }
+    @keyframes qp-shimmer-bright { 0%,100%{opacity:.18;} 50%{opacity:.32;} }
+    @keyframes qp-flash { 0%,100%{opacity:.15;} 6%{opacity:.9;} 25%{opacity:.15;} }
+    @keyframes qp-burst { 0%{opacity:.15;} 45%{opacity:1;} 100%{opacity:.2;} }
+
+    svg[data-state="idle"] .qp-eye { animation: qp-blink 4.2s ease-in-out infinite; }
+    svg[data-state="attending"] .qp-eye { animation: qp-drift 3s ease-in-out infinite; }
+    svg[data-state="thinking"] .qp-eye { animation: qp-look-up 1.8s ease-in-out infinite; }
+    svg[data-state="searching"] .qp-eye { animation: qp-scan-eyes .8s ease-in-out infinite; }
+    svg[data-state="success"] .qp-eye { animation: qp-pop .5s ease-out 1; }
+
+    @keyframes qp-blink { 0%,82%,100%{transform:scaleY(1);} 88%{transform:scaleY(.1);} 94%{transform:scaleY(1);} }
+    @keyframes qp-drift { 0%,100%{transform:translateX(-.8px);} 50%{transform:translateX(.8px);} }
+    @keyframes qp-look-up { 0%,100%{transform:translate(0,0);} 30%{transform:translate(.6px,-1.6px);} 60%{transform:translate(-.6px,-1.6px);} }
+    @keyframes qp-scan-eyes { 0%,100%{transform:translateX(-2px);} 50%{transform:translateX(2px);} }
+    @keyframes qp-pop { 0%{transform:scale(1);} 40%{transform:scale(1.4);} 100%{transform:scale(1);} }
+
+    svg[data-state="searching"] .qp-scan { opacity: .32; animation: qp-sweep 1.1s linear infinite; }
+    @keyframes qp-sweep { from{transform:translateY(0);} to{transform:translateY(20px);} }
+
+    /* Boca neutra (línea recta) en estado Pensando y Buscando */
+    svg[data-state="thinking"] .qp-mouth,
+    svg[data-state="searching"] .qp-mouth {
+      cy: 16.2px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .qp-dot, .qp-eye, .qp-scan, .qp-bezel { animation: none !important; }
+    }
+  `}</style>
+);
+
+// ── PÁGINA PRINCIPAL COPILOT ─────────────────────────────────────────────────
 export default function CopilotPage() {
   const [inputText, setInputText] = useState('');
   const [showSlashCommands, setShowSlashCommands] = useState(false);
@@ -66,6 +162,13 @@ export default function CopilotPage() {
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Determinar el estado visual de la mascota Qu
+  const getMascotState = (): MascotState => {
+    if (streamingState === 'processing') return 'thinking';
+    if (inputText.trim().length > 0) return 'attending';
+    return 'idle';
+  };
+
   // Auto scroll
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -77,7 +180,6 @@ export default function CopilotPage() {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
-    // Mostrar menu solo si empezamos con "/" y no hay un comando seleccionado
     setShowSlashCommands(inputText.startsWith('/') && !selectedCommand);
   }, [inputText, selectedCommand]);
 
@@ -98,7 +200,6 @@ export default function CopilotPage() {
     if ((!text.trim() && !currentAttachment) || streamingState !== 'idle') return;
 
     const attachmentToSend = currentAttachment;
-    
     const textToSend = selectedCommand ? `${selectedCommand.cmd} ${text}` : text;
     
     setInputText('');
@@ -156,7 +257,6 @@ export default function CopilotPage() {
       };
       reader.readAsDataURL(file);
     }
-    // reset input value so the same file can be selected again
     if (e.target) e.target.value = '';
   };
 
@@ -186,7 +286,8 @@ export default function CopilotPage() {
 
   return (
     <div className="flex h-[calc(100vh-5rem)] max-w-6xl mx-auto w-full p-3 sm:p-6 font-sans gap-4 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 overflow-hidden">
-      
+      <QuMascotStyles />
+
       {/* ── SIDEBAR HISTORIAL ──────────────────────── */}
       <AnimatePresence initial={false}>
         {isSidebarOpen && (
@@ -277,8 +378,9 @@ export default function CopilotPage() {
               {isSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
             </Button>
             
+            {/* Avatar Header con la Mascota Qu */}
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0">
-              <BrainCircuit className="w-5 h-5" strokeWidth={2} />
+              <QuMascot state={getMascotState()} size={24} />
             </div>
 
             <div className="space-y-0.5">
@@ -320,8 +422,9 @@ export default function CopilotPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="h-full min-h-[340px] flex flex-col items-center justify-center text-center p-6 space-y-5"
               >
-                <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
-                  <BrainCircuit className="w-8 h-8" strokeWidth={2} />
+                {/* Avatar Hero de Bienvenida */}
+                <div className="w-20 h-20 rounded-3xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                  <QuMascot state={getMascotState()} size={48} />
                 </div>
 
                 <div className="space-y-1.5 max-w-md">
@@ -363,10 +466,8 @@ export default function CopilotPage() {
                   )}
                 >
                   {msg.role === 'assistant' && (
-                    <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 shadow-2xs">
-                      <AvatarFallback className="bg-transparent text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
-                        AI
-                      </AvatarFallback>
+                    <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 shadow-2xs flex items-center justify-center">
+                      <QuMascot state="idle" size={20} />
                     </Avatar>
                   )}
 
@@ -415,10 +516,8 @@ export default function CopilotPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-3 justify-start items-center"
               >
-                <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
-                  <AvatarFallback className="bg-transparent text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
-                    AI
-                  </AvatarFallback>
+                <Avatar className="h-8 w-8 rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs flex items-center justify-center">
+                  <QuMascot state="thinking" size={20} />
                 </Avatar>
                 
                 <div className="px-4 py-2.5 rounded-2xl rounded-tl-xs bg-gray-50/90 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white flex items-center gap-2.5 shadow-2xs">
