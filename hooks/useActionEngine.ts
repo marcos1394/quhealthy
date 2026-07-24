@@ -6,23 +6,24 @@ export const useActionEngine = () => {
 
   const dispatchAction = async (action: HealthOSAction) => {
     console.log('ActionEngine -> dispatching:', action);
+    const payload = action.payload as any;
 
     switch (action.type as string) {
       case 'navigate':
-        if (action.payload?.route) {
-          router.push(action.payload.route);
+        if (payload?.route) {
+          router.push(payload.route);
         }
         break;
 
       case 'open':
-        if (action.payload?.url) {
-          window.open(action.payload.url, action.payload.target || '_blank');
+        if (payload?.url) {
+          window.open(payload.url, payload.target || '_blank');
         }
         break;
 
       case 'reserve':
-        console.log('Reservando:', action.payload);
-        const reservePayload = (action.payload as any) || {};
+        console.log('Reservando:', payload);
+        const reservePayload = payload || {};
         if (reservePayload && reservePayload.entityId) {
           const name = reservePayload.entityName || reservePayload.entityId;
           let intentText = `Quiero agendar cita con el Dr. ${name}`;
@@ -50,24 +51,24 @@ export const useActionEngine = () => {
         break;
 
       case 'change_date':
-        console.log('Cambiando fecha:', action.payload);
-        if (action.payload?.date) {
-          const formattedDate = new Date(action.payload.date).toLocaleDateString('es-MX', {
+        console.log('Cambiando fecha:', payload);
+        if (payload?.date) {
+          const formattedDate = new Date(payload.date).toLocaleDateString('es-MX', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
           });
           const intentText = `Muéstrame los horarios disponibles para el ${formattedDate}`;
-          const hiddenCtx = `Acción explícita de cambiar fecha de calendario a: ${action.payload.date}`;
+          const hiddenCtx = `Acción explícita de cambiar fecha de calendario a: ${payload.date}`;
           window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: { text: intentText, hiddenContext: hiddenCtx } }));
         }
         break;
 
       case 'pay':
-        console.log('Iniciando pago:', action.payload);
-        if (action.payload?.referenceId) {
+        console.log('Iniciando pago:', payload);
+        if (payload?.referenceId) {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
             const response = await axiosInstance.post('/api/payments/checkout/appointment', {
-              appointmentId: action.payload.referenceId,
+              appointmentId: payload.referenceId,
               requestBnpl: false,
               qupointsDiscountMxn: 0
             });
@@ -89,11 +90,11 @@ export const useActionEngine = () => {
         break;
 
       case 'download':
-        console.log('Descargando documento:', action.payload);
-        if (action.payload?.documentId) {
+        console.log('Descargando documento:', payload);
+        if (payload?.documentId) {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
-            const urlResponse = await axiosInstance.get(`/api/onboarding/consumer/vault/${action.payload.documentId}/url`);
+            const urlResponse = await axiosInstance.get(`/api/onboarding/consumer/vault/${payload.documentId}/url`);
             
             if (urlResponse.data && urlResponse.data.url) {
               const fileUrl = urlResponse.data.url;
@@ -103,7 +104,7 @@ export const useActionEngine = () => {
               const blob = await response.blob();
 
               const disposition = response.headers.get('content-disposition');
-              let filename = `document_${action.payload.documentId}`;
+              let filename = `document_${payload.documentId}`;
               if (disposition && disposition.indexOf('attachment') !== -1) {
                 const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
                 const matches = filenameRegex.exec(disposition);
