@@ -3,6 +3,7 @@ import { BaseWidget, HealthOSAction } from '@quhealthy/health-os-contract';
 import { ChevronLeft, ChevronRight, Stethoscope, Clock, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ServiceCardWidget } from './ServiceCardWidget';
 
 interface Props {
   widget: BaseWidget;
@@ -15,12 +16,14 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
+  const [isScrollable, setIsScrollable] = useState(false);
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setShowLeftScroll(scrollLeft > 4);
       setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 4);
+      setIsScrollable(scrollWidth > clientWidth + 4);
     }
   };
 
@@ -61,26 +64,28 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
     <div className="w-full min-w-0 relative py-2" style={{ maxWidth: '100%' }}>
       <div className="flex justify-between items-center mb-2 px-1">
         <h4 className="text-sm font-semibold text-muted-foreground">Servicios Disponibles ({services.length})</h4>
-        <div className="flex items-center gap-1">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-7 w-7 rounded-full bg-background border-border shadow-sm disabled:opacity-30" 
-            onClick={() => scroll('left')}
-            disabled={!showLeftScroll}
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-7 w-7 rounded-full bg-background border-border shadow-sm disabled:opacity-30" 
-            onClick={() => scroll('right')}
-            disabled={!showRightScroll}
-          >
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Button>
-        </div>
+        {isScrollable && (
+          <div className="flex items-center gap-1.5">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-8 w-8 rounded-full bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm disabled:opacity-30 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-900/20 hover:text-quhealthy-green dark:hover:text-emerald-400 hover:border-quhealthy-green/30 dark:hover:border-emerald-800/50 transition-colors" 
+              onClick={() => scroll('left')}
+              disabled={!showLeftScroll}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-8 w-8 rounded-full bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm disabled:opacity-30 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-900/20 hover:text-quhealthy-green dark:hover:text-emerald-400 hover:border-quhealthy-green/30 dark:hover:border-emerald-800/50 transition-colors" 
+              onClick={() => scroll('right')}
+              disabled={!showRightScroll}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div 
@@ -97,39 +102,12 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
           div::-webkit-scrollbar { display: none; }
         `}</style>
         {services.map((service: any) => (
-          <Card key={service.serviceId} className="snap-start shrink-0 w-[240px] flex flex-col p-4 gap-3 bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-start gap-2">
-              <div className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-2 rounded-xl text-quhealthy-green dark:text-emerald-400 shrink-0">
-                <Stethoscope className="w-5 h-5" />
-              </div>
-              <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight flex-1">
-                {service.name}
-              </p>
-            </div>
-            
-            <div className="flex flex-col gap-1.5 mt-1">
-              {service.durationMinutes && (
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <Clock className="w-4 h-4 shrink-0" />
-                  <span>{service.durationMinutes} minutos</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <CreditCard className="w-4 h-4 shrink-0" />
-                <span className="font-semibold text-quhealthy-green dark:text-emerald-400">
-                  ${service.price} MXN
-                </span>
-              </div>
-            </div>
-
-            <Button 
-              variant="success"
-              className="w-full mt-auto rounded-xl" 
-              onClick={() => handleSelectService(service)}
-            >
-              Seleccionar
-            </Button>
-          </Card>
+          <ServiceCardWidget
+            key={service.serviceId}
+            service={service}
+            doctorId={(actions?.find(a => a.type === 'reserve')?.payload as any)?.doctorId || ''}
+            onSelect={handleSelectService}
+          />
         ))}
       </div>
     </div>

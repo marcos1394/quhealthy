@@ -40,6 +40,12 @@ export interface DoctorCardData {
   clinic?: string;
   languages?: string[];
   nextAvailableSlot?: string;
+  galleryUrls?: string[];
+  previewVideoUrl?: string;
+  discountPercentage?: number;
+  isPromoted?: boolean;
+  price?: number;
+  compareAtPrice?: number;
 }
 
 export type DoctorCardWidget = BaseWidget<DoctorCardData>;

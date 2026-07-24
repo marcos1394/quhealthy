@@ -14,12 +14,14 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
+  const [isScrollable, setIsScrollable] = useState(false);
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setShowLeftScroll(scrollLeft > 4);
       setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 4);
+      setIsScrollable(scrollWidth > clientWidth + 4);
     }
   };
 
@@ -49,26 +51,28 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
       <div className="flex justify-between items-center mb-2 px-1">
         <h4 className="text-sm font-semibold text-muted-foreground">Resultados Encontrados ({data.doctors.length})</h4>
         {/* Navigation controls inline */}
-        <div className="flex items-center gap-1">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-7 w-7 rounded-full bg-background border-border shadow-sm disabled:opacity-30" 
-            onClick={() => scroll('left')}
-            disabled={!showLeftScroll}
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-7 w-7 rounded-full bg-background border-border shadow-sm disabled:opacity-30" 
-            onClick={() => scroll('right')}
-            disabled={!showRightScroll}
-          >
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Button>
-        </div>
+        {isScrollable && (
+          <div className="flex items-center gap-1.5">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-8 w-8 rounded-full bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm disabled:opacity-30 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-900/20 hover:text-quhealthy-green dark:hover:text-emerald-400 hover:border-quhealthy-green/30 dark:hover:border-emerald-800/50 transition-colors" 
+              onClick={() => scroll('left')}
+              disabled={!showLeftScroll}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="h-8 w-8 rounded-full bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm disabled:opacity-30 hover:bg-quhealthy-green/5 dark:hover:bg-emerald-900/20 hover:text-quhealthy-green dark:hover:text-emerald-400 hover:border-quhealthy-green/30 dark:hover:border-emerald-800/50 transition-colors" 
+              onClick={() => scroll('right')}
+              disabled={!showRightScroll}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div 
