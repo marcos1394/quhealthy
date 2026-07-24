@@ -42,7 +42,7 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
   }
 
   return (
-    <Card className="w-full max-w-sm bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm">
+    <Card className="w-full max-w-sm bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl">
       <CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
         <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
           <div className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-2 rounded-xl text-quhealthy-green dark:text-emerald-400">
