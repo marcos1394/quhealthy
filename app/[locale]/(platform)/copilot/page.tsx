@@ -23,7 +23,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Paperclip,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -37,6 +38,7 @@ export default function CopilotPage() {
   const [showSlashCommands, setShowSlashCommands] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [attachment, setAttachment] = useState<{ file: File; base64: string; url: string } | null>(null);
+  const [selectedCommand, setSelectedCommand] = useState<{ cmd: string; desc: string; icon: any } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -75,8 +77,9 @@ export default function CopilotPage() {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
-    setShowSlashCommands(inputText === '/');
-  }, [inputText]);
+    // Mostrar menu solo si empezamos con "/" y no hay un comando seleccionado
+    setShowSlashCommands(inputText.startsWith('/') && !selectedCommand);
+  }, [inputText, selectedCommand]);
 
   // Interceptar CustomEvent desde Engine
   useEffect(() => {
@@ -92,15 +95,18 @@ export default function CopilotPage() {
 
     const attachmentToSend = currentAttachment;
     
+    const textToSend = selectedCommand ? `${selectedCommand.cmd} ${text}` : text;
+    
     setInputText('');
     setAttachment(null);
+    setSelectedCommand(null);
     setShowSlashCommands(false);
     
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
 
-    addUserMessage(text + (attachmentToSend ? '\n[Imagen adjunta]' : ''));
+    addUserMessage(textToSend + (attachmentToSend ? '\n[Imagen adjunta]' : ''));
 
     try {
       updateAssistantStream({ text: 'Analizando tu petición clínica...' });
@@ -113,7 +119,7 @@ export default function CopilotPage() {
         }];
       }
 
-      const response = await healthOSService.sendIntent(text || 'Analiza esta imagen', {}, attachmentsData);
+      const response = await healthOSService.sendIntent(textToSend || 'Analiza esta imagen', {}, attachmentsData);
       
       setTimeout(() => {
         updateAssistantStream(response);
@@ -154,6 +160,10 @@ export default function CopilotPage() {
       e.preventDefault();
       handleSend();
     }
+    if (e.key === 'Backspace' && inputText === '' && selectedCommand) {
+      e.preventDefault();
+      setSelectedCommand(null);
+    }
   };
 
   const quickActions = [
@@ -165,7 +175,8 @@ export default function CopilotPage() {
   const slashCommands = [
     { cmd: "/buscar", desc: "Encontrar médicos o especialidades", icon: Search },
     { cmd: "/agendar", desc: "Agendar una cita rápidamente", icon: Calendar },
-    { cmd: "/historial", desc: "Consultar tus expedientes médicos (próximamente)", icon: Clock },
+    { cmd: "/boveda", desc: "Buscar documentos en tu expediente", icon: FileText },
+    { cmd: "/analizar", desc: "Analizar síntomas o un documento", icon: Stethoscope },
   ];
 
   return (
@@ -438,7 +449,8 @@ export default function CopilotPage() {
                     <button
                       key={i}
                       onClick={() => {
-                        setInputText(cmd.cmd + " ");
+                        setSelectedCommand(cmd);
+                        setInputText('');
                         setShowSlashCommands(false);
                         textareaRef.current?.focus();
                       }}
@@ -515,21 +527,46 @@ export default function CopilotPage() {
                 onChange={handleFileChange}
               />
               
-              <textarea
-                ref={textareaRef}
-                rows={1}
-                placeholder="Escribe tu consulta, usa '/' para comandos o adjunta una receta..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={streamingState !== 'idle'}
-                className="flex-1 bg-transparent border-none outline-none resize-none text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 px-3 py-2.5 max-h-40 min-h-[44px] custom-scrollbar leading-relaxed self-end"
-              />
+              <div className="flex-1 bg-transparent flex items-center flex-wrap gap-2 min-h-[44px]">
+                {selectedCommand && (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 rounded-lg text-xs font-bold border border-emerald-200 dark:border-emerald-800 shrink-0 select-none shadow-sm h-8 self-center">
+                    <selectedCommand.icon className="w-3.5 h-3.5" />
+                    {selectedCommand.cmd}
+                    <button 
+                      onClick={() => {
+                        setSelectedCommand(null);
+                        textareaRef.current?.focus();
+                      }}
+                      className="ml-1 hover:bg-emerald-200 dark:hover:bg-emerald-800 rounded-full p-0.5 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+                <textarea
+                  ref={textareaRef}
+                  rows={1}
+                  placeholder={selectedCommand ? "Escribe tu consulta..." : "Escribe tu consulta, usa '/' para comandos o adjunta una receta..."}
+                  value={inputText}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '/' && !selectedCommand) {
+                      setShowSlashCommands(true);
+                    } else if (showSlashCommands && !val.startsWith('/')) {
+                      setShowSlashCommands(false);
+                    }
+                    setInputText(val);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  disabled={streamingState !== 'idle'}
+                  className="flex-1 bg-transparent border-none outline-none resize-none text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 py-2.5 max-h-40 min-w-[150px] custom-scrollbar leading-relaxed"
+                />
+              </div>
 
               <Button 
                 type="button"
                 onClick={handleSend} 
-                disabled={(!inputText.trim() && !attachment) || streamingState !== 'idle'}
+                disabled={(!inputText.trim() && !attachment && !selectedCommand) || streamingState !== 'idle'}
                 className="h-10 w-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white p-0 shrink-0 shadow-sm transition-all disabled:opacity-40 mb-0.5 self-end"
               >
                 {streamingState !== 'idle' ? (
