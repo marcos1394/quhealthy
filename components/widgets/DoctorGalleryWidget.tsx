@@ -41,7 +41,7 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   };
 
   return (
-    <div className="w-full relative group py-2">
+    <div className="w-full max-w-full min-w-0 relative group py-2 px-6">
       <div className="flex justify-between items-center mb-2 px-1">
         <h4 className="text-sm font-semibold text-muted-foreground">Resultados Encontrados ({data.doctors.length})</h4>
       </div>
@@ -51,10 +51,10 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
         <Button 
           variant="outline" 
           size="icon" 
-          className="absolute left-[-16px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/95 hover:bg-background border-border shadow-lg transition-all hidden md:flex opacity-0 group-hover:opacity-100" 
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background border-border shadow-md transition-all flex opacity-90 hover:opacity-100" 
           onClick={() => scroll('left')}
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
       )}
 
@@ -62,10 +62,10 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
         <Button 
           variant="outline" 
           size="icon" 
-          className="absolute right-[-16px] top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/95 hover:bg-background border-border shadow-lg transition-all hidden md:flex opacity-0 group-hover:opacity-100" 
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background border-border shadow-md transition-all flex opacity-90 hover:opacity-100" 
           onClick={() => scroll('right')}
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       )}
 
