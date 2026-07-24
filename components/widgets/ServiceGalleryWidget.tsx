@@ -46,7 +46,7 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
 
   const handleSelectService = (service: any) => {
     // Send a chat message to the agent with the selected service info
-    const doctorId = actions?.find(a => a.type === 'reserve')?.payload?.doctorId || '';
+    const doctorId = (actions?.find(a => a.type === 'reserve')?.payload as any)?.doctorId || '';
     const intentText = `Quiero reservar el servicio "${service.name}"`;
     const hiddenCtx = `Service ID: ${service.serviceId}, Doctor ID: ${doctorId}, Precio: $${service.price} MXN`;
     
