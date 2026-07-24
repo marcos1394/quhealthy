@@ -564,7 +564,7 @@ export default function CopilotPage() {
 
                       {/* Inline widgets (non-gallery) */}
                       {!hasWidgets ? null : !msg.response?.widgets?.some((w: any) => w.type === 'DoctorGalleryWidget' || w.type === 'ServiceGalleryWidget') && (
-                        <div className="mt-1 w-full min-w-0">
+                        <div className="mt-1 w-full min-w-0 max-w-xs sm:max-w-sm">
                           <WidgetRenderer widgets={msg.response!.widgets!} />
                         </div>
                       )}
@@ -581,7 +581,7 @@ export default function CopilotPage() {
 
                   {/* Full-width gallery widgets rendered outside the bubble row */}
                   {hasWidgets && msg.response?.widgets?.some((w: any) => w.type === 'DoctorGalleryWidget' || w.type === 'ServiceGalleryWidget') && (
-                    <div className="w-full min-w-0 overflow-hidden pl-11">
+                    <div className="w-full min-w-0 pl-11">
                       <WidgetRenderer widgets={msg.response!.widgets!} />
                     </div>
                   )}

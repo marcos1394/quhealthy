@@ -28,12 +28,15 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(checkScroll, 100);
-    window.addEventListener('resize', checkScroll);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', checkScroll);
-    };
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    
+    checkScroll();
+    
+    const ro = new ResizeObserver(() => checkScroll());
+    ro.observe(el);
+    
+    return () => ro.disconnect();
   }, [services]);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -90,7 +93,7 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
 
       <div 
         ref={scrollContainerRef}
-        onScroll={checkScroll}
+        onScroll={() => requestAnimationFrame(checkScroll)}
         className="flex gap-3 pb-3 pt-1 snap-x scroll-smooth touch-pan-x overflow-x-auto"
         style={{ 
           WebkitOverflowScrolling: 'touch',
@@ -102,12 +105,13 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
           div::-webkit-scrollbar { display: none; }
         `}</style>
         {services.map((service: any) => (
-          <ServiceCardWidget
-            key={service.serviceId}
-            service={service}
-            doctorId={(actions?.find(a => a.type === 'reserve')?.payload as any)?.doctorId || ''}
-            onSelect={handleSelectService}
-          />
+          <div key={service.serviceId} className="snap-start shrink-0 w-[260px]">
+            <ServiceCardWidget
+              service={service}
+              doctorId={(actions?.find(a => a.type === 'reserve')?.payload as any)?.doctorId || ''}
+              onSelect={handleSelectService}
+            />
+          </div>
         ))}
       </div>
     </div>

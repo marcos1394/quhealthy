@@ -68,7 +68,7 @@ export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandCol
   const imageUrl = service.galleryUrls?.[0] || service.imageUrl;
 
   return (
-    <div className="group snap-start shrink-0 w-[260px] flex flex-col bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all cursor-pointer rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1">
+    <div className="group snap-start shrink-0 w-full flex flex-col bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all cursor-pointer rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1">
       {/* IMAGEN */}
       <div className="relative aspect-video w-full bg-gray-50 dark:bg-black overflow-hidden rounded-t-2xl border-b border-gray-100 dark:border-gray-800">
         {imageUrl ? (

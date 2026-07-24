@@ -26,13 +26,15 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   };
 
   useEffect(() => {
-    // Delay initial check to let the DOM render
-    const timer = setTimeout(checkScroll, 100);
-    window.addEventListener('resize', checkScroll);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', checkScroll);
-    };
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    
+    checkScroll();
+    
+    const ro = new ResizeObserver(() => checkScroll());
+    ro.observe(el);
+    
+    return () => ro.disconnect();
   }, [data.doctors]);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -77,7 +79,7 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
 
       <div 
         ref={scrollContainerRef}
-        onScroll={checkScroll}
+        onScroll={() => requestAnimationFrame(checkScroll)}
         className="flex gap-3 pb-3 pt-1 snap-x scroll-smooth touch-pan-x overflow-x-auto"
         style={{ 
           WebkitOverflowScrolling: 'touch',

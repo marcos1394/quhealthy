@@ -74,7 +74,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative w-72 shrink-0 md:w-full self-start bg-white dark:bg-[#111] transition-all flex flex-col group rounded-2xl h-full",
+        "relative w-full self-start bg-white dark:bg-[#111] transition-all flex flex-col group rounded-2xl h-full",
         isSelected
           ? "border-2 shadow-xl z-10"
           : "border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-gray-200 dark:hover:border-gray-700"
@@ -122,13 +122,15 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
           <>
             <button
               onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white text-black rounded-full shadow-md z-30 opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Imagen anterior"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white text-black rounded-full shadow-md z-30 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white text-black rounded-full shadow-md z-30 opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Siguiente imagen"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white text-black rounded-full shadow-md z-30 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
