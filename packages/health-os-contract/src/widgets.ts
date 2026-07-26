@@ -17,7 +17,10 @@ export type WidgetType =
   | 'DoctorReviewsWidget'
   | 'HealthInsightWidget'
   | 'VaultDocumentWidget'
-  | 'ServiceGalleryWidget';
+  | 'ServiceGalleryWidget'
+  | 'AppointmentListWidget'
+  | 'WalletWidget'
+  | 'OrderWidget';
 
 export interface BaseWidget<T = any> {
   id: string; // Unique identifier for the widget instance

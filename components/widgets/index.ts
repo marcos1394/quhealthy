@@ -5,3 +5,6 @@ export * from './AppointmentWidget';
 export * from './PaymentWidget';
 export * from './VaultDocumentWidget';
 export * from './ServiceGalleryWidget';
+export * from './AppointmentListWidget';
+export * from './WalletWidget';
+export * from './OrderWidget';
