@@ -388,7 +388,7 @@ export default function CopilotPage() {
   ];
 
   return (
-    <div className="flex h-[calc(100vh-5rem)] max-w-6xl mx-auto w-full p-3 sm:p-6 font-sans gap-4 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 overflow-hidden">
+    <div className="flex h-[calc(100vh-5rem)] max-w-6xl mx-auto w-full min-w-0 p-3 sm:p-6 font-sans gap-4 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 overflow-hidden">
       <QuMascotStyles />
 
       {/* ── SIDEBAR HISTORIAL ──────────────────────── */}
@@ -471,11 +471,11 @@ export default function CopilotPage() {
       </AnimatePresence>
 
       {/* ── CONTENEDOR PRINCIPAL CHAT ──────────────────────── */}
-      <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col transition-all relative">
+      <div className="flex-1 min-w-0 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden flex flex-col transition-all relative">
         
         {/* ── ENCABEZADO COPILOT ─────────────────────────────────────────── */}
-        <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3.5">
+        <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md flex items-center justify-between shrink-0 gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <Button
               variant="ghost"
               size="icon"
@@ -494,17 +494,17 @@ export default function CopilotPage() {
               <QuMascot state={getMascotState()} size={24} />
             </div>
 
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white tracking-tight">
+                <h1 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white tracking-tight shrink-0">
                   Qu
                 </h1>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-900/40">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-900/40 min-w-0">
                   <Sparkles className="w-2.5 h-2.5" />
-                  <span>IA Clínica</span>
+                  <span className="truncate">IA Clínica</span>
                 </span>
               </div>
-              <p className="text-xs font-medium text-gray-400">
+              <p className="text-xs font-medium text-gray-400 truncate">
                 Tu asistente médico y de bienestar personalizado
               </p>
             </div>
@@ -524,8 +524,8 @@ export default function CopilotPage() {
         </div>
 
         {/* ── ÁREA DE CONVERSACIÓN Y WIDGETS ──────────────────────────────── */}
-        <ScrollArea className="flex-1 p-4 sm:p-6">
-          <div className="space-y-6">
+        <ScrollArea className="flex-1 min-w-0 p-3 sm:p-6">
+          <div className="space-y-6 min-w-0">
             
             {conversation.length === 0 && (
               <motion.div 
@@ -576,11 +576,11 @@ export default function CopilotPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="flex flex-col gap-2 w-full max-w-full min-w-0 overflow-hidden"
+                  className="flex flex-col gap-2 w-full max-w-full min-w-0"
                 >
                   {/* Message row: avatar + bubble */}
                   <div className={cn(
-                    "flex gap-3 items-start",
+                    "flex gap-3 items-start w-full max-w-full min-w-0",
                     msg.role === 'user' ? 'justify-end' : 'justify-start'
                   )}>
                     {msg.role === 'assistant' && (
@@ -590,7 +590,7 @@ export default function CopilotPage() {
                     )}
 
                     <div className={cn(
-                      "flex flex-col max-w-[85%] space-y-2 min-w-0",
+                      "flex flex-col max-w-[min(85%,42rem)] space-y-2 min-w-0",
                       msg.role === 'user' ? 'items-end' : 'items-start'
                     )}>
                       {msg.content && (
@@ -628,12 +628,6 @@ export default function CopilotPage() {
                         </div>
                       )}
 
-                      {/* Inline widgets (non-gallery) */}
-                      {!hasWidgets ? null : !msg.response?.widgets?.some((w: any) => w.type === 'DoctorGalleryWidget' || w.type === 'ServiceGalleryWidget') && (
-                        <div className="mt-1 w-full min-w-0 max-w-xs sm:max-w-sm">
-                          <WidgetRenderer widgets={msg.response!.widgets!} />
-                        </div>
-                      )}
                     </div>
 
                     {msg.role === 'user' && (
@@ -645,9 +639,9 @@ export default function CopilotPage() {
                     )}
                   </div>
 
-                  {/* Full-width gallery widgets rendered outside the bubble row */}
-                  {hasWidgets && msg.response?.widgets?.some((w: any) => w.type === 'DoctorGalleryWidget' || w.type === 'ServiceGalleryWidget') && (
-                    <div className="w-full max-w-full min-w-0 pl-11 overflow-hidden">
+                  {/* Widgets are aligned with the assistant lane, outside text bubbles. */}
+                  {hasWidgets && (
+                    <div className="w-full max-w-full min-w-0 pl-0 sm:pl-11 overflow-hidden">
                       <WidgetRenderer widgets={msg.response!.widgets!} />
                     </div>
                   )}
@@ -689,7 +683,7 @@ export default function CopilotPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute bottom-full left-4 mb-2 w-72 bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden z-20"
+                className="absolute bottom-full left-3 right-3 sm:left-4 sm:right-auto mb-2 w-auto sm:w-72 bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden z-20"
               >
                 <div className="p-2 bg-gray-50/80 dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800">
                   <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-2">Comandos Rápidos</span>

@@ -74,7 +74,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative w-full self-start bg-white dark:bg-[#111] transition-all flex flex-col group rounded-2xl h-full",
+        "relative w-full min-w-0 self-start bg-white dark:bg-[#111] transition-all flex flex-col group rounded-2xl h-full overflow-hidden",
         isSelected
           ? "border-2 shadow-xl z-10"
           : "border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-gray-200 dark:hover:border-gray-700"
@@ -206,9 +206,9 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
       </div>
 
       {/* INFO AREA */}
-      <div className="p-5 flex flex-col bg-transparent rounded-b-2xl flex-1 justify-between">
-        <div>
-          <div className="flex items-start justify-between gap-4 mb-2">
+      <div className="p-4 sm:p-5 flex flex-col bg-transparent rounded-b-2xl flex-1 justify-between min-w-0">
+        <div className="min-w-0">
+          <div className="flex items-start justify-between gap-3 mb-2 min-w-0">
             <div className="flex flex-col min-w-0">
               <h3 className="font-semibold text-[15px] text-gray-900 dark:text-gray-100 leading-snug line-clamp-2" title={data.name}>
                 {data.name}
@@ -240,12 +240,12 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
 
           <div className="w-full h-px bg-gray-100 dark:bg-gray-800/50 my-4" />
 
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex flex-col">
+          <div className="flex items-start justify-between gap-3 mb-4 min-w-0">
+            <div className="flex flex-col min-w-0">
               <span className="text-[10px] font-medium text-gray-400 mb-0.5">
                 Consulta desde
               </span>
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-2 flex-wrap min-w-0">
                 {data.price && data.price > 0 ? (
                   <>
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
@@ -267,13 +267,13 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
             </div>
 
             {data.nextAvailableSlot && (
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-end shrink-0 max-w-[48%]">
                 <span className="text-[10px] font-medium text-gray-400 mb-0.5">
                   Próxima cita
                 </span>
-                <span className="flex items-center text-[11px] font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 rounded-full px-2.5 py-1">
-                  <Clock className="w-3 h-3 mr-1" strokeWidth={2} style={{ color: brandColor }} />
-                  {data.nextAvailableSlot}
+                <span className="flex items-center text-[11px] font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 rounded-full px-2.5 py-1 max-w-full">
+                  <Clock className="w-3 h-3 mr-1 shrink-0" strokeWidth={2} style={{ color: brandColor }} />
+                  <span className="truncate">{data.nextAvailableSlot}</span>
                 </span>
               </div>
             )}
@@ -282,7 +282,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
 
         {/* ACTIONS */}
         {actions && actions.length > 0 && (
-          <div className="flex gap-2 pt-2">
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
             {secondaryAction && (
               <Button
                 variant="outline"
@@ -290,7 +290,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
                   e.stopPropagation();
                   if (onAction) onAction(secondaryAction);
                 }}
-                className="flex-1 rounded-xl h-11 text-xs font-semibold shadow-sm hover:bg-gray-50 dark:hover:bg-gray-900"
+                className="flex-1 w-full min-w-0 rounded-xl h-11 text-xs font-semibold shadow-sm hover:bg-gray-50 dark:hover:bg-gray-900"
               >
                 Ver Perfil
               </Button>
@@ -302,7 +302,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
                   e.stopPropagation();
                   if (onAction) onAction(primaryAction);
                 }}
-                className="flex-1 rounded-xl h-11 text-xs font-semibold text-white shadow-md hover:shadow-lg hover:opacity-90"
+                className="flex-1 w-full min-w-0 rounded-xl h-11 text-xs font-semibold text-white shadow-md hover:shadow-lg hover:opacity-90"
                 style={{ backgroundColor: brandColor }}
               >
                 Reservar

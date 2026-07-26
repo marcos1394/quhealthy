@@ -30,7 +30,7 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
 
   if (isSuccess) {
     return (
-      <Card className="w-full max-w-sm bg-quhealthy-green/10 dark:bg-emerald-900/20 border-quhealthy-green/20 dark:border-emerald-800/40 shadow-sm">
+      <Card className="w-full max-w-sm min-w-0 bg-quhealthy-green/10 dark:bg-emerald-900/20 border-quhealthy-green/20 dark:border-emerald-800/40 shadow-sm rounded-2xl overflow-hidden">
         <CardContent className="pt-8 pb-8 text-center space-y-3">
           <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: `${brandColor}33` }}>
             <CheckCircle2 className="w-8 h-8" style={{ color: brandColor }} />
@@ -43,20 +43,20 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
   }
 
   return (
-    <Card className="w-full max-w-sm bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl">
+    <Card className="w-full max-w-sm min-w-0 bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden">
       <CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
-        <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
-          <div className="p-2 rounded-xl" style={{ backgroundColor: `${brandColor}1A`, color: brandColor }}>
+        <CardTitle className="text-base sm:text-lg flex items-center gap-2 text-gray-900 dark:text-white min-w-0">
+          <div className="p-2 rounded-xl shrink-0" style={{ backgroundColor: `${brandColor}1A`, color: brandColor }}>
             <CreditCard className="w-5 h-5" />
           </div>
-          Checkout Seguro
+          <span className="truncate">Checkout Seguro</span>
         </CardTitle>
-        <CardDescription className="text-gray-500 dark:text-gray-400">{data.description}</CardDescription>
+        <CardDescription className="text-gray-500 dark:text-gray-400 break-words">{data.description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5 pt-5">
-        <div className="bg-gray-50 dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-4 rounded-xl flex justify-between items-center">
+        <div className="bg-gray-50 dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-4 rounded-xl flex flex-wrap justify-between items-center gap-2">
           <span className="font-semibold text-gray-600 dark:text-gray-400">Total:</span>
-          <span className="text-2xl font-bold" style={{ color: brandColor }}>{data.currency} ${data.amount}</span>
+          <span className="text-xl sm:text-2xl font-bold break-all" style={{ color: brandColor }}>{data.currency} ${data.amount}</span>
         </div>
         
         <div className="space-y-3">
@@ -73,7 +73,7 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
       <CardFooter className="flex flex-col gap-4 pt-2 pb-5 px-6">
         <Button 
           variant="default"
-          className="w-full rounded-xl h-12 font-bold shadow-md transition-all text-white" 
+          className="w-full rounded-xl min-h-12 h-auto py-3 font-bold shadow-md transition-all text-white whitespace-normal"
           style={{ backgroundColor: brandColor }}
           onClick={handlePayment} 
           disabled={isProcessing}
@@ -87,9 +87,9 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
             `Pagar $${data.amount}`
           )}
         </Button>
-        <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 w-full bg-gray-50 dark:bg-white/5 py-2 rounded-lg">
-          <ShieldCheck className="w-4 h-4" style={{ color: brandColor }} />
-          Pagos encriptados de extremo a extremo
+        <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 w-full bg-gray-50 dark:bg-white/5 py-2 px-3 rounded-lg text-center">
+          <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: brandColor }} />
+          <span>Pagos encriptados de extremo a extremo</span>
         </div>
       </CardFooter>
     </Card>

@@ -1,8 +1,7 @@
 import React from 'react';
 import { BaseWidget } from '@quhealthy/health-os-contract';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ShoppingBag, BookOpen, Truck, CheckCircle2, ChevronRight, Package, ExternalLink } from 'lucide-react';
+import { ShoppingBag, BookOpen, Truck, CheckCircle2, ChevronRight, Package } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface OrderData {
@@ -81,13 +80,13 @@ export const OrderWidget: React.FC<Props> = ({ widget, onAction }) => {
   };
 
   return (
-    <Card className="w-full max-w-md bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden flex flex-col">
+    <Card className="w-full max-w-md min-w-0 bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden flex flex-col">
       <CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
-        <CardTitle className="text-base font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-          <div className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-2 rounded-xl text-quhealthy-green dark:text-emerald-400">
+        <CardTitle className="text-base font-bold flex items-center gap-2 text-gray-900 dark:text-white min-w-0">
+          <div className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-2 rounded-xl text-quhealthy-green dark:text-emerald-400 shrink-0">
             <ShoppingBag className="w-4 h-4" />
           </div>
-          Mis Compras y Cursos
+          <span className="truncate">Mis Compras y Cursos</span>
         </CardTitle>
       </CardHeader>
       
@@ -95,9 +94,9 @@ export const OrderWidget: React.FC<Props> = ({ widget, onAction }) => {
         <div className="p-4 space-y-6">
           {/* ORDERS SECTION */}
           <section>
-            <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <Package className="w-3.5 h-3.5 text-gray-400" />
-              Pedidos Recientes
+            <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5 min-w-0">
+              <Package className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+              <span className="truncate">Pedidos Recientes</span>
             </h4>
             
             {orders.length === 0 ? (
@@ -107,13 +106,13 @@ export const OrderWidget: React.FC<Props> = ({ widget, onAction }) => {
             ) : (
               <div className="space-y-3">
                 {orders.map((order) => (
-                  <div key={order.id} className="border border-gray-100 dark:border-gray-800 rounded-xl p-3 bg-white dark:bg-[#0a0a0a]">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <div className="font-semibold text-sm text-gray-900 dark:text-white">Pedido #{order.orderNumber}</div>
-                        <div className="text-[10px] text-gray-500">{order.date}</div>
+                  <div key={order.id} className="border border-gray-100 dark:border-gray-800 rounded-xl p-3 bg-white dark:bg-[#0a0a0a] min-w-0">
+                    <div className="flex justify-between items-start gap-2 mb-2 min-w-0">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm text-gray-900 dark:text-white truncate">Pedido #{order.orderNumber}</div>
+                        <div className="text-[10px] text-gray-500 truncate">{order.date}</div>
                       </div>
-                      <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${getOrderStatusColor(order.status)}`}>
+                      <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${getOrderStatusColor(order.status)}`}>
                         {getOrderStatusIcon(order.status)}
                         {statusLabel[order.status] || order.status}
                       </span>
@@ -144,9 +143,9 @@ export const OrderWidget: React.FC<Props> = ({ widget, onAction }) => {
 
           {/* COURSES SECTION */}
           <section>
-            <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-gray-400" />
-              Mis Cursos
+            <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5 min-w-0">
+              <BookOpen className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+              <span className="truncate">Mis Cursos</span>
             </h4>
             
             {courses.length === 0 ? (
@@ -156,7 +155,7 @@ export const OrderWidget: React.FC<Props> = ({ widget, onAction }) => {
             ) : (
               <div className="grid gap-3">
                 {courses.map((course) => (
-                  <div key={course.id} className="flex gap-3 border border-gray-100 dark:border-gray-800 rounded-xl p-3 bg-white dark:bg-[#0a0a0a] group hover:border-quhealthy-green/30 transition-colors">
+                  <div key={course.id} className="flex gap-3 border border-gray-100 dark:border-gray-800 rounded-xl p-3 bg-white dark:bg-[#0a0a0a] group hover:border-quhealthy-green/30 transition-colors min-w-0">
                     <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden shrink-0 relative">
                       {course.thumbnailUrl ? (
                         <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
@@ -188,7 +187,9 @@ export const OrderWidget: React.FC<Props> = ({ widget, onAction }) => {
                       </div>
                     </div>
                     
-                    <button 
+                    <button
+                      type="button"
+                      aria-label={`Abrir curso ${course.title}`}
                       className="shrink-0 self-center w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-400 hover:text-quhealthy-green hover:bg-quhealthy-green/10 transition-colors"
                       onClick={() => onAction && onAction({ type: 'open_course', payload: { courseId: course.id } })}
                     >

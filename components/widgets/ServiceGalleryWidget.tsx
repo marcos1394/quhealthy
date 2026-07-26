@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { BaseWidget, HealthOSAction } from '@quhealthy/health-os-contract';
-import { ChevronLeft, ChevronRight, Stethoscope, Clock, CreditCard } from 'lucide-react';
+import { BaseWidget } from '@quhealthy/health-os-contract';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { ServiceCardWidget } from './ServiceCardWidget';
 
 interface Props {
@@ -73,11 +72,11 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   if (!services.length) return null;
 
   return (
-    <div className="w-full min-w-0 relative py-2" style={{ maxWidth: '100%' }}>
-      <div className="flex justify-between items-center mb-2 px-1">
-        <h4 className="text-sm font-semibold text-muted-foreground">Servicios Disponibles ({services.length})</h4>
+    <div className="w-full max-w-full min-w-0 relative py-2 overflow-hidden">
+      <div className="flex justify-between items-center gap-3 mb-2 px-1 min-w-0">
+        <h4 className="text-sm font-semibold text-muted-foreground truncate min-w-0">Servicios Disponibles ({services.length})</h4>
         {isScrollable && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <Button 
               variant="outline" 
               size="icon" 
@@ -103,7 +102,7 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
       <div 
         ref={scrollContainerRef}
         onScroll={() => requestAnimationFrame(checkScroll)}
-        className="flex gap-3 pb-3 pt-1 snap-x scroll-smooth touch-pan-x overflow-x-auto"
+        className="flex gap-3 pb-3 pt-1 snap-x scroll-smooth touch-pan-x overflow-x-auto max-w-full"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -114,7 +113,7 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
           div::-webkit-scrollbar { display: none; }
         `}</style>
         {services.map((service: any) => (
-          <div key={service.serviceId} className="snap-start shrink-0 w-[260px]">
+          <div key={service.serviceId} className="snap-start shrink-0 w-[min(78vw,260px)] sm:w-[260px]">
             <ServiceCardWidget
               service={service}
               doctorId={(actions?.find(a => a.type === 'reserve')?.payload as any)?.doctorId || ''}

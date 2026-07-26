@@ -1,6 +1,6 @@
 import React from 'react';
 import { CalendarWidget as CalendarWidgetType } from '@quhealthy/health-os-contract';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar'; // Shadcn Calendar
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -18,36 +18,38 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
   );
 
   return (
-    <Card className="w-full max-w-md bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
-          <div className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-2 rounded-xl text-quhealthy-green dark:text-emerald-400">
+    <Card className="w-full max-w-md min-w-0 bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base sm:text-lg flex items-center gap-2 text-gray-900 dark:text-white min-w-0">
+          <div className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-2 rounded-xl text-quhealthy-green dark:text-emerald-400 shrink-0">
             <Clock className="w-5 h-5" />
           </div>
-          Disponibilidad
+          <span className="truncate">Disponibilidad</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex justify-center border-b border-gray-100 dark:border-gray-800 pb-4">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(newDate) => {
-              if (newDate) {
-                setDate(newDate);
-                if (onAction) {
-                  onAction({
-                    type: 'change_date',
-                    payload: { date: newDate.toISOString() }
-                  } as any);
+      <CardContent className="flex flex-col gap-4 min-w-0 px-3 sm:px-6">
+        <div className="border-b border-gray-100 dark:border-gray-800 pb-4 overflow-x-auto">
+          <div className="min-w-max flex justify-center">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(newDate) => {
+                if (newDate) {
+                  setDate(newDate);
+                  if (onAction) {
+                    onAction({
+                      type: 'change_date',
+                      payload: { date: newDate.toISOString() }
+                    } as any);
+                  }
                 }
-              }
-            }}
-            className="rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
-          />
+              }}
+              className="rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
+            />
+          </div>
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Horarios disponibles</h4>
           <ScrollArea className="w-full whitespace-nowrap pb-4">
             <div className="flex w-max space-x-3 px-1">

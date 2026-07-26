@@ -68,7 +68,7 @@ export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandCol
   const imageUrl = service.galleryUrls?.[0] || service.imageUrl;
 
   return (
-    <div className="group snap-start shrink-0 w-full flex flex-col bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all cursor-pointer rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1">
+    <div className="group snap-start shrink-0 w-full min-w-0 overflow-hidden flex flex-col bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all cursor-pointer rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1">
       {/* IMAGEN */}
       <div className="relative aspect-video w-full bg-gray-50 dark:bg-black overflow-hidden rounded-t-2xl border-b border-gray-100 dark:border-gray-800">
         {imageUrl ? (
@@ -113,7 +113,7 @@ export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandCol
       </div>
 
       {/* CONTENIDO */}
-      <div className="p-4 flex flex-col flex-1 bg-transparent rounded-b-2xl">
+      <div className="p-4 flex flex-col flex-1 bg-transparent rounded-b-2xl min-w-0">
         <h3 className="font-semibold text-[14px] text-gray-900 dark:text-gray-100 leading-snug line-clamp-2 mb-1" title={service.name}>
           {service.name}
         </h3>
@@ -125,12 +125,12 @@ export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandCol
         <div className="w-full h-px bg-gray-100 dark:bg-gray-800/50 mb-3" />
 
         {/* Precio + Duración */}
-        <div className="flex items-end justify-between mb-4">
-          <div className="flex flex-col">
+        <div className="flex items-end justify-between gap-3 mb-4 min-w-0">
+          <div className="flex flex-col min-w-0">
             <span className="text-[10px] font-medium text-gray-400 mb-0.5">
               Precio
             </span>
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1.5 flex-wrap min-w-0">
               {service.price > 0 ? (
                 <>
                   <span className="text-[14px] font-bold text-gray-900 dark:text-gray-100 leading-none">
@@ -150,8 +150,8 @@ export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandCol
             </div>
           </div>
           {service.durationMinutes && (
-            <div className="flex items-center text-[10px] font-semibold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 rounded-full px-2 py-1">
-              <Clock className="w-3 h-3 mr-1 text-gray-400" />{" "}
+            <div className="flex items-center text-[10px] font-semibold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900/50 rounded-full px-2 py-1 shrink-0">
+              <Clock className="w-3 h-3 mr-1 text-gray-400 shrink-0" />{" "}
               {service.durationMinutes} min
             </div>
           )}

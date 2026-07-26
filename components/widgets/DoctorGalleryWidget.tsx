@@ -58,12 +58,12 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   };
 
   return (
-    <div className="w-full min-w-0 relative py-2" style={{ maxWidth: '100%' }}>
-      <div className="flex justify-between items-center mb-2 px-1">
-        <h4 className="text-sm font-semibold text-muted-foreground">Resultados Encontrados ({data.doctors.length})</h4>
+    <div className="w-full max-w-full min-w-0 relative py-2 overflow-hidden">
+      <div className="flex justify-between items-center gap-3 mb-2 px-1 min-w-0">
+        <h4 className="text-sm font-semibold text-muted-foreground truncate min-w-0">Resultados Encontrados ({data.doctors.length})</h4>
         {/* Navigation controls inline */}
         {isScrollable && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <Button 
               variant="outline" 
               size="icon" 
@@ -89,7 +89,7 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
       <div 
         ref={scrollContainerRef}
         onScroll={() => requestAnimationFrame(checkScroll)}
-        className="flex gap-3 pb-3 pt-1 snap-x scroll-smooth touch-pan-x overflow-x-auto"
+        className="flex gap-3 pb-3 pt-1 snap-x scroll-smooth touch-pan-x overflow-x-auto max-w-full"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -115,7 +115,7 @@ export const DoctorGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
           };
           
           return (
-            <div key={doctor.id} className="snap-start shrink-0 w-[260px]">
+            <div key={doctor.id} className="snap-start shrink-0 w-[min(78vw,260px)] sm:w-[260px]">
               <DoctorCardWidget widget={mockWidget} onAction={onAction} />
             </div>
           );
