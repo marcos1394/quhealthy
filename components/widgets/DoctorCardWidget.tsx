@@ -17,10 +17,17 @@ interface Props {
   widget: DoctorCardWidgetType;
   onAction?: (action: any) => void;
   isSelected?: boolean;
+  isFavorited?: boolean;
 }
 
-export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected = false }) => {
-  const { data, actions } = widget;
+type ExtendedDoctorCardData = DoctorCardWidgetType['data'] & {
+  logoUrl?: string;
+  isFavorite?: boolean;
+};
+
+export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected = false, isFavorited = false }) => {
+  const { actions } = widget;
+  const data = widget.data as ExtendedDoctorCardData;
   
   const brandColor = data.primaryColor || '#10b981'; // Default to quhealthy-green
   const [isHovered, setIsHovered] = useState(false);
@@ -31,7 +38,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Gallery Array Fallback
-  const images = data.galleryUrls && data.galleryUrls.length > 0 
+  const images = data.galleryUrls && data.galleryUrls.length > 0
     ? data.galleryUrls 
     : (data.bannerUrl ? [data.bannerUrl] : (data.imageUrl ? [data.imageUrl] : []));
 
@@ -62,7 +69,8 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
   const handleMouseLeave = () => setIsHovered(false);
 
   const hasValidImage = images.length > 0 && images[currentImageIndex] && !imgError;
-  const hasValidLogo = data.imageUrl && !logoError;
+  const logoUrl = data.logoUrl || data.imageUrl;
+  const hasValidLogo = logoUrl && !logoError;
   const showVideo = data.previewVideoUrl && (isHovered || isSelected);
 
   // Parse actions
@@ -185,7 +193,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
           <FavoriteButton
             entityType="PROVIDER"
             entityId={data.id}
-            initialIsFavorite={false} // Chat context
+            initialIsFavorite={isFavorited || Boolean(data.isFavorite)}
             brandColor={brandColor}
           />
         </div>
@@ -220,7 +228,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
 
             {hasValidLogo ? (
               <img
-                src={data.imageUrl}
+                src={logoUrl}
                 alt="Logo"
                 onError={() => setLogoError(true)}
                 className="w-12 h-12 rounded-full border border-gray-100 dark:border-gray-800 bg-white dark:bg-black flex-shrink-0 object-cover shadow-sm"
