@@ -524,7 +524,7 @@ export default function CopilotPage() {
         </div>
 
         {/* ── ÁREA DE CONVERSACIÓN Y WIDGETS ──────────────────────────────── */}
-        <ScrollArea className="flex-1 min-w-0 p-3 sm:p-6">
+        <ScrollArea className="flex-1 min-w-0 p-3 sm:p-6 [&_[data-radix-scroll-area-viewport]>div]:!block">
           <div className="space-y-6 min-w-0">
             
             {conversation.length === 0 && (
