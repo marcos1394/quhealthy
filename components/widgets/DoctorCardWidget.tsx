@@ -33,7 +33,7 @@ export const DoctorCardWidget: React.FC<Props> = ({ widget, onAction, isSelected
   // Gallery Array Fallback
   const images = data.galleryUrls && data.galleryUrls.length > 0 
     ? data.galleryUrls 
-    : (data.imageUrl ? [data.imageUrl] : []);
+    : (data.bannerUrl ? [data.bannerUrl] : (data.imageUrl ? [data.imageUrl] : []));
 
   useEffect(() => {
     if ((isHovered || isSelected) && videoRef.current) {

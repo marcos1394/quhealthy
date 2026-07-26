@@ -11,6 +11,7 @@ interface Props {
 
 export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
   const { data, actions } = widget;
+  const brandColor = (data as any).primaryColor || '#10b981';
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -31,10 +32,10 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
     return (
       <Card className="w-full max-w-sm bg-quhealthy-green/10 dark:bg-emerald-900/20 border-quhealthy-green/20 dark:border-emerald-800/40 shadow-sm">
         <CardContent className="pt-8 pb-8 text-center space-y-3">
-          <div className="mx-auto w-16 h-16 bg-quhealthy-green/20 dark:bg-emerald-800/40 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle2 className="w-8 h-8 text-quhealthy-green dark:text-emerald-400" />
+          <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: `${brandColor}33` }}>
+            <CheckCircle2 className="w-8 h-8" style={{ color: brandColor }} />
           </div>
-          <h3 className="font-bold text-quhealthy-green dark:text-emerald-400 text-xl">¡Pago Exitoso!</h3>
+          <h3 className="font-bold text-xl" style={{ color: brandColor }}>¡Pago Exitoso!</h3>
           <p className="text-sm font-medium text-gray-700 dark:text-emerald-200/80">Tu cita ha sido confirmada.</p>
         </CardContent>
       </Card>
@@ -45,7 +46,7 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
     <Card className="w-full max-w-sm bg-white dark:bg-[#050505] border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl">
       <CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
         <CardTitle className="text-lg flex items-center gap-2 text-gray-900 dark:text-white">
-          <div className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-2 rounded-xl text-quhealthy-green dark:text-emerald-400">
+          <div className="p-2 rounded-xl" style={{ backgroundColor: `${brandColor}1A`, color: brandColor }}>
             <CreditCard className="w-5 h-5" />
           </div>
           Checkout Seguro
@@ -55,7 +56,7 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
       <CardContent className="space-y-5 pt-5">
         <div className="bg-gray-50 dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-4 rounded-xl flex justify-between items-center">
           <span className="font-semibold text-gray-600 dark:text-gray-400">Total:</span>
-          <span className="text-2xl font-bold text-quhealthy-green dark:text-emerald-400">{data.currency} ${data.amount}</span>
+          <span className="text-2xl font-bold" style={{ color: brandColor }}>{data.currency} ${data.amount}</span>
         </div>
         
         <div className="space-y-3">
@@ -71,8 +72,9 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
       </CardContent>
       <CardFooter className="flex flex-col gap-4 pt-2 pb-5 px-6">
         <Button 
-          variant="success"
-          className="w-full rounded-xl h-12 font-bold shadow-md shadow-emerald-900/20 transition-all" 
+          variant="default"
+          className="w-full rounded-xl h-12 font-bold shadow-md transition-all text-white" 
+          style={{ backgroundColor: brandColor }}
           onClick={handlePayment} 
           disabled={isProcessing}
         >
@@ -86,7 +88,7 @@ export const PaymentWidget: React.FC<Props> = ({ widget, onAction }) => {
           )}
         </Button>
         <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 w-full bg-gray-50 dark:bg-white/5 py-2 rounded-lg">
-          <ShieldCheck className="w-4 h-4 text-quhealthy-green dark:text-emerald-400" />
+          <ShieldCheck className="w-4 h-4" style={{ color: brandColor }} />
           Pagos encriptados de extremo a extremo
         </div>
       </CardFooter>

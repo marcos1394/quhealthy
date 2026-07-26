@@ -576,7 +576,7 @@ export default function CopilotPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="flex flex-col gap-2 w-full min-w-0"
+                  className="flex flex-col gap-2 w-full max-w-full min-w-0 overflow-hidden"
                 >
                   {/* Message row: avatar + bubble */}
                   <div className={cn(
@@ -647,7 +647,7 @@ export default function CopilotPage() {
 
                   {/* Full-width gallery widgets rendered outside the bubble row */}
                   {hasWidgets && msg.response?.widgets?.some((w: any) => w.type === 'DoctorGalleryWidget' || w.type === 'ServiceGalleryWidget') && (
-                    <div className="w-full min-w-0 pl-11">
+                    <div className="w-full max-w-full min-w-0 pl-11 overflow-hidden">
                       <WidgetRenderer widgets={msg.response!.widgets!} />
                     </div>
                   )}

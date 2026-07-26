@@ -33,10 +33,19 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
     
     checkScroll();
     
+    const timer1 = setTimeout(checkScroll, 100);
+    const timer2 = setTimeout(checkScroll, 300);
+    const timer3 = setTimeout(checkScroll, 800);
+    
     const ro = new ResizeObserver(() => checkScroll());
     ro.observe(el);
     
-    return () => ro.disconnect();
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      ro.disconnect();
+    };
   }, [services]);
 
   const scroll = (direction: 'left' | 'right') => {
