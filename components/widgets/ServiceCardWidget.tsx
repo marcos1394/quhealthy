@@ -20,24 +20,25 @@ interface Props {
   service: any;
   doctorId: string;
   brandColor?: string;
+  isFavorited?: boolean;
   onSelect: (service: any) => void;
 }
 
-export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandColor = '#10b981', onSelect }) => {
+export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandColor = '#10b981', isFavorited = false, onSelect }) => {
   const getTypeConfig = () => {
-    switch (service.category?.toUpperCase() || 'SERVICE') {
+    switch (service.type?.toUpperCase() || 'SERVICE') {
       case "SERVICE":
         return {
           icon: <Stethoscope className="w-3 h-3 mr-1" />,
           label: "Servicio",
-          ctaLabel: "Reservar Cita",
+          ctaLabel: "Agendar",
           ctaIcon: <Calendar className="w-3.5 h-3.5 mr-1.5" />,
         };
       case "PRODUCT":
         return {
           icon: <ShoppingBag className="w-3 h-3 mr-1" />,
           label: "Producto",
-          ctaLabel: "Comprar",
+          ctaLabel: "Pickup / Envío",
           ctaIcon: <CreditCard className="w-3.5 h-3.5 mr-1.5" />,
         };
       case "PACKAGE":
@@ -51,7 +52,7 @@ export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandCol
         return {
           icon: <BookOpen className="w-3 h-3 mr-1" />,
           label: "Curso",
-          ctaLabel: "Inscribirme",
+          ctaLabel: "Comprar",
           ctaIcon: <GraduationCap className="w-3.5 h-3.5 mr-1.5" />,
         };
       default:
@@ -104,9 +105,9 @@ export const ServiceCardWidget: React.FC<Props> = ({ service, doctorId, brandCol
         {/* Botón de Favorito */}
         <div className="absolute top-2 right-2 z-20">
           <FavoriteButton
-            entityType={service.category?.toUpperCase() || "SERVICE"}
+            entityType={(service.type?.toUpperCase() as any) || "SERVICE"}
             entityId={service.serviceId}
-            initialIsFavorite={false}
+            initialIsFavorite={isFavorited}
             brandColor={brandColor}
           />
         </div>

@@ -3,6 +3,7 @@ import { BaseWidget } from '@quhealthy/health-os-contract';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ServiceCardWidget } from './ServiceCardWidget';
+import { useMyFavorites } from '@/hooks/useMyFavorites';
 
 interface Props {
   widget: BaseWidget;
@@ -16,6 +17,21 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
   const [isScrollable, setIsScrollable] = useState(false);
+
+  // Cargamos en paralelo los sets de favoritos para los distintos tipos de entidades que pueden venir
+  const { favoriteIds: serviceFavs } = useMyFavorites('SERVICE');
+  const { favoriteIds: productFavs } = useMyFavorites('PRODUCT');
+  const { favoriteIds: courseFavs } = useMyFavorites('COURSE');
+  const { favoriteIds: packageFavs } = useMyFavorites('PACKAGE');
+
+  const checkIsFavorited = (item: any) => {
+    const type = item.type?.toUpperCase() || 'SERVICE';
+    const id = Number(item.serviceId);
+    if (type === 'PRODUCT') return productFavs.has(id);
+    if (type === 'COURSE') return courseFavs.has(id);
+    if (type === 'PACKAGE') return packageFavs.has(id);
+    return serviceFavs.has(id);
+  };
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
@@ -117,6 +133,8 @@ export const ServiceGalleryWidget: React.FC<Props> = ({ widget, onAction }) => {
             <ServiceCardWidget
               service={service}
               doctorId={(actions?.find(a => a.type === 'reserve')?.payload as any)?.doctorId || ''}
+              brandColor={data?.brandColor || '#10b981'}
+              isFavorited={checkIsFavorited(service)}
               onSelect={handleSelectService}
             />
           </div>
