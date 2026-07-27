@@ -10,3 +10,6 @@ export * from './WalletWidget';
 export * from './OrderWidget';
 export * from './BookingCheckoutWidget';
 export * from './DependentWidget';
+export * from './VaccinationWidget';
+export * from './GrowthWidget';
+export * from './EldercareWidget';

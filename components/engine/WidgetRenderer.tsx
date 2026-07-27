@@ -14,7 +14,10 @@ import {
   WalletWidget,
   OrderWidget,
   BookingCheckoutWidget,
-  DependentWidget
+  DependentWidget,
+  VaccinationWidget,
+  GrowthWidget,
+  EldercareWidget
 } from '../widgets';
 import { useActionEngine } from '@/hooks/useActionEngine';
 
@@ -118,6 +121,30 @@ export const WidgetRenderer: React.FC<Props> = ({ widgets }) => {
       case 'DependentWidget':
         return (
           <DependentWidget
+            key={widget.id}
+            widget={widget as any}
+            onAction={dispatchAction}
+          />
+        );
+      case 'VaccinationWidget':
+        return (
+          <VaccinationWidget
+            key={widget.id}
+            widget={widget as any}
+            onAction={dispatchAction}
+          />
+        );
+      case 'GrowthWidget':
+        return (
+          <GrowthWidget
+            key={widget.id}
+            widget={widget as any}
+            onAction={dispatchAction}
+          />
+        );
+      case 'EldercareWidget':
+        return (
+          <EldercareWidget
             key={widget.id}
             widget={widget as any}
             onAction={dispatchAction}

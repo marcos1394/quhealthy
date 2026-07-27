@@ -21,7 +21,10 @@ export type WidgetType =
   | 'AppointmentListWidget'
   | 'WalletWidget'
   | 'OrderWidget'
-  | 'BookingCheckoutWidget';
+  | 'BookingCheckoutWidget'
+  | 'VaccinationWidget'
+  | 'GrowthWidget'
+  | 'EldercareWidget';
 
 export interface BaseWidget<T = any> {
   id: string; // Unique identifier for the widget instance
@@ -124,3 +127,83 @@ export interface VaultDocumentGalleryData {
 }
 
 export type VaultDocumentWidget = BaseWidget<VaultDocumentGalleryData>;
+
+// ============================================================
+// Vaccination Widget
+// ============================================================
+export interface VaccineRecord {
+  id?: string;
+  name: string;
+  diseasePrevented?: string;
+  scheduledAgeMonths?: number;
+  isApplied: boolean;
+  appliedDate?: string;
+  appliedBy?: string;
+  nextDoseDate?: string;
+  notes?: string;
+}
+
+export interface VaccinationData {
+  dependentId: string;
+  dependentName?: string;
+  vaccines: VaccineRecord[];
+  totalApplied: number;
+  totalPending: number;
+}
+
+export type VaccinationWidget = BaseWidget<VaccinationData>;
+
+// ============================================================
+// Growth Widget
+// ============================================================
+export interface GrowthMeasurement {
+  id?: string;
+  measurementDate: string;
+  weightKg?: number;
+  heightCm?: number;
+  headCircumferenceCm?: number;
+  weightPercentile?: number;
+  heightPercentile?: number;
+  bmi?: number;
+  notes?: string;
+}
+
+export interface GrowthData {
+  dependentId: string;
+  dependentName?: string;
+  measurements: GrowthMeasurement[];
+  latestMeasurement?: GrowthMeasurement;
+}
+
+export type GrowthWidget = BaseWidget<GrowthData>;
+
+// ============================================================
+// Eldercare Widget
+// ============================================================
+export interface MedicationTask {
+  id?: string;
+  medicationName: string;
+  dosage?: string;
+  frequency?: string;
+  nextDoseTime?: string;
+  isTaken?: boolean;
+}
+
+export interface VitalSign {
+  type: string;
+  value: string;
+  unit?: string;
+  recordedAt?: string;
+  isNormal?: boolean;
+}
+
+export interface EldercareData {
+  dependentId: string;
+  dependentName?: string;
+  activeMedications: MedicationTask[];
+  recentVitalSigns?: VitalSign[];
+  adherencePercentage?: number;
+  nextMedication?: MedicationTask;
+}
+
+export type EldercareWidget = BaseWidget<EldercareData>;

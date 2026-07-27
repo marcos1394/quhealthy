@@ -3,7 +3,7 @@ import { CalendarWidget as CalendarWidgetType } from '@quhealthy/health-os-contr
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar'; // Shadcn Calendar
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { es } from 'date-fns/locale';
 import { Clock } from 'lucide-react';
 
 interface Props {
@@ -32,6 +32,7 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
           <div className="min-w-max flex justify-center">
             <Calendar
               mode="single"
+              locale={es}
               selected={date}
               onSelect={(newDate) => {
                 if (newDate) {
@@ -51,7 +52,7 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
         
         <div className="space-y-3 min-w-0">
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Horarios disponibles</h4>
-          <ScrollArea className="w-full whitespace-nowrap pb-4">
+          <div className="w-full overflow-x-auto pb-4 hide-scrollbar">
             <div className="flex w-max space-x-3 px-1">
               {(!data.availableSlots || data.availableSlots.length === 0) ? (
                 <div className="w-full text-center py-6 px-4">
@@ -66,7 +67,7 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
                     variant="outline"
                     className="flex gap-2 border-quhealthy-green/20 dark:border-emerald-800/30 text-quhealthy-green dark:text-emerald-400 hover:bg-quhealthy-green hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white transition-colors rounded-xl"
                     onClick={() => {
-                      const reserveAction = actions?.find(a => a.type === 'reserve');
+                      const reserveAction = actions?.find(a => a.type === 'initiate_checkout');
                       if (reserveAction && onAction) {
                         onAction({
                           ...reserveAction,
@@ -84,8 +85,7 @@ export const CalendarWidget: React.FC<Props> = ({ widget, onAction }) => {
                 ))
               )}
             </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          </div>
         </div>
       </CardContent>
     </Card>
