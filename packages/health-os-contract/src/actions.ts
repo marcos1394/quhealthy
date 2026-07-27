@@ -14,7 +14,10 @@ export type ActionType =
   | 'generate_summary'
   | 'download'
   | 'confirm'
-  | 'authenticate';
+  | 'authenticate'
+  | 'confirm_booking'
+  | 'initiate_checkout'
+  | 'change_date';
 
 export interface BaseAction {
   type: ActionType;
