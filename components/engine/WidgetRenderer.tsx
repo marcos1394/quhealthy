@@ -12,7 +12,8 @@ import {
   ServiceGalleryWidget,
   AppointmentListWidget,
   WalletWidget,
-  OrderWidget
+  OrderWidget,
+  BookingCheckoutWidget
 } from '../widgets';
 import { useActionEngine } from '@/hooks/useActionEngine';
 
@@ -100,6 +101,14 @@ export const WidgetRenderer: React.FC<Props> = ({ widgets }) => {
       case 'OrderWidget':
         return (
           <OrderWidget 
+            key={widget.id} 
+            widget={widget as any} 
+            onAction={dispatchAction} 
+          />
+        );
+      case 'BookingCheckoutWidget':
+        return (
+          <BookingCheckoutWidget 
             key={widget.id} 
             widget={widget as any} 
             onAction={dispatchAction} 

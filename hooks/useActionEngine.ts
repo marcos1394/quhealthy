@@ -62,6 +62,37 @@ export const useActionEngine = () => {
         }
         break;
 
+      case 'initiate_checkout':
+        console.log('Iniciando checkout:', payload);
+        const checkoutPayload = payload || {};
+        if (checkoutPayload && checkoutPayload.entityId) {
+          const name = checkoutPayload.entityName || checkoutPayload.entityId;
+          let intentText = `Quiero iniciar el proceso de checkout para el Dr. ${name}`;
+          let hiddenCtx = `Doctor ID: ${checkoutPayload.entityId}`;
+          
+          if (checkoutPayload.scheduleTime) {
+            const dateStr = new Date(checkoutPayload.scheduleTime).toLocaleString('es-MX', { 
+              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+              hour: '2-digit', minute: '2-digit' 
+            });
+            intentText += ` para el ${dateStr}`;
+            hiddenCtx += `, Fecha y hora solicitada: ${checkoutPayload.scheduleTime}`;
+          }
+          
+          window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: { text: intentText, hiddenContext: hiddenCtx } }));
+        }
+        break;
+
+      case 'confirm_booking':
+        console.log('Confirmando reserva:', payload);
+        if (payload) {
+          const { doctorId, serviceId, dateTime, dependentId, symptoms, shareVaultAccess } = payload;
+          const intentText = `Por favor, confirma la reserva de mi cita médica con los datos proporcionados en el formulario de checkout.`;
+          const hiddenCtx = `Datos del checkout finalizado: Doctor: ${doctorId}, Servicio: ${serviceId}, Fecha: ${dateTime}, Dependiente: ${dependentId || 'titular'}, Síntomas: ${symptoms}, Compartir expediente: ${shareVaultAccess}`;
+          window.dispatchEvent(new CustomEvent('healthos:send_intent', { detail: { text: intentText, hiddenContext: hiddenCtx } }));
+        }
+        break;
+
       case 'pay':
         console.log('Iniciando pago:', payload);
         if (payload?.referenceId) {

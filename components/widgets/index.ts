@@ -8,3 +8,4 @@ export * from './ServiceGalleryWidget';
 export * from './AppointmentListWidget';
 export * from './WalletWidget';
 export * from './OrderWidget';
+export * from './BookingCheckoutWidget';
