@@ -13,7 +13,8 @@ import {
   AppointmentListWidget,
   WalletWidget,
   OrderWidget,
-  BookingCheckoutWidget
+  BookingCheckoutWidget,
+  DependentWidget
 } from '../widgets';
 import { useActionEngine } from '@/hooks/useActionEngine';
 
@@ -112,6 +113,14 @@ export const WidgetRenderer: React.FC<Props> = ({ widgets }) => {
             key={widget.id} 
             widget={widget as any} 
             onAction={dispatchAction} 
+          />
+        );
+      case 'DependentWidget':
+        return (
+          <DependentWidget
+            key={widget.id}
+            widget={widget as any}
+            onAction={dispatchAction}
           />
         );
       default:

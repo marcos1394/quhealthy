@@ -31,6 +31,21 @@ export interface BaseWidget<T = any> {
   priority?: number; // Sorting/Rendering priority if needed
 }
 
+export interface DependentData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  relationship?: string;
+  gender?: string;
+}
+
+export interface DependentGalleryData {
+  dependents: DependentData[];
+}
+
+export type DependentWidget = BaseWidget<DependentGalleryData>;
+
 export interface DoctorCardData {
   id: string;
   name: string;
