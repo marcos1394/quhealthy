@@ -292,7 +292,7 @@ export default function CopilotPage() {
     addUserMessage(textToSend, savedAttachment);
 
     try {
-      updateAssistantStream({ text: 'Analizando tu petición clínica...' });
+      updateAssistantStream({ text: 'Un momento, estoy buscando esa información para ti...' });
 
       let attachmentsData = undefined;
       if (attachmentToSend) {
@@ -663,7 +663,7 @@ export default function CopilotPage() {
                 <div className="px-4 py-2.5 rounded-2xl rounded-tl-xs bg-gray-50/90 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white flex items-center gap-2.5 shadow-2xs">
                   <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
                   <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
-                    Procesando intención clínica...
+                    Un momento, estoy en ello...
                   </span>
                 </div>
               </motion.div>
