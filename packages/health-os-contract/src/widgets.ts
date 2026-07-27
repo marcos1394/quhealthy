@@ -20,7 +20,8 @@ export type WidgetType =
   | 'ServiceGalleryWidget'
   | 'AppointmentListWidget'
   | 'WalletWidget'
-  | 'OrderWidget';
+  | 'OrderWidget'
+  | 'BookingCheckoutWidget';
 
 export interface BaseWidget<T = any> {
   id: string; // Unique identifier for the widget instance
