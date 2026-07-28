@@ -1,9 +1,18 @@
+"use client";
+
 import React from "react";
+import { useTranslations } from "next-intl";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function AuthLoading() {
+  const t = useTranslations("AuthLoading");
+
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gray-50/80 dark:bg-[#050505]/80 backdrop-blur-md transition-all duration-300 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 font-sans">
+    <div
+      role="status"
+      aria-label={t("aria_label")}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gray-50/80 dark:bg-[#050505]/80 backdrop-blur-md transition-all duration-300 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 font-sans"
+    >
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-8 shadow-xl flex flex-col items-center justify-center space-y-4 max-w-xs w-full mx-4 text-center">
         
         {/* Contenedor del Spinner */}
@@ -14,10 +23,10 @@ export default function AuthLoading() {
         {/* Mensajes de Estado */}
         <div className="space-y-1">
           <h3 className="text-xs font-bold text-gray-900 dark:text-white animate-pulse">
-            Verificando Credenciales
+            {t("title")}
           </h3>
           <p className="text-[11px] font-medium text-gray-400">
-            Accediendo al sistema de forma segura...
+            {t("subtitle")}
           </p>
         </div>
 

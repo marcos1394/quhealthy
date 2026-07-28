@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { AlertCircle, ArrowLeft } from "lucide-react";
@@ -30,6 +30,8 @@ export default function BookingSuccessPage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations("PatientBookingSuccess");
+  const locale = useLocale();
+  const dateLocale = locale === "en" ? enUS : es;
   const { user } = useSessionStore();
 
   const rawId = params.appointmentId;
@@ -44,7 +46,6 @@ export default function BookingSuccessPage() {
     qrCodeUrl,
   } = useAppointmentDetails(appointmentId);
 
-  // Mantenemos los estados aunque desactivamos las animaciones visuales en los subcomponentes
   const [showConfetti, setShowConfetti] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -57,34 +58,42 @@ export default function BookingSuccessPage() {
   useEffect(() => {
     if (appointment && user) {
       if (appointment.consumerId !== user.id) {
-        console.warn(
-          "Acceso restringido: No tienes permisos para ver esta cita.",
-        );
-        toast.error(
-          "Acceso restringido: No tienes permisos para ver esta cita.",
-        );
+        toast.error(t("restricted_access"));
         router.push("/patient/dashboard");
       }
     }
-  }, [appointment, user, router]);
+  }, [appointment, user, router, t]);
 
   const generateShareText = () => {
     if (!appointment) return "";
+    
     const dateStr = format(
       new Date(appointment.startTime),
-      "eeee d 'de' MMMM 'a las' HH:mm 'hrs'",
-      { locale: es },
+      locale === "en"
+        ? "eeee, MMMM d 'at' HH:mm 'hrs'"
+        : "eeee d 'de' MMMM 'a las' HH:mm 'hrs'",
+      { locale: dateLocale }
     ).toUpperCase();
 
     const serviceName =
       appointment.serviceNameSnapshot ||
       appointment.serviceName ||
-      "PROCEDIMIENTO CLÍNICO";
+      t("default_service");
     const providerName =
-      appointment.providerNameSnapshot || "ESPECIALISTA ASIGNADO";
+      appointment.providerNameSnapshot || t("default_provider");
+    const modality =
+      appointment.appointmentType === "ONLINE"
+        ? t("modality_teleconsultation")
+        : t("modality_in_person");
     const portalUrl = `${window.location.origin}/patient/dashboard/appointments/${appointmentId}`;
 
-    return `QuHealthy - Confirmación de Cita\n\nDetalles:\nServicio: ${serviceName}\nEspecialista: ${providerName}\nFecha: ${dateStr}\nModalidad: ${appointment.appointmentType === "ONLINE" ? "Teleconsulta" : "Presencial"}\n\nIngresa al portal para ver más detalles: ${portalUrl}`;
+    return t("share_full_details", {
+      service: serviceName,
+      provider: providerName,
+      date: dateStr,
+      modality: modality,
+      url: portalUrl,
+    });
   };
 
   const handleShare = async () => {
@@ -92,24 +101,24 @@ export default function BookingSuccessPage() {
       const text = generateShareText();
       if (navigator.share) {
         await navigator.share({
-          title: "Confirmación de Cita",
+          title: t("share_title"),
           text: text,
         });
       } else {
         await navigator.clipboard.writeText(text);
         setCopied(true);
-        toast.success("Detalles copiados para compartir");
+        toast.success(t("copied_toast"));
         setTimeout(() => setCopied(false), 2000);
       }
-    } catch (error) {
-      console.log("Error compartiendo", error);
+    } catch (err) {
+      console.error("Error compartiendo", err);
     }
   };
 
   const handleAddToCalendar = () => {
     if (appointment) {
       downloadICS(appointment);
-      toast.success("Archivo de calendario descargado");
+      toast.success(t("calendar_toast"));
     }
   };
 
@@ -119,17 +128,17 @@ export default function BookingSuccessPage() {
       if ("Notification" in window) {
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
-          toast.success("Notificaciones del navegador activadas");
+          toast.success(t("browser_notifications_toast"));
         }
       }
 
       // Llamada al backend para activar recordatorios (SMS/Correo/WhatsApp)
       const axios = (await import("@/lib/axios")).default;
       await axios.post(`/api/appointments/${appointmentId}/reminders/enable`);
-      toast.success("Recordatorios (SMS/Correo) activados exitosamente");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al activar recordatorios");
+      toast.success(t("reminders_enabled_toast"));
+    } catch (err) {
+      console.error(err);
+      toast.error(t("reminders_error_toast"));
     }
   };
 
@@ -137,40 +146,37 @@ export default function BookingSuccessPage() {
   // 🚦 CONTROL DE FLUJO Y ESTADOS
   // ==========================================
 
-  // 1. Estado de Carga Blueprint
+  // 1. Estado de Carga
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
         <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-4 animate-pulse">
-          {t("loading", {
-            defaultValue: "Cargando confirmación de tu cita...",
-          })}
+          {t("loading")}
         </p>
       </div>
     );
   }
 
-  // 2. Estado de Error Arquitectónico
+  // 2. Estado de Error
   if (error || !appointment) {
     return (
       <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center p-6 text-center transition-colors duration-300">
-        <div className="w-16 h-16 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
-          <AlertCircle className="w-7 h-7 text-red-500 dark:text-red-400" strokeWidth={1.5} />
+        <div className="w-16 h-16 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 flex items-center justify-center mb-6 shadow-sm">
+          <AlertCircle className="w-7 h-7 text-red-600 dark:text-red-400" strokeWidth={2} />
         </div>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-          Cita no encontrada
+          {t("not_found_title")}
         </h2>
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8">
-          El registro solicitado no existe o no tienes permisos para
-          visualizarlo.
+        <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8 leading-relaxed">
+          {t("not_found_desc")}
         </p>
         <Button
           onClick={() => router.push("/patient/dashboard")}
-          className="rounded-xl bg-quhealthy-green hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 h-12 px-8 text-sm font-bold border-0 transition-colors shadow-md shadow-emerald-900/20"
+          className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 h-12 px-8 text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2"
         >
-          <ArrowLeft className="w-4 h-4 mr-3" strokeWidth={1.5} />
-          Volver al Panel Principal
+          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+          <span>{t("btn_dashboard")}</span>
         </Button>
       </div>
     );
@@ -178,7 +184,7 @@ export default function BookingSuccessPage() {
 
   // 3. Estado de Redirección por Seguridad
   if (user && appointment.consumerId !== user.id) {
-    return <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505]"></div>;
+    return <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505]" />;
   }
 
   // ==========================================
@@ -187,19 +193,21 @@ export default function BookingSuccessPage() {
 
   const formattedDateTime = format(
     new Date(appointment.startTime),
-    "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'",
-    { locale: es },
+    locale === "en"
+      ? "eeee, MMMM d 'at' HH:mm 'hrs'"
+      : "eeee, d 'de' MMMM 'a las' HH:mm 'hrs'",
+    { locale: dateLocale }
   ).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
       {/* Background técnico de puntos sutiles */}
       <BackgroundEffects />
       <Confetti show={showConfetti} />
 
       <div className="max-w-4xl mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >

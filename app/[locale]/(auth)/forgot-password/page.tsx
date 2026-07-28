@@ -32,7 +32,7 @@ export default function AccountRecoveryPage() {
         {/* Imagen de fondo con overlay suave */}
         <img
           src="/hero_medical_lifestyle.png"
-          alt="QuHealthy Account Recovery"
+          alt={t("hero_img_alt")}
           className="absolute inset-0 w-full h-full object-cover object-center opacity-40 mix-blend-luminosity scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -47,7 +47,7 @@ export default function AccountRecoveryPage() {
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Restablecimiento Seguro</span>
+            <span>{t("badge_secure_recovery")}</span>
           </span>
         </div>
 
@@ -55,10 +55,10 @@ export default function AccountRecoveryPage() {
         <div className="relative z-10 space-y-8 max-w-lg">
           <div className="space-y-4">
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-              {t("area_title", { defaultValue: "Recupera el acceso a tu cuenta" })}
+              {t("area_title")}
             </h2>
             <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
-              Plataforma con verificación multi-factor para la máxima protección de la información clínica y de pacientes.
+              {t("hero_subtitle")}
             </p>
           </div>
 
@@ -70,10 +70,10 @@ export default function AccountRecoveryPage() {
               </div>
               <div>
                 <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                  {t("secure_info_title", { defaultValue: "Protección y Privacidad" })}
+                  {t("secure_info_title")}
                 </h3>
                 <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                  {t("secure_info_desc", { defaultValue: "Validación mediante códigos temporales cifrados de un solo uso." })}
+                  {t("secure_info_desc")}
                 </p>
               </div>
             </div>
@@ -95,16 +95,16 @@ export default function AccountRecoveryPage() {
 
             <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
               <KeyRound className="w-4 h-4" strokeWidth={2} />
-              <span>Seguridad de la Cuenta</span>
+              <span>{t("tagline")}</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-              {t("title", { defaultValue: "Recuperación de Contraseña" })}
+              {t("title")}
             </h1>
             <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-              {step === 1 && t("step_1_desc", { defaultValue: "Ingresa tu correo o teléfono para recibir tu código de seguridad." })}
-              {step === 2 && t("step_2_desc", { defaultValue: "Ingresa el código de verificación enviado a tu dispositivo." })}
-              {step === 3 && t("step_3_desc", { defaultValue: "Crea una nueva contraseña segura para acceder a tu perfil." })}
+              {step === 1 && t("step_1_desc")}
+              {step === 2 && t("step_2_desc")}
+              {step === 3 && t("step_3_desc")}
             </p>
           </div>
 
@@ -112,7 +112,7 @@ export default function AccountRecoveryPage() {
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-4 rounded-2xl shadow-sm space-y-2">
             <div className="flex justify-between items-center text-xs font-bold">
               <span className="text-gray-500 font-mono">
-                Paso 0{step} <span className="text-gray-300 dark:text-gray-700">/</span> 03
+                {t("step")} 0{step} <span className="text-gray-300 dark:text-gray-700">/</span> 03
               </span>
               <span className="text-emerald-600 dark:text-emerald-400 font-mono">
                 {Math.round(progress)}%

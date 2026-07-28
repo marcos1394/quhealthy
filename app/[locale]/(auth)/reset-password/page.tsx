@@ -60,14 +60,14 @@ function ResetPasswordForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [pwdRules, setPwdRules] = useState<PasswordRule[]>(() =>
-    passwordRulesConfig.map((r) => ({ ...r, valid: false })),
+    passwordRulesConfig.map((r) => ({ ...r, valid: false }))
   );
   
   const labels = [
-    t("new_password_placeholder", { defaultValue: "Mín. 8 Caracteres" }),
-    "Mayúscula (A-Z)",
-    "Número (0-9)",
-    "Símbolo Especial",
+    t("password_rule_min_length"),
+    t("password_rule_uppercase"),
+    t("password_rule_number"),
+    t("password_rule_symbol"),
   ];
 
   useEffect(() => {
@@ -88,7 +88,7 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     setPwdRules(
-      passwordRulesConfig.map((r) => ({ ...r, valid: r.regex.test(password) })),
+      passwordRulesConfig.map((r) => ({ ...r, valid: r.regex.test(password) }))
     );
   }, [password]);
 
@@ -105,13 +105,10 @@ function ResetPasswordForm() {
     try {
       await recoveryResetPassword({ token, newPassword: password });
       setSuccess(true);
-      toast.success(
-        t("success_title", { defaultValue: "¡Contraseña actualizada con éxito!" }),
-        { theme: "colored" }
-      );
+      toast.success(t("success_title"), { theme: "colored" });
       setTimeout(() => router.push("/login"), 2500);
     } catch (err: any) {
-      setError(err.message || "Error al actualizar la contraseña.");
+      setError(err.message || t("invalid_desc"));
       handleApiError(err);
     } finally {
       setLoading(false);
@@ -125,10 +122,10 @@ function ResetPasswordForm() {
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
         <div className="space-y-1">
           <p className="text-xs font-bold text-gray-900 dark:text-white">
-            {t("checking_token", { defaultValue: "Validando enlace de seguridad..." })}
+            {t("checking_token")}
           </p>
           <p className="text-[11px] font-medium text-gray-400">
-            {t("checking_moment", { defaultValue: "Un momento por favor..." })}
+            {t("checking_moment")}
           </p>
         </div>
       </div>
@@ -152,25 +149,25 @@ function ResetPasswordForm() {
         <div className="space-y-1.5">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             {tokenState === "expired"
-              ? t("expired_title", { defaultValue: "Enlace Expirado" })
-              : t("invalid_title", { defaultValue: "Enlace Inválido" })}
+              ? t("expired_title")
+              : t("invalid_title")}
           </h2>
           <p className="text-xs font-medium text-gray-500 max-w-xs mx-auto leading-relaxed">
             {tokenState === "expired"
-              ? t("expired_desc", { defaultValue: "El enlace de recuperación ha caducado por motivos de seguridad." })
-              : t("invalid_desc", { defaultValue: "El enlace proporcionado no es válido o ya ha sido utilizado." })}
+              ? t("expired_desc")
+              : t("invalid_desc")}
           </p>
         </div>
 
         <div className="space-y-2.5 pt-2">
           <Link href="/recovery" className="block">
             <button className="w-full h-11 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm">
-              {t("request_new", { defaultValue: "Solicitar Nuevo Enlace" })}
+              {t("request_new")}
             </button>
           </Link>
           <Link href="/login" className="block">
             <button className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm">
-              {t("back_to_login", { defaultValue: "Volver a Iniciar Sesión" })}
+              {t("back_to_login")}
             </button>
           </Link>
         </div>
@@ -194,20 +191,20 @@ function ResetPasswordForm() {
 
         <div className="space-y-1">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            {t("success_title", { defaultValue: "¡Contraseña Actualizada!" })}
+            {t("success_title")}
           </h2>
           <p className="text-xs font-medium text-gray-500 leading-relaxed">
-            {t("success_desc", { defaultValue: "Tu nueva contraseña ha sido guardada de forma segura." })}
+            {t("success_desc")}
           </p>
           <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 pt-1">
-            {t("redirect_hint", { defaultValue: "Redirigiendo a la pantalla de acceso..." })}
+            {t("redirect_hint")}
           </p>
         </div>
 
         <Link href="/login" className="block pt-2">
           <button className="w-full h-11 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" strokeWidth={2} />
-            <span>{t("go_to_login", { defaultValue: "Iniciar Sesión Ahora" })}</span>
+            <span>{t("go_to_login")}</span>
           </button>
         </Link>
       </motion.div>
@@ -220,7 +217,7 @@ function ResetPasswordForm() {
       {/* Input Nueva Contraseña */}
       <div className="space-y-1.5">
         <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-          {t("new_password_label", { defaultValue: "Nueva Contraseña" })}
+          {t("new_password_label")}
         </label>
         <div className="relative">
           <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" strokeWidth={2} />
@@ -228,13 +225,13 @@ function ResetPasswordForm() {
             type={showPwd ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={t("new_password_placeholder", { defaultValue: "••••••••" })}
+            placeholder={t("new_password_placeholder")}
             className="w-full h-12 pl-10 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
             required
           />
           <button
             type="button"
-            aria-label={showPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-label={showPwd ? t("hide_password") : t("show_password")}
             onClick={() => setShowPwd(!showPwd)}
             className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
           >
@@ -268,7 +265,7 @@ function ResetPasswordForm() {
       {/* Input Confirmar Contraseña */}
       <div className="space-y-1.5">
         <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-          {t("confirm_password_label", { defaultValue: "Confirmar Contraseña" })}
+          {t("confirm_password_label")}
         </label>
         <div className="relative">
           <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" strokeWidth={2} />
@@ -276,7 +273,7 @@ function ResetPasswordForm() {
             type={showConfirmPwd ? "text" : "password"}
             value={confirmPwd}
             onChange={(e) => setConfirmPwd(e.target.value)}
-            placeholder={t("confirm_password_placeholder", { defaultValue: "••••••••" })}
+            placeholder={t("confirm_password_placeholder")}
             className={cn(
               "w-full h-12 pl-10 pr-10 bg-gray-50/50 dark:bg-[#050505] border rounded-xl text-xs font-semibold focus:outline-none transition-colors shadow-sm",
               confirmPwd && password !== confirmPwd
@@ -289,8 +286,8 @@ function ResetPasswordForm() {
             type="button"
             aria-label={
               showConfirmPwd
-                ? "Ocultar confirmación de contraseña"
-                : "Mostrar confirmación de contraseña"
+                ? t("hide_password")
+                : t("show_password")
             }
             onClick={() => setShowConfirmPwd(!showConfirmPwd)}
             className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
@@ -312,8 +309,8 @@ function ResetPasswordForm() {
             )}
           >
             {password === confirmPwd
-              ? t("passwords_match", { defaultValue: "Las contraseñas coinciden" })
-              : t("passwords_not_match", { defaultValue: "Las contraseñas no coinciden" })}
+              ? t("passwords_match")
+              : t("passwords_not_match")}
           </p>
         )}
       </div>
@@ -346,19 +343,19 @@ function ResetPasswordForm() {
         {loading ? (
           <>
             <QhSpinner size="sm" className="text-current" />
-            <span>{t("updating", { defaultValue: "Actualizando contraseña..." })}</span>
+            <span>{t("updating")}</span>
           </>
         ) : (
           <>
             <ShieldCheck className="w-4 h-4" strokeWidth={2} />
-            <span>{t("submit_button", { defaultValue: "Establecer Nueva Contraseña" })}</span>
+            <span>{t("submit_button")}</span>
           </>
         )}
       </button>
 
       <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-400 pt-2">
         <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-        <span>{t("secure_connection", { defaultValue: "Conexión cifrada de alta seguridad" })}</span>
+        <span>{t("secure_connection")}</span>
       </div>
     </form>
   );
@@ -373,7 +370,7 @@ export default function ResetPasswordPage() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
         <img
           src="/hero_medical_lifestyle.png"
-          alt="Reset Password"
+          alt={t("hero_img_alt")}
           className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-40 scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -388,7 +385,7 @@ export default function ResetPasswordPage() {
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Restablecimiento Seguro</span>
+            <span>{t("badge_secure_reset")}</span>
           </span>
         </div>
 
@@ -396,10 +393,10 @@ export default function ResetPasswordPage() {
         <div className="relative z-10 space-y-8 max-w-lg">
           <div className="space-y-3">
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-              {t("area_title", { defaultValue: "Protege tu Acceso Clínico" })}
+              {t("area_title")}
             </h2>
             <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
-              Crea una credencial robusta para resguardar la confidencialidad de tu perfil y expedientes.
+              {t("desc")}
             </p>
           </div>
 
@@ -410,10 +407,10 @@ export default function ResetPasswordPage() {
               </div>
               <div>
                 <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                  {t("secure_connection", { defaultValue: "Cifrado de Alto Nivel" })}
+                  {t("secure_connection")}
                 </h3>
                 <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                  {t("secure_hint", { defaultValue: "Tus nuevas credenciales se procesan mediante algoritmos de encriptación seguros." })}
+                  {t("secure_hint")}
                 </p>
               </div>
             </div>
@@ -439,14 +436,14 @@ export default function ResetPasswordPage() {
 
             <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
               <KeyRound className="w-4 h-4" strokeWidth={2} />
-              <span>Seguridad de la Cuenta</span>
+              <span>{t("tagline")}</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-              {t("title", { defaultValue: "Restablecer Contraseña" })}
+              {t("title")}
             </h1>
             <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-              {t("desc", { defaultValue: "Ingresa tu nueva contraseña para actualizar las credenciales de tu cuenta." })}
+              {t("desc")}
             </p>
           </div>
 
@@ -456,7 +453,7 @@ export default function ResetPasswordPage() {
               fallback={
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
-                  <p className="text-xs font-semibold text-gray-400">Cargando módulo de restablecimiento...</p>
+                  <p className="text-xs font-semibold text-gray-400">{t("loading_module")}</p>
                 </div>
               }
             >
@@ -471,7 +468,7 @@ export default function ResetPasswordPage() {
               className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-              <span>{t("back_to_login", { defaultValue: "Volver a Iniciar Sesión" })}</span>
+              <span>{t("back_to_login")}</span>
             </Link>
           </div>
 

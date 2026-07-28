@@ -82,7 +82,7 @@ export default function VerifyPhonePage() {
     try {
       await verifyPhone({ code, identifier: user.email });
       setSuccess(true);
-      toast.success(t("success_title", { defaultValue: "Teléfono verificado correctamente" }), {
+      toast.success(t("verify_success_toast"), {
         theme: "colored",
       });
       setTimeout(() => {
@@ -91,7 +91,7 @@ export default function VerifyPhonePage() {
         );
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Error al verificar el teléfono");
+      setError(err.message || t("verify_error"));
       handleApiError(err);
       setCode("");
       setIsLoading(false);
@@ -106,7 +106,7 @@ export default function VerifyPhonePage() {
     setError("");
     try {
       await resendVerification({ email: user.email, type: "SMS" });
-      toast.success(t("resend_button", { defaultValue: "Código reenviado" }), {
+      toast.success(t("code_resent_toast"), {
         theme: "colored",
       });
       setCodeTimer(300);
@@ -135,7 +135,7 @@ export default function VerifyPhonePage() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
         <img
           src="/hero_medical_lifestyle.png"
-          alt="Phone Verify"
+          alt={t("hero_img_alt")}
           className="absolute inset-0 w-full h-full object-cover object-top mix-blend-luminosity opacity-40 scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -150,7 +150,7 @@ export default function VerifyPhonePage() {
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Verificación SMS</span>
+            <span>{t("badge_sms_verification")}</span>
           </span>
         </div>
 
@@ -158,10 +158,10 @@ export default function VerifyPhonePage() {
         <div className="relative z-10 space-y-8 max-w-lg">
           <div className="space-y-3">
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-              {t("area_title", { defaultValue: "Protección de Contacto Móvil" })}
+              {t("area_title")}
             </h2>
             <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
-              Verificamos tu número telefónico para coordinar recordatorios de citas y alertas médicas en tiempo real.
+              {t("hero_subtitle")}
             </p>
           </div>
 
@@ -173,10 +173,10 @@ export default function VerifyPhonePage() {
               </div>
               <div>
                 <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                  {t("secure_connection", { defaultValue: "Canal Directo Encriptado" })}
+                  {t("secure_connection")}
                 </h3>
                 <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                  {t("info", { defaultValue: "Garantía de confidencialidad en tus vías de notificación." })}
+                  {t("hero_secure_info")}
                 </p>
               </div>
             </div>
@@ -202,14 +202,14 @@ export default function VerifyPhonePage() {
 
             <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
               <Smartphone className="w-4 h-4" strokeWidth={2} />
-              <span>Verificación de Teléfono</span>
+              <span>{t("tagline")}</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-              {t("title", { defaultValue: "Verifica tu Teléfono" })}
+              {t("title")}
             </h1>
             <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-              {t("desc", { defaultValue: "Ingresa el código de 6 dígitos que enviamos vía mensaje SMS." })}
+              {t("desc")}
             </p>
           </div>
 
@@ -227,7 +227,7 @@ export default function VerifyPhonePage() {
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                     <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                      {t("code_valid_for", { defaultValue: "Código válido por:" })}
+                      {t("code_valid_for")}
                     </span>
                   </div>
                   <span
@@ -245,13 +245,13 @@ export default function VerifyPhonePage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                      {t("code_label", { defaultValue: "Código de Verificación (SMS)" })}
+                      {t("code_label")}
                     </label>
                     <input
                       type="text"
                       value={code}
                       onChange={(e) => handleCodeChange(e.target.value)}
-                      placeholder={t("code_placeholder", { defaultValue: "000000" })}
+                      placeholder={t("code_placeholder")}
                       maxLength={6}
                       autoFocus
                       className={cn(
@@ -261,7 +261,7 @@ export default function VerifyPhonePage() {
                       disabled={isLoading || success}
                     />
                     <p className="text-[11px] font-semibold text-gray-400 text-center">
-                      {code.length}/6 {t("digits_status", { defaultValue: "dígitos ingresados" })}
+                      {code.length}/6 {t("digits_entered")}
                     </p>
                   </div>
 
@@ -292,12 +292,12 @@ export default function VerifyPhonePage() {
                     {isLoading ? (
                       <>
                         <QhSpinner size="sm" className="text-current" />
-                        <span>{t("verifying", { defaultValue: "Verificando código..." })}</span>
+                        <span>{t("verifying")}</span>
                       </>
                     ) : (
                       <>
                         <ShieldCheck className="w-4 h-4" strokeWidth={2} />
-                        <span>{t("verify_button", { defaultValue: "Verificar Número" })}</span>
+                        <span>{t("verify_button")}</span>
                       </>
                     )}
                   </button>
@@ -315,20 +315,20 @@ export default function VerifyPhonePage() {
                       {isResending ? (
                         <>
                           <QhSpinner size="sm" className="text-current" />
-                          <span>{t("resending", { defaultValue: "Reenviando..." })}</span>
+                          <span>{t("resending")}</span>
                         </>
                       ) : (
                         <>
                           <RefreshCw className="w-3.5 h-3.5" strokeWidth={2} />
-                          <span>{t("resend_button", { defaultValue: "Reenviar código SMS" })}</span>
+                          <span>{t("resend_button")}</span>
                         </>
                       )}
                     </button>
                   ) : (
                     <p className="text-xs font-medium text-gray-400">
                       {resendCooldown > 0
-                        ? `${t("can_resend_in", { defaultValue: "Reenviar en" })} ${resendCooldown}s`
-                        : `${t("cant_resend_yet", { defaultValue: "Podrás solicitar otro código en" })} ${formatTime(codeTimer)}`}
+                        ? `${t("can_resend_in")} ${resendCooldown}s`
+                        : `${t("cant_resend_yet")} ${formatTime(codeTimer)}`}
                     </p>
                   )}
                 </div>
@@ -337,7 +337,7 @@ export default function VerifyPhonePage() {
                 <div className="bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 flex items-start gap-2.5">
                   <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
                   <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                    {t("info", { defaultValue: "Si no recibes el mensaje SMS, verifica que tu número esté registrado correctamente en tu perfil." })}
+                    {t("info")}
                   </p>
                 </div>
 
@@ -348,7 +348,7 @@ export default function VerifyPhonePage() {
                     onClick={handleSkip}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
                   >
-                    <span>{t("skip", { defaultValue: "Omitir por ahora" })}</span>
+                    <span>{t("skip")}</span>
                     <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
                   </button>
                 </div>
@@ -370,10 +370,10 @@ export default function VerifyPhonePage() {
 
                 <div className="space-y-1.5">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {t("success_title", { defaultValue: "¡Teléfono Verificado!" })}
+                    {t("success_title")}
                   </h2>
                   <p className="text-xs font-medium text-gray-500 leading-relaxed">
-                    {t("success_desc", { defaultValue: "Tu número telefónico ha sido vinculado de forma segura a tu cuenta." })}
+                    {t("success_desc")}
                   </p>
                 </div>
 
@@ -384,10 +384,10 @@ export default function VerifyPhonePage() {
                   />
                   <div>
                     <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300">
-                      {t("success_status", { defaultValue: "Verificación Completada" })}
+                      {t("success_status")}
                     </p>
                     <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mt-0.5">
-                      {t("success_redirect", { defaultValue: "Redirigiendo a tu panel de control..." })}
+                      {t("success_redirect")}
                     </p>
                   </div>
                 </div>
@@ -404,7 +404,7 @@ export default function VerifyPhonePage() {
                   className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 mt-2"
                 >
                   <Sparkles className="w-4 h-4" strokeWidth={2} />
-                  <span>{t("continue", { defaultValue: "Continuar" })}</span>
+                  <span>{t("continue")}</span>
                 </button>
               </motion.div>
             )}

@@ -10,7 +10,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2,
   XCircle,
-  Mail,
   Sparkles,
   ArrowRight,
   Shield,
@@ -25,7 +24,6 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { Progress } from "@/components/ui/progress";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { cn } from "@/lib/utils";
 
 function VerificationContent() {
   const searchParams = useSearchParams();
@@ -47,7 +45,7 @@ function VerificationContent() {
     if (status === "loading") {
       const i = setInterval(
         () => setProgress((p) => (p >= 90 ? p : p + 15)),
-        300,
+        300
       );
       return () => clearInterval(i);
     }
@@ -71,7 +69,7 @@ function VerificationContent() {
           return;
         }
         setStatus("error");
-        setMessage(t("cause_3", { defaultValue: "Token de verificación inexistente o expirado." }));
+        setMessage(t("cause_3"));
         setProgress(100);
         return;
       }
@@ -79,11 +77,11 @@ function VerificationContent() {
         await verifyEmail(token);
         setProgress(100);
         setStatus("success");
-        setMessage(t("success_desc", { defaultValue: "Tu dirección de correo ha sido validada exitosamente." }));
+        setMessage(t("success_desc"));
       } catch (error: any) {
         setProgress(100);
         setStatus("error");
-        setMessage(error.message || t("cause_1", { defaultValue: "Error al validar la cuenta." }));
+        setMessage(error.message || t("cause_1"));
       }
     };
     const timeout = setTimeout(() => verify(), 1200);
@@ -100,7 +98,7 @@ function VerificationContent() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
         <img
           src="/hero_medical_lifestyle.png"
-          alt="Verify Email"
+          alt={t("hero_img_alt")}
           className="absolute inset-0 w-full h-full object-cover object-top mix-blend-luminosity opacity-40 scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -115,7 +113,7 @@ function VerificationContent() {
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Verificación de Identidad</span>
+            <span>{t("badge_identity_verification")}</span>
           </span>
         </div>
 
@@ -123,10 +121,10 @@ function VerificationContent() {
         <div className="relative z-10 space-y-8 max-w-lg">
           <div className="space-y-3">
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-              {t("title", { defaultValue: "Confirmación de Cuenta" })}
+              {t("title")}
             </h2>
             <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
-              Validamos tu correo electrónico para garantizar la confidencialidad y autenticidad de tu perfil médico.
+              {t("hero_subtitle")}
             </p>
           </div>
 
@@ -138,10 +136,10 @@ function VerificationContent() {
               </div>
               <div>
                 <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                  {t("secure_connection", { defaultValue: "Validación de Seguridad" })}
+                  {t("hero_secure_title")}
                 </h3>
                 <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                  {t("secure_info", { defaultValue: "Verificación mediante tokens seguros con vigencia limitada." })}
+                  {t("hero_secure_desc")}
                 </p>
               </div>
             </div>
@@ -185,16 +183,16 @@ function VerificationContent() {
 
                   <div className="space-y-1.5">
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                      {t("title", { defaultValue: "Verificando tu Correo" })}
+                      {t("title")}
                     </h1>
                     <p className="text-xs font-medium text-gray-500 leading-relaxed">
-                      {t("desc", { defaultValue: "Validando la autenticidad del enlace de activación..." })}
+                      {t("desc")}
                     </p>
                   </div>
 
                   <div className="space-y-2 max-w-xs mx-auto pt-2">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-gray-400">{t("verifying", { defaultValue: "Procesando..." })}</span>
+                      <span className="text-gray-400">{t("verifying")}</span>
                       <span className="text-emerald-600 dark:text-emerald-400 font-mono">{progress}%</span>
                     </div>
                     <Progress
@@ -223,14 +221,14 @@ function VerificationContent() {
 
                   <div className="space-y-1.5">
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                      Revisa tu Bandeja de Entrada
+                      {t("pending_title")}
                     </h1>
                     <p className="text-xs font-medium text-gray-500 leading-relaxed">
-                      Hemos enviado un enlace de confirmación a{" "}
+                      {t("pending_desc_1")}
                       <strong className="font-bold text-gray-900 dark:text-white font-mono break-all">
                         {searchParams.get("email")}
                       </strong>
-                      . Haz clic en el botón del correo para activar tu cuenta.
+                      {t("pending_desc_2")}
                     </p>
                   </div>
 
@@ -240,7 +238,7 @@ function VerificationContent() {
                       strokeWidth={2}
                     />
                     <p className="text-xs font-medium text-amber-800 dark:text-amber-300 leading-relaxed">
-                      Si no lo encuentras en tu bandeja principal, te sugerimos revisar tu carpeta de Spam o Correo No Deseado.
+                      {t("pending_spam_notice")}
                     </p>
                   </div>
 
@@ -249,7 +247,7 @@ function VerificationContent() {
                     onClick={() => router.push("/login")}
                     className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 mt-2"
                   >
-                    <span>Ir al Inicio de Sesión</span>
+                    <span>{t("go_to_login")}</span>
                     <ArrowRight className="w-4 h-4" strokeWidth={2} />
                   </button>
                 </motion.div>
@@ -274,16 +272,14 @@ function VerificationContent() {
                   <div className="space-y-2">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-[11px] font-bold shadow-sm">
                       <RoleIcon className="w-3.5 h-3.5" strokeWidth={2} />
-                      <span>{isProvider ? "Cuenta Profesional" : "Cuenta de Paciente"}</span>
+                      <span>{isProvider ? t("role_provider") : t("role_patient")}</span>
                     </span>
 
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                      {isProvider 
-                        ? t("welcome_provider", { defaultValue: "¡Bienvenido a la Red Médica!" }) 
-                        : t("welcome", { defaultValue: "¡Bienvenido a QuHealthy!" })}
+                      {isProvider ? t("welcome_provider") : t("welcome")}
                     </h1>
                     <p className="text-xs font-medium text-gray-500 leading-relaxed">
-                      {t("success_desc", { defaultValue: "Tu dirección de correo ha sido confirmada con éxito." })}
+                      {t("success_desc")}
                     </p>
                   </div>
 
@@ -294,19 +290,18 @@ function VerificationContent() {
                     />
                     <div>
                       <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300">
-                        {t("success_title", { defaultValue: "Cuenta Activada Correctamente" })}
+                        {t("success_banner_title")}
                       </p>
                       <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 mt-0.5">
-                        {isProvider 
-                          ? t("ready_provider", { defaultValue: "Tu perfil está listo para configurar tu consultorio." }) 
-                          : t("ready_patient", { defaultValue: "Ya puedes agendar citas y revisar tu expediente." })}
+                        {isProvider ? t("ready_provider") : t("ready_patient")}
                       </p>
                     </div>
                   </div>
 
                   <p className="text-[11px] font-medium text-gray-400">
-                    {t("redirecting", { defaultValue: "Redirigiendo en" })}{" "}
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{countdown}s</span>...
+                    {t("redirecting")}{" "}
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{countdown}</span>{" "}
+                    {t("seconds")}
                   </p>
 
                   <button
@@ -315,7 +310,7 @@ function VerificationContent() {
                     className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" strokeWidth={2} />
-                    <span>{t("start_button", { defaultValue: "Iniciar Sesión Ahora" })}</span>
+                    <span>{t("start_button")}</span>
                     <ArrowRight className="w-4 h-4" strokeWidth={2} />
                   </button>
                 </motion.div>
@@ -339,7 +334,7 @@ function VerificationContent() {
 
                   <div className="space-y-1.5">
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                      {t("error_title", { defaultValue: "Error de Verificación" })}
+                      {t("error_title")}
                     </h1>
                     <p className="text-xs font-medium text-gray-500 leading-relaxed">
                       {message}
@@ -350,13 +345,13 @@ function VerificationContent() {
                     <div className="flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" strokeWidth={2} />
                       <p className="text-xs font-bold text-red-800 dark:text-red-300">
-                        {t("error_causes", { defaultValue: "Causas comunes de este problema:" })}
+                        {t("error_causes")}
                       </p>
                     </div>
                     <ul className="list-disc list-inside space-y-1 text-[11px] font-medium text-red-700 dark:text-red-400/90 pl-1">
-                      <li>{t("cause_1", { defaultValue: "El enlace ya fue utilizado anteriormente." })}</li>
-                      <li>{t("cause_2", { defaultValue: "El token de activación expiró por límite de tiempo." })}</li>
-                      <li>{t("cause_3", { defaultValue: "URL incompleta o copiada incorrectamente." })}</li>
+                      <li>{t("cause_1")}</li>
+                      <li>{t("cause_2")}</li>
+                      <li>{t("cause_3")}</li>
                     </ul>
                   </div>
 
@@ -366,7 +361,7 @@ function VerificationContent() {
                       onClick={() => router.push("/login")}
                       className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm"
                     >
-                      {t("go_to_login", { defaultValue: "Ir al Inicio de Sesión" })}
+                      {t("go_to_login")}
                     </button>
 
                     <button
@@ -375,12 +370,12 @@ function VerificationContent() {
                       className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
                     >
                       <RefreshCw className="w-4 h-4" strokeWidth={2} />
-                      <span>{t("try_again", { defaultValue: "Reintentar Verificación" })}</span>
+                      <span>{t("try_again")}</span>
                     </button>
                   </div>
 
                   <p className="text-[11px] font-medium text-gray-400 pt-1">
-                    {t("need_help", { defaultValue: "¿Necesitas ayuda adicional?" })}{" "}
+                    {t("need_help")}{" "}
                     <a
                       href="mailto:support@quhealthy.org"
                       className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline"
@@ -401,12 +396,14 @@ function VerificationContent() {
 }
 
 export default function VerifyEmailPage() {
+  const t = useTranslations("AuthVerifyEmail");
+
   return (
     <Suspense
       fallback={
         <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-gray-50/50 dark:bg-[#050505]">
           <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
-          <p className="text-xs font-semibold text-gray-400">Cargando verificación...</p>
+          <p className="text-xs font-semibold text-gray-400">{t("loading_verification")}</p>
         </div>
       }
     >

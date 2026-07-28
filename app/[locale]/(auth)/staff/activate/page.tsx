@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable react-doctor/prefer-useReducer */
+
+import React, { useState, useEffect, Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +23,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 // Components
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -31,30 +35,32 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { cn } from "@/lib/utils";
 
-const activateSchema = z
-  .object({
-    firstName: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-    lastName: z.string().min(2, "El apellido debe tener al menos 2 caracteres"),
-    password: z
-      .string()
-      .min(8, "La contraseña debe tener al menos 8 caracteres")
-      .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
-      .regex(/[a-z]/, "Debe contener al menos una minúscula")
-      .regex(/[0-9]/, "Debe contener al menos un número"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  });
+// Función generadora de esquema Zod adaptado a i18n
+const getActivateSchema = (t: (key: string) => string) =>
+  z
+    .object({
+      firstName: z.string().min(2, t("val_first_name_min")),
+      lastName: z.string().min(2, t("val_last_name_min")),
+      password: z
+        .string()
+        .min(8, t("val_password_min"))
+        .regex(/[A-Z]/, t("val_password_uppercase"))
+        .regex(/[a-z]/, t("val_password_lowercase"))
+        .regex(/[0-9]/, t("val_password_number")),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("val_passwords_not_match"),
+      path: ["confirmPassword"],
+    });
 
-type ActivateFormValues = z.infer<typeof activateSchema>;
+type ActivateFormValues = z.infer<ReturnType<typeof getActivateSchema>>;
 
 function ActivateStaffContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const t = useTranslations("AuthActivateStaff");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -62,6 +68,9 @@ function ActivateStaffContent() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Generación memoizada del esquema Zod dinámico con traducciones
+  const activateSchema = useMemo(() => getActivateSchema(t), [t]);
 
   const form = useForm<ActivateFormValues>({
     resolver: zodResolver(activateSchema),
@@ -75,9 +84,9 @@ function ActivateStaffContent() {
 
   useEffect(() => {
     if (!token) {
-      setError("Token de activación inválido o no proporcionado.");
+      setError(t("invalid_token_error"));
     }
-  }, [token]);
+  }, [token, t]);
 
   const onSubmit = async (values: ActivateFormValues) => {
     if (!token) return;
@@ -92,12 +101,9 @@ function ActivateStaffContent() {
         password: values.password,
       });
       setIsSuccess(true);
-      toast.success("Cuenta activada correctamente", { theme: "colored" });
+      toast.success(t("success_toast"), { theme: "colored" });
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          "Ocurrió un error al activar la cuenta. Es posible que el enlace haya expirado."
-      );
+      setError(err.response?.data?.message || t("default_api_error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -120,10 +126,10 @@ function ActivateStaffContent() {
 
         <div className="space-y-1.5">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-            ¡Cuenta Activada Exitosamente!
+            {t("success_title")}
           </h1>
           <p className="text-xs font-medium text-gray-500 max-w-xs mx-auto leading-relaxed">
-            Tu cuenta de equipo ha sido activada correctamente. Ahora puedes acceder a la plataforma.
+            {t("success_desc")}
           </p>
         </div>
 
@@ -132,7 +138,7 @@ function ActivateStaffContent() {
             type="button"
             className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
           >
-            <span>Iniciar Sesión Ahora</span>
+            <span>{t("go_to_login")}</span>
             <ArrowRight className="w-4 h-4" strokeWidth={2} />
           </button>
         </Link>
@@ -158,14 +164,14 @@ function ActivateStaffContent() {
 
         <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
           <UserCheck className="w-4 h-4" strokeWidth={2} />
-          <span>Activación de Miembro de Equipo</span>
+          <span>{t("tagline")}</span>
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-          Activa tu Cuenta
+          {t("title")}
         </h1>
         <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-          Completa tus datos para unirte al equipo de la clínica en QuHealthy.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -203,12 +209,12 @@ function ActivateStaffContent() {
                   render={({ field }) => (
                     <FormItem className="space-y-1.5">
                       <FormLabel className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                        Nombre
+                        {t("first_name_label")}
                       </FormLabel>
                       <FormControl>
                         <input
                           className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
-                          placeholder="Ej. Ana"
+                          placeholder={t("first_name_placeholder")}
                           {...field}
                         />
                       </FormControl>
@@ -223,12 +229,12 @@ function ActivateStaffContent() {
                   render={({ field }) => (
                     <FormItem className="space-y-1.5">
                       <FormLabel className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                        Apellido
+                        {t("last_name_label")}
                       </FormLabel>
                       <FormControl>
                         <input
                           className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
-                          placeholder="Ej. García"
+                          placeholder={t("last_name_placeholder")}
                           {...field}
                         />
                       </FormControl>
@@ -245,19 +251,19 @@ function ActivateStaffContent() {
                 render={({ field }) => (
                   <FormItem className="space-y-1.5">
                     <FormLabel className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                      Contraseña
+                      {t("password_label")}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
                           className="w-full h-12 pl-4 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
-                          placeholder="Crea una contraseña segura"
+                          placeholder={t("password_placeholder")}
                           {...field}
                         />
                         <button
                           type="button"
-                          aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                          aria-label={showPassword ? t("hide_password") : t("show_password")}
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                         >
@@ -281,22 +287,22 @@ function ActivateStaffContent() {
                 render={({ field }) => (
                   <FormItem className="space-y-1.5">
                     <FormLabel className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                      Confirmar Contraseña
+                      {t("confirm_password_label")}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <input
                           type={showConfirmPassword ? "text" : "password"}
                           className="w-full h-12 pl-4 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
-                          placeholder="Repite la contraseña"
+                          placeholder={t("confirm_password_placeholder")}
                           {...field}
                         />
                         <button
                           type="button"
                           aria-label={
                             showConfirmPassword
-                              ? "Ocultar confirmación de contraseña"
-                              : "Mostrar confirmación de contraseña"
+                              ? t("hide_password")
+                              : t("show_password")
                           }
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                           className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
@@ -323,12 +329,12 @@ function ActivateStaffContent() {
                 {isSubmitting ? (
                   <>
                     <QhSpinner size="sm" className="text-current" />
-                    <span>Activando cuenta...</span>
+                    <span>{t("loading")}</span>
                   </>
                 ) : (
                   <>
                     <ShieldCheck className="w-4 h-4" strokeWidth={2} />
-                    <span>Activar mi Cuenta</span>
+                    <span>{t("submit_button")}</span>
                   </>
                 )}
               </button>
@@ -341,6 +347,8 @@ function ActivateStaffContent() {
 }
 
 export default function ActivateStaffPage() {
+  const t = useTranslations("AuthActivateStaff");
+
   return (
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
       
@@ -348,7 +356,7 @@ export default function ActivateStaffPage() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
         <img
           src="/hero_medical_lifestyle.png"
-          alt="Staff Activate"
+          alt={t("hero_img_alt")}
           className="absolute inset-0 w-full h-full object-cover object-top mix-blend-luminosity opacity-40 scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -363,7 +371,7 @@ export default function ActivateStaffPage() {
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Colaboración Clínica</span>
+            <span>{t("badge_clinical_collab")}</span>
           </span>
         </div>
 
@@ -371,10 +379,10 @@ export default function ActivateStaffPage() {
         <div className="relative z-10 space-y-8 max-w-lg">
           <div className="space-y-3">
             <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-              ¡Bienvenido al Equipo!
+              {t("hero_title")}
             </h2>
             <p className="text-gray-300 text-xs sm:text-sm font-medium leading-relaxed">
-              Activa tus credenciales corporativas para acceder a los expedientes y agenda de la clínica.
+              {t("hero_subtitle")}
             </p>
           </div>
 
@@ -385,10 +393,10 @@ export default function ActivateStaffPage() {
               </div>
               <div>
                 <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                  Acceso Institucional Protegido
+                  {t("secure_access_title")}
                 </h3>
                 <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                  Activación encriptada con permisos preasignados por la administración.
+                  {t("secure_access_desc")}
                 </p>
               </div>
             </div>
@@ -402,7 +410,7 @@ export default function ActivateStaffPage() {
           fallback={
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
-              <p className="text-xs font-semibold text-gray-400">Cargando módulo de activación...</p>
+              <p className="text-xs font-semibold text-gray-400">{t("loading_module")}</p>
             </div>
           }
         >

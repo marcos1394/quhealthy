@@ -17,29 +17,28 @@ import {
   ArrowRight,
   UserPlus,
   AlertCircle,
-  CheckCircle2,
-  Stethoscope
+  Stethoscope,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useTranslations } from "next-intl";
 import { Turnstile } from "@marsidev/react-turnstile";
 
-// Components
+// Componentes
 import SocialAuthButtons from "@/components/auth/SocialButtons";
 import TermsModal from "@/components/auth/TermsModal";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
-// Enterprise Integration
+// Integración de Autenticación
 import { useAuth } from "@/hooks/useAuth";
 import { RegisterProviderRequest } from "@/types/auth";
 
-// ShadCN UI
+// ShadCN UI & Utils
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { handleApiError } from "@/lib/handleApiError";
 
-// Types
+// Interfaces
 interface PasswordRule {
   regex: RegExp;
   valid: boolean;
@@ -87,7 +86,7 @@ export default function ProviderSignupPage() {
   });
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
-    () => passwordRulesConfig.map((rule) => ({ ...rule, valid: false })),
+    () => passwordRulesConfig.map((rule) => ({ ...rule, valid: false }))
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +103,7 @@ export default function ProviderSignupPage() {
       passwordRulesConfig.map((rule) => ({
         ...rule,
         valid: rule.regex.test(formData.password),
-      })),
+      }))
     );
   }, [formData.password]);
 
@@ -149,10 +148,7 @@ export default function ProviderSignupPage() {
       const res = await registerProvider(signupData);
 
       if (res && res.id) {
-        toast.success(
-          "¡Cuenta creada correctamente! Por favor, revisa tu correo.",
-          { theme: "colored" }
-        );
+        toast.success(t("success_toast"), { theme: "colored" });
         router.push(`/verify-email?email=${encodeURIComponent(res.email)}`);
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -177,18 +173,16 @@ export default function ProviderSignupPage() {
     turnstileRef.current?.execute();
   };
 
+  // Etiquetas de reglas de validación de contraseña i18n
   const rulesMessages = [
-    t("password_placeholder", { defaultValue: "Mín. 8 Caracteres" }),
-    "Mayúscula (A-Z)",
-    "Número (0-9)",
-    "Símbolo Especial",
+    t("password_rule_min_length"),
+    t("password_rule_uppercase"),
+    t("password_rule_number"),
+    t("password_rule_symbol"),
   ];
 
-  const benefits = [
-    t("benefits.0", { defaultValue: "Gestión clínica omnicanal e IA integrada" }),
-    t("benefits.1", { defaultValue: "Agenda inteligente y expediente NOM-004" }),
-    t("benefits.2", { defaultValue: "Facturación SAT y procesamiento de pagos" }),
-  ];
+  // Arreglo de beneficios extraído directamente de la clave i18n
+  const benefits: string[] = t.raw("benefits");
 
   return (
     <GoogleOAuthProvider
@@ -200,7 +194,7 @@ export default function ProviderSignupPage() {
         <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
           <img
             src="/hero_medical_lifestyle.png"
-            alt="QuHealthy Provider Sign Up"
+            alt={t("hero_img_alt")}
             className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-40 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -215,7 +209,7 @@ export default function ProviderSignupPage() {
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Plataforma Médica Pro</span>
+              <span>{t("badge_pro_platform")}</span>
             </span>
           </div>
 
@@ -223,7 +217,7 @@ export default function ProviderSignupPage() {
           <div className="relative z-10 space-y-8 max-w-lg">
             <div className="space-y-4">
               <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-                {t("area_title", { defaultValue: "Únete a la Red de Especialistas" })}
+                {t("area_title")}
               </h2>
 
               <div className="space-y-3 pt-2">
@@ -249,10 +243,10 @@ export default function ProviderSignupPage() {
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                    {t("secure_connection", { defaultValue: "Infraestructura Médica de Grado Clínico" })}
+                    {t("secure_connection")}
                   </h3>
                   <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                    {t("secure_desc", { defaultValue: "Protección de expedientes digitales con cifrado de alto nivel." })}
+                    {t("secure_desc")}
                   </p>
                 </div>
               </div>
@@ -278,14 +272,14 @@ export default function ProviderSignupPage() {
 
               <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
                 <Stethoscope className="w-4 h-4" strokeWidth={2} />
-                <span>Registro de Profesionales de la Salud</span>
+                <span>{t("tagline")}</span>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                {t("title", { defaultValue: "Crear Cuenta de Proveedor" })}
+                {t("title")}
               </h1>
               <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                {t("subtitle", { defaultValue: "Completa tus datos para comenzar tu onboarding profesional." })}
+                {t("subtitle")}
               </p>
             </div>
 
@@ -304,7 +298,7 @@ export default function ProviderSignupPage() {
                 </div>
                 <div className="relative flex justify-center text-[11px] font-semibold">
                   <span className="px-3 bg-white dark:bg-[#0a0a0a] text-gray-400 uppercase tracking-wider">
-                    {t("or_register", { defaultValue: "o regístrate con correo" })}
+                    {t("or_register")}
                   </span>
                 </div>
               </div>
@@ -314,12 +308,12 @@ export default function ProviderSignupPage() {
                 {/* Nombre Completo */}
                 <div className="space-y-1.5">
                   <label htmlFor="name" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("name_label", { defaultValue: "Nombre y Apellidos" })}
+                    {t("name_label")}
                   </label>
                   <input
                     id="name"
                     name="name"
-                    placeholder={t("name_placeholder", { defaultValue: "Dr. Roberto Gómez" })}
+                    placeholder={t("name_placeholder")}
                     value={formData.name}
                     onChange={handleInputChange}
                     className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
@@ -330,13 +324,13 @@ export default function ProviderSignupPage() {
                 {/* Email */}
                 <div className="space-y-1.5">
                   <label htmlFor="email" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("email_label", { defaultValue: "Correo Electrónico Profesional" })}
+                    {t("email_label")}
                   </label>
                   <input
                     id="email"
                     name="email"
                     type="email"
-                    placeholder={t("email_placeholder", { defaultValue: "doctor@clinica.com" })}
+                    placeholder={t("email_placeholder")}
                     value={formData.email}
                     onChange={handleInputChange}
                     className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
@@ -347,14 +341,14 @@ export default function ProviderSignupPage() {
                 {/* Password */}
                 <div className="space-y-1.5">
                   <label htmlFor="password" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("password_label", { defaultValue: "Contraseña" })}
+                    {t("password_label")}
                   </label>
                   <div className="relative">
                     <input
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder={t("password_placeholder", { defaultValue: "••••••••" })}
+                      placeholder={t("password_placeholder")}
                       value={formData.password}
                       onChange={handleInputChange}
                       className="w-full h-12 pl-4 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
@@ -362,7 +356,7 @@ export default function ProviderSignupPage() {
                     />
                     <button
                       type="button"
-                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      aria-label={showPassword ? t("hide_password") : t("show_password")}
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                     >
@@ -396,14 +390,14 @@ export default function ProviderSignupPage() {
                 {/* Confirm Password */}
                 <div className="space-y-1.5">
                   <label htmlFor="confirmPassword" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("confirm_password_label", { defaultValue: "Confirmar Contraseña" })}
+                    {t("confirm_password_label")}
                   </label>
                   <div className="relative">
                     <input
                       id="confirmPassword"
                       name="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
-                      placeholder={t("confirm_password_placeholder", { defaultValue: "••••••••" })}
+                      placeholder={t("confirm_password_placeholder")}
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       className={cn(
@@ -418,8 +412,8 @@ export default function ProviderSignupPage() {
                       type="button"
                       aria-label={
                         showConfirmPassword
-                          ? "Ocultar confirmación de contraseña"
-                          : "Mostrar confirmación de contraseña"
+                          ? t("hide_password")
+                          : t("show_password")
                       }
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
@@ -433,7 +427,7 @@ export default function ProviderSignupPage() {
                   </div>
                   {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                     <p className="text-xs font-semibold text-red-500 pt-0.5">
-                      {t("passwords_not_match", { defaultValue: "Las contraseñas no coinciden" })}
+                      {t("passwords_not_match")}
                     </p>
                   )}
                 </div>
@@ -441,16 +435,12 @@ export default function ProviderSignupPage() {
                 {/* Referral Code */}
                 <div className="space-y-1.5">
                   <label htmlFor="referralCode" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("referral_code_label", {
-                      defaultValue: "Código de referido (Opcional)",
-                    })}
+                    {t("referral_code_label")}
                   </label>
                   <input
                     id="referralCode"
                     name="referralCode"
-                    placeholder={t("referral_code_placeholder", {
-                      defaultValue: "Ej. QU-DOC-1234",
-                    })}
+                    placeholder={t("referral_code_placeholder")}
                     value={formData.referralCode}
                     onChange={handleInputChange}
                     className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm uppercase font-mono"
@@ -470,23 +460,23 @@ export default function ProviderSignupPage() {
                       htmlFor="terms"
                       className="text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer select-none"
                     >
-                      {t("accept_terms", { defaultValue: "Acepto los términos y políticas" })}
+                      {t("accept_terms")}
                     </label>
                     <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                      {t("accept_terms_start", { defaultValue: "Al registrarte, confirmas que aceptas nuestros " })}
+                      {t("accept_terms_start")}
                       <button
                         type="button"
                         onClick={() => setShowTermsModal(true)}
                         className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
                       >
-                        {t("terms_of_service", { defaultValue: "términos de servicio" })}
-                      </button>{" "}
-                      {t("and", { defaultValue: "y la " })}
+                        {t("terms_of_service")}
+                      </button>
+                      {t("and")}
                       <Link
                         href="/privacy"
                         className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
                       >
-                        {t("privacy_policy", { defaultValue: "política de privacidad" })}
+                        {t("privacy_policy")}
                       </Link>
                       .
                     </p>
@@ -524,9 +514,7 @@ export default function ProviderSignupPage() {
                   }}
                   onError={(errorCode) => {
                     console.error("Turnstile error code:", errorCode);
-                    toast.error(
-                      "Error al validar la seguridad. Por favor, intenta de nuevo."
-                    );
+                    toast.error(t("captcha_error"));
                     setLoading(false);
                     isIntentionalSubmitRef.current = false;
                     turnstileRef.current?.reset();
@@ -548,19 +536,19 @@ export default function ProviderSignupPage() {
                     {loading ? (
                       <>
                         <QhSpinner size="sm" className="text-current" />
-                        <span>{t("loading", { defaultValue: "Creando cuenta profesional..." })}</span>
+                        <span>{t("loading")}</span>
                       </>
                     ) : (
                       <>
                         <UserPlus className="w-4 h-4" strokeWidth={2} />
-                        <span>{t("submit_button", { defaultValue: "Registrar mi Cuenta" })}</span>
+                        <span>{t("submit_button")}</span>
                         <ArrowRight className="w-4 h-4" strokeWidth={2} />
                       </>
                     )}
                   </button>
 
                   <p className="text-center text-[11px] font-medium text-gray-400 dark:text-gray-500 mt-3">
-                    {t("no_credit_card", { defaultValue: "No requerimos tarjeta de crédito para iniciar tu prueba gratuita." })}
+                    {t("no_credit_card")}
                   </p>
                 </div>
               </form>
@@ -570,12 +558,12 @@ export default function ProviderSignupPage() {
             {/* Login Link */}
             <div className="text-center pt-2">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                {t("has_account", { defaultValue: "¿Ya formas parte de la red de QuHealthy?" })}{" "}
+                {t("has_account")}{" "}
                 <Link
                   href="/login"
                   className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline"
                 >
-                  {t("login_here", { defaultValue: "Inicia sesión aquí" })}
+                  {t("login_here")}
                 </Link>
               </p>
             </div>

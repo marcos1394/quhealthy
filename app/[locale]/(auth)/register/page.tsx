@@ -29,7 +29,7 @@ import PrivacyModal from "@/components/auth/Privacymodal";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
-// Integración
+// Integración de Autenticación
 import { useAuth } from "@/hooks/useAuth";
 import { RegisterConsumerRequest } from "@/types/auth";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -57,7 +57,7 @@ export default function ConsumerSignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
-  // Estado local para controlar el bloqueo del botón mientras el captcha piensa
+  // Estado local para controlar el bloqueo del botón mientras el captcha procesa
   const [isVerifying, setIsVerifying] = useState(false);
 
   const [, setCaptchaToken] = useState<string>("");
@@ -76,7 +76,7 @@ export default function ConsumerSignupPage() {
   });
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordRule[]>(
-    () => passwordRulesConfig.map((rule) => ({ ...rule, valid: false })),
+    () => passwordRulesConfig.map((rule) => ({ ...rule, valid: false }))
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +98,7 @@ export default function ConsumerSignupPage() {
       passwordRulesConfig.map((rule) => ({
         ...rule,
         valid: rule.regex.test(formData.password),
-      })),
+      }))
     );
   }, [formData.password]);
 
@@ -106,7 +106,7 @@ export default function ConsumerSignupPage() {
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
     const passwordsMatch = formData.password === formData.confirmPassword;
     const allPasswordRulesValid = passwordValidation.every(
-      (rule) => rule.valid,
+      (rule) => rule.valid
     );
 
     return !!(
@@ -139,19 +139,17 @@ export default function ConsumerSignupPage() {
 
       const response = await registerConsumer(signupData);
 
-      toast.success(
-        response.message || "¡Registro exitoso! Por favor, revisa tu correo.",
-        { theme: "colored" }
-      );
+      toast.success(response.message || t("success_toast"), {
+        theme: "colored",
+      });
 
       setTimeout(() => {
         router.push(
-          `/verify-email?email=${encodeURIComponent(response.email)}`,
+          `/verify-email?email=${encodeURIComponent(response.email)}`
         );
       }, 1200);
     } catch (err: any) {
-      const errorMessage =
-        err.message || "Error al crear la cuenta de paciente";
+      const errorMessage = err.message || "Error al crear la cuenta de paciente";
       setError(errorMessage);
       handleApiError(err);
 
@@ -176,17 +174,15 @@ export default function ConsumerSignupPage() {
     turnstileRef.current?.execute();
   };
 
+  // Reglas de complejidad para la contraseña i18n
   const rulesMessages = [
-    t("password_placeholder", { defaultValue: "Mín. 8 Caracteres" }),
-    "Mayúscula (A-Z)",
-    "Número (0-9)",
+    t("password_rule_min_length"),
+    t("password_rule_uppercase"),
+    t("password_rule_number"),
   ];
 
-  const benefits = [
-    t("benefits.0", { defaultValue: "Expediente de salud digital seguro e integral" }),
-    t("benefits.1", { defaultValue: "Agendamiento inmediato con especialistas verificados" }),
-    t("benefits.2", { defaultValue: "Teleconsultas y recetas digitales sin salir de casa" }),
-  ];
+  // Arreglo de beneficios para el hero izquierdo extraído del JSON
+  const benefits: string[] = t.raw("benefits");
 
   const isProcessing = authLoading || isVerifying;
 
@@ -200,7 +196,7 @@ export default function ConsumerSignupPage() {
         <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
           <img
             src="/suite_patient_app.png"
-            alt="QuHealthy Patient Sign Up"
+            alt={t("hero_img_alt")}
             className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-40 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -215,7 +211,7 @@ export default function ConsumerSignupPage() {
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Portal de Salud Personal</span>
+              <span>{t("badge_personal_health")}</span>
             </span>
           </div>
 
@@ -223,7 +219,7 @@ export default function ConsumerSignupPage() {
           <div className="relative z-10 space-y-8 max-w-lg">
             <div className="space-y-4">
               <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-                {t("area_title", { defaultValue: "Tu Salud en un Solo Lugar" })}
+                {t("area_title")}
               </h2>
 
               <div className="space-y-3 pt-2">
@@ -249,10 +245,10 @@ export default function ConsumerSignupPage() {
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                    {t("secure_connection", { defaultValue: "Privacidad y Datos Protegidos" })}
+                    {t("secure_connection")}
                   </h3>
                   <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                    {t("secure_desc", { defaultValue: "Tu información médica cifrada con los estándares de seguridad más rigurosos." })}
+                    {t("secure_desc")}
                   </p>
                 </div>
               </div>
@@ -278,14 +274,14 @@ export default function ConsumerSignupPage() {
 
               <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
                 <User className="w-4 h-4" strokeWidth={2} />
-                <span>Registro de Paciente</span>
+                <span>{t("tagline")}</span>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                {t("title", { defaultValue: "Crear Cuenta Personal" })}
+                {t("title")}
               </h1>
               <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                {t("subtitle", { defaultValue: "Crea tu perfil en minutos y gestiona tu salud de forma inteligente." })}
+                {t("subtitle")}
               </p>
             </div>
 
@@ -301,7 +297,7 @@ export default function ConsumerSignupPage() {
                 </div>
                 <div className="relative flex justify-center text-[11px] font-semibold">
                   <span className="px-3 bg-white dark:bg-[#0a0a0a] text-gray-400 uppercase tracking-wider">
-                    {t("or_register", { defaultValue: "o regístrate con correo" })}
+                    {t("or_register")}
                   </span>
                 </div>
               </div>
@@ -330,12 +326,12 @@ export default function ConsumerSignupPage() {
                 {/* Nombre Completo */}
                 <div className="space-y-1.5">
                   <label htmlFor="name" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("name_label", { defaultValue: "Nombre y Apellidos" })}
+                    {t("name_label")}
                   </label>
                   <input
                     id="name"
                     name="name"
-                    placeholder={t("name_placeholder", { defaultValue: "María Fernández" })}
+                    placeholder={t("name_placeholder")}
                     value={formData.name}
                     onChange={handleInputChange}
                     className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
@@ -346,13 +342,13 @@ export default function ConsumerSignupPage() {
                 {/* Email */}
                 <div className="space-y-1.5">
                   <label htmlFor="email" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("email_label", { defaultValue: "Correo Electrónico" })}
+                    {t("email_label")}
                   </label>
                   <input
                     id="email"
                     type="email"
                     name="email"
-                    placeholder={t("email_placeholder", { defaultValue: "maria@ejemplo.com" })}
+                    placeholder={t("email_placeholder")}
                     value={formData.email}
                     onChange={handleInputChange}
                     className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
@@ -363,14 +359,14 @@ export default function ConsumerSignupPage() {
                 {/* Password */}
                 <div className="space-y-1.5">
                   <label htmlFor="password" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("password_label", { defaultValue: "Contraseña" })}
+                    {t("password_label")}
                   </label>
                   <div className="relative">
                     <input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       name="password"
-                      placeholder={t("password_placeholder", { defaultValue: "••••••••" })}
+                      placeholder={t("password_placeholder")}
                       value={formData.password}
                       onChange={handleInputChange}
                       className="w-full h-12 pl-4 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
@@ -378,9 +374,7 @@ export default function ConsumerSignupPage() {
                     />
                     <button
                       type="button"
-                      aria-label={
-                        showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                      }
+                      aria-label={showPassword ? t("hide_password") : t("show_password")}
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                     >
@@ -414,14 +408,14 @@ export default function ConsumerSignupPage() {
                 {/* Confirm Password */}
                 <div className="space-y-1.5">
                   <label htmlFor="confirmPassword" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("confirm_password_label", { defaultValue: "Confirmar Contraseña" })}
+                    {t("confirm_password_label")}
                   </label>
                   <div className="relative">
                     <input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
                       name="confirmPassword"
-                      placeholder={t("confirm_password_placeholder", { defaultValue: "••••••••" })}
+                      placeholder={t("confirm_password_placeholder")}
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       className={cn(
@@ -436,8 +430,8 @@ export default function ConsumerSignupPage() {
                       type="button"
                       aria-label={
                         showConfirmPassword
-                          ? "Ocultar confirmación de contraseña"
-                          : "Mostrar confirmación de contraseña"
+                          ? t("hide_password")
+                          : t("show_password")
                       }
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
@@ -451,7 +445,7 @@ export default function ConsumerSignupPage() {
                   </div>
                   {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                     <p className="text-xs font-semibold text-red-500 pt-0.5">
-                      {t("passwords_not_match", { defaultValue: "Las contraseñas no coinciden" })}
+                      {t("passwords_not_match")}
                     </p>
                   )}
                 </div>
@@ -469,23 +463,23 @@ export default function ConsumerSignupPage() {
                       htmlFor="terms"
                       className="text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer select-none"
                     >
-                      {t("accept_privacy", { defaultValue: "Acepto los términos y aviso de privacidad" })}
+                      {t("accept_privacy")}
                     </label>
                     <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                      {t("accept_privacy_start", { defaultValue: "Al registrarte, confirmas que has leído el " })}
+                      {t("accept_privacy_start")}
                       <button
                         type="button"
                         onClick={() => setShowPrivacyModal(true)}
                         className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
                       >
-                        {t("privacy_policy", { defaultValue: "aviso de privacidad" })}
-                      </button>{" "}
-                      {t("and", { defaultValue: "y los " })}
+                        {t("privacy_policy")}
+                      </button>
+                      {t("and")}
                       <Link
                         href="/terms"
                         className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
                       >
-                        {t("terms_of_service", { defaultValue: "términos de servicio" })}
+                        {t("terms_of_service")}
                       </Link>
                       .
                     </p>
@@ -504,9 +498,7 @@ export default function ConsumerSignupPage() {
                   }}
                   onError={(errorCode) => {
                     console.error("Turnstile error code:", errorCode);
-                    toast.error(
-                      "Error al validar la seguridad. Por favor, intenta de nuevo."
-                    );
+                    toast.error(t("captcha_error"));
                     setIsVerifying(false);
                     isIntentionalSubmitRef.current = false;
                     turnstileRef.current?.reset();
@@ -528,12 +520,12 @@ export default function ConsumerSignupPage() {
                     {isProcessing ? (
                       <>
                         <QhSpinner size="sm" className="text-current" />
-                        <span>{t("loading", { defaultValue: "Creando cuenta de paciente..." })}</span>
+                        <span>{t("loading")}</span>
                       </>
                     ) : (
                       <>
                         <UserPlus className="w-4 h-4" strokeWidth={2} />
-                        <span>{t("submit_button", { defaultValue: "Registrar mi Cuenta" })}</span>
+                        <span>{t("submit_button")}</span>
                         <ArrowRight className="w-4 h-4" strokeWidth={2} />
                       </>
                     )}
@@ -546,12 +538,12 @@ export default function ConsumerSignupPage() {
             {/* Login Link */}
             <div className="text-center pt-2">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                {t("has_account", { defaultValue: "¿Ya tienes una cuenta registrada?" })}{" "}
+                {t("has_account")}{" "}
                 <Link
                   href="/login"
                   className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline"
                 >
-                  {t("login_here", { defaultValue: "Inicia sesión aquí" })}
+                  {t("login_here")}
                 </Link>
               </p>
             </div>

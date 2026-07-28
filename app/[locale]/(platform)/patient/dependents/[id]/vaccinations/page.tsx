@@ -1,10 +1,16 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-module-scope-pure-function */
 
 import React, { useState, useEffect, use } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, AlertCircle, Syringe, Clock, Info } from "lucide-react";
 import { toast } from "react-toastify";
+
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface VaccinationStatus {
   vaccineCatalogId: number;
@@ -25,8 +31,10 @@ export default function VaccinationCardPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = useTranslations("PatientVaccination");
   const resolvedParams = use(params);
   const dependentId = resolvedParams.id;
+
   const [vaccines, setVaccines] = useState<VaccinationStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyingId, setApplyingId] = useState<number | null>(null);
@@ -37,60 +45,18 @@ export default function VaccinationCardPage({
 
   const fetchVaccines = async () => {
     try {
-      // In a real scenario, this fetches the real dependent from DB.
       const response = await fetch(
-        `/api/dependents/${dependentId}/vaccinations`,
+        `/api/dependents/${dependentId}/vaccinations`
       );
       if (response.ok) {
         const data = await response.json();
         setVaccines(data);
       } else {
-        // Fallback mock data if backend is not wired to proxy yet
-        setVaccines([
-          {
-            vaccineCatalogId: 1,
-            name: "BCG",
-            diseasePrevented: "Tuberculosis",
-            doseNumber: 1,
-            recommendedAgeMonths: 0,
-            notes: "Única",
-            isApplied: true,
-            appliedDate: "2023-01-05",
-            appliedBy: "Hospital",
-            isDelayed: false,
-            recommendedDate: "2023-01-01",
-          },
-          {
-            vaccineCatalogId: 2,
-            name: "Hepatitis B",
-            diseasePrevented: "Hepatitis B",
-            doseNumber: 1,
-            recommendedAgeMonths: 0,
-            notes: "Primera",
-            isApplied: true,
-            appliedDate: "2023-01-05",
-            appliedBy: "Hospital",
-            isDelayed: false,
-            recommendedDate: "2023-01-01",
-          },
-          {
-            vaccineCatalogId: 3,
-            name: "Pentavalente",
-            diseasePrevented:
-              "Difteria, Tos ferina, Tétanos, Polio, H. influenzae b",
-            doseNumber: 1,
-            recommendedAgeMonths: 2,
-            notes: "Primera",
-            isApplied: false,
-            appliedDate: null,
-            appliedBy: null,
-            isDelayed: true,
-            recommendedDate: "2023-03-01",
-          },
-        ]);
+        toast.error(t("toast_fetch_error"));
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error fetching vaccination card:", e);
+      toast.error(t("toast_fetch_error"));
     } finally {
       setLoading(false);
     }
@@ -108,26 +74,20 @@ export default function VaccinationCardPage({
           body: JSON.stringify({
             vaccineCatalogId: vaccineId,
             appliedDate: today,
-            appliedBy: "Registrado por Usuario",
+            appliedBy: t("registered_by_user"),
           }),
-        },
+        }
       );
 
       if (response.ok) {
-        toast.success("Vacuna marcada como aplicada.");
-        fetchVaccines();
+        toast.success(t("toast_applied_success"));
+        await fetchVaccines();
       } else {
-        toast.success("Simulado: Vacuna aplicada (Mock)");
-        setVaccines((prev) =>
-          prev.map((v) =>
-            v.vaccineCatalogId === vaccineId
-              ? { ...v, isApplied: true, appliedDate: today }
-              : v,
-          ),
-        );
+        toast.error(t("toast_save_error"));
       }
     } catch (e) {
-      toast.error("Error al guardar.");
+      console.error("Error updating vaccine application:", e);
+      toast.error(t("toast_save_error"));
     } finally {
       setApplyingId(null);
     }
@@ -135,7 +95,12 @@ export default function VaccinationCardPage({
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-slate-500">Cargando cartilla...</div>
+      <div className="flex flex-col justify-center items-center min-h-[60vh] bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500">
+        <QhSpinner size="lg" />
+        <p className="text-xs font-semibold tracking-wide text-gray-500 dark:text-gray-400 mt-4 animate-pulse">
+          {t("loading")}
+        </p>
+      </div>
     );
   }
 
@@ -147,118 +112,148 @@ export default function VaccinationCardPage({
       acc[age].push(curr);
       return acc;
     },
-    {} as Record<number, VaccinationStatus[]>,
+    {} as Record<number, VaccinationStatus[]>
   );
 
   const formatAge = (months: number) => {
-    if (months === 0) return "Al nacer";
-    if (months === 12) return "1 año";
-    if (months === 18) return "1 año y medio";
-    if (months > 12 && months % 12 === 0) return `${months / 12} años`;
-    return `${months} meses`;
+    if (months === 0) return t("age_at_birth");
+    if (months === 12) return t("age_one_year");
+    if (months === 18) return t("age_one_half_years");
+    if (months > 12 && months % 12 === 0)
+      return t("age_years", { years: months / 12 });
+    return t("age_months", { months });
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="flex items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600">
-          <Syringe className="w-8 h-8" />
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-24">
+      <div className="max-w-5xl mx-auto px-6 py-10 sm:py-12 space-y-10">
+        
+        {/* ── HEADER ────────────────────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5 border-b border-gray-100 dark:border-gray-800 pb-8">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 text-amber-600 dark:text-amber-400 shadow-sm flex items-center justify-center shrink-0">
+            <Syringe className="w-7 h-7" strokeWidth={2} />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+              {t("title")}
+            </h1>
+            <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+              {t("subtitle")}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            Cartilla Nacional de Salud
-          </h1>
-          <p className="text-slate-500">
-            Seguimiento de vacunación pediátrica (Esquema Mexicano)
-          </p>
-        </div>
-      </div>
 
-      <div className="space-y-8">
-        {Object.entries(grouped).map(([age, group]) => (
-          <div key={age} className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 pb-2">
-              {formatAge(Number(age))}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {group.map((v) => (
-                <div
-                  key={v.vaccineCatalogId}
-                  className={`p-4 rounded-xl border relative overflow-hidden transition-all ${
-                    v.isApplied
-                      ? "bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-                      : v.isDelayed
-                        ? "bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-900/30"
-                        : "bg-white border-blue-100 dark:bg-slate-900 dark:border-blue-900/30 shadow-sm"
-                  }`}
-                >
-                  {/* Etiqueta lateral de estado */}
+        {/* ── LISTADO AGRUPADO DE VACUNAS ──────────────────────────────── */}
+        <div className="space-y-10">
+          {Object.entries(grouped).map(([age, group]) => (
+            <div key={age} className="space-y-4">
+              <div className="border-b border-gray-100 dark:border-gray-800 pb-2">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  {formatAge(Number(age))}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {group.map((v) => (
                   <div
-                    className={`absolute top-0 left-0 w-1 h-full ${v.isApplied ? "bg-emerald-500" : v.isDelayed ? "bg-red-500" : "bg-blue-500"}`}
-                  />
+                    key={v.vaccineCatalogId}
+                    className={cn(
+                      "p-6 rounded-3xl border relative overflow-hidden transition-all shadow-sm flex flex-col justify-between gap-4",
+                      v.isApplied
+                        ? "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800"
+                        : v.isDelayed
+                        ? "bg-rose-50/30 dark:bg-rose-950/10 border-rose-100 dark:border-rose-900/30"
+                        : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800"
+                    )}
+                  >
+                    {/* Borde lateral de estado */}
+                    <div
+                      className={cn(
+                        "absolute top-0 left-0 w-1.5 h-full",
+                        v.isApplied
+                          ? "bg-emerald-500"
+                          : v.isDelayed
+                          ? "bg-rose-500"
+                          : "bg-amber-500"
+                      )}
+                    />
 
-                  <div className="pl-2 flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900 dark:text-white">
-                          {v.name}
-                        </h3>
-                        {v.doseNumber && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                            Dosis {v.doseNumber}
-                          </span>
-                        )}
+                    <div className="pl-2 flex justify-between items-start gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                            {v.name}
+                          </h3>
+                          {v.doseNumber && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-mono">
+                              {t("dose_label", { number: v.doseNumber })}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                          {t("prevents_label", { disease: v.diseasePrevented })}
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Previene: {v.diseasePrevented}
-                      </p>
 
-                      <div className="mt-4 flex items-center gap-2">
-                        {v.isApplied ? (
-                          <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                            <CheckCircle2 className="w-4 h-4" />
-                            Aplicada el {v.appliedDate}
-                          </span>
-                        ) : v.isDelayed ? (
-                          <span className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400">
-                            <AlertCircle className="w-4 h-4" />
-                            Atrasada (Sugerida: {v.recommendedDate})
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-blue-400">
-                            <Clock className="w-4 h-4" />
-                            Pendiente para {v.recommendedDate}
-                          </span>
-                        )}
-                      </div>
+                      {!v.isApplied && (
+                        <Button
+                          onClick={() => handleMarkApplied(v.vaccineCatalogId)}
+                          disabled={applyingId === v.vaccineCatalogId}
+                          variant="outline"
+                          className="shrink-0 rounded-xl border-gray-200 dark:border-gray-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 hover:border-emerald-200 text-xs font-bold transition-all h-9 px-3.5 shadow-sm"
+                        >
+                          {applyingId === v.vaccineCatalogId
+                            ? t("btn_saving")
+                            : t("btn_mark")}
+                        </Button>
+                      )}
                     </div>
 
-                    {!v.isApplied && (
-                      <button
-                        onClick={() => handleMarkApplied(v.vaccineCatalogId)}
-                        disabled={applyingId === v.vaccineCatalogId}
-                        className="shrink-0 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-medium rounded-lg transition-colors"
-                      >
-                        {applyingId === v.vaccineCatalogId
-                          ? "Guardando..."
-                          : "Marcar"}
-                      </button>
-                    )}
+                    <div className="pl-2 pt-2 border-t border-gray-50 dark:border-gray-800/50 flex items-center gap-2">
+                      {v.isApplied ? (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>
+                            {t("status_applied", { date: v.appliedDate || "" })}
+                          </span>
+                        </span>
+                      ) : v.isDelayed ? (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-rose-600 dark:text-rose-400">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>
+                            {t("status_delayed", {
+                              date: v.recommendedDate || "",
+                            })}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+                          <Clock className="w-4 h-4" />
+                          <span>
+                            {t("status_pending", {
+                              date: v.recommendedDate || "",
+                            })}
+                          </span>
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex gap-3 text-sm text-slate-600 dark:text-slate-400">
-        <Info className="w-5 h-5 shrink-0" />
-        <p>
-          El motor de recomendaciones utilizará esta información clínica para
-          recordarte las próximas citas pediátricas de tu dependiente y emitir
-          alertas tempranas de inmunización.
-        </p>
+        {/* ── NOTA INFORMATIVA DE IA / RECORDATORIOS ───────────────────── */}
+        <div className="rounded-3xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40 p-5 flex items-start gap-3.5 shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+            <Info className="w-4.5 h-4.5" strokeWidth={2} />
+          </div>
+          <p className="text-xs font-medium leading-relaxed text-amber-950/80 dark:text-amber-300/80">
+            {t("info_note")}
+          </p>
+        </div>
+
       </div>
     </div>
   );

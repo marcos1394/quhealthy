@@ -27,12 +27,11 @@ import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 import { Turnstile } from "@marsidev/react-turnstile";
 
-// Componentes
+// Componentes y utilidades del sistema
 import SocialAuthButtons from "@/components/auth/SocialButtons";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthResponse } from "@/types/auth";
 import { handleApiError } from "@/lib/handleApiError";
@@ -134,7 +133,7 @@ export default function LoginPage() {
         role: userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER",
       });
 
-      toast.success(t("title", { defaultValue: "Sesión iniciada correctamente" }), {
+      toast.success(t("login_success"), {
         theme: "colored",
       });
       await handleAuthNavigation(response);
@@ -143,9 +142,7 @@ export default function LoginPage() {
       const errorMessage = err.message || "Credenciales incorrectas.";
 
       if (errorMessage.includes("verificar")) {
-        setError(
-          "Debes verificar tu correo antes de entrar. Revisa tu bandeja de entrada."
-        );
+        setError(t("unverified_email_error"));
       } else {
         setError(errorMessage);
       }
@@ -163,7 +160,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!isFormValid()) {
-      setError("Por favor ingresa un email y contraseña válidos");
+      setError(t("invalid_form_error"));
       return;
     }
 
@@ -174,18 +171,10 @@ export default function LoginPage() {
     turnstileRef.current?.execute();
   };
 
-  const benefits =
-    userType === "consumer"
-      ? [
-          t("consumer_benefits.0", { defaultValue: "Acceso inmediato a tu expediente médico digital" }),
-          t("consumer_benefits.1", { defaultValue: "Agenda y gestión de citas en tiempo real" }),
-          t("consumer_benefits.2", { defaultValue: "Comunicación directa y segura con especialistas" }),
-        ]
-      : [
-          t("provider_benefits.0", { defaultValue: "Gestión omnicanal de pacientes y agenda" }),
-          t("provider_benefits.1", { defaultValue: "Fichas clínicas personalizables e IA asistida" }),
-          t("provider_benefits.2", { defaultValue: "Facturación electrónica y control financiero" }),
-        ];
+  // Carga dinámica del arreglo según el tipo de usuario mediante t.raw()
+  const benefits: string[] = t.raw(
+    userType === "consumer" ? "consumer_benefits" : "provider_benefits"
+  );
 
   return (
     <GoogleOAuthProvider
@@ -205,7 +194,7 @@ export default function LoginPage() {
                 ? "/suite_patient_app.png"
                 : "/hero_medical_lifestyle.png"
             }
-            alt="QuHealthy Authentication"
+            alt={t("hero_img_alt")}
             className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-50"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
@@ -220,7 +209,7 @@ export default function LoginPage() {
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Acceso Seguro</span>
+              <span>{t("badge_secure_login")}</span>
             </span>
           </div>
 
@@ -228,12 +217,7 @@ export default function LoginPage() {
           <div className="relative z-10 space-y-8 max-w-lg">
             <div className="space-y-4">
               <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-                {t(userType === "consumer" ? "consumer_area" : "provider_area", {
-                  defaultValue:
-                    userType === "consumer"
-                      ? "Portal Digital de Pacientes"
-                      : "Ecosistema Médico Profesional",
-                })}
+                {t(userType === "consumer" ? "consumer_area" : "provider_area")}
               </h2>
 
               <div className="space-y-3 pt-2">
@@ -259,10 +243,10 @@ export default function LoginPage() {
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                    {t("secure_connection", { defaultValue: "Conexión Cifrada de Extremo a Extremo" })}
+                    {t("secure_connection")}
                   </h3>
                   <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                    {t("secure_desc", { defaultValue: "Cumplimiento con estándares HIPAA y certificaciones internacionales de salud." })}
+                    {t("secure_desc")}
                   </p>
                 </div>
               </div>
@@ -288,14 +272,14 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
                 <KeyRound className="w-4 h-4" strokeWidth={2} />
-                <span>Autenticación de Usuario</span>
+                <span>{t("tagline")}</span>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                {t("title", { defaultValue: "Iniciar Sesión" })}
+                {t("title")}
               </h1>
               <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                {t("subtitle", { defaultValue: "Ingresa tus credenciales para acceder a tu panel de control." })}
+                {t("subtitle")}
               </p>
             </div>
 
@@ -312,7 +296,7 @@ export default function LoginPage() {
                   className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                 >
                   <User className="w-4 h-4 shrink-0" strokeWidth={2} />
-                  <span>{t("consumer_tab", { defaultValue: "Soy Paciente" })}</span>
+                  <span>{t("consumer_tab")}</span>
                 </TabsTrigger>
 
                 <TabsTrigger
@@ -320,7 +304,7 @@ export default function LoginPage() {
                   className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                 >
                   <Stethoscope className="w-4 h-4 shrink-0" strokeWidth={2} />
-                  <span>{t("provider_tab", { defaultValue: "Soy Médico / Staff" })}</span>
+                  <span>{t("provider_tab")}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -342,7 +326,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-[11px] font-semibold">
                   <span className="px-3 bg-white dark:bg-[#0a0a0a] text-gray-400 uppercase tracking-wider">
-                    {t("or_continue", { defaultValue: "o usa tu correo" })}
+                    {t("or_continue")}
                   </span>
                 </div>
               </div>
@@ -360,10 +344,10 @@ export default function LoginPage() {
                       <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={2} />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
-                          Tu sesión ha expirado
+                          {t("session_expired_title")}
                         </p>
                         <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
-                          Por tu seguridad, inicia sesión nuevamente.
+                          {t("session_expired_desc")}
                         </p>
                       </div>
                       <button
@@ -402,7 +386,7 @@ export default function LoginPage() {
                 {/* Email Field */}
                 <div className="space-y-1.5">
                   <label htmlFor="email" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("email_label", { defaultValue: "Correo Electrónico" })}
+                    {t("email_label")}
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
@@ -412,8 +396,8 @@ export default function LoginPage() {
                       type="email"
                       placeholder={
                         userType === "consumer"
-                          ? t("email_placeholder_consumer", { defaultValue: "tu@ejemplo.com" })
-                          : t("email_placeholder_provider", { defaultValue: "doctor@clinica.com" })
+                          ? t("email_placeholder_consumer")
+                          : t("email_placeholder_provider")
                       }
                       value={formData.email}
                       onChange={handleInputChange}
@@ -427,13 +411,13 @@ export default function LoginPage() {
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label htmlFor="password" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                      {t("password_label", { defaultValue: "Contraseña" })}
+                      {t("password_label")}
                     </label>
                     <Link
                       href="/forgot-password"
                       className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
                     >
-                      {t("forgot_password", { defaultValue: "¿Olvidaste tu contraseña?" })}
+                      {t("forgot_password")}
                     </Link>
                   </div>
                   <div className="relative">
@@ -442,7 +426,7 @@ export default function LoginPage() {
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder={t("password_placeholder", { defaultValue: "••••••••" })}
+                      placeholder={t("password_placeholder")}
                       value={formData.password}
                       onChange={handleInputChange}
                       className="w-full h-12 pl-10 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
@@ -450,7 +434,7 @@ export default function LoginPage() {
                     />
                     <button
                       type="button"
-                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      aria-label={showPassword ? t("hide_password") : t("show_password")}
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                     >
@@ -475,7 +459,7 @@ export default function LoginPage() {
                     htmlFor="remember"
                     className="text-xs text-gray-600 dark:text-gray-400 font-semibold cursor-pointer select-none"
                   >
-                    {t("remember_me", { defaultValue: "Recordar sesión en este equipo" })}
+                    {t("remember_me")}
                   </label>
                 </div>
 
@@ -491,7 +475,7 @@ export default function LoginPage() {
                   }}
                   onError={(errorCode) => {
                     console.error("Turnstile error code:", errorCode);
-                    toast.error("Error al validar la seguridad. Por favor, intenta de nuevo.");
+                    toast.error(t("captcha_error"));
                     setLoading(false);
                     isIntentionalSubmitRef.current = false;
                     turnstileRef.current?.reset();
@@ -512,11 +496,11 @@ export default function LoginPage() {
                   {loading ? (
                     <>
                       <QhSpinner size="sm" className="text-current" />
-                      <span>{t("loading", { defaultValue: "Iniciando sesión..." })}</span>
+                      <span>{t("loading")}</span>
                     </>
                   ) : (
                     <>
-                      <span>{t("submit_button", { defaultValue: "Ingresar a mi Cuenta" })}</span>
+                      <span>{t("submit_button")}</span>
                       <ArrowRight className="w-4 h-4" strokeWidth={2} />
                     </>
                   )}
@@ -528,7 +512,7 @@ export default function LoginPage() {
             {/* Signup Link */}
             <div className="text-center pt-2">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3">
-                {t("no_account", { defaultValue: "¿Aún no tienes una cuenta registrada?" })}
+                {t("no_account")}
               </p>
 
               <Link
@@ -537,7 +521,7 @@ export default function LoginPage() {
                 }
                 className="inline-flex items-center justify-center w-full h-11 text-xs font-bold rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all shadow-sm"
               >
-                {t("create_account", { defaultValue: "Crear Cuenta Gratuitamente" })}
+                {t("create_account")}
               </Link>
             </div>
 

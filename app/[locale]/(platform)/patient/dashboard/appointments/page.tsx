@@ -1,210 +1,248 @@
 "use client";
+
 /* eslint-disable react-doctor/prefer-useReducer */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { AnimatePresence } from 'framer-motion';
-import { Calendar, Plus } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { AnimatePresence } from "framer-motion";
+import { Calendar, Plus } from "lucide-react";
 
 // UI Components
-import { Button } from '@/components/ui/button';
-import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
-import { QhSpinner } from '@/components/ui/QhSpinner';
+import { Button } from "@/components/ui/button";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 // Hooks & Types
-import { useAppointments } from '@/hooks/useAppointment';
-import { AppointmentResponse } from '@/types/appointments';
+import { useAppointments } from "@/hooks/useAppointment";
+import { AppointmentResponse } from "@/types/appointments";
 
 // Modular Components
-import { AppointmentStats } from '@/components/appointments/AppointmentStats';
-import { AppointmentFilters, TabValue, SortValue } from '@/components/appointments/AppointmentFilters';
-import { AppointmentCard } from '@/components/appointments/AppointmentCard';
-import { AppointmentEmptyState } from '@/components/appointments/AppointmentEmptyState';
+import { AppointmentStats } from "@/components/appointments/AppointmentStats";
+import {
+  AppointmentFilters,
+  TabValue,
+  SortValue,
+} from "@/components/appointments/AppointmentFilters";
+import { AppointmentCard } from "@/components/appointments/AppointmentCard";
+import { AppointmentEmptyState } from "@/components/appointments/AppointmentEmptyState";
 
 export default function ConsumerAppointmentsPage() {
- const router = useRouter();
- const t = useTranslations('PatientAppointments');
- 
- // 🚀 HOOK PRINCIPAL: Extrae la data real de Spring Boot
- const { appointments, isLoading, fetchAppointments, cancelAppointment } = useAppointments();
+  const router = useRouter();
+  const t = useTranslations("PatientAppointments");
 
- // Estados locales de la UI
- const [activeTab, setActiveTab] = useState<TabValue>('upcoming');
- const [searchQuery, setSearchQuery] = useState('');
- const [sortBy, setSortBy] = useState<SortValue>('date');
- const [isCanceling, setIsCanceling] = useState(false);
- const [cancelModalState, setCancelModalState] = useState<{
- isOpen: boolean;
- appointment: AppointmentResponse | null;
- }>({
- isOpen: false,
- appointment: null
- });
+  // 🚀 HOOK PRINCIPAL: Extrae la data real de Spring Boot
+  const { appointments, isLoading, fetchAppointments, cancelAppointment } =
+    useAppointments();
 
- // Al cargar la página, traemos los datos
- useEffect(() => {
- fetchAppointments();
- }, [fetchAppointments]);
+  // Estados locales de la UI
+  const [activeTab, setActiveTab] = useState<TabValue>("upcoming");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortValue>("date");
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [cancelModalState, setCancelModalState] = useState<{
+    isOpen: boolean;
+    appointment: AppointmentResponse | null;
+  }>({
+    isOpen: false,
+    appointment: null,
+  });
 
- // 🧮 CÁLCULO DE ESTADÍSTICAS (Memorizado para rendimiento)
- const stats = useMemo(() => {
- const now = new Date();
- return {
- total: appointments.length,
- upcoming: appointments.filter(a => new Date(a.startTime) >= now && (a.status === 'SCHEDULED' || a.status === 'PENDING_PAYMENT')).length,
- completed: appointments.filter(a => a.status === 'COMPLETED').length,
- cancelled: appointments.filter(a => a.status === 'CANCELED_BY_CONSUMER' || a.status === 'CANCELED_BY_PROVIDER' || a.status === 'NO_SHOW').length
- };
- }, [appointments]);
+  // Al cargar la página, traemos los datos
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
- // 🔍 FILTRADO Y ORDENAMIENTO (Memorizado)
- const filteredAppointments = useMemo(() => {
- let filtered = [...appointments];
- const now = new Date();
+  // 🧮 CÁLCULO DE ESTADÍSTICAS (Memorizado para rendimiento)
+  const stats = useMemo(() => {
+    const now = new Date();
+    return {
+      total: appointments.length,
+      upcoming: appointments.filter(
+        (a) =>
+          new Date(a.startTime) >= now &&
+          (a.status === "SCHEDULED" || a.status === "PENDING_PAYMENT")
+      ).length,
+      completed: appointments.filter((a) => a.status === "COMPLETED").length,
+      cancelled: appointments.filter(
+        (a) =>
+          a.status === "CANCELED_BY_CONSUMER" ||
+          a.status === "CANCELED_BY_PROVIDER" ||
+          a.status === "NO_SHOW"
+      ).length,
+    };
+  }, [appointments]);
 
- // 1. Filtrar por Pestaña Activa
- if (activeTab === 'upcoming') {
- filtered = filtered.filter(a =>
- new Date(a.endTime) >= now &&
- (a.status === 'SCHEDULED' || a.status === 'PENDING_PAYMENT' || a.status === 'IN_PROGRESS')
- );
- } else if (activeTab === 'past') {
- filtered = filtered.filter(a =>
- a.status === 'COMPLETED' || 
- (new Date(a.endTime) < now && a.status !== 'CANCELED_BY_CONSUMER' && a.status !== 'CANCELED_BY_PROVIDER')
- );
- } else if (activeTab === 'cancelled') {
- filtered = filtered.filter(a =>
- a.status === 'CANCELED_BY_CONSUMER' || a.status === 'CANCELED_BY_PROVIDER' || a.status === 'NO_SHOW'
- );
- }
+  // 🔍 FILTRADO Y ORDENAMIENTO (Memorizado)
+  const filteredAppointments = useMemo(() => {
+    let filtered = [...appointments];
+    const now = new Date();
 
- // 2. Filtrar por Búsqueda (Texto)
- if (searchQuery) {
- const query = searchQuery.toLowerCase();
- filtered = filtered.filter(a =>
- a.providerNameSnapshot.toLowerCase().includes(query) ||
- a.serviceName.toLowerCase().includes(query) ||
- (a.providerSpecialty && a.providerSpecialty.toLowerCase().includes(query))
- );
- }
+    // 1. Filtrar por Pestaña Activa
+    if (activeTab === "upcoming") {
+      filtered = filtered.filter(
+        (a) =>
+          new Date(a.startTime) >= now &&
+          (a.status === "SCHEDULED" ||
+            a.status === "PENDING_PAYMENT" ||
+            a.status === "IN_PROGRESS")
+      );
+    } else if (activeTab === "past") {
+      filtered = filtered.filter(
+        (a) =>
+          a.status === "COMPLETED" ||
+          (new Date(a.endTime) < now &&
+            a.status !== "CANCELED_BY_CONSUMER" &&
+            a.status !== "CANCELED_BY_PROVIDER")
+      );
+    } else if (activeTab === "cancelled") {
+      filtered = filtered.filter(
+        (a) =>
+          a.status === "CANCELED_BY_CONSUMER" ||
+          a.status === "CANCELED_BY_PROVIDER" ||
+          a.status === "NO_SHOW"
+      );
+    }
 
- // 3. Ordenar
- if (sortBy === 'date') {
- filtered.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
- } else {
- filtered.sort((a, b) => a.providerNameSnapshot.localeCompare(b.providerNameSnapshot));
- }
+    // 2. Filtrar por Búsqueda (Texto)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (a) =>
+          a.providerNameSnapshot?.toLowerCase().includes(query) ||
+          a.serviceName?.toLowerCase().includes(query) ||
+          a.providerSpecialty?.toLowerCase().includes(query)
+      );
+    }
 
- return filtered;
- }, [appointments, activeTab, searchQuery, sortBy]);
+    // 3. Ordenar
+    if (sortBy === "date") {
+      filtered.sort(
+        (a, b) =>
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      );
+    } else {
+      filtered.sort((a, b) =>
+        (a.providerNameSnapshot || "").localeCompare(
+          b.providerNameSnapshot || ""
+        )
+      );
+    }
 
- // ❌ MANEJADOR DE CANCELACIÓN
- const handleCancelAppointment = async () => {
- if (!cancelModalState.appointment) return;
- setIsCanceling(true);
- 
- // Llamamos al hook con el ID y un motivo genérico
- const success = await cancelAppointment(
- cancelModalState.appointment.id, 
- "Cancelado por el paciente desde portal web"
- );
- 
- if (success) {
- setCancelModalState({ isOpen: false, appointment: null });
- }
- setIsCanceling(false);
- };
+    return filtered;
+  }, [appointments, activeTab, searchQuery, sortBy]);
 
- // --- ESTADO 1: CARGANDO ---
- if (isLoading) {
- return (
- <div className="flex flex-col justify-center items-center min-h-screen gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
- <QhSpinner size="lg" />
-      <p className="text-sm font-semibold tracking-wide text-gray-600 dark:text-gray-400 animate-pulse mt-4">
-        {t('loading', { defaultValue: 'Cargando tu agenda...' })}
-      </p>
-    </div>
-  );
- }
+  // ❌ MANEJADOR DE CANCELACIÓN
+  const handleCancelAppointment = async () => {
+    if (!cancelModalState.appointment) return;
+    setIsCanceling(true);
 
- // --- ESTADO 2: PÁGINA PRINCIPAL ---
- return (
- <div className="min-h-screen bg-white dark:bg-[#0a0a0a] font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
- <div className="max-w-7xl mx-auto px-6 py-12 md:px-12 md:py-16 space-y-12">
+    const success = await cancelAppointment(
+      cancelModalState.appointment.id,
+      t("cancel_reason_default")
+    );
 
-        {/* --- CABECERA --- */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-3xl flex items-center justify-center bg-teal-50 dark:bg-teal-900/20 shrink-0">
-              <Calendar className="w-7 h-7 text-teal-600 dark:text-teal-400" strokeWidth={2} />
+    if (success) {
+      setCancelModalState({ isOpen: false, appointment: null });
+    }
+    setIsCanceling(false);
+  };
+
+  // --- ESTADO 1: CARGANDO ---
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center transition-colors duration-300">
+        <QhSpinner size="lg" />
+        <p className="text-xs font-semibold tracking-wide text-gray-500 dark:text-gray-400 mt-4 animate-pulse">
+          {t("loading")}
+        </p>
+      </div>
+    );
+  }
+
+  // --- ESTADO 2: PÁGINA PRINCIPAL ---
+  return (
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-24">
+      <div className="max-w-7xl mx-auto px-6 py-10 sm:py-12 lg:px-12 space-y-10">
+        
+        {/* --- CABECERA HOMOLOGADA --- */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-gray-100 dark:border-gray-800 pb-8">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+              <Calendar className="w-7 h-7" strokeWidth={2} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">
-                {t('title', { defaultValue: 'Mis Citas' })}
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {t("title")}
               </h1>
-              <p className="text-sm font-medium text-gray-500">
-                {t('subtitle', { defaultValue: 'Gestiona tus próximas consultas y revisa tu historial.' })}
+              <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                {t("subtitle")}
               </p>
             </div>
           </div>
-          
-          <Button 
-            onClick={() => router.push('/discover')} 
-            className="rounded-xl bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 h-12 px-8 text-sm font-semibold shadow-sm transition-all"
+
+          <Button
+            onClick={() => router.push("/discover")}
+            className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 h-12 px-6 text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 shrink-0"
           >
-            <Plus className="w-4 h-4 mr-2" strokeWidth={2.5} /> 
-            {t('btn_new', { defaultValue: 'Agendar Cita' })}
+            <Plus className="w-4 h-4" strokeWidth={2.5} />
+            <span>{t("btn_new")}</span>
           </Button>
         </div>
 
- {/* --- COMPONENTE DE ESTADÍSTICAS --- */}
- <AppointmentStats stats={stats} />
+        {/* --- COMPONENTE DE ESTADÍSTICAS --- */}
+        <AppointmentStats stats={stats} />
 
- {/* --- COMPONENTE DE FILTROS --- */}
- <AppointmentFilters 
- activeTab={activeTab} 
- setActiveTab={setActiveTab}
- searchQuery={searchQuery}
- setSearchQuery={setSearchQuery}
- sortBy={sortBy}
- setSortBy={setSortBy}
- />
+        {/* --- COMPONENTE DE FILTROS --- */}
+        <AppointmentFilters
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+        />
 
- {/* --- LISTA DE CITAS O ESTADO VACÍO --- */}
- <div className="space-y-6">
- <AnimatePresence mode="popLayout">
- {filteredAppointments.length > 0 ? (
- filteredAppointments.map((appt, index) => (
- <AppointmentCard 
- key={appt.id} 
- appt={appt} 
- index={index} 
- onRequestCancel={(appointment) => setCancelModalState({ isOpen: true, appointment })}
- />
- ))
- ) : (
- <AppointmentEmptyState 
- activeTab={activeTab} 
- searchQuery={searchQuery} 
- />
- )}
- </AnimatePresence>
- </div>
+        {/* --- LISTA DE CITAS O ESTADO VACÍO --- */}
+        <div className="space-y-4">
+          <AnimatePresence mode="popLayout">
+            {filteredAppointments.length > 0 ? (
+              filteredAppointments.map((appt, index) => (
+                <AppointmentCard
+                  key={appt.id}
+                  appt={appt}
+                  index={index}
+                  onRequestCancel={(appointment) =>
+                    setCancelModalState({ isOpen: true, appointment })
+                  }
+                />
+              ))
+            ) : (
+              <AppointmentEmptyState
+                activeTab={activeTab}
+                searchQuery={searchQuery}
+              />
+            )}
+          </AnimatePresence>
+        </div>
 
- {/* --- MODAL DE CANCELACIÓN (Nota: El Modal mantiene sus propias clases, pero envuelve la lógica) --- */}
- <ConfirmationModal
- isOpen={cancelModalState.isOpen}
- onClose={() => setCancelModalState({ isOpen: false, appointment: null })}
- onConfirm={handleCancelAppointment}
- title={t('btn_cancel', { defaultValue: 'Cancelar Cita' })}
- message={`¿¿Estás seguro de que deseas cancelar tu cita de ${cancelModalState.appointment?.serviceName} con ${cancelModalState.appointment?.providerNameSnapshot}? Esta acción no se puede deshacer.`}
- isLoading={isCanceling}
- variant="destructive"
- />
- 
- </div>
- </div>
- );
+        {/* --- MODAL DE CANCELACIÓN --- */}
+        <ConfirmationModal
+          isOpen={cancelModalState.isOpen}
+          onClose={() =>
+            setCancelModalState({ isOpen: false, appointment: null })
+          }
+          onConfirm={handleCancelAppointment}
+          title={t("modal_title")}
+          message={t("modal_message", {
+            service: cancelModalState.appointment?.serviceName || "",
+            provider:
+              cancelModalState.appointment?.providerNameSnapshot || "",
+          })}
+          isLoading={isCanceling}
+          variant="destructive"
+        />
+      </div>
+    </div>
+  );
 }

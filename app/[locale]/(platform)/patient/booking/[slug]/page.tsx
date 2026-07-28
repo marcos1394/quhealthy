@@ -1,4 +1,5 @@
 "use client";
+
 /* eslint-disable react-doctor/rerender-state-only-in-handlers */
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
@@ -6,7 +7,7 @@
 
 import React, { useState, useEffect, use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -15,17 +16,12 @@ import {
   ChevronRight,
   CalendarX2,
   Calendar as CalendarIcon,
-  Loader2,
-  MapPin,
-  Truck,
-  Zap,
   GraduationCap,
   Package,
-  Store,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { useAvailability } from "@/hooks/useAvailability";
@@ -53,7 +49,7 @@ import {
   isBefore,
   startOfDay,
 } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS } from "date-fns/locale";
 
 export default function BookingPage({
   params,
@@ -63,6 +59,8 @@ export default function BookingPage({
   const { slug } = use(params);
   const router = useRouter();
   const t = useTranslations("PatientBooking");
+  const locale = useLocale();
+  const dateLocale = locale === "en" ? enUS : es;
 
   const {
     cart,
@@ -82,7 +80,7 @@ export default function BookingPage({
   const searchParams = useSearchParams();
   const serviceIdParam = searchParams?.get("serviceId");
 
-  // Storefront to fetch service if needed
+  // Storefront para obtener información del servicio si es necesario
   const { store, isLoading: isStoreLoading } = useStorefront(slug);
 
   // --- ESTADOS DE AGENDAMIENTO ---
@@ -95,12 +93,12 @@ export default function BookingPage({
   const [pendingSymptoms, setPendingSymptoms] = useState("");
   const [scheduleNow, setScheduleNow] = useState(true);
 
-  // 🧠 CEREBRO DEL CHECKOUT HÍBRIDO
+  // 🧠 LÓGICA DEL CHECKOUT HÍBRIDO
   const requiresScheduling = cart.some(
     (item) =>
       item.type === "SERVICE" ||
       (item.type === "PACKAGE" &&
-        item.packageContents?.some((sub) => sub.type === "SERVICE")),
+        item.packageContents?.some((sub) => sub.type === "SERVICE"))
   );
 
   const requiresShipping = cart.some(
@@ -108,22 +106,22 @@ export default function BookingPage({
       (item.type === "PRODUCT" && item.isDigital !== true) ||
       (item.type === "PACKAGE" &&
         item.packageContents?.some(
-          (sub) => sub.type === "PRODUCT" && sub.isDigital !== true,
-        )),
+          (sub) => sub.type === "PRODUCT" && sub.isDigital !== true
+        ))
   );
 
   const needsPrescription = cart.some(
     (item) =>
       (item.type === "PRODUCT" && item.requiresPrescription === true) ||
       (item.type === "PACKAGE" &&
-        item.packageContents?.some((sub) => sub.requiresPrescription === true)),
+        item.packageContents?.some((sub) => sub.requiresPrescription === true))
   );
 
   const isOnlyDigital = !requiresScheduling && !requiresShipping;
   const isPackageMultiSchedule = cart.some(
     (item) =>
       item.type === "PACKAGE" &&
-      item.packageContents?.some((sub) => sub.type === "SERVICE"),
+      item.packageContents?.some((sub) => sub.type === "SERVICE")
   );
 
   // ESTADO PARA AGENDAMIENTO MÚLTIPLE DE PAQUETES
@@ -135,7 +133,7 @@ export default function BookingPage({
   const handleSchedulePackageService = (
     serviceId: number,
     date: Date | null,
-    time: string | null,
+    time: string | null
   ) => {
     setScheduledPackageServices((prev) => {
       if (!date || !time) {
@@ -150,19 +148,19 @@ export default function BookingPage({
     });
   };
 
-  // AUTO-BOOK LOGIC
+  // LÓGICA DE AUTO-RESERVA
   useEffect(() => {
     if (cart.length === 0 && serviceIdParam && store && !isStoreLoading) {
       const serviceIdNum = Number(serviceIdParam);
       const serviceToBook = store.services?.find(
-        (s: StorefrontItem) => s.id === serviceIdNum,
+        (s: StorefrontItem) => s.id === serviceIdNum
       );
       if (serviceToBook) {
         setProvider(
           store.providerId,
           slug,
           store.displayName,
-          store.primaryColor || "#000000",
+          store.primaryColor || "#059669"
         );
         addToCart(serviceToBook, slug);
       }
@@ -200,7 +198,7 @@ export default function BookingPage({
     shippingAddress?: string,
     shareVaultAccess?: boolean,
     allowedDocumentIds?: string[],
-    paymentMethod?: string,
+    paymentMethod?: string
   ) => {
     // Validar si requiere cita simple
     if (
@@ -243,10 +241,10 @@ export default function BookingPage({
 
   if ((cart.length === 0 && serviceIdParam) || isStoreLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
-        <Loader2 className="w-12 h-12 text-black dark:text-white animate-spin" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
-          Preparando tu reserva...
+      <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center transition-colors duration-300">
+        <QhSpinner size="lg" />
+        <p className="text-xs font-semibold tracking-wide text-gray-500 dark:text-gray-400 mt-4 animate-pulse">
+          {t("preparing_booking")}
         </p>
       </div>
     );
@@ -254,7 +252,7 @@ export default function BookingPage({
 
   if (cart.length === 0 || !providerId) return null;
 
-  const safeColor = providerColor || "#000000";
+  const safeColor = providerColor || "#059669";
   const total = getTotalPrice();
   const duration = getTotalDuration();
 
@@ -270,26 +268,29 @@ export default function BookingPage({
     day = addDays(day, 1);
   }
 
+  const weekdaysList: string[] = t.raw("weekdays");
   let stepCounter = 1;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-black dark:text-white pb-32 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
-      {/* Header Arquitectónico */}
-      <div className="sticky top-0 z-40 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+      
+      {/* ── HEADER ARQUITECTÓNICO HOMOLOGADO ───────────────────────────── */}
+      <div className="sticky top-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 transition-colors">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:text-gray-500 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" strokeWidth={2} /> Volver al
-            directorio
+            <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+            <span>{t("back_to_directory")}</span>
           </button>
+          
           <div className="text-right">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+            <p className="text-[11px] font-semibold text-gray-400">
               {t("subtitle")}
             </p>
             <p
-              className="font-bold text-sm uppercase tracking-wider"
+              className="font-bold text-sm tracking-tight"
               style={{ color: safeColor }}
             >
               {providerName}
@@ -304,27 +305,24 @@ export default function BookingPage({
         isBookingView={true}
       />
 
-      <div className="max-w-7xl mx-auto px-6 mt-12 flex flex-col lg:flex-row gap-12">
-        <div className="flex-1 space-y-16">
+      <div className="max-w-7xl mx-auto px-6 mt-10 flex flex-col lg:flex-row gap-12">
+        <div className="flex-1 space-y-12">
+          
           {/* 🚀 ESTADO: SOLO DIGITAL */}
           {isOnlyDigital && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center text-center p-12 border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]"
+              className="flex flex-col items-center text-center p-8 sm:p-12 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm"
             >
-              <div className="w-16 h-16 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center mb-6">
-                <GraduationCap
-                  className="w-6 h-6 text-black dark:text-white"
-                  strokeWidth={1.5}
-                />
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 shadow-sm">
+                <GraduationCap className="w-7 h-7" strokeWidth={2} />
               </div>
-              <h2 className="text-xl font-bold uppercase tracking-tight text-black dark:text-white mb-4">
-                Acceso Inmediato a tu Contenido
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
+                {t("digital_content_title")}
               </h2>
-              <p className="text-[10px] text-gray-500 font-bold max-w-md leading-relaxed uppercase tracking-widest">
-                Tu selección incluye solo contenido digital. Revisa el
-                resumen...
+              <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-md leading-relaxed">
+                {t("digital_content_desc")}
               </p>
             </motion.div>
           )}
@@ -333,93 +331,81 @@ export default function BookingPage({
           {requiresScheduling && (
             <>
               {/* Opción de Agendar Ahora o Comprar para Después */}
-              {/* Opción de Agendar Ahora o Comprar para Después */}
               {!serviceIdParam && (
                 <motion.section
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
+                  className="space-y-6"
                 >
-                  <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
+                  <div className="flex items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
                     <div
-                      className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs shadow-sm"
                       style={{ backgroundColor: safeColor, color: "#ffffff" }}
                     >
-                      <span className="font-bold text-sm">{stepCounter++}</span>
+                      {stepCounter++}
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">
-                        ¿Qué deseas hacer?
+                      <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+                        {t("action_selection_title")}
                       </h2>
                     </div>
                   </div>
 
-                  <div
-                    className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-gray-300 dark:border-gray-700 ml-0 md:ml-16"
-                    style={
-                      { "--provider-color": safeColor } as React.CSSProperties
-                    }
-                  >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <button
                       className={cn(
-                        "p-6 flex items-center gap-4 transition-all duration-300 group",
-                        !scheduleNow &&
-                          "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:-translate-y-1 hover:shadow-lg hover:[border-color:var(--provider-color)] hover:bg-gray-50 dark:hover:bg-[#111]",
-                      )}
-                      style={
+                        "p-6 rounded-2xl border flex items-center gap-4 transition-all duration-300 text-left shadow-sm",
                         scheduleNow
-                          ? { backgroundColor: safeColor, color: "#ffffff" }
-                          : {}
-                      }
+                          ? "border-emerald-500/40 bg-emerald-50/50 dark:bg-emerald-950/20 text-gray-900 dark:text-white ring-2 ring-emerald-500/20"
+                          : "border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
+                      )}
                       onClick={() => setScheduleNow(true)}
                     >
                       <div
                         className={cn(
-                          "w-10 h-10 flex items-center justify-center shrink-0 transition-colors",
+                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
                           scheduleNow
-                            ? "text-white"
-                            : "text-gray-500 group-hover:[color:var(--provider-color)]",
+                            ? "bg-emerald-600 text-white"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-500"
                         )}
                       >
-                        <CalendarIcon className="w-5 h-5" strokeWidth={1.5} />
+                        <CalendarIcon className="w-5 h-5" strokeWidth={2} />
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-bold text-[10px] uppercase tracking-widest">
-                          Agendar Cita
+                      <div>
+                        <h4 className="font-bold text-xs text-gray-900 dark:text-white">
+                          {t("schedule_now_title")}
                         </h4>
-                        <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">
-                          Elegir fecha y pagar
+                        <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                          {t("schedule_now_desc")}
                         </p>
                       </div>
                     </button>
+
                     <button
                       className={cn(
-                        "p-6 flex items-center gap-4 transition-all duration-300 border-t md:border-t-0 md:border-l border-gray-300 dark:border-gray-700 group",
-                        scheduleNow &&
-                          "bg-white text-gray-500 dark:bg-[#0a0a0a] hover:-translate-y-1 hover:shadow-lg hover:[border-color:var(--provider-color)] hover:bg-gray-50 dark:hover:bg-[#111]",
-                      )}
-                      style={
+                        "p-6 rounded-2xl border flex items-center gap-4 transition-all duration-300 text-left shadow-sm",
                         !scheduleNow
-                          ? { backgroundColor: safeColor, color: "#ffffff" }
-                          : {}
-                      }
+                          ? "border-emerald-500/40 bg-emerald-50/50 dark:bg-emerald-950/20 text-gray-900 dark:text-white ring-2 ring-emerald-500/20"
+                          : "border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
+                      )}
                       onClick={() => setScheduleNow(false)}
                     >
                       <div
                         className={cn(
-                          "w-10 h-10 flex items-center justify-center shrink-0 transition-colors",
+                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
                           !scheduleNow
-                            ? "text-white"
-                            : "text-gray-500 group-hover:[color:var(--provider-color)]",
+                            ? "bg-emerald-600 text-white"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-500"
                         )}
                       >
-                        <Package className="w-5 h-5" strokeWidth={1.5} />
+                        <Package className="w-5 h-5" strokeWidth={2} />
                       </div>
-                      <div className="text-left">
-                        <h4 className="font-bold text-[10px] uppercase tracking-widest">
-                          Comprar para después
+                      <div>
+                        <h4 className="font-bold text-xs text-gray-900 dark:text-white">
+                          {t("buy_for_later_title")}
                         </h4>
-                        <p className="text-[9px] uppercase tracking-widest opacity-70 mt-0.5">
-                          Paga ahora, agenda cuando quieras
+                        <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                          {t("buy_for_later_desc")}
                         </p>
                       </div>
                     </button>
@@ -427,7 +413,7 @@ export default function BookingPage({
                 </motion.section>
               )}
 
-              {/* Step: Package Services Scheduler */}
+              {/* Paso: Agendamiento Múltiple de Paquetes */}
               <AnimatePresence>
                 {scheduleNow && isPackageMultiSchedule && (
                   <PackageMultiScheduler
@@ -441,99 +427,88 @@ export default function BookingPage({
                 )}
               </AnimatePresence>
 
-              {/* Step: Calendar */}
+              {/* Paso: Calendario de Citas Directo */}
               <AnimatePresence>
                 {scheduleNow && !isPackageMultiSchedule && (
                   <motion.section
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
+                    className="overflow-hidden space-y-6"
                   >
-                    <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
+                    <div className="flex items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
                       <div
-                        className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs shadow-sm"
                         style={{ backgroundColor: safeColor, color: "#ffffff" }}
                       >
-                        <span className="font-bold text-sm">
-                          {stepCounter++}
-                        </span>
+                        {stepCounter++}
                       </div>
                       <div>
-                        <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">
+                        <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
                           {t("step_date")}
                         </h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                          Selecciona el día de tu preferencia.
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                          {t("step_date_desc")}
                         </p>
                       </div>
                     </div>
 
-                    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 md:p-12 ml-0 md:ml-16">
-                      <div className="flex items-center justify-between mb-10">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                            <CalendarIcon
-                              className="w-4 h-4 text-black dark:text-white"
-                              strokeWidth={1.5}
-                            />
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8 shadow-sm">
+                      {/* Cabecera del Mes */}
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300">
+                            <CalendarIcon className="w-5 h-5" strokeWidth={2} />
                           </div>
-                          <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                            {format(currentMonth, "MMMM yyyy", { locale: es })}
+                          <h3 className="text-base font-bold capitalize tracking-tight text-gray-900 dark:text-white">
+                            {format(currentMonth, "MMMM yyyy", { locale: dateLocale })}
                           </h3>
                         </div>
-                        <div className="flex gap-0 border border-gray-300 dark:border-gray-700">
+
+                        <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-[#111] p-1 rounded-xl border border-gray-100 dark:border-gray-800">
                           <button
                             onClick={prevMonth}
                             disabled={isBefore(
                               currentMonth,
-                              startOfMonth(new Date()),
+                              startOfMonth(new Date())
                             )}
-                            className="w-12 h-12 flex items-center justify-center bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-[#111] disabled:opacity-30 border-r border-gray-300 dark:border-gray-700 transition-colors"
+                            className="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-[#0a0a0a] hover:bg-gray-100 dark:hover:bg-[#222] disabled:opacity-30 transition-colors shadow-sm"
                           >
-                            <ChevronLeft
-                              className="w-5 h-5 text-black dark:text-white"
-                              strokeWidth={1.5}
-                            />
+                            <ChevronLeft className="w-4 h-4 text-gray-700 dark:text-gray-300" strokeWidth={2} />
                           </button>
                           <button
                             onClick={nextMonth}
-                            className="w-12 h-12 flex items-center justify-center bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
+                            className="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-[#0a0a0a] hover:bg-gray-100 dark:hover:bg-[#222] transition-colors shadow-sm"
                           >
-                            <ChevronRight
-                              className="w-5 h-5 text-black dark:text-white"
-                              strokeWidth={1.5}
-                            />
+                            <ChevronRight className="w-4 h-4 text-gray-700 dark:text-gray-300" strokeWidth={2} />
                           </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-7 mb-4">
-                        {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map(
-                          (d) => (
-                            <div
-                              key={d}
-                              className="text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest"
-                            >
-                              {d}
-                            </div>
-                          ),
-                        )}
-                      </div>
-                      <div className="grid grid-cols-7 gap-0 border-t border-l border-gray-200 dark:border-gray-800">
-                        {calendarDays.map((date, i) => (
+
+                      {/* Días de la Semana */}
+                      <div className="grid grid-cols-7 mb-3 text-center">
+                        {weekdaysList.map((d, idx) => (
                           <div
-                            key={i}
-                            className="border-b border-r border-gray-200 dark:border-gray-800 p-1"
+                            key={idx}
+                            className="text-xs font-bold text-gray-400 uppercase tracking-wider"
                           >
-                            <CalendarDay
-                              date={date}
-                              isCurrentMonth={isSameMonth(date, monthStart)}
-                              isPast={isBefore(date, startOfDay(new Date()))}
-                              selectedDate={selectedDate}
-                              providerColor={safeColor}
-                              onSelect={handleDateSelect}
-                            />
+                            {d}
                           </div>
+                        ))}
+                      </div>
+
+                      {/* Cuadrícula de Días */}
+                      <div className="grid grid-cols-7 gap-1.5">
+                        {calendarDays.map((date, i) => (
+                          <CalendarDay
+                            key={i}
+                            date={date}
+                            isCurrentMonth={isSameMonth(date, monthStart)}
+                            isPast={isBefore(date, startOfDay(new Date()))}
+                            selectedDate={selectedDate}
+                            providerColor={safeColor}
+                            onSelect={handleDateSelect}
+                          />
                         ))}
                       </div>
                     </div>
@@ -541,54 +516,52 @@ export default function BookingPage({
                 )}
               </AnimatePresence>
 
-              {/* Step: Time Slots */}
+              {/* Paso: Horarios Disponibles */}
               <AnimatePresence>
                 {scheduleNow && !isPackageMultiSchedule && selectedDate && (
                   <motion.section
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    className="space-y-6"
                   >
-                    <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
+                    <div className="flex items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
                       <div
-                        className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs shadow-sm"
                         style={{ backgroundColor: safeColor, color: "#ffffff" }}
                       >
-                        <span className="font-bold text-sm">
-                          {stepCounter++}
-                        </span>
+                        {stepCounter++}
                       </div>
                       <div className="flex-1">
-                        <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">
+                        <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
                           {t("step_time")}
                         </h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                          {format(selectedDate, "EEEE, d 'de' MMMM", {
-                            locale: es,
-                          })}
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5 capitalize">
+                          {format(
+                            selectedDate,
+                            locale === "en" ? "EEEE, MMMM d" : "EEEE, d 'de' MMMM",
+                            { locale: dateLocale }
+                          )}
                         </p>
                       </div>
-                      <span
-                        className="border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors"
-                        style={{ backgroundColor: safeColor, color: "#ffffff" }}
-                      >
-                        <Clock className="w-3 h-3" strokeWidth={2} /> {duration}{" "}
-                        MIN
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-[11px] font-bold shadow-sm">
+                        <Clock className="w-3.5 h-3.5" strokeWidth={2} />
+                        <span>{t("duration_min", { duration })}</span>
                       </span>
                     </div>
 
-                    <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-8 md:p-12 ml-0 md:ml-16">
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8 shadow-sm">
                       {isLoadingSlots ? (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-0 border-t border-l border-gray-200 dark:border-gray-800">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                             <div
                               key={i}
-                              className="h-12 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 animate-pulse"
+                              className="h-12 rounded-xl bg-gray-100 dark:bg-gray-800/50 animate-pulse"
                             />
                           ))}
                         </div>
                       ) : availableSlots.length > 0 ? (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {availableSlots.map((time) => (
                             <TimeSlot
                               key={time}
@@ -600,17 +573,14 @@ export default function BookingPage({
                           ))}
                         </div>
                       ) : (
-                        <div className="py-16 flex flex-col items-center text-center border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]">
-                          <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
-                            <CalendarX2
-                              className="w-5 h-5 text-gray-400"
-                              strokeWidth={1.5}
-                            />
+                        <div className="py-12 flex flex-col items-center text-center">
+                          <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-gray-800 flex items-center justify-center mb-4 text-gray-400 shadow-sm">
+                            <CalendarX2 className="w-6 h-6" strokeWidth={2} />
                           </div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+                          <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">
                             {t("no_slots")}
                           </p>
-                          <p className="text-xs text-gray-500 font-light">
+                          <p className="text-xs font-medium text-gray-500">
                             {t("select_date")}
                           </p>
                         </div>
@@ -620,33 +590,33 @@ export default function BookingPage({
                 )}
               </AnimatePresence>
 
-              {/* Step: Patient Selector */}
+              {/* Paso: Selección de Paciente */}
               <AnimatePresence>
                 {scheduleNow && (isPackageMultiSchedule || selectedTime) && (
                   <motion.section
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    className="space-y-6"
                   >
-                    <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
+                    <div className="flex items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
                       <div
-                        className="w-10 h-10 border border-black dark:border-white flex items-center justify-center shrink-0 transition-colors"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs shadow-sm"
                         style={{ backgroundColor: safeColor, color: "#ffffff" }}
                       >
-                        <span className="font-bold text-sm">
-                          {stepCounter++}
-                        </span>
+                        {stepCounter++}
                       </div>
                       <div className="flex-1">
-                        <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">
-                          ¿Quién recibirá la atención?
+                        <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+                          {t("step_patient_title")}
                         </h2>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                          Selecciona al paciente titular o agrega a un familiar.
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                          {t("step_patient_desc")}
                         </p>
                       </div>
                     </div>
-                    <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 md:p-12 ml-0 md:ml-16">
+
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8 shadow-sm">
                       <PatientSelector />
                     </div>
                   </motion.section>
@@ -656,7 +626,7 @@ export default function BookingPage({
           )}
         </div>
 
-        {/* Summary Sidebar */}
+        {/* Resumen Lateral de la Orden */}
         <BookingSummary
           cart={cart}
           total={total}
@@ -692,7 +662,7 @@ export default function BookingPage({
           prescriptionUrls,
           pickupTime,
           destinationState,
-          paymentMethod,
+          paymentMethod
         ) => {
           setShowCheckoutModal(false);
           if (providerId) {

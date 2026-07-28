@@ -1,4 +1,5 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-module-scope-static-value */
 /* eslint-disable react-doctor/js-hoist-intl */
@@ -8,7 +9,7 @@
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS } from "date-fns/locale";
 import {
   ArrowLeft,
   Calendar,
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Image from "next/image";
+import { useTranslations, useLocale } from "next-intl";
 
 import { useAppointmentDetails } from "@/hooks/useAppointmentDetails";
 import { paymentService } from "@/services/payment.service";
@@ -41,6 +43,10 @@ import { RescheduleModal } from "@/components/dashboard/RescheduleModal";
 export default function PatientAppointmentDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations("PatientAppointmentDetails");
+  const locale = useLocale();
+  const dateLocale = locale === "en" ? enUS : es;
+
   const rawId = params.appointmentId;
   const appointmentId = Array.isArray(rawId) ? rawId[0] : rawId;
 
@@ -64,16 +70,16 @@ export default function PatientAppointmentDetailsPage() {
     try {
       setIsProcessingPayment(true);
       const checkoutUrl = await paymentService.createCheckoutSession(
-        appointment.id,
+        appointment.id
       );
       if (checkoutUrl) {
         window.location.href = checkoutUrl;
       } else {
-        toast.error("No se pudo generar la sesión de pago.");
+        toast.error(t("error_checkout"));
       }
-    } catch (error) {
-      toast.error("Hubo un error al intentar iniciar el pago.");
-      handleApiError(error);
+    } catch (err) {
+      toast.error(t("error_payment_init"));
+      handleApiError(err);
     } finally {
       setIsProcessingPayment(false);
     }
@@ -85,27 +91,21 @@ export default function PatientAppointmentDetailsPage() {
       setIsStartingChat(true);
       await chatService.startConversation(
         appointment.consumerId,
-        appointment.providerId,
+        appointment.providerId
       );
       router.push("/patient/dashboard/messages");
-    } catch (error) {
-      toast.error("Fallo de comunicación encriptada.");
-      handleApiError(error);
+    } catch (err) {
+      toast.error(t("error_chat_init"));
+      handleApiError(err);
     } finally {
       setIsStartingChat(false);
     }
   };
 
   const handleCancelAppointment = async () => {
-    if (
-      !window.confirm(
-        "¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.",
-      )
-    )
-      return;
+    if (!window.confirm(t("cancel_confirm"))) return;
 
-    // El hook internamente mostrará los toast de éxito/error y actualizará el estado
-    await cancelAppointment("Cancelado por el paciente desde detalles de cita");
+    await cancelAppointment(t("cancel_reason"));
   };
 
   // ==========================================
@@ -116,7 +116,7 @@ export default function PatientAppointmentDetailsPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <QhSpinner size="lg" />
         <p className="text-sm font-semibold tracking-wide text-gray-600 dark:text-gray-400 mt-6 animate-pulse">
-          Cargando detalles de tu cita...
+          {t("loading")}
         </p>
       </div>
     );
@@ -132,18 +132,17 @@ export default function PatientAppointmentDetailsPage() {
           />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
-          Cita no encontrada
+          {t("not_found_title")}
         </h2>
         <p className="text-sm font-medium text-gray-500 max-w-sm mx-auto mb-8">
-          El registro solicitado no existe o carece de permisos de
-          visualización.
+          {t("not_found_desc")}
         </p>
         <Button
           onClick={() => router.push("/patient/dashboard/appointments")}
           className="rounded-xl bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-sm font-semibold shadow-sm transition-all"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} /> Retornar al
-          Directorio
+          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} />
+          {t("return_to_directory")}
         </Button>
       </div>
     );
@@ -160,10 +159,10 @@ export default function PatientAppointmentDetailsPage() {
     (appointment.status === "SCHEDULED" ||
       appointment.status === "IN_PROGRESS");
   const dateFormatted = format(new Date(appointment.startTime), "dd MMM yyyy", {
-    locale: es,
+    locale: dateLocale,
   });
   const timeFormatted = format(new Date(appointment.startTime), "HH:mm", {
-    locale: es,
+    locale: dateLocale,
   });
 
   const statusColorMap: Record<string, string> = {
@@ -178,10 +177,10 @@ export default function PatientAppointmentDetailsPage() {
   };
 
   const statusLabels: Record<string, string> = {
-    PENDING_PAYMENT: "Pago Pendiente",
-    SCHEDULED: "Confirmada",
-    COMPLETED: "Finalizada",
-    CANCELLED: "Anulada",
+    PENDING_PAYMENT: t("status_pending_payment"),
+    SCHEDULED: t("status_scheduled"),
+    COMPLETED: t("status_completed"),
+    CANCELLED: t("status_cancelled"),
   };
 
   const badgeClass =
@@ -196,6 +195,7 @@ export default function PatientAppointmentDetailsPage() {
           <div className="flex items-center gap-6">
             <button
               onClick={() => router.push("/patient/dashboard/appointments")}
+              aria-label={t("return_to_directory")}
               className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#222] text-gray-600 dark:text-gray-300 transition-colors shrink-0"
             >
               <ArrowLeft className="w-6 h-6" strokeWidth={2} />
@@ -203,19 +203,19 @@ export default function PatientAppointmentDetailsPage() {
             <div>
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-semibold">
-                  Folio: #{appointment.id}
+                  {t("folio", { id: appointment.id })}
                 </span>
                 <span
                   className={cn(
                     "px-3 py-1 rounded-full text-xs font-semibold",
-                    badgeClass,
+                    badgeClass
                   )}
                 >
                   {statusLabel}
                 </span>
               </div>
               <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Detalles de la Cita
+                {t("page_title")}
               </h1>
             </div>
           </div>
@@ -229,7 +229,7 @@ export default function PatientAppointmentDetailsPage() {
               <div className="border-b border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between bg-gray-50/50 dark:bg-[#111]/30">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-teal-500" strokeWidth={2} />
-                  Fecha y Horario
+                  {t("date_and_time")}
                 </h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-gray-800">
@@ -242,7 +242,7 @@ export default function PatientAppointmentDetailsPage() {
                   </div>
                   <div>
                     <p className="text-xs font-medium text-gray-500 mb-1">
-                      Fecha Acordada
+                      {t("agreed_date")}
                     </p>
                     <p className="text-xl font-bold text-gray-900 dark:text-white tracking-tight capitalize">
                       {dateFormatted}
@@ -258,12 +258,12 @@ export default function PatientAppointmentDetailsPage() {
                   </div>
                   <div>
                     <p className="text-xs font-medium text-gray-500 mb-1">
-                      Horario
+                      {t("schedule")}
                     </p>
                     <p className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-                      {timeFormatted} HRS{" "}
+                      {timeFormatted} {t("hrs")}{" "}
                       <span className="text-sm font-medium text-gray-400 ml-1">
-                        ({appointment.durationMinutes} min)
+                        ({appointment.durationMinutes} {t("min")})
                       </span>
                     </p>
                   </div>
@@ -276,23 +276,26 @@ export default function PatientAppointmentDetailsPage() {
               <div className="border-b border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between bg-gray-50/50 dark:bg-[#111]/30">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
                   <User className="w-4 h-4 text-indigo-500" strokeWidth={2} />
-                  Información de la Consulta
+                  {t("consultation_info")}
                 </h3>
               </div>
               <div className="p-8 space-y-8">
                 <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                   <div className="w-16 h-16 rounded-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#111] flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
                     <span className="text-xl font-bold text-gray-500">
-                      {(appointment.providerNameSnapshot || "E").charAt(0)}
+                      {(
+                        appointment.providerNameSnapshot ||
+                        t("general_specialist").charAt(0)
+                      ).charAt(0)}
                     </span>
                   </div>
                   <div className="flex flex-col justify-center text-center sm:text-left h-16">
                     <p className="text-xs font-medium text-gray-500 mb-1">
-                      Especialista Asignado
+                      {t("assigned_specialist")}
                     </p>
                     <p className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                       {appointment.providerNameSnapshot ||
-                        "Especialista General"}
+                        t("general_specialist")}
                     </p>
                   </div>
                 </div>
@@ -303,12 +306,12 @@ export default function PatientAppointmentDetailsPage() {
                       className="w-4 h-4 text-teal-500"
                       strokeWidth={2}
                     />{" "}
-                    Servicio Programado
+                    {t("scheduled_service")}
                   </p>
                   <p className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
                     {appointment.serviceNameSnapshot ||
                       appointment.serviceName ||
-                      "Consulta Integral"}
+                      t("comprehensive_consultation")}
                   </p>
                 </div>
 
@@ -319,7 +322,7 @@ export default function PatientAppointmentDetailsPage() {
                         className="w-4 h-4 text-amber-500"
                         strokeWidth={2}
                       />{" "}
-                      Observaciones del Paciente
+                      {t("patient_observations")}
                     </p>
                     <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30 p-5 text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
                       "{appointment.consumerSymptoms}"
@@ -337,7 +340,7 @@ export default function PatientAppointmentDetailsPage() {
                     className="w-4 h-4 text-emerald-500"
                     strokeWidth={2}
                   />
-                  Ubicación y Modalidad
+                  {t("location_and_modality")}
                 </h3>
               </div>
               <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -346,7 +349,7 @@ export default function PatientAppointmentDetailsPage() {
                     "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0",
                     isOnline
                       ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                      : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400",
+                      : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
                   )}
                 >
                   {isOnline ? (
@@ -357,17 +360,18 @@ export default function PatientAppointmentDetailsPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs font-medium text-gray-500 mb-1">
-                    Modalidad:{" "}
+                    {t("modality_label")}{" "}
                     <span className="font-bold">
-                      {isOnline ? "Telemedicina" : "Atención Presencial"}
+                      {isOnline
+                        ? t("modality_telemedicine")
+                        : t("modality_in_person")}
                     </span>
                   </p>
 
                   {isOnline ? (
                     <div className="space-y-3 mt-2">
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                        El enlace cifrado para la transmisión se activará
-                        minutos antes de su consulta.
+                        {t("telemedicine_notice")}
                       </p>
                       {appointment.meetLink ? (
                         <a
@@ -377,19 +381,18 @@ export default function PatientAppointmentDetailsPage() {
                           className="inline-flex items-center rounded-xl bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 px-5 py-2.5 text-sm font-semibold shadow-sm transition-all"
                         >
                           <Video className="w-4 h-4 mr-2" strokeWidth={2} />{" "}
-                          Iniciar Transmisión
+                          {t("start_transmission")}
                         </a>
                       ) : (
                         <span className="text-sm font-bold text-amber-500 flex items-center gap-1.5">
-                          <Clock className="w-4 h-4" strokeWidth={2} /> Enlace
-                          en generación
+                          <Clock className="w-4 h-4" strokeWidth={2} />{" "}
+                          {t("link_generating")}
                         </span>
                       )}
                     </div>
                   ) : (
                     <p className="text-lg font-bold tracking-tight text-gray-900 dark:text-white leading-relaxed mt-2">
-                      {appointment.locationAddress ||
-                        "Dirección no especificada. Contacte al proveedor."}
+                      {appointment.locationAddress || t("address_not_specified")}
                     </p>
                   )}
                 </div>
@@ -406,15 +409,15 @@ export default function PatientAppointmentDetailsPage() {
                   <QrCode className="w-8 h-8" strokeWidth={2} />
                 </div>
                 <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-                  Identificación QR
+                  {t("qr_identification")}
                 </h4>
                 <p className="text-xs font-medium text-gray-500 mb-6">
-                  Escanear en Módulo de Recepción
+                  {t("qr_scan_instruction")}
                 </p>
                 <div className="w-48 h-48 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center">
                   <Image
                     src={qrCodeUrl}
-                    alt="Código QR Check-in"
+                    alt={t("qr_alt")}
                     width={180}
                     height={180}
                     className="w-full h-full mix-blend-multiply"
@@ -428,16 +431,16 @@ export default function PatientAppointmentDetailsPage() {
               <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
                   <Receipt className="w-4 h-4 text-amber-500" strokeWidth={2} />
-                  Resumen Financiero
+                  {t("financial_summary")}
                 </h3>
               </div>
               <div className="p-6 md:p-8 space-y-8">
                 <div className="flex flex-col items-end">
                   <span className="text-sm font-medium text-gray-500 mb-1">
-                    Importe Final
+                    {t("final_amount")}
                   </span>
                   <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    {new Intl.NumberFormat("es-MX", {
+                    {new Intl.NumberFormat(locale === "en" ? "en-US" : "es-MX", {
                       style: "currency",
                       currency: appointment.currency || "MXN",
                     }).format(appointment.totalPrice || 0)}
@@ -452,7 +455,7 @@ export default function PatientAppointmentDetailsPage() {
                       className="w-full rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-12 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6"
                       variant="outline"
                     >
-                      Descargar Factura
+                      {t("download_invoice")}
                       {isDownloading ? (
                         <QhSpinner size="sm" />
                       ) : (
@@ -463,7 +466,7 @@ export default function PatientAppointmentDetailsPage() {
                     <div className="space-y-4">
                       <div className="border-l-2 border-amber-500 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-r-xl">
                         <p className="text-xs font-bold text-amber-600 dark:text-amber-500">
-                          Estado: Requiere Liquidación
+                          {t("requires_settlement")}
                         </p>
                       </div>
                       <Button
@@ -471,7 +474,7 @@ export default function PatientAppointmentDetailsPage() {
                         disabled={isProcessingPayment}
                         className="w-full rounded-xl bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6 disabled:opacity-50"
                       >
-                        Pagar Ahora
+                        {t("pay_now")}
                         {isProcessingPayment ? (
                           <QhSpinner size="sm" />
                         ) : (
@@ -495,7 +498,7 @@ export default function PatientAppointmentDetailsPage() {
                   }
                   className="w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 h-14 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6"
                 >
-                  Unirse a Video Consulta
+                  {t("join_video_call")}
                   <Video className="w-4 h-4" strokeWidth={2} />
                 </Button>
               )}
@@ -509,7 +512,7 @@ export default function PatientAppointmentDetailsPage() {
                     className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] h-14 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6 disabled:opacity-50"
                     variant="outline"
                   >
-                    Contactar al Especialista
+                    {t("contact_specialist")}
                     {isStartingChat ? (
                       <QhSpinner size="sm" />
                     ) : (
@@ -529,7 +532,7 @@ export default function PatientAppointmentDetailsPage() {
                     className="w-full rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-14 text-sm font-semibold transition-all shadow-sm flex justify-start px-6"
                   >
                     <RotateCcw className="w-4 h-4 mr-3" strokeWidth={2} />{" "}
-                    Reprogramar Cita
+                    {t("reschedule_appointment")}
                   </Button>
                   <Button
                     variant="outline"
@@ -537,7 +540,7 @@ export default function PatientAppointmentDetailsPage() {
                     onClick={handleCancelAppointment}
                   >
                     <XCircle className="w-4 h-4 mr-3" strokeWidth={2} />{" "}
-                    Cancelar Cita
+                    {t("cancel_appointment")}
                   </Button>
                 </div>
               )}
@@ -552,7 +555,6 @@ export default function PatientAppointmentDetailsPage() {
           onClose={() => setIsRescheduleModalOpen(false)}
           appointment={appointment}
           onSuccess={() => {
-            // Recargar la página o volver a la lista para ver el cambio reflejado
             window.location.reload();
           }}
         />
