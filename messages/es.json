@@ -1,5 +1,8 @@
 {
-  "marketplace": "Marketplace",
+  "marketplace": {
+    "title": "Marketplace",
+    "discover": "Descubrir"
+  },
   "Hero": {
     "badge": "El futuro de tu bienestar",
     "title_start": "Atención médica moderna, ",
@@ -3532,6 +3535,7 @@
   },
 
   "StorePublic": {
+    "requires_eval": "Requiere evaluación",
     "loading": "Preparando la tienda...",
     "error_title": "Tienda no disponible",
     "error_desc": "El proveedor que buscas no existe o su tienda se encuentra temporalmente inactiva.",

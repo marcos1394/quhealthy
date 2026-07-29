@@ -1,5 +1,8 @@
 {
-  "marketplace": "Marketplace",
+  "marketplace": {
+    "title": "Marketplace",
+    "discover": "Discover"
+  },
   "Hero": {
     "badge": "The future of your wellness",
     "title_start": "Modern healthcare, ",
@@ -3986,6 +3989,7 @@
   
 
   "StorePublic": {
+    "requires_eval": "Requires evaluation",
     "loading": "Preparing the store...",
     "error_title": "Store unavailable",
     "error_desc": "The provider you are looking for does not exist or their store is temporarily inactive.",
