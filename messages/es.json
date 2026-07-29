@@ -2091,6 +2091,10 @@
   },
 
  "CashRegister": {
+    "close_modal_protocol": "Protocolo de Cierre",
+    "close_modal_title": "Cerrar Caja Registradora",
+    "expected_balance": "Balance Esperado",
+    "step_1_label": "Paso 1",
     "step_2_label": "Paso 2",
     "notes_placeholder": "Añadir notas aquí...",
     "btn_cancel": "Cancelar",

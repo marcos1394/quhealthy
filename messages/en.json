@@ -2172,6 +2172,10 @@
   },
 
  "CashRegister": {
+    "close_modal_protocol": "Closing Protocol",
+    "close_modal_title": "Close Cash Register",
+    "expected_balance": "Expected Balance",
+    "step_1_label": "Step 1",
     "step_2_label": "Step 2",
     "notes_placeholder": "Add notes here...",
     "btn_cancel": "Cancel",
