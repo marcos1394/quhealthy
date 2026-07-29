@@ -39,6 +39,7 @@ interface State {
   activeTab: string;
   viewMode: "grid" | "list";
   selectedDoc: Document | null;
+  selectedType: string;
 }
 
 type Action =
@@ -49,7 +50,8 @@ type Action =
   | { type: "SET_ISUPLOADING"; payload: any }
   | { type: "SET_ACTIVETAB"; payload: any }
   | { type: "SET_VIEWMODE"; payload: "grid" | "list" }
-  | { type: "SET_SELECTEDDOC"; payload: any };
+  | { type: "SET_SELECTEDDOC"; payload: any }
+  | { type: "SET_SELECTEDTYPE"; payload: string };
 
 const initialState: State = {
   documents: [],
@@ -60,6 +62,7 @@ const initialState: State = {
   activeTab: "all",
   viewMode: "grid",
   selectedDoc: null,
+  selectedType: "",
 };
 
 function reducer(state: State, action: Action): State {
@@ -116,6 +119,8 @@ function reducer(state: State, action: Action): State {
             ? action.payload(state.selectedDoc)
             : action.payload,
       };
+    case "SET_SELECTEDTYPE":
+      return { ...state, selectedType: action.payload };
     default:
       return state;
   }
@@ -135,6 +140,7 @@ export default function DocumentsManagerPage() {
     activeTab,
     viewMode,
     selectedDoc,
+    selectedType,
   } = state;
 
   const setDocuments = (val: any) =>
@@ -153,6 +159,8 @@ export default function DocumentsManagerPage() {
     dispatch({ type: "SET_VIEWMODE", payload: val });
   const setSelectedDoc = (val: any) =>
     dispatch({ type: "SET_SELECTEDDOC", payload: val });
+  const setSelectedType = (val: string) =>
+    dispatch({ type: "SET_SELECTEDTYPE", payload: val });
 
   // Carga inicial de documentos desde la API/Servicio
   const fetchDocuments = async () => {
@@ -183,6 +191,7 @@ export default function DocumentsManagerPage() {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
+      formData.append("type", selectedType);
       if (user?.id) {
         formData.append("userId", user.id.toString());
       }
@@ -193,6 +202,7 @@ export default function DocumentsManagerPage() {
 
       toast.success(t("upload.uploaded_success"));
       setSelectedFile(null);
+      setSelectedType("");
       await fetchDocuments();
     } catch (error: any) {
       console.error("Error al subir el documento:", error);
@@ -305,11 +315,16 @@ export default function DocumentsManagerPage() {
             <div className="flex-1 p-6 sm:p-8 bg-gray-50/50 dark:bg-[#050505]">
               <DocumentUpload
                 selectedFile={selectedFile}
+                selectedType={selectedType}
+                onTypeSelect={setSelectedType}
                 uploadProgress={uploadProgress}
                 isUploading={isUploading}
                 onFileSelect={setSelectedFile}
                 onFileUpload={handleFileUpload}
-                onClear={() => setSelectedFile(null)}
+                onClear={() => {
+                  setSelectedFile(null);
+                  setSelectedType("");
+                }}
               />
             </div>
           </div>

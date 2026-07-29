@@ -8,12 +8,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { UploadCloud, FileText, X, CheckCircle2, AlertCircle, Image as ImageIcon, FileCheck, Loader2, Shield } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 
-interface DocumentUploadProps {
+ interface DocumentUploadProps {
  selectedFile: File | null; 
+ selectedType: string;
+ onTypeSelect: (type: string) => void;
  uploadProgress: number; 
  isUploading: boolean;
  onFileSelect: (file: File | null) => void; 
@@ -25,7 +28,7 @@ interface DocumentUploadProps {
 }
 
 export const DocumentUpload: React.FC<DocumentUploadProps> = ({
- selectedFile, uploadProgress, isUploading, onFileSelect, onFileUpload, onClear,
+ selectedFile, selectedType, onTypeSelect, uploadProgress, isUploading, onFileSelect, onFileUpload, onClear,
  maxSizeMB = 10, acceptedFormats = [".pdf", ".jpg", ".jpeg", ".png", ".webp"], showPreview = true
 }) => {
  const inputRef = useRef<HTMLInputElement>(null);
@@ -164,6 +167,25 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
  <span>{formatFileSize(selectedFile.size)}</span>
  </div>
  </div>
+
+ {/* Select Document Type */}
+ <div className="mb-6">
+   <label className="block text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
+     {t('upload.document_type', { defaultValue: 'TIPO DE DOCUMENTO' })}
+   </label>
+   <Select value={selectedType} onValueChange={onTypeSelect} disabled={isUploading}>
+     <SelectTrigger className="w-full bg-white dark:bg-[#0a0a0a] border border-black/20 dark:border-white/20 rounded-none text-[10px] font-bold uppercase tracking-widest h-12">
+       <SelectValue placeholder={t('upload.select_type', { defaultValue: 'SELECCIONE EL TIPO DE DOCUMENTO' })} />
+     </SelectTrigger>
+     <SelectContent className="rounded-none border-black/20 dark:border-white/20 bg-white dark:bg-[#0a0a0a]">
+       <SelectItem value="INE_FRONT" className="text-[10px] font-bold uppercase tracking-widest">INE FRONT</SelectItem>
+       <SelectItem value="INE_BACK" className="text-[10px] font-bold uppercase tracking-widest">INE BACK</SelectItem>
+       <SelectItem value="SELFIE" className="text-[10px] font-bold uppercase tracking-widest">SELFIE / IDENTIDAD</SelectItem>
+       <SelectItem value="PROFESSIONAL_LICENSE" className="text-[10px] font-bold uppercase tracking-widest">CÉDULA PROFESIONAL</SelectItem>
+       <SelectItem value="TAX_CERTIFICATE" className="text-[10px] font-bold uppercase tracking-widest">CONSTANCIA DE SITUACIÓN FISCAL</SelectItem>
+       <SelectItem value="ACTA_CONSTITUTIVA" className="text-[10px] font-bold uppercase tracking-widest">ACTA CONSTITUTIVA</SelectItem>
+     </SelectContent>
+   </Select>
  </div>
 
  {isUploading ? (
@@ -193,7 +215,8 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
  </button>
  <button 
  onClick={onFileUpload}
- className="flex-1 h-12 flex items-center justify-center gap-2 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none"
+ disabled={!selectedType || isUploading}
+ className="flex-1 h-12 flex items-center justify-center gap-2 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 border-0 transition-colors text-[9px] font-bold uppercase tracking-widest rounded-none disabled:opacity-50 disabled:cursor-not-allowed"
  >
  <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} /> INICIAR CARGA
  </button>
