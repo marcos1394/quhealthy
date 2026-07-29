@@ -32,7 +32,7 @@ export function PatientSelector() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm gap-3">
-        <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
+        <QhSpinner size="md" className="text-store-600 dark:text-store-400" />
         <p className="text-xs font-semibold text-gray-400">{t("loading_family")}</p>
       </div>
     );
@@ -57,7 +57,7 @@ export function PatientSelector() {
     <div className="space-y-6 font-sans">
       {/* Header de la Sección */}
       <div className="flex items-center gap-3.5 pb-2 border-b border-gray-100 dark:border-gray-800">
-        <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
+        <div className="w-10 h-10 rounded-2xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 shrink-0 shadow-xs">
           <Users className="w-5 h-5" strokeWidth={2} />
         </div>
         <div>
@@ -81,7 +81,7 @@ export function PatientSelector() {
           className={cn(
             "p-5 rounded-3xl border flex items-center gap-4 transition-all duration-300 cursor-pointer relative shadow-xs group",
             dependentId === null
-              ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500 dark:border-emerald-500/80 ring-2 ring-emerald-500/20"
+              ? "bg-store-50/40 dark:bg-store-950/20 border-store-500 dark:border-store-500/80 ring-2 ring-store-500/20"
               : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-[#050505]"
           )}
         >
@@ -89,8 +89,8 @@ export function PatientSelector() {
             className={cn(
               "w-11 h-11 rounded-2xl border flex items-center justify-center shrink-0 transition-colors shadow-xs",
               dependentId === null
-                ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500 dark:border-emerald-500"
-                : "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+                ? "bg-store-600 text-white border-store-600 dark:bg-store-500 dark:border-store-500"
+                : "bg-store-50 dark:bg-store-950/30 border-store-100 dark:border-store-900/30 text-store-600 dark:text-store-400"
             )}
             style={
               dependentId === null && providerColor
@@ -102,7 +102,7 @@ export function PatientSelector() {
           </div>
 
           <div className="min-w-0 flex-1 pr-6 space-y-0.5">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-store-600 dark:text-store-400">
               {t("patient_holder")}
             </p>
             <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
@@ -112,7 +112,7 @@ export function PatientSelector() {
 
           {dependentId === null && (
             <CheckCircle2
-              className="w-5 h-5 text-emerald-600 dark:text-emerald-400 absolute top-5 right-5"
+              className="w-5 h-5 text-store-600 dark:text-store-400 absolute top-5 right-5"
               strokeWidth={2}
             />
           )}
@@ -129,7 +129,7 @@ export function PatientSelector() {
             className={cn(
               "p-5 rounded-3xl border flex items-center gap-4 transition-all duration-300 cursor-pointer relative shadow-xs group",
               dependentId === member.id
-                ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500 dark:border-emerald-500/80 ring-2 ring-emerald-500/20"
+                ? "bg-store-50/40 dark:bg-store-950/20 border-store-500 dark:border-store-500/80 ring-2 ring-store-500/20"
                 : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-[#050505]"
             )}
           >
@@ -137,8 +137,8 @@ export function PatientSelector() {
               className={cn(
                 "w-11 h-11 rounded-2xl border flex items-center justify-center shrink-0 transition-colors shadow-xs",
                 dependentId === member.id
-                  ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500 dark:border-emerald-500"
-                  : "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+                  ? "bg-store-600 text-white border-store-600 dark:bg-store-500 dark:border-store-500"
+                  : "bg-store-50 dark:bg-store-950/30 border-store-100 dark:border-store-900/30 text-store-600 dark:text-store-400"
               )}
               style={
                 dependentId === member.id && providerColor
@@ -164,7 +164,7 @@ export function PatientSelector() {
 
             {dependentId === member.id && (
               <CheckCircle2
-                className="w-5 h-5 text-emerald-600 dark:text-emerald-400 absolute top-5 right-5"
+                className="w-5 h-5 text-store-600 dark:text-store-400 absolute top-5 right-5"
                 strokeWidth={2}
               />
             )}
@@ -177,9 +177,9 @@ export function PatientSelector() {
         <button
           type="button"
           onClick={() => router.push("/patient/dashboard/family")}
-          className="h-11 px-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#050505] hover:border-emerald-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+          className="h-11 px-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#050505] hover:border-store-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer"
         >
-          <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+          <Plus className="w-4 h-4 text-store-600 dark:text-store-400" strokeWidth={2.5} />
           <span>{t("btn_add_dependent")}</span>
         </button>
       </div>

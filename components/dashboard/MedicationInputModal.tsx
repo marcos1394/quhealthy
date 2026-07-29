@@ -1,13 +1,24 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 
 import React, { useState, useEffect } from "react";
-import { X, Pill } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
+import { X, Pill, Clock } from "lucide-react";
+
 import {
   AddMedicationRequest,
   MedicationTaskDto,
 } from "@/services/eldercare.service";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { cn } from "@/lib/utils";
 
 interface MedicationInputModalProps {
   isOpen: boolean;
@@ -16,21 +27,14 @@ interface MedicationInputModalProps {
   onSave: (data: AddMedicationRequest, taskId?: number) => Promise<void>;
 }
 
-export const FREQUENCY_OPTIONS = [
-  { value: "EVERY_4_HOURS", label: "Cada 4 horas" },
-  { value: "EVERY_6_HOURS", label: "Cada 6 horas" },
-  { value: "EVERY_8_HOURS", label: "Cada 8 horas" },
-  { value: "EVERY_12_HOURS", label: "Cada 12 horas" },
-  { value: "ONCE_DAILY", label: "Una vez al día" },
-  { value: "AS_NEEDED", label: "Según necesidad (PRN)" },
-];
-
 export function MedicationInputModal({
   isOpen,
   onClose,
   medicationToEdit,
   onSave,
 }: MedicationInputModalProps) {
+  const t = useTranslations("Eldercare.MedicationModal");
+
   const [medicationName, setMedicationName] = useState("");
   const [dosage, setDosage] = useState("");
   const [frequency, setFrequency] = useState("EVERY_8_HOURS");
@@ -39,6 +43,17 @@ export function MedicationInputModal({
   const [startsNow, setStartsNow] = useState(true);
   const [firstDoseTime, setFirstDoseTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEditMode = !!medicationToEdit;
+
+  const frequencyOptions = [
+    { value: "EVERY_4_HOURS", label: t("freq_every_4") },
+    { value: "EVERY_6_HOURS", label: t("freq_every_6") },
+    { value: "EVERY_8_HOURS", label: t("freq_every_8") },
+    { value: "EVERY_12_HOURS", label: t("freq_every_12") },
+    { value: "ONCE_DAILY", label: t("freq_once_daily") },
+    { value: "AS_NEEDED", label: t("freq_as_needed") },
+  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -49,16 +64,16 @@ export function MedicationInputModal({
         setDurationDays(
           medicationToEdit.durationDays
             ? medicationToEdit.durationDays.toString()
-            : "30",
+            : "30"
         );
         setInstructions(medicationToEdit.instructions || "");
         setStartsNow(false);
-        // Formatear fecha para el input datetime-local si existe
+
         if (medicationToEdit.nextDueTime) {
           try {
-            const dateStr = medicationToEdit.nextDueTime.slice(0, 16); // yyyy-MM-ddThh:mm
+            const dateStr = medicationToEdit.nextDueTime.slice(0, 16);
             setFirstDoseTime(dateStr);
-          } catch (e) {
+          } catch {
             setFirstDoseTime("");
           }
         }
@@ -82,10 +97,9 @@ export function MedicationInputModal({
     try {
       setIsSubmitting(true);
 
-      let finalFirstDoseTime = undefined;
+      let finalFirstDoseTime: string | undefined = undefined;
       if (!isEditMode) {
         if (!startsNow && firstDoseTime) {
-          // Convertimos al formato LocalDateTime ISO que espera Spring
           finalFirstDoseTime = new Date(firstDoseTime).toISOString();
         } else if (startsNow) {
           finalFirstDoseTime = new Date().toISOString();
@@ -101,11 +115,11 @@ export function MedicationInputModal({
           medicationName,
           dosage,
           frequency,
-          durationDays: durationDays ? parseInt(durationDays) : undefined,
+          durationDays: durationDays ? parseInt(durationDays, 10) : undefined,
           instructions,
           firstDoseTime: finalFirstDoseTime,
         },
-        medicationToEdit?.id,
+        medicationToEdit?.id
       );
       onClose();
     } catch (error) {
@@ -115,165 +129,192 @@ export function MedicationInputModal({
     }
   };
 
-  const isEditMode = !!medicationToEdit;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl w-full max-w-md shadow-xl relative max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="border-b border-gray-100 dark:border-gray-800 p-6 flex justify-between items-start sticky top-0 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur z-10 rounded-t-3xl">
-          <div className="flex gap-4 items-center">
-            <div className="w-12 h-12 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 shadow-sm">
-              <Pill
-                className="w-6 h-6"
-                strokeWidth={2}
-              />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-sans transition-colors">
+      <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl w-full max-w-md shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden">
+        {/* ── HEADER ─────────────────────────────────────────────────── */}
+        <div className="p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 shrink-0 flex justify-between items-start">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-2xs">
+              <Pill className="w-6 h-6" strokeWidth={2} />
             </div>
-            <div>
-              <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {isEditMode ? "Editar Medicamento" : "Añadir Medicamento"}
+            <div className="space-y-0.5">
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+                {isEditMode ? t("title_edit") : t("title_add")}
               </h2>
-              <p className="text-sm font-medium text-gray-500 mt-0.5">
-                Completa los detalles de la receta.
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {t("subtitle")}
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+            disabled={isSubmitting}
+            className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 cursor-pointer shadow-2xs shrink-0 disabled:opacity-50"
           >
             <X className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-6 flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500">
-              Nombre del Medicamento *
+        {/* ── BODY ───────────────────────────────────────────────────── */}
+        <div className="p-6 overflow-y-auto custom-scrollbar space-y-4 bg-white dark:bg-[#0a0a0a] flex-1">
+          {/* Nombre del Medicamento */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("name_label")} *
             </label>
             <input
               type="text"
               value={medicationName}
               onChange={(e) => setMedicationName(e.target.value)}
-              placeholder="Ej. Paracetamol"
-              className="w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-quhealthy-green/20 focus:border-quhealthy-green transition-all shadow-sm placeholder:text-gray-400"
+              placeholder={t("name_placeholder")}
+              className="w-full h-11 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-2xs placeholder:text-gray-400 px-3.5"
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500">
-              Dosis *
+          {/* Dosis */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("dosage_label")} *
             </label>
             <input
               type="text"
               value={dosage}
               onChange={(e) => setDosage(e.target.value)}
-              placeholder="Ej. 500mg, 1 pastilla"
-              className="w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-quhealthy-green/20 focus:border-quhealthy-green transition-all shadow-sm placeholder:text-gray-400"
+              placeholder={t("dosage_placeholder")}
+              className="w-full h-11 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-2xs placeholder:text-gray-400 px-3.5"
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500">
-              Frecuencia *
+          {/* Frecuencia */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("frequency_label")} *
             </label>
-            <select
+            <Select
               value={frequency}
-              onChange={(e) => setFrequency(e.target.value)}
-              className="w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-quhealthy-green/20 focus:border-quhealthy-green transition-all shadow-sm"
+              onValueChange={(val) => setFrequency(val)}
             >
-              {FREQUENCY_OPTIONS.map((opt) => (
-                <option
-                  key={opt.value}
-                  value={opt.value}
-                >
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-11 px-3.5 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
+                {frequencyOptions.map((opt) => (
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className="text-xs font-semibold cursor-pointer"
+                  >
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500">
-              ¿Cuándo es la primera toma?
+          {/* Primera Toma */}
+          <div className="space-y-2 pt-1 border-t border-gray-100 dark:border-gray-800">
+            <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("first_dose_question")}
             </label>
+
             {!isEditMode && (
-              <div className="flex gap-4 mb-2 mt-1">
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={startsNow}
-                    onChange={() => setStartsNow(true)}
-                    className="accent-quhealthy-green w-4 h-4"
-                  />
-                  Ahora
-                </label>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={!startsNow}
-                    onChange={() => setStartsNow(false)}
-                    className="accent-quhealthy-green w-4 h-4"
-                  />
-                  Programar
-                </label>
+              <div className="grid grid-cols-2 gap-2 bg-gray-50/60 dark:bg-[#050505] p-1 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setStartsNow(true)}
+                  className={cn(
+                    "h-9 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                    startsNow
+                      ? "bg-white dark:bg-[#0a0a0a] text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs"
+                      : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  )}
+                >
+                  {t("starts_now")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStartsNow(false)}
+                  className={cn(
+                    "h-9 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                    !startsNow
+                      ? "bg-white dark:bg-[#0a0a0a] text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs"
+                      : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  )}
+                >
+                  {t("schedule_time")}
+                </button>
               </div>
             )}
 
             {(!startsNow || isEditMode) && (
-              <input
-                type="datetime-local"
-                value={firstDoseTime}
-                onChange={(e) => setFirstDoseTime(e.target.value)}
-                className="w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-quhealthy-green/20 focus:border-quhealthy-green transition-all shadow-sm"
-              />
+              <div className="relative pt-1">
+                <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" strokeWidth={2} />
+                <input
+                  type="datetime-local"
+                  value={firstDoseTime}
+                  onChange={(e) => setFirstDoseTime(e.target.value)}
+                  className="w-full h-11 pl-10 pr-3.5 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-mono font-bold text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-2xs [&::-webkit-calendar-picker-indicator]:dark:invert"
+                />
+              </div>
             )}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500">
-              Duración del tratamiento (días)
+          {/* Duración */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("duration_label")}
             </label>
             <input
               type="number"
               value={durationDays}
               onChange={(e) => setDurationDays(e.target.value)}
-              placeholder="Ej. 30"
-              className="w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-quhealthy-green/20 focus:border-quhealthy-green transition-all shadow-sm placeholder:text-gray-400"
+              placeholder={t("duration_placeholder")}
+              className="w-full h-11 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-mono font-bold text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-2xs placeholder:text-gray-400 px-3.5"
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500">
-              Instrucciones Adicionales
+          {/* Instrucciones Adicionales */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("instructions_label")}
             </label>
             <input
               type="text"
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
-              placeholder="Ej. Tomar con alimentos"
-              className="w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-quhealthy-green/20 focus:border-quhealthy-green transition-all shadow-sm placeholder:text-gray-400"
+              placeholder={t("instructions_placeholder")}
+              className="w-full h-11 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-2xs placeholder:text-gray-400 px-3.5 leading-relaxed"
             />
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-gray-100 dark:border-gray-800 p-6 bg-gray-50/50 dark:bg-gray-900/10 flex justify-end gap-3 sticky bottom-0 rounded-b-3xl">
-          <Button
-            variant="outline"
+        {/* ── FOOTER ─────────────────────────────────────────────────── */}
+        <div className="p-5 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0">
+          <button
+            type="button"
             onClick={onClose}
-            className="rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-sm font-bold shadow-sm"
+            disabled={isSubmitting}
+            className="h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all text-xs font-bold shadow-2xs disabled:opacity-50 cursor-pointer"
           >
-            Cancelar
-          </Button>
-          <Button
+            {t("btn_cancel")}
+          </button>
+          <button
+            type="button"
             onClick={handleSave}
             disabled={!medicationName || !dosage || !frequency || isSubmitting}
-            className="rounded-xl bg-quhealthy-green hover:bg-emerald-700 text-white text-sm font-bold border-0 shadow-sm"
+            className="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-xs font-bold shadow-xs flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Guardando..." : "Guardar"}
-          </Button>
+            {isSubmitting ? (
+              <>
+                <QhSpinner size="sm" className="text-white" />
+                <span>{t("btn_saving")}</span>
+              </>
+            ) : (
+              <span>{t("btn_save")}</span>
+            )}
+          </button>
         </div>
       </div>
     </div>

@@ -1,337 +1,329 @@
 "use client";
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+/* eslint-disable react-doctor/button-has-type */
+
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import {
- CreditCard,
- ShieldCheck,
- CheckCircle2,
- Loader2,
- Lock,
- Sparkles,
- Info,
- X,
- Calendar,
- RefreshCw,
- AlertCircle
+  CreditCard,
+  ShieldCheck,
+  CheckCircle2,
+  Lock,
+  Sparkles,
+  Info,
+  X,
+  Calendar,
+  RefreshCw,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
- Dialog,
- DialogContent,
- DialogHeader,
- DialogTitle,
- DialogDescription,
- DialogFooter
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { Plan } from './PricingCard';
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { Plan } from "./PricingCard";
 
 interface ConfirmationModalProps {
- plan: Plan | null;
- isOpen: boolean;
- onConfirm: () => void;
- onCancel: () => void;
- isLoading?: boolean;
+  plan: Plan | null;
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isLoading?: boolean;
 }
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
- plan,
- isOpen,
- onConfirm,
- onCancel,
- isLoading = false
+  plan,
+  isOpen,
+  onConfirm,
+  onCancel,
+  isLoading = false,
 }) => {
- const [agreed, setAgreed] = useState(false);
- const t = useTranslations('SettingsSubscription.ConfirmationModal');
+  const t = useTranslations("SettingsSubscription.ConfirmationModal");
 
- if (!plan) return null;
+  if (!plan) return null;
 
- const getNextBillingDate = () => {
- const date = new Date();
- if (plan.duration === 'monthly') {
- date.setMonth(date.getMonth() + 1);
- } else {
- date.setFullYear(date.getFullYear() + 1);
- }
- return date.toLocaleDateString(undefined, {
- day: 'numeric',
- month: 'long',
- year: 'numeric'
- });
- };
+  const getNextBillingDate = () => {
+    const date = new Date();
+    if (plan.duration === "monthly") {
+      date.setMonth(date.getMonth() + 1);
+    } else {
+      date.setFullYear(date.getFullYear() + 1);
+    }
+    return date.toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
- const calculateSavings = () => {
- if (!plan.savings) return 0;
- return Math.round(plan.price * 0.2);
- };
+  const calculateSavings = () => {
+    if (!plan.savings) return 0;
+    return Math.round(plan.price * 0.2);
+  };
 
- const savings = calculateSavings();
- const nextBillingDate = getNextBillingDate();
+  const savings = calculateSavings();
+  const nextBillingDate = getNextBillingDate();
 
- return (
- <Dialog open={isOpen} onOpenChange={(open) => !open && !isLoading && onCancel()}>
- <DialogContent className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white border-0 sm:max-w-xl max-h-[90vh] flex flex-col shadow-2xl p-0 overflow-hidden rounded-[2rem]">
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isLoading && onCancel()}>
+      <DialogContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 sm:max-w-xl max-h-[90vh] flex flex-col shadow-2xl p-0 overflow-hidden rounded-3xl font-sans transition-colors">
+        <div className="flex-1 overflow-y-auto relative custom-scrollbar">
+          {/* Header decorativo */}
+          <div className="p-6 sm:p-8 pb-4 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800">
+            <DialogHeader className="space-y-4 text-left">
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs">
+                  <ShieldCheck className="w-6 h-6" strokeWidth={2} />
+                </div>
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  disabled={isLoading}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 cursor-pointer shadow-2xs disabled:opacity-50"
+                >
+                  <X className="w-4 h-4" strokeWidth={2} />
+                </button>
+              </div>
 
- <div className="flex-1 overflow-y-auto relative">
- {/* Decorative background gradient */}
- <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-950 opacity-50 z-0 pointer-events-none" />
+              <div className="space-y-1">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+                  {t("title")}
+                </DialogTitle>
+                <DialogDescription className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {t("subtitle")}
+                </DialogDescription>
+              </div>
+            </DialogHeader>
+          </div>
 
- <div className="relative z-10 p-8 pb-4">
- {/* Header */}
- <DialogHeader className="space-y-5">
- <div className="flex items-start justify-between">
- <motion.div
- initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
- animate={{ scale: 1, rotate: 0 }}
- transition={{ type: "spring", stiffness: 200 }}
- className="bg-slate-900 dark:bg-white p-4 rounded-2xl shadow-lg shadow-slate-200 dark:shadow-none"
- >
- <ShieldCheck className="w-7 h-7 text-white dark:text-slate-900" />
- </motion.div>
- </div>
+          <div className="px-6 sm:px-8 py-6 space-y-5">
+            {/* Tarjeta Resumen de Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-gray-50/60 dark:bg-[#050505] p-5 rounded-2xl border border-gray-100 dark:border-gray-800 text-left shadow-2xs space-y-4"
+            >
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white">
+                    {plan.name}
+                  </h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                    <RefreshCw className="w-3 h-3 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    {plan.duration === "monthly"
+                      ? t("billing_monthly")
+                      : t("billing_yearly")}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-baseline gap-1 font-mono">
+                    <span className="text-xs font-bold text-gray-400">$</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                      {plan.price.toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-semibold text-gray-400">
+                    /{plan.duration === "monthly" ? t("duration_monthly") : t("duration_yearly")}
+                  </p>
+                </div>
+              </div>
 
- <div className="space-y-2 text-left">
- <DialogTitle className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
- {t('title')}
- </DialogTitle>
- <DialogDescription className="text-slate-500 dark:text-slate-400 text-base max-w-sm">
- {t('subtitle')}
- </DialogDescription>
- </div>
- </DialogHeader>
- </div>
+              {/* Lista de Características */}
+              <div className="space-y-2.5 bg-white dark:bg-[#0a0a0a] p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-2xs">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  {t("includes")}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {plan.features.slice(0, 4).map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-xs">
+                      <CheckCircle2
+                        className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+                        strokeWidth={2}
+                      />
+                      <span className="text-gray-700 dark:text-gray-300 font-medium leading-tight">
+                        {feature.title}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {plan.features.length > 4 && (
+                  <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-800">
+                    <p className="text-xs text-gray-500 font-semibold flex items-center justify-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" strokeWidth={2} />
+                      <span>{t("more_benefits", { count: plan.features.length - 4 })}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
 
- <div className="relative z-10 px-8 space-y-6 pb-8">
+            {/* Desglose de Facturación */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-3 px-1"
+            >
+              <div className="space-y-2 text-left">
+                <div className="flex justify-between text-xs items-center">
+                  <span className="text-gray-500 font-medium">{t("subtotal")}</span>
+                  <span className="text-gray-900 dark:text-white font-bold font-mono">
+                    ${plan.price.toLocaleString()}
+                  </span>
+                </div>
 
- {/* Plan Summary Card - Glassmorphism */}
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.1 }}
- className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md p-6 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 text-left shadow-sm"
- >
- <div className="flex justify-between items-start mb-6">
- <div className="space-y-1">
- <h3 className="font-extrabold text-xl text-slate-900 dark:text-white">{plan.name}</h3>
- <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1.5">
- <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
- {plan.duration === 'monthly' ? t('billing_monthly') : t('billing_yearly')}
- </p>
- </div>
- <div className="text-right">
- <div className="flex items-baseline gap-1">
- <span className="text-sm font-medium text-slate-500">$</span>
- <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
- {plan.price.toLocaleString()}
- </span>
- </div>
- <p className="text-xs font-medium text-slate-500">
- /{plan.duration === 'monthly' ? t('duration_monthly') : t('duration_yearly')}
- </p>
- </div>
- </div>
+                {savings > 0 && (
+                  <div className="flex justify-between text-xs items-center text-emerald-700 dark:text-emerald-400 font-medium">
+                    <span className="flex items-center gap-1.5 font-bold">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      {t("yearly_savings")}
+                    </span>
+                    <span className="font-bold font-mono">-${savings.toLocaleString()}</span>
+                  </div>
+                )}
 
- {/* Features */}
- <div className="space-y-3 bg-slate-50/50 dark:bg-slate-950/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50">
- <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
- {t('includes')}
- </p>
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
- {plan.features.slice(0, 4).map((feature, idx) => (
- <motion.div
- key={idx}
- initial={{ opacity: 0, x: -10 }}
- animate={{ opacity: 1, x: 0 }}
- transition={{ delay: 0.2 + idx * 0.05 }}
- className="flex items-start gap-2.5 text-sm"
- >
- <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
- <span className="text-slate-700 dark:text-slate-300 font-medium leading-tight">{feature.title}</span>
- </motion.div>
- ))}
- </div>
- {plan.features.length > 4 && (
- <div className="pt-2 mt-2 border-t border-slate-200/50 dark:border-slate-800/50">
- <p className="text-xs text-slate-600 dark:text-slate-400 font-medium flex items-center justify-center gap-1.5">
- <Sparkles className="w-3.5 h-3.5" />
- {t('more_benefits', { count: plan.features.length - 4 })}
- </p>
- </div>
- )}
- </div>
- </motion.div>
+                <div className="h-px bg-gray-100 dark:bg-gray-800 my-2" />
 
- {/* Billing Details */}
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.3 }}
- className="space-y-4 px-2"
- >
- <div className="space-y-3 text-left">
- <div className="flex justify-between text-sm items-center">
- <span className="text-slate-500 dark:text-slate-400 font-medium">{t('subtotal')}</span>
- <span className="text-slate-900 dark:text-white font-semibold">${plan.price.toLocaleString()}</span>
- </div>
+                <div className="flex justify-between items-center py-1">
+                  <span className="font-bold text-gray-900 dark:text-white text-sm">
+                    {t("total_today")}
+                  </span>
+                  <span className="text-2xl font-bold font-mono text-gray-900 dark:text-white tracking-tight">
+                    ${plan.price.toLocaleString()}
+                  </span>
+                </div>
+              </div>
 
- {savings > 0 && (
- <motion.div
- initial={{ opacity: 0, scale: 0.9 }}
- animate={{ opacity: 1, scale: 1 }}
- className="flex justify-between text-sm items-center text-emerald-600 dark:text-emerald-400 font-medium"
- >
- <span className="flex items-center gap-1.5">
- <Sparkles className="w-3.5 h-3.5" />
- {t('yearly_savings')}
- </span>
- <span className="font-bold">-${savings.toLocaleString()}</span>
- </motion.div>
- )}
+              {/* Información de Próxima Renovación */}
+              <div className="bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl p-4 flex items-start gap-3.5 text-left shadow-2xs">
+                <div className="bg-white dark:bg-[#0a0a0a] p-2 rounded-xl border border-gray-200 dark:border-gray-800 shrink-0 text-emerald-600 dark:text-emerald-400 shadow-2xs">
+                  <Calendar className="w-4 h-4" strokeWidth={2} />
+                </div>
+                <div className="flex-1 space-y-0.5">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">
+                    {t("next_billing_title")}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                    {t("next_billing_desc", { date: nextBillingDate })}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
 
- <Separator className="bg-slate-200 dark:bg-slate-800 my-2" />
+            {/* Garantías y Seguridad */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+              <div className="bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 flex items-start gap-3 shadow-2xs">
+                <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                <div className="flex-1 space-y-0.5">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">
+                    {t("secure_payment_title")}
+                  </p>
+                  <p className="text-[11px] text-gray-500 font-medium leading-tight">
+                    {t("secure_payment_desc")}
+                  </p>
+                </div>
+              </div>
 
- <div className="flex justify-between items-center py-1">
- <span className="font-bold text-slate-900 dark:text-white text-lg">{t('total_today')}</span>
- <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
- ${plan.price.toLocaleString()}
- </span>
- </div>
- </div>
+              <div className="bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 flex items-start gap-3 shadow-2xs">
+                <RefreshCw className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" strokeWidth={2} />
+                <div className="flex-1 space-y-0.5">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">
+                    {t("no_commitment_title")}
+                  </p>
+                  <p className="text-[11px] text-gray-500 font-medium leading-tight">
+                    {t("no_commitment_desc")}
+                  </p>
+                </div>
+              </div>
+            </div>
 
- {/* Next billing info */}
- <div className="bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-start gap-3.5 mt-6 text-left">
- <div className="bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
- <Calendar className="w-5 h-5 text-slate-700 dark:text-slate-300 flex-shrink-0" />
- </div>
- <div className="flex-1 space-y-1 py-0.5">
- <p className="text-sm font-bold text-slate-900 dark:text-white">
- {t('next_billing_title')}
- </p>
- <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
- {t('next_billing_desc', { date: nextBillingDate })}
- </p>
- </div>
- </div>
- </motion.div>
+            {/* Información Importante */}
+            <div className="bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl p-4 flex items-start gap-3 text-left shadow-2xs">
+              <Info className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" strokeWidth={2} />
+              <div className="flex-1 text-xs text-gray-600 dark:text-gray-400 font-medium space-y-1">
+                <p className="font-bold text-gray-900 dark:text-white">
+                  {t("important_info_title")}
+                </p>
+                <ul className="space-y-1 list-disc list-outside ml-3.5 text-[11px] leading-relaxed">
+                  <li>{t("important_info_1")}</li>
+                  <li>{t("important_info_2")}</li>
+                  <li>{t("important_info_3")}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
 
- {/* Security & Guarantees */}
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.4 }}
- className="grid grid-cols-1 md:grid-cols-2 gap-3 text-left"
- >
- <div className="bg-slate-50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-3.5 flex items-start gap-3 shadow-sm">
- <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5" />
- <div className="flex-1">
- <p className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">{t('secure_payment_title')}</p>
- <p className="text-[10px] text-slate-500 leading-tight">{t('secure_payment_desc')}</p>
- </div>
- </div>
+        {/* Footer */}
+        <div className="p-6 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 rounded-b-3xl">
+          <div className="flex flex-col gap-2.5">
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={isLoading}
+              className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <QhSpinner size="sm" className="text-white" />
+                    <span>{t("btn_processing")}</span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="confirm"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <CreditCard className="w-4 h-4" strokeWidth={2} />
+                    <span>{t("btn_confirm", { amount: plan.price.toLocaleString() })}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </button>
 
- <div className="bg-slate-50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-3.5 flex items-start gap-3 shadow-sm">
- <RefreshCw className="w-4 h-4 text-indigo-600 dark:text-indigo-400 mt-0.5" />
- <div className="flex-1">
- <p className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">{t('no_commitment_title')}</p>
- <p className="text-[10px] text-slate-500 leading-tight">{t('no_commitment_desc')}</p>
- </div>
- </div>
- </motion.div>
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isLoading}
+              className="w-full h-10 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all font-bold text-xs rounded-xl shadow-2xs cursor-pointer disabled:opacity-50"
+            >
+              {t("btn_cancel")}
+            </button>
 
- {/* Important Info */}
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.5 }}
- className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-4 flex items-start gap-3 text-left"
- >
- <Info className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
- <div className="flex-1 text-xs text-slate-600 dark:text-slate-400 font-medium">
- <p className="font-bold text-slate-900 dark:text-slate-300 mb-2">{t('important_info_title')}</p>
- <ul className="space-y-1.5 list-disc list-outside ml-3 marker:text-slate-300 dark:marker:text-slate-600">
- <li>{t('important_info_1')}</li>
- <li>{t('important_info_2')}</li>
- <li>{t('important_info_3')}</li>
- </ul>
- </div>
- </motion.div>
- </div>
- </div>
-
- {/* Footer */}
- <div className="p-8 pt-6 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 rounded-b-3xl">
- <DialogFooter className="flex-col gap-3">
- <Button
- onClick={onConfirm}
- disabled={isLoading}
- className={cn(
- "w-full h-14 text-base font-bold shadow-xl transition-all duration-300 rounded-2xl",
- "bg-slate-900 hover:bg-slate-800 dark:bg-slate-50 dark:hover:bg-slate-200 dark:text-slate-900 text-white",
- "disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5",
- )}
- >
- <AnimatePresence mode="wait">
- {isLoading ? (
- <motion.div
- key="loading"
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- className="flex items-center gap-2"
- >
- <Loader2 className="w-5 h-5 animate-spin" />
- {t('btn_processing')}
- </motion.div>
- ) : (
- <motion.div
- key="confirm"
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- className="flex items-center gap-2"
- >
- <CreditCard className="w-5 h-5" />
- {t('btn_confirm', { amount: plan.price.toLocaleString() })}
- </motion.div>
- )}
- </AnimatePresence>
- </Button>
-
- <Button
- variant="ghost"
- onClick={onCancel}
- disabled={isLoading}
- className="w-full text-slate-500 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 h-12 font-semibold rounded-2xl"
- >
- {t('btn_cancel')}
- </Button>
-
- {/* Trust indicators */}
- <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] text-slate-400 dark:text-slate-500 pt-4 font-bold uppercase tracking-wider">
- <div className="flex items-center gap-1.5">
- <Lock className="w-3.5 h-3.5 text-emerald-500" />
- <span>{t('trust_ssl')}</span>
- </div>
- <span className="text-slate-300 dark:text-slate-700">•</span>
- <div className="flex items-center gap-1.5">
- <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
- <span>{t('trust_pci')}</span>
- </div>
- <span className="text-slate-300 dark:text-slate-700">•</span>
- <div className="flex items-center gap-1.5">
- <RefreshCw className="w-3.5 h-3.5 text-indigo-500" />
- <span>{t('trust_no_commitment')}</span>
- </div>
- </div>
- </DialogFooter>
- </div>
-
- </DialogContent>
- </Dialog>
- );
+            {/* Badges de confianza */}
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-wider pt-2">
+              <div className="flex items-center gap-1">
+                <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                <span>{t("trust_ssl")}</span>
+              </div>
+              <span>•</span>
+              <div className="flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-blue-500" />
+                <span>{t("trust_pci")}</span>
+              </div>
+              <span>•</span>
+              <div className="flex items-center gap-1">
+                <RefreshCw className="w-3 h-3 text-indigo-500" />
+                <span>{t("trust_no_commitment")}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 };

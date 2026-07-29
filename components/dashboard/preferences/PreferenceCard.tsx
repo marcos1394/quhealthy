@@ -1,250 +1,215 @@
 "use client";
+
+/* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-multi-comp */
 
-import React from 'react';
-import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React from "react";
+import { motion } from "framer-motion";
 import { ChevronRight, Sparkles } from "lucide-react";
+
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-
 interface PreferenceCardProps {
- icon: React.ElementType;
- title: string;
- description: string;
- children: React.ReactNode;
- className?: string;
- badge?: string;
- highlighted?: boolean;
- onClick?: () => void;
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  className?: string;
+  badge?: string;
+  highlighted?: boolean;
+  onClick?: () => void;
 }
 
-export const PreferenceCard: React.FC<PreferenceCardProps> = ({ 
- icon: Icon, 
- title, 
- description, 
- children, 
- className = "",
- badge,
- highlighted = false,
- onClick
+export const PreferenceCard: React.FC<PreferenceCardProps> = ({
+  icon: Icon,
+  title,
+  description,
+  children,
+  className = "",
+  badge,
+  highlighted = false,
+  onClick,
 }) => {
- return (
- <motion.div
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.3 }}
- whileHover={onClick ? { y: -2 } : {}}
- className={cn(
- onClick ? "cursor-pointer" : ""
- )} 
- onClick={onClick}
- >
- <Card 
- className={cn(
- "bg-slate-900/50 backdrop-blur-sm border-slate-800 shadow-lg transition-all duration-300",
- "hover:border-slate-700 hover:shadow-xl hover:shadow-purple-500/5",
- highlighted ? "border-purple-500/30 bg-purple-500/5 ring-1 ring-purple-500/20" : "",
- onClick ? "hover:border-purple-500/40" : "",
- className
- )}
- >
- <CardContent className="p-6 md:p-8">
- <div className="flex items-start gap-5">
- 
- {/* Icon Container - AFFORDANCE */}
- <motion.div
- initial={{ scale: 0.95, opacity: 0, rotate: -180 }}
- animate={{ scale: 1, rotate: 0 }}
- transition={{ 
- type: "spring", 
- stiffness: 200,
- delay: 0.1 
- }}
- whileHover={{ scale: 1.1, rotate: 5 }}
- className={cn(
- "relative p-4 rounded-2xl shrink-0 transition-all duration-300",
- "bg-gradient-to-br from-medical-500/10 to-medical-600/10",
- "border border-purple-500/20",
- "shadow-lg shadow-purple-500/10",
- "group-hover:shadow-xl group-hover:shadow-medical-500/20"
- )}
- >
- {/* Glow effect */}
- <div className="absolute inset-0 bg-gradient-to-br from-medical-500/20 to-medical-600/20 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
- 
- <Icon className={cn(
- "relative w-6 h-6 md:w-7 md:h-7 transition-colors duration-300",
- highlighted ? "text-purple-300" : "text-purple-400"
- )} />
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      whileHover={onClick ? { y: -2 } : {}}
+      className={cn(onClick ? "cursor-pointer" : "")}
+      onClick={onClick}
+    >
+      <Card
+        className={cn(
+          "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm transition-all duration-200 font-sans overflow-hidden",
+          "hover:border-emerald-500/30 hover:shadow-md",
+          highlighted
+            ? "border-emerald-500/40 bg-emerald-50/30 dark:bg-emerald-950/20 ring-1 ring-emerald-500/30"
+            : "",
+          onClick ? "hover:border-emerald-500/40" : "",
+          className
+        )}
+      >
+        <CardContent className="p-6 sm:p-8">
+          <div className="flex items-start gap-4 sm:gap-5">
+            {/* Icon Container */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 220,
+                delay: 0.1,
+              }}
+              whileHover={{ scale: 1.05 }}
+              className={cn(
+                "w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center transition-all duration-200 shadow-2xs",
+                highlighted
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+              )}
+            >
+              <Icon className="w-6 h-6" strokeWidth={2} />
+            </motion.div>
 
- {/* Pulse animation para highlighted */}
- {highlighted && (
- <motion.div
- className="absolute inset-0 rounded-2xl border-2 border-purple-500"
- initial={{ scale: 1, opacity: 0.5 }}
- animate={{ 
- scale: [1, 1.2, 1],
- opacity: [0.5, 0, 0.5]
- }}
- transition={{ 
- duration: 2,
- repeat: Infinity,
- ease: "easeInOut"
- }}
- />
- )}
- </motion.div>
- 
- {/* Content - JERARQUÍA VISUAL */}
- <div className="flex-1 space-y-4 min-w-0">
- 
- {/* Header */}
- <div className="space-y-2">
- <div className="flex items-start justify-between gap-3">
- <div className="flex-1 min-w-0">
- <div className="flex items-center gap-2 flex-wrap">
- <h3 className={cn(
- "text-lg md:text-xl font-bold tracking-tight",
- highlighted ? "text-white" : "text-white/90"
- )}>
- {title}
- </h3>
- 
- {/* Badge opcional */}
- {badge && (
- <Badge 
- variant="outline" 
- className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-xs"
- >
- <Sparkles className="w-3 h-3 mr-1" />
- {badge}
- </Badge>
- )}
- </div>
- 
- <p className="text-sm md:text-base text-slate-400 mt-1.5 leading-relaxed">
- {description}
- </p>
- </div>
+            {/* Content */}
+            <div className="flex-1 space-y-4 min-w-0">
+              {/* Header */}
+              <div className="space-y-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                        {title}
+                      </h3>
 
- {/* Click indicator */}
- {onClick && (
- <motion.div
- whileHover={{ x: 3 }}
- transition={{ duration: 0.2 }}
- >
- <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-purple-400 transition-colors" />
- </motion.div>
- )}
- </div>
- </div>
+                      {/* Badge opcional */}
+                      {badge && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+                          <Sparkles className="w-3 h-3" strokeWidth={2} />
+                          <span>{badge}</span>
+                        </span>
+                      )}
+                    </div>
 
- {/* Separator - FIGURA/FONDO */}
- <div className={cn(
- "w-full h-px transition-colors duration-300",
- highlighted 
- ? "bg-gradient-to-r from-medical-500/30 via-pink-500/30 to-transparent" 
- : "bg-gradient-to-r from-slate-800 via-gray-700 to-transparent"
- )} />
- 
- {/* Children Content */}
- <motion.div 
- className="space-y-4"
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- transition={{ delay: 0.2 }}
- >
- {children}
- </motion.div>
- </div>
- </div>
- </CardContent>
- </Card>
- </motion.div>
- );
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                      {description}
+                    </p>
+                  </div>
+
+                  {/* Click Indicator */}
+                  {onClick && (
+                    <motion.div
+                      whileHover={{ x: 2 }}
+                      transition={{ duration: 0.2 }}
+                      className="pt-1 shrink-0"
+                    >
+                      <ChevronRight
+                        className="w-5 h-5 text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors"
+                        strokeWidth={2}
+                      />
+                    </motion.div>
+                  )}
+                </div>
+              </div>
+
+              {/* Separador */}
+              <div className="w-full h-px bg-gray-100 dark:bg-gray-800" />
+
+              {/* Children Content */}
+              <div className="space-y-4">{children}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
 };
 
 /**
  * Variante compacta para espacios reducidos
  */
-export const PreferenceCardCompact: React.FC<PreferenceCardProps> = (props) => {
- const { icon: Icon, title, description, children, className, badge, highlighted } = props;
+export const PreferenceCardCompact: React.FC<PreferenceCardProps> = (
+  props
+) => {
+  const {
+    icon: Icon,
+    title,
+    description,
+    children,
+    className,
+    badge,
+    highlighted,
+  } = props;
 
- return (
- <Card 
- className={cn(
- "bg-slate-900/50 border-slate-800 shadow-md transition-all duration-300",
- "hover:border-slate-700",
- highlighted ? "border-purple-500/30 bg-purple-500/5" : "",
- className ? "" + className : ""
- )}
- >
- <CardContent className="p-4">
- <div className="flex items-start gap-3">
- <div className={cn(
- "p-2 rounded-lg shrink-0",
- "bg-gradient-to-br from-medical-500/10 to-medical-600/10",
- "border border-purple-500/20"
- )}>
- <Icon className="w-5 h-5 text-purple-400" />
- </div>
- 
- <div className="flex-1 space-y-2 min-w-0">
- <div className="flex items-center gap-2">
- <h4 className="text-sm font-bold text-white">{title}</h4>
- {badge && (
- <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-xs">
- {badge}
- </Badge>
- )}
- </div>
- <p className="text-xs text-slate-500">{description}</p>
- <div className="space-y-2">
- {children}
- </div>
- </div>
- </div>
- </CardContent>
- </Card>
- );
+  return (
+    <Card
+      className={cn(
+        "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xs transition-all duration-200 font-sans",
+        "hover:border-emerald-500/30 hover:shadow-xs",
+        highlighted
+          ? "border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/20"
+          : "",
+        className
+      )}
+    >
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-start gap-3.5">
+          <div className="w-9 h-9 rounded-xl shrink-0 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-2xs">
+            <Icon className="w-4 h-4" strokeWidth={2} />
+          </div>
+
+          <div className="flex-1 space-y-2 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h4 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
+                {title}
+              </h4>
+              {badge && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+                  {badge}
+                </span>
+              )}
+            </div>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              {description}
+            </p>
+            <div className="space-y-2 pt-1">{children}</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 /**
- * Variante con acción/link
+ * Variante con acción principal integradora
  */
-export const PreferenceCardAction: React.FC<PreferenceCardProps & { 
- actionLabel?: string;
- onAction?: () => void;
-}> = (props) => {
- const { actionLabel = "Configurar", onAction, ...cardProps } = props;
+export const PreferenceCardAction: React.FC<
+  PreferenceCardProps & {
+    actionLabel?: string;
+    onAction?: () => void;
+  }
+> = (props) => {
+  const { actionLabel = "Configurar", onAction, ...cardProps } = props;
 
- return (
- <PreferenceCard {...cardProps}>
- {props.children}
- 
- {onAction && (
- <motion.button
- onClick={(e) => {
- e.stopPropagation();
- onAction();
- }}
- whileHover={{ scale: 1.02 }}
- whileTap={{ scale: 0.98 }}
- className={cn(
- "mt-4 w-full px-4 py-2 rounded-lg font-medium text-sm",
- "bg-purple-500/10 text-purple-400 border border-purple-500/20",
- "hover:bg-medical-500/20 hover:border-purple-500/30",
- "transition-all duration-200",
- "flex items-center justify-center gap-2"
- )}
- >
- {actionLabel}
- <ChevronRight className="w-4 h-4" />
- </motion.button>
- )}
- </PreferenceCard>
- );
+  return (
+    <PreferenceCard {...cardProps}>
+      {props.children}
+
+      {onAction && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAction();
+          }}
+          className="mt-4 w-full h-10 px-4 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer border-0"
+        >
+          <span>{actionLabel}</span>
+          <ChevronRight className="w-4 h-4" strokeWidth={2} />
+        </button>
+      )}
+    </PreferenceCard>
+  );
 };

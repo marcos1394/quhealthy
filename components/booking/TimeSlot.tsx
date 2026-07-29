@@ -31,10 +31,10 @@ export function TimeSlot({
       className={cn(
         "h-11 px-3 rounded-xl border text-xs font-bold font-sans flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-xs",
         isSelected
-          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+          ? "bg-store-600 border-store-600 text-white shadow-sm font-bold"
           : isDisabled
             ? "bg-gray-50/50 dark:bg-[#050505] border-gray-100 dark:border-gray-800 text-gray-300 dark:text-gray-700 opacity-60 cursor-not-allowed"
-            : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:border-emerald-500/40 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 hover:text-emerald-600 dark:hover:text-emerald-400"
+            : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-store-500/50 hover:bg-store-50/40 dark:hover:bg-store-950/20 hover:text-store-600 dark:hover:text-store-400"
       )}
       style={
         isSelected && providerColor

@@ -1,490 +1,561 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */
-/* eslint-disable react-doctor/no-giant-component */
 "use client";
 
-import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Switch } from "@/components/ui/switch";
-import { 
- Select, 
- SelectTrigger, 
- SelectContent, 
- SelectItem, 
- SelectValue 
-} from "@/components/ui/select";
-import { 
- Shield, 
- Lock,
- Eye,
- EyeOff,
- Clock,
- Users,
- UserCheck,
- Globe,
- Info,
- AlertCircle,
- Check,
- Sparkles,
- Zap
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { PreferenceCard } from './PreferenceCard';
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
+import React, { useState } from "react";
+import { useTranslations } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Shield,
+  Lock,
+  Eye,
+  EyeOff,
+  Clock,
+  Users,
+  UserCheck,
+  Globe,
+  Info,
+  Check,
+  Sparkles,
+  Zap,
+  ShieldCheck,
+} from "lucide-react";
+
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { PreferenceCard } from "./PreferenceCard";
 
 interface PrivacyTabProps {
- preferences: any;
- setPreferences: React.Dispatch<React.SetStateAction<any>>;
- editMode: boolean;
+  preferences: any;
+  setPreferences: React.Dispatch<React.SetStateAction<any>>;
+  editMode: boolean;
 }
 
-export const PrivacyTab: React.FC<PrivacyTabProps> = ({ 
- preferences, 
- setPreferences, 
- editMode 
+export const PrivacyTab: React.FC<PrivacyTabProps> = ({
+  preferences,
+  setPreferences,
+  editMode,
 }) => {
- const [recentlyChanged, setRecentlyChanged] = useState<string | null>(null);
+  const t = useTranslations("DashboardSettings.privacy");
+  const [recentlyChanged, setRecentlyChanged] = useState<string | null>(null);
 
- const updatePrivacy = (key: string, value: any) => {
- setPreferences((prev: any) => ({
- ...prev,
- privacy: { ...prev.privacy, [key]: value }
- }));
+  const updatePrivacy = (key: string, value: any) => {
+    setPreferences((prev: any) => ({
+      ...prev,
+      privacy: { ...prev.privacy, [key]: value },
+    }));
 
- // Show feedback
- setRecentlyChanged(key);
- setTimeout(() => setRecentlyChanged(null), 2000);
- };
+    setRecentlyChanged(key);
+    setTimeout(() => setRecentlyChanged(null), 2000);
+  };
 
- // Helper para nivel de privacidad - FEEDBACK VISUAL
- const getPrivacyLevel = () => {
- const settings = preferences.privacy;
- let score = 0;
- 
- if (!settings.showOnlineStatus) score++;
- if (!settings.showLastSeen) score++;
- if (settings.showProfile === 'none' || settings.showProfile === 'contacts') score++;
- if (settings.allowMessages === 'contacts' || settings.allowMessages === 'none') score++;
+  const getPrivacyLevel = () => {
+    const settings = preferences.privacy;
+    let score = 0;
 
- if (score >= 3) return { level: 'high', label: 'Alta', color: 'emerald' };
- if (score >= 2) return { level: 'medium', label: 'Media', color: 'amber' };
- return { level: 'low', label: 'Baja', color: 'red' };
- };
+    if (!settings.showOnlineStatus) score++;
+    if (!settings.showLastSeen) score++;
+    if (settings.showProfile === "none" || settings.showProfile === "contacts")
+      score++;
+    if (
+      settings.allowMessages === "contacts" ||
+      settings.allowMessages === "none"
+    )
+      score++;
 
- const privacyLevel = getPrivacyLevel();
+    if (score >= 3)
+      return {
+        level: "high",
+        label: t("level_high"),
+        desc: t("level_high_desc"),
+        colorClass:
+          "bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400",
+        iconBg: "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400",
+      };
+    if (score >= 2)
+      return {
+        level: "medium",
+        label: t("level_medium"),
+        desc: t("level_medium_desc"),
+        colorClass:
+          "bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-400",
+        iconBg: "bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400",
+      };
+    return {
+      level: "low",
+      label: t("level_low"),
+      desc: t("level_low_desc"),
+      colorClass:
+        "bg-red-50/60 dark:bg-red-950/20 border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400",
+      iconBg: "bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400",
+    };
+  };
 
- // Helper para iconos de privacidad - RECONOCIMIENTO
- const getPrivacyIcon = (level: string) => {
- switch(level) {
- case 'all': return { icon: Globe, color: 'text-blue-400', label: 'Público' };
- case 'contacts': return { icon: UserCheck, color: 'text-emerald-400', label: 'Contactos' };
- case 'none': return { icon: Lock, color: 'text-red-400', label: 'Privado' };
- default: return { icon: Globe, color: 'text-slate-400', label: 'Desconocido' };
- }
- };
+  const privacyLevel = getPrivacyLevel();
 
- return (
- <div className="space-y-6">
- 
- {/* Privacy Level Summary - FEEDBACK VISUAL */}
- <motion.div
- initial={{ opacity: 0, y: -10 }}
- animate={{ opacity: 1, y: 0 }}
- className={cn(
- "border rounded-xl p-4 transition-all duration-300",
- privacyLevel.color === 'emerald' ? "bg-emerald-500/10 border-emerald-500/20" : "",
- privacyLevel.color === 'amber' ? "bg-amber-500/10 border-amber-500/20" : "",
- privacyLevel.color === 'red' ? "bg-red-500/10 border-red-500/20" : ""
- )}
- >
- <div className="flex items-start gap-3">
- <div className={cn(
- "p-2 rounded-lg",
- privacyLevel.color === 'emerald' ? "bg-emerald-500/10" : "",
- privacyLevel.color === 'amber' ? "bg-amber-500/10" : "",
- privacyLevel.color === 'red' ? "bg-red-500/10" : ""
- )}>
- <Shield className={cn(
- "w-5 h-5",
- privacyLevel.color === 'emerald' ? "text-emerald-400" : "",
- privacyLevel.color === 'amber' ? "text-amber-400" : "",
- privacyLevel.color === 'red' ? "text-red-400" : ""
- )} />
- </div>
- <div className="flex-1">
- <p className="text-sm font-semibold text-white mb-1">
- Nivel de Privacidad: {privacyLevel.label}
- </p>
- <p className={cn(
- "text-xs",
- privacyLevel.color === 'emerald' ? "text-emerald-300/80" : "",
- privacyLevel.color === 'amber' ? "text-amber-300/80" : "",
- privacyLevel.color === 'red' ? "text-red-300/80" : ""
- )}>
- {privacyLevel.level === 'high' && "Tu información está bien protegida"}
- {privacyLevel.level === 'medium' && "Privacidad moderada, algunos datos son visibles"}
- {privacyLevel.level === 'low' && "Tu perfil es muy visible, considera aumentar la privacidad"}
- </p>
- </div>
- </div>
- </motion.div>
+  const getPrivacyIconConfig = (level: string) => {
+    switch (level) {
+      case "all":
+        return {
+          icon: Globe,
+          color: "text-blue-500",
+          label: t("profile_all"),
+        };
+      case "contacts":
+        return {
+          icon: UserCheck,
+          color: "text-emerald-600 dark:text-emerald-400",
+          label: t("profile_contacts"),
+        };
+      case "none":
+        return {
+          icon: Lock,
+          color: "text-red-500",
+          label: t("profile_none"),
+        };
+      default:
+        return {
+          icon: Globe,
+          color: "text-gray-400",
+          label: t("profile_all"),
+        };
+    }
+  };
 
- {/* Visibility Settings - AFFORDANCE */}
- <motion.div
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.3 }}
- >
- <PreferenceCard 
- icon={Eye} 
- title="Visibilidad de Actividad" 
- description="Controla qué información de tu actividad pueden ver otros usuarios"
- >
- <div className="space-y-6">
- 
- {/* Online Status */}
- <div className={cn(
- "relative p-4 rounded-xl border-2 transition-all duration-300",
- preferences.privacy.showOnlineStatus 
- ? "bg-blue-500/5 border-blue-500/20" 
- : "bg-slate-950/30 border-slate-800",
- recentlyChanged === 'showOnlineStatus' ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
- )}>
- {/* Check indicator */}
- {preferences.privacy.showOnlineStatus && (
- <motion.div
- initial={{ scale: 0.95, opacity: 0 }}
- animate={{ scale: 1 }}
- className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1"
- >
- <Eye className="w-3 h-3 text-white" />
- </motion.div>
- )}
+  return (
+    <div className="space-y-6 font-sans transition-colors">
+      {/* ── RESUMEN DE NIVEL DE PRIVACIDAD ────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={cn(
+          "border rounded-3xl p-5 transition-all duration-300 shadow-2xs",
+          privacyLevel.colorClass
+        )}
+      >
+        <div className="flex items-start gap-4">
+          <div className={cn("p-2.5 rounded-2xl shrink-0 shadow-2xs", privacyLevel.iconBg)}>
+            <Shield className="w-5 h-5" strokeWidth={2} />
+          </div>
+          <div className="space-y-0.5 flex-1 min-w-0">
+            <p className="text-xs font-bold text-gray-900 dark:text-white">
+              {t("level_title")}: {privacyLevel.label}
+            </p>
+            <p className="text-xs font-medium leading-relaxed opacity-90">
+              {privacyLevel.desc}
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
- <div className="flex items-start justify-between gap-4">
- <div className="flex items-start gap-3 flex-1">
- <div className={cn(
- "p-2 rounded-lg",
- preferences.privacy.showOnlineStatus ? "bg-blue-500/10" : "bg-slate-800"
- )}>
- <Eye className={cn(
- "w-5 h-5",
- preferences.privacy.showOnlineStatus ? "text-blue-400" : "text-slate-500"
- )} />
- </div>
- <div className="flex-1 space-y-2">
- <div className="flex items-center gap-2">
- <p className={cn(
- "font-semibold",
- preferences.privacy.showOnlineStatus ? "text-white" : "text-slate-400"
- )}>
- Mostrar Estado en Línea
- </p>
- {preferences.privacy.showOnlineStatus && (
- <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs">
- Visible
- </Badge>
- )}
- </div>
- <p className="text-sm text-slate-400">
- Permite que otros usuarios vean cuando estás activo en la plataforma
- </p>
- {/* Impact info */}
- <div className="flex items-start gap-2 text-xs bg-slate-950/50 p-2 rounded-lg">
- <Info className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" />
- <p className="text-slate-500">
- {preferences.privacy.showOnlineStatus 
- ? "Aparecerás con un punto verde cuando estés conectado"
- : "Tu estado permanecerá oculto"}
- </p>
- </div>
- </div>
- </div>
- <Switch 
- checked={preferences.privacy.showOnlineStatus} 
- onCheckedChange={(val) => updatePrivacy('showOnlineStatus', val)} 
- disabled={!editMode}
- className={cn(!editMode ? "opacity-50 cursor-not-allowed" : "")}
- />
- </div>
- </div>
+      {/* ── SECCIÓN 1: VISIBILIDAD DE ACTIVIDAD ───────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <PreferenceCard
+          icon={Eye}
+          title={t("visibility_title")}
+          description={t("visibility_desc")}
+        >
+          <div className="space-y-3 pt-1">
+            {/* Estado en Línea */}
+            <div
+              className={cn(
+                "relative p-4 rounded-2xl border transition-all duration-200 shadow-2xs select-none",
+                preferences.privacy.showOnlineStatus
+                  ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40"
+                  : "bg-gray-50/60 dark:bg-[#050505] border-gray-100 dark:border-gray-800",
+                recentlyChanged === "showOnlineStatus"
+                  ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-[#0a0a0a]"
+                  : ""
+              )}
+            >
+              {preferences.privacy.showOnlineStatus && (
+                <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white rounded-full p-0.5 shadow-2xs">
+                  <Check className="w-3 h-3" strokeWidth={2.5} />
+                </div>
+              )}
 
- {/* Last Seen */}
- <div className={cn(
- "relative p-4 rounded-xl border-2 transition-all duration-300",
- preferences.privacy.showLastSeen 
- ? "bg-purple-500/5 border-purple-500/20" 
- : "bg-slate-950/30 border-slate-800",
- recentlyChanged === 'showLastSeen' ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
- )}>
- {preferences.privacy.showLastSeen && (
- <motion.div
- initial={{ scale: 0.95, opacity: 0 }}
- animate={{ scale: 1 }}
- className="absolute -top-2 -right-2 bg-purple-500 rounded-full p-1"
- >
- <Clock className="w-3 h-3 text-white" />
- </motion.div>
- )}
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3.5 flex-1 min-w-0 pr-2">
+                  <div
+                    className={cn(
+                      "p-2.5 rounded-xl border shrink-0 shadow-2xs",
+                      preferences.privacy.showOnlineStatus
+                        ? "bg-white dark:bg-[#0a0a0a] border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400"
+                        : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-400"
+                    )}
+                  >
+                    <Eye className="w-5 h-5" strokeWidth={2} />
+                  </div>
 
- <div className="flex items-start justify-between gap-4">
- <div className="flex items-start gap-3 flex-1">
- <div className={cn(
- "p-2 rounded-lg",
- preferences.privacy.showLastSeen ? "bg-purple-500/10" : "bg-slate-800"
- )}>
- <Clock className={cn(
- "w-5 h-5",
- preferences.privacy.showLastSeen ? "text-purple-400" : "text-slate-500"
- )} />
- </div>
- <div className="flex-1 space-y-2">
- <div className="flex items-center gap-2">
- <p className={cn(
- "font-semibold",
- preferences.privacy.showLastSeen ? "text-white" : "text-slate-400"
- )}>
- Mostrar Última Conexión
- </p>
- {preferences.privacy.showLastSeen && (
- <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-xs">
- Visible
- </Badge>
- )}
- </div>
- <p className="text-sm text-slate-400">
- Muestra la última vez que estuviste activo en la plataforma
- </p>
- <div className="flex items-start gap-2 text-xs bg-slate-950/50 p-2 rounded-lg">
- <Info className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" />
- <p className="text-slate-500">
- {preferences.privacy.showLastSeen 
- ? 'Ejemplo: "Última vez hace 5 minutos"'
- : "Tu última conexión no será visible"}
- </p>
- </div>
- </div>
- </div>
- <Switch 
- checked={preferences.privacy.showLastSeen} 
- onCheckedChange={(val) => updatePrivacy('showLastSeen', val)} 
- disabled={!editMode}
- className={cn(!editMode ? "opacity-50 cursor-not-allowed" : "")}
- />
- </div>
- </div>
- </div>
- </PreferenceCard>
- </motion.div>
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                        {t("online_status_title")}
+                      </p>
+                      <span
+                        className={cn(
+                          "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs",
+                          preferences.privacy.showOnlineStatus
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700"
+                        )}
+                      >
+                        {preferences.privacy.showOnlineStatus
+                          ? t("online_status_visible")
+                          : t("online_status_hidden")}
+                      </span>
+                    </div>
 
- {/* Contact Permissions - CONTROL GRANULAR */}
- <motion.div
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.3, delay: 0.2 }}
- >
- <PreferenceCard 
- icon={Users} 
- title="Permisos de Contacto" 
- description="Define quién puede ver tu información y comunicarse contigo"
- >
- <div className="space-y-6">
- 
- {/* Profile Visibility */}
- <div className="space-y-3">
- <div className="flex items-center justify-between">
- <h4 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
- ¿Quién puede ver mi perfil completo?
- </h4>
- <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-xs">
- {getPrivacyIcon(preferences.privacy.showProfile).label}
- </Badge>
- </div>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {t("online_status_desc")}
+                    </p>
 
- <Select 
- value={preferences.privacy.showProfile} 
- onValueChange={(val) => updatePrivacy('showProfile', val)} 
- disabled={!editMode}
- >
- <SelectTrigger 
- className={cn(
- "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
- !editMode ? "opacity-50 cursor-not-allowed" : "hover:border-purple-500/50"
- )}
- >
- <div className="flex items-center gap-2">
- {React.createElement(
- getPrivacyIcon(preferences.privacy.showProfile).icon,
- { className: `w-4 h-4 ${getPrivacyIcon(preferences.privacy.showProfile).color}` }
- )}
- <SelectValue />
- </div>
- </SelectTrigger>
- <SelectContent className="bg-slate-900 border-slate-800">
- <SelectItem value="all">
- <div className="flex items-center gap-3 py-1">
- <Globe className="w-4 h-4 text-blue-400" />
- <div className="flex flex-col">
- <span className="font-semibold">Todos (Público)</span>
- <span className="text-xs text-slate-500">Cualquiera puede ver tu perfil</span>
- </div>
- </div>
- </SelectItem>
- <SelectItem value="contacts">
- <div className="flex items-center gap-3 py-1">
- <UserCheck className="w-4 h-4 text-emerald-400" />
- <div className="flex flex-col">
- <span className="font-semibold">Solo mis Contactos</span>
- <span className="text-xs text-slate-500">Solo personas con cita confirmada</span>
- </div>
- </div>
- </SelectItem>
- <SelectItem value="none">
- <div className="flex items-center gap-3 py-1">
- <Lock className="w-4 h-4 text-red-400" />
- <div className="flex flex-col">
- <span className="font-semibold">Nadie (Privado)</span>
- <span className="text-xs text-slate-500">Perfil completamente oculto</span>
- </div>
- </div>
- </SelectItem>
- </SelectContent>
- </Select>
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 pt-0.5">
+                      <Info className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>
+                        {preferences.privacy.showOnlineStatus
+                          ? t("online_status_active_info")
+                          : t("online_status_inactive_info")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
- {/* Impact preview */}
- <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-xs">
- <div className="flex items-start gap-2">
- <Sparkles className={cn(
- "w-4 h-4 flex-shrink-0 mt-0.5",
- getPrivacyIcon(preferences.privacy.showProfile).color
- )} />
- <p className="text-slate-400">
- {preferences.privacy.showProfile === 'all' && "Tu perfil aparecerá en búsquedas y recomendaciones"}
- {preferences.privacy.showProfile === 'contacts' && "Solo personas con citas confirmadas verán tu información completa"}
- {preferences.privacy.showProfile === 'none' && "Tu perfil no será visible para ningún usuario"}
- </p>
- </div>
- </div>
- </div>
+                <Switch
+                  checked={preferences.privacy.showOnlineStatus}
+                  onCheckedChange={(val) => updatePrivacy("showOnlineStatus", val)}
+                  disabled={!editMode}
+                  className={cn(!editMode ? "opacity-50 cursor-not-allowed" : "")}
+                />
+              </div>
+            </div>
 
- {/* Messages Permission */}
- <div className="space-y-3">
- <div className="flex items-center justify-between">
- <h4 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
- ¿Quién puede enviarme mensajes?
- </h4>
- <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs">
- {getPrivacyIcon(preferences.privacy.allowMessages).label}
- </Badge>
- </div>
+            {/* Última Conexión */}
+            <div
+              className={cn(
+                "relative p-4 rounded-2xl border transition-all duration-200 shadow-2xs select-none",
+                preferences.privacy.showLastSeen
+                  ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40"
+                  : "bg-gray-50/60 dark:bg-[#050505] border-gray-100 dark:border-gray-800",
+                recentlyChanged === "showLastSeen"
+                  ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-[#0a0a0a]"
+                  : ""
+              )}
+            >
+              {preferences.privacy.showLastSeen && (
+                <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white rounded-full p-0.5 shadow-2xs">
+                  <Check className="w-3 h-3" strokeWidth={2.5} />
+                </div>
+              )}
 
- <Select 
- value={preferences.privacy.allowMessages} 
- onValueChange={(val) => updatePrivacy('allowMessages', val)} 
- disabled={!editMode}
- >
- <SelectTrigger 
- className={cn(
- "bg-slate-950/50 border-slate-700 text-white h-12 transition-all",
- !editMode ? "opacity-50 cursor-not-allowed" : "hover:border-blue-500/50"
- )}
- >
- <div className="flex items-center gap-2">
- {React.createElement(
- getPrivacyIcon(preferences.privacy.allowMessages).icon,
- { className: `w-4 h-4 ${getPrivacyIcon(preferences.privacy.allowMessages).color}` }
- )}
- <SelectValue />
- </div>
- </SelectTrigger>
- <SelectContent className="bg-slate-900 border-slate-800">
- <SelectItem value="all">
- <div className="flex items-center gap-3 py-1">
- <Globe className="w-4 h-4 text-blue-400" />
- <div className="flex flex-col">
- <span className="font-semibold">Cualquiera</span>
- <span className="text-xs text-slate-500">Todos pueden enviarte mensajes</span>
- </div>
- </div>
- </SelectItem>
- <SelectItem value="contacts">
- <div className="flex items-center gap-3 py-1">
- <UserCheck className="w-4 h-4 text-emerald-400" />
- <div className="flex flex-col">
- <span className="font-semibold">Solo con Cita</span>
- <span className="text-xs text-slate-500">Personas con cita confirmada</span>
- </div>
- </div>
- </SelectItem>
- <SelectItem value="none">
- <div className="flex items-center gap-3 py-1">
- <EyeOff className="w-4 h-4 text-red-400" />
- <div className="flex flex-col">
- <span className="font-semibold">Nadie</span>
- <span className="text-xs text-slate-500">Mensajes desactivados</span>
- </div>
- </div>
- </SelectItem>
- </SelectContent>
- </Select>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3.5 flex-1 min-w-0 pr-2">
+                  <div
+                    className={cn(
+                      "p-2.5 rounded-xl border shrink-0 shadow-2xs",
+                      preferences.privacy.showLastSeen
+                        ? "bg-white dark:bg-[#0a0a0a] border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400"
+                        : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-400"
+                    )}
+                  >
+                    <Clock className="w-5 h-5" strokeWidth={2} />
+                  </div>
 
- <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-xs">
- <div className="flex items-start gap-2">
- <Zap className={cn(
- "w-4 h-4 flex-shrink-0 mt-0.5",
- getPrivacyIcon(preferences.privacy.allowMessages).color
- )} />
- <p className="text-slate-400">
- {preferences.privacy.allowMessages === 'all' && "Podrás recibir mensajes de cualquier usuario de la plataforma"}
- {preferences.privacy.allowMessages === 'contacts' && "Solo usuarios con citas confirmadas podrán contactarte"}
- {preferences.privacy.allowMessages === 'none' && "No recibirás mensajes de ningún usuario"}
- </p>
- </div>
- </div>
- </div>
- </div>
- </PreferenceCard>
- </motion.div>
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                        {t("last_seen_title")}
+                      </p>
+                      <span
+                        className={cn(
+                          "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs",
+                          preferences.privacy.showLastSeen
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40"
+                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700"
+                        )}
+                      >
+                        {preferences.privacy.showLastSeen
+                          ? t("online_status_visible")
+                          : t("online_status_hidden")}
+                      </span>
+                    </div>
 
- {/* Security Info - CREDIBILIDAD */}
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.4 }}
- className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3"
- >
- <Shield className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
- <div className="flex-1">
- <p className="text-sm font-semibold text-blue-400 mb-1">
- Tu Privacidad es Nuestra Prioridad
- </p>
- <p className="text-xs text-blue-300/80">
- Todos tus datos están protegidos con encriptación de extremo a extremo. 
- Puedes cambiar estas configuraciones en cualquier momento.
- </p>
- </div>
- </motion.div>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {t("last_seen_desc")}
+                    </p>
 
- {/* Edit Mode Warning */}
- {!editMode && (
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3"
- >
- <Info className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
- <div className="flex-1">
- <p className="text-sm font-semibold text-amber-400 mb-1">
- Modo de Solo Lectura
- </p>
- <p className="text-xs text-amber-300/80">
- Activa el modo de edición para modificar tu configuración de privacidad
- </p>
- </div>
- </motion.div>
- )}
- </div>
- );
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 pt-0.5">
+                      <Info className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>
+                        {preferences.privacy.showLastSeen
+                          ? t("last_seen_active_info")
+                          : t("last_seen_inactive_info")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <Switch
+                  checked={preferences.privacy.showLastSeen}
+                  onCheckedChange={(val) => updatePrivacy("showLastSeen", val)}
+                  disabled={!editMode}
+                  className={cn(!editMode ? "opacity-50 cursor-not-allowed" : "")}
+                />
+              </div>
+            </div>
+          </div>
+        </PreferenceCard>
+      </motion.div>
+
+      {/* ── SECCIÓN 2: PERMISOS DE CONTACTO Y PERFIL ──────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <PreferenceCard
+          icon={Users}
+          title={t("permissions_title")}
+          description={t("permissions_desc")}
+        >
+          <div className="space-y-5 pt-1">
+            {/* Visibilidad del Perfil */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("profile_visibility_question")}
+                </h4>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+                  {getPrivacyIconConfig(preferences.privacy.showProfile).label}
+                </span>
+              </div>
+
+              <Select
+                value={preferences.privacy.showProfile}
+                onValueChange={(val) => updatePrivacy("showProfile", val)}
+                disabled={!editMode}
+              >
+                <SelectTrigger
+                  className={cn(
+                    "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white h-11 rounded-xl text-xs font-semibold focus:ring-emerald-500/20 shadow-2xs transition-all",
+                    !editMode ? "opacity-50 cursor-not-allowed" : "hover:border-emerald-500/40"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {React.createElement(
+                      getPrivacyIconConfig(preferences.privacy.showProfile).icon,
+                      {
+                        className: `w-4 h-4 ${
+                          getPrivacyIconConfig(preferences.privacy.showProfile).color
+                        }`,
+                        strokeWidth: 2,
+                      }
+                    )}
+                    <SelectValue />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl font-sans">
+                  <SelectItem value="all" className="text-xs font-semibold cursor-pointer">
+                    <div className="flex items-center gap-3 py-1">
+                      <Globe className="w-4 h-4 text-blue-500" strokeWidth={2} />
+                      <div className="flex flex-col text-left">
+                        <span className="font-bold">{t("profile_all")}</span>
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {t("profile_all_desc")}
+                        </span>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="contacts" className="text-xs font-semibold cursor-pointer">
+                    <div className="flex items-center gap-3 py-1">
+                      <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <div className="flex flex-col text-left">
+                        <span className="font-bold">{t("profile_contacts")}</span>
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {t("profile_contacts_desc")}
+                        </span>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="none" className="text-xs font-semibold cursor-pointer">
+                    <div className="flex items-center gap-3 py-1">
+                      <Lock className="w-4 h-4 text-red-500" strokeWidth={2} />
+                      <div className="flex flex-col text-left">
+                        <span className="font-bold">{t("profile_none")}</span>
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {t("profile_none_desc")}
+                        </span>
+                      </div>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="bg-gray-50/60 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-2xl p-3.5 text-xs font-medium shadow-2xs">
+                <div className="flex items-start gap-2.5">
+                  <Sparkles
+                    className={cn(
+                      "w-4 h-4 shrink-0 mt-0.5",
+                      getPrivacyIconConfig(preferences.privacy.showProfile).color
+                    )}
+                    strokeWidth={2}
+                  />
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {preferences.privacy.showProfile === "all" && t("profile_all_impact")}
+                    {preferences.privacy.showProfile === "contacts" && t("profile_contacts_impact")}
+                    {preferences.privacy.showProfile === "none" && t("profile_none_impact")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Permiso de Mensajes */}
+            <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("messages_question")}
+                </h4>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+                  {getPrivacyIconConfig(preferences.privacy.allowMessages).label}
+                </span>
+              </div>
+
+              <Select
+                value={preferences.privacy.allowMessages}
+                onValueChange={(val) => updatePrivacy("allowMessages", val)}
+                disabled={!editMode}
+              >
+                <SelectTrigger
+                  className={cn(
+                    "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white h-11 rounded-xl text-xs font-semibold focus:ring-emerald-500/20 shadow-2xs transition-all",
+                    !editMode ? "opacity-50 cursor-not-allowed" : "hover:border-emerald-500/40"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {React.createElement(
+                      getPrivacyIconConfig(preferences.privacy.allowMessages).icon,
+                      {
+                        className: `w-4 h-4 ${
+                          getPrivacyIconConfig(preferences.privacy.allowMessages).color
+                        }`,
+                        strokeWidth: 2,
+                      }
+                    )}
+                    <SelectValue />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl font-sans">
+                  <SelectItem value="all" className="text-xs font-semibold cursor-pointer">
+                    <div className="flex items-center gap-3 py-1">
+                      <Globe className="w-4 h-4 text-blue-500" strokeWidth={2} />
+                      <div className="flex flex-col text-left">
+                        <span className="font-bold">{t("messages_all")}</span>
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {t("messages_all_desc")}
+                        </span>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="contacts" className="text-xs font-semibold cursor-pointer">
+                    <div className="flex items-center gap-3 py-1">
+                      <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <div className="flex flex-col text-left">
+                        <span className="font-bold">{t("messages_contacts")}</span>
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {t("messages_contacts_desc")}
+                        </span>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="none" className="text-xs font-semibold cursor-pointer">
+                    <div className="flex items-center gap-3 py-1">
+                      <EyeOff className="w-4 h-4 text-red-500" strokeWidth={2} />
+                      <div className="flex flex-col text-left">
+                        <span className="font-bold">{t("messages_none")}</span>
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {t("messages_none_desc")}
+                        </span>
+                      </div>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="bg-gray-50/60 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-2xl p-3.5 text-xs font-medium shadow-2xs">
+                <div className="flex items-start gap-2.5">
+                  <Zap
+                    className={cn(
+                      "w-4 h-4 shrink-0 mt-0.5",
+                      getPrivacyIconConfig(preferences.privacy.allowMessages).color
+                    )}
+                    strokeWidth={2}
+                  />
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {preferences.privacy.allowMessages === "all" && t("messages_all_impact")}
+                    {preferences.privacy.allowMessages === "contacts" && t("messages_contacts_impact")}
+                    {preferences.privacy.allowMessages === "none" && t("messages_none_impact")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </PreferenceCard>
+      </motion.div>
+
+      {/* ── BANNER DE SEGURIDAD GENERAL ────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-4 flex items-start gap-3 shadow-2xs"
+      >
+        <ShieldCheck
+          className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+          strokeWidth={2}
+        />
+        <div className="space-y-0.5">
+          <p className="text-xs font-bold text-gray-900 dark:text-white">
+            {t("security_title")}
+          </p>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+            {t("security_desc")}
+          </p>
+        </div>
+      </motion.div>
+
+      {/* ── BANNER MODO SOLO LECTURA ────────────────────────────────────── */}
+      {!editMode && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 flex items-start gap-3 shadow-2xs"
+        >
+          <Info
+            className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+            strokeWidth={2}
+          />
+          <div className="space-y-0.5">
+            <p className="text-xs font-bold text-amber-900 dark:text-amber-300">
+              {t("readonly_title")}
+            </p>
+            <p className="text-xs font-medium text-amber-700 dark:text-amber-400/80 leading-relaxed">
+              {t("readonly_desc")}
+            </p>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
 };

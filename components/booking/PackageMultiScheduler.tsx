@@ -133,14 +133,14 @@ const PackageServiceSchedulerItem = ({
       {/* ── HEADER DE LA SESIÓN ────────────────────────────────────────── */}
       <div className="bg-gray-50/60 dark:bg-[#050505] p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-store-50 text-store-700 dark:bg-store-950/30 dark:text-store-400 border border-store-200 dark:border-store-900/40">
             {t("session_prefix", { number: index + 1 })}
           </span>
           <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
             {service.name}
           </h3>
           <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-            <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <Clock className="w-3.5 h-3.5 text-store-600 dark:text-store-400" strokeWidth={2} />
             <span>{t("duration_min", { minutes: service.durationMinutes || 30 })}</span>
           </div>
         </div>
@@ -153,7 +153,7 @@ const PackageServiceSchedulerItem = ({
             className={cn(
               "px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer",
               !saveAsCredit
-                ? "bg-emerald-600 text-white shadow-xs"
+                ? "bg-store-600 text-white shadow-xs"
                 : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
             )}
             style={
@@ -173,7 +173,7 @@ const PackageServiceSchedulerItem = ({
             className={cn(
               "px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer",
               saveAsCredit
-                ? "bg-emerald-600 text-white shadow-xs"
+                ? "bg-store-600 text-white shadow-xs"
                 : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
             )}
           >
@@ -185,7 +185,7 @@ const PackageServiceSchedulerItem = ({
       {/* ── CONTENIDO: GUARDAR COMO CRÉDITO O CALENDARIO ────────────────── */}
       {saveAsCredit ? (
         <div className="p-8 sm:p-12 text-center bg-white dark:bg-[#0a0a0a] flex flex-col items-center">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 mb-4 shadow-xs">
             <Package className="w-7 h-7" strokeWidth={2} />
           </div>
           <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1.5">
@@ -201,7 +201,7 @@ const PackageServiceSchedulerItem = ({
           <div className="flex-1 xl:max-w-md">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 shadow-xs">
                   <CalendarIcon className="w-4 h-4" strokeWidth={2} />
                 </div>
                 <h4 className="text-xs font-bold text-gray-900 dark:text-white capitalize tracking-tight">
@@ -360,7 +360,7 @@ export function PackageMultiScheduler({
         {/* Header del Paso */}
         <div className="flex items-center gap-3.5 pb-2 border-b border-gray-100 dark:border-gray-800">
           <div
-            className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs"
+            className="w-10 h-10 rounded-2xl bg-store-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs"
             style={providerColor ? { backgroundColor: providerColor } : undefined}
           >
             <span className="flex items-center gap-1">

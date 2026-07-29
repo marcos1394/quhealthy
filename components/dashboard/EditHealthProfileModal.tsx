@@ -1,8 +1,9 @@
 "use client";
-/* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/no-event-handler */
 
-import React, { KeyboardEvent, useEffect, useState } from "react";
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { X, FileHeart } from "lucide-react";
 import { BloodType, PatientHealthProfile } from "@/types/healthProfile";
-import { cn } from "@/lib/utils";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import {
   Select,
@@ -49,6 +49,7 @@ export function EditHealthProfileModal({
   onSave,
   isSubmitting: externalSubmitting = false,
 }: EditHealthProfileModalProps) {
+  const t = useTranslations("EditHealthProfileModal");
   const [localSubmitting, setLocalSubmitting] = useState(false);
   const [formData, setFormData] = useState<Partial<PatientHealthProfile>>({
     bloodType: null,
@@ -81,48 +82,43 @@ export function EditHealthProfileModal({
       open={isOpen}
       onOpenChange={(open) => !open && !isSubmitting && onClose()}
     >
-      <DialogContent className="sm:max-w-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl overflow-hidden max-h-[90vh] flex flex-col shadow-2xl transition-colors [&>button]:hidden">
-        {/* HEADER */}
-        <div className="flex items-start justify-between p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 shrink-0">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 shadow-sm">
-              <FileHeart
-                className="w-6 h-6 text-emerald-600"
-                strokeWidth={2}
-              />
+      <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl overflow-hidden max-h-[90vh] flex flex-col shadow-2xl font-sans transition-colors [&>button]:hidden">
+        {/* ── HEADER ─────────────────────────────────────────────────── */}
+        <div className="flex items-start justify-between p-6 sm:p-8 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-2xs">
+              <FileHeart className="w-6 h-6" strokeWidth={2} />
             </div>
-            <div>
-              <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
-                Editar Antecedentes Médicos
+            <div className="space-y-0.5">
+              <DialogTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+                {t("title")}
               </DialogTitle>
-              <DialogDescription className="text-sm font-medium text-gray-500 mt-1">
-                Actualice la ficha clínica base de este paciente en el directorio.
+              <DialogDescription className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                {t("description")}
               </DialogDescription>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#111] transition-colors shrink-0 disabled:opacity-50"
+            className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 cursor-pointer shadow-2xs shrink-0 disabled:opacity-50"
           >
-            <X
-              className="w-5 h-5 text-gray-500"
-              strokeWidth={2}
-            />
+            <X className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
 
-        {/* BODY */}
+        {/* ── BODY ───────────────────────────────────────────────────── */}
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto custom-scrollbar flex flex-col bg-gray-50/50 dark:bg-[#050505]/50"
+          className="flex-1 overflow-y-auto custom-scrollbar flex flex-col bg-white dark:bg-[#0a0a0a]"
         >
-          {/* Fila 1: Datos Físicos Básicos */}
-          <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a]">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Tipo de Sangre
+          <div className="p-6 sm:p-8 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {/* Tipo de Sangre */}
+              <div className="flex flex-col space-y-1.5">
+                <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("blood_type")}
                 </label>
                 <Select
                   value={formData.bloodType || "none"}
@@ -135,36 +131,37 @@ export function EditHealthProfileModal({
                     })
                   }
                 >
-                  <SelectTrigger className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 transition-shadow">
-                    <SelectValue placeholder="No registrado" />
+                  <SelectTrigger className="w-full h-11 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer">
+                    <SelectValue placeholder={t("not_registered")} />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-xl">
+                  <SelectContent className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-xl font-sans">
                     <SelectItem
                       value="none"
-                      className="text-sm font-medium focus:bg-gray-50 dark:focus:bg-[#111] rounded-lg cursor-pointer"
+                      className="text-xs font-semibold focus:bg-gray-50 dark:focus:bg-[#111] rounded-xl cursor-pointer"
                     >
-                      No registrado
+                      {t("not_registered")}
                     </SelectItem>
                     {BLOOD_TYPE_OPTIONS.map((opt) => (
                       <SelectItem
                         key={opt.value}
                         value={opt.value}
-                        className="text-sm font-medium focus:bg-gray-50 dark:focus:bg-[#111] rounded-lg cursor-pointer"
+                        className="text-xs font-semibold focus:bg-gray-50 dark:focus:bg-[#111] rounded-xl cursor-pointer"
                       >
-                        {opt.label}
+                        {opt.value === "UNKNOWN" ? t("unknown") : opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Estatura (CM)
+              {/* Estatura */}
+              <div className="flex flex-col space-y-1.5">
+                <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("height")}
                 </label>
                 <Input
                   type="number"
-                  placeholder="Ej: 175"
+                  placeholder={t("height_placeholder")}
                   value={formData.heightCm ?? ""}
                   onChange={(e) =>
                     setFormData({
@@ -174,18 +171,19 @@ export function EditHealthProfileModal({
                         : null,
                     })
                   }
-                  className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500 transition-shadow rounded-xl placeholder:text-gray-400"
+                  className="w-full h-11 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold font-mono text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 rounded-xl placeholder:text-gray-400 shadow-2xs"
                 />
               </div>
 
-              <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Peso (KG)
+              {/* Peso */}
+              <div className="flex flex-col space-y-1.5">
+                <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("weight")}
                 </label>
                 <Input
                   type="number"
                   step="0.1"
-                  placeholder="Ej: 70.5"
+                  placeholder={t("weight_placeholder")}
                   value={formData.weightKg ?? ""}
                   onChange={(e) =>
                     setFormData({
@@ -195,33 +193,34 @@ export function EditHealthProfileModal({
                         : null,
                     })
                   }
-                  className="w-full h-12 px-4 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500 transition-shadow rounded-xl placeholder:text-gray-400"
+                  className="w-full h-11 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold font-mono text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 rounded-xl placeholder:text-gray-400 shadow-2xs"
                 />
               </div>
             </div>
           </div>
 
-          {/* FOOTER DE COMANDOS */}
-          <div className="p-6 md:p-8 bg-gray-50/50 dark:bg-[#050505]/50 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-end gap-3 shrink-0 mt-auto">
+          {/* ── FOOTER DE COMANDOS ────────────────────────────────────── */}
+          <div className="p-5 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-end gap-3 shrink-0 mt-auto">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="w-full sm:w-auto h-12 px-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-sm font-semibold rounded-xl disabled:opacity-50 shadow-sm"
+              className="w-full sm:w-auto h-11 px-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all text-xs font-bold rounded-xl disabled:opacity-50 shadow-2xs cursor-pointer"
             >
-              Cancelar
+              {t("btn_cancel")}
             </button>
             <button
-              onClick={handleSubmit}
+              type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto h-12 px-8 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-semibold flex items-center justify-center gap-2 rounded-xl disabled:opacity-50 shadow-sm border-0"
+              className="w-full sm:w-auto h-11 px-8 bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-xs font-bold flex items-center justify-center gap-2 rounded-xl disabled:opacity-50 shadow-xs border-0 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
-                  <QhSpinner size="sm" className="text-current" /> Guardando...
+                  <QhSpinner size="sm" className="text-white" />
+                  <span>{t("btn_saving")}</span>
                 </>
               ) : (
-                <>Guardar Cambios</>
+                <span>{t("btn_save")}</span>
               )}
             </button>
           </div>

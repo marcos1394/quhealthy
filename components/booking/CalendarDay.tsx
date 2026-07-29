@@ -38,9 +38,9 @@ export function CalendarDay({
           ? "opacity-25 border-transparent cursor-not-allowed bg-transparent text-gray-400"
           : "cursor-pointer",
         selected
-          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm z-10 font-bold"
+          ? "bg-store-600 text-white border-store-600 shadow-sm z-10 font-bold"
           : isCurrentMonth && !isPast
-            ? "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white hover:border-emerald-500/50 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 hover:text-emerald-600 dark:hover:text-emerald-400"
+            ? "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white hover:border-store-500/50 hover:bg-store-50/40 dark:hover:bg-store-950/20 hover:text-store-600 dark:hover:text-store-400"
             : ""
       )}
       style={
@@ -51,7 +51,7 @@ export function CalendarDay({
     >
       {/* Indicador de "Hoy" */}
       {today && !selected && (
-        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-store-600 dark:bg-store-400" />
       )}
 
       <span>{format(date, "d")}</span>

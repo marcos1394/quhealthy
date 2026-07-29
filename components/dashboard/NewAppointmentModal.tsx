@@ -1,19 +1,24 @@
 "use client";
+
+/* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-event-handler */
 /* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useMemo, useState } from "react";
 import {
   CalendarPlus,
   Check,
   ChevronsUpDown,
-  Loader2,
   PlusCircle,
   UserPlus,
   Search,
+  X,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
+import { format } from "date-fns";
+
 import {
   Dialog,
   DialogContent,
@@ -21,7 +26,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DatePicker } from "@/components/ui/date-picker";
-import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -44,6 +48,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+
 import { useCatalog } from "@/hooks/useCatalog";
 import { usePatientDirectory } from "@/hooks/usePatientDirectory";
 import { appointmentService } from "@/services/appointment.service";
@@ -65,7 +70,7 @@ interface NewAppointmentModalProps {
   onCreated?: () => void;
   onSuccess?: () => void;
   initialDate?: Date | null;
-  locationId: number; 
+  locationId: number;
 }
 
 const modalityOptions = {
@@ -83,11 +88,7 @@ export function NewAppointmentModal({
   locationId,
 }: NewAppointmentModalProps) {
   const { user } = useSessionStore();
-  const {
-    services,
-    fetchInventory,
-    isLoading: isLoadingCatalog,
-  } = useCatalog();
+  const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
   const { clients, fetchClients, searchPatients } = usePatientDirectory();
   const t = useTranslations("DashboardAppointments");
 
@@ -106,19 +107,61 @@ export function NewAppointmentModal({
     (state: any, action: any) => {
       switch (action.type) {
         case "SET_ISSUBMITTING":
-          return { ...state, isSubmitting: typeof action.payload === "function" ? action.payload(state.isSubmitting) : action.payload };
+          return {
+            ...state,
+            isSubmitting:
+              typeof action.payload === "function"
+                ? action.payload(state.isSubmitting)
+                : action.payload,
+          };
         case "SET_ISSEARCHING":
-          return { ...state, isSearching: typeof action.payload === "function" ? action.payload(state.isSearching) : action.payload };
+          return {
+            ...state,
+            isSearching:
+              typeof action.payload === "function"
+                ? action.payload(state.isSearching)
+                : action.payload,
+          };
         case "SET_PATIENTPICKEROPEN":
-          return { ...state, patientPickerOpen: typeof action.payload === "function" ? action.payload(state.patientPickerOpen) : action.payload };
+          return {
+            ...state,
+            patientPickerOpen:
+              typeof action.payload === "function"
+                ? action.payload(state.patientPickerOpen)
+                : action.payload,
+          };
         case "SET_ISNEWPATIENTMODALOPEN":
-          return { ...state, isNewPatientModalOpen: typeof action.payload === "function" ? action.payload(state.isNewPatientModalOpen) : action.payload };
+          return {
+            ...state,
+            isNewPatientModalOpen:
+              typeof action.payload === "function"
+                ? action.payload(state.isNewPatientModalOpen)
+                : action.payload,
+          };
         case "SET_PATIENTQUERY":
-          return { ...state, patientQuery: typeof action.payload === "function" ? action.payload(state.patientQuery) : action.payload };
+          return {
+            ...state,
+            patientQuery:
+              typeof action.payload === "function"
+                ? action.payload(state.patientQuery)
+                : action.payload,
+          };
         case "SET_SEARCHRESULTS":
-          return { ...state, searchResults: typeof action.payload === "function" ? action.payload(state.searchResults) : action.payload };
+          return {
+            ...state,
+            searchResults:
+              typeof action.payload === "function"
+                ? action.payload(state.searchResults)
+                : action.payload,
+          };
         case "SET_SELECTEDPATIENT":
-          return { ...state, selectedPatient: typeof action.payload === "function" ? action.payload(state.selectedPatient) : action.payload };
+          return {
+            ...state,
+            selectedPatient:
+              typeof action.payload === "function"
+                ? action.payload(state.selectedPatient)
+                : action.payload,
+          };
         default:
           return state;
       }
@@ -131,16 +174,23 @@ export function NewAppointmentModal({
       patientQuery: "",
       searchResults: [],
       selectedPatient: null,
-    },
+    }
   );
 
-  const setIsSubmitting = (val: any) => dispatch({ type: "SET_ISSUBMITTING", payload: val });
-  const setIsSearching = (val: any) => dispatch({ type: "SET_ISSEARCHING", payload: val });
-  const setPatientPickerOpen = (val: any) => dispatch({ type: "SET_PATIENTPICKEROPEN", payload: val });
-  const setIsNewPatientModalOpen = (val: any) => dispatch({ type: "SET_ISNEWPATIENTMODALOPEN", payload: val });
-  const setPatientQuery = (val: any) => dispatch({ type: "SET_PATIENTQUERY", payload: val });
-  const setSearchResults = (val: any) => dispatch({ type: "SET_SEARCHRESULTS", payload: val });
-  const setSelectedPatient = (val: any) => dispatch({ type: "SET_SELECTEDPATIENT", payload: val });
+  const setIsSubmitting = (val: any) =>
+    dispatch({ type: "SET_ISSUBMITTING", payload: val });
+  const setIsSearching = (val: any) =>
+    dispatch({ type: "SET_ISSEARCHING", payload: val });
+  const setPatientPickerOpen = (val: any) =>
+    dispatch({ type: "SET_PATIENTPICKEROPEN", payload: val });
+  const setIsNewPatientModalOpen = (val: any) =>
+    dispatch({ type: "SET_ISNEWPATIENTMODALOPEN", payload: val });
+  const setPatientQuery = (val: any) =>
+    dispatch({ type: "SET_PATIENTQUERY", payload: val });
+  const setSearchResults = (val: any) =>
+    dispatch({ type: "SET_SEARCHRESULTS", payload: val });
+  const setSelectedPatient = (val: any) =>
+    dispatch({ type: "SET_SELECTEDPATIENT", payload: val });
 
   const [formData, setFormData] = useState({
     serviceId: "",
@@ -176,7 +226,7 @@ export function NewAppointmentModal({
     () =>
       services.find((service) => String(service.id) === formData.serviceId) ||
       null,
-    [formData.serviceId, services],
+    [formData.serviceId, services]
   );
 
   useEffect(() => {
@@ -253,7 +303,7 @@ export function NewAppointmentModal({
         appointmentType: formData.appointmentType,
         paymentMethod: formData.paymentMethod,
         consumerSymptoms: formData.notes || undefined,
-        locationId: locationId, 
+        locationId: locationId,
       };
 
       await appointmentService.createProviderAppointment(payload);
@@ -278,7 +328,7 @@ export function NewAppointmentModal({
       (patient) =>
         getPatientDisplayEmail(patient).toLowerCase() ===
           payload.email?.toLowerCase() ||
-        getPatientDisplayName(patient).toLowerCase() === normalizedName,
+        getPatientDisplayName(patient).toLowerCase() === normalizedName
     );
 
     if (createdPatient) {
@@ -306,14 +356,14 @@ export function NewAppointmentModal({
         createdAt: "",
         platformUser: true,
       })),
-    [clients, user?.id],
+    [clients, user?.id]
   );
 
   const displayedPatients =
     patientQuery.trim().length < 2 ? defaultPatients : searchResults;
 
   const getPatientDisplayName = (
-    patient: PatientDirectorySearchResult | PatientClient,
+    patient: PatientDirectorySearchResult | PatientClient
   ) => {
     if ("firstName" in patient || "lastName" in patient) {
       const firstName = "firstName" in patient ? patient.firstName : "";
@@ -326,46 +376,57 @@ export function NewAppointmentModal({
   };
 
   const getPatientDisplayEmail = (
-    patient: PatientDirectorySearchResult | PatientClient,
+    patient: PatientDirectorySearchResult | PatientClient
   ) => ("email" in patient ? patient.email : patient.consumer?.email) || "";
 
   const getPatientDisplayPhone = (
-    patient: PatientDirectorySearchResult | PatientClient,
+    patient: PatientDirectorySearchResult | PatientClient
   ) => ("phone" in patient ? patient.phone : patient.consumer?.phone) || "";
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="sm:max-w-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl overflow-hidden max-h-[90vh] flex flex-col shadow-2xl">
-          {/* HEADER ARQUITECTÓNICO */}
-          <DialogHeader className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
-                <CalendarPlus
-                  className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
-                  strokeWidth={2}
-                />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">
-                  {t("new_appointment_modal.description")}
-                </p>
-                <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-none">
-                  {t("new_appointment_modal.title")}
-                </DialogTitle>
-              </div>
-            </div>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl overflow-hidden max-h-[90vh] flex flex-col shadow-2xl font-sans transition-colors [&>button]:hidden">
+          {/* ── HEADER ─────────────────────────────────────────────────── */}
+          <div className="p-6 sm:p-8 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 shrink-0">
+            <DialogHeader className="space-y-3 text-left">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shrink-0 shadow-2xs text-emerald-600 dark:text-emerald-400">
+                    <CalendarPlus className="w-6 h-6" strokeWidth={2} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <DialogTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+                      {t("new_appointment_modal.title")}
+                    </DialogTitle>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                      {t("new_appointment_modal.description")}
+                    </p>
+                  </div>
+                </div>
 
-          {/* BODY: GRID BLUEPRINT (Soft) */}
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 cursor-pointer shadow-2xs shrink-0 disabled:opacity-50"
+                >
+                  <X className="w-4 h-4" strokeWidth={2} />
+                </button>
+              </div>
+            </DialogHeader>
+          </div>
+
+          {/* ── CUERPO DEL FORMULARIO ─────────────────────────────────── */}
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto custom-scrollbar bg-gray-50/50 dark:bg-[#050505]/50 flex flex-col p-6 md:p-8 gap-6"
+            className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#0a0a0a] flex flex-col p-6 sm:p-8 space-y-6"
           >
-            {/* Paciente */}
-            <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
-              <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                {t("new_appointment_modal.patient_label")} <span className="text-red-500">*</span>
+            {/* Selección de Paciente */}
+            <div className="bg-gray-50/60 dark:bg-[#050505] rounded-2xl border border-gray-100 dark:border-gray-800 p-5 shadow-2xs space-y-3">
+              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                {t("new_appointment_modal.patient_label")}{" "}
+                <span className="text-red-500">*</span>
               </label>
 
               <div className="flex flex-col sm:flex-row gap-3">
@@ -380,7 +441,7 @@ export function NewAppointmentModal({
                       role="combobox"
                       aria-expanded={patientPickerOpen}
                       aria-controls="patient-list"
-                      className="w-full flex-1 flex items-center justify-between h-12 px-4 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-[#111] transition-colors text-sm font-semibold"
+                      className="w-full flex-1 flex items-center justify-between h-11 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-all text-xs font-bold shadow-2xs cursor-pointer"
                     >
                       <span className="truncate text-left">
                         {selectedPatient
@@ -388,52 +449,49 @@ export function NewAppointmentModal({
                           : t("new_appointment_modal.patient_placeholder")}
                       </span>
                       <ChevronsUpDown
-                        className="ml-2 h-4 w-4 shrink-0 opacity-50"
+                        className="ml-2 h-4 w-4 shrink-0 text-gray-400"
                         strokeWidth={2}
                       />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="z-[9999] w-[var(--radix-popover-trigger-width)] min-w-[320px] p-0 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden"
+                    className="z-[9999] w-[var(--radix-popover-trigger-width)] min-w-[320px] p-0 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden font-sans"
                     align="start"
                     sideOffset={8}
                   >
                     <Command
                       shouldFilter={false}
-                      className="bg-white dark:bg-[#0a0a0a] text-black dark:text-white"
+                      className="bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white"
                     >
                       <div className="relative">
                         <Search
-                          className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
                           strokeWidth={2}
                         />
                         <CommandInput
                           placeholder={t(
-                            "new_appointment_modal.patient_search_placeholder",
+                            "new_appointment_modal.patient_search_placeholder"
                           )}
                           value={patientQuery}
                           onValueChange={setPatientQuery}
-                          className="border-none focus:ring-0 text-sm font-semibold h-12 bg-transparent border-b border-gray-100 dark:border-gray-800 pl-11"
+                          className="border-none focus:ring-0 text-xs font-semibold h-11 bg-transparent border-b border-gray-100 dark:border-gray-800 pl-10"
                         />
                       </div>
-                      <CommandList className="max-h-[280px]">
+                      <CommandList className="max-h-[260px] custom-scrollbar">
                         {isSearching ? (
-                          <div className="flex items-center gap-3 px-4 py-4 text-xs font-semibold text-gray-500">
-                            <Loader2
-                              className="w-4 h-4 animate-spin"
-                              strokeWidth={2}
-                            />
-                            {t("new_appointment_modal.searching_patients")}
+                          <div className="flex items-center gap-2.5 px-4 py-3 text-xs font-semibold text-gray-400">
+                            <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+                            <span>{t("new_appointment_modal.searching_patients")}</span>
                           </div>
                         ) : null}
                         {!isSearching &&
                         displayedPatients.length === 0 &&
                         patientQuery.trim().length < 2 ? (
-                          <div className="px-4 py-4 text-xs font-semibold text-gray-500 bg-gray-50 dark:bg-[#050505]">
+                          <div className="px-4 py-3 text-xs font-medium text-gray-400 bg-gray-50/50 dark:bg-[#050505]">
                             {t("new_appointment_modal.no_patients_available")}
                           </div>
                         ) : null}
-                        <CommandEmpty className="py-4 text-center text-xs font-semibold text-gray-500">
+                        <CommandEmpty className="py-4 text-center text-xs font-medium text-gray-400">
                           {t("new_appointment_modal.no_patients_found")}
                         </CommandEmpty>
                         <CommandGroup className="p-2">
@@ -444,28 +502,28 @@ export function NewAppointmentModal({
                               onSelect={() => handleSelectPatient(patient)}
                               disabled={false}
                               style={{ pointerEvents: "auto", opacity: 1 }}
-                              className="flex items-center justify-between gap-4 px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group mb-1 last:mb-0"
+                              className="flex items-center justify-between gap-4 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111] rounded-xl transition-colors group mb-1 last:mb-0"
                             >
                               <div className="min-w-0 flex-1">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                                <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
                                   {getPatientDisplayName(patient)}
                                 </p>
-                                <p className="text-xs text-gray-500 truncate mt-0.5">
+                                <p className="text-[11px] font-medium text-gray-400 truncate pt-0.5">
                                   {getPatientDisplayEmail(patient) ||
                                     getPatientDisplayPhone(patient) ||
                                     t(
                                       "new_appointment_modal.patient_record_id",
-                                      { id: patient.id },
+                                      { id: patient.id }
                                     )}
                                 </p>
                               </div>
                               <Check
-                                strokeWidth={2}
+                                strokeWidth={2.5}
                                 className={cn(
                                   "h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400",
                                   selectedPatient?.id === patient.id
                                     ? "opacity-100"
-                                    : "opacity-0",
+                                    : "opacity-0"
                                 )}
                               />
                             </CommandItem>
@@ -479,20 +537,20 @@ export function NewAppointmentModal({
                 <button
                   type="button"
                   onClick={() => setIsNewPatientModalOpen(true)}
-                  className="shrink-0 h-12 px-6 flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 dark:text-emerald-400 rounded-xl transition-colors text-sm font-semibold border border-emerald-100 dark:border-emerald-800/50"
+                  className="shrink-0 h-11 px-5 flex items-center justify-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 dark:text-emerald-400 rounded-xl transition-all text-xs font-bold border border-emerald-200 dark:border-emerald-900/40 shadow-2xs cursor-pointer"
                 >
-                  <UserPlus className="w-4 h-4 mr-2" strokeWidth={2} />
-                  {t("new_appointment_modal.new_patient_button")}
+                  <UserPlus className="w-4 h-4 mr-1.5" strokeWidth={2} />
+                  <span>{t("new_appointment_modal.new_patient_button")}</span>
                 </button>
               </div>
 
               {selectedPatient && (
-                <div className="mt-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10 p-4">
-                  <p className="flex items-center gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-400">
-                    <Check className="w-4 h-4" strokeWidth={2} />
-                    {getPatientDisplayName(selectedPatient)}
+                <div className="rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/60 dark:bg-emerald-950/20 p-3.5 shadow-2xs">
+                  <p className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+                    <span>{getPatientDisplayName(selectedPatient)}</span>
                   </p>
-                  <p className="text-xs text-emerald-600/80 dark:text-emerald-500 font-medium mt-1 pl-6">
+                  <p className="text-[11px] font-medium text-emerald-600/80 dark:text-emerald-400/80 pt-0.5 pl-6 font-mono">
                     {getPatientDisplayEmail(selectedPatient) ||
                       t("new_appointment_modal.no_email")}{" "}
                     {getPatientDisplayPhone(selectedPatient)
@@ -503,11 +561,12 @@ export function NewAppointmentModal({
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Servicio */}
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
-                <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                  {t("new_appointment_modal.service_label")} <span className="text-red-500">*</span>
+            {/* Servicio y Modalidad */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("new_appointment_modal.service_label")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <Select
                   value={formData.serviceId}
@@ -515,7 +574,7 @@ export function NewAppointmentModal({
                     setFormData({ ...formData, serviceId: value })
                   }
                 >
-                  <SelectTrigger className="h-12 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:ring-0 focus:border-emerald-500 text-sm font-semibold transition-colors">
+                  <SelectTrigger className="h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer">
                     <SelectValue
                       placeholder={
                         isLoadingCatalog
@@ -524,12 +583,12 @@ export function NewAppointmentModal({
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-black dark:text-white border-gray-100 dark:border-gray-800 rounded-xl shadow-xl">
+                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
                     {services.map((service: UI_Service) => (
                       <SelectItem
                         key={service.id}
                         value={String(service.id)}
-                        className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
+                        className="text-xs font-semibold focus:bg-gray-50 dark:focus:bg-[#111] cursor-pointer rounded-xl"
                       >
                         {service.name}
                       </SelectItem>
@@ -538,10 +597,10 @@ export function NewAppointmentModal({
                 </Select>
               </div>
 
-              {/* Modalidad */}
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
-                <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                  {t("new_appointment_modal.modality_label")} <span className="text-red-500">*</span>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("new_appointment_modal.modality_label")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <Select
                   value={formData.appointmentType}
@@ -550,19 +609,19 @@ export function NewAppointmentModal({
                   }
                   disabled={!selectedService || supportedTypes.length === 1}
                 >
-                  <SelectTrigger className="h-12 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:ring-0 focus:border-emerald-500 text-sm font-semibold transition-colors disabled:opacity-50">
+                  <SelectTrigger className="h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer disabled:opacity-50">
                     <SelectValue
                       placeholder={t(
-                        "new_appointment_modal.modality_placeholder",
+                        "new_appointment_modal.modality_placeholder"
                       )}
                     />
                   </SelectTrigger>
-                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-black dark:text-white border-gray-100 dark:border-gray-800 rounded-xl shadow-xl">
+                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
                     {supportedTypes.map((type) => (
                       <SelectItem
                         key={type}
                         value={type}
-                        className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
+                        className="text-xs font-semibold focus:bg-gray-50 dark:focus:bg-[#111] cursor-pointer rounded-xl"
                       >
                         {type === "ONLINE"
                           ? t("card.online")
@@ -572,11 +631,14 @@ export function NewAppointmentModal({
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
-              {/* Fecha */}
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
-                <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                  {t("new_appointment_modal.date_label")} <span className="text-red-500">*</span>
+            {/* Fecha y Hora */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("new_appointment_modal.date_label")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <DatePicker
                   value={
@@ -598,15 +660,15 @@ export function NewAppointmentModal({
                     date < new Date(new Date().setHours(0, 0, 0, 0))
                   }
                   placeholder="DD/MM/AAAA"
-                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-xl border-gray-200 dark:border-gray-800 text-sm font-semibold"
-                  popoverClassName="rounded-xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
+                  className="bg-gray-50/50 dark:bg-[#050505] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold shadow-2xs"
+                  popoverClassName="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
                 />
               </div>
 
-              {/* Hora */}
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
-                <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
-                  {t("new_appointment_modal.time_label")} <span className="text-red-500">*</span>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("new_appointment_modal.time_label")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="time"
@@ -618,15 +680,15 @@ export function NewAppointmentModal({
                       appointmentTime: e.target.value,
                     })
                   }
-                  className="bg-gray-50 dark:bg-[#050505] h-12 rounded-xl border border-gray-200 dark:border-gray-800 text-sm font-semibold focus-visible:ring-0 focus-visible:border-emerald-500 transition-colors w-full"
+                  className="bg-gray-50/50 dark:bg-[#050505] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-mono font-bold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 shadow-2xs w-full [&::-webkit-calendar-picker-indicator]:dark:invert"
                 />
               </div>
             </div>
 
             {/* Método de Pago y Notas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
-                <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
                   {t("new_appointment_modal.payment_method_label")}
                 </label>
                 <Select
@@ -635,56 +697,38 @@ export function NewAppointmentModal({
                     setFormData({ ...formData, paymentMethod: value })
                   }
                 >
-                  <SelectTrigger className="h-12 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:ring-0 focus:border-emerald-500 text-sm font-semibold transition-colors">
+                  <SelectTrigger className="h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer">
                     <SelectValue
                       placeholder={t(
-                        "new_appointment_modal.payment_method_placeholder",
+                        "new_appointment_modal.payment_method_placeholder"
                       )}
                     />
                   </SelectTrigger>
-                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-black dark:text-white border-gray-100 dark:border-gray-800 rounded-xl shadow-xl">
-                    <SelectItem
-                      value="CASH"
-                      className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
-                    >
+                  <SelectContent className="z-[80] bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
+                    <SelectItem value="CASH" className="text-xs font-semibold cursor-pointer">
                       {t("new_appointment_modal.payment_cash")}
                     </SelectItem>
-                    <SelectItem
-                      value="CREDIT_CARD"
-                      className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
-                    >
+                    <SelectItem value="CREDIT_CARD" className="text-xs font-semibold cursor-pointer">
                       {t("new_appointment_modal.payment_credit_card")}
                     </SelectItem>
-                    <SelectItem
-                      value="DEBIT_CARD"
-                      className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
-                    >
+                    <SelectItem value="DEBIT_CARD" className="text-xs font-semibold cursor-pointer">
                       {t("new_appointment_modal.payment_debit_card")}
                     </SelectItem>
-                    <SelectItem
-                      value="INSURANCE"
-                      className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
-                    >
+                    <SelectItem value="INSURANCE" className="text-xs font-semibold cursor-pointer">
                       {t("new_appointment_modal.payment_insurance")}
                     </SelectItem>
-                    <SelectItem
-                      value="PACKAGE_BALANCE"
-                      className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
-                    >
+                    <SelectItem value="PACKAGE_BALANCE" className="text-xs font-semibold cursor-pointer">
                       {t("new_appointment_modal.payment_package_balance")}
                     </SelectItem>
-                    <SelectItem
-                      value="BANK_TRANSFER"
-                      className="text-sm font-semibold focus:bg-gray-100 dark:focus:bg-gray-800 cursor-pointer rounded-lg m-1"
-                    >
+                    <SelectItem value="BANK_TRANSFER" className="text-xs font-semibold cursor-pointer">
                       {t("new_appointment_modal.payment_bank_transfer")}
                     </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col shadow-sm">
-                <label className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
                   {t("new_appointment_modal.notes_label")}
                 </label>
                 <Textarea
@@ -693,18 +737,18 @@ export function NewAppointmentModal({
                     setFormData({ ...formData, notes: e.target.value })
                   }
                   placeholder={t("new_appointment_modal.notes_placeholder")}
-                  className="h-12 bg-gray-50 dark:bg-[#050505] rounded-xl border border-gray-200 dark:border-gray-800 text-sm font-semibold focus-visible:ring-0 focus-visible:border-emerald-500 resize-none transition-colors"
+                  className="h-11 min-h-[44px] bg-gray-50/50 dark:bg-[#050505] rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 resize-none transition-colors shadow-2xs leading-relaxed"
                 />
               </div>
             </div>
           </form>
 
-          {/* FOOTER */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-t border-gray-100 dark:border-gray-800 shrink-0">
+          {/* ── FOOTER DE COMANDOS ────────────────────────────────────── */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 p-5 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 shrink-0">
             <button
               type="button"
               onClick={handleClose}
-              className="w-full sm:w-auto h-12 px-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 text-sm font-bold hover:bg-gray-50 dark:hover:bg-[#111] transition-colors rounded-xl shadow-sm"
+              className="w-full sm:w-auto h-11 px-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 text-xs font-bold hover:bg-gray-50 dark:hover:bg-[#111] transition-all rounded-xl shadow-2xs cursor-pointer"
             >
               {t("new_appointment_modal.cancel")}
             </button>
@@ -718,16 +762,18 @@ export function NewAppointmentModal({
                 !formData.appointmentDate ||
                 !formData.appointmentTime
               }
-              className="w-full sm:w-auto h-12 px-8 bg-emerald-600 text-white border-0 text-sm font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 rounded-xl shadow-sm"
+              className="w-full sm:w-auto h-11 px-8 bg-emerald-600 text-white border-0 text-xs font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 rounded-xl shadow-xs cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
-                <QhSpinner size="sm" className="text-current" />
+                <QhSpinner size="sm" className="text-white" />
               ) : (
                 <PlusCircle className="w-4 h-4" strokeWidth={2} />
               )}
-              {isSubmitting
-                ? t("new_appointment_modal.creating")
-                : t("new_appointment_modal.submit")}
+              <span>
+                {isSubmitting
+                  ? t("new_appointment_modal.creating")
+                  : t("new_appointment_modal.submit")}
+              </span>
             </button>
           </div>
         </DialogContent>

@@ -1,479 +1,480 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */
-/* eslint-disable react-doctor/no-giant-component */
 "use client";
 
-import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Switch } from "@/components/ui/switch";
-import { 
- BellRing, 
- Smartphone,
- Mail,
- Bell,
- MessageSquare,
- Info,
- Check,
- Volume2,
- VolumeX,
- Sparkles,
- Zap,
- Calendar,
- Star,
- FileText,
- Gift,
- AlertCircle
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useState } from "react";
+import { useTranslations } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  BellRing,
+  Smartphone,
+  Mail,
+  Bell,
+  MessageSquare,
+  Info,
+  Check,
+  Volume2,
+  VolumeX,
+  Sparkles,
+  Zap,
+  Calendar,
+  Star,
+  FileText,
+  Gift,
+  AlertCircle,
+  ShieldCheck,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { PreferenceCard } from './PreferenceCard';
+import { PreferenceCard } from "./PreferenceCard";
 
-
-// Tipos
-export type UserRole = 'provider' | 'consumer';
+export type UserRole = "provider" | "consumer";
 
 export interface NotificationPreferences {
- email: boolean;
- push: boolean;
- sms: boolean;
- [key: string]: boolean;
+  email: boolean;
+  push: boolean;
+  sms: boolean;
+  [key: string]: boolean;
 }
 
 interface NotificationsTabProps {
- preferences: { notifications: NotificationPreferences };
- setPreferences: React.Dispatch<React.SetStateAction<any>>;
- editMode: boolean;
- role: UserRole;
+  preferences: { notifications: NotificationPreferences };
+  setPreferences: React.Dispatch<React.SetStateAction<any>>;
+  editMode: boolean;
+  role: UserRole;
 }
 
-// Configuración de canales - RECONOCIMIENTO
-const CHANNELS = [
- { 
- id: 'email', 
- label: 'Email',
- icon: Mail,
- description: 'Resumen diario y recibos',
- example: 'ejemplo@email.com',
- color: 'text-blue-400',
- bgColor: 'bg-blue-500/10',
- borderColor: 'border-blue-500/20'
- },
- { 
- id: 'push', 
- label: 'Notificaciones Push',
- icon: Bell,
- description: 'Alertas en tiempo real al navegador',
- example: 'Navegador web y móvil',
- color: 'text-purple-400',
- bgColor: 'bg-purple-500/10',
- borderColor: 'border-purple-500/20'
- },
- { 
- id: 'sms', 
- label: 'SMS / WhatsApp',
- icon: MessageSquare,
- description: 'Avisos urgentes a tu celular',
- example: '+52 xxx xxx xxxx',
- color: 'text-emerald-400',
- bgColor: 'bg-emerald-500/10',
- borderColor: 'border-emerald-500/20'
- }
-];
-
-// Configuración de notificaciones por rol - CHUNKING
-const NOTIFICATION_TYPES = {
- provider: [
- { 
- id: 'new_appointment', 
- label: 'Nuevas Citas',
- icon: Calendar,
- description: 'Recibe aviso cuando alguien agende contigo',
- priority: 'high',
- frequency: 'Inmediato'
- },
- { 
- id: 'cancellations', 
- label: 'Cancelaciones',
- icon: AlertCircle,
- description: 'Si un paciente cancela o reprograma',
- priority: 'high',
- frequency: 'Inmediato'
- },
- { 
- id: 'reviews', 
- label: 'Nuevas Reseñas',
- icon: Star,
- description: 'Cuando recibas feedback de un paciente',
- priority: 'medium',
- frequency: 'Diario'
- },
- ],
- consumer: [
- { 
- id: 'reminders', 
- label: 'Recordatorios de Cita',
- icon: Calendar,
- description: 'Avisos 24h y 1h antes de tu consulta',
- priority: 'high',
- frequency: '24h y 1h antes'
- },
- { 
- id: 'promotions', 
- label: 'Ofertas y Paquetes',
- icon: Gift,
- description: 'Descuentos especiales de tus doctores',
- priority: 'low',
- frequency: 'Semanal'
- },
- { 
- id: 'documents', 
- label: 'Documentos Listos',
- icon: FileText,
- description: 'Cuando tu doctor suba una receta o estudio',
- priority: 'high',
- frequency: 'Inmediato'
- },
- ]
-};
-
-export const NotificationsTab: React.FC<NotificationsTabProps> = ({ 
- preferences, 
- setPreferences, 
- editMode, 
- role 
+export const NotificationsTab: React.FC<NotificationsTabProps> = ({
+  preferences,
+  setPreferences,
+  editMode,
+  role,
 }) => {
- const [recentlyToggled, setRecentlyToggled] = useState<string | null>(null);
+  const t = useTranslations("DashboardSettings.notifications");
+  const [recentlyToggled, setRecentlyToggled] = useState<string | null>(null);
 
- const handleToggle = (key: string, value: boolean) => {
- setPreferences((prev: any) => ({
- ...prev,
- notifications: {
- ...prev.notifications,
- [key]: value,
- },
- }));
+  const channelsConfig = [
+    {
+      id: "email",
+      label: t("channel_email_label"),
+      icon: Mail,
+      description: t("channel_email_desc"),
+      example: t("channel_email_example"),
+    },
+    {
+      id: "push",
+      label: t("channel_push_label"),
+      icon: Bell,
+      description: t("channel_push_desc"),
+      example: t("channel_push_example"),
+    },
+    {
+      id: "sms",
+      label: t("channel_sms_label"),
+      icon: MessageSquare,
+      description: t("channel_sms_desc"),
+      example: t("channel_sms_example"),
+    },
+  ];
 
- // Show feedback
- setRecentlyToggled(key);
- setTimeout(() => setRecentlyToggled(null), 2000);
- };
+  const notificationTypesConfig = {
+    provider: [
+      {
+        id: "new_appointment",
+        label: t("type_new_appointment_label"),
+        icon: Calendar,
+        description: t("type_new_appointment_desc"),
+        priority: "high",
+        frequency: t("type_new_appointment_freq"),
+      },
+      {
+        id: "cancellations",
+        label: t("type_cancellations_label"),
+        icon: AlertCircle,
+        description: t("type_cancellations_desc"),
+        priority: "high",
+        frequency: t("type_cancellations_freq"),
+      },
+      {
+        id: "reviews",
+        label: t("type_reviews_label"),
+        icon: Star,
+        description: t("type_reviews_desc"),
+        priority: "medium",
+        frequency: t("type_reviews_freq"),
+      },
+    ],
+    consumer: [
+      {
+        id: "reminders",
+        label: t("type_reminders_label"),
+        icon: Calendar,
+        description: t("type_reminders_desc"),
+        priority: "high",
+        frequency: t("type_reminders_freq"),
+      },
+      {
+        id: "promotions",
+        label: t("type_promotions_label"),
+        icon: Gift,
+        description: t("type_promotions_desc"),
+        priority: "low",
+        frequency: t("type_promotions_freq"),
+      },
+      {
+        id: "documents",
+        label: t("type_documents_label"),
+        icon: FileText,
+        description: t("type_documents_desc"),
+        priority: "high",
+        frequency: t("type_documents_freq"),
+      },
+    ],
+  };
 
- // Helper para contar canales activos - FEEDBACK VISUAL
- const getActiveChannelsCount = () => {
- return CHANNELS.filter(c => preferences.notifications[c.id]).length;
- };
+  const handleToggle = (key: string, value: boolean) => {
+    setPreferences((prev: any) => ({
+      ...prev,
+      notifications: {
+        ...prev.notifications,
+        [key]: value,
+      },
+    }));
 
- // Helper para contar notificaciones activas
- const getActiveNotificationsCount = () => {
- return NOTIFICATION_TYPES[role].filter(n => 
- preferences.notifications[n.id] ?? true
- ).length;
- };
+    setRecentlyToggled(key);
+    setTimeout(() => setRecentlyToggled(null), 2000);
+  };
 
- // Helper para badge de prioridad - PRIMING
- const getPriorityBadge = (priority: string) => {
- const configs = {
- high: {
- text: 'Alta',
- className: 'bg-red-500/10 text-red-400 border-red-500/20'
- },
- medium: {
- text: 'Media',
- className: 'bg-amber-500/10 text-amber-400 border-amber-500/20'
- },
- low: {
- text: 'Baja',
- className: 'bg-slate-500/10 text-slate-400 border-slate-500/20'
- }
- };
+  const getActiveChannelsCount = () => {
+    return channelsConfig.filter((c) => preferences.notifications[c.id]).length;
+  };
 
- const config = configs[priority as keyof typeof configs] || configs.low;
+  const getActiveNotificationsCount = () => {
+    return notificationTypesConfig[role].filter(
+      (n) => preferences.notifications[n.id] ?? true
+    ).length;
+  };
 
- return (
- <Badge variant="outline" className={cn("text-xs", config.className)}>
- {config.text}
- </Badge>
- );
- };
+  const getPriorityBadge = (priority: string) => {
+    const configs: Record<string, { text: string; className: string }> = {
+      high: {
+        text: t("priority_high"),
+        className:
+          "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border-red-200 dark:border-red-900/40",
+      },
+      medium: {
+        text: t("priority_medium"),
+        className:
+          "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-900/40",
+      },
+      low: {
+        text: t("priority_low"),
+        className:
+          "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700",
+      },
+    };
 
- const activeChannels = getActiveChannelsCount();
- const activeNotifications = getActiveNotificationsCount();
- const allChannelsOff = activeChannels === 0;
+    const config = configs[priority] || configs.low;
 
- return (
- <div className="space-y-6">
- 
- {/* Summary Card - FEEDBACK VISUAL */}
- <motion.div
- initial={{ opacity: 0, y: -10 }}
- animate={{ opacity: 1, y: 0 }}
- className="bg-gradient-to-r from-medical-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4"
- >
- <div className="flex items-start gap-3">
- <div className="p-2 bg-purple-500/10 rounded-lg">
- {activeChannels > 0 ? (
- <Volume2 className="w-5 h-5 text-purple-400" />
- ) : (
- <VolumeX className="w-5 h-5 text-slate-400" />
- )}
- </div>
- <div className="flex-1">
- <p className="text-sm font-semibold text-white mb-1">
- Estado de Notificaciones
- </p>
- <div className="flex flex-wrap items-center gap-2 text-xs">
- <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20">
- {activeChannels} de {CHANNELS.length} canales activos
- </Badge>
- <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20">
- {activeNotifications} de {NOTIFICATION_TYPES[role].length} tipos activos
- </Badge>
- </div>
- </div>
- </div>
- </motion.div>
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs",
+          config.className
+        )}
+      >
+        {config.text}
+      </span>
+    );
+  };
 
- {/* Warning cuando todo está apagado - MINIMIZAR ERRORES */}
- <AnimatePresence>
- {allChannelsOff && (
- <motion.div
- initial={{ opacity: 0, height: 0 }}
- animate={{ opacity: 1, height: 'auto' }}
- exit={{ opacity: 0, height: 0 }}
- className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3"
- >
- <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
- <div className="flex-1">
- <p className="text-sm font-semibold text-amber-400 mb-1">
- Todos los Canales Desactivados
- </p>
- <p className="text-xs text-amber-300/80">
- No recibirás ninguna notificación. Activa al menos un canal para mantenerte informado.
- </p>
- </div>
- </motion.div>
- )}
- </AnimatePresence>
- 
- {/* Canales de Contacto - AFFORDANCE */}
- <motion.div
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.3 }}
- >
- <PreferenceCard 
- icon={Smartphone} 
- title="Canales de Contacto" 
- description="Elige cómo prefieres recibir notificaciones"
- >
- <div className="space-y-4">
- {CHANNELS.map((channel, index) => {
- const isActive = preferences.notifications[channel.id];
- const Icon = channel.icon;
+  const activeChannels = getActiveChannelsCount();
+  const activeNotifications = getActiveNotificationsCount();
+  const allChannelsOff = activeChannels === 0;
 
- return (
- <motion.div
- key={channel.id}
- initial={{ opacity: 0, x: -20 }}
- animate={{ opacity: 1, x: 0 }}
- transition={{ delay: index * 0.1 }}
- className={cn(
- "relative flex items-start justify-between p-4 rounded-xl border-2 transition-all duration-300",
- isActive 
- ? `${channel.bgColor} ${channel.borderColor}` 
- : "bg-slate-950/30 border-slate-800",
- recentlyToggled === channel.id ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
- )}
- >
- {/* Check indicator */}
- {isActive && (
- <motion.div
- initial={{ scale: 0.95, opacity: 0 }}
- animate={{ scale: 1 }}
- className="absolute -top-2 -right-2 bg-emerald-500 rounded-full p-1"
- >
- <Check className="w-3 h-3 text-white" />
- </motion.div>
- )}
+  return (
+    <div className="space-y-6 font-sans transition-colors">
+      {/* ── RESUMEN DE ESTADO ────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl p-5 shadow-2xs"
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-2.5 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+            {activeChannels > 0 ? (
+              <Volume2 className="w-5 h-5" strokeWidth={2} />
+            ) : (
+              <VolumeX className="w-5 h-5 text-gray-400" strokeWidth={2} />
+            )}
+          </div>
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <p className="text-xs font-bold text-gray-900 dark:text-white">
+              {t("status_title")}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white dark:bg-[#0a0a0a] text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+                {t("channels_active_summary", {
+                  active: activeChannels,
+                  total: channelsConfig.length,
+                })}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-800 shadow-2xs">
+                {t("types_active_summary", {
+                  active: activeNotifications,
+                  total: notificationTypesConfig[role].length,
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
- <div className="flex items-start gap-3 flex-1">
- <div className={cn(
- "p-2 rounded-lg",
- isActive ? channel.bgColor : "bg-slate-800"
- )}>
- <Icon className={cn(
- "w-5 h-5",
- isActive ? channel.color : "text-slate-500"
- )} />
- </div>
- <div className="flex-1 space-y-1">
- <div className="flex items-center gap-2">
- <p className={cn(
- "font-semibold",
- isActive ? "text-white" : "text-slate-400"
- )}>
- {channel.label}
- </p>
- {isActive && (
- <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
- Activo
- </Badge>
- )}
- </div>
- <p className="text-xs text-slate-500">
- {channel.description}
- </p>
- <p className="text-xs text-slate-600 flex items-center gap-1">
- <Sparkles className="w-3 h-3" />
- {channel.example}
- </p>
- </div>
- </div>
+      {/* ── ALERTA SI TODOS LOS CANALES ESTÁN APAGADOS ───────────────── */}
+      <AnimatePresence>
+        {allChannelsOff && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 flex items-start gap-3 shadow-2xs"
+          >
+            <AlertCircle
+              className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+              strokeWidth={2}
+            />
+            <div className="space-y-0.5">
+              <p className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                {t("all_channels_off_title")}
+              </p>
+              <p className="text-xs font-medium text-amber-700 dark:text-amber-400/80 leading-relaxed">
+                {t("all_channels_off_desc")}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
- <Switch 
- checked={isActive}
- onCheckedChange={(val) => handleToggle(channel.id, val)} 
- disabled={!editMode}
- className={cn(
- !editMode ? "opacity-50 cursor-not-allowed" : ""
- )}
- />
- </motion.div>
- );
- })}
- </div>
- </PreferenceCard>
- </motion.div>
- 
- {/* Tipos de Alerta - CHUNKING */}
- <motion.div
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.3, delay: 0.2 }}
- >
- <PreferenceCard 
- icon={BellRing} 
- title="Tipos de Notificación" 
- description="Personaliza qué eventos son importantes para ti"
- >
- <div className="space-y-4">
- {NOTIFICATION_TYPES[role].map((item, index) => {
- const isActive = preferences.notifications[item.id] ?? true;
- const Icon = item.icon;
+      {/* ── SECCIÓN 1: CANALES DE CONTACTO ───────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <PreferenceCard
+          icon={Smartphone}
+          title={t("channels_title")}
+          description={t("channels_desc")}
+        >
+          <div className="space-y-3 pt-1">
+            {channelsConfig.map((channel, index) => {
+              const isActive = preferences.notifications[channel.id];
+              const Icon = channel.icon;
 
- return (
- <motion.div
- key={item.id}
- initial={{ opacity: 0, x: -20 }}
- animate={{ opacity: 1, x: 0 }}
- transition={{ delay: index * 0.1 }}
- className={cn(
- "relative flex items-start justify-between p-4 rounded-xl border-2 transition-all duration-300",
- isActive 
- ? "bg-purple-500/5 border-purple-500/20" 
- : "bg-slate-950/30 border-slate-800",
- recentlyToggled === item.id ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-950" : ""
- )}
- >
- {/* Check indicator */}
- {isActive && (
- <motion.div
- initial={{ scale: 0.95, opacity: 0 }}
- animate={{ scale: 1 }}
- className="absolute -top-2 -right-2 bg-emerald-500 rounded-full p-1"
- >
- <Check className="w-3 h-3 text-white" />
- </motion.div>
- )}
+              return (
+                <motion.div
+                  key={channel.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.08 }}
+                  className={cn(
+                    "relative flex items-start justify-between p-4 rounded-2xl border transition-all duration-200 shadow-2xs select-none",
+                    isActive
+                      ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40"
+                      : "bg-gray-50/60 dark:bg-[#050505] border-gray-100 dark:border-gray-800",
+                    recentlyToggled === channel.id
+                      ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-[#0a0a0a]"
+                      : ""
+                  )}
+                >
+                  {isActive && (
+                    <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white rounded-full p-0.5 shadow-2xs">
+                      <Check className="w-3 h-3" strokeWidth={2.5} />
+                    </div>
+                  )}
 
- <div className="flex items-start gap-3 flex-1">
- <div className={cn(
- "p-2 rounded-lg",
- isActive ? "bg-purple-500/10" : "bg-slate-800"
- )}>
- <Icon className={cn(
- "w-5 h-5",
- isActive ? "text-purple-400" : "text-slate-500"
- )} />
- </div>
- <div className="flex-1 space-y-2">
- <div className="flex items-center gap-2 flex-wrap">
- <p className={cn(
- "font-semibold",
- isActive ? "text-white" : "text-slate-400"
- )}>
- {item.label}
- </p>
- {getPriorityBadge(item.priority)}
- {isActive && (
- <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
- Activo
- </Badge>
- )}
- </div>
- <p className="text-sm text-slate-400">
- {item.description}
- </p>
- <div className="flex items-center gap-2 text-xs text-slate-600">
- <Zap className="w-3 h-3" />
- Frecuencia: <span className="text-slate-500">{item.frequency}</span>
- </div>
- </div>
- </div>
+                  <div className="flex items-start gap-3.5 flex-1 min-w-0 pr-4">
+                    <div
+                      className={cn(
+                        "p-2.5 rounded-xl border shrink-0 shadow-2xs",
+                        isActive
+                          ? "bg-white dark:bg-[#0a0a0a] border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400"
+                          : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-400"
+                      )}
+                    >
+                      <Icon className="w-5 h-5" strokeWidth={2} />
+                    </div>
 
- <Switch 
- checked={isActive}
- onCheckedChange={(val) => handleToggle(item.id, val)} 
- disabled={!editMode}
- className={cn(
- !editMode ? "opacity-50 cursor-not-allowed" : ""
- )}
- />
- </motion.div>
- );
- })}
- </div>
- </PreferenceCard>
- </motion.div>
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                          {channel.label}
+                        </p>
+                        {isActive && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+                            {t("active_badge")}
+                          </span>
+                        )}
+                      </div>
 
- {/* Privacy Info - CREDIBILIDAD */}
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.4 }}
- className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3"
- >
- <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
- <div className="flex-1">
- <p className="text-sm font-semibold text-blue-400 mb-1">
- Tu Privacidad es Importante
- </p>
- <p className="text-xs text-blue-300/80">
- Nunca compartiremos tu información de contacto con terceros. 
- Puedes modificar estas preferencias en cualquier momento.
- </p>
- </div>
- </motion.div>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {channel.description}
+                      </p>
 
- {/* Edit Mode Warning - MINIMIZAR ERRORES */}
- {!editMode && (
- <motion.div
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3"
- >
- <Info className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
- <div className="flex-1">
- <p className="text-sm font-semibold text-amber-400 mb-1">
- Modo de Solo Lectura
- </p>
- <p className="text-xs text-amber-300/80">
- Activa el modo de edición para modificar tus preferencias de notificaciones
- </p>
- </div>
- </motion.div>
- )}
- </div>
- );
+                      <p className="text-[11px] font-mono font-semibold text-gray-400 flex items-center gap-1 pt-0.5">
+                        <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <span>{channel.example}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={(val) => handleToggle(channel.id, val)}
+                    disabled={!editMode}
+                    className={cn(!editMode ? "opacity-50 cursor-not-allowed" : "")}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
+        </PreferenceCard>
+      </motion.div>
+
+      {/* ── SECCIÓN 2: TIPOS DE ALERTA ───────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <PreferenceCard
+          icon={BellRing}
+          title={t("types_title")}
+          description={t("types_desc")}
+        >
+          <div className="space-y-3 pt-1">
+            {notificationTypesConfig[role].map((item, index) => {
+              const isActive = preferences.notifications[item.id] ?? true;
+              const Icon = item.icon;
+
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.08 }}
+                  className={cn(
+                    "relative flex items-start justify-between p-4 rounded-2xl border transition-all duration-200 shadow-2xs select-none",
+                    isActive
+                      ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40"
+                      : "bg-gray-50/60 dark:bg-[#050505] border-gray-100 dark:border-gray-800",
+                    recentlyToggled === item.id
+                      ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-[#0a0a0a]"
+                      : ""
+                  )}
+                >
+                  {isActive && (
+                    <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white rounded-full p-0.5 shadow-2xs">
+                      <Check className="w-3 h-3" strokeWidth={2.5} />
+                    </div>
+                  )}
+
+                  <div className="flex items-start gap-3.5 flex-1 min-w-0 pr-4">
+                    <div
+                      className={cn(
+                        "p-2.5 rounded-xl border shrink-0 shadow-2xs",
+                        isActive
+                          ? "bg-white dark:bg-[#0a0a0a] border-emerald-200 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400"
+                          : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-400"
+                      )}
+                    >
+                      <Icon className="w-5 h-5" strokeWidth={2} />
+                    </div>
+
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                          {item.label}
+                        </p>
+                        {getPriorityBadge(item.priority)}
+                        {isActive && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+                            {t("active_badge")}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {item.description}
+                      </p>
+
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 font-mono">
+                        <Zap className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <span>{t("frequency_label")}:</span>
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {item.frequency}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={(val) => handleToggle(item.id, val)}
+                    disabled={!editMode}
+                    className={cn(!editMode ? "opacity-50 cursor-not-allowed" : "")}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
+        </PreferenceCard>
+      </motion.div>
+
+      {/* ── BANNER DE PRIVACIDAD ─────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-4 flex items-start gap-3 shadow-2xs"
+      >
+        <ShieldCheck
+          className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+          strokeWidth={2}
+        />
+        <div className="space-y-0.5">
+          <p className="text-xs font-bold text-gray-900 dark:text-white">
+            {t("privacy_title")}
+          </p>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+            {t("privacy_desc")}
+          </p>
+        </div>
+      </motion.div>
+
+      {/* ── BANNER MODO SOLO LECTURA ────────────────────────────────────── */}
+      {!editMode && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 flex items-start gap-3 shadow-2xs"
+        >
+          <Info
+            className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+            strokeWidth={2}
+          />
+          <div className="space-y-0.5">
+            <p className="text-xs font-bold text-amber-900 dark:text-amber-300">
+              {t("readonly_title")}
+            </p>
+            <p className="text-xs font-medium text-amber-700 dark:text-amber-400/80 leading-relaxed">
+              {t("readonly_desc")}
+            </p>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
 };

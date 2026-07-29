@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import {
   Activity,
   ShieldCheck,
@@ -14,31 +15,34 @@ interface HealthScoreCardProps {
   score?: number;
   title?: string;
   subtitle?: string;
-  percentile?: number | null; // Recibirá el dato real del backend (ej. 15 para "Top 15%")
-  statusLabel?: string; // Etiqueta superior (ej. "Óptimo", "Atención")
+  percentile?: number | null;
+  statusLabel?: string;
 }
 
 export const HealthScoreCard = ({
   score = 0,
-  title = "QuHealthScore™",
-  subtitle = "Calibrando telemetría...",
+  title,
+  subtitle,
   percentile = null,
   statusLabel,
 }: HealthScoreCardProps) => {
-  // Cálculos matemáticos para el anillo de precisión
+  const t = useTranslations("PatientDashboard.score");
+
+  const displayTitle = title || t("default_title");
+  const displaySubtitle = subtitle || t("default_subtitle");
+
+  // Cálculos para el anillo de progreso circular
   const radius = 60;
   const circumference = 2 * Math.PI * radius;
-  // Previene valores negativos o mayores a 100
   const safeScore = Math.max(0, Math.min(100, score));
   const strokeDashoffset = circumference - (safeScore / 100) * circumference;
 
-  // Lógica dinámica para el estado superior si no se provee un statusLabel
   const getDynamicStatus = () => {
     if (statusLabel) return statusLabel;
-    if (safeScore === 0) return "RECOPILANDO DATOS";
-    if (safeScore >= 80) return "ESTADO ÓPTIMO";
-    if (safeScore >= 50) return "ESTABLE";
-    return "REQUIERE ATENCIÓN";
+    if (safeScore === 0) return t("status_collecting");
+    if (safeScore >= 80) return t("status_optimal");
+    if (safeScore >= 50) return t("status_stable");
+    return t("status_attention");
   };
 
   const StatusIcon =
@@ -49,90 +53,83 @@ export const HealthScoreCard = ({
         : AlertTriangle;
 
   return (
-    <div className="group relative w-full h-full min-h-[320px] bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-8 md:p-10 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-md hover:-translate-y-1 z-0 hover:z-10 overflow-hidden cursor-pointer">
+    <div className="group relative w-full h-full min-h-[320px] bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8 flex flex-col items-center justify-between text-center transition-all duration-200 hover:shadow-md hover:border-emerald-500/30 overflow-hidden font-sans select-none shadow-2xs">
       {/* Cabecera Técnica */}
-      <div className="flex justify-between w-full items-start mb-8 relative z-10">
-        <div className="rounded-full px-4 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 dark:bg-teal-500/10 dark:text-teal-400 flex items-center transition-colors duration-300">
-          <StatusIcon className="w-4 h-4 mr-2" strokeWidth={2} />
-          {getDynamicStatus()}
-        </div>
-        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-500 transition-all duration-500 group-hover:bg-gray-100 dark:group-hover:bg-gray-700">
-          <Activity className="w-5 h-5" strokeWidth={1.5} />
+      <div className="flex justify-between w-full items-center mb-6">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs">
+          <StatusIcon className="w-3.5 h-3.5" strokeWidth={2} />
+          <span>{getDynamicStatus()}</span>
+        </span>
+
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-gray-500 shadow-2xs">
+          <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
         </div>
       </div>
 
-      {/* Gráfico Geométrico Central */}
-      <div className="relative flex items-center justify-center w-40 h-40 mb-8 z-10">
-        {/* SVG Progress Ring */}
+      {/* Gráfico Anillo de Progreso */}
+      <div className="relative flex items-center justify-center w-36 h-36 my-2">
         <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-          {/* Fondo del anillo */}
           <circle
-            cx="80"
-            cy="80"
+            cx="72"
+            cy="72"
             r={radius}
             stroke="currentColor"
             strokeWidth="8"
             fill="transparent"
             className="text-gray-100 dark:text-gray-800"
           />
-          {/* Anillo de progreso animado */}
           <motion.circle
             initial={{ strokeDashoffset: circumference }}
             animate={{ strokeDashoffset }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            cx="80"
-            cy="80"
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            cx="72"
+            cy="72"
             r={radius}
             stroke="currentColor"
             strokeWidth="8"
             fill="transparent"
             strokeDasharray={circumference}
             strokeLinecap="round"
-            className="text-teal-500 dark:text-teal-400"
+            className="text-emerald-600 dark:text-emerald-400"
           />
         </svg>
 
-        {/* Métrica Central */}
-        <div className="absolute flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] rounded-full w-24 h-24 border border-gray-50 dark:border-gray-900 shadow-sm">
+        <div className="absolute flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] rounded-full w-24 h-24 border border-gray-100 dark:border-gray-800 shadow-2xs">
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-4xl font-black tracking-tighter text-gray-900 dark:text-white leading-none"
+            transition={{ delay: 0.2, duration: 0.4 }}
+            className="text-3xl font-bold font-mono text-gray-900 dark:text-white tracking-tight leading-none"
           >
             {safeScore}
           </motion.span>
-          <span className="text-[10px] font-bold text-gray-400 mt-1">
+          <span className="text-[10px] font-bold font-mono text-gray-400 mt-0.5">
             / 100
           </span>
         </div>
       </div>
 
-      {/* Tipografía Descriptiva */}
-      <div className="relative z-10 mb-4 mt-2">
-        <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">
-          {title}
+      {/* Título y Subtítulo */}
+      <div className="space-y-1 my-2">
+        <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
+          {displayTitle}
         </h3>
-        <p className="text-sm font-medium text-gray-500 max-w-[220px] mx-auto">
-          {subtitle}
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-[200px] mx-auto leading-relaxed">
+          {displaySubtitle}
         </p>
       </div>
 
-      {/* KPI Dinámico */}
-      <div className="mt-auto pt-6 border-t border-gray-100 dark:border-gray-800 w-full flex items-center justify-center relative z-10">
+      {/* Footer KPI Dinámico */}
+      <div className="pt-4 border-t border-gray-100 dark:border-gray-800 w-full flex items-center justify-center">
         {percentile && percentile > 0 ? (
-          <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400">
-            <TrendingUp className="w-4 h-4" strokeWidth={2} />
-            <span className="text-xs font-semibold">
-              Top {percentile}% del ecosistema
-            </span>
+          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
+            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <span>{t("percentile", { percentile })}</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
-            <Activity className="w-4 h-4" strokeWidth={1.5} />
-            <span className="text-xs font-medium">
-              Acumulando datos comparativos
-            </span>
+          <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium">
+            <Activity className="w-3.5 h-3.5" strokeWidth={2} />
+            <span>{t("accumulating")}</span>
           </div>
         )}
       </div>

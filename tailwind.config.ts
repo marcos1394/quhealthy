@@ -44,6 +44,19 @@ const config: Config = {
           500: '#10B981', // Success / Verification
           600: '#059669',
         },
+        store: {
+          50: 'rgb(var(--theme-rgb) / 0.1)',
+          100: 'rgb(var(--theme-rgb) / 0.2)',
+          200: 'rgb(var(--theme-rgb) / 0.3)',
+          300: 'rgb(var(--theme-rgb) / 0.4)',
+          400: 'rgb(var(--theme-rgb) / 0.6)',
+          500: 'rgb(var(--theme-rgb) / 0.8)',
+          600: 'rgb(var(--theme-rgb) / <alpha-value>)',
+          700: 'rgb(var(--theme-rgb) / <alpha-value>)',
+          800: 'rgb(var(--theme-rgb) / <alpha-value>)',
+          900: 'rgb(var(--theme-rgb) / <alpha-value>)',
+          950: 'rgb(var(--theme-rgb) / <alpha-value>)',
+        },
       }
     },
   },

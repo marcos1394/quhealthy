@@ -51,6 +51,11 @@ import {
 } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}` : "5 150 105";
+};
+
 export default function BookingPage({
   params,
 }: {
@@ -272,7 +277,13 @@ export default function BookingPage({
   let stepCounter = 1;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+    <div 
+      className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pb-32 font-sans selection:bg-store-100 dark:selection:bg-store-950/30 transition-colors duration-500"
+      style={{ 
+        "--theme-color": safeColor, 
+        "--theme-rgb": hexToRgb(safeColor) 
+      } as React.CSSProperties}
+    >
       
       {/* ── HEADER ARQUITECTÓNICO HOMOLOGADO ───────────────────────────── */}
       <div className="sticky top-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 transition-colors">
@@ -315,7 +326,7 @@ export default function BookingPage({
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center text-center p-8 sm:p-12 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm"
             >
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/40 text-store-600 dark:text-store-400 flex items-center justify-center mb-4 shadow-sm">
                 <GraduationCap className="w-7 h-7" strokeWidth={2} />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
@@ -356,7 +367,7 @@ export default function BookingPage({
                       className={cn(
                         "p-6 rounded-2xl border flex items-center gap-4 transition-all duration-300 text-left shadow-sm",
                         scheduleNow
-                          ? "border-emerald-500/40 bg-emerald-50/50 dark:bg-emerald-950/20 text-gray-900 dark:text-white ring-2 ring-emerald-500/20"
+                          ? "border-store-500/40 bg-store-50/50 dark:bg-store-950/20 text-gray-900 dark:text-white ring-2 ring-store-500/20"
                           : "border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
                       )}
                       onClick={() => setScheduleNow(true)}
@@ -365,7 +376,7 @@ export default function BookingPage({
                         className={cn(
                           "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
                           scheduleNow
-                            ? "bg-emerald-600 text-white"
+                            ? "bg-store-600 text-white"
                             : "bg-gray-100 dark:bg-gray-800 text-gray-500"
                         )}
                       >
@@ -385,7 +396,7 @@ export default function BookingPage({
                       className={cn(
                         "p-6 rounded-2xl border flex items-center gap-4 transition-all duration-300 text-left shadow-sm",
                         !scheduleNow
-                          ? "border-emerald-500/40 bg-emerald-50/50 dark:bg-emerald-950/20 text-gray-900 dark:text-white ring-2 ring-emerald-500/20"
+                          ? "border-store-500/40 bg-store-50/50 dark:bg-store-950/20 text-gray-900 dark:text-white ring-2 ring-store-500/20"
                           : "border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
                       )}
                       onClick={() => setScheduleNow(false)}
@@ -394,7 +405,7 @@ export default function BookingPage({
                         className={cn(
                           "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
                           !scheduleNow
-                            ? "bg-emerald-600 text-white"
+                            ? "bg-store-600 text-white"
                             : "bg-gray-100 dark:bg-gray-800 text-gray-500"
                         )}
                       >
@@ -544,7 +555,7 @@ export default function BookingPage({
                           )}
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-[11px] font-bold shadow-sm">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-store-50 text-store-700 dark:bg-store-950/30 dark:text-store-400 border border-store-200 dark:border-store-900/40 text-[11px] font-bold shadow-sm">
                         <Clock className="w-3.5 h-3.5" strokeWidth={2} />
                         <span>{t("duration_min", { minutes: duration })}</span>
                       </span>

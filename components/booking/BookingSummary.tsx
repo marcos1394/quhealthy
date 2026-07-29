@@ -263,7 +263,7 @@ export function BookingSummary({
       case "SERVICE":
       case "PACKAGE":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-store-50 text-store-700 dark:bg-store-950/30 dark:text-store-400 border border-store-200 dark:border-store-900/40">
             <Clock className="w-3 h-3" strokeWidth={2} />
             {scheduleNow
               ? t("duration_min", { minutes: item.durationMinutes || 30 })
@@ -272,7 +272,7 @@ export function BookingSummary({
         );
       case "COURSE":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-store-50 text-store-700 dark:bg-store-950/30 dark:text-store-400 border border-store-200 dark:border-store-900/40">
             <MonitorPlay className="w-3 h-3" strokeWidth={2} />
             {t("digital_badge")}
           </span>
@@ -280,7 +280,7 @@ export function BookingSummary({
       case "PRODUCT":
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-store-50 text-store-700 dark:bg-store-950/30 dark:text-store-400 border border-store-200 dark:border-store-900/40">
             <Package className="w-3 h-3" strokeWidth={2} />
             {t("physical_badge", { quantity: item.quantity || 1 })}
           </span>
@@ -300,7 +300,7 @@ export function BookingSummary({
           {/* ── HEADER DE RESUMEN ──────────────────────────────────────── */}
           <div className="p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex items-center gap-4">
             <div
-              className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs"
+              className="w-12 h-12 rounded-2xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 shrink-0 shadow-xs"
               style={
                 providerColor
                   ? { backgroundColor: `${safeColor}15`, color: safeColor }
@@ -336,7 +336,7 @@ export function BookingSummary({
                     className={cn(
                       "flex-1 h-9 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer",
                       selectedCurrency === cur
-                        ? "bg-emerald-600 text-white shadow-xs"
+                        ? "bg-store-600 text-white shadow-xs"
                         : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
                     )}
                     style={
@@ -392,7 +392,7 @@ export function BookingSummary({
               <div className="space-y-4 pt-2">
                 <div className="space-y-1.5">
                   <label className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
-                    <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <FileText className="w-4 h-4 text-store-600 dark:text-store-400" strokeWidth={2} />
                     <span>
                       {cartAnalysis.hasServices
                         ? t("label_symptoms")
@@ -410,7 +410,7 @@ export function BookingSummary({
                         ? t("symptoms_placeholder")
                         : t("instructions_placeholder")
                     }
-                    className="w-full bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-2xl p-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none placeholder:text-gray-400"
+                    className="w-full bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-2xl p-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-store-500/20 transition-all resize-none placeholder:text-gray-400"
                     rows={3}
                     maxLength={300}
                     disabled={isProcessing}
@@ -431,7 +431,7 @@ export function BookingSummary({
                         }
                       }}
                       disabled={isProcessing}
-                      className="mt-0.5 rounded-md border-gray-300 dark:border-gray-700 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600 w-4 h-4 shadow-xs"
+                      className="mt-0.5 rounded-md border-gray-300 dark:border-gray-700 data-[state=checked]:bg-store-600 data-[state=checked]:border-store-600 w-4 h-4 shadow-xs"
                     />
                     <label
                       htmlFor="shareVaultAccess"
@@ -459,7 +459,7 @@ export function BookingSummary({
                               name="vaultMode"
                               checked={shareVaultMode === "FULL"}
                               onChange={() => setShareVaultMode("FULL")}
-                              className="accent-emerald-600"
+                              className="accent-store-600"
                             />
                             <span>{t("vault_full_access")}</span>
                           </label>
@@ -469,7 +469,7 @@ export function BookingSummary({
                               name="vaultMode"
                               checked={shareVaultMode === "GRANULAR"}
                               onChange={() => setShareVaultMode("GRANULAR")}
-                              className="accent-emerald-600"
+                              className="accent-store-600"
                             />
                             <span>{t("vault_granular_access")}</span>
                           </label>
@@ -479,7 +479,7 @@ export function BookingSummary({
                           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 max-h-40 overflow-y-auto space-y-2">
                             {isLoadingDocs ? (
                               <div className="flex justify-center py-3">
-                                <QhSpinner size="sm" className="text-emerald-600" />
+                                <QhSpinner size="sm" className="text-store-600" />
                               </div>
                             ) : documents.length === 0 ? (
                               <p className="text-xs font-semibold text-center text-gray-400 py-2">
@@ -500,7 +500,7 @@ export function BookingSummary({
                                         );
                                       }
                                     }}
-                                    className="mt-0.5 rounded-md border-gray-300 data-[state=checked]:bg-emerald-600 w-3.5 h-3.5"
+                                    className="mt-0.5 rounded-md border-gray-300 data-[state=checked]:bg-store-600 w-3.5 h-3.5"
                                   />
                                   <label
                                     htmlFor={`doc-${doc.id}`}
@@ -531,7 +531,7 @@ export function BookingSummary({
                 </div>
 
                 {isUsingPackage && (
-                  <div className="flex justify-between items-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <div className="flex justify-between items-center text-xs font-bold text-store-600 dark:text-store-400">
                     <span>{t("package_credit_applied")}</span>
                     <span className="font-mono">-${total.toLocaleString()} MXN</span>
                   </div>
@@ -552,7 +552,7 @@ export function BookingSummary({
                           </span>
                         </span>
                         <div className="text-[11px] font-medium text-gray-500 mt-2 flex items-start justify-end gap-2 bg-gray-50 dark:bg-[#050505] p-3 rounded-2xl border border-gray-100 dark:border-gray-800 text-right leading-relaxed">
-                          <Info className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" strokeWidth={2} />
+                          <Info className="w-4 h-4 text-store-600 shrink-0 mt-0.5" strokeWidth={2} />
                           <span>
                             {t("foreign_currency_notice", {
                               amount: finalTotal.toLocaleString(),
@@ -585,12 +585,12 @@ export function BookingSummary({
                         className={cn(
                           "w-full p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer shadow-xs text-left",
                           selectedPaymentMethod === "CREDIT_CARD"
-                            ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500 dark:border-emerald-500/80 ring-2 ring-emerald-500/20"
+                            ? "bg-store-50/40 dark:bg-store-950/20 border-store-500 dark:border-store-500/80 ring-2 ring-store-500/20"
                             : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:bg-gray-50/50"
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 shrink-0">
                             <CreditCard className="w-4 h-4" strokeWidth={2} />
                           </div>
                           <span className="text-xs font-bold text-gray-900 dark:text-white">
@@ -598,7 +598,7 @@ export function BookingSummary({
                           </span>
                         </div>
                         {selectedPaymentMethod === "CREDIT_CARD" && (
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                          <CheckCircle2 className="w-5 h-5 text-store-600 dark:text-store-400 shrink-0" strokeWidth={2} />
                         )}
                       </button>
 
@@ -614,18 +614,18 @@ export function BookingSummary({
                         className={cn(
                           "w-full p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer shadow-xs text-left",
                           selectedPaymentMethod === "WALLET_BALANCE"
-                            ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500 dark:border-emerald-500/80 ring-2 ring-emerald-500/20"
+                            ? "bg-store-50/40 dark:bg-store-950/20 border-store-500 dark:border-store-500/80 ring-2 ring-store-500/20"
                             : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:bg-gray-50/50 disabled:opacity-60 disabled:cursor-not-allowed"
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 shrink-0">
                             <Wallet className="w-4 h-4" strokeWidth={2} />
                           </div>
                           <div className="space-y-0.5">
                             <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
                               {t("quwallet_method")}
-                              {isLoadingWallet && <QhSpinner size="sm" className="text-emerald-600" />}
+                              {isLoadingWallet && <QhSpinner size="sm" className="text-store-600" />}
                             </p>
                             <p className="text-[11px] font-medium text-gray-500 font-mono">
                               {t("wallet_balance", { amount: walletBalance.toLocaleString() })}
@@ -639,7 +639,7 @@ export function BookingSummary({
                           </span>
                         ) : (
                           selectedPaymentMethod === "WALLET_BALANCE" && (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                            <CheckCircle2 className="w-5 h-5 text-store-600 dark:text-store-400 shrink-0" strokeWidth={2} />
                           )
                         )}
                       </button>
@@ -659,7 +659,7 @@ export function BookingSummary({
                   isProcessing ||
                   cartAnalysis.isEmpty
                 }
-                className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 rounded-xl bg-store-600 hover:bg-store-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={
                   providerColor && validationRules.isReady && !isProcessing
                     ? { backgroundColor: safeColor }
@@ -694,7 +694,7 @@ export function BookingSummary({
               {/* Sello de Confianza */}
               {!cartAnalysis.isEmpty && validationRules.isReady && (
                 <div className="flex items-center justify-center gap-1.5 mt-4 text-[11px] font-semibold text-gray-400 text-center">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                  <ShieldCheck className="w-4 h-4 text-store-600 dark:text-store-400 shrink-0" strokeWidth={2} />
                   <span>{t("encrypted_protocol")}</span>
                 </div>
               )}

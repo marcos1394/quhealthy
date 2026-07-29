@@ -69,7 +69,7 @@ export function BookingCalendarStep({
         >
           {/* Header del Paso */}
           <div className="flex items-center gap-3.5 pb-2 border-b border-gray-100 dark:border-gray-800">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-sm shrink-0 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 font-bold text-sm shrink-0 shadow-xs">
               {stepNumber}
             </div>
             <div>
@@ -87,7 +87,7 @@ export function BookingCalendarStep({
             {/* Navegación de Mes */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
+                <div className="w-10 h-10 rounded-2xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 shadow-xs">
                   <CalendarIcon className="w-5 h-5" strokeWidth={2} />
                 </div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white capitalize tracking-tight">
