@@ -1892,49 +1892,40 @@
   },
 
 "DashboardBilling": {
-    "title": "Tesorería y Pagos",
-    "subtitle": "Auditoría financiera, facturación y control de pasarela.",
-    "stripe_section": "Motor de Pagos Externo",
-    "stripe_subtitle": "Vinculación bancaria para flujo de capital",
-    "transactions_title": "Histórico de Transacciones",
-    "transactions_subtitle": "Registro inmutable de cobros y pagos",
-    "loading": "Auditando registros financieros...",
-    "export_csv": "Extraer CSV",
-    "export_pdf": "Extraer PDF",
-    "empty": {
-      "title": "Cero Registros",
-      "description": "Aún no existe actividad financiera registrada en el sistema."
-    },
-    "table": {
-      "date": "Fecha",
-      "service": "Concepto",
-      "status": "Estado",
-      "amount": "Importe",
-      "receipt": "Recibo",
-      "settled": "Liquidado",
-      "failed": "Fallido",
-      "refunded": "Reembolsado"
-    },
-    "pagination": {
-      "previous": "Anterior",
-      "next": "Siguiente",
-      "page_of": "Página {page} de {totalPages}"
-    },
-    "types": {
-      "appointment_payment": "Pago por consulta",
-      "subscription_charge": "Suscripción Quhealthy"
-    },
-    "modal": {
-      "internal_receipt": "Comprobante Interno",
-      "sender": "Remitente",
-      "receiver": "Receptor",
-      "patient": "Paciente",
-      "description": "Descripción Operativa",
-      "amount": "Importe",
-      "total_settled": "Total Liquidado",
-      "print": "Imprimir",
-      "download_pdf": "Extraer PDF"
-    }
+    "transactions_title": "Historial de transacciones",
+    "transactions_subtitle": "Consulta y descarga tus comprobantes de pago de forma transparente.",
+    "btn_export_csv": "Exportar CSV",
+    "btn_export_pdf": "Exportar PDF",
+    "csv_exporting": "Generando reporte CSV...",
+    "pdf_exporting": "Generando reporte PDF...",
+    "loading": "Cargando tu historial de pagos...",
+    "empty_title": "Sin transacciones registradas",
+    "empty_desc": "Aún no se han registrado cobros ni pagos en tu cuenta.",
+    "type_appointment": "Consulta médica",
+    "type_subscription": "Membresía QuHealthy",
+    "status_settled": "Completado",
+    "status_failed": "No procesado",
+    "status_refunded": "Reembolsado",
+    "table_date": "Fecha",
+    "table_concept": "Concepto",
+    "table_status": "Estado",
+    "table_amount": "Monto",
+    "table_receipt": "Comprobante",
+    "ref_id": "Ref: #{id}",
+    "pagination_page": "Página {page} de {total}",
+    "pagination_prev": "Anterior",
+    "pagination_next": "Siguiente",
+    "modal_receipt_title": "Comprobante de Pago",
+    "modal_receipt_subtitle": "Detalle de la transacción",
+    "modal_sender": "Cliente / Paciente",
+    "modal_receiver": "Comercio / Emisor",
+    "modal_currency": "Divisa",
+    "modal_description": "Descripción del servicio",
+    "modal_total_paid": "Total Pagado",
+    "btn_print": "Imprimir",
+    "btn_download_pdf": "Descargar PDF",
+    "print_notice": "Preparando vista de impresión...",
+    "pdf_download_notice": "Descargando comprobante en PDF..."
   },
 
 
@@ -2041,23 +2032,25 @@
     }
   },
 
-  "DashboardStripeConnect": {
-    "title": "Pasarela de Pagos",
-    "active_title": "Stripe Connect Activo",
-    "active_desc": "Tus pagos se procesan de forma automática y segura.",
-    "pending_title": "Verificación Pendiente",
-    "pending_desc": "Stripe requiere más información (como tu identificación o cuenta CLABE) para habilitar los depósitos a tu cuenta bancaria.",
-    "not_configured_title": "Configurar Pagos",
-    "not_configured_desc": "Conecta Stripe para recibir pagos seguros de tus pacientes.",
-    "badge_active": "Activo",
+ "DashboardStripeConnect": {
+    "title": "Motor de Pagos y Depósitos",
+    "financial_config": "Configuración Financiera",
+    "badge_active": "Operativo",
     "badge_pending": "Acción Requerida",
-    "badge_inactive": "No Configurado",
-    "manage": "Administrar",
-    "complete_setup": "Completar Registro",
-    "processing": "Procesando...",
-    "complete_verification": "Completar Verificación",
-    "connect_stripe": "Conectar Stripe",
-    "security_footer": "Protegido por Stripe con cifrado bancario"
+    "badge_inactive": "Inactivo",
+    "active_desc": "Tu cuenta bancaria está vinculada correctamente. Tu infraestructura de cobros y depósitos automáticos está en funcionamiento.",
+    "pending_desc": "Stripe requiere validar tu documento de identidad o cuenta CLABE bancaria para poder habilitar la transferencia de tus fondos.",
+    "not_configured_desc": "Vincular tu cuenta bancaria te permitirá recibir depósitos de manera segura por tus consultas y servicios médicos.",
+    "charges_status": "Cobros: {status}",
+    "payouts_status": "Depósitos: {status}",
+    "status_enabled": "Habilitados",
+    "status_pending": "Pendientes",
+    "status_action_required": "Requiere Acción",
+    "processing": "Conectando...",
+    "manage": "Gestionar Cuenta Bancaria",
+    "complete_setup": "Completar Verificación",
+    "connect_stripe": "Conectar Cuenta Bancaria",
+    "security_footer": "Toda tu información bancaria es cifrada y gestionada directamente por Stripe. QuHealthy no almacena datos bancarios sensibles."
   },
 
   "DashboardCalendar": {
@@ -2294,51 +2287,39 @@
   },
 
   "DashboardDocuments": {
-    "title": "Gestor de Documentos",
-    "subtitle": "Sube, organiza y verifica tus credenciales y licencias profesionales.",
-    "stats": {
-      "total": "Total de documentos",
-      "verified": "Verificados",
-      "pending": "Pendientes",
-      "active": "Activos",
-      "in_review": "En revisión"
-    },
-    "upload": {
-      "title": "Subir Documento",
-      "subtitle": "Asegúrate de que la información sea clara y legible.",
-      "secure_connection": "Conexión segura y cifrada",
-      "drag_here": "Arrastra tu archivo aquí o",
-      "click_browse": "haz clic para explorar",
-      "max_size": "Tamaño máximo: {size}MB",
-      "drop_here": "Suelta el archivo aquí para subirlo",
-      "uploading": "Subiendo archivo...",
-      "dont_close": "Por favor, no cierres esta ventana",
-      "upload_button": "Subir archivo",
-      "cancel": "Cancelar",
-      "file_selected": "Archivo listo para subir",
-      "uploaded_success": "Documento subido correctamente.",
-      "validation_error": "Error de validación",
-      "exceeds_size": "El archivo supera el límite permitido de {size}MB.",
-      "unsupported_format": "Formato no compatible. Usa: {formats}.",
-      "auto_verify": "Los documentos se verifican automáticamente. Te notificaremos en cuanto el proceso haya finalizado."
-    },
-    "tabs": {
-      "all": "Todos",
-      "verified": "Verificados",
-      "pending": "Pendientes",
-      "rejected": "Rechazados"
-    },
     "card": {
       "verified": "Verificado",
       "in_review": "En revisión",
       "rejected": "Rechazado",
       "unknown": "Desconocido"
     },
-    "files_title": "Mis Documentos",
-    "empty": "No hay documentos disponibles en esta sección.",
-    "deleted_toast": "Documento eliminado con éxito.",
-    "downloading": "Descargando {name}..."
+    "upload": {
+      "secure_connection": "Conexión cifrada de alta seguridad",
+      "max_size_info": "Máx. {size} MB",
+      "drag_here": "Arrastra y suelta tu archivo aquí",
+      "click_browse": "o explora en tu dispositivo",
+      "document_type": "Tipo de documento *",
+      "select_type": "Selecciona la categoría del documento...",
+      "processing_transfer": "Subiendo y procesando archivo...",
+      "keep_window_open": "Por favor mantén esta ventana abierta mientras se completa la carga.",
+      "btn_cancel": "Cancelar",
+      "btn_start_upload": "Subir Documento",
+      "error_title": "Error de validación",
+      "verified_desc": "Tus archivos son procesados con encriptación médica de extremo a extremo para proteger tu expediente.",
+      "exceeds_size": "El archivo excede el tamaño máximo permitido de {size} MB.",
+      "unsupported_format": "Formato no permitido. Utiliza uno de los siguientes: {formats}.",
+      "file_selected": "Archivo seleccionado con éxito."
+    },
+    "actions": {
+      "preview": "Previsualizar documento",
+      "download": "Descargar documento",
+      "more_options": "Más opciones"
+    },
+    "empty_title": "Sin documentos",
+    "empty_desc": "No se encontraron documentos registrados en esta sección."
   },
+
+  
 
   "OnboardingWearables": {
     "header_badge": "Dispositivos de salud",
@@ -2470,37 +2451,36 @@
   },
 
 
-  "DashboardDocumentDetail": {
-    "uploaded_to": "Documento subido a QuHealthy",
-    "preview_available": "Vista previa disponible",
-    "preview_unavailable": "Vista previa no disponible para este tipo de archivo",
-    "open_new_tab": "Abrir en nueva pestaña",
-    "file_type": "Tipo de archivo",
-    "upload_date": "Fecha de carga",
-    "size": "Tamaño",
-    "verification_status": "Estado de verificación",
+ "DashboardDocumentDetail": {
+    "title_viewer": "Detalle del documento",
+    "doc_id": "ID: #{id}",
+    "default_description": "Documento guardado en tu expediente de salud.",
     "status": {
-      "verified": "Verificado por QuHealthy",
-      "verified_desc": "Este documento ha sido revisado y aprobado",
+      "verified": "Verificado",
+      "verified_desc": "Documento autenticado y protegido en tu expediente.",
       "pending": "En revisión",
-      "pending_desc": "Estamos verificando la autenticidad de este documento",
+      "pending_desc": "Documento en proceso de validación.",
       "rejected": "Rechazado",
-      "rejected_desc": "Este documento no cumple con los requisitos"
+      "rejected_desc": "El documento no pudo ser validado. Intenta subirlo de nuevo."
     },
+    "preview_available": "Vista previa disponible",
+    "open_preview": "Abrir visor completo",
+    "preview_unavailable": "Vista previa no disponible para este tipo de archivo",
+    "format": "Formato",
+    "uploaded_date": "Fecha de registro",
+    "file_size": "Tamaño",
+    "audit_status": "Estado de revisión",
     "copy_link": "Copiar enlace",
-    "link_copied": "Enlace copiado",
     "share": "Compartir",
-    "delete": "Eliminar",
-    "delete_confirm": "Confirmar",
-    "delete_cancel": "Cancelar",
+    "link_copied": "¡Enlace copiado al portapapeles!",
+    "btn_delete": "Eliminar documento",
+    "confirm_delete": "Sí, eliminar",
+    "cancel": "Cancelar",
     "deleting": "Eliminando...",
-    "deleted_toast": "Documento eliminado",
-    "delete_error": "No se pudo eliminar el documento",
-    "close": "Cerrar",
-    "download": "Descargar",
+    "deleted_success": "Documento eliminado correctamente.",
     "downloading": "Descargando...",
-    "download_started": "Descarga iniciada",
-    "download_error": "No se pudo descargar el documento"
+    "btn_download": "Descargar archivo",
+    "btn_close": "Cerrar visor"
   },
 
  "PrescriptionSettings": {

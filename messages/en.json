@@ -1819,49 +1819,40 @@
   },
 
   "DashboardBilling": {
-    "title": "Treasury & Payments",
-    "subtitle": "Financial auditing, billing, and payment gateway control.",
-    "stripe_section": "External Payment Engine",
-    "stripe_subtitle": "Bank linking for capital flow",
-    "transactions_title": "Transaction History",
-    "transactions_subtitle": "Immutable ledger of charges and payouts",
-    "loading": "Auditing financial records...",
-    "export_csv": "Export CSV",
-    "export_pdf": "Export PDF",
-    "empty": {
-      "title": "Zero Records",
-      "description": "There is no financial activity recorded in the system yet."
-    },
-    "table": {
-      "date": "Date",
-      "service": "Concept",
-      "status": "Status",
-      "amount": "Amount",
-      "receipt": "Receipt",
-      "settled": "Settled",
-      "failed": "Failed",
-      "refunded": "Refunded"
-    },
-    "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "page_of": "Page {page} of {totalPages}"
-    },
-    "types": {
-      "appointment_payment": "Consultation payment",
-      "subscription_charge": "Quhealthy Subscription"
-    },
-    "modal": {
-      "internal_receipt": "Internal Receipt",
-      "sender": "Sender",
-      "receiver": "Receiver",
-      "patient": "Patient",
-      "description": "Operational Description",
-      "amount": "Amount",
-      "total_settled": "Total Settled",
-      "print": "Print",
-      "download_pdf": "Export PDF"
-    }
+    "transactions_title": "Transaction history",
+    "transactions_subtitle": "Review and download your payment receipts transparently.",
+    "btn_export_csv": "Export CSV",
+    "btn_export_pdf": "Export PDF",
+    "csv_exporting": "Generating CSV report...",
+    "pdf_exporting": "Generating PDF report...",
+    "loading": "Loading payment history...",
+    "empty_title": "No transactions found",
+    "empty_desc": "No payments or charges have been recorded on your account yet.",
+    "type_appointment": "Medical consultation",
+    "type_subscription": "QuHealthy membership",
+    "status_settled": "Completed",
+    "status_failed": "Failed",
+    "status_refunded": "Refunded",
+    "table_date": "Date",
+    "table_concept": "Concept",
+    "table_status": "Status",
+    "table_amount": "Amount",
+    "table_receipt": "Receipt",
+    "ref_id": "Ref: #{id}",
+    "pagination_page": "Page {page} of {total}",
+    "pagination_prev": "Previous",
+    "pagination_next": "Next",
+    "modal_receipt_title": "Payment Receipt",
+    "modal_receipt_subtitle": "Transaction details",
+    "modal_sender": "Customer / Patient",
+    "modal_receiver": "Merchant / Issuer",
+    "modal_currency": "Currency",
+    "modal_description": "Service description",
+    "modal_total_paid": "Total Paid",
+    "btn_print": "Print",
+    "btn_download_pdf": "Download PDF",
+    "print_notice": "Preparing print view...",
+    "pdf_download_notice": "Downloading PDF receipt..."
   },
 
   "CreateScheduleDrawer": {
@@ -2123,22 +2114,24 @@
   },
 
   "DashboardStripeConnect": {
-    "title": "Payment Gateway",
-    "active_title": "Stripe Connect Active",
-    "active_desc": "Your payments are processed automatically and securely.",
-    "pending_title": "Verification Pending",
-    "pending_desc": "Stripe requires more information (such as your ID or bank account) to enable payouts to your bank account.",
-    "not_configured_title": "Configure Payments",
-    "not_configured_desc": "Connect Stripe to receive secure payments from your patients.",
+    "title": "Payment & Payout Engine",
+    "financial_config": "Financial Setup",
     "badge_active": "Active",
     "badge_pending": "Action Required",
-    "badge_inactive": "Not Configured",
-    "manage": "Manage",
-    "complete_setup": "Complete Setup",
-    "processing": "Processing...",
-    "complete_verification": "Complete Verification",
-    "connect_stripe": "Connect Stripe",
-    "security_footer": "Protected by Stripe with bank-grade encryption"
+    "badge_inactive": "Inactive",
+    "active_desc": "Your bank account is linked correctly. Your automatic charges and payouts infrastructure is fully operational.",
+    "pending_desc": "Stripe requires verification of your identity document or bank account details to enable your fund transfers.",
+    "not_configured_desc": "Link your bank account to securely receive deposits for your consultations and medical services.",
+    "charges_status": "Charges: {status}",
+    "payouts_status": "Payouts: {status}",
+    "status_enabled": "Enabled",
+    "status_pending": "Pending",
+    "status_action_required": "Action Required",
+    "processing": "Connecting...",
+    "manage": "Manage Bank Account",
+    "complete_setup": "Complete Verification",
+    "connect_stripe": "Connect Bank Account",
+    "security_footer": "All your bank information is encrypted and managed directly by Stripe. QuHealthy does not store sensitive banking data."
   },
 
 "DashboardCalendar": {
@@ -2373,50 +2366,36 @@
   },
   
   "DashboardDocuments": {
-    "title": "Document Manager",
-    "subtitle": "Upload, organize, and verify your professional credentials.",
-    "stats": {
-      "total": "Total Documents",
-      "verified": "Verified",
-      "pending": "Pending",
-      "active": "Active",
-      "in_review": "Under review"
-    },
-    "upload": {
-      "title": "Upload Document",
-      "subtitle": "Ensure text and images are clear and legible.",
-      "secure_connection": "Secure & encrypted connection",
-      "drag_here": "Drag your file here or",
-      "click_browse": "click to browse",
-      "max_size": "Max size: {size}MB",
-      "drop_here": "Drop your file here to upload",
-      "uploading": "Uploading file...",
-      "dont_close": "Please do not close this window",
-      "upload_button": "Upload file",
-      "cancel": "Cancel",
-      "file_selected": "File ready to upload",
-      "uploaded_success": "Document uploaded successfully.",
-      "validation_error": "Validation error",
-      "exceeds_size": "File exceeds the limit of {size}MB.",
-      "unsupported_format": "Unsupported format. Accepted: {formats}.",
-      "auto_verify": "Documents are verified automatically. You will receive a notification once the process is complete."
-    },
-    "tabs": {
-      "all": "All",
-      "verified": "Verified",
-      "pending": "Pending",
-      "rejected": "Rejected"
-    },
     "card": {
       "verified": "Verified",
-      "in_review": "Under review",
+      "in_review": "In review",
       "rejected": "Rejected",
       "unknown": "Unknown"
     },
-    "files_title": "My Documents",
-    "empty": "No documents found in this section.",
-    "deleted_toast": "Document deleted successfully.",
-    "downloading": "Downloading {name}..."
+    "upload": {
+      "secure_connection": "End-to-end encrypted connection",
+      "max_size_info": "Max {size} MB",
+      "drag_here": "Drag and drop your file here",
+      "click_browse": "or browse from your device",
+      "document_type": "Document type *",
+      "select_type": "Select document category...",
+      "processing_transfer": "Uploading and processing file...",
+      "keep_window_open": "Please keep this window open while the upload completes.",
+      "btn_cancel": "Cancel",
+      "btn_start_upload": "Upload Document",
+      "error_title": "Validation error",
+      "verified_desc": "Your files are processed with medical-grade end-to-end encryption to safeguard your record.",
+      "exceeds_size": "File exceeds maximum allowed size of {size} MB.",
+      "unsupported_format": "Unsupported format. Please use one of the following: {formats}.",
+      "file_selected": "File selected successfully."
+    },
+    "actions": {
+      "preview": "Preview document",
+      "download": "Download document",
+      "more_options": "More options"
+    },
+    "empty_title": "No documents",
+    "empty_desc": "No documents were found in this section."
   },
 
   "Emergencies": {
@@ -3179,37 +3158,36 @@
     "empty_state": "No accounts configured in the chart of accounts."
   },
 
-  "DashboardDocumentDetail": {
-    "uploaded_to": "Document uploaded to QuHealthy",
-    "preview_available": "Preview available",
-    "preview_unavailable": "Preview not available for this file type",
-    "open_new_tab": "Open in new tab",
-    "file_type": "File Type",
-    "upload_date": "Upload Date",
-    "size": "Size",
-    "verification_status": "Verification Status",
+ "DashboardDocumentDetail": {
+    "title_viewer": "Document details",
+    "doc_id": "ID: #{id}",
+    "default_description": "Document stored in your health record.",
     "status": {
-      "verified": "Verified by QuHealthy",
-      "verified_desc": "This document has been reviewed and approved",
-      "pending": "In Review",
-      "pending_desc": "We are verifying the authenticity of this document",
+      "verified": "Verified",
+      "verified_desc": "Document authenticated and protected in your health record.",
+      "pending": "In review",
+      "pending_desc": "Document currently undergoing validation.",
       "rejected": "Rejected",
-      "rejected_desc": "This document does not meet requirements"
+      "rejected_desc": "Document could not be validated. Please try uploading it again."
     },
-    "copy_link": "Copy Link",
-    "link_copied": "Link copied",
+    "preview_available": "Preview available",
+    "open_preview": "Open full viewer",
+    "preview_unavailable": "Preview not available for this file format",
+    "format": "Format",
+    "uploaded_date": "Upload date",
+    "file_size": "Size",
+    "audit_status": "Audit status",
+    "copy_link": "Copy link",
     "share": "Share",
-    "delete": "Delete",
-    "delete_confirm": "Confirm",
-    "delete_cancel": "Cancel",
+    "link_copied": "Link copied to clipboard!",
+    "btn_delete": "Delete document",
+    "confirm_delete": "Yes, delete",
+    "cancel": "Cancel",
     "deleting": "Deleting...",
-    "deleted_toast": "Document deleted",
-    "delete_error": "Could not delete document",
-    "close": "Close",
-    "download": "Download",
+    "deleted_success": "Document deleted successfully.",
     "downloading": "Downloading...",
-    "download_started": "Download started",
-    "download_error": "Could not download document"
+    "btn_download": "Download file",
+    "btn_close": "Close viewer"
   },
   
   "DashboardHistoryDetail": {
