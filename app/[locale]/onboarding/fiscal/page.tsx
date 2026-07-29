@@ -19,13 +19,13 @@ import {
   FileKey,
   ShieldCheck,
   Check,
-  Sparkles,
   ArrowRight,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 import { useFiscalOnboarding } from "@/hooks/useFiscalOnboarding";
 import { onboardingService } from "@/services/onboarding.service";
-import { useTranslations } from "next-intl";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function FiscalPage() {
@@ -93,8 +93,8 @@ export default function FiscalPage() {
     return (
       <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center gap-3 transition-colors font-sans">
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
-        <p className="text-xs font-semibold text-gray-400 animate-pulse">
-          Sincronizando sistema y expediente fiscal...
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
+          {t("sync_loading")}
         </p>
       </div>
     );
@@ -110,7 +110,6 @@ export default function FiscalPage() {
           className="w-full max-w-2xl"
         >
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-8 sm:p-12 shadow-sm space-y-8">
-            
             {/* Success Banner */}
             <div className="text-center space-y-4">
               <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mx-auto shadow-sm">
@@ -120,13 +119,13 @@ export default function FiscalPage() {
               <div className="space-y-1">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Validación Fiscal Completa</span>
+                  <span>{t("success.badge")}</span>
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight pt-2">
-                  Expediente Fiscal Verificado
+                  {t("success.title")}
                 </h2>
-                <p className="text-xs sm:text-sm font-medium text-gray-500 max-w-md mx-auto leading-relaxed">
-                  Tus documentos fiscales y certificados de sello digital (CSD) fueron aprobados con éxito.
+                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                  {t("success.desc")}
                 </p>
               </div>
             </div>
@@ -135,13 +134,15 @@ export default function FiscalPage() {
             {taxCertificate?.extractedData && (
               <div className="space-y-3 pt-2">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                  Datos Fiscales Extraídos (SAT)
+                  {t("extracted_data.title")}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {taxCertificate.extractedData.rfc && (
                     <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase">RFC</span>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">
+                        {t("extracted_data.rfc")}
+                      </span>
                       <p className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">
                         {taxCertificate.extractedData.rfc}
                       </p>
@@ -150,7 +151,9 @@ export default function FiscalPage() {
 
                   {taxCertificate.extractedData.nombre_o_razon_social && (
                     <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase">Razón Social</span>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">
+                        {t("extracted_data.business_name")}
+                      </span>
                       <p className="text-xs font-bold text-gray-900 dark:text-white line-clamp-1">
                         {taxCertificate.extractedData.nombre_o_razon_social}
                       </p>
@@ -159,7 +162,9 @@ export default function FiscalPage() {
 
                   {taxCertificate.extractedData.regimen_fiscal && (
                     <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase">Régimen Fiscal</span>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">
+                        {t("extracted_data.tax_regime")}
+                      </span>
                       <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 line-clamp-1">
                         {taxCertificate.extractedData.regimen_fiscal}
                       </p>
@@ -168,7 +173,9 @@ export default function FiscalPage() {
 
                   {taxCertificate.extractedData.domicilio_fiscal && (
                     <div className="bg-gray-50/50 dark:bg-[#050505] p-4 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase">Domicilio Fiscal</span>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase">
+                        {t("extracted_data.tax_address")}
+                      </span>
                       <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 line-clamp-1">
                         {taxCertificate.extractedData.domicilio_fiscal}
                       </p>
@@ -185,11 +192,10 @@ export default function FiscalPage() {
                 onClick={handleContinue}
                 className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
               >
-                <span>Completar Configuración</span>
+                <span>{t("success.complete_btn")}</span>
                 <ArrowRight className="w-4 h-4" strokeWidth={2} />
               </button>
             </div>
-
           </div>
         </motion.div>
       </div>
@@ -199,7 +205,6 @@ export default function FiscalPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pt-28 pb-20 px-6 md:px-12 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
       <div className="max-w-4xl mx-auto space-y-8">
-        
         {/* Header / Nav */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
           <button
@@ -208,12 +213,12 @@ export default function FiscalPage() {
             onClick={() => router.back()}
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{t("back", { defaultValue: "Volver" })}</span>
+            <span>{t("back")}</span>
           </button>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
             <Shield className="w-3.5 h-3.5" strokeWidth={2} />
-            <span>Entorno Cifrado CSD</span>
+            <span>{t("encrypted_env")}</span>
           </div>
         </div>
 
@@ -226,7 +231,10 @@ export default function FiscalPage() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Configuración <span className="text-emerald-600 dark:text-emerald-400">Fiscal</span>
+              {t("title").split(" ")[0]}{" "}
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {t("title").split(" ").slice(1).join(" ")}
+              </span>
             </h1>
 
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 shadow-sm text-xs font-bold text-gray-700 dark:text-gray-300 self-start sm:self-auto">
@@ -235,18 +243,21 @@ export default function FiscalPage() {
               ) : (
                 <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               )}
-              <span>{personType === "FISICA" ? "Persona Física" : "Persona Moral"}</span>
+              <span>
+                {personType === "FISICA"
+                  ? t("person_type.physical")
+                  : t("person_type.moral")}
+              </span>
             </div>
           </div>
 
           <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">
-            Proporciona tus archivos fiscales oficiales emitidos por el SAT para habilitar la facturación automatizada de tus consultas y validar tu identidad tributaria.
+            {t("subtitle")}
           </p>
         </motion.div>
 
         {/* CARDS DE DOCUMENTOS */}
         <div className="space-y-6">
-          
           {/* 1. Constancia de Situación Fiscal (CSF) */}
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
             <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
@@ -255,10 +266,10 @@ export default function FiscalPage() {
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  Constancia de Situación Fiscal (CSF)
+                  {t("csf.title")}
                 </h3>
                 <p className="text-xs font-medium text-gray-500">
-                  Documento oficial emitido por el SAT en formato PDF o Imagen.
+                  {t("csf.desc")}
                 </p>
               </div>
             </div>
@@ -269,21 +280,25 @@ export default function FiscalPage() {
                   <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      Constancia de Situación Fiscal Validada
+                      {t("csf.status_approved")}
                     </span>
                   </div>
 
                   {taxCertificate.extractedData?.rfc && (
                     <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-2">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-gray-400 uppercase">RFC Registrado</span>
+                        <span className="font-bold text-gray-400 uppercase">
+                          {t("extracted_data.rfc")}
+                        </span>
                         <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
                           {taxCertificate.extractedData.rfc}
                         </span>
                       </div>
                       {taxCertificate.extractedData.regimen_fiscal && (
                         <div className="flex justify-between items-center text-xs border-t border-gray-100 dark:border-gray-800 pt-2">
-                          <span className="font-bold text-gray-400 uppercase">Régimen</span>
+                          <span className="font-bold text-gray-400 uppercase">
+                            {t("extracted_data.tax_regime")}
+                          </span>
                           <span className="font-semibold text-gray-700 dark:text-gray-300">
                             {taxCertificate.extractedData.regimen_fiscal}
                           </span>
@@ -296,10 +311,10 @@ export default function FiscalPage() {
                 <div className="space-y-4">
                   <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
                     <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4" /> Documento Rechazado
+                      <AlertTriangle className="w-4 h-4" /> {t("csf.status_rejected")}
                     </p>
                     <p className="text-xs font-medium text-red-700 dark:text-red-300">
-                      {taxCertificate.rejectionReason || "No pudimos validar tu constancia. Por favor reintenta con un archivo legible."}
+                      {taxCertificate.rejectionReason || t("csf.rejected_fallback")}
                     </p>
                   </div>
 
@@ -307,7 +322,9 @@ export default function FiscalPage() {
                     isUploading={isUploading}
                     inputRef={csfInputRef}
                     onChange={handleCsfUpload}
-                    label="Subir nueva Constancia (PDF o Imagen)"
+                    label={t("csf.upload_new")}
+                    processingText={t("upload_zones.processing")}
+                    formatsHint={t("upload_zones.formats_hint")}
                   />
                 </div>
               ) : (
@@ -315,7 +332,9 @@ export default function FiscalPage() {
                   isUploading={isUploading}
                   inputRef={csfInputRef}
                   onChange={handleCsfUpload}
-                  label="Haz clic para seleccionar tu Constancia de Situación Fiscal"
+                  label={t("csf.upload_prompt")}
+                  processingText={t("upload_zones.processing")}
+                  formatsHint={t("upload_zones.formats_hint")}
                 />
               )}
             </div>
@@ -330,10 +349,10 @@ export default function FiscalPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Acta Constitutiva
+                    {t("acta.title")}
                   </h3>
                   <p className="text-xs font-medium text-gray-500">
-                    Documento notarial requerido exclusivamente para personas morales.
+                    {t("acta.desc")}
                   </p>
                 </div>
               </div>
@@ -343,17 +362,17 @@ export default function FiscalPage() {
                   <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      Acta Constitutiva Validada
+                      {t("acta.status_approved")}
                     </span>
                   </div>
                 ) : actaConstitutiva?.verificationStatus === "REJECTED" ? (
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
                       <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                        <AlertTriangle className="w-4 h-4" /> Documento Rechazado
+                        <AlertTriangle className="w-4 h-4" /> {t("acta.status_rejected")}
                       </p>
                       <p className="text-xs font-medium text-red-700 dark:text-red-300">
-                        {actaConstitutiva.rejectionReason || "Por favor sube un documento notarial legible."}
+                        {actaConstitutiva.rejectionReason || t("acta.rejected_fallback")}
                       </p>
                     </div>
 
@@ -361,7 +380,9 @@ export default function FiscalPage() {
                       isUploading={isUploading}
                       inputRef={actaInputRef}
                       onChange={handleActaUpload}
-                      label="Subir Acta Constitutiva (PDF)"
+                      label={t("acta.upload_new")}
+                      processingText={t("upload_zones.processing")}
+                      formatsHint={t("upload_zones.formats_hint")}
                     />
                   </div>
                 ) : (
@@ -369,7 +390,9 @@ export default function FiscalPage() {
                     isUploading={isUploading}
                     inputRef={actaInputRef}
                     onChange={handleActaUpload}
-                    label="Haz clic para seleccionar tu Acta Constitutiva"
+                    label={t("acta.upload_prompt")}
+                    processingText={t("upload_zones.processing")}
+                    formatsHint={t("upload_zones.formats_hint")}
                   />
                 )}
               </div>
@@ -384,10 +407,10 @@ export default function FiscalPage() {
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  Certificado de Sello Digital (.cer)
+                  {t("csd_cer.title")}
                 </h3>
                 <p className="text-xs font-medium text-gray-500">
-                  Archivo público necesario para timbrar facturas electrónicas (CFDI).
+                  {t("csd_cer.desc")}
                 </p>
               </div>
             </div>
@@ -398,7 +421,7 @@ export default function FiscalPage() {
                   <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      Certificado CSD Validado
+                      {t("csd_cer.status_approved")}
                     </span>
                   </div>
 
@@ -406,14 +429,22 @@ export default function FiscalPage() {
                     <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-2 text-xs font-medium">
                       {csdCertificate.extractedData.serial_number && (
                         <div className="flex justify-between items-center">
-                          <span className="font-bold text-gray-400 uppercase">No. Serie</span>
-                          <span className="font-mono text-gray-900 dark:text-white">{csdCertificate.extractedData.serial_number}</span>
+                          <span className="font-bold text-gray-400 uppercase">
+                            {t("csd_cer.serial_number")}
+                          </span>
+                          <span className="font-mono text-gray-900 dark:text-white">
+                            {csdCertificate.extractedData.serial_number}
+                          </span>
                         </div>
                       )}
                       {csdCertificate.extractedData.valid_to && (
                         <div className="flex justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-2">
-                          <span className="font-bold text-gray-400 uppercase">Vigente Hasta</span>
-                          <span className="text-gray-700 dark:text-gray-300">{csdCertificate.extractedData.valid_to}</span>
+                          <span className="font-bold text-gray-400 uppercase">
+                            {t("csd_cer.valid_until")}
+                          </span>
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {csdCertificate.extractedData.valid_to}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -423,10 +454,10 @@ export default function FiscalPage() {
                 <div className="space-y-4">
                   <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
                     <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4" /> Archivo Rechazado
+                      <AlertTriangle className="w-4 h-4" /> {t("csd_cer.status_rejected")}
                     </p>
                     <p className="text-xs font-medium text-red-700 dark:text-red-300">
-                      {csdCertificate.rejectionReason || "Asegúrate de subir el archivo .cer correspondiente a tu CSD."}
+                      {csdCertificate.rejectionReason || t("csd_cer.rejected_fallback")}
                     </p>
                   </div>
 
@@ -435,7 +466,9 @@ export default function FiscalPage() {
                     inputRef={csdCerInputRef}
                     onChange={handleCsdCerUpload}
                     accept=".cer"
-                    label="Subir Certificado .cer"
+                    label={t("csd_cer.upload_new")}
+                    processingText={t("upload_zones.validating_csd")}
+                    formatHint={t("upload_zones.csd_format_hint", { accept: ".cer" })}
                   />
                 </div>
               ) : (
@@ -444,7 +477,9 @@ export default function FiscalPage() {
                   inputRef={csdCerInputRef}
                   onChange={handleCsdCerUpload}
                   accept=".cer"
-                  label="Seleccionar archivo .cer"
+                  label={t("csd_cer.upload_prompt")}
+                  processingText={t("upload_zones.validating_csd")}
+                  formatHint={t("upload_zones.csd_format_hint", { accept: ".cer" })}
                 />
               )}
             </div>
@@ -458,10 +493,10 @@ export default function FiscalPage() {
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  Llave Privada (.key)
+                  {t("csd_key.title")}
                 </h3>
                 <p className="text-xs font-medium text-gray-500">
-                  Archivo de clave privada para la generación cifrada de sellos fiscales.
+                  {t("csd_key.desc")}
                 </p>
               </div>
             </div>
@@ -471,17 +506,17 @@ export default function FiscalPage() {
                 <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span className="text-xs font-bold text-gray-900 dark:text-white">
-                    Llave Privada Validada y Encriptada
+                    {t("csd_key.status_approved")}
                   </span>
                 </div>
               ) : csdKey?.verificationStatus === "REJECTED" ? (
                 <div className="space-y-4">
                   <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
                     <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4" /> Archivo Rechazado
+                      <AlertTriangle className="w-4 h-4" /> {t("csd_key.status_rejected")}
                     </p>
                     <p className="text-xs font-medium text-red-700 dark:text-red-300">
-                      {csdKey.rejectionReason || "Por favor verifica que la llave privada corresponda al certificado CSD."}
+                      {csdKey.rejectionReason || t("csd_key.rejected_fallback")}
                     </p>
                   </div>
 
@@ -490,7 +525,9 @@ export default function FiscalPage() {
                     inputRef={csdKeyInputRef}
                     onChange={handleCsdKeyUpload}
                     accept=".key"
-                    label="Subir Llave Privada .key"
+                    label={t("csd_key.upload_new")}
+                    processingText={t("upload_zones.validating_csd")}
+                    formatHint={t("upload_zones.csd_format_hint", { accept: ".key" })}
                   />
                 </div>
               ) : (
@@ -499,7 +536,9 @@ export default function FiscalPage() {
                   inputRef={csdKeyInputRef}
                   onChange={handleCsdKeyUpload}
                   accept=".key"
-                  label="Seleccionar archivo .key"
+                  label={t("csd_key.upload_prompt")}
+                  processingText={t("upload_zones.validating_csd")}
+                  formatHint={t("upload_zones.csd_format_hint", { accept: ".key" })}
                 />
               )}
             </div>
@@ -509,15 +548,13 @@ export default function FiscalPage() {
           <div className="bg-gray-900 dark:bg-[#0a0a0a] border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-xl text-white space-y-2">
             <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
               <FileKey className="w-4 h-4" />
-              <span>Bóveda Cifrada de Alta Seguridad</span>
+              <span>{t("vault.title")}</span>
             </div>
             <p className="text-xs font-medium text-gray-300 leading-relaxed">
-              Tus llaves y certificados digitales se almacenan cifrados con algoritmos AES-256 en servidores protegidos. Solo se emplean para la generación automatizada de comprobantes fiscales (CFDI) a través del PAC autorizado.
+              {t("vault.desc")}
             </p>
           </div>
-
         </div>
-
       </div>
     </div>
   );
@@ -530,11 +567,15 @@ function UploadZone({
   inputRef,
   onChange,
   label,
+  processingText,
+  formatsHint,
 }: {
   isUploading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: string;
+  processingText: string;
+  formatsHint: string;
 }) {
   return (
     <>
@@ -556,10 +597,10 @@ function UploadZone({
         )}
 
         <p className="text-xs font-bold text-gray-900 dark:text-white">
-          {isUploading ? "Analizando y procesando documento..." : label}
+          {isUploading ? processingText : label}
         </p>
         <p className="text-[11px] font-medium text-gray-400 mt-1">
-          Soporta formatos PDF, PNG o JPEG (Máximo 10MB)
+          {formatsHint}
         </p>
       </div>
 
@@ -580,12 +621,16 @@ function CsdUploadZone({
   onChange,
   accept,
   label,
+  processingText,
+  formatHint,
 }: {
   isUploading: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   accept: string;
   label: string;
+  processingText: string;
+  formatHint: string;
 }) {
   return (
     <>
@@ -607,10 +652,10 @@ function CsdUploadZone({
         )}
 
         <p className="text-xs font-bold text-gray-900 dark:text-white">
-          {isUploading ? "Validando CSD..." : label}
+          {isUploading ? processingText : label}
         </p>
         <p className="text-[10px] font-semibold font-mono text-gray-400 mt-0.5">
-          {accept} • Archivo CSD Máx 2MB
+          {formatHint}
         </p>
       </div>
 

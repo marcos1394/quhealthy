@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   UploadCloud,
   Loader2,
-  CheckCircle2,
   ScanFace,
   Camera,
   ArrowLeft,
@@ -19,17 +18,15 @@ import {
   ShieldCheck,
   Shield,
   Check,
-  Sparkles,
   ArrowRight,
-  UserCheck,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
+
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useKycOnboarding } from "@/hooks/useKycOnboarding";
 import { KycDocumentType, KycVerificationStatus } from "@/types/onboarding";
-import { useTranslations } from "next-intl";
 import { handleApiError } from "@/lib/handleApiError";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
@@ -83,7 +80,7 @@ export default function KycPage() {
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current.getTracks().forEach((trk) => trk.stop());
       streamRef.current = null;
     }
     setIsCameraOpen(false);
@@ -92,8 +89,8 @@ export default function KycPage() {
 
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current || !activeCaptureType) return;
-    const v = videoRef.current,
-      c = canvasRef.current;
+    const v = videoRef.current;
+    const c = canvasRef.current;
     c.width = v.videoWidth;
     c.height = v.videoHeight;
     const ctx = c.getContext("2d");
@@ -114,14 +111,14 @@ export default function KycPage() {
           }
         },
         "image/jpeg",
-        0.9,
+        0.9
       );
     }
   };
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: KycDocumentType,
+    type: KycDocumentType
   ) => {
     const f = e.target.files?.[0];
     if (f) handleUpload(f, type);
@@ -142,27 +139,27 @@ export default function KycPage() {
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
             <Check className="w-3 h-3" strokeWidth={2.5} />
-            <span>{t("approved", { defaultValue: "Aprobado" })}</span>
+            <span>{t("approved")}</span>
           </span>
         );
       case "REJECTED":
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 text-xs font-bold border border-red-200 dark:border-red-900/40">
             <AlertCircle className="w-3 h-3" strokeWidth={2} />
-            <span>{t("rejected", { defaultValue: "Rechazado" })}</span>
+            <span>{t("rejected")}</span>
           </span>
         );
       case "PROCESSING":
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 text-xs font-bold border border-blue-200 dark:border-blue-900/40 animate-pulse">
             <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />
-            <span>{t("verifying", { defaultValue: "Verificando..." })}</span>
+            <span>{t("verifying")}</span>
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-bold border border-gray-200 dark:border-gray-700">
-            <span>{t("pending", { defaultValue: "Pendiente" })}</span>
+            <span>{t("pending")}</span>
           </span>
         );
     }
@@ -241,7 +238,7 @@ export default function KycPage() {
                   className="h-10 px-5 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-bold text-xs shadow-md transition-colors flex items-center gap-2"
                 >
                   <UploadCloud className="w-4 h-4" />
-                  <span>{t("change_image", { defaultValue: "Cambiar Imagen" })}</span>
+                  <span>{t("change_image")}</span>
                 </button>
               </div>
             )}
@@ -257,7 +254,7 @@ export default function KycPage() {
                 <>
                   <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
                   <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("uploading", { defaultValue: "Subiendo..." })}
+                    {t("uploading")}
                   </span>
                 </>
               ) : (
@@ -267,10 +264,10 @@ export default function KycPage() {
                   </div>
                   <div className="text-center">
                     <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
-                      {t("upload_image", { defaultValue: "Subir Archivo" })}
+                      {t("upload_image")}
                     </span>
                     <span className="text-[10px] font-semibold text-gray-400">
-                      {t("file_hint", { defaultValue: "PNG, JPG • Máx 10MB" })}
+                      {t("file_hint")}
                     </span>
                   </div>
                 </>
@@ -287,7 +284,7 @@ export default function KycPage() {
               </div>
               <div className="text-center">
                 <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
-                  {t("camera", { defaultValue: "Usar Cámara" })}
+                  {t("camera")}
                 </span>
                 <span className="text-[10px] font-semibold text-gray-400">
                   Captura directa en vivo
@@ -310,11 +307,11 @@ export default function KycPage() {
 
   const handleFinishStep = () => {
     if (isKycComplete()) {
-      toast.success(t("success_toast", { defaultValue: "¡Verificación completada con éxito!" }));
+      toast.success(t("success_toast"));
       router.push("/onboarding");
       router.refresh();
     } else {
-      toast.warn(t("pending_toast", { defaultValue: "Por favor completa todos los documentos requeridos." }));
+      toast.warn(t("pending_toast"));
     }
   };
 
@@ -339,8 +336,8 @@ export default function KycPage() {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center gap-3 bg-gray-50/50 dark:bg-[#050505] selection:bg-emerald-100 font-sans">
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
-        <p className="text-xs font-semibold text-gray-400 animate-pulse">
-          {t("loading", { defaultValue: "Cargando expediente de verificación..." })}
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
+          {t("loading")}
         </p>
       </div>
     );
@@ -353,7 +350,6 @@ export default function KycPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pt-28 pb-20 px-6 md:px-12 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 font-sans">
-      
       {/* ── MODAL DE CÁMARA ──────────────────────────────────────────────── */}
       <AnimatePresence>
         {isCameraOpen && (
@@ -389,7 +385,9 @@ export default function KycPage() {
                   transition={{ duration: 3, repeat: Infinity }}
                   className={cn(
                     "border-2 border-emerald-400 rounded-3xl relative shadow-2xl bg-emerald-500/5",
-                    activeCaptureType === "SELFIE" ? "w-64 h-80 rounded-full" : "w-[380px] h-[240px]",
+                    activeCaptureType === "SELFIE"
+                      ? "w-64 h-80 rounded-full"
+                      : "w-[380px] h-[240px]"
                   )}
                 />
 
@@ -397,8 +395,8 @@ export default function KycPage() {
                   <p className="text-white text-xs font-bold flex items-center gap-2">
                     <ScanFace className="w-4 h-4 text-emerald-400" />
                     {activeCaptureType === "SELFIE"
-                      ? t("camera_selfie_hint", { defaultValue: "Centra tu rostro dentro del círculo" })
-                      : t("camera_doc_hint", { defaultValue: "Alinea tu documento dentro del marco" })}
+                      ? t("camera_selfie_hint")
+                      : t("camera_doc_hint")}
                   </p>
                 </div>
               </div>
@@ -427,7 +425,6 @@ export default function KycPage() {
       </AnimatePresence>
 
       <div className="max-w-6xl mx-auto space-y-10">
-        
         {/* Header de Navegación */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
           <button
@@ -436,7 +433,7 @@ export default function KycPage() {
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{t("back", { defaultValue: "Volver" })}</span>
+            <span>{t("back")}</span>
           </button>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
@@ -454,10 +451,10 @@ export default function KycPage() {
         >
           <div className="space-y-2">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
-              {t("title", { defaultValue: "Verificación de Identidad" })}
+              {t("title")}
             </h1>
             <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
-              {t("desc", { defaultValue: "Sube una identificación oficial vigente y una prueba de vida (selfie) para verificar tu cuenta en cumplimiento con normativas de seguridad médica." })}
+              {t("desc")}
             </p>
           </div>
 
@@ -465,7 +462,7 @@ export default function KycPage() {
           <div className="max-w-xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-sm space-y-2.5">
             <div className="flex justify-between items-center text-xs">
               <span className="font-bold text-gray-400 uppercase tracking-wider">
-                {t("progress", { defaultValue: "Progreso de Verificación" })}
+                {t("progress")}
               </span>
               <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
                 {Math.round(progress)}%
@@ -484,10 +481,8 @@ export default function KycPage() {
 
         {/* GRID PRINCIPAL */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
           {/* COLUMNA IZQUIERDA: ZONAS DE CARGA */}
           <div className="lg:col-span-8 space-y-6">
-            
             {/* Card Documento de Identidad */}
             <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
               <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
@@ -496,10 +491,10 @@ export default function KycPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    {t("id_title", { defaultValue: "Documento de Identificación" })}
+                    {t("id_title")}
                   </h3>
                   <p className="text-xs font-medium text-gray-500">
-                    {t("id_desc", { defaultValue: "Selecciona tu tipo de documento oficial y sube ambas caras." })}
+                    {t("id_desc")}
                   </p>
                 </div>
               </div>
@@ -516,14 +511,14 @@ export default function KycPage() {
                     disabled={isIdentityApproved}
                     className="flex-1 rounded-xl text-xs font-bold py-2.5 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all text-gray-600 dark:text-gray-400"
                   >
-                    {t("ine_tab", { defaultValue: "Credencial INE / IFE" })}
+                    {t("ine_tab")}
                   </TabsTrigger>
                   <TabsTrigger
                     value="passport"
                     disabled={isIdentityApproved}
                     className="flex-1 rounded-xl text-xs font-bold py-2.5 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all text-gray-600 dark:text-gray-400"
                   >
-                    {t("passport_tab", { defaultValue: "Pasaporte" })}
+                    {t("passport_tab")}
                   </TabsTrigger>
                   {personType === "MORAL" && (
                     <TabsTrigger
@@ -540,14 +535,14 @@ export default function KycPage() {
                 <div className="space-y-6">
                   {renderUploadZone({
                     type: "INE_FRONT",
-                    label: t("ine_front", { defaultValue: "INE / IFE (Frente)" }),
-                    description: t("ine_front_desc", { defaultValue: "Fotografía frontal clara del documento oficial." }),
+                    label: t("ine_front"),
+                    description: t("ine_front_desc"),
                     inputRef: ineFrontInput,
                   })}
                   {renderUploadZone({
                     type: "INE_BACK",
-                    label: t("ine_back", { defaultValue: "INE / IFE (Reverso)" }),
-                    description: t("ine_back_desc", { defaultValue: "Reverso del documento con código de barras visible." }),
+                    label: t("ine_back"),
+                    description: t("ine_back_desc"),
                     inputRef: ineBackInput,
                   })}
                 </div>
@@ -556,8 +551,8 @@ export default function KycPage() {
               {activeTab === "passport" &&
                 renderUploadZone({
                   type: "PASSPORT",
-                  label: t("passport_label", { defaultValue: "Pasaporte Vigente" }),
-                  description: t("passport_desc", { defaultValue: "Página de datos personales con fotografía." }),
+                  label: t("passport_label"),
+                  description: t("passport_desc"),
                   inputRef: passportInput,
                 })}
 
@@ -572,20 +567,24 @@ export default function KycPage() {
             </div>
 
             {/* Card Prueba de Vida (Selfie) */}
-            <div className={cn(
-              "bg-white dark:bg-[#0a0a0a] border rounded-3xl p-6 sm:p-8 shadow-sm transition-all space-y-6",
-              isIdentityApproved ? "border-gray-100 dark:border-gray-800" : "border-gray-100 dark:border-gray-800 opacity-60 pointer-events-none"
-            )}>
+            <div
+              className={cn(
+                "bg-white dark:bg-[#0a0a0a] border rounded-3xl p-6 sm:p-8 shadow-sm transition-all space-y-6",
+                isIdentityApproved
+                  ? "border-gray-100 dark:border-gray-800"
+                  : "border-gray-100 dark:border-gray-800 opacity-60 pointer-events-none"
+              )}
+            >
               <div className="flex items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
                 <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
                   <ScanFace className="w-5 h-5" strokeWidth={2} />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    {t("selfie_title", { defaultValue: "Prueba de Vida Biométrica" })}
+                    {t("selfie_title")}
                   </h3>
                   <p className="text-xs font-medium text-gray-500">
-                    {t("selfie_desc", { defaultValue: "Selfie facial para validar coincidencia con tu identificación." })}
+                    {t("selfie_desc")}
                   </p>
                 </div>
               </div>
@@ -594,8 +593,8 @@ export default function KycPage() {
                 {isIdentityApproved ? (
                   renderUploadZone({
                     type: "SELFIE",
-                    label: t("selfie_label", { defaultValue: "Fotografía Selfie" }),
-                    description: t("selfie_hint", { defaultValue: "Asegúrate de tener buena iluminación y mirar al frente." }),
+                    label: t("selfie_label"),
+                    description: t("selfie_hint"),
                     inputRef: selfieInput,
                   })
                 ) : (
@@ -603,30 +602,27 @@ export default function KycPage() {
                     <Lock className="w-4 h-4 text-gray-400 shrink-0" />
                     <div>
                       <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                        {t("step_locked", { defaultValue: "Paso Bloqueado Temporalmente" })}
+                        {t("step_locked")}
                       </p>
                       <p className="text-[11px] font-medium text-gray-400">
-                        {t("step_locked_desc", { defaultValue: "Primero debes aprobar tu documento de identidad para proceder con la selfie." })}
+                        {t("step_locked_desc")}
                       </p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-
           </div>
 
           {/* COLUMNA DERECHA: PANEL DE ESTADO Y RESUMEN */}
           <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
-            
             <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
-              
               <div className="pb-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
                   <ShieldCheck className="w-4 h-4" strokeWidth={2} />
                 </div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  {t("status_title", { defaultValue: "Estado del Proceso" })}
+                  {t("status_title")}
                 </h3>
               </div>
 
@@ -635,17 +631,20 @@ export default function KycPage() {
                   {
                     done: isIdentityApproved,
                     icon: ShieldCheck,
-                    label: t("identification", { defaultValue: "Identificación Oficial" }),
+                    label: t("identification"),
                   },
                   {
-                    done: documents["SELFIE"]?.verificationStatus === "APPROVED",
+                    done:
+                      documents["SELFIE"]?.verificationStatus === "APPROVED",
                     icon: ScanFace,
-                    label: t("proof_of_life", { defaultValue: "Prueba Biométrica" }),
+                    label: t("proof_of_life"),
                   },
                   ...(personType === "MORAL"
                     ? [
                         {
-                          done: documents["ACTA_CONSTITUTIVA"]?.verificationStatus === "APPROVED",
+                          done:
+                            documents["ACTA_CONSTITUTIVA"]
+                              ?.verificationStatus === "APPROVED",
                           icon: FileCheck,
                           label: "Acta Constitutiva",
                         },
@@ -664,7 +663,7 @@ export default function KycPage() {
                             "w-7 h-7 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
                             item.done
                               ? "bg-emerald-600 text-white"
-                              : "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-400",
+                              : "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-400"
                           )}
                         >
                           {item.done ? (
@@ -689,13 +688,13 @@ export default function KycPage() {
                   disabled={!isKycComplete()}
                   className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span>{t("confirm_continue", { defaultValue: "Continuar con Siguiente Paso" })}</span>
+                  <span>{t("confirm_continue")}</span>
                   <ArrowRight className="w-4 h-4" strokeWidth={2} />
                 </button>
 
                 {!isKycComplete() && (
                   <p className="text-[11px] font-medium text-gray-400 text-center pt-3">
-                    {t("complete_docs_hint", { defaultValue: "Completa la validación de todos los documentos requeridos para continuar." })}
+                    {t("complete_docs_hint")}
                   </p>
                 )}
               </div>
@@ -704,19 +703,15 @@ export default function KycPage() {
               <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1.5">
                 <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                   <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>{t("data_protected_title", { defaultValue: "Privacidad Garantizada" })}</span>
+                  <span>{t("data_protected_title")}</span>
                 </p>
                 <p className="text-[11px] font-medium text-gray-500 leading-relaxed">
-                  {t("data_protected_desc", { defaultValue: "Tus datos biométricos e identificaciones se procesan bajo protocolos de cifrado de extremo a extremo." })}
+                  {t("data_protected_desc")}
                 </p>
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );

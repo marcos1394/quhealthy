@@ -167,6 +167,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
  <span>{formatFileSize(selectedFile.size)}</span>
  </div>
  </div>
+ </div>
 
  {/* Select Document Type */}
  <div className="mb-6">

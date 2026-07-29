@@ -1,6 +1,7 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-doctor/click-events-have-key-events */
-"use client";
 
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -17,11 +18,9 @@ import {
   Sparkles,
   Shield,
   Info,
-  Check,
   Camera,
   Plus,
   Trash2,
-  Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -69,13 +68,13 @@ export default function LicensePage() {
     } catch (e) {
       console.error(e);
       setIsCameraOpen(false);
-      toast.error("No se pudo acceder a la cámara");
+      toast.error(t("toasts.camera_error"));
     }
   };
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current.getTracks().forEach((trk) => trk.stop());
       streamRef.current = null;
     }
     setIsCameraOpen(false);
@@ -83,8 +82,8 @@ export default function LicensePage() {
 
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
-    const v = videoRef.current,
-      c = canvasRef.current;
+    const v = videoRef.current;
+    const c = canvasRef.current;
     c.width = v.videoWidth;
     c.height = v.videoHeight;
     const ctx = c.getContext("2d");
@@ -101,18 +100,18 @@ export default function LicensePage() {
           }
         },
         "image/jpeg",
-        0.9,
+        0.9
       );
     }
   };
 
   const config = {
     isSalud: sector === "HEALTH",
-    title: sector === "HEALTH" ? t("health_title", { defaultValue: "Cédula Profesional Médica" }) : t("beauty_title", { defaultValue: "Licencia Comercial" }),
+    title: sector === "HEALTH" ? t("health_title") : t("beauty_title"),
     icon: sector === "HEALTH" ? GraduationCap : Store,
-    description: sector === "HEALTH" ? t("health_desc", { defaultValue: "Registra tu título y cédula profesional para validar tu práctica clínica en QuHealthy." }) : t("beauty_desc", { defaultValue: "Registra los permisos de operación de tu establecimiento." }),
-    infoText: sector === "HEALTH" ? t("health_info", { defaultValue: "Verificación obligatoria para profesionales de la salud." }) : t("beauty_info", { defaultValue: "Paso opcional." }),
-    buttonText: "Guardar y Continuar",
+    description: sector === "HEALTH" ? t("health_desc") : t("beauty_desc"),
+    infoText: sector === "HEALTH" ? t("health_info") : t("beauty_info"),
+    buttonText: t("save_continue"),
   };
 
   const processFile = async (file: File) => {
@@ -126,11 +125,11 @@ export default function LicensePage() {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
     if (selectedFile.size > 20 * 1024 * 1024) {
-      toast.warning("El archivo excede los 20MB permitidos.");
+      toast.warning(t("toasts.file_too_large"));
       return;
     }
-    if (!selectedFile.type.startsWith("image/")) {
-      toast.warning("Por favor selecciona un archivo de imagen válido.");
+    if (!selectedFile.type.startsWith("image/") && !selectedFile.type.endsWith("pdf")) {
+      toast.warning(t("toasts.invalid_file_type"));
       return;
     }
     await processFile(selectedFile);
@@ -143,7 +142,7 @@ export default function LicensePage() {
 
   const handleSkip = () => {
     if (!config.isSalud) {
-      toast.info(t("skip", { defaultValue: "Paso omitido temporalmente" }));
+      toast.info(t("skip_toast"));
       router.push("/onboarding");
     }
   };
@@ -153,21 +152,21 @@ export default function LicensePage() {
       (l) =>
         l.licenseNumber.trim() !== "" &&
         l.institution.trim() !== "" &&
-        l.type.trim() !== "",
+        l.type.trim() !== ""
     );
     if (!isValid) {
-      toast.error("Por favor completa todos los campos requeridos en las cédulas.");
+      toast.error(t("toasts.validation_required"));
       return;
     }
     const hasPrimary = manualLicenses.some((l) => l.isPrimary);
     if (!hasPrimary) {
-      toast.error("Debes seleccionar una cédula como principal.");
+      toast.error(t("toasts.primary_required"));
       return;
     }
 
     const success = await saveLicenses(manualLicenses);
     if (success) {
-      toast.success("Cédulas guardadas. Redirigiendo...");
+      toast.success(t("toasts.save_success"));
       router.push("/provider/dashboard");
     }
   };
@@ -209,7 +208,7 @@ export default function LicensePage() {
       <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center gap-3 transition-colors font-sans">
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
         <p className="text-xs font-semibold text-gray-400 animate-pulse">
-          Validando credenciales profesionales...
+          {t("loading")}
         </p>
       </div>
     );
@@ -218,7 +217,6 @@ export default function LicensePage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center pt-28 pb-20 px-6 md:pt-36 md:px-12 transition-colors duration-500 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 font-sans">
-      
       {/* ── MODAL DE CÁMARA ──────────────────────────────────────────────── */}
       <AnimatePresence>
         {isCameraOpen && (
@@ -255,7 +253,7 @@ export default function LicensePage() {
                 <div className="mt-6 bg-black/80 backdrop-blur-md border border-gray-800 px-4 py-2 rounded-full shadow-lg">
                   <p className="text-white text-xs font-bold flex items-center gap-2">
                     <Camera className="w-4 h-4 text-emerald-400" />
-                    Alinea tu título o cédula dentro del marco
+                    {t("ai_assistant.camera_modal_hint")}
                   </p>
                 </div>
               </div>
@@ -295,19 +293,18 @@ export default function LicensePage() {
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{t("back", { defaultValue: "Volver" })}</span>
+            <span>{t("back")}</span>
           </button>
 
           {!config.isSalud && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-bold text-gray-600 dark:text-gray-300">
               <Info className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>{t("optional_step", { defaultValue: "Paso opcional" })}</span>
+              <span>{t("optional_step")}</span>
             </div>
           )}
         </div>
 
         <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-10 shadow-sm space-y-8">
-          
           {/* Form Header */}
           <div className="text-center space-y-3 pb-6 border-b border-gray-100 dark:border-gray-800">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mx-auto shadow-sm">
@@ -334,10 +331,10 @@ export default function LicensePage() {
                 >
                   <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-1">
                     <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4" /> {t("rejected_title", { defaultValue: "Cédula Rechazada" })}
+                      <AlertTriangle className="w-4 h-4" /> {t("rejected_title")}
                     </p>
                     <p className="text-xs font-medium text-red-700 dark:text-red-300 leading-relaxed">
-                      {license.rejectionReason || t("rejected_desc", { defaultValue: "Por favor verifica la validez del documento e intenta de nuevo." })}
+                      {license.rejectionReason || t("rejected_desc")}
                     </p>
                   </div>
                 </motion.div>
@@ -348,11 +345,11 @@ export default function LicensePage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                  Asistente de Auto-llenado (IA)
+                  {t("ai_assistant.title")}
                 </Label>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-900/40">
                   <Sparkles className="w-3 h-3" />
-                  <span>Extracción Automática</span>
+                  <span>{t("ai_assistant.badge")}</span>
                 </span>
               </div>
 
@@ -371,7 +368,7 @@ export default function LicensePage() {
                       className="h-10 px-5 rounded-xl bg-white text-gray-900 hover:bg-gray-100 font-bold text-xs shadow-md transition-colors flex items-center gap-2"
                     >
                       <X className="w-4 h-4" />
-                      <span>{t("change_image", { defaultValue: "Cambiar Archivo" })}</span>
+                      <span>{t("change_image")}</span>
                     </Button>
                   </div>
                 </div>
@@ -384,8 +381,12 @@ export default function LicensePage() {
                     <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm mb-2 group-hover:scale-105 transition-transform">
                       <UploadCloud className="w-5 h-5" strokeWidth={2} />
                     </div>
-                    <p className="text-xs font-bold text-gray-900 dark:text-white">Subir Título / Cédula</p>
-                    <p className="text-[10px] font-semibold text-gray-400 mt-0.5">PDF o Imagen • Máx 20MB</p>
+                    <p className="text-xs font-bold text-gray-900 dark:text-white">
+                      {t("ai_assistant.upload_prompt")}
+                    </p>
+                    <p className="text-[10px] font-semibold text-gray-400 mt-0.5">
+                      {t("ai_assistant.upload_hint")}
+                    </p>
                   </div>
 
                   <div
@@ -395,8 +396,12 @@ export default function LicensePage() {
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm mb-2 group-hover:scale-105 transition-transform">
                       <Camera className="w-5 h-5" strokeWidth={2} />
                     </div>
-                    <p className="text-xs font-bold text-gray-900 dark:text-white">Tomar Foto con Cámara</p>
-                    <p className="text-[10px] font-semibold text-gray-400 mt-0.5">Captura en vivo</p>
+                    <p className="text-xs font-bold text-gray-900 dark:text-white">
+                      {t("ai_assistant.camera_prompt")}
+                    </p>
+                    <p className="text-[10px] font-semibold text-gray-400 mt-0.5">
+                      {t("ai_assistant.camera_hint")}
+                    </p>
                   </div>
                 </div>
               )}
@@ -416,7 +421,7 @@ export default function LicensePage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                  Cédulas Profesionales Registradas
+                  {t("manual_section.title")}
                 </Label>
                 <button
                   type="button"
@@ -424,7 +429,7 @@ export default function LicensePage() {
                   className="h-9 px-3.5 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors flex items-center gap-1.5 shadow-sm"
                 >
                   <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-                  <span>Agregar Cédula</span>
+                  <span>{t("manual_section.add_btn")}</span>
                 </button>
               </div>
 
@@ -438,7 +443,7 @@ export default function LicensePage() {
                       "p-6 rounded-3xl border transition-all space-y-4 shadow-sm",
                       lic.isPrimary
                         ? "border-emerald-500/50 bg-emerald-50/10 dark:bg-emerald-950/10"
-                        : "border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]",
+                        : "border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]"
                     )}
                   >
                     <div className="flex justify-between items-center">
@@ -452,18 +457,24 @@ export default function LicensePage() {
                             "w-4 h-4 rounded-full border flex items-center justify-center transition-colors",
                             lic.isPrimary
                               ? "border-emerald-600 bg-emerald-600 text-white"
-                              : "border-gray-300 dark:border-gray-700 group-hover:border-emerald-500",
+                              : "border-gray-300 dark:border-gray-700 group-hover:border-emerald-500"
                           )}
                         >
                           {lic.isPrimary && (
                             <div className="w-1.5 h-1.5 rounded-full bg-white" />
                           )}
                         </div>
-                        <span className={cn(
-                          "text-xs font-bold",
-                          lic.isPrimary ? "text-emerald-600 dark:text-emerald-400" : "text-gray-500"
-                        )}>
-                          {lic.isPrimary ? "Cédula Principal" : "Establecer como principal"}
+                        <span
+                          className={cn(
+                            "text-xs font-bold",
+                            lic.isPrimary
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-gray-500"
+                          )}
+                        >
+                          {lic.isPrimary
+                            ? t("manual_section.primary_badge")
+                            : t("manual_section.set_primary")}
                         </span>
                       </button>
 
@@ -481,7 +492,7 @@ export default function LicensePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                          Número de Cédula *
+                          {t("manual_section.license_number_label")} *
                         </Label>
                         <Input
                           value={lic.licenseNumber}
@@ -489,13 +500,13 @@ export default function LicensePage() {
                             updateLicense(index, "licenseNumber", e.target.value)
                           }
                           className="h-11 px-4 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold font-mono text-gray-900 dark:text-white shadow-sm focus-visible:ring-emerald-500/20"
-                          placeholder="Ej. 1234567"
+                          placeholder={t("manual_section.license_number_placeholder")}
                         />
                       </div>
 
                       <div className="space-y-1.5">
                         <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                          Tipo de Título / Grado *
+                          {t("manual_section.degree_type_label")} *
                         </Label>
                         <Input
                           value={lic.type}
@@ -503,14 +514,14 @@ export default function LicensePage() {
                             updateLicense(index, "type", e.target.value)
                           }
                           className="h-11 px-4 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white shadow-sm focus-visible:ring-emerald-500/20"
-                          placeholder="Ej. Licenciatura, Especialidad Médica"
+                          placeholder={t("manual_section.degree_type_placeholder")}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                        Institución Emisora *
+                        {t("manual_section.institution_label")} *
                       </Label>
                       <Input
                         value={lic.institution}
@@ -518,7 +529,7 @@ export default function LicensePage() {
                           updateLicense(index, "institution", e.target.value)
                         }
                         className="h-11 px-4 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white shadow-sm focus-visible:ring-emerald-500/20"
-                        placeholder="Ej. Universidad Nacional Autónoma de México"
+                        placeholder={t("manual_section.institution_placeholder")}
                       />
                     </div>
                   </motion.div>
@@ -534,7 +545,7 @@ export default function LicensePage() {
                   onClick={handleSkip}
                   className="sm:flex-1 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs font-bold shadow-sm"
                 >
-                  {t("skip", { defaultValue: "Omitir por ahora" })}
+                  {t("skip")}
                 </button>
               )}
 
@@ -544,13 +555,13 @@ export default function LicensePage() {
                 disabled={isUploading || isSaving}
                 className={cn(
                   "h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 disabled:opacity-50",
-                  !config.isSalud ? "sm:flex-1" : "w-full",
+                  !config.isSalud ? "sm:flex-1" : "w-full"
                 )}
               >
                 {isUploading || isSaving ? (
                   <>
                     <QhSpinner size="sm" className="text-white" />
-                    <span>Procesando credenciales...</span>
+                    <span>{t("saving")}</span>
                   </>
                 ) : (
                   <>
@@ -560,16 +571,14 @@ export default function LicensePage() {
                 )}
               </button>
             </div>
-
           </div>
         </div>
 
         {/* Security Footer */}
         <div className="flex items-center justify-center gap-2 text-xs font-semibold text-gray-400">
           <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-          <span>{t("security_footer", { defaultValue: "Validación oficial ante el Registro Nacional de Profesionistas." })}</span>
+          <span>{t("security_footer")}</span>
         </div>
-
       </motion.div>
     </div>
   );

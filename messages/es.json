@@ -375,7 +375,6 @@
     "captcha_error": "Error al validar la seguridad. Por favor, intenta de nuevo."
   },
 
-
   "AuthSignupConsumer": {
     "title": "Crea tu Cuenta",
     "subtitle": "Únete a miles de usuarios satisfechos",
@@ -592,7 +591,6 @@
     "val_passwords_not_match": "Las contraseñas no coinciden"
   },  
 
-
   "AuthVerifyEmail": {
     "title": "Verificando tu Email",
     "desc": "Por favor espera mientras confirmamos tu cuenta",
@@ -630,7 +628,6 @@
     "role_patient": "Cuenta de Paciente",
     "loading_verification": "Cargando verificación..."
   },
-
 
   "AuthVerifyPhone": {
     "title": "Verifica tu Teléfono",
@@ -746,6 +743,182 @@
     "status_cancelled": "Anulada"
   },
 
+  "OnboardingDependents": {
+    "header_badge": "Núcleo familiar",
+    "title": "Familiares a cargo",
+    "subtitle": "Registra perfiles médicos secundarios para gestionar esquemas de vacunación, seguimiento de salud y agendamiento de citas para tus dependientes.",
+    "loading": "Cargando expedientes familiares...",
+    "years": "años",
+    "delete_title": "Eliminar expediente",
+    "confirm_delete": "¿Seguro que deseas eliminar el expediente de este familiar?",
+    "empty_state_title": "No hay dependientes registrados",
+    "empty_state_desc": "Agrega a tus familiares para llevar el control integrado de su historial de salud.",
+    "btn_add_dependent": "Agregar perfil dependiente",
+    "relationships": {
+      "child": "Hijo / Hija",
+      "parent": "Padre / Madre",
+      "spouse": "Cónyuge / Pareja",
+      "sibling": "Hermano / Hermana",
+      "other": "Otro familiar"
+    },
+    "modal": {
+      "title": "Creación de expediente secundario",
+      "subtitle": "Ingresa los datos personales de tu familiar",
+      "first_name_label": "Nombre(s)",
+      "first_name_placeholder": "Ej. Mateo",
+      "last_name_label": "Apellidos",
+      "last_name_placeholder": "Ej. Sanchez",
+      "dob_label": "Fecha de nacimiento",
+      "dob_placeholder": "Seleccionar fecha",
+      "gender_label": "Sexo biológico",
+      "genders": {
+        "male": "Masculino",
+        "female": "Femenino"
+      },
+      "relationship_label": "Parentesco / Relación",
+      "biometrics_title": "Biometría inicial (Opcional)",
+      "weight_label": "Peso (kg)",
+      "weight_placeholder": "Ej. 15.5",
+      "height_label": "Estatura (cm)",
+      "height_placeholder": "Ej. 95",
+      "notes_label": "Notas clínicas adicionales",
+      "notes_placeholder": "Escribe alergias conocidas, tipo de sangre, condiciones preexistentes, etc.",
+      "cancel": "Cancelar",
+      "save": "Guardar registro",
+      "saving": "Procesando..."
+    },
+    "toasts": {
+      "deleted_success": "Expediente eliminado correctamente",
+      "deleted_error": "Error al eliminar expediente",
+      "created_success": "Expediente creado con éxito",
+      "save_error": "Ocurrió un error al guardar los datos",
+      "dob_required": "Por favor selecciona la fecha de nacimiento.",
+      "gender_rel_required": "Por favor selecciona el sexo y el parentesco."
+    }
+  },
+
+  "OnboardingConsumer": {
+    "header_brand": "QuHealthy",
+    "header_sub": "Tu perfil de salud",
+    "step_progress": "Paso {current} de {total}",
+    "step_section": "Sección {current} de {total}",
+    "loading_initial": "Preparando tu espacio de salud...",
+    "btn_back": "Regresar",
+    "btn_skip": "Omitir por ahora",
+    "btn_next": "Guardar y continuar",
+    "btn_finish": "Finalizar registro",
+    "btn_saving": "Guardando...",
+    "steps": {
+      "consent": {
+        "title": "Privacidad y confianza",
+        "ai_banner_title": "Recomendaciones inteligentes para ti",
+        "ai_banner_desc": "Para ayudarte a cuidar mejor de tu salud y darte consejos personalizados (nutrición, hábitos y bienestar), usamos inteligencia artificial de forma segura y privada, protegiendo siempre tus datos.",
+        "checkbox_label": "Acepto recibir recomendaciones basadas en inteligencia artificial",
+        "checkbox_desc": "Doy mi consentimiento para que QuHealthy procese mis datos con total seguridad para fines de prevención y cuidado personal."
+      },
+      "identity": {
+        "title": "Tus datos básicos",
+        "biological_sex_label": "Sexo biológico (Para ajustar rangos de salud)*",
+        "sexes": {
+          "male": "Masculino",
+          "female": "Femenino",
+          "other": "Otro / Prefiero no decir"
+        },
+        "blood_type_label": "Tu tipo de sangre",
+        "blood_type_unknown": "No lo sé",
+        "nom024_title": "Datos de identificación (Opcionales)",
+        "nom024_desc": "Esta información nos ayuda a mantener tu expediente completo y seguro.",
+        "curp_label": "CURP",
+        "curp_placeholder": "Tus 18 caracteres de CURP",
+        "insurance_label": "¿Tienes seguro médico o servicio de salud?",
+        "insurance_placeholder": "Selecciona o escribe cuál",
+        "insurance_options": {
+          "imss": "IMSS",
+          "issste": "ISSSTE",
+          "insabi": "IMSS-Bienestar / Salud Pública",
+          "pemex": "PEMEX / SEDENA / SEMAR",
+          "private": "Seguro médico privado",
+          "none": "Ninguno"
+        },
+        "address_label": "Dirección de tu domicilio",
+        "address_placeholder": "Calle, número, colonia, ciudad y código postal",
+        "ethnic_label": "Pertenencia a grupo indígena (Opcional)",
+        "ethnic_placeholder": "Selecciona o escribe",
+        "emergency_title": "Contacto en caso de emergencia",
+        "emergency_name_label": "Nombre de tu contacto",
+        "emergency_name_placeholder": "Ej. Juan Pérez (Hermano)",
+        "emergency_phone_label": "Teléfono de contacto",
+        "emergency_phone_placeholder": "Ej. 55 1234 5678"
+      },
+      "vitals": {
+        "title": "Medidas y signos vitales",
+        "body_measurements_title": "Tus medidas actuales",
+        "weight_label": "Peso actual (kg)",
+        "weight_placeholder": "Ej. 70",
+        "height_label": "Estatura (cm)",
+        "height_placeholder": "Ej. 170",
+        "bmi_title": "Tu Índice de Masa Corporal (IMC)",
+        "bmi_desc": "Estimación rápida basada en tu peso y estatura",
+        "vitals_title": "Signos vitales recientes (si los conoces)",
+        "hr_label": "Pulso o latidos por minuto en reposo",
+        "hr_placeholder": "Ej. 70",
+        "bp_systolic_label": "Presión alta (Sistólica)",
+        "bp_systolic_placeholder": "Ej. 120",
+        "bp_diastolic_label": "Presión baja (Diastólica)",
+        "bp_diastolic_placeholder": "Ej. 80"
+      },
+      "lifestyle": {
+        "title": "Estilo de vida y hábitos",
+        "diet_label": "¿Llevas algún tipo de alimentación especial?",
+        "diet_options": {
+          "none": "Como de todo (Sin dieta)",
+          "mediterranean": "Mediterránea",
+          "vegan": "Vegana",
+          "vegetarian": "Vegetariana",
+          "keto": "Cetogénica (Keto)",
+          "paleo": "Paleo"
+        },
+        "exercise_days_label": "¿Cuántos días a la semana haces ejercicio?",
+        "exercise_days_placeholder": "Ej. 3",
+        "exercise_mins_label": "Minutos que dura cada sesión",
+        "exercise_mins_placeholder": "Ej. 45",
+        "sleep_hours_label": "Horas que duermes al día en promedio",
+        "sleep_hours_placeholder": "Ej. 7.5",
+        "stress_label": "¿Cómo calificarías tu nivel de estrés diario?",
+        "stress_value": "Nivel {value} de 10",
+        "stress_low": "Tranquilo (1)",
+        "stress_high": "Mucho estrés (10)",
+        "smoker_label": "Fumo regularmente o uso vapeadores"
+      },
+      "clinical": {
+        "title": "Antecedentes médicos",
+        "icd10_title": "Tus padecimientos o enfermedades",
+        "icd10_desc": "Escribe si tienes alguna enfermedad diagnosticada (como diabetes, hipertensión, etc.) para tenerla presente.",
+        "chronic_conditions_label": "Enfermedades o condiciones médicas",
+        "allergies_label": "¿A qué eres alérgico? (Medicamentos, alimentos, etc.)",
+        "allergies_placeholder": "Ej. Penicilina, mariscos, aspirina..."
+      },
+      "goals": {
+        "title": "Tus metas de salud",
+        "heading": "¿Qué te gustaría lograr con el apoyo de QuHealthy?",
+        "options": {
+          "weight": "Bajar de peso y mejorar mi metabolismo",
+          "longevity": "Sentirme con más energía y cuidar mi corazón",
+          "stress": "Controlar el estrés y dormir mejor",
+          "sleep": "Mejorar la calidad de mi descanso diario",
+          "muscle": "Ganar fuerza y masa muscular",
+          "chronic": "Controlar alguna enfermedad o síntoma actual"
+        }
+      },
+      "wearables": {
+        "title": "Dispositivos conectados"
+      },
+      "dependents": {
+        "title": "Familiares a cargo"
+      }
+    }
+  },
+
   "OnboardingChecklist": {
     "badge": "Configuración Inicial",
     "title": "Bienvenido a QuHealthy",
@@ -790,6 +963,7 @@
     "btn_correct_info": "Corregir Info",
     "btn_start": "Comenzar"
   },
+  
   "OnboardingProfile": {
     "badge": "Paso 1 de 4",
     "title": "Configura tu Perfil Profesional",
@@ -1007,86 +1181,169 @@
   },
 
   "OnboardingLicense": {
+    "health_title": "Cédula profesional médica",
+    "beauty_title": "Licencia comercial u operativa",
+    "health_desc": "Registra tu título y cédula profesional para validar tu práctica clínica en QuHealthy.",
+    "beauty_desc": "Registra los permisos u avisos de funcionamiento de tu establecimiento.",
+    "health_info": "Verificación obligatoria para profesionales de la salud.",
+    "beauty_info": "Paso opcional.",
     "back": "Volver",
-    "optional_step": "Paso Opcional",
-    "health_title": "Cédula Profesional",
-    "beauty_title": "Licencia de Funcionamiento",
-    "health_desc": "Sube una foto clara de tu Cédula para habilitar tu perfil",
-    "beauty_desc": "Opcional: Sube tu licencia sanitaria o permiso de operación para generar mayor confianza",
-    "health_info": "Validamos tu cédula automáticamente contra el registro oficial para asegurar la calidad de los profesionales en QuHealthy.",
-    "beauty_info": "La licencia de funcionamiento es opcional pero ayuda a generar mayor confianza con tus clientes. Puedes completarla más tarde desde tu perfil.",
-    "health_button": "Validar Cédula",
-    "beauty_button": "Subir Licencia",
-    "health_success": "¡Cédula Verificada!",
-    "beauty_success": "¡Licencia Registrada!",
-    "file_label": "Archivo de Imagen *",
-    "click_upload": "Haz clic para subir imagen",
-    "file_hint": "JPG o PNG (Máx 10MB)",
-    "change_image": "Cambiar Imagen",
-    "skip": "Omitir por Ahora",
-    "analyzing": "Analizando con IA...",
-    "approved_desc": "Tu documentación ha sido verificada exitosamente",
-    "license_number": "Número de Licencia",
-    "specialty": "Especialidad",
-    "continue_onboarding": "Continuar con Onboarding",
-    "pending_title": "Documento en Revisión",
-    "pending_desc_health": "Estamos validando tu cédula manualmente. Te notificaremos cuando esté lista.",
-    "pending_desc_beauty": "Estamos validando tu licencia manualmente. Te notificaremos cuando esté lista.",
-    "back_onboarding": "Volver al Onboarding",
-    "rejected_title": "Verificación No Exitosa",
-    "rejected_desc": "El documento no es legible. Intenta con una foto más clara y sin reflejos.",
-    "security_footer": "Tus documentos están encriptados y protegidos",
-    "loading": "Cargando información..."
+    "optional_step": "Paso opcional",
+    "skip": "Omitir por ahora",
+    "skip_toast": "Paso omitido temporalmente.",
+    "loading": "Validando credenciales profesionales...",
+    "rejected_title": "Cédula o documento rechazado",
+    "rejected_desc": "Por favor verifica que la imagen sea legible y el número de cédula sea correcto.",
+    "change_image": "Cambiar archivo",
+    "save_continue": "Guardar y continuar",
+    "saving": "Procesando credenciales...",
+    "security_footer": "Validación oficial y consulta transparente en el Registro Nacional de Profesionistas.",
+    "ai_assistant": {
+      "title": "Asistente de auto-llenado (IA)",
+      "badge": "Extracción automática",
+      "upload_prompt": "Subir título / cédula",
+      "upload_hint": "PDF o Imagen • Máx 20MB",
+      "camera_prompt": "Tomar foto con cámara",
+      "camera_hint": "Captura en vivo",
+      "camera_modal_hint": "Alinea tu título o cédula dentro del marco"
+    },
+    "manual_section": {
+      "title": "Cédulas profesionales registradas",
+      "add_btn": "Agregar cédula",
+      "primary_badge": "Cédula principal",
+      "set_primary": "Establecer como principal",
+      "license_number_label": "Número de cédula",
+      "license_number_placeholder": "Ej. 1234567",
+      "degree_type_label": "Tipo de título / grado",
+      "degree_type_placeholder": "Ej. Licenciatura, Especialidad Médica",
+      "institution_label": "Institución emisora",
+      "institution_placeholder": "Ej. Universidad Nacional Autónoma de México"
+    },
+    "toasts": {
+      "camera_error": "No se pudo acceder a la cámara.",
+      "file_too_large": "El archivo excede los 20MB permitidos.",
+      "invalid_file_type": "Por favor selecciona un archivo de imagen o PDF válido.",
+      "validation_required": "Por favor completa todos los campos requeridos en tus cédulas.",
+      "primary_required": "Debes seleccionar al menos una cédula como principal.",
+      "save_success": "Cédulas registradas con éxito."
+    }
   },
+  
   "OnboardingFiscal": {
-    "back": "Volver"
-  },
-  "OnboardingKyc": {
-    "badge": "Paso 2 de 4",
-    "ai_badge": "Verificación con IA",
-    "title": "Verificación de Identidad",
-    "desc": "Nuestra IA validará tus documentos en segundos. Asegúrate de que las fotos sean claras y sin reflejos.",
-    "progress": "Progreso",
+    "title": "Configuración fiscal",
+    "subtitle": "Proporciona tus archivos fiscales oficiales emitidos por el SAT para habilitar la facturación automatizada de tus consultas y validar tu identidad tributaria.",
     "back": "Volver",
-    "id_title": "Identificación Oficial",
-    "id_desc": "Sube tu INE/IFE o Pasaporte vigente",
-    "ine_tab": "INE / IFE",
-    "passport_tab": "Pasaporte",
-    "ine_front": "Frente de INE",
-    "ine_front_desc": "Foto del lado frontal de tu credencial",
-    "ine_back": "Reverso de INE",
-    "ine_back_desc": "Foto del lado trasero de tu credencial",
-    "passport_label": "Página de Datos del Pasaporte",
-    "passport_desc": "Sube la página donde aparece tu foto y datos personales",
-    "selfie_title": "Prueba de Vida",
-    "selfie_desc": "Compararemos tu rostro con tu identificación",
-    "selfie_label": "Selfie en Vivo",
-    "selfie_hint": "Tómate una foto ahora mismo. Sin lentes, gorras ni accesorios.",
-    "upload_image": "Subir Imagen",
-    "file_hint": "PNG, JPG (Max 10MB)",
-    "camera": "Cámara",
-    "uploading": "Subiendo...",
-    "change_image": "Cambiar imagen",
+    "sync_loading": "Sincronizando sistema y expediente fiscal...",
+    "encrypted_env": "Entorno cifrado CSD",
+    "person_type": {
+      "physical": "Persona Física",
+      "moral": "Persona Moral"
+    },
+    "success": {
+      "badge": "Validación fiscal completa",
+      "title": "Expediente fiscal verificado",
+      "desc": "Tus documentos fiscales y certificados de sello digital (CSD) fueron aprobados con éxito.",
+      "complete_btn": "Completar configuración"
+    },
+    "extracted_data": {
+      "title": "Datos fiscales extraídos (SAT)",
+      "rfc": "RFC",
+      "business_name": "Razón social",
+      "tax_regime": "Régimen fiscal",
+      "tax_address": "Domicilio fiscal"
+    },
+    "csf": {
+      "title": "Constancia de Situación Fiscal (CSF)",
+      "desc": "Documento oficial emitido por el SAT en formato PDF o imagen.",
+      "status_approved": "Constancia de Situación Fiscal validada",
+      "status_rejected": "Documento rechazado",
+      "rejected_fallback": "No pudimos validar tu constancia. Por favor reintenta con un archivo legible.",
+      "upload_new": "Subir nueva constancia (PDF o imagen)",
+      "upload_prompt": "Haz clic para seleccionar tu Constancia de Situación Fiscal"
+    },
+    "acta": {
+      "title": "Acta Constitutiva",
+      "desc": "Documento notarial requerido exclusivamente para personas morales.",
+      "status_approved": "Acta Constitutiva validada",
+      "status_rejected": "Documento rechazado",
+      "rejected_fallback": "Por favor sube un documento notarial legible.",
+      "upload_new": "Subir nueva Acta Constitutiva (PDF)",
+      "upload_prompt": "Haz clic para seleccionar tu Acta Constitutiva"
+    },
+    "csd_cer": {
+      "title": "Certificado de Sello Digital (.cer)",
+      "desc": "Archivo público necesario para timbrar facturas electrónicas (CFDI).",
+      "status_approved": "Certificado CSD validado",
+      "status_rejected": "Archivo rechazado",
+      "rejected_fallback": "Asegúrate de subir el archivo .cer correspondiente a tu CSD.",
+      "serial_number": "No. Serie",
+      "valid_until": "Vigente hasta",
+      "upload_new": "Subir certificado .cer",
+      "upload_prompt": "Seleccionar archivo .cer"
+    },
+    "csd_key": {
+      "title": "Llave Privada (.key)",
+      "desc": "Archivo de clave privada para la generación cifrada de sellos fiscales.",
+      "status_approved": "Llave Privada validada y encriptada",
+      "status_rejected": "Archivo rechazado",
+      "rejected_fallback": "Por favor verifica que la llave privada corresponda al certificado CSD.",
+      "upload_new": "Subir Llave Privada .key",
+      "upload_prompt": "Seleccionar archivo .key"
+    },
+    "vault": {
+      "title": "Bóveda cifrada de alta seguridad",
+      "desc": "Tus llaves y certificados digitales se almacenan cifrados con algoritmos AES-256 en servidores protegidos. Solo se emplean para la generación automatizada de comprobantes fiscales (CFDI) a través del PAC autorizado."
+    },
+    "upload_zones": {
+      "processing": "Analizando y procesando documento...",
+      "formats_hint": "Soporta formatos PDF, PNG o JPEG (Máximo 10MB)",
+      "validating_csd": "Validando CSD...",
+      "csd_format_hint": "{accept} • Archivo CSD máx. 2MB"
+    }
+  },
+
+  "OnboardingKyc": {
+    "title": "Verificación de identidad",
+    "desc": "Sube una identificación oficial vigente y una selfie facial para verificar tu cuenta en cumplimiento con las normativas de seguridad médica.",
+    "back": "Volver",
+    "loading": "Cargando expediente de verificación...",
+    "progress": "Progreso de verificación",
     "approved": "Aprobado",
     "rejected": "Rechazado",
-    "verifying": "Verificando",
+    "verifying": "Verificando...",
     "pending": "Pendiente",
-    "rejection_reason": "Motivo del rechazo:",
-    "step_locked": "Paso bloqueado",
-    "step_locked_desc": "Completa y aprueba el paso 1 (Identificación Oficial) para desbloquear la prueba de vida.",
-    "camera_selfie_hint": "Centra tu rostro en el óvalo",
-    "camera_doc_hint": "Centra el documento en el marco",
-    "status_title": "Estado del Proceso",
-    "identification": "Identificación",
-    "proof_of_life": "Prueba de Vida",
-    "confirm_continue": "Confirmar y Continuar",
-    "complete_docs": "Completar documentos",
-    "complete_docs_hint": "Completa y aprueba todos los pasos requeridos para continuar con tu registro",
-    "data_protected_title": "Datos protegidos",
-    "data_protected_desc": "Tus documentos están encriptados y solo se usan para verificación. Nunca los compartimos con terceros.",
-    "loading": "Cargando verificación...",
-    "success_toast": "¡Identidad Verificada! Avanzando...",
-    "pending_toast": "Aún tienes documentos pendientes o rechazados."
+    "uploading": "Subiendo...",
+    "upload_image": "Subir archivo",
+    "change_image": "Cambiar imagen",
+    "camera": "Usar cámara",
+    "file_hint": "PNG, JPG • Máx 10 MB",
+    "camera_selfie_hint": "Centra tu rostro dentro del círculo",
+    "camera_doc_hint": "Alinea tu documento dentro del marco",
+    "id_title": "Documento de identificación",
+    "id_desc": "Elige tu tipo de documento oficial y sube fotografías legibles de ambas caras.",
+    "ine_tab": "Credencial INE / IFE",
+    "passport_tab": "Pasaporte",
+    "ine_front": "INE / IFE (Frente)",
+    "ine_front_desc": "Fotografía frontal clara de tu credencial oficial.",
+    "ine_back": "INE / IFE (Reverso)",
+    "ine_back_desc": "Reverso de la credencial con firmas y código de barras legibles.",
+    "passport_label": "Pasaporte vigente",
+    "passport_desc": "Página principal con tu fotografía y datos personales.",
+    "selfie_title": "Prueba de vida biométrica",
+    "selfie_desc": "Una selfie rápida para validar la coincidencia facial con tu documento de identidad.",
+    "selfie_label": "Fotografía facial (Selfie)",
+    "selfie_hint": "Procura estar en un espacio iluminado y mirar directamente a la cámara.",
+    "step_locked": "Paso pendiente",
+    "step_locked_desc": "Primero valida tu documento de identidad para habilitar la prueba biométrica.",
+    "status_title": "Estado de tu expediente",
+    "identification": "Identificación oficial",
+    "proof_of_life": "Prueba biométrica",
+    "confirm_continue": "Continuar al siguiente paso",
+    "complete_docs_hint": "Completa la validación de tus documentos requeridos para avanzar.",
+    "data_protected_title": "Privacidad y seguridad garantizadas",
+    "data_protected_desc": "Tus datos biométricos e identificaciones están protegidos mediante cifrado de extremo a extremo y solo se usan para validar tu identidad.",
+    "success_toast": "¡Identidad verificada con éxito!",
+    "pending_toast": "Por favor completa la carga de todos los documentos requeridos."
   },
   
   "PatientDashboard": {
@@ -2541,6 +2798,8 @@
     "loading_title": "Cargando tu espacio...",
     "loading_subtitle": "Preparando la información de tu consultorio en QuHealthy."
   },
+
+  
 
   "PurchaseOrders": {
     "title": "Órdenes de compra",

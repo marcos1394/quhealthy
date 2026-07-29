@@ -62,7 +62,7 @@ const initialState: State = {
   activeTab: "all",
   viewMode: "grid",
   selectedDoc: null,
-  selectedType: "",
+  selectedType: "general",
 };
 
 function reducer(state: State, action: Action): State {
@@ -191,7 +191,6 @@ export default function DocumentsManagerPage() {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
-      formData.append("type", selectedType);
       if (user?.id) {
         formData.append("userId", user.id.toString());
       }
@@ -202,7 +201,6 @@ export default function DocumentsManagerPage() {
 
       toast.success(t("upload.uploaded_success"));
       setSelectedFile(null);
-      setSelectedType("");
       await fetchDocuments();
     } catch (error: any) {
       console.error("Error al subir el documento:", error);
@@ -315,16 +313,13 @@ export default function DocumentsManagerPage() {
             <div className="flex-1 p-6 sm:p-8 bg-gray-50/50 dark:bg-[#050505]">
               <DocumentUpload
                 selectedFile={selectedFile}
-                selectedType={selectedType}
-                onTypeSelect={setSelectedType}
                 uploadProgress={uploadProgress}
                 isUploading={isUploading}
                 onFileSelect={setSelectedFile}
                 onFileUpload={handleFileUpload}
-                onClear={() => {
-                  setSelectedFile(null);
-                  setSelectedType("");
-                }}
+                onClear={() => setSelectedFile(null)}
+                selectedType={selectedType}
+                onTypeSelect={setSelectedType}
               />
             </div>
           </div>
