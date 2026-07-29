@@ -546,7 +546,7 @@ export default function BookingPage({
                       </div>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-[11px] font-bold shadow-sm">
                         <Clock className="w-3.5 h-3.5" strokeWidth={2} />
-                        <span>{t("duration_min", { duration })}</span>
+                        <span>{t("duration_min", { minutes: duration })}</span>
                       </span>
                     </div>
 

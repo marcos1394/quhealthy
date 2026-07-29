@@ -4053,6 +4053,7 @@
     "buy_for_later_desc": "Compra ahora y agenda tu cita más tarde",
     "step_date": "Seleccionar fecha",
     "step_date_desc": "Elige una fecha para tu cita",
+    "step_time": "Seleccionar hora",
     "weekdays": [
       "Lun",
       "Mar",

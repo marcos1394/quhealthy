@@ -4445,6 +4445,7 @@
     "buy_for_later_desc": "Purchase now and schedule your appointment later",
     "step_date": "Select date",
     "step_date_desc": "Choose a date for your appointment",
+    "step_time": "Select time",
     "weekdays": [
       "Mon",
       "Tue",
