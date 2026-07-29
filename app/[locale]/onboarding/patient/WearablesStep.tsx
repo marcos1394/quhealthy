@@ -7,8 +7,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  CheckCircle2,
-  AlertCircle,
   Watch,
   Apple,
   Smartphone,
@@ -17,11 +15,13 @@ import {
   ShieldCheck,
   Unlink,
 } from "lucide-react";
+import { toast } from "react-toastify";
+import { useTranslations } from "next-intl";
+
 import {
   wearableService,
   WearableConnection,
 } from "@/services/wearable.service";
-import { toast } from "react-toastify";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +78,8 @@ const FitbitIcon = () => (
 );
 
 export const WearablesStep = () => {
+  const t = useTranslations("OnboardingWearables");
+
   const [connections, setConnections] = useState<WearableConnection[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingAuth, setProcessingAuth] = useState(false);
@@ -85,38 +87,40 @@ export const WearablesStep = () => {
   const WEARABLES = [
     {
       id: "google_fit",
-      name: "Google Fit",
+      name: t("providers.google_fit.name"),
       icon: GoogleFitIcon,
-      desc: "Sincronización automatizada de pasos, sueño y ritmo cardíaco.",
-      iconBg: "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white",
+      desc: t("providers.google_fit.desc"),
+      iconBg:
+        "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white",
     },
     {
       id: "apple_health",
-      name: "Apple Health",
+      name: t("providers.apple_health.name"),
       icon: Apple,
-      desc: "Sincronización nativa de salud desde dispositivos iOS.",
-      iconBg: "bg-black text-white dark:bg-white dark:text-black border-transparent",
+      desc: t("providers.apple_health.desc"),
+      iconBg:
+        "bg-black text-white dark:bg-white dark:text-black border-transparent",
       mobileOnly: true,
     },
     {
       id: "garmin",
-      name: "Garmin Connect",
+      name: t("providers.garmin.name"),
       icon: GarminIcon,
-      desc: "Telemetría avanzada de rendimiento físico y recuperación.",
+      desc: t("providers.garmin.desc"),
       iconBg: "bg-gray-900 text-white dark:bg-gray-800 border-gray-800",
     },
     {
       id: "fitbit",
-      name: "Fitbit",
+      name: t("providers.fitbit.name"),
       icon: FitbitIcon,
-      desc: "Monitoreo continuo de actividad diaria, descanso y estrés.",
+      desc: t("providers.fitbit.desc"),
       iconBg: "bg-[#00B0B9] text-white border-transparent",
     },
     {
       id: "oura",
-      name: "Oura Ring",
+      name: t("providers.oura.name"),
       icon: OuraIcon,
-      desc: "Biometría nocturna, variabilidad cardíaca y preparación.",
+      desc: t("providers.oura.desc"),
       iconBg: "bg-gray-900 text-white dark:bg-gray-800 border-gray-800",
     },
   ];
@@ -139,9 +143,7 @@ export const WearablesStep = () => {
           expected: savedState,
           got: stateParam,
         });
-        toast.error(
-          "Error de seguridad: La sesión de validación no coincide (Posible CSRF)."
-        );
+        toast.error(t("toasts.csrf_error"));
         window.history.replaceState(
           {},
           document.title,
@@ -156,7 +158,7 @@ export const WearablesStep = () => {
       wearableService
         .handleCallback(provider, code)
         .then(() => {
-          toast.success(`Dispositivo conectado con éxito: ${provider}`);
+          toast.success(t("toasts.auth_success"));
           window.history.replaceState(
             {},
             document.title,
@@ -166,7 +168,7 @@ export const WearablesStep = () => {
         })
         .catch((err) => {
           console.error("Error oauth", err);
-          toast.error("Error al establecer conexión con el dispositivo.");
+          toast.error(t("toasts.auth_error"));
         })
         .finally(() => setProcessingAuth(false));
     } else {
@@ -192,20 +194,16 @@ export const WearablesStep = () => {
     );
   };
 
-  const handleConnect = (providerId: string) => {
+  const handleConnect = (providerId: string, providerName: string) => {
     if (providerId === "apple_health") {
-      toast.info(
-        "Apple Health requiere sincronización directa desde la aplicación móvil para iOS."
-      );
+      toast.info(t("toasts.apple_health_info"));
       return;
     }
 
     if (providerId === "google_fit") {
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       if (!clientId) {
-        toast.error(
-          "Falta configurar NEXT_PUBLIC_GOOGLE_CLIENT_ID en las variables de entorno."
-        );
+        toast.error(t("toasts.missing_client_id"));
         return;
       }
 
@@ -230,36 +228,34 @@ export const WearablesStep = () => {
       return;
     }
 
-    toast.info(
-      `La integración directa con ${providerId} estará habilitada próximamente.`
-    );
+    toast.info(t("toasts.upcoming_integration", { provider: providerName }));
   };
 
   const handleDisconnect = async (providerId: string) => {
     try {
       await wearableService.disconnectProvider(providerId);
-      toast.success("Enlace revocado exitosamente.");
+      toast.success(t("toasts.revoke_success"));
       loadConnections();
     } catch (error) {
-      toast.error("Error al revocar los permisos de sincronización.");
+      toast.error(t("toasts.revoke_error"));
     }
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
       {/* Header Sección */}
       <div className="space-y-1.5 pb-4 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
             <Watch className="w-3.5 h-3.5" strokeWidth={2} />
-            <span>Telemetría & IoT</span>
+            <span>{t("header_badge")}</span>
           </span>
         </div>
         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight pt-1">
-          Ecosistema Biométrico
+          {t("title")}
         </h3>
         <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
-          Vincula tus sensores y dispositivos portátiles para nutrir tu expediente clínico central con métricas en tiempo real.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -268,7 +264,7 @@ export const WearablesStep = () => {
         <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center justify-center gap-3">
           <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
           <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
-            Autenticando protocolo de conexión seguro...
+            {t("processing_auth")}
           </span>
         </div>
       )}
@@ -278,7 +274,7 @@ export const WearablesStep = () => {
         <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
           <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
           <p className="text-xs font-semibold text-gray-400 animate-pulse">
-            Consultando dispositivos vinculados...
+            {t("loading")}
           </p>
         </div>
       ) : (
@@ -311,14 +307,14 @@ export const WearablesStep = () => {
                     {connected && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40 shadow-sm">
                         <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
-                        <span>Enlazado</span>
+                        <span>{t("connected")}</span>
                       </span>
                     )}
 
                     {wearable.mobileOnly && !connected && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] font-bold">
                         <Smartphone className="w-3 h-3" strokeWidth={2} />
-                        <span>iOS Nativo</span>
+                        <span>{t("ios_native")}</span>
                       </span>
                     )}
                   </div>
@@ -341,20 +337,19 @@ export const WearablesStep = () => {
                       className="w-full h-10 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
                     >
                       <Unlink className="w-3.5 h-3.5" strokeWidth={2} />
-                      <span>Revocar Acceso</span>
+                      <span>{t("btn_disconnect")}</span>
                     </button>
                   ) : (
                     <button
                       type="button"
-                      onClick={() => handleConnect(wearable.id)}
+                      onClick={() => handleConnect(wearable.id, wearable.name)}
                       className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors text-xs font-bold flex items-center justify-center gap-2 shadow-sm"
                     >
                       <LinkIcon className="w-3.5 h-3.5" strokeWidth={2} />
-                      <span>Sincronizar Dispositivo</span>
+                      <span>{t("btn_connect")}</span>
                     </button>
                   )}
                 </div>
-
               </div>
             );
           })}
@@ -365,10 +360,10 @@ export const WearablesStep = () => {
       <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
         <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Cifrado Biométrico de Extremo a Extremo</span>
+          <span>{t("security_title")}</span>
         </p>
         <p className="text-xs font-medium text-gray-500 leading-relaxed">
-          La telemetría capturada por tus sensores se transmite de manera cifrada. QuHealthy interactúa exclusivamente con los nodos autorizados para nutrir el modelo algorítmico consentido en tu expediente clínico.
+          {t("security_desc")}
         </p>
       </div>
     </div>

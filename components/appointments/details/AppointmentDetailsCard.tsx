@@ -1,58 +1,77 @@
-import React from 'react';
-import { User, Stethoscope, FileText } from 'lucide-react';
+"use client";
+
+import React from "react";
+import { User, Stethoscope, FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function AppointmentDetailsCard({
- providerNameSnapshot,
- serviceNameSnapshot,
- serviceName,
- consumerSymptoms
+  providerNameSnapshot,
+  serviceNameSnapshot,
+  serviceName,
+  consumerSymptoms,
 }: {
- providerNameSnapshot?: string;
- serviceNameSnapshot?: string;
- serviceName?: string;
- consumerSymptoms?: string;
+  providerNameSnapshot?: string;
+  serviceNameSnapshot?: string;
+  serviceName?: string;
+  consumerSymptoms?: string;
 }) {
- return (
- <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
- <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
- <User className="w-4 h-4" strokeWidth={1.5} />
- Detalles Clínicos
- </h3>
- </div>
- <div className="p-8 space-y-8">
- <div className="flex flex-col sm:flex-row gap-6 items-start">
- <div className="w-16 h-16 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 overflow-hidden">
- <span className="text-xl font-bold uppercase">{(providerNameSnapshot || 'E').charAt(0)}</span>
- </div>
- <div className="flex flex-col justify-center h-16">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Especialista Asignado</p>
- <p className="text-xl font-semibold tracking-tight uppercase text-black dark:text-white">
- {providerNameSnapshot || 'Especialista General'}
- </p>
- </div>
- </div>
+  const t = useTranslations("AppointmentDetails.clinical");
 
- <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 flex items-center gap-2">
- <Stethoscope className="w-3.5 h-3.5" strokeWidth={1.5} /> Procedimiento a Realizar
- </p>
- <p className="text-lg font-semibold tracking-tight text-black dark:text-white uppercase">
- {serviceNameSnapshot || serviceName || 'Consulta Integral'}
- </p>
- </div>
+  const providerName = providerNameSnapshot || t("default_specialist");
+  const procedureName = serviceNameSnapshot || serviceName || t("default_procedure");
 
- {consumerSymptoms && (
- <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
- <FileText className="w-3.5 h-3.5" strokeWidth={1.5} /> Observaciones del Paciente
- </p>
- <div className="border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] p-5 text-xs font-light text-black dark:text-white leading-relaxed uppercase tracking-wide">
- "{consumerSymptoms}"
- </div>
- </div>
- )}
- </div>
- </div>
- );
+  return (
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden space-y-6 p-6 sm:p-8 font-sans">
+      {/* Header Card */}
+      <div className="pb-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+          <User className="w-5 h-5" strokeWidth={2} />
+        </div>
+        <h3 className="text-base font-bold text-gray-900 dark:text-white">
+          {t("title")}
+        </h3>
+      </div>
+
+      <div className="space-y-6">
+        {/* Especialista Asignado */}
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xl shrink-0 shadow-sm">
+            {providerName.charAt(0).toUpperCase()}
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              {t("specialist_assigned")}
+            </p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">
+              {providerName}
+            </p>
+          </div>
+        </div>
+
+        {/* Procedimiento a Realizar */}
+        <div className="pt-6 border-t border-gray-100 dark:border-gray-800 space-y-1.5">
+          <p className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+            <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <span>{t("procedure")}</span>
+          </p>
+          <p className="text-sm font-semibold text-gray-900 dark:text-white pl-6">
+            {procedureName}
+          </p>
+        </div>
+
+        {/* Observaciones del Paciente */}
+        {consumerSymptoms && (
+          <div className="pt-6 border-t border-gray-100 dark:border-gray-800 space-y-2">
+            <p className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <span>{t("patient_notes")}</span>
+            </p>
+            <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 leading-relaxed italic">
+              "{consumerSymptoms}"
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

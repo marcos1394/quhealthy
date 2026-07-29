@@ -3,12 +3,11 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
 
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
-  CheckCircle2,
-  ChevronRight,
   Activity,
   HeartPulse,
   BrainCircuit,
@@ -19,12 +18,9 @@ import {
   Watch,
   ArrowRight,
   Check,
-  Sparkles,
   Shield,
-  RotateCcw,
 } from "lucide-react";
-import { toast } from "react-toastify";
-import { consumerProfileService } from "@/services/consumerProfile.service";
+
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
 import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
 import { CreatableSelect } from "@/components/ui/creatable-select";
@@ -33,19 +29,21 @@ import { DependentsStep } from "./DependentsStep";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
 
-const STEPS = [
-  { id: "consent", title: "Privacidad y Consentimiento", icon: ShieldAlert },
-  { id: "identity", title: "Datos Demográficos y NOM-024", icon: UserPlus },
-  { id: "vitals", title: "Antropometría y Signos Vitales", icon: Activity },
-  { id: "lifestyle", title: "Estilo de Vida y Hábitos", icon: Apple },
-  { id: "clinical", title: "Historial Clínico (CIE-10)", icon: HeartPulse },
-  { id: "goals", title: "Objetivos de Salud", icon: Target },
-  { id: "wearables", title: "Dispositivos Médicos", icon: Watch },
-  { id: "dependents", title: "Familia y Dependientes", icon: UserPlus },
-];
-
 export default function ConsumerOnboardingWizard() {
   const router = useRouter();
+  const t = useTranslations("OnboardingConsumer");
+
+  const STEPS = [
+    { id: "consent", title: t("steps.consent.title"), icon: ShieldAlert },
+    { id: "identity", title: t("steps.identity.title"), icon: UserPlus },
+    { id: "vitals", title: t("steps.vitals.title"), icon: Activity },
+    { id: "lifestyle", title: t("steps.lifestyle.title"), icon: Apple },
+    { id: "clinical", title: t("steps.clinical.title"), icon: HeartPulse },
+    { id: "goals", title: t("steps.goals.title"), icon: Target },
+    { id: "wearables", title: t("steps.wearables.title"), icon: Watch },
+    { id: "dependents", title: t("steps.dependents.title"), icon: UserPlus },
+  ];
+
   const {
     currentStep,
     data,
@@ -63,7 +61,7 @@ export default function ConsumerOnboardingWizard() {
       <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center gap-3 transition-colors duration-500 font-sans">
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
         <p className="text-xs font-semibold text-gray-400 animate-pulse">
-          Sintetizando expediente clínico base...
+          {t("loading_initial")}
         </p>
       </div>
     );
@@ -72,17 +70,17 @@ export default function ConsumerOnboardingWizard() {
   // ── RENDERIZADO CONTENIDO DE CADA PASO ────────────────────────────────────
   const renderStepContent = () => {
     switch (currentStep) {
-      // ── PASO 0: CONSENTIMIENTO E IA ───────────────────────────────────────
+      // ── PASO 0: PRIVACIDAD Y RECOMENDACIONES ────────────────────────────────
       case 0:
         return (
           <div className="space-y-6">
             <div className="p-6 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 space-y-2">
               <div className="flex items-center gap-2.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
                 <BrainCircuit className="w-5 h-5 shrink-0" strokeWidth={2} />
-                <span>Motor de Recomendaciones y Prevención por IA</span>
+                <span>{t("steps.consent.ai_banner_title")}</span>
               </div>
               <p className="text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed">
-                Para ofrecerte análisis preventivos e hiper-personalizados (metabolismo, hábitos, interacción farmacológica), QuHealthy emplea modelos avanzados de inteligencia artificial. Tus datos biométricos y clínicos son procesados con encriptación estricta y anonimizados bajo el cumplimiento de la LFPDPPP y la NOM-024-SSA3.
+                {t("steps.consent.ai_banner_desc")}
               </p>
             </div>
 
@@ -119,30 +117,30 @@ export default function ConsumerOnboardingWizard() {
 
               <div className="space-y-0.5">
                 <p className="text-xs font-bold text-gray-900 dark:text-white">
-                  Acepto la Asistencia y Análisis Algorítmico
+                  {t("steps.consent.checkbox_label")}
                 </p>
                 <p className="text-[11px] font-medium text-gray-500">
-                  Consiento el tratamiento seguro de mis datos de salud para fines de medicina preventiva y seguimiento clínico.
+                  {t("steps.consent.checkbox_desc")}
                 </p>
               </div>
             </label>
           </div>
         );
 
-      // ── PASO 1: DEMOGRÁFICOS Y NOM-024 ────────────────────────────────────
+      // ── PASO 1: DATOS BÁSICOS E IDENTIFICACIÓN ───────────────────────────
       case 1:
         return (
           <div className="space-y-6">
             {/* Sexo Biológico */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                Sexo Biológico (Relevancia Clínica)*
+                {t("steps.identity.biological_sex_label")}
               </label>
               <div className="grid grid-cols-3 gap-2.5">
                 {[
-                  { id: "MALE", label: "Masculino" },
-                  { id: "FEMALE", label: "Femenino" },
-                  { id: "OTHER", label: "Otro / Intersex" },
+                  { id: "MALE", label: t("steps.identity.sexes.male") },
+                  { id: "FEMALE", label: t("steps.identity.sexes.female") },
+                  { id: "OTHER", label: t("steps.identity.sexes.other") },
                 ].map((option) => (
                   <button
                     key={option.id}
@@ -164,7 +162,7 @@ export default function ConsumerOnboardingWizard() {
             {/* Tipo de Sangre */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                Grupo Sanguíneo y Factor Rh
+                {t("steps.identity.blood_type_label")}
               </label>
               <div className="grid grid-cols-4 gap-2">
                 {[
@@ -176,7 +174,7 @@ export default function ConsumerOnboardingWizard() {
                   { id: "B-", label: "B-" },
                   { id: "AB+", label: "AB+" },
                   { id: "AB-", label: "AB-" },
-                  { id: "", label: "Desconozco" },
+                  { id: "", label: t("steps.identity.blood_type_unknown") },
                 ].map((option) => (
                   <button
                     key={option.id || "unknown"}
@@ -196,26 +194,26 @@ export default function ConsumerOnboardingWizard() {
               </div>
             </div>
 
-            {/* SECCIÓN NOM-024 */}
+            {/* SECCIÓN IDENTIFICACIÓN ADICIONAL */}
             <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
               <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
                 <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                   <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Requerimientos de Identidad Clínica (NOM-024)</span>
+                  <span>{t("steps.identity.nom024_title")}</span>
                 </p>
                 <p className="text-[11px] font-medium text-gray-500">
-                  Información oficial necesaria para la interoperabilidad del expediente clínico electrónico.
+                  {t("steps.identity.nom024_desc")}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    CURP
+                    {t("steps.identity.curp_label")}
                   </label>
                   <input
                     type="text"
-                    placeholder="Clave de 18 caracteres"
+                    placeholder={t("steps.identity.curp_placeholder")}
                     className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-bold font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 uppercase transition-all"
                     value={data.curp || ""}
                     onChange={(e) => updateData({ curp: e.target.value.toUpperCase() })}
@@ -225,30 +223,30 @@ export default function ConsumerOnboardingWizard() {
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    Derechohabiencia
+                    {t("steps.identity.insurance_label")}
                   </label>
                   <CreatableSelect
                     options={[
-                      { label: "IMSS", value: "IMSS" },
-                      { label: "ISSSTE", value: "ISSSTE" },
-                      { label: "IMSS-Bienestar / SSA", value: "INSABI" },
-                      { label: "PEMEX / SEDENA / SEMAR", value: "PEMEX" },
-                      { label: "Seguro Médico Privado", value: "SEGURO_PRIVADO" },
-                      { label: "Ninguna", value: "NINGUNA" },
+                      { label: t("steps.identity.insurance_options.imss"), value: "IMSS" },
+                      { label: t("steps.identity.insurance_options.issste"), value: "ISSSTE" },
+                      { label: t("steps.identity.insurance_options.insabi"), value: "INSABI" },
+                      { label: t("steps.identity.insurance_options.pemex"), value: "PEMEX" },
+                      { label: t("steps.identity.insurance_options.private"), value: "SEGURO_PRIVADO" },
+                      { label: t("steps.identity.insurance_options.none"), value: "NINGUNA" },
                     ]}
                     value={data.healthInsurance || ""}
                     onChange={(val) => updateData({ healthInsurance: val })}
-                    placeholder="Seleccionar o escribir institución"
+                    placeholder={t("steps.identity.insurance_placeholder")}
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  Domicilio Completo
+                  {t("steps.identity.address_label")}
                 </label>
                 <textarea
-                  placeholder="Calle, número, colonia, código postal, municipio, estado"
+                  placeholder={t("steps.identity.address_placeholder")}
                   className="w-full min-h-[72px] rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 p-3.5 transition-all resize-none"
                   value={data.address || ""}
                   onChange={(e) => updateData({ address: e.target.value })}
@@ -257,7 +255,7 @@ export default function ConsumerOnboardingWizard() {
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  Pertenencia a Grupo Étnico / Lengua Indígena
+                  {t("steps.identity.ethnic_label")}
                 </label>
                 <CreatableSelect
                   options={[
@@ -273,24 +271,24 @@ export default function ConsumerOnboardingWizard() {
                   ]}
                   value={data.ethnicGroup || ""}
                   onChange={(val) => updateData({ ethnicGroup: val })}
-                  placeholder="Seleccionar o ingresar grupo"
+                  placeholder={t("steps.identity.ethnic_placeholder")}
                 />
               </div>
 
               {/* Contacto de Emergencia */}
               <div className="pt-2 space-y-3">
                 <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                  Contacto de Emergencia
+                  {t("steps.identity.emergency_title")}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400">
-                      Nombre Completo
+                      {t("steps.identity.emergency_name_label")}
                     </label>
                     <input
                       type="text"
-                      placeholder="Ej. Dra. María Pérez"
+                      placeholder={t("steps.identity.emergency_name_placeholder")}
                       className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={data.emergencyContactName || ""}
                       onChange={(e) => updateData({ emergencyContactName: e.target.value })}
@@ -299,11 +297,11 @@ export default function ConsumerOnboardingWizard() {
 
                   <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400">
-                      Teléfono
+                      {t("steps.identity.emergency_phone_label")}
                     </label>
                     <input
                       type="tel"
-                      placeholder="Ej. 55 1234 5678"
+                      placeholder={t("steps.identity.emergency_phone_placeholder")}
                       className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={data.emergencyContactPhone || ""}
                       onChange={(e) => updateData({ emergencyContactPhone: e.target.value })}
@@ -316,24 +314,24 @@ export default function ConsumerOnboardingWizard() {
           </div>
         );
 
-      // ── PASO 2: VITALES Y ANTROPOMETRÍA ──────────────────────────────────
+      // ── PASO 2: MEDIDAS Y SIGNOS VITALES ─────────────────────────────────
       case 2:
         return (
           <div className="space-y-6">
             <div className="space-y-3">
               <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                Medidas Corporales Básicas
+                {t("steps.vitals.body_measurements_title")}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    Peso Actual (kg)
+                    {t("steps.vitals.weight_label")}
                   </label>
                   <input
                     type="number"
                     step="0.1"
-                    placeholder="Ej. 72.5"
+                    placeholder={t("steps.vitals.weight_placeholder")}
                     className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                     value={data.weightKg}
                     onChange={(e) =>
@@ -346,11 +344,11 @@ export default function ConsumerOnboardingWizard() {
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    Estatura / Talla (cm)
+                    {t("steps.vitals.height_label")}
                   </label>
                   <input
                     type="number"
-                    placeholder="Ej. 175"
+                    placeholder={t("steps.vitals.height_placeholder")}
                     className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                     value={data.heightCm}
                     onChange={(e) =>
@@ -372,10 +370,10 @@ export default function ConsumerOnboardingWizard() {
               >
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-100 block">
-                    Índice de Masa Corporal (IMC Calculado)
+                    {t("steps.vitals.bmi_title")}
                   </span>
                   <span className="text-xs font-medium text-emerald-50">
-                    Estimación metabólica inicial
+                    {t("steps.vitals.bmi_desc")}
                   </span>
                 </div>
                 <span className="text-3xl font-bold font-mono tracking-tight">
@@ -390,17 +388,17 @@ export default function ConsumerOnboardingWizard() {
             {/* Promedio de Signos Vitales */}
             <div className="space-y-3 pt-2">
               <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                Signos Vitales Promedio
+                {t("steps.vitals.vitals_title")}
               </h3>
 
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    Ritmo Cardíaco en Reposo (bpm)
+                    {t("steps.vitals.hr_label")}
                   </label>
                   <input
                     type="number"
-                    placeholder="Ej. 68"
+                    placeholder={t("steps.vitals.hr_placeholder")}
                     className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                     value={data.restingHeartRate}
                     onChange={(e) =>
@@ -416,11 +414,11 @@ export default function ConsumerOnboardingWizard() {
                 <div className="flex items-center gap-3">
                   <div className="flex-1 space-y-1.5">
                     <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                      Presión Sistólica (Alta)
+                      {t("steps.vitals.bp_systolic_label")}
                     </label>
                     <input
                       type="number"
-                      placeholder="Ej. 120"
+                      placeholder={t("steps.vitals.bp_systolic_placeholder")}
                       className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={data.averageBloodPressureSystolic}
                       onChange={(e) =>
@@ -437,11 +435,11 @@ export default function ConsumerOnboardingWizard() {
 
                   <div className="flex-1 space-y-1.5">
                     <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                      Presión Diastólica (Baja)
+                      {t("steps.vitals.bp_diastolic_label")}
                     </label>
                     <input
                       type="number"
-                      placeholder="Ej. 80"
+                      placeholder={t("steps.vitals.bp_diastolic_placeholder")}
                       className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                       value={data.averageBloodPressureDiastolic}
                       onChange={(e) =>
@@ -459,23 +457,23 @@ export default function ConsumerOnboardingWizard() {
           </div>
         );
 
-      // ── PASO 3: ESTILO DE VIDA ───────────────────────────────────────────
+      // ── PASO 3: ESTILO DE VIDA Y HÁBITOS ─────────────────────────────────
       case 3:
         return (
           <div className="space-y-6">
             {/* Dieta */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                Preferencia de Alimentación / Dieta Predominante
+                {t("steps.lifestyle.diet_label")}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {[
-                  { id: "", label: "Sin Dieta Específica" },
-                  { id: "MEDITERRANEAN", label: "Mediterránea" },
-                  { id: "VEGAN", label: "Vegana" },
-                  { id: "VEGETARIAN", label: "Vegetariana" },
-                  { id: "KETO", label: "Cetogénica (Keto)" },
-                  { id: "PALEO", label: "Paleo" },
+                  { id: "", label: t("steps.lifestyle.diet_options.none") },
+                  { id: "MEDITERRANEAN", label: t("steps.lifestyle.diet_options.mediterranean") },
+                  { id: "VEGAN", label: t("steps.lifestyle.diet_options.vegan") },
+                  { id: "VEGETARIAN", label: t("steps.lifestyle.diet_options.vegetarian") },
+                  { id: "KETO", label: t("steps.lifestyle.diet_options.keto") },
+                  { id: "PALEO", label: t("steps.lifestyle.diet_options.paleo") },
                 ].map((option) => (
                   <button
                     key={option.id || "none"}
@@ -498,11 +496,11 @@ export default function ConsumerOnboardingWizard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  Días de Ejercicio por Semana
+                  {t("steps.lifestyle.exercise_days_label")}
                 </label>
                 <input
                   type="number"
-                  placeholder="Ej. 3"
+                  placeholder={t("steps.lifestyle.exercise_days_placeholder")}
                   className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                   value={data.exerciseDaysPerWeek}
                   onChange={(e) =>
@@ -517,11 +515,11 @@ export default function ConsumerOnboardingWizard() {
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  Minutos por Sesión
+                  {t("steps.lifestyle.exercise_mins_label")}
                 </label>
                 <input
                   type="number"
-                  placeholder="Ej. 45"
+                  placeholder={t("steps.lifestyle.exercise_mins_placeholder")}
                   className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                   value={data.exerciseMinutesPerDay}
                   onChange={(e) =>
@@ -539,12 +537,12 @@ export default function ConsumerOnboardingWizard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  Horas Promedio de Sueño
+                  {t("steps.lifestyle.sleep_hours_label")}
                 </label>
                 <input
                   type="number"
                   step="0.5"
-                  placeholder="Ej. 7.5"
+                  placeholder={t("steps.lifestyle.sleep_hours_placeholder")}
                   className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                   value={data.sleepHoursAvg}
                   onChange={(e) =>
@@ -560,10 +558,10 @@ export default function ConsumerOnboardingWizard() {
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    Nivel de Estrés Perpercibido
+                    {t("steps.lifestyle.stress_label")}
                   </label>
                   <span className="text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                    Nivel {data.stressLevel}/10
+                    {t("steps.lifestyle.stress_value", { value: data.stressLevel })}
                   </span>
                 </div>
                 <input
@@ -578,8 +576,8 @@ export default function ConsumerOnboardingWizard() {
                   }
                 />
                 <div className="flex justify-between text-[10px] font-semibold text-gray-400 pt-0.5">
-                  <span>Bajo (1)</span>
-                  <span>Alto (10)</span>
+                  <span>{t("steps.lifestyle.stress_low")}</span>
+                  <span>{t("steps.lifestyle.stress_high")}</span>
                 </div>
               </div>
             </div>
@@ -612,29 +610,29 @@ export default function ConsumerOnboardingWizard() {
                 </div>
               </div>
               <span className="text-xs font-bold text-gray-900 dark:text-white">
-                Fumador(a) regular o consumo de tabaco / vapeo
+                {t("steps.lifestyle.smoker_label")}
               </span>
             </label>
           </div>
         );
 
-      // ── PASO 4: HISTORIAL CLÍNICO (CIE-10) ───────────────────────────────
+      // ── PASO 4: ANTECEDENTES MÉDICOS ──────────────────────────────────────
       case 4:
         return (
           <div className="space-y-6">
             <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
               <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                 <HeartPulse className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>Catálogo Internacional CIE-10 / OMS</span>
+                <span>{t("steps.clinical.icd10_title")}</span>
               </p>
               <p className="text-[11px] font-medium text-gray-500">
-                Selecciona padecimientos o diagnósticos estandarizados para integrarlos a tu expediente médico.
+                {t("steps.clinical.icd10_desc")}
               </p>
             </div>
 
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                Enfermedades Crónicas / Diagnósticos Previos
+                {t("steps.clinical.chronic_conditions_label")}
               </label>
               <Icd10Autocomplete
                 selectedConditions={data.medicalConditions}
@@ -646,10 +644,10 @@ export default function ConsumerOnboardingWizard() {
 
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                Alergias Conocidas (Medicamentos o Alimentos)
+                {t("steps.clinical.allergies_label")}
               </label>
               <textarea
-                placeholder="Ej. Penicilina, Mariscos, AINEs..."
+                placeholder={t("steps.clinical.allergies_placeholder")}
                 className="w-full rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-3.5 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none min-h-[90px]"
                 onChange={(e) =>
                   updateData({ allergies: [{ name: e.target.value }] })
@@ -659,27 +657,29 @@ export default function ConsumerOnboardingWizard() {
           </div>
         );
 
-      // ── PASO 5: OBJETIVOS ────────────────────────────────────────────────
+      // ── PASO 5: METAS DE SALUD ───────────────────────────────────────────
       case 5:
+        const GOAL_OPTIONS = [
+          { id: "Pérdida de Peso y Control Metabolico", label: t("steps.goals.options.weight") },
+          { id: "Optimización de Longevidad y Salud Cardiovascular", label: t("steps.goals.options.longevity") },
+          { id: "Manejo de Estrés, Ansiedad y Salud Mental", label: t("steps.goals.options.stress") },
+          { id: "Mejora de la Calidad del Sueño y Descanso", label: t("steps.goals.options.sleep") },
+          { id: "Aumento de Masa Muscular y Rendimiento Deportivo", label: t("steps.goals.options.muscle") },
+          { id: "Control de Padecimientos Crónicos", label: t("steps.goals.options.chronic") },
+        ];
+
         return (
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-              ¿Cuáles son tus prioridades y objetivos de salud?
+              {t("steps.goals.heading")}
             </h3>
 
             <div className="grid grid-cols-1 gap-2.5">
-              {[
-                "Pérdida de Peso y Control Metabolico",
-                "Optimización de Longevidad y Salud Cardiovascular",
-                "Manejo de Estrés, Ansiedad y Salud Mental",
-                "Mejora de la Calidad del Sueño y Descanso",
-                "Aumento de Masa Muscular y Rendimiento Deportivo",
-                "Control de Padecimientos Crónicos",
-              ].map((goal) => {
-                const isSelected = data.healthGoals.includes(goal);
+              {GOAL_OPTIONS.map((goalObj) => {
+                const isSelected = data.healthGoals.includes(goalObj.id);
                 return (
                   <label
-                    key={goal}
+                    key={goalObj.id}
                     className={cn(
                       "flex items-center gap-3.5 p-4 rounded-2xl border transition-all cursor-pointer group shadow-sm",
                       isSelected
@@ -694,8 +694,8 @@ export default function ConsumerOnboardingWizard() {
                         checked={isSelected}
                         onChange={(e) => {
                           const newGoals = e.target.checked
-                            ? [...data.healthGoals, goal]
-                            : data.healthGoals.filter((g) => g !== goal);
+                            ? [...data.healthGoals, goalObj.id]
+                            : data.healthGoals.filter((g) => g !== goalObj.id);
                           updateData({ healthGoals: newGoals });
                         }}
                       />
@@ -711,7 +711,7 @@ export default function ConsumerOnboardingWizard() {
                       </div>
                     </div>
                     <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {goal}
+                      {goalObj.label}
                     </span>
                   </label>
                 );
@@ -743,19 +743,23 @@ export default function ConsumerOnboardingWizard() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-20">
-      
-      {/* ── HEADER DE PROGRESO FLOTANTE (GLASSMORPHISM) ────────────────────── */}
+      {/* ── HEADER DE PROGRESO FLOTANTE ────────────────────────────────────── */}
       <header className="bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 p-5 sm:p-6 sticky top-0 z-50 transition-all">
         <div className="max-w-3xl mx-auto space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
-              <span>QuHealthy</span>
+              <span>{t("header_brand")}</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">•</span>
-              <span className="text-xs font-semibold text-gray-400">Expediente Consumidor</span>
+              <span className="text-xs font-semibold text-gray-400">{t("header_sub")}</span>
             </span>
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
-              <span>Paso {currentStep + 1} de {STEPS.length}</span>
+              <span>
+                {t("step_progress", {
+                  current: currentStep + 1,
+                  total: STEPS.length,
+                })}
+              </span>
             </span>
           </div>
 
@@ -795,7 +799,10 @@ export default function ConsumerOnboardingWizard() {
                   {STEPS[currentStep].title}
                 </h2>
                 <p className="text-xs font-semibold text-gray-400 pt-0.5">
-                  Sección {currentStep + 1} de {STEPS.length}
+                  {t("step_section", {
+                    current: currentStep + 1,
+                    total: STEPS.length,
+                  })}
                 </p>
               </div>
             </div>
@@ -813,7 +820,7 @@ export default function ConsumerOnboardingWizard() {
                     disabled={loading}
                     className="flex-1 sm:flex-none h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
-                    Retroceder
+                    {t("btn_back")}
                   </button>
                 )}
 
@@ -823,7 +830,7 @@ export default function ConsumerOnboardingWizard() {
                   disabled={loading}
                   className="flex-1 sm:flex-none h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  Omitir
+                  {t("btn_skip")}
                 </button>
               </div>
 
@@ -841,25 +848,23 @@ export default function ConsumerOnboardingWizard() {
                 {loading ? (
                   <>
                     <QhSpinner size="sm" className="text-white" />
-                    <span>Sincronizando...</span>
+                    <span>{t("btn_saving")}</span>
                   </>
                 ) : (
                   <>
                     <span>
                       {currentStep === STEPS.length - 1
-                        ? "Completar Registro"
-                        : "Guardar y Continuar"}
+                        ? t("btn_finish")
+                        : t("btn_next")}
                     </span>
                     <ArrowRight className="w-4 h-4" strokeWidth={2} />
                   </>
                 )}
               </button>
             </div>
-
           </motion.div>
         </AnimatePresence>
       </div>
-
     </div>
   );
 }

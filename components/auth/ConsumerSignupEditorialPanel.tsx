@@ -1,57 +1,63 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { Check, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function ConsumerSignupEditorialPanel() {
- const t = useTranslations('AuthSignupConsumer');
- const benefits = [t('benefits.0'), t('benefits.1'), t('benefits.2')];
+  const t = useTranslations("AuthSignupConsumer");
+  const benefits = [t("benefits.0"), t("benefits.1"), t("benefits.2")];
 
- return (
- <div className="hidden lg:flex lg:w-1/2 relative bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
- <Image 
- height={800} 
- width={800}
- src="/suite_patient_app.png"
- alt="QuHealthy Patient Sign Up"
- className="absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply dark:mix-blend-normal"
- priority
- />
- <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 dark:from-black/90 dark:via-black/50 dark:to-transparent" />
+  return (
+    <div className="hidden lg:flex lg:w-1/2 relative bg-gray-950 border-r border-gray-800 flex-col overflow-hidden font-sans select-none">
+      <Image
+        height={800}
+        width={800}
+        src="/suite_patient_app.png"
+        alt="QuHealthy Patient Sign Up"
+        className="absolute inset-0 w-full h-full object-cover object-center opacity-85"
+        priority
+      />
 
- <div className="relative z-10 p-16 mt-auto">
- <h2 className="text-4xl md:text-5xl font-medium text-white mb-6 tracking-tight">
- {t('area_title')}
- </h2>
+      {/* Soft Health Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
 
- <div className="space-y-4 mb-8">
- {benefits.map((benefit, index) => (
- <div
- key={index}
- className="flex items-center gap-3 text-gray-200 font-light text-lg"
- >
- <div className="p-1.5 rounded-full border border-white/30">
- <Check className="w-4 h-4 text-white" strokeWidth={2} />
- </div>
- <span>{benefit}</span>
- </div>
- ))}
- </div>
+      <div className="relative z-10 p-12 xl:p-16 mt-auto space-y-8">
+        <h2 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-[1.2]">
+          {t("area_title")}
+        </h2>
 
- <div className="border-t border-white/20 pt-8 w-full max-w-md">
- <div className="flex items-start gap-5">
- <Shield className="w-6 h-6 text-white mt-0.5 opacity-80" strokeWidth={1.5} />
- <div>
- <p className="text-white text-[10px] font-bold uppercase tracking-widest mb-2">
- {t('secure_connection')}
- </p>
- <p className="text-gray-300 text-sm font-light leading-relaxed">
- {t('secure_desc')}
- </p>
- </div>
- </div>
- </div>
- </div>
- </div>
- );
+        <div className="space-y-3.5">
+          {benefits.map((benefit, index) => (
+            <div
+              key={index}
+              className="flex items-start gap-3 text-gray-200 font-medium text-xs sm:text-sm leading-relaxed"
+            >
+              <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
+                <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </div>
+              <span>{benefit}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-white/10 pt-6 max-w-md">
+          <div className="flex items-start gap-4">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400 shadow-xs">
+              <Shield className="w-5 h-5" strokeWidth={2} />
+            </div>
+            <div className="space-y-1">
+              <p className="text-white text-[10px] font-bold uppercase tracking-wider">
+                {t("secure_connection")}
+              </p>
+              <p className="text-gray-300 text-xs font-medium leading-relaxed">
+                {t("secure_desc")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

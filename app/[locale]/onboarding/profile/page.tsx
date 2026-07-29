@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Star,
   User,
-  Info,
   Zap,
   ChevronRight,
   Shield,
@@ -28,12 +27,12 @@ import {
   Stethoscope,
   Scissors,
 } from "lucide-react";
-import { QhSpinner } from "@/components/ui/QhSpinner";
 import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 import LocationPicker from "@/components/shared/location/LocationPicker";
 import CategorySelector from "@/components/shared/CategorySelector";
@@ -190,7 +189,7 @@ export default function OnboardingProfilePage() {
       selectedPlaceInfo: null,
       isPlaceSelected: false,
       activeStep: 1,
-    },
+    }
   );
 
   const setFormData = (val: any) =>
@@ -221,8 +220,8 @@ export default function OnboardingProfilePage() {
           initialData.sector?.toUpperCase() === "HEALTH"
             ? 1
             : initialData.sector?.toUpperCase() === "BEAUTY"
-              ? 2
-              : 0,
+            ? 2
+            : 0,
         bio: initialData.bio || "",
         timeZone:
           initialData.timeZone ||
@@ -267,24 +266,24 @@ export default function OnboardingProfilePage() {
   const steps = [
     {
       id: 1,
-      title: t("step1_title", { defaultValue: "Identidad del Negocio" }),
-      description: t("step1_desc", { defaultValue: "Datos básicos y sector" }),
+      title: t("step1_title"),
+      description: t("step1_desc"),
       icon: Building2,
       completed: completedSteps.has(1),
       valid: isStep1Valid,
     },
     {
       id: 2,
-      title: t("step2_title", { defaultValue: "Especialidad y Categorías" }),
-      description: t("step2_desc", { defaultValue: "Servicios y etiquetas" }),
+      title: t("step2_title"),
+      description: t("step2_desc"),
       icon: Star,
       completed: completedSteps.has(2),
       valid: isStep2Valid,
     },
     {
       id: 3,
-      title: t("step3_title", { defaultValue: "Ubicación Geográfica" }),
-      description: t("step3_desc", { defaultValue: "Consultorio o clínica" }),
+      title: t("step3_title"),
+      description: t("step3_desc"),
       icon: MapPin,
       completed: completedSteps.has(3),
       valid: isStep3Valid,
@@ -362,7 +361,7 @@ export default function OnboardingProfilePage() {
         rating: details.rating || 0,
         userRatingsTotal: details.userRatingsTotal || 0,
       });
-      toast.success("🏪 " + t("imported_ok", { defaultValue: "Datos importados de Google" }));
+      toast.success("🏪 " + t("imported_ok"));
     } catch (e) {
       console.error("Details error:", e);
       handleApiError(e);
@@ -372,7 +371,6 @@ export default function OnboardingProfilePage() {
   const selectManualPlace = () => {
     setIsPlaceSelected(true);
     setPredictions([]);
-    toast.success("✅ Registro manual de establecimiento seleccionado");
   };
 
   const handleFinish = async () => {
@@ -384,7 +382,6 @@ export default function OnboardingProfilePage() {
     }
     const success = await saveProfile(formData);
     if (success) {
-      toast.success("✅ Perfil guardado correctamente");
       router.push("/onboarding");
     }
   };
@@ -395,7 +392,7 @@ export default function OnboardingProfilePage() {
       <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center gap-3 transition-colors font-sans">
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
         <p className="text-xs font-semibold text-gray-400 animate-pulse">
-          {t("loading", { defaultValue: "Cargando datos de perfil..." })}
+          {t("loading")}
         </p>
       </div>
     );
@@ -416,7 +413,7 @@ export default function OnboardingProfilePage() {
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                  {t("error_title", { defaultValue: "Error de Carga" })}
+                  {t("error_title")}
                 </h3>
                 <p className="text-xs font-medium text-gray-500 leading-relaxed">
                   {pageError}
@@ -429,7 +426,7 @@ export default function OnboardingProfilePage() {
               onClick={() => refetch()}
               className="w-full h-11 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
             >
-              <span>{t("retry", { defaultValue: "Reintentar Carga" })}</span>
+              <span>{t("retry")}</span>
             </button>
           </div>
         </motion.div>
@@ -440,7 +437,6 @@ export default function OnboardingProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] pt-28 pb-20 px-6 md:px-12 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
       <div className="max-w-4xl mx-auto space-y-8">
-        
         {/* Editorial Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -450,15 +446,15 @@ export default function OnboardingProfilePage() {
         >
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
             <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
-            <span>{t("badge", { defaultValue: "Configuración de Perfil Profesional" })}</span>
+            <span>{t("badge")}</span>
           </div>
 
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.15]">
-            {t("title", { defaultValue: "Información de tu Consultorio o Negocio" })}
+            {t("title")}
           </h1>
 
           <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
-            {t("desc", { defaultValue: "Configura la presencia de tu establecimiento o práctica clínica para figurar en el directorio médico y habilitar la agenda digital." })}
+            {t("desc")}
           </p>
         </motion.div>
 
@@ -469,16 +465,15 @@ export default function OnboardingProfilePage() {
           transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
         >
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
-            
             {/* Header / Progreso */}
             <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
                   <Trophy className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                  <span>{t("progress_title", { defaultValue: "Pasos de Configuración" })}</span>
+                  <span>{t("progress_title")}</span>
                 </h3>
                 <p className="text-xs font-medium text-gray-500">
-                  {completedSteps.size} {t("sections_of", { defaultValue: "de 3 secciones completadas" })}
+                  {completedSteps.size} {t("sections_of")}
                 </p>
               </div>
 
@@ -520,8 +515,8 @@ export default function OnboardingProfilePage() {
                         isActive
                           ? "bg-emerald-600 text-white"
                           : step.completed
-                            ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-400"
+                          ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-400"
                       )}
                     >
                       {step.completed ? (
@@ -532,10 +527,14 @@ export default function OnboardingProfilePage() {
                     </div>
 
                     <div className="space-y-0.5 min-w-0">
-                      <p className={cn(
-                        "text-xs font-bold truncate",
-                        isActive ? "text-emerald-700 dark:text-emerald-400" : "text-gray-900 dark:text-white"
-                      )}>
+                      <p
+                        className={cn(
+                          "text-xs font-bold truncate",
+                          isActive
+                            ? "text-emerald-700 dark:text-emerald-400"
+                            : "text-gray-900 dark:text-white"
+                        )}
+                      >
                         {step.title}
                       </p>
                       <p className="text-[11px] font-medium text-gray-400 truncate">
@@ -546,7 +545,6 @@ export default function OnboardingProfilePage() {
                 );
               })}
             </div>
-
           </div>
         </motion.div>
 
@@ -558,7 +556,6 @@ export default function OnboardingProfilePage() {
         >
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-10 shadow-sm">
             <AnimatePresence mode="wait">
-              
               {/* ── PASO 1: PERFIL BASE ─────────────────────────────────── */}
               {activeStep === 1 && (
                 <motion.div
@@ -580,7 +577,7 @@ export default function OnboardingProfilePage() {
                         {/* Selección Tipo de Persona */}
                         <div className="space-y-4">
                           <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                            ¿Qué tipo de perfil profesional deseas registrar?
+                            {t("person_type_question")}
                           </h3>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -605,10 +602,10 @@ export default function OnboardingProfilePage() {
 
                               <div className="space-y-1">
                                 <p className="text-xs font-bold text-gray-900 dark:text-white">
-                                  Profesional Independiente
+                                  {t("person_type_fisica_title")}
                                 </p>
                                 <p className="text-[11px] font-medium text-gray-500 leading-relaxed">
-                                  Persona Física. Ofrezco consultas de manera individual bajo mi propia cédula profesional.
+                                  {t("person_type_fisica_desc")}
                                 </p>
                               </div>
                             </button>
@@ -634,10 +631,10 @@ export default function OnboardingProfilePage() {
 
                               <div className="space-y-1">
                                 <p className="text-xs font-bold text-gray-900 dark:text-white">
-                                  Clínica / Centro Médico / Empresa
+                                  {t("person_type_moral_title")}
                                 </p>
                                 <p className="text-[11px] font-medium text-gray-500 leading-relaxed">
-                                  Persona Moral. Represento a una clínica, laboratorio o centro de salud con equipo médico.
+                                  {t("person_type_moral_desc")}
                                 </p>
                               </div>
                             </button>
@@ -652,7 +649,7 @@ export default function OnboardingProfilePage() {
                             className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-800"
                           >
                             <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                              ¿A qué sector pertenece tu práctica?
+                              {t("sector_question")}
                             </h3>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -677,10 +674,10 @@ export default function OnboardingProfilePage() {
 
                                 <div className="space-y-1">
                                   <p className="text-xs font-bold text-gray-900 dark:text-white">
-                                    {t("health_sector", { defaultValue: "Sector Salud & Medicina" })}
+                                    {t("health_sector")}
                                   </p>
                                   <p className="text-[11px] font-medium text-gray-500 leading-relaxed">
-                                    {t("health_desc", { defaultValue: "Atención médica, especialidades clínicas, nutrición y psicología." })}
+                                    {t("health_desc")}
                                   </p>
                                 </div>
                               </button>
@@ -706,10 +703,10 @@ export default function OnboardingProfilePage() {
 
                                 <div className="space-y-1">
                                   <p className="text-xs font-bold text-gray-900 dark:text-white">
-                                    {t("beauty_sector", { defaultValue: "Bienestar & Estética" })}
+                                    {t("beauty_sector")}
                                   </p>
                                   <p className="text-[11px] font-medium text-gray-500 leading-relaxed">
-                                    {t("beauty_desc", { defaultValue: "Servicios de spa, cuidado personal y estética profesional." })}
+                                    {t("beauty_desc")}
                                   </p>
                                 </div>
                               </button>
@@ -737,10 +734,16 @@ export default function OnboardingProfilePage() {
                             </div>
                             <div>
                               <p className="text-xs font-bold text-gray-900 dark:text-white">
-                                {t("business_identity", { defaultValue: "Identidad Configurada" })}
+                                {t("business_identity")}
                               </p>
                               <p className="text-[11px] font-medium text-gray-400">
-                                {formData.personType === "FISICA" ? "Persona Física" : "Persona Moral"} • {formData.parentCategoryId === 1 ? "Sector Salud" : "Bienestar"}
+                                {formData.personType === "FISICA"
+                                  ? t("person_type_fisica_title")
+                                  : t("person_type_moral_title")}{" "}
+                                •{" "}
+                                {formData.parentCategoryId === 1
+                                  ? t("health_sector")
+                                  : t("beauty_sector")}
                               </p>
                             </div>
                           </div>
@@ -756,7 +759,7 @@ export default function OnboardingProfilePage() {
                             }
                             className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm"
                           >
-                            {t("change_sector", { defaultValue: "Cambiar" })}
+                            {t("change_sector")}
                           </button>
                         </div>
 
@@ -764,10 +767,10 @@ export default function OnboardingProfilePage() {
                         <div className="space-y-1.5 relative">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                              {t("business_name_label", { defaultValue: "Nombre del Establecimiento o Nombre Profesional *" })}
+                              {t("business_name_label")}
                             </Label>
                             <span className="text-[10px] font-medium text-gray-400">
-                              {t("business_name_hint", { defaultValue: "Google Places Sync" })}
+                              {t("business_name_hint")}
                             </span>
                           </div>
 
@@ -784,14 +787,17 @@ export default function OnboardingProfilePage() {
                               onBlur={() => setFocusedField(null)}
                               placeholder={
                                 formData.parentCategoryId === 1
-                                  ? t("business_placeholder_health", { defaultValue: "Ej. Dr. Marcos Sandoval / Clínica Central" })
-                                  : t("business_placeholder_beauty", { defaultValue: "Ej. Studio Estética QuHealthy" })
+                                  ? t("business_placeholder_health")
+                                  : t("business_placeholder_beauty")
                               }
                               className="h-11 pl-10 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-sm"
                             />
                             {isSearching && (
                               <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                                <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+                                <QhSpinner
+                                  size="sm"
+                                  className="text-emerald-600 dark:text-emerald-400"
+                                />
                               </div>
                             )}
                           </div>
@@ -814,10 +820,14 @@ export default function OnboardingProfilePage() {
                                     type="button"
                                     className="w-full p-3 text-left rounded-xl hover:bg-gray-50 dark:hover:bg-[#111] flex items-start gap-3 transition-colors"
                                   >
-                                    <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                                    <MapPin
+                                      className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+                                      strokeWidth={2}
+                                    />
                                     <div>
                                       <p className="text-xs font-bold text-gray-900 dark:text-white">
-                                        {p.structuredFormatting?.mainText || p.description}
+                                        {p.structuredFormatting?.mainText ||
+                                          p.description}
                                       </p>
                                       <p className="text-[10px] font-medium text-gray-400">
                                         {p.structuredFormatting?.secondaryText}
@@ -831,7 +841,10 @@ export default function OnboardingProfilePage() {
                                   onClick={selectManualPlace}
                                   className="w-full p-3 text-left rounded-xl bg-gray-50/80 dark:bg-[#050505] hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 border border-gray-100 dark:border-gray-800 flex items-center gap-3 transition-colors"
                                 >
-                                  <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                                  <Building2
+                                    className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
+                                    strokeWidth={2}
+                                  />
                                   <div>
                                     <p className="text-xs font-bold text-gray-900 dark:text-white">
                                       Usar "{formData.businessName}"
@@ -856,13 +869,15 @@ export default function OnboardingProfilePage() {
                             <div className="flex justify-between items-center">
                               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-900/40">
                                 <CheckCircle2 className="w-3 h-3" />
-                                <span>{t("linked_data", { defaultValue: "Google Places Vinculado" })}</span>
+                                <span>{t("linked_data")}</span>
                               </span>
 
                               <div className="flex items-center gap-1 font-mono text-xs font-bold text-amber-500">
                                 <Star className="w-3.5 h-3.5 fill-current" />
                                 <span>{selectedPlaceInfo.rating}</span>
-                                <span className="text-[10px] text-gray-400">({selectedPlaceInfo.userRatingsTotal})</span>
+                                <span className="text-[10px] text-gray-400">
+                                  ({selectedPlaceInfo.userRatingsTotal})
+                                </span>
                               </div>
                             </div>
 
@@ -882,7 +897,7 @@ export default function OnboardingProfilePage() {
                         <div className="space-y-1.5">
                           <div className="flex justify-between items-center">
                             <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                              {t("bio_label", { defaultValue: "Descripción Profesional / Reseña Clínica *" })}
+                              {t("bio_label")}
                             </Label>
                             <span className="text-[10px] font-mono font-bold text-gray-400">
                               {formData.bio.length} / 20 mín.
@@ -895,7 +910,7 @@ export default function OnboardingProfilePage() {
                             onChange={handleInputChange}
                             onFocus={() => setFocusedField("bio")}
                             onBlur={() => setFocusedField(null)}
-                            placeholder="Describe tu trayectoria, enfoque clínico, años de experiencia y servicios..."
+                            placeholder={t("bio_placeholder")}
                             className="w-full min-h-[110px] rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 p-3.5 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none"
                           />
                         </div>
@@ -903,11 +918,14 @@ export default function OnboardingProfilePage() {
                         {/* Teléfono */}
                         <div className="space-y-1.5">
                           <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                            {t("phone_label", { defaultValue: "Teléfono de Contacto Directo *" })}
+                            {t("phone_label")}
                           </Label>
 
                           <div className="relative">
-                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" strokeWidth={2} />
+                            <Phone
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                              strokeWidth={2}
+                            />
                             <Input
                               name="contactPhone"
                               value={formData.contactPhone || ""}
@@ -922,15 +940,17 @@ export default function OnboardingProfilePage() {
 
                         {/* Zona Horaria */}
                         <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 flex items-center gap-3">
-                          <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                          <Zap
+                            className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
+                            strokeWidth={2}
+                          />
                           <div className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                            <span>Zona Horaria Sincronizada: </span>
+                            <span>Zona horaria sincronizada: </span>
                             <strong className="font-bold text-gray-900 dark:text-white font-mono">
                               {Intl.DateTimeFormat().resolvedOptions().timeZone}
                             </strong>
                           </div>
                         </div>
-
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -953,10 +973,10 @@ export default function OnboardingProfilePage() {
                       </div>
                       <div>
                         <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                          {t("specialty_title", { defaultValue: "Categoría y Especialidades" })}
+                          {t("specialty_title")}
                         </h3>
                         <p className="text-xs font-medium text-gray-400">
-                          {t("specialty_desc", { defaultValue: "Selecciona las áreas médicas o de servicio" })}
+                          {t("specialty_desc")}
                         </p>
                       </div>
                     </div>
@@ -985,7 +1005,9 @@ export default function OnboardingProfilePage() {
                           tagIds,
                         }))
                       }
-                      onCreateCategory={(name) => createCategory(name, formData.parentCategoryId)}
+                      onCreateCategory={(name) =>
+                        createCategory(name, formData.parentCategoryId)
+                      }
                       onCreateSubCategory={createSubcategory}
                       onCreateTag={createTag}
                     />
@@ -1009,10 +1031,10 @@ export default function OnboardingProfilePage() {
                       </div>
                       <div>
                         <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                          {t("location_title", { defaultValue: "Geolocalización del Consultorio" })}
+                          {t("location_title")}
                         </h3>
                         <p className="text-xs font-medium text-gray-400">
-                          {t("location_desc", { defaultValue: "Ubica tu establecimiento en la cartografía" })}
+                          {t("location_desc")}
                         </p>
                       </div>
                     </div>
@@ -1020,20 +1042,23 @@ export default function OnboardingProfilePage() {
                     {completedSteps.has(3) && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Ubicación Lista</span>
+                        <span>Ubicación lista</span>
                       </span>
                     )}
                   </div>
 
                   {/* Resumen Dirección */}
                   <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 flex items-start gap-3">
-                    <Navigation className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <Navigation
+                      className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+                      strokeWidth={2}
+                    />
                     <div className="space-y-0.5">
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                        Dirección Registrada
+                        {t("address_registered")}
                       </p>
                       <p className="text-xs font-bold text-gray-900 dark:text-white">
-                        {formData.address || "No especificada todavía en el mapa."}
+                        {formData.address || t("address_not_specified")}
                       </p>
                     </div>
                   </div>
@@ -1070,10 +1095,10 @@ export default function OnboardingProfilePage() {
                         <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         <div>
                           <p className="text-xs font-bold text-gray-900 dark:text-white">
-                            Ubicación Geográfica Confirmada
+                            {t("location_confirmed")}
                           </p>
                           <p className="text-[11px] font-medium text-gray-500">
-                            Tu consultorio figurará correctamente en el directorio de la plataforma.
+                            {t("location_confirmed_desc")}
                           </p>
                         </div>
                       </div>
@@ -1084,13 +1109,19 @@ export default function OnboardingProfilePage() {
                         disabled={!isFormValid || isSaving}
                         className="h-10 px-5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-50"
                       >
-                        {isSaving ? "Guardando..." : "Guardar Perfil"}
+                        {isSaving ? (
+                          <>
+                            <QhSpinner size="sm" className="text-white" />
+                            <span>{t("saving")}</span>
+                          </>
+                        ) : (
+                          <span>{t("btn_save_profile")}</span>
+                        )}
                       </button>
                     </motion.div>
                   )}
                 </motion.div>
               )}
-
             </AnimatePresence>
 
             {/* Acciones de Navegación */}
@@ -1102,7 +1133,7 @@ export default function OnboardingProfilePage() {
                     onClick={() => setActiveStep((prev: number) => prev - 1)}
                     className="h-11 px-5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
-                    Atrás
+                    {t("btn_back")}
                   </button>
                 )}
               </div>
@@ -1118,7 +1149,7 @@ export default function OnboardingProfilePage() {
                     }
                     className="h-11 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Siguiente Paso</span>
+                    <span>{t("btn_next")}</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 ) : (
@@ -1131,12 +1162,12 @@ export default function OnboardingProfilePage() {
                     {isSaving ? (
                       <>
                         <QhSpinner size="sm" className="text-white" />
-                        <span>{t("saving", { defaultValue: "Guardando..." })}</span>
+                        <span>{t("saving")}</span>
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>Guardar Perfil Profesional</span>
+                        <span>{t("btn_save_profile")}</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
@@ -1144,16 +1175,14 @@ export default function OnboardingProfilePage() {
                 )}
               </div>
             </div>
-
           </div>
         </motion.div>
 
         {/* Footer Seguridad */}
         <div className="flex items-center justify-center gap-2 text-xs font-semibold text-gray-400 pb-4">
           <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-          <span>Información encriptada e integrada bajo estándar de seguridad SSL.</span>
+          <span>{t("security_footer")}</span>
         </div>
-
       </div>
     </div>
   );

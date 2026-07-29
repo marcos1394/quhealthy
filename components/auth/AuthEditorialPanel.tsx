@@ -1,67 +1,81 @@
+"use client";
+
 import React from "react";
-import { m } from "framer-motion";
+import { motion } from "framer-motion";
 import { Check, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface AuthEditorialPanelProps {
- userType: "consumer" | "provider";
+  userType: "consumer" | "provider";
 }
 
-export default function AuthEditorialPanel({ userType }: AuthEditorialPanelProps) {
- const t = useTranslations('Auth');
+export default function AuthEditorialPanel({
+  userType,
+}: AuthEditorialPanelProps) {
+  const t = useTranslations("Auth");
 
- const benefits = userType === "consumer"
- ? [t('consumer_benefits.0'), t('consumer_benefits.1'), t('consumer_benefits.2')]
- : [t('provider_benefits.0'), t('provider_benefits.1'), t('provider_benefits.2')];
+  const benefits =
+    userType === "consumer"
+      ? [t("consumer_benefits.0"), t("consumer_benefits.1"), t("consumer_benefits.2")]
+      : [t("provider_benefits.0"), t("provider_benefits.1"), t("provider_benefits.2")];
 
- return (
- <div className="hidden lg:flex lg:w-1/2 relative bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden">
- {/* eslint-disable-next-line @next/next/no-img-element */}
- <m.img
- key={userType} // Fuerza a que la imagen se re-anime al cambiar de tab
- initial={{ opacity: 0.5, scale: 1.05 }}
- animate={{ opacity: 0.9, scale: 1 }}
- transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
- src={userType === "consumer" ? "/suite_patient_app.png" : "/hero_medical_lifestyle.png"}
- alt="QuHealthy Authentication"
- className="absolute inset-0 w-full h-full object-cover object-center mix-blend-multiply dark:mix-blend-normal"
- />
- <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 dark:from-black/90 dark:via-black/50 dark:to-transparent" />
+  return (
+    <div className="hidden lg:flex lg:w-1/2 relative bg-gray-950 border-r border-gray-800 flex-col overflow-hidden font-sans select-none">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <motion.img
+        key={userType} // Re-anima al cambiar entre usuario paciente y profesional
+        initial={{ opacity: 0.4, scale: 1.05 }}
+        animate={{ opacity: 0.85, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        src={
+          userType === "consumer"
+            ? "/suite_patient_app.png"
+            : "/hero_medical_lifestyle.png"
+        }
+        alt="QuHealthy Authentication"
+        className="absolute inset-0 w-full h-full object-cover object-center"
+      />
 
- <div className="relative z-10 p-16 mt-auto">
- <h2 className="text-4xl lg:text-5xl font-semibold text-white mb-8 tracking-tight leading-[1.1]">
- {t(userType === 'consumer' ? 'consumer_area' : 'provider_area')}
- </h2>
+      {/* Gradient Soft Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
 
- <div className="space-y-4 mb-10">
- {benefits.map((benefit, index) => (
- <div
- key={index}
- className="flex items-center gap-3 text-gray-200 font-light text-lg"
- >
- <div className="p-1.5 rounded-full border border-white/30">
- <Check className="w-4 h-4 text-white" strokeWidth={2} />
- </div>
- <span>{benefit}</span>
- </div>
- ))}
- </div>
+      {/* Contenido Editorial */}
+      <div className="relative z-10 p-12 xl:p-16 mt-auto space-y-8">
+        <h2 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-[1.2]">
+          {t(userType === "consumer" ? "consumer_area" : "provider_area")}
+        </h2>
 
- {/* Bloque de Información Segura */}
- <div className="border-t border-white/20 pt-8 w-full max-w-md">
- <div className="flex items-start gap-5">
- <Shield className="w-6 h-6 text-white mt-0.5 opacity-80" strokeWidth={1.5} />
- <div>
- <p className="text-white text-[10px] font-bold uppercase tracking-widest mb-2">
- {t('secure_connection')}
- </p>
- <p className="text-gray-300 text-sm font-light leading-relaxed">
- {t('secure_desc')}
- </p>
- </div>
- </div>
- </div>
- </div>
- </div>
- );
+        <div className="space-y-3.5">
+          {benefits.map((benefit, index) => (
+            <div
+              key={index}
+              className="flex items-start gap-3 text-gray-200 font-medium text-xs sm:text-sm leading-relaxed"
+            >
+              <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
+                <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </div>
+              <span>{benefit}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Bloque de Información Segura */}
+        <div className="border-t border-white/10 pt-6 max-w-md">
+          <div className="flex items-start gap-4">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-emerald-400 shadow-xs">
+              <Shield className="w-5 h-5" strokeWidth={2} />
+            </div>
+            <div className="space-y-1">
+              <p className="text-white text-[10px] font-bold uppercase tracking-wider">
+                {t("secure_connection")}
+              </p>
+              <p className="text-gray-300 text-xs font-medium leading-relaxed">
+                {t("secure_desc")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

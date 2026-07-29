@@ -3,9 +3,11 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-module-scope-static-value */
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { X, FileText, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { X, FileText, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import {
   Dialog,
   DialogContent,
@@ -13,7 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn } from '@/lib/utils';
 
 interface TermsModalProps {
   isOpen: boolean;
@@ -21,40 +22,53 @@ interface TermsModalProps {
   onAccept?: () => void;
 }
 
-export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
-  const lastUpdated = "15 de Enero, 2025";
+export default function TermsModal({
+  isOpen,
+  onClose,
+  onAccept,
+}: TermsModalProps) {
+  const t = useTranslations("TermsModal");
 
-  const keyPoints = [
-    "Uso profesional exclusivo para proveedores de salud y bienestar",
-    "Protección y privacidad de datos personales garantizada",
-    "Cancelación de servicios en cualquier momento",
-    "Comisión del 10% por transacción exitosa procesada"
+  const keyPoints: string[] = [
+    t("key_points.0"),
+    t("key_points.1"),
+    t("key_points.2"),
+    t("key_points.3"),
+  ];
+
+  const sec6List: string[] = [
+    t("sec6_list.0"),
+    t("sec6_list.1"),
+    t("sec6_list.2"),
+    t("sec6_list.3"),
   ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[88vh] font-sans">
-        
+      <DialogContent className="sm:max-w-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[88vh] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
         {/* --- HEADER --- */}
         <DialogHeader className="p-6 pb-4 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shrink-0">
-                <FileText className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                <FileText
+                  className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
+                  strokeWidth={2}
+                />
               </div>
               <div>
                 <DialogTitle className="text-lg md:text-xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Términos y Condiciones de Servicio
+                  {t("title")}
                 </DialogTitle>
                 <DialogDescription className="text-xs font-semibold text-gray-500 mt-0.5">
-                  QuHealthy Platform • Última actualización: {lastUpdated}
+                  QuHealthy Platform • {t("last_updated")}
                 </DialogDescription>
               </div>
             </div>
 
-            <button 
+            <button
               type="button"
-              onClick={onClose} 
+              onClick={onClose}
               className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
             >
               <X className="w-4 h-4 text-gray-500" strokeWidth={2} />
@@ -69,16 +83,22 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
           >
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center shrink-0 mt-0.5">
-                <Shield className="w-4 h-4 text-emerald-700 dark:text-emerald-400" strokeWidth={2} />
+                <Shield
+                  className="w-4 h-4 text-emerald-700 dark:text-emerald-400"
+                  strokeWidth={2}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-emerald-900 dark:text-emerald-300 mb-1.5">
-                  Resumen de Puntos Clave:
+                  {t("summary_title")}
                 </p>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-400/90">
                   {keyPoints.map((point, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                      <CheckCircle2
+                        className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+                        strokeWidth={2}
+                      />
                       <span className="leading-snug">{point}</span>
                     </li>
                   ))}
@@ -90,7 +110,6 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
 
         {/* --- CONTENIDO SCROLLABLE --- */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/40 dark:bg-[#050505] custom-scrollbar">
-          
           {/* Sección 1 */}
           <section className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-5 rounded-2xl shadow-sm space-y-2">
             <div className="flex items-center gap-2.5">
@@ -98,14 +117,14 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 1
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Aceptación de Términos
+                {t("sec1_title")}
               </h3>
             </div>
             <p className="text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              Al crear una cuenta en QuHealthy, usted acepta estar legalmente vinculado por estos Términos y Condiciones. Si no está de acuerdo con alguna parte de estos términos, no debe utilizar nuestra plataforma.
+              {t("sec1_p1")}
             </p>
             <p className="text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              QuHealthy se reserva el derecho de modificar estos términos en cualquier momento. Los cambios significativos serán notificados a través de la plataforma o por correo electrónico con al menos 30 días de anticipación.
+              {t("sec1_p2")}
             </p>
           </section>
 
@@ -116,13 +135,28 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 2
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Uso de la Plataforma
+                {t("sec2_title")}
               </h3>
             </div>
             <div className="space-y-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              <p><strong className="text-gray-900 dark:text-white">2.1 Elegibilidad:</strong> Para utilizar QuHealthy como proveedor, debe ser un profesional de la salud o bienestar debidamente certificado y autorizado para ejercer en su jurisdicción.</p>
-              <p><strong className="text-gray-900 dark:text-white">2.2 Cuenta del Usuario:</strong> Usted es responsable de mantener la confidencialidad de su cuenta y contraseña. Cualquier actividad que ocurra bajo su cuenta es su responsabilidad.</p>
-              <p><strong className="text-gray-900 dark:text-white">2.3 Uso Prohibido:</strong> No puede utilizar la plataforma para actividades ilegales, fraudulentas o que violen derechos de terceros.</p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec2_1_label")}
+                </strong>{" "}
+                {t("sec2_1_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec2_2_label")}
+                </strong>{" "}
+                {t("sec2_2_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec2_3_label")}
+                </strong>{" "}
+                {t("sec2_3_desc")}
+              </p>
             </div>
           </section>
 
@@ -133,13 +167,28 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 3
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Servicios y Tarifas
+                {t("sec3_title")}
               </h3>
             </div>
             <div className="space-y-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              <p><strong className="text-gray-900 dark:text-white">3.1 Comisiones:</strong> QuHealthy cobra una comisión del 10% sobre cada transacción exitosa realizada a través de la plataforma.</p>
-              <p><strong className="text-gray-900 dark:text-white">3.2 Pagos:</strong> Los pagos se procesarán de forma automática y se depositarán en su cuenta bancaria registrada dentro de 5-7 días hábiles.</p>
-              <p><strong className="text-gray-900 dark:text-white">3.3 Reembolsos:</strong> Las políticas de cancelación y reembolso establecidas por usted serán respetadas. QuHealthy no se hace responsable de disputas directas entre proveedores y pacientes.</p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec3_1_label")}
+                </strong>{" "}
+                {t("sec3_1_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec3_2_label")}
+                </strong>{" "}
+                {t("sec3_2_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec3_3_label")}
+                </strong>{" "}
+                {t("sec3_3_desc")}
+              </p>
             </div>
           </section>
 
@@ -150,13 +199,28 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 4
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Privacidad y Protección de Datos
+                {t("sec4_title")}
               </h3>
             </div>
             <div className="space-y-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              <p><strong className="text-gray-900 dark:text-white">4.1 Recopilación de Datos:</strong> Recopilamos información necesaria para proporcionar nuestros servicios, incluyendo datos de contacto, información profesional y datos de transacciones.</p>
-              <p><strong className="text-gray-900 dark:text-white">4.2 Uso de Datos:</strong> Sus datos se utilizan exclusivamente para operar la plataforma, procesar pagos y mejorar nuestros servicios. Nunca vendemos información personal a terceros.</p>
-              <p><strong className="text-gray-900 dark:text-white">4.3 Seguridad:</strong> Implementamos medidas de seguridad estándar de la industria para proteger su información, incluyendo encriptación SSL y autenticación de dos factores.</p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec4_1_label")}
+                </strong>{" "}
+                {t("sec4_1_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec4_2_label")}
+                </strong>{" "}
+                {t("sec4_2_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec4_3_label")}
+                </strong>{" "}
+                {t("sec4_3_desc")}
+              </p>
             </div>
           </section>
 
@@ -167,13 +231,28 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 5
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Responsabilidades del Proveedor
+                {t("sec5_title")}
               </h3>
             </div>
             <div className="space-y-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              <p><strong className="text-gray-900 dark:text-white">5.1 Licencias y Certificaciones:</strong> Usted garantiza que posee todas las licencias, permisos y certificaciones necesarias para ejercer su profesión.</p>
-              <p><strong className="text-gray-900 dark:text-white">5.2 Calidad del Servicio:</strong> Es su responsabilidad proporcionar servicios de calidad profesional y mantener estándares éticos en su práctica.</p>
-              <p><strong className="text-gray-900 dark:text-white">5.3 Disponibilidad:</strong> Debe mantener actualizado su calendario y confirmar o cancelar citas de manera oportuna.</p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec5_1_label")}
+                </strong>{" "}
+                {t("sec5_1_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec5_2_label")}
+                </strong>{" "}
+                {t("sec5_2_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec5_3_label")}
+                </strong>{" "}
+                {t("sec5_3_desc")}
+              </p>
             </div>
           </section>
 
@@ -184,17 +263,16 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 6
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Limitación de Responsabilidad
+                {t("sec6_title")}
               </h3>
             </div>
             <p className="text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              QuHealthy actúa como plataforma intermediaria y no asume responsabilidad por:
+              {t("sec6_intro")}
             </p>
             <ul className="list-disc list-inside space-y-1 text-xs font-medium text-gray-600 dark:text-gray-300 pl-12">
-              <li>La calidad de los servicios proporcionados por los proveedores</li>
-              <li>Disputas entre proveedores y pacientes</li>
-              <li>Errores médicos o profesionales</li>
-              <li>Pérdidas indirectas o consecuentes</li>
+              {sec6List.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
             </ul>
           </section>
 
@@ -205,12 +283,22 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 7
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Terminación de Cuenta
+                {t("sec7_title")}
               </h3>
             </div>
             <div className="space-y-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              <p><strong className="text-gray-900 dark:text-white">7.1 Por el Usuario:</strong> Puede cancelar su cuenta en cualquier momento desde la configuración de su perfil. Los pagos pendientes serán procesados según lo acordado.</p>
-              <p><strong className="text-gray-900 dark:text-white">7.2 Por QuHealthy:</strong> Nos reservamos el derecho de suspender o terminar cuentas que violen estos términos, con notificación previa de 15 días salvo en casos de fraude o actividad ilegal.</p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec7_1_label")}
+                </strong>{" "}
+                {t("sec7_1_desc")}
+              </p>
+              <p>
+                <strong className="text-gray-900 dark:text-white">
+                  {t("sec7_2_label")}
+                </strong>{" "}
+                {t("sec7_2_desc")}
+              </p>
             </div>
           </section>
 
@@ -221,11 +309,11 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 8
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Ley Aplicable y Jurisdicción
+                {t("sec8_title")}
               </h3>
             </div>
             <p className="text-xs font-medium text-gray-600 dark:text-gray-300 leading-relaxed pl-8">
-              Estos términos se rigen por las leyes de México. Cualquier disputa será resuelta en los tribunales competentes de la Ciudad de México.
+              {t("sec8_text")}
             </p>
           </section>
 
@@ -236,29 +324,38 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
                 9
               </span>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                Contacto Legal
+                {t("sec9_title")}
               </h3>
             </div>
             <div className="bg-gray-50 dark:bg-[#050505] rounded-xl p-3.5 border border-gray-100 dark:border-gray-800 space-y-1 text-xs font-semibold text-gray-700 dark:text-gray-300 ml-8">
-              <p><span className="text-gray-400">Email:</span> legal@quhealthy.org</p>
-              <p><span className="text-gray-400">Teléfono:</span> +52 55 1234 5678</p>
-              <p><span className="text-gray-400">Dirección:</span> Av. Reforma 123, CDMX, México</p>
+              <p>
+                <span className="text-gray-400">{t("sec9_email_label")}</span>{" "}
+                legal@quhealthy.org
+              </p>
+              <p>
+                <span className="text-gray-400">{t("sec9_phone_label")}</span>{" "}
+                +52 55 1234 5678
+              </p>
+              <p>
+                <span className="text-gray-400">{t("sec9_address_label")}</span>{" "}
+                {t("sec9_address_val")}
+              </p>
             </div>
           </section>
 
           {/* Aviso Importante */}
           <div className="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
-            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" strokeWidth={2} />
+            <AlertCircle
+              className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+              strokeWidth={2}
+            />
             <div className="text-xs font-medium text-amber-800 dark:text-amber-300 space-y-0.5">
               <p className="font-bold text-amber-900 dark:text-amber-200">
-                Aviso Importante
+                {t("notice_title")}
               </p>
-              <p>
-                Al hacer clic en "He leído y acepto", confirma que ha comprendido y acepta estar vinculado por estos Términos y Condiciones, así como por nuestra Política de Privacidad.
-              </p>
+              <p>{t("notice_text")}</p>
             </div>
           </div>
-
         </div>
 
         {/* --- FOOTER --- */}
@@ -268,19 +365,18 @@ export default function TermsModal({ isOpen, onClose, onAccept }: TermsModalProp
             onClick={onClose}
             className="h-11 px-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors text-xs font-bold shadow-sm"
           >
-            Cerrar
+            {t("btn_close")}
           </button>
-          
+
           <button
             type="button"
             onClick={onAccept ? onAccept : onClose}
             className="h-11 px-7 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
           >
             <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
-            <span>He Leído y Acepto</span>
+            <span>{t("btn_accept")}</span>
           </button>
         </div>
-
       </DialogContent>
     </Dialog>
   );

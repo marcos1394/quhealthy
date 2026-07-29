@@ -372,7 +372,178 @@
     "login_success": "Sesión iniciada correctamente",
     "unverified_email_error": "Debes verificar tu correo antes de entrar. Revisa tu bandeja de entrada.",
     "invalid_form_error": "Por favor ingresa un email y contraseña válidos.",
-    "captcha_error": "Error al validar la seguridad. Por favor, intenta de nuevo."
+    "captcha_error": "Error al validar la seguridad. Por favor, intenta de nuevo.",
+    "StaffActivation": {
+      "title": "Activar cuenta",
+      "subtitle": "Establece tu contraseña para ingresar a tu espacio de trabajo",
+      "invalid_token_title": "Enlace de activación inválido",
+      "invalid_token_desc": "No se ha proporcionado un token de activación válido o el enlace ha expirado. Contacta al administrador si necesitas un nuevo acceso.",
+      "back_home": "Volver al inicio",
+      "new_password_label": "Nueva contraseña",
+      "confirm_password_label": "Confirmar contraseña",
+      "password_placeholder": "••••••••",
+      "btn_activate": "Activar cuenta",
+      "btn_activating": "Activando tu cuenta...",
+      "errors": {
+        "token_missing": "El enlace de activación es inválido o no existe.",
+        "password_mismatch": "Las contraseñas ingresadas no coinciden.",
+        "password_requirements": "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un símbolo especial.",
+        "generic": "Ocurrió un error durante la activación. Por favor, inténtalo de nuevo."
+      },
+      "toasts": {
+        "success": "¡Tu cuenta ha sido activada con éxito! Ya puedes iniciar sesión."
+      }
+    }
+  },
+
+  "PrivacyModal": {
+    "title": "Aviso y Política de Privacidad",
+    "last_updated": "Última actualización: 15 de Enero, 2025",
+    "commitments_title": "Nuestro Compromiso de Privacidad:",
+    "key_commitments": [
+      "Nunca vendemos ni comercializamos tu información personal",
+      "Cifrado de grado médico de extremo a extremo",
+      "Puedes solicitar la eliminación de tu cuenta en cualquier momento",
+      "Cumplimiento integral con GDPR, HIPAA y legislación mexicana"
+    ],
+    "intro_p1": "En QuHealthy, tu privacidad es fundamental. Esta Política de Privacidad explica de forma transparente cómo recopilamos, usamos, compartimos y protegemos tu información personal y médica cuando utilizas nuestra plataforma.",
+    "intro_p2": "Al hacer uso de nuestros servicios, aceptas las prácticas descritas en este documento.",
+    "sec1_title": "Información que Recopilamos",
+    "sec1_1_title": "1.1 Datos que Proporcionas Directamente:",
+    "sec1_1_items": [
+      "Datos de registro: nombre, email, teléfono, contraseña",
+      "Información de perfil: foto, especialidad y cédula",
+      "Datos médicos opcionales: historial, alergias, antecedentes",
+      "Información para facturación y pagos"
+    ],
+    "sec1_2_title": "1.2 Datos Recopilados Automáticamente:",
+    "sec1_2_items": [
+      "Telemetría de uso y navegación en la plataforma",
+      "Información técnica del dispositivo e IP",
+      "Ubicación geográfica general para búsqueda local",
+      "Cookies esenciales de sesión"
+    ],
+    "sec2_title": "Cómo Utilizamos tu Información",
+    "sec2_item1_label": "Procesamiento de citas:",
+    "sec2_item1_desc": "Gestión de agendamiento y avisos.",
+    "sec2_item2_label": "Mejora continua:",
+    "sec2_item2_desc": "Optimización de flujos y herramientas clínicas.",
+    "sec2_item3_label": "Notificaciones:",
+    "sec2_item3_desc": "Recordatorios de consulta y confirmaciones.",
+    "sec2_item4_label": "Seguridad activa:",
+    "sec2_item4_desc": "Prevención de fraude y protección de cuentas.",
+    "sec3_title": "Traspaso y Compartición de Datos",
+    "sec3_guarantee": "Garantía Estricta: Nunca vendemos ni rentamos tus datos a terceros con fines comerciales.",
+    "sec3_card1_title": "Especialistas",
+    "sec3_card1_desc": "Solo con los profesionales con quienes agendas cita activa.",
+    "sec3_card2_title": "Procesadores de Pago",
+    "sec3_card2_desc": "Pasarelas cifradas (Stripe) estrictamente para cobros.",
+    "sec3_card3_title": "Requerimiento Legal",
+    "sec3_card3_desc": "Exclusivamente bajo orden judicial o regulatoria válida.",
+    "sec4_title": "Infraestructura de Seguridad",
+    "sec4_card1_title": "Cifrado TLS/SSL",
+    "sec4_card1_desc": "Tráfico protegido",
+    "sec4_card2_title": "Autenticación 2FA",
+    "sec4_card2_desc": "Capas de acceso",
+    "sec4_card3_title": "Bases Aisladas",
+    "sec4_card3_desc": "Cifrado en reposo",
+    "sec4_card4_title": "Auditoría Cómputo",
+    "sec4_card4_desc": "Logs de acceso",
+    "sec5_title": "Tus Derechos de Privacidad (Derechos ARCO)",
+    "sec5_rights": [
+      { "title": "Acceso", "desc": "Solicita copia de todos tus datos." },
+      { "title": "Rectificación", "desc": "Corrige información desactualizada." },
+      { "title": "Cancelación", "desc": "Solicita la eliminación total de tus registros." },
+      { "title": "Oposición", "desc": "Opónte a usos específicos de procesamiento." }
+    ],
+    "sec5_contact": "Para ejercer cualquiera de tus derechos escribe a: privacy@quhealthy.org",
+    "sec6_title": "Contacto Oficial de Privacidad",
+    "sec6_email": "Email:",
+    "sec6_officer": "Oficial de Protección:",
+    "sec6_officer_val": "QuHealthy Data Protection Officer",
+    "sec6_address": "Dirección:",
+    "sec6_address_val": "Av. Reforma 123, CDMX, México",
+    "compliance_title": "Cumplimiento GDPR & Leyes Mexicanas (LFPDPPP)",
+    "compliance_desc": "Esta política garantiza los más altos estándares normativos europeos e internacionales para el resguardo de información clínica sensible.",
+    "btn_close": "Cerrar",
+    "btn_understand": "Entendido"
+  },
+
+  "TermsModal": {
+    "title": "Términos y Condiciones de Servicio",
+    "last_updated": "Última actualización: 15 de Enero, 2025",
+    "summary_title": "Resumen de Puntos Clave:",
+    "key_points": [
+      "Uso profesional exclusivo para proveedores de salud y bienestar",
+      "Protección y privacidad de datos personales garantizada",
+      "Cancelación de servicios en cualquier momento",
+      "Comisión del 10% por transacción exitosa procesada"
+    ],
+    "sec1_title": "Aceptación de Términos",
+    "sec1_p1": "Al crear una cuenta en QuHealthy, usted acepta estar legalmente vinculado por estos Términos y Condiciones. Si no está de acuerdo con alguna parte de estos términos, no debe utilizar nuestra plataforma.",
+    "sec1_p2": "QuHealthy se reserva el derecho de modificar estos términos en cualquier momento. Los cambios significativos serán notificados a través de la plataforma o por correo electrónico con al menos 30 días de anticipación.",
+    "sec2_title": "Uso de la Plataforma",
+    "sec2_1_label": "2.1 Elegibilidad:",
+    "sec2_1_desc": "Para utilizar QuHealthy como proveedor, debe ser un profesional de la salud o bienestar debidamente certificado y autorizado para ejercer en su jurisdicción.",
+    "sec2_2_label": "2.2 Cuenta del Usuario:",
+    "sec2_2_desc": "Usted es responsable de mantener la confidencialidad de su cuenta y contraseña. Cualquier actividad que ocurra bajo su cuenta es su responsabilidad.",
+    "sec2_3_label": "2.3 Uso Prohibido:",
+    "sec2_3_desc": "No puede utilizar la plataforma para actividades ilegales, fraudulentas o que violen derechos de terceros.",
+    "sec3_title": "Servicios y Tarifas",
+    "sec3_1_label": "3.1 Comisiones:",
+    "sec3_1_desc": "QuHealthy cobra una comisión del 10% sobre cada transacción exitosa realizada a través de la plataforma.",
+    "sec3_2_label": "3.2 Pagos:",
+    "sec3_2_desc": "Los pagos se procesarán de forma automática y se depositarán en su cuenta bancaria registrada dentro de 5-7 días hábiles.",
+    "sec3_3_label": "3.3 Reembolsos:",
+    "sec3_3_desc": "Las políticas de cancelación y reembolso establecidas por usted serán respetadas. QuHealthy no se hace responsable de disputas directas entre proveedores y pacientes.",
+    "sec4_title": "Privacidad y Protección de Datos",
+    "sec4_1_label": "4.1 Recopilación de Datos:",
+    "sec4_1_desc": "Recopilamos información necesaria para proporcionar nuestros servicios, incluyendo datos de contacto, información profesional y datos de transacciones.",
+    "sec4_2_label": "4.2 Uso de Datos:",
+    "sec4_2_desc": "Sus datos se utilizan exclusivamente para operar la plataforma, procesar pagos y mejorar nuestros servicios. Nunca vendemos información personal a terceros.",
+    "sec4_3_label": "4.3 Seguridad:",
+    "sec4_3_desc": "Implementamos medidas de seguridad estándar de la industria para proteger su información, incluyendo encriptación SSL y autenticación de dos factores.",
+    "sec5_title": "Responsabilidades del Proveedor",
+    "sec5_1_label": "5.1 Licencias y Certificaciones:",
+    "sec5_1_desc": "Usted garantiza que posee todas las licencias, permisos y certificaciones necesarias para ejercer su profesión.",
+    "sec5_2_label": "5.2 Calidad del Servicio:",
+    "sec5_2_desc": "Es su responsabilidad proporcionar servicios de calidad profesional y mantener estándares éticos en su práctica.",
+    "sec5_3_label": "5.3 Disponibilidad:",
+    "sec5_3_desc": "Debe mantener actualizado su calendario y confirmar o cancelar citas de manera oportuna.",
+    "sec6_title": "Limitación de Responsabilidad",
+    "sec6_intro": "QuHealthy actúa como plataforma intermediaria y no asume responsabilidad por:",
+    "sec6_list": [
+      "La calidad de los servicios proporcionados por los proveedores",
+      "Disputas entre proveedores y pacientes",
+      "Errores médicos o profesionales",
+      "Pérdidas indirectas o consecuentes"
+    ],
+    "sec7_title": "Terminación de Cuenta",
+    "sec7_1_label": "7.1 Por el Usuario:",
+    "sec7_1_desc": "Puede cancelar su cuenta en cualquier momento desde la configuración de su perfil. Los pagos pendientes serán procesados según lo acordado.",
+    "sec7_2_label": "7.2 Por QuHealthy:",
+    "sec7_2_desc": "Nos reservamos el derecho de suspender o terminar cuentas que violen estos términos, con notificación previa de 15 días salvo en casos de fraude o actividad ilegal.",
+    "sec8_title": "Ley Aplicable y Jurisdicción",
+    "sec8_text": "Estos términos se rigen por las leyes de México. Cualquier disputa será resuelta en los tribunales competentes de la Ciudad de México.",
+    "sec9_title": "Contacto Legal",
+    "sec9_email_label": "Email:",
+    "sec9_phone_label": "Teléfono:",
+    "sec9_address_label": "Dirección:",
+    "sec9_address_val": "Av. Reforma 123, CDMX, México",
+    "notice_title": "Aviso Importante",
+    "notice_text": "Al hacer clic en \"He leído y acepto\", confirma que ha comprendido y acepta estar vinculado por estos Términos y Condiciones, así como por nuestra Política de Privacidad.",
+    "btn_close": "Cerrar",
+    "btn_accept": "He Leído y Acepto"
+  },
+
+  "OnboardingLayout": {
+    "meta_title": "Onboarding | QuHealthy",
+    "meta_description": "Completa tu perfil profesional y verificación en la plataforma QuHealthy.",
+    "brand_name": "QuHealthy",
+    "loading_title": "Preparando tu entorno...",
+    "loading_subtitle": "Sincronizando la información de tu espacio...",
+    "return_home": "Volver al inicio",
+    "logout": "Cerrar sesión"
   },
 
   "AuthSignupConsumer": {
@@ -464,8 +635,7 @@
     "captcha_error": "Error al validar la seguridad. Por favor, intenta de nuevo."
   },
 
-
-"AuthForgotPassword": {
+  "AuthForgotPassword": {
     "title": "Recuperar Cuenta",
     "area_title": "Recupera tu Acceso",
     "hero_subtitle": "Protección con verificación para la máxima seguridad de tu cuenta e información médica.",
@@ -505,13 +675,20 @@
     "wait_to_resend": "¿No recibiste el código? Espera",
     "change_method_button": "Cambiar Método",
     "new_password_label": "Nueva Contraseña",
-    "new_password_placeholder": "Mínimo 8 caracteres",
+    "new_password_placeholder": "••••••••",
     "confirm_password_label": "Confirmar Contraseña",
-    "confirm_password_placeholder": "Repite tu contraseña",
+    "confirm_password_placeholder": "••••••••",
     "passwords_not_match": "Las contraseñas no coinciden",
-    "reset_password_button": "Restablecer Contraseña",
-    "updating": "Actualizando...",
-    "back_to_login": "Volver a Iniciar Sesión"
+    "reset_password_button": "Establecer Nueva Contraseña",
+    "reset_password_success": "Contraseña actualizada correctamente",
+    "updating": "Actualizando contraseña...",
+    "back_to_login": "Volver a Iniciar Sesión",
+    "rule_min_length": "Mín. 8 Caracteres",
+    "rule_uppercase": "Una Mayúscula (A-Z)",
+    "rule_number": "Un Número (0-9)",
+    "error_send": "No pudimos enviar el código de verificación. Por favor revisa tus datos e inténtalo de nuevo.",
+    "error_captcha": "Ocurrió un inconveniente al validar la seguridad. Por favor, intenta de nuevo.",
+    "error_reset": "Error al actualizar la contraseña. Por favor, reintenta."
   },
 
   "AuthResetPassword": {
@@ -919,7 +1096,56 @@
     }
   },
 
-  "OnboardingChecklist": {
+  "AppointmentDetails": {
+    "header": {
+      "back": "Regresar a mis citas",
+      "folio": "Folio de consulta: #{id}",
+      "title": "Detalles de tu cita"
+    },
+    "actions": {
+      "msg_provider": "Enviar mensaje a tu especialista",
+      "reschedule": "Reprogramar fecha u hora",
+      "cancel": "Cancelar esta consulta"
+    },
+    "clinical": {
+      "title": "Información de la atención",
+      "specialist_assigned": "Especialista a cargo",
+      "default_specialist": "Especialista general",
+      "procedure": "Servicio o consulta",
+      "default_procedure": "Consulta médica general",
+      "patient_notes": "Motivo de consulta o síntomas informados"
+    },
+    "finances": {
+      "title": "Resumen de pago y comprobantes",
+      "final_amount": "Monto total",
+      "download_receipt": "Descargar comprobante de pago",
+      "status_unpaid": "Pago pendiente por completar",
+      "pay_now": "Completar pago ahora"
+    },
+    "location": {
+      "title": "Lugar y modalidad",
+      "modality_label": "Modalidad de atención",
+      "online": "Consulta en línea (Videollamada)",
+      "presencial": "Consulta presencial en consultorio",
+      "online_desc": "Tu enlace seguro para ingresar estará disponible en este espacio unos minutos antes de la hora de tu cita.",
+      "start_call": "Entrar a la videollamada",
+      "link_generating": "Generando tu enlace seguro...",
+      "no_address": "Dirección por confirmar. Te sugerimos contactar a tu especialista."
+    },
+    "qr": {
+      "title": "Pase de acceso con código QR",
+      "subtitle": "Muestra este código al llegar a recepción para confirmar tu llegada rápidamente."
+    },
+    "time": {
+      "title": "Fecha y horario programados",
+      "date_label": "Fecha de la cita",
+      "time_label": "Horario y duración",
+      "hrs": "hrs",
+      "min": "min de consulta"
+    }
+  },
+
+ "OnboardingChecklist": {
     "badge": "Configuración Inicial",
     "title": "Bienvenido a QuHealthy",
     "desc": "Completa estos pasos para activar tu cuenta profesional y comenzar a recibir clientes",
@@ -963,53 +1189,68 @@
     "btn_correct_info": "Corregir Info",
     "btn_start": "Comenzar"
   },
-  
-  "OnboardingProfile": {
-    "badge": "Paso 1 de 4",
-    "title": "Configura tu Perfil Profesional",
-    "desc": "Completa estos 3 pasos para que los pacientes puedan encontrarte y agendar contigo",
-    "progress_title": "Progreso General",
+
+  "PublicPrescription": {
+    "protected_title": "Receta médica protegida",
+    "protected_desc": "Para proteger tu privacidad médica, por favor ingresa los últimos 4 dígitos de tu número celular.",
+    "pin_placeholder": "Ej. 2930",
+    "btn_unlock": "Desbloquear receta",
+    "btn_verifying": "Verificando...",
+    "footer_backed_by": "Plataforma de salud respaldada por QuHealthy",
+    "unlocked_header": "Tu receta médica digital",
+    "btn_download": "Guardar PDF",
+    "iframe_title": "Receta médica digital"
+  },
+
+ "OnboardingProfile": {
+    "badge": "Configuración de perfil profesional",
+    "title": "Información de tu consultorio o negocio",
+    "desc": "Configura la presencia de tu establecimiento o práctica clínica para figurar en el directorio médico y habilitar la agenda digital.",
+    "loading": "Cargando datos de perfil...",
+    "error_title": "Error de carga",
+    "retry": "Reintentar carga",
+    "progress_title": "Pasos de configuración",
     "sections_of": "de 3 secciones completadas",
-    "step1_title": "Información Básica",
-    "step1_desc": "Nombre y contacto",
-    "step2_title": "Especialidad",
-    "step2_desc": "Tus servicios",
-    "step3_title": "Ubicación",
-    "step3_desc": "Donde atiendes",
-    "configured": "Configurado",
-    "location_ready": "Ubicación Lista",
-    "welcome": "¡Bienvenido! Comencemos",
-    "sector_question": "¿En qué sector se desarrolla tu práctica profesional?",
-    "health_sector": "Sector Salud",
-    "health_desc": "Para médicos, dentistas, psicólogos, terapeutas y clínicas especializadas.",
-    "beauty_sector": "Sector Belleza",
-    "beauty_desc": "Para salones de belleza, barberías, spas, estética avanzada y bienestar.",
-    "business_identity": "Identidad de tu Negocio",
-    "business_sync": "Vinculemos tu perfil con Google para ahorrar tiempo",
-    "change_sector": "Cambiar Sector",
-    "business_name_label": "Nombre del Consultorio o Negocio *",
-    "business_name_hint": "(Auto-completa con Google)",
-    "business_placeholder_health": "Ej: Clínica Dental Central",
-    "business_placeholder_beauty": "Ej: Studio de Belleza Luxe",
-    "bio_label": "Biografía / Descripción *",
-    "bio_min": "mín.",
-    "timezone_title": "Zona horaria detectada automáticamente",
-    "timezone_desc": "Tus citas se sincronizarán usando:",
-    "specialty_title": "Especialidad y Características",
-    "specialty_desc": "Define tu servicio y tus diferenciadores",
-    "location_title": "Confirma tu Ubicación",
-    "location_desc": "Asegúrate de que el marcador esté en el lugar exacto",
-    "phone_label": "Teléfono *",
-    "finish": "Guardar y Continuar",
+    "step1_title": "Identidad del negocio",
+    "step1_desc": "Datos básicos y sector",
+    "step2_title": "Especialidad y categorías",
+    "step2_desc": "Servicios y etiquetas",
+    "step3_title": "Ubicación geográfica",
+    "step3_desc": "Consultorio o clínica",
+    "person_type_question": "¿Qué tipo de perfil profesional deseas registrar?",
+    "person_type_fisica_title": "Profesional independiente",
+    "person_type_fisica_desc": "Persona Física. Ofrezco consultas de manera individual bajo mi propia cédula profesional.",
+    "person_type_moral_title": "Clínica / Centro médico / Empresa",
+    "person_type_moral_desc": "Persona Moral. Represento a una clínica, laboratorio o centro de salud con equipo médico.",
+    "sector_question": "¿A qué sector pertenece tu práctica?",
+    "health_sector": "Sector salud & medicina",
+    "health_desc": "Atención médica, especialidades clínicas, nutrición y psicología.",
+    "beauty_sector": "Bienestar & estética",
+    "beauty_desc": "Servicios de spa, cuidado personal y estética profesional.",
+    "business_identity": "Identidad configurada",
+    "change_sector": "Cambiar",
+    "business_name_label": "Nombre del establecimiento o nombre profesional *",
+    "business_name_hint": "Búsqueda en Google Places",
+    "business_placeholder_health": "Ej. Dr. Mario Gonzalez / Clínica Central",
+    "business_placeholder_beauty": "Ej. Studio Estética QuHealthy",
+    "imported_ok": "Datos importados de Google",
+    "linked_data": "Google Places vinculado",
+    "bio_label": "Descripción profesional / Reseña clínica *",
+    "bio_placeholder": "Describe tu trayectoria, enfoque clínico, años de experiencia y servicios...",
+    "phone_label": "Teléfono de contacto directo *",
+    "specialty_title": "Categoría y especialidades",
+    "specialty_desc": "Selecciona las áreas médicas o de servicio que atiendes.",
+    "location_title": "Geolocalización del consultorio",
+    "location_desc": "Ubica tu establecimiento en el mapa para que tus pacientes puedan encontrarte fácilmente.",
+    "address_registered": "Dirección registrada",
+    "address_not_specified": "No especificada todavía en el mapa.",
+    "location_confirmed": "Ubicación geográfica confirmada",
+    "location_confirmed_desc": "Tu consultorio figurará correctamente en el directorio de la plataforma.",
+    "btn_next": "Siguiente paso",
+    "btn_back": "Atrás",
+    "btn_save_profile": "Guardar perfil profesional",
     "saving": "Guardando...",
-    "imported_google": "Información importada de Google",
-    "linked_data": "DATOS VINCULADOS DE GOOGLE BUSINESS",
-    "change": "Cambiar",
-    "imported_ok": "Información importada correctamente.",
-    "loading": "Cargando perfil...",
-    "error_title": "Error de Carga",
-    "retry": "Reintentar",
-    "continue_btn": "Continuar"
+    "security_footer": "Información encriptada e integrada bajo estándar de seguridad SSL."
   },
 
   "JournalEntries": {
@@ -1543,6 +1784,7 @@
     "success_title": "¡Cita Completada!",
     "success_desc": "La cita ha sido marcada como completada."
   },
+
   "DashboardConfirmationModal": {
     "confirm": "Confirmar",
     "cancel": "Cancelar",
@@ -1830,8 +2072,6 @@
     "empty_description": "Haz clic en un horario del calendario para crear tu primera cita."
   },
 
- 
-
   "DashboardOperatingHours": {
     "title": "Horario de Atención",
     "subtitle": "Define tu disponibilidad para consultas.",
@@ -1868,6 +2108,7 @@
     "save_error": "Corrige los errores antes de guardar",
     "loading": "Cargando tu horario..."
   },
+
   "DashboardTimeBlock": {
     "title": "Bloquear Tiempo",
     "subtitle": "Reserva tiempo para asuntos personales, comidas o descansos",
@@ -1892,7 +2133,6 @@
     "success_toast": "¡Tiempo bloqueado!",
     "success_msg": "El tiempo ha sido bloqueado exitosamente."
   },
-
 
   "DashboardDocuments": {
     "title": "Gestor de Documentos",
@@ -1939,6 +2179,52 @@
     "empty": "No hay documentos disponibles en esta sección.",
     "deleted_toast": "Documento eliminado con éxito.",
     "downloading": "Descargando {name}..."
+  },
+
+  "OnboardingWearables": {
+    "header_badge": "Dispositivos de salud",
+    "title": "Conecta tus relojes y dispositivos inteligentes",
+    "subtitle": "Sincroniza tus relojes, anillos o básculas para registrar automáticamente tus pasos, sueño, frecuencia cardíaca y actividad física.",
+    "processing_auth": "Conectando tu dispositivo de forma segura...",
+    "loading": "Cargando tus dispositivos...",
+    "connected": "Conectado",
+    "ios_native": "Exclusivo iOS",
+    "btn_disconnect": "Desconectar",
+    "btn_connect": "Conectar dispositivo",
+    "security_title": "Tus datos están seguros y protegidos",
+    "security_desc": "La información de tus dispositivos se transfiere de forma cifrada y confidencial. Tienes el control total para conectar o desconectar cualquier servicio cuando lo decidas.",
+    "providers": {
+      "google_fit": {
+        "name": "Google Fit",
+        "desc": "Sincroniza automáticamente tus pasos, sueño y ritmo cardíaco."
+      },
+      "apple_health": {
+        "name": "Apple Health",
+        "desc": "Conecta tu iPhone o Apple Watch para compartir tu actividad y salud."
+      },
+      "garmin": {
+        "name": "Garmin Connect",
+        "desc": "Sincroniza tus entrenamientos, recuperación y rendimiento físico."
+      },
+      "fitbit": {
+        "name": "Fitbit",
+        "desc": "Monitorea tu actividad diaria, descanso y nivel de estrés."
+      },
+      "oura": {
+        "name": "Oura Ring",
+        "desc": "Mide la calidad de tu sueño nocturno, descanso y recuperación."
+      }
+    },
+    "toasts": {
+      "apple_health_info": "Apple Health requiere sincronización directa desde la aplicación móvil en tu iPhone.",
+      "missing_client_id": "Falta configurar el identificador de cliente en el sistema.",
+      "csrf_error": "Error de seguridad en la validación. Por favor intenta de nuevo.",
+      "auth_success": "Dispositivo conectado con éxito.",
+      "auth_error": "Error al conectar el dispositivo. Intenta nuevamente.",
+      "upcoming_integration": "La conexión directa con {provider} estará disponible muy pronto.",
+      "revoke_success": "Dispositivo desconectado correctamente.",
+      "revoke_error": "Error al desconectar el dispositivo."
+    }
   },
 
   "CreateJournalEntry": {
@@ -2000,8 +2286,6 @@
     "toast_success": "Póliza creada exitosamente.",
     "toast_error": "Error al crear la póliza."
   },
-
-
 
   "ChartOfAccounts": {
     "title": "Catálogo de Cuentas (SAT)",
@@ -3231,7 +3515,7 @@
 
   "PatientAppointments": {
     "title": "Mis Citas",
-    "subtitle": "Gestiona tus reservas y consulta tu historial",
+    "subtitle": "Gestiona tus reservas y consulta tu historial médico",
     "loading": "Cargando tus citas...",
     "btn_new": "Nueva Cita",
     "stat_total": "Total",
@@ -3241,20 +3525,22 @@
     "tab_upcoming": "Próximas",
     "tab_past": "Pasadas",
     "tab_cancelled": "Canceladas",
-    "search_placeholder": "Buscar por proveedor o servicio...",
+    "search_placeholder": "Buscar por especialista o servicio...",
     "sort_date": "Por Fecha",
-    "sort_provider": "Por Proveedor",
+    "sort_provider": "Por Especialista",
     "status_completed": "Completada",
     "status_confirmed": "Confirmada",
-    "status_pending": "Pendiente",
+    "status_pending": "Pago Pendiente",
+    "status_in_progress": "En Curso",
     "status_canceled": "Cancelada",
-    "status_canceled_provider": "Cancelada por proveedor",
-    "status_unknown": "Desconocido",
-    "badge_video": "Video",
-    "specialist_fallback": "Especialista",
-    "label_total": "Total",
+    "status_canceled_provider": "Cancelada por el especialista",
+    "status_unknown": "Estado no disponible",
+    "badge_video": "Consulta en línea",
+    "specialist_fallback": "Especialista médico",
+    "label_total": "Monto total",
     "btn_join_video": "Unirse a Video",
     "btn_join_late": "Conectar (Tarde)",
+    "late_tooltip": "Estás ingresando después del tiempo de tolerancia sugerido.",
     "btn_view_details": "Ver Detalles",
     "btn_add_calendar": "Agregar a Calendario",
     "btn_cancel": "Cancelar Cita",

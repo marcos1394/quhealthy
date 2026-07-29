@@ -1,45 +1,65 @@
-import React from 'react';
-import { Calendar, Clock } from 'lucide-react';
+"use client";
+
+import React from "react";
+import { Calendar, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function AppointmentTimeCard({
- dateFormatted,
- timeFormatted,
- durationMinutes
+  dateFormatted,
+  timeFormatted,
+  durationMinutes,
 }: {
- dateFormatted: string;
- timeFormatted: string;
- durationMinutes: number;
+  dateFormatted: string;
+  timeFormatted: string;
+  durationMinutes: number;
 }) {
- return (
- <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
- <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
- <Calendar className="w-4 h-4" strokeWidth={1.5} />
- Programación Temporal
- </h3>
- </div>
- <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 dark:divide-gray-800">
- <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
- <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0 bg-white dark:bg-black">
- <Calendar className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
- </div>
- <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Fecha Acordada</p>
- <p className="text-xl font-semibold text-black dark:text-white tracking-tight uppercase">{dateFormatted}</p>
- </div>
- </div>
- <div className="p-8 flex items-center gap-5 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors">
- <div className="w-12 h-12 border border-black dark:border-white flex items-center justify-center shrink-0 bg-white dark:bg-black">
- <Clock className="w-5 h-5 text-black dark:text-white" strokeWidth={1.5} />
- </div>
- <div>
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Bloque Horario</p>
- <p className="text-xl font-semibold text-black dark:text-white tracking-tight">
- {timeFormatted} HRS <span className="text-xs font-light text-gray-500 ml-2">[{durationMinutes} MIN]</span>
- </p>
- </div>
- </div>
- </div>
- </div>
- );
+  const t = useTranslations("AppointmentDetails.time");
+
+  return (
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden font-sans">
+      <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+          <Calendar className="w-5 h-5" strokeWidth={2} />
+        </div>
+        <h3 className="text-base font-bold text-gray-900 dark:text-white">
+          {t("title")}
+        </h3>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-gray-800">
+        {/* Fecha */}
+        <div className="p-6 sm:p-8 flex items-center gap-4 hover:bg-gray-50/50 dark:hover:bg-[#050505] transition-colors">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+            <Calendar className="w-6 h-6" strokeWidth={2} />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              {t("date_label")}
+            </p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">
+              {dateFormatted}
+            </p>
+          </div>
+        </div>
+
+        {/* Horario y Duración */}
+        <div className="p-6 sm:p-8 flex items-center gap-4 hover:bg-gray-50/50 dark:hover:bg-[#050505] transition-colors">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+            <Clock className="w-6 h-6" strokeWidth={2} />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              {t("time_label")}
+            </p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+              <span>{timeFormatted} {t("hrs")}</span>
+              <span className="text-xs font-semibold text-gray-400">
+                ({durationMinutes} {t("min")})
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

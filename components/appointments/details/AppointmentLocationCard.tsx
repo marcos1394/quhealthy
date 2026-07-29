@@ -1,54 +1,74 @@
-import React from 'react';
-import { MapPin, Video, Clock } from 'lucide-react';
+"use client";
+
+import React from "react";
+import { MapPin, Video, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function AppointmentLocationCard({
- isOnline,
- meetLink,
- locationAddress
+  isOnline,
+  meetLink,
+  locationAddress,
 }: {
- isOnline: boolean;
- meetLink?: string;
- locationAddress?: string;
+  isOnline: boolean;
+  meetLink?: string;
+  locationAddress?: string;
 }) {
- return (
- <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
- <div className="border-b border-gray-200 dark:border-gray-800 p-6 flex items-center justify-between bg-gray-50 dark:bg-[#050505]">
- <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
- <MapPin className="w-4 h-4" strokeWidth={1.5} />
- Logística de Asistencia
- </h3>
- </div>
- <div className="p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
- <div className="w-14 h-14 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
- {isOnline ? <Video className="w-6 h-6" strokeWidth={1.5} /> : <MapPin className="w-6 h-6" strokeWidth={1.5} />}
- </div>
- <div className="flex-1">
- <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
- Modalidad: {isOnline ? 'TELEMEDICINA' : 'ATENCIÓN PRESENCIAL'}
- </p>
- 
- {isOnline ? (
- <div className="space-y-3 mt-2">
- <p className="text-xs font-light leading-relaxed text-black dark:text-white">
- El enlace cifrado para la transmisión se activará minutos antes de su consulta.
- </p>
- {meetLink ? (
- <a href={meetLink} target="_blank" rel="noreferrer" className="inline-flex border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-[9px] font-bold uppercase tracking-widest px-4 py-2 transition-colors">
- <Video className="w-3 h-3 mr-2" strokeWidth={1.5} /> Iniciar Transmisión
- </a>
- ) : (
- <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500 flex items-center gap-1.5">
- <Clock className="w-3 h-3" strokeWidth={2} /> Enlace en generación
- </span>
- )}
- </div>
- ) : (
- <p className="text-sm font-semibold tracking-tight text-black dark:text-white uppercase leading-relaxed mt-2">
- {locationAddress || 'DIRECCIÓN NO ESPECIFICADA. CONTACTE AL PROVEEDOR.'}
- </p>
- )}
- </div>
- </div>
- </div>
- );
+  const t = useTranslations("AppointmentDetails.location");
+
+  return (
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden space-y-6 p-6 sm:p-8 font-sans">
+      <div className="pb-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+          <MapPin className="w-5 h-5" strokeWidth={2} />
+        </div>
+        <h3 className="text-base font-bold text-gray-900 dark:text-white">
+          {t("title")}
+        </h3>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+        <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+          {isOnline ? (
+            <Video className="w-6 h-6" strokeWidth={2} />
+          ) : (
+            <MapPin className="w-6 h-6" strokeWidth={2} />
+          )}
+        </div>
+
+        <div className="flex-1 space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+            {t("modality_label")}: {isOnline ? t("online") : t("presencial")}
+          </p>
+
+          {isOnline ? (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-gray-500 leading-relaxed">
+                {t("online_desc")}
+              </p>
+              {meetLink ? (
+                <a
+                  href={meetLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-sm"
+                >
+                  <Video className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("start_call")}</span>
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+                  <Clock className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("link_generating")}</span>
+                </span>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm font-semibold text-gray-900 dark:text-white leading-relaxed">
+              {locationAddress || t("no_address")}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

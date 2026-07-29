@@ -1,17 +1,23 @@
+"use client";
+
+import React from "react";
+import { useTranslations } from "next-intl";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function OnboardingLoading() {
+  const t = useTranslations("OnboardingLayout");
+
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] transition-all duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
       <QhSpinner size="lg" />
 
-      {/* Loading text (Editorial Style) */}
-      <div className="mt-12 space-y-3 text-center z-10">
-        <h3 className="text-[10px] font-bold text-black dark:text-white uppercase tracking-widest animate-pulse">
-          Preparando Entorno
+      {/* Texto de Carga */}
+      <div className="mt-8 space-y-1.5 text-center z-10">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+          {t("loading_title")}
         </h3>
-        <p className="text-[9px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-[0.3em] font-serif italic">
-          QuHealthy.
+        <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
+          {t("loading_subtitle")}
         </p>
       </div>
     </div>
