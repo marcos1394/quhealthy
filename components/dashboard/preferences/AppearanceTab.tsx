@@ -31,41 +31,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PreferenceCard } from './PreferenceCard';
 
-/**
- * AppearanceTab Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEEDBACK INMEDIATO
- * - Preview en tiempo real de cambios
- * - Indicadores visuales de estado
- * - Animaciones suaves al cambiar
- * 
- * 2. AFFORDANCE VISUAL
- * - Iconos por tema (Sun/Moon/Monitor)
- * - Estados disabled claros
- * - Preview cards interactivas
- * 
- * 3. RECONOCIMIENTO VS RECUPERACIÓN
- * - Iconos descriptivos
- * - Labels claros
- * - Ejemplos visuales
- * 
- * 4. MINIMIZAR ERRORES
- * - Cambios reversibles
- * - Preview antes de guardar
- * - Confirmación visual
- * 
- * 5. CREDIBILIDAD
- * - Info tooltips
- * - Badges con contexto
- * - Descripciones claras
- * 
- * 6. ACCESIBILIDAD
- * - Opciones de contraste
- * - Reducir movimiento
- * - WCAG compliance
- */
 
 interface AppearanceTabProps {
  preferences: any;

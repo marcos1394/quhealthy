@@ -33,47 +33,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PreferenceCard } from './PreferenceCard';
 
-/**
- * PrivacyTab Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. CREDIBILIDAD Y TRANSPARENCIA
- * - Explicación clara del impacto
- * - Ejemplos visuales
- * - Info sobre quién ve qué
- * - Nivel de privacidad visible
- * 
- * 2. MINIMIZAR ERRORES
- * - Warning cuando privacidad baja
- * - Confirmación de cambios
- * - Defaults seguros
- * - Reversible
- * 
- * 3. FEEDBACK INMEDIATO
- * - Preview de nivel de privacidad
- * - Estados visuales claros
- * - Badges informativos
- * - Animaciones de cambio
- * 
- * 4. AFFORDANCE
- * - Iconos por nivel de privacidad
- * - Colores distintivos
- * - Estados on/off claros
- * - Visual hierarchy
- * 
- * 5. RECONOCIMIENTO VS RECUPERACIÓN
- * - Iconos descriptivos
- * - Ejemplos de uso
- * - Labels claros
- * - Preview de impacto
- * 
- * 6. CONTROL Y LIBERTAD
- * - Granularidad de opciones
- * - Fácil de cambiar
- * - Sin consecuencias ocultas
- * - Todo reversible
- */
 
 interface PrivacyTabProps {
  preferences: any;

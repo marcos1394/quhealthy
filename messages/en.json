@@ -3509,6 +3509,18 @@
   },
 
   "DashboardMarketing": {
+    "subtitle": "Attract more patients with built-in promotional tools.",
+    "tab_social": "Social Media",
+    "tab_profile": "Public Profile",
+    "item_service": "Service",
+    "item_package": "Package",
+    "item_product": "Product",
+    "item_course": "Course",
+    "google_business": {
+      "not_connected_title": "Google Business Not Connected",
+      "not_connected_desc": "Connect your Google Business Profile to sync your practice reviews and posts automatically.",
+      "btn_connect": "Connect Account"
+    },
     "ai_studio_title": "Generative AI Studio",
     "step_select_service": "1. Select a base concept or service",
     "no_services": "No products or services found in your catalog.",

@@ -2913,6 +2913,18 @@
   },
 
   "DashboardMarketing": {
+    "subtitle": "Atrae a más pacientes con herramientas promocionales integradas.",
+    "tab_social": "Redes Sociales",
+    "tab_profile": "Perfil Público",
+    "item_service": "Servicio",
+    "item_package": "Paquete",
+    "item_product": "Producto",
+    "item_course": "Curso",
+    "google_business": {
+      "not_connected_title": "Google Business No Conectado",
+      "not_connected_desc": "Conecta tu perfil de Google Business para sincronizar tus reseñas y publicaciones automáticamente.",
+      "btn_connect": "Conectar Cuenta"
+    },
     "ai_studio_title": "Estudio Generativo de Contenido",
     "step_select_service": "1. Selecciona un concepto o servicio base",
     "no_services": "No tienes productos ni servicios registrados en tu catálogo.",

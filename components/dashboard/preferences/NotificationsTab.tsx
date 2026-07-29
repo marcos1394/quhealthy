@@ -29,47 +29,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PreferenceCard } from './PreferenceCard';
 
-/**
- * NotificationsTab Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEEDBACK INMEDIATO
- * - Preview de notificaciones
- * - Contador de canales activos
- * - Animaciones al toggle
- * - Estado visual claro
- * 
- * 2. AFFORDANCE
- * - Iconos por canal
- * - Estados on/off claros
- * - Colores distintivos
- * - Badges informativos
- * 
- * 3. RECONOCIMIENTO VS RECUPERACIÓN
- * - Iconos descriptivos
- * - Ejemplos de uso
- * - Labels claros
- * - Agrupación lógica
- * 
- * 4. MINIMIZAR ERRORES
- * - Warning cuando todo está off
- * - Confirmación visual
- * - Defaults inteligentes
- * - Info tooltips
- * 
- * 5. CREDIBILIDAD
- * - Ejemplos de notificaciones
- * - Frecuencia indicada
- * - Privacy info
- * - Control granular
- * 
- * 6. MINIMIZAR CARGA COGNITIVA
- * - Agrupado por categoría
- * - Opciones organizadas
- * - Prioridad visual
- * - Una decisión a la vez
- */
 
 // Tipos
 export type UserRole = 'provider' | 'consumer';

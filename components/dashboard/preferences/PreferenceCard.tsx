@@ -9,43 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * PreferenceCard Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. JERARQUÍA VISUAL
- * - Icono destacado en container
- * - Título prominente
- * - Descripción secundaria
- * - Contenido terciario
- * 
- * 2. AFFORDANCE
- * - Hover effects sutiles
- * - Bordes con gradiente
- * - Sombra al hover
- * - Icon container con glow
- * 
- * 3. FEEDBACK VISUAL
- * - Animaciones suaves
- * - Transiciones de estado
- * - Hover lift effect
- * 
- * 4. RECONOCIMIENTO
- * - Iconos descriptivos
- * - Colores consistentes
- * - Layout predecible
- * 
- * 5. FIGURA/FONDO (Gestalt)
- * - Card elevado
- * - Separación clara
- * - Agrupación visual
- * 
- * 6. SIMILITUD (Gestalt)
- * - Estructura consistente
- * - Spacing uniforme
- * - Estilo predecible
- */
 
 interface PreferenceCardProps {
  icon: React.ElementType;

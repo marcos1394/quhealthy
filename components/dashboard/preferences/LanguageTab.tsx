@@ -28,41 +28,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PreferenceCard } from './PreferenceCard';
 
-/**
- * LanguageTab Component
- * 
- * Principios de Psicología UX aplicados:
- * 
- * 1. FEEDBACK INMEDIATO
- * - Preview en tiempo real de cambios
- * - Ejemplos visuales de formato
- * - Confirmación de selección
- * 
- * 2. RECONOCIMIENTO VS RECUPERACIÓN
- * - Banderas por idioma
- * - Símbolos de moneda
- * - Ejemplos de hora
- * 
- * 3. MINIMIZAR ERRORES
- * - Preview antes de aplicar
- * - Ejemplos claros
- * - Reversible
- * 
- * 4. CREDIBILIDAD
- * - Info sobre timezone
- * - Ejemplos reales
- * - Context tooltips
- * 
- * 5. AFFORDANCE
- * - Iconos descriptivos
- * - Estados hover
- * - Visual feedback
- * 
- * 6. MINIMIZAR CARGA COGNITIVA
- * - Opciones agrupadas lógicamente
- * - Ejemplos visuales
- * - Una decisión a la vez
- */
 
 // Datos
 const languages = [
