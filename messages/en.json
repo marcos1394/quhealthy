@@ -4436,6 +4436,15 @@
   
   "PatientBooking": {
     "preparing_booking": "Preparing booking...",
+    "back_to_directory": "Back to directory",
+    "subtitle": "Booking appointment with",
+    "action_selection_title": "Select an action",
+    "schedule_now_title": "Schedule now",
+    "schedule_now_desc": "Book your appointment for a specific date and time",
+    "buy_for_later_title": "Buy for later",
+    "buy_for_later_desc": "Purchase now and schedule your appointment later",
+    "step_date": "Select date",
+    "step_date_desc": "Choose a date for your appointment",
     "weekdays": [
       "Mon",
       "Tue",

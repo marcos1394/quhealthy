@@ -4044,6 +4044,15 @@
  
   "PatientBooking": {
     "preparing_booking": "Preparando reserva...",
+    "back_to_directory": "Volver al directorio",
+    "subtitle": "Agendando cita con",
+    "action_selection_title": "Selecciona una acción",
+    "schedule_now_title": "Agendar ahora",
+    "schedule_now_desc": "Reserva tu cita para una fecha y hora específica",
+    "buy_for_later_title": "Comprar para después",
+    "buy_for_later_desc": "Compra ahora y agenda tu cita más tarde",
+    "step_date": "Seleccionar fecha",
+    "step_date_desc": "Elige una fecha para tu cita",
     "weekdays": [
       "Lun",
       "Mar",
