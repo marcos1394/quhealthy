@@ -1,43 +1,47 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React from "react";
 import { QrCode } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 interface Props {
-  t: any;
+  t?: any;
   qrCodeUrl: string | null;
 }
 
-export function QrCodeCard({ t, qrCodeUrl }: Props) {
+export function QrCodeCard({ qrCodeUrl }: Props) {
+  const t = useTranslations("AppointmentConfirmation");
+
   return (
-    <div className="bg-white dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden mb-12 flex flex-col">
-      <div className="bg-gray-50 dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 p-5 text-center">
-        <h2 className="text-sm font-bold text-gray-900 dark:text-white flex items-center justify-center gap-2 mb-2">
-          <span className="bg-quhealthy-green/10 dark:bg-emerald-900/30 p-1.5 rounded-lg inline-flex">
-            <QrCode className="w-4 h-4 text-quhealthy-green dark:text-emerald-400" strokeWidth={1.5} />
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden mb-8 flex flex-col font-sans transition-colors">
+      <div className="bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 p-6 text-center space-y-1">
+        <h2 className="text-base font-bold text-gray-900 dark:text-white flex items-center justify-center gap-2">
+          <span className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <QrCode className="w-4 h-4" strokeWidth={2} />
           </span>
-          {t("qr_label", { defaultValue: "Credencial Criptográfica" })}
+          <span>{t("qr_label")}</span>
         </h2>
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-          {t("tip_arrive", {
-            defaultValue:
-              "Presentar en recepción al arribar a las instalaciones.",
-          })}
+        <p className="text-xs font-medium text-gray-500 max-w-sm mx-auto">
+          {t("tip_arrive")}
         </p>
       </div>
-      <div className="p-8 flex items-center justify-center bg-white dark:bg-[#050505]">
-        <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md">
+
+      <div className="p-8 flex items-center justify-center bg-white dark:bg-[#0a0a0a]">
+        <div className="p-4 bg-white rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
           {qrCodeUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={qrCodeUrl}
               alt={t("qr_label")}
-              className="w-48 h-48 object-contain bg-white dark:bg-white rounded-lg"
+              className="w-44 h-44 object-contain mix-blend-multiply"
             />
           ) : (
-            <div className="w-48 h-48 flex items-center justify-center bg-gray-50 dark:bg-gray-100 rounded-lg">
-              <QhSpinner size="md" />
+            <div className="w-44 h-44 flex items-center justify-center bg-gray-50 rounded-xl">
+              <QhSpinner size="md" className="text-emerald-600" />
             </div>
           )}
         </div>

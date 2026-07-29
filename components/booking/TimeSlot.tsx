@@ -1,6 +1,8 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 
+import React from "react";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +10,7 @@ interface TimeSlotProps {
   time: string;
   isSelected: boolean;
   isDisabled?: boolean;
-  providerColor: string;
+  providerColor?: string;
   onSelect: (time: string) => void;
 }
 
@@ -19,30 +21,29 @@ export function TimeSlot({
   providerColor,
   onSelect,
 }: TimeSlotProps) {
-  const safeColor = providerColor || "#000000";
+  const safeColor = providerColor || "#059669"; // Emerald 600 fallback
+
   return (
     <button
+      type="button"
       onClick={() => onSelect(time)}
       disabled={isDisabled}
       className={cn(
-        "h-12 rounded-none border text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all duration-300",
+        "h-11 px-3 rounded-xl border text-xs font-bold font-sans flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-xs",
         isSelected
-          ? "text-white border-transparent"
+          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
           : isDisabled
-            ? "bg-gray-100 dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-400 opacity-50 cursor-not-allowed"
-            : "bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:-translate-y-1 hover:shadow-lg hover:[border-color:var(--provider-color)] hover:[color:var(--provider-color)] hover:bg-white dark:hover:bg-[#0a0a0a]",
+            ? "bg-gray-50/50 dark:bg-[#050505] border-gray-100 dark:border-gray-800 text-gray-300 dark:text-gray-700 opacity-60 cursor-not-allowed"
+            : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:border-emerald-500/40 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 hover:text-emerald-600 dark:hover:text-emerald-400"
       )}
       style={
-        {
-          ...(isSelected
-            ? { backgroundColor: safeColor, borderColor: safeColor }
-            : {}),
-          "--provider-color": safeColor,
-        } as React.CSSProperties
+        isSelected && providerColor
+          ? { backgroundColor: safeColor, borderColor: safeColor }
+          : undefined
       }
     >
-      {isSelected && <Clock className="w-3.5 h-3.5" strokeWidth={2} />}
-      {time}
+      {isSelected && <Clock className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />}
+      <span>{time}</span>
     </button>
   );
 }

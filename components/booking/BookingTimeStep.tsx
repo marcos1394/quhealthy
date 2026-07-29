@@ -1,10 +1,14 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Clock, CalendarX2 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useTranslations } from "next-intl";
+
 import { TimeSlot } from "@/components/booking/TimeSlot";
 
 type BookingTimeStepProps = {
@@ -15,8 +19,8 @@ type BookingTimeStepProps = {
   isLoadingSlots: boolean;
   availableSlots: string[];
   selectedTime: string | null;
-  safeColor: string;
-  t: (key: string) => string;
+  safeColor?: string;
+  t?: (key: string) => string;
   onTimeSelect: (time: string) => void;
 };
 
@@ -29,75 +33,79 @@ export function BookingTimeStep({
   availableSlots,
   selectedTime,
   safeColor,
-  t,
   onTimeSelect,
 }: BookingTimeStepProps) {
+  const t = useTranslations("BookingTimeStep");
+
   return (
     <AnimatePresence>
       {scheduleNow && selectedDate && (
-        <m.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
+        <motion.section
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="overflow-hidden space-y-6 font-sans mt-8"
         >
-          <div className="flex items-center gap-6 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 mt-8">
-            <div className="w-10 h-10 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
-              <span className="font-bold text-sm">{stepNumber}</span>
+          {/* Header del Paso */}
+          <div className="flex items-center gap-3.5 pb-2 border-b border-gray-100 dark:border-gray-800">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-sm shrink-0 shadow-xs">
+              {stepNumber}
             </div>
-            <div className="flex-1">
-              <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white">
+
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
                 {t("step_time")}
               </h2>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 capitalize mt-0.5">
                 {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
               </p>
             </div>
-            <span className="border border-black dark:border-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-black text-white dark:bg-white dark:text-black flex items-center gap-2">
-              <Clock className="w-3 h-3" strokeWidth={2} /> {duration} MIN
+
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold shadow-xs">
+              <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <span>{t("duration_badge", { duration })}</span>
             </span>
           </div>
 
-          <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-8 md:p-12 ml-0 md:ml-16">
+          {/* Tarjeta del Selector de Horarios */}
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm transition-colors">
             {isLoadingSlots ? (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-0 border-t border-l border-gray-200 dark:border-gray-800">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                   <div
                     key={i}
-                    className="h-12 border-b border-r border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 animate-pulse"
+                    className="h-11 rounded-xl bg-gray-100 dark:bg-gray-800/50 animate-pulse"
                   />
                 ))}
               </div>
             ) : availableSlots.length > 0 ? (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                 {availableSlots.map((time) => (
                   <TimeSlot
                     key={time}
                     time={time}
                     isSelected={selectedTime === time}
                     providerColor={safeColor}
-                    onSelect={(time) => onTimeSelect(time)}
+                    onSelect={(t) => onTimeSelect(t)}
                   />
                 ))}
               </div>
             ) : (
-              <div className="py-16 flex flex-col items-center text-center border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]">
-                <div className="w-12 h-12 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
-                  <CalendarX2
-                    className="w-5 h-5 text-gray-400"
-                    strokeWidth={1.5}
-                  />
+              <div className="py-12 flex flex-col items-center text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/50 dark:bg-[#050505] p-6 space-y-2">
+                <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800/60 flex items-center justify-center text-gray-400">
+                  <CalendarX2 className="w-6 h-6" strokeWidth={2} />
                 </div>
-                <h3 className="font-bold text-sm uppercase tracking-widest text-black dark:text-white">
-                  Sin Disponibilidad
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                  {t("no_slots_title")}
                 </h3>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-2">
-                  EL PROVEEDOR NO TIENE BLOQUES HORARIOS DISPONIBLES EN ESTA
-                  FECHA.
+                <p className="text-xs font-medium text-gray-500 max-w-sm leading-relaxed">
+                  {t("no_slots_desc")}
                 </p>
               </div>
             )}
           </div>
-        </m.section>
+        </motion.section>
       )}
     </AnimatePresence>
   );

@@ -1,4 +1,5 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
 
@@ -11,26 +12,29 @@ import {
   CreditCard,
   AlertCircle,
   ShoppingCart,
-  Loader2,
   FileText,
   Info,
   MonitorPlay,
   Package,
+  Wallet,
+  ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 import { StorefrontItem } from "@/types/storefront";
 import { appointmentService } from "@/services/appointment.service";
 import { useHealthVault } from "@/hooks/useHealthVault";
 import { usePackages } from "@/hooks/usePackages";
 import { consumerWalletService } from "@/services/consumer-wallet.service";
-import { Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Checkbox } from "../ui/checkbox";
 
 interface BookingSummaryProps {
   cart: StorefrontItem[];
   total: number;
-  providerColor: string; // Se mantiene por compatibilidad de API, pero la UI adopta el Manifiesto Monocromático
+  providerColor?: string;
   selectedDate: Date | null;
   selectedTime: string | null;
   isProcessing?: boolean;
@@ -40,7 +44,7 @@ interface BookingSummaryProps {
     shippingAddress?: string,
     shareVaultAccess?: boolean,
     allowedDocumentIds?: string[],
-    paymentMethod?: string,
+    paymentMethod?: string
   ) => void;
 }
 
@@ -56,9 +60,7 @@ export function BookingSummary({
 }: BookingSummaryProps) {
   const t = useTranslations("PatientBooking");
 
-  // ==========================================
-  // ESTADOS LOCALES
-  // ==========================================
+  // ── ESTADOS LOCALES REDUCER ──────────────────────────────────────────────
   const [
     {
       symptoms,
@@ -75,69 +77,21 @@ export function BookingSummary({
     (state: any, action: any) => {
       switch (action.type) {
         case "SET_SYMPTOMS":
-          return {
-            ...state,
-            symptoms:
-              typeof action.payload === "function"
-                ? action.payload(state.symptoms)
-                : action.payload,
-          };
+          return { ...state, symptoms: action.payload };
         case "SET_SHAREVAULTACCESS":
-          return {
-            ...state,
-            shareVaultAccess:
-              typeof action.payload === "function"
-                ? action.payload(state.shareVaultAccess)
-                : action.payload,
-          };
+          return { ...state, shareVaultAccess: action.payload };
         case "SET_SHAREVAULTMODE":
-          return {
-            ...state,
-            shareVaultMode:
-              typeof action.payload === "function"
-                ? action.payload(state.shareVaultMode)
-                : action.payload,
-          };
+          return { ...state, shareVaultMode: action.payload };
         case "SET_SELECTEDDOCUMENTIDS":
-          return {
-            ...state,
-            selectedDocumentIds:
-              typeof action.payload === "function"
-                ? action.payload(state.selectedDocumentIds)
-                : action.payload,
-          };
+          return { ...state, selectedDocumentIds: action.payload };
         case "SET_RATES":
-          return {
-            ...state,
-            rates:
-              typeof action.payload === "function"
-                ? action.payload(state.rates)
-                : action.payload,
-          };
+          return { ...state, rates: action.payload };
         case "SET_SELECTEDCURRENCY":
-          return {
-            ...state,
-            selectedCurrency:
-              typeof action.payload === "function"
-                ? action.payload(state.selectedCurrency)
-                : action.payload,
-          };
+          return { ...state, selectedCurrency: action.payload };
         case "SET_ISLOADINGRATES":
-          return {
-            ...state,
-            isLoadingRates:
-              typeof action.payload === "function"
-                ? action.payload(state.isLoadingRates)
-                : action.payload,
-          };
+          return { ...state, isLoadingRates: action.payload };
         case "SET_SELECTEDPAYMENTMETHOD":
-          return {
-            ...state,
-            selectedPaymentMethod:
-              typeof action.payload === "function"
-                ? action.payload(state.selectedPaymentMethod)
-                : action.payload,
-          };
+          return { ...state, selectedPaymentMethod: action.payload };
         default:
           return state;
       }
@@ -151,7 +105,7 @@ export function BookingSummary({
       selectedCurrency: "MXN",
       isLoadingRates: true,
       selectedPaymentMethod: "CREDIT_CARD",
-    },
+    }
   );
 
   const setSymptoms = (val: any) =>
@@ -170,7 +124,7 @@ export function BookingSummary({
   const setSelectedPaymentMethod = (val: any) =>
     dispatch({ type: "SET_SELECTEDPAYMENTMETHOD", payload: val });
 
-  // Fetch Wallet Balance
+  // Saldo de Billetera
   const [walletBalance, setWalletBalance] = useState(0);
   const [isLoadingWallet, setIsLoadingWallet] = useState(false);
 
@@ -193,12 +147,8 @@ export function BookingSummary({
     };
   }, []);
 
-  const {
-    documents,
-    fetchDocuments,
-    isLoading: isLoadingDocs,
-  } = useHealthVault();
-  const { packages, isLoading: isLoadingPackages } = usePackages();
+  const { documents, fetchDocuments, isLoading: isLoadingDocs } = useHealthVault();
+  const { packages } = usePackages();
 
   useEffect(() => {
     if (
@@ -210,9 +160,7 @@ export function BookingSummary({
     }
   }, [shareVaultAccess, shareVaultMode, documents.length, fetchDocuments]);
 
-  // ==========================================
-  // FETCH DE DIVISAS
-  // ==========================================
+  // Tasas de Cambio
   useEffect(() => {
     let isMounted = true;
     const fetchRates = async () => {
@@ -221,9 +169,6 @@ export function BookingSummary({
         const data = await appointmentService.getExchangeRates();
         if (isMounted) setRates(data);
       } catch (error) {
-        console.warn(
-          "No se pudieron cargar las tasas de cambio. Usando fallback.",
-        );
         if (isMounted) setRates({ MXN: 1, USD: 0.05, EUR: 0.045 });
       } finally {
         if (isMounted) setIsLoadingRates(false);
@@ -235,12 +180,10 @@ export function BookingSummary({
     };
   }, []);
 
-  // ==========================================
-  // CÁLCULOS MEMOIZADOS
-  // ==========================================
+  // ── CÁLCULOS MEMOIZADOS ──────────────────────────────────────────────
   const cartAnalysis = useMemo(() => {
     const hasServices = cart.some(
-      (item) => item.type === "SERVICE" || item.type === "PACKAGE",
+      (item) => item.type === "SERVICE" || item.type === "PACKAGE"
     );
     const hasProducts = cart.some((item) => item.type === "PRODUCT");
     const hasCourses = cart.some((item) => item.type === "COURSE");
@@ -279,9 +222,7 @@ export function BookingSummary({
       let availableCredits = 0;
 
       for (const pkg of packages) {
-        const credit = pkg.creditsRemaining?.find(
-          (c) => c.serviceId === itemId,
-        );
+        const credit = pkg.creditsRemaining?.find((c) => c.serviceId === itemId);
         if (credit) {
           availableCredits += credit.quantity;
         }
@@ -303,9 +244,8 @@ export function BookingSummary({
     return { convertedTotal, isForeignCurrency };
   }, [finalTotal, rates, selectedCurrency]);
 
-  // ==========================================
-  // HANDLERS
-  // ==========================================
+  const safeColor = providerColor || "#059669";
+
   const handleCheckoutClick = () => {
     if (validationRules.isReady && !isProcessing) {
       onCheckout(
@@ -313,109 +253,100 @@ export function BookingSummary({
         undefined,
         shareVaultAccess,
         shareVaultMode === "GRANULAR" ? selectedDocumentIds : undefined,
-        isUsingPackage ? "PACKAGE_BALANCE" : selectedPaymentMethod,
+        isUsingPackage ? "PACKAGE_BALANCE" : selectedPaymentMethod
       );
     }
   };
 
-  // ==========================================
-  // HELPERS DE RENDERIZADO
-  // ==========================================
-  const safeColor = providerColor || "#000000";
-  const renderItemIconAndBadge = (item: StorefrontItem) => {
+  const renderItemBadge = (item: StorefrontItem) => {
     switch (item.type) {
       case "SERVICE":
       case "PACKAGE":
         return (
-          <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-black dark:text-white w-fit">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
             <Clock className="w-3 h-3" strokeWidth={2} />
-            {scheduleNow ? `${item.durationMinutes || 30} MIN` : "CRÉDITO"}
+            {scheduleNow
+              ? t("duration_min", { minutes: item.durationMinutes || 30 })
+              : t("credit_badge")}
           </span>
         );
       case "COURSE":
         return (
-          <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-black dark:text-white w-fit">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
             <MonitorPlay className="w-3 h-3" strokeWidth={2} />
-            DIGITAL
+            {t("digital_badge")}
           </span>
         );
       case "PRODUCT":
       default:
         return (
-          <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-black dark:text-white w-fit">
-            <Package className="w-3 h-3" strokeWidth={2} />x{item.quantity || 1}{" "}
-            FÍSICO
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
+            <Package className="w-3 h-3" strokeWidth={2} />
+            {t("physical_badge", { quantity: item.quantity || 1 })}
           </span>
         );
     }
   };
 
-  // ==========================================
-  // RENDER PRINCIPAL
-  // ==========================================
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full lg:w-[420px]"
+      className="w-full lg:w-[420px] font-sans"
     >
       <div className="sticky top-24">
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col">
-          {/* 🟦 HEADER DE RESUMEN */}
-          <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] border-b border-gray-200 dark:border-gray-800 flex items-start gap-5">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
+          {/* ── HEADER DE RESUMEN ──────────────────────────────────────── */}
+          <div className="p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex items-center gap-4">
             <div
-              className="w-12 h-12 border flex items-center justify-center shrink-0 transition-colors"
-              style={{
-                backgroundColor: safeColor,
-                color: "#ffffff",
-                borderColor: safeColor,
-              }}
+              className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs"
+              style={
+                providerColor
+                  ? { backgroundColor: `${safeColor}15`, color: safeColor }
+                  : undefined
+              }
             >
-              <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
+              <ShoppingCart className="w-6 h-6" strokeWidth={2} />
             </div>
-            <div>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+            <div className="space-y-0.5">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
                 {cartAnalysis.hasServices && scheduleNow
-                  ? t("cart_summary") || "Resumen de Cita"
-                  : "Resumen de Orden"}
+                  ? t("cart_summary")
+                  : t("order_summary")}
               </h3>
-              <p className="text-[10px] uppercase tracking-widest text-gray-500">
+              <p className="text-xs font-medium text-gray-500">
                 {cart.length === 0
-                  ? "Sin selección actual"
-                  : `${cart.length} ÍTEM(S) SELECCIONADO(S)`}
+                  ? t("empty_cart")
+                  : t("selected_items_count", { count: cart.length })}
               </p>
             </div>
           </div>
 
-          <div className="p-6 md:p-8 flex flex-col gap-8">
-            {/* 💱 SELECTOR DE DIVISAS */}
+          <div className="p-6 space-y-6">
+            {/* ── SELECTOR DE DIVISAS ─────────────────────────────────── */}
             {!cartAnalysis.isEmpty && (
-              <div className="flex border border-black dark:border-white bg-white dark:bg-[#0a0a0a]">
-                {["MXN", "USD", "EUR"].map((cur, index) => (
+              <div className="flex bg-gray-50 dark:bg-[#050505] p-1 rounded-2xl border border-gray-100 dark:border-gray-800">
+                {["MXN", "USD", "EUR"].map((cur) => (
                   <button
                     key={cur}
+                    type="button"
                     onClick={() => setSelectedCurrency(cur)}
                     disabled={isLoadingRates}
                     className={cn(
-                      "flex-1 h-10 text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center",
+                      "flex-1 h-9 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer",
                       selectedCurrency === cur
-                        ? "text-white"
-                        : "text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111]",
-                      index !== 0 && "border-l border-black dark:border-white",
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
                     )}
                     style={
-                      selectedCurrency === cur
+                      selectedCurrency === cur && providerColor
                         ? { backgroundColor: safeColor }
-                        : {}
+                        : undefined
                     }
-                    aria-label={`Cambiar moneda a ${cur}`}
                   >
                     {isLoadingRates && selectedCurrency === cur ? (
-                      <Loader2
-                        className="w-3.5 h-3.5 animate-spin"
-                        strokeWidth={2}
-                      />
+                      <QhSpinner size="sm" className="text-white" />
                     ) : (
                       cur
                     )}
@@ -424,57 +355,51 @@ export function BookingSummary({
               </div>
             )}
 
-            {/* 🛒 LISTA DE ÍTEMS DEL CARRITO */}
+            {/* ── LISTA DE ÍTEMS ───────────────────────────────────────── */}
             {cartAnalysis.isEmpty ? (
-              <div className="text-center py-12 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505]">
-                <ShoppingCart
-                  className="w-6 h-6 mx-auto mb-4 text-gray-400"
-                  strokeWidth={1.5}
-                />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  Directorio de adquisiciones vacío
+              <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/50 dark:bg-[#050505] space-y-2">
+                <ShoppingCart className="w-8 h-8 mx-auto text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
+                <p className="text-xs font-semibold text-gray-400">
+                  {t("empty_directory")}
                 </p>
               </div>
             ) : (
-              <div className="space-y-0 border-t border-gray-200 dark:border-gray-800">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {cart.map((item, idx) => (
                   <motion.div
                     key={`${item.id}-${idx}`}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="flex flex-col py-4 border-b border-gray-200 dark:border-gray-800"
+                    className="py-3.5 first:pt-0 last:pb-0 flex items-start justify-between gap-4"
                   >
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className="text-xs font-bold uppercase tracking-widest text-black dark:text-white truncate mb-2"
-                          title={item.name}
-                        >
-                          {item.name}
-                        </p>
-                        {renderItemIconAndBadge(item)}
-                      </div>
-                      <span className="text-sm font-semibold tracking-tight text-black dark:text-white">
-                        ${item.price.toLocaleString()}
-                      </span>
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                        {item.name}
+                      </p>
+                      {renderItemBadge(item)}
                     </div>
+                    <span className="text-sm font-bold font-mono text-gray-900 dark:text-white">
+                      ${item.price.toLocaleString()}
+                    </span>
                   </motion.div>
                 ))}
               </div>
             )}
 
-            {/* 📝 NOTAS / SÍNTOMAS */}
+            {/* ── OBSERVACIONES / SÍNTOMAS ────────────────────────────── */}
             {!cartAnalysis.isEmpty && scheduleNow && (
-              <div className="space-y-6">
-                <div>
-                  <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
-                    <FileText className="w-3.5 h-3.5" strokeWidth={2} />
-                    {cartAnalysis.hasServices
-                      ? t("label_symptoms") || "Observaciones Clínicas"
-                      : "Especificaciones Adicionales"}
-                    <span className="font-light">
-                      [{t("optional") || "OPCIONAL"}]
+              <div className="space-y-4 pt-2">
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+                    <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <span>
+                      {cartAnalysis.hasServices
+                        ? t("label_symptoms")
+                        : t("additional_notes")}
+                    </span>
+                    <span className="text-[10px] font-normal text-gray-400">
+                      [{t("optional")}]
                     </span>
                   </label>
                   <textarea
@@ -482,16 +407,10 @@ export function BookingSummary({
                     onChange={(e) => setSymptoms(e.target.value)}
                     placeholder={
                       cartAnalysis.hasServices
-                        ? "EJ. CUADRO SINTOMATOLÓGICO, ANTECEDENTES RELEVANTES..."
-                        : "INSTRUCCIONES DE PROCESAMIENTO..."
+                        ? t("symptoms_placeholder")
+                        : t("instructions_placeholder")
                     }
-                    className="w-full bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-none p-4 text-xs text-black dark:text-white focus:outline-none focus:ring-1 transition-colors resize-none placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest"
-                    style={
-                      {
-                        "--tw-ring-color": safeColor,
-                        borderColor: symptoms ? safeColor : undefined,
-                      } as React.CSSProperties
-                    }
+                    className="w-full bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-2xl p-3.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none placeholder:text-gray-400"
                     rows={3}
                     maxLength={300}
                     disabled={isProcessing}
@@ -499,7 +418,7 @@ export function BookingSummary({
                 </div>
 
                 {/* COMPARTIR BÓVEDA MÉDICA */}
-                <div className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] p-5 space-y-4">
+                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-3">
                   <div className="flex items-start gap-3">
                     <Checkbox
                       id="shareVaultAccess"
@@ -512,25 +431,15 @@ export function BookingSummary({
                         }
                       }}
                       disabled={isProcessing}
-                      className="mt-0.5 rounded-none border-black dark:border-white transition-colors"
-                      style={
-                        shareVaultAccess
-                          ? {
-                              backgroundColor: safeColor,
-                              borderColor: safeColor,
-                              color: "#ffffff",
-                            }
-                          : {}
-                      }
+                      className="mt-0.5 rounded-md border-gray-300 dark:border-gray-700 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600 w-4 h-4 shadow-xs"
                     />
                     <label
                       htmlFor="shareVaultAccess"
-                      className="text-[10px] uppercase tracking-widest text-black dark:text-white cursor-pointer"
+                      className="text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer space-y-0.5"
                     >
-                      <strong>Conceder Acceso a Expediente</strong>
-                      <p className="text-[9px] text-gray-500 mt-1 font-light leading-relaxed">
-                        Habilita la revisión de antecedentes y laboratorios por
-                        parte del especialista.
+                      <p>{t("grant_vault_access")}</p>
+                      <p className="text-[11px] font-normal text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {t("grant_vault_desc")}
                       </p>
                     </label>
                   </div>
@@ -541,82 +450,66 @@ export function BookingSummary({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="pl-7 space-y-4 pt-2 overflow-hidden"
+                        className="pl-7 space-y-3 pt-1 overflow-hidden"
                       >
-                        <div className="flex flex-col gap-3">
-                          <label className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest cursor-pointer text-gray-500 hover:text-black dark:hover:text-white transition-colors">
+                        <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-300 cursor-pointer">
                             <input
                               type="radio"
                               name="vaultMode"
                               checked={shareVaultMode === "FULL"}
                               onChange={() => setShareVaultMode("FULL")}
-                              className="w-3.5 h-3.5"
-                              style={{ accentColor: safeColor }}
+                              className="accent-emerald-600"
                             />
-                            Acceso Integral (Recomendado)
+                            <span>{t("vault_full_access")}</span>
                           </label>
-                          <label className="flex items-center gap-3 text-[9px] font-bold uppercase tracking-widest cursor-pointer text-gray-500 hover:text-black dark:hover:text-white transition-colors">
+                          <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-300 cursor-pointer">
                             <input
                               type="radio"
                               name="vaultMode"
                               checked={shareVaultMode === "GRANULAR"}
                               onChange={() => setShareVaultMode("GRANULAR")}
-                              className="w-3.5 h-3.5"
-                              style={{ accentColor: safeColor }}
+                              className="accent-emerald-600"
                             />
-                            Selección Granular
+                            <span>{t("vault_granular_access")}</span>
                           </label>
                         </div>
 
                         {shareVaultMode === "GRANULAR" && (
-                          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 p-4 max-h-48 overflow-y-auto">
+                          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 max-h-40 overflow-y-auto space-y-2">
                             {isLoadingDocs ? (
-                              <div className="flex justify-center py-4">
-                                <Loader2
-                                  className="w-4 h-4 animate-spin text-black dark:text-white"
-                                  strokeWidth={1.5}
-                                />
+                              <div className="flex justify-center py-3">
+                                <QhSpinner size="sm" className="text-emerald-600" />
                               </div>
                             ) : documents.length === 0 ? (
-                              <p className="text-[9px] font-bold uppercase tracking-widest text-center text-gray-500 py-4">
-                                Sin documentos indexados.
+                              <p className="text-xs font-semibold text-center text-gray-400 py-2">
+                                {t("no_docs_indexed")}
                               </p>
                             ) : (
-                              <div className="space-y-3">
-                                {documents.map((doc) => (
-                                  <div
-                                    key={doc.id}
-                                    className="flex items-start gap-3 group"
+                              documents.map((doc) => (
+                                <div key={doc.id} className="flex items-start gap-2.5">
+                                  <Checkbox
+                                    id={`doc-${doc.id}`}
+                                    checked={selectedDocumentIds.includes(doc.id)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        setSelectedDocumentIds((prev: any) => [...prev, doc.id]);
+                                      } else {
+                                        setSelectedDocumentIds((prev: any) =>
+                                          prev.filter((id: any) => id !== doc.id)
+                                        );
+                                      }
+                                    }}
+                                    className="mt-0.5 rounded-md border-gray-300 data-[state=checked]:bg-emerald-600 w-3.5 h-3.5"
+                                  />
+                                  <label
+                                    htmlFor={`doc-${doc.id}`}
+                                    className="text-xs font-medium text-gray-700 dark:text-gray-300 cursor-pointer truncate flex-1"
                                   >
-                                    <Checkbox
-                                      id={`doc-${doc.id}`}
-                                      checked={selectedDocumentIds.includes(
-                                        doc.id,
-                                      )}
-                                      onCheckedChange={(checked) => {
-                                        if (checked) {
-                                          setSelectedDocumentIds(
-                                            (prev: any) => [...prev, doc.id],
-                                          );
-                                        } else {
-                                          setSelectedDocumentIds((prev: any) =>
-                                            prev.filter(
-                                              (id: any) => id !== doc.id,
-                                            ),
-                                          );
-                                        }
-                                      }}
-                                      className="mt-0.5 rounded-none border-gray-400 data-[state=checked]:bg-black data-[state=checked]:border-black dark:data-[state=checked]:bg-white dark:data-[state=checked]:border-white"
-                                    />
-                                    <label
-                                      htmlFor={`doc-${doc.id}`}
-                                      className="text-xs uppercase tracking-widest text-gray-600 dark:text-gray-400 group-hover:text-black dark:group-hover:text-white cursor-pointer flex-1 truncate transition-colors"
-                                    >
-                                      {doc.title || doc.documentType}
-                                    </label>
-                                  </div>
-                                ))}
-                              </div>
+                                    {doc.title || doc.documentType}
+                                  </label>
+                                </div>
+                              ))
                             )}
                           </div>
                         )}
@@ -627,52 +520,50 @@ export function BookingSummary({
               </div>
             )}
 
-            {/* 💰 SECCIÓN DE TOTALES */}
+            {/* ── SECCIÓN DE TOTALES Y PAGO ────────────────────────────── */}
             {!cartAnalysis.isEmpty && (
-              <div className="border-t-2 border-black dark:border-white pt-6 mt-2 space-y-4">
-                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  <span>Subtotal Operativo</span>
-                  <span className="text-black dark:text-white">
+              <div className="border-t border-gray-100 dark:border-gray-800 pt-5 space-y-4">
+                <div className="flex justify-between items-center text-xs font-bold text-gray-500">
+                  <span>{t("subtotal_label")}</span>
+                  <span className="font-mono text-gray-900 dark:text-white">
                     ${total.toLocaleString()} MXN
                   </span>
                 </div>
 
                 {isUsingPackage && (
-                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                    <span>Crédito de Paquete Aplicado</span>
-                    <span>-${total.toLocaleString()} MXN</span>
+                  <div className="flex justify-between items-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <span>{t("package_credit_applied")}</span>
+                    <span className="font-mono">-${total.toLocaleString()} MXN</span>
                   </div>
                 )}
 
-                <div className="flex flex-col pt-2 border-t border-gray-200 dark:border-gray-800">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                    Liquidación Total
+                <div className="flex flex-col pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <span className="text-xs font-bold text-gray-500 mb-1">
+                    {t("total_settlement")}
                   </span>
 
                   <div className="text-right">
                     {currencyCalculations.isForeignCurrency ? (
                       <>
-                        <span className="text-3xl font-semibold text-black dark:text-white block tracking-tight">
+                        <span className="text-2xl sm:text-3xl font-bold font-mono text-gray-900 dark:text-white tracking-tight">
                           ≈ ${currencyCalculations.convertedTotal}{" "}
-                          <span className="text-lg font-light text-gray-500">
+                          <span className="text-sm font-sans font-medium text-gray-400">
                             {selectedCurrency}
                           </span>
                         </span>
-                        <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-3 flex items-start justify-end gap-2 bg-gray-50 dark:bg-[#050505] p-3 border border-gray-200 dark:border-gray-800 text-right">
-                          <Info
-                            className="w-3.5 h-3.5 shrink-0 mt-0.5"
-                            strokeWidth={2}
-                          />
+                        <div className="text-[11px] font-medium text-gray-500 mt-2 flex items-start justify-end gap-2 bg-gray-50 dark:bg-[#050505] p-3 rounded-2xl border border-gray-100 dark:border-gray-800 text-right leading-relaxed">
+                          <Info className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" strokeWidth={2} />
                           <span>
-                            El cargo definitivo será procesado en{" "}
-                            <strong>${finalTotal.toLocaleString()} MXN</strong>.
+                            {t("foreign_currency_notice", {
+                              amount: finalTotal.toLocaleString(),
+                            })}
                           </span>
                         </div>
                       </>
                     ) : (
-                      <span className="text-3xl font-semibold text-black dark:text-white block tracking-tight">
+                      <span className="text-2xl sm:text-3xl font-bold font-mono text-gray-900 dark:text-white tracking-tight">
                         ${finalTotal.toLocaleString()}{" "}
-                        <span className="text-lg font-light text-gray-500">
+                        <span className="text-sm font-sans font-medium text-gray-400">
                           MXN
                         </span>
                       </span>
@@ -680,52 +571,40 @@ export function BookingSummary({
                   </div>
                 </div>
 
-                {/* ── SECCIÓN DE PAGO ─────────────────────────────── */}
+                {/* Métodos de Pago */}
                 {!isUsingPackage && finalTotal > 0 && (
-                  <div className="pt-6 mt-4 border-t border-gray-200 dark:border-gray-800">
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-4">
-                      Método de Pago
+                  <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
+                    <h3 className="text-xs font-bold text-gray-900 dark:text-white">
+                      {t("payment_method_title")}
                     </h3>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {/* Stripe */}
                       <button
+                        type="button"
                         onClick={() => setSelectedPaymentMethod("CREDIT_CARD")}
                         className={cn(
-                          "w-full p-4 border flex items-center justify-between transition-colors relative text-left",
+                          "w-full p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer shadow-xs text-left",
                           selectedPaymentMethod === "CREDIT_CARD"
-                            ? "bg-white dark:bg-[#0a0a0a]"
-                            : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white",
+                            ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500 dark:border-emerald-500/80 ring-2 ring-emerald-500/20"
+                            : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:bg-gray-50/50"
                         )}
-                        style={
-                          selectedPaymentMethod === "CREDIT_CARD"
-                            ? { borderColor: providerColor }
-                            : {}
-                        }
                       >
                         <div className="flex items-center gap-3">
-                          <CreditCard
-                            className="w-4 h-4"
-                            strokeWidth={1.5}
-                            style={
-                              selectedPaymentMethod === "CREDIT_CARD"
-                                ? { color: providerColor }
-                                : { color: "#6b7280" }
-                            }
-                          />
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                            Tarjeta / Stripe
+                          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                            <CreditCard className="w-4 h-4" strokeWidth={2} />
+                          </div>
+                          <span className="text-xs font-bold text-gray-900 dark:text-white">
+                            {t("stripe_method")}
                           </span>
                         </div>
                         {selectedPaymentMethod === "CREDIT_CARD" && (
-                          <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: providerColor }}
-                          />
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
                         )}
                       </button>
 
                       {/* QuWallet */}
                       <button
+                        type="button"
                         onClick={() => {
                           if (walletBalance >= finalTotal) {
                             setSelectedPaymentMethod("WALLET_BALANCE");
@@ -733,49 +612,35 @@ export function BookingSummary({
                         }}
                         disabled={walletBalance < finalTotal}
                         className={cn(
-                          "w-full p-4 border flex items-center justify-between transition-colors relative text-left",
+                          "w-full p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer shadow-xs text-left",
                           selectedPaymentMethod === "WALLET_BALANCE"
-                            ? "bg-white dark:bg-[#0a0a0a]"
-                            : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#050505] hover:border-black dark:hover:border-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 dark:disabled:hover:border-gray-700",
+                            ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500 dark:border-emerald-500/80 ring-2 ring-emerald-500/20"
+                            : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:bg-gray-50/50 disabled:opacity-60 disabled:cursor-not-allowed"
                         )}
-                        style={
-                          selectedPaymentMethod === "WALLET_BALANCE"
-                            ? { borderColor: providerColor }
-                            : {}
-                        }
                       >
                         <div className="flex items-center gap-3">
-                          <Wallet
-                            className="w-4 h-4"
-                            strokeWidth={1.5}
-                            style={
-                              selectedPaymentMethod === "WALLET_BALANCE"
-                                ? { color: providerColor }
-                                : { color: "#6b7280" }
-                            }
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white flex items-center gap-2">
-                              QuWallet
-                              {isLoadingWallet && (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              )}
-                            </span>
-                            <span className="text-[9px] uppercase tracking-widest text-gray-500">
-                              Saldo: ${walletBalance.toLocaleString()} MXN
-                            </span>
+                          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                            <Wallet className="w-4 h-4" strokeWidth={2} />
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                              {t("quwallet_method")}
+                              {isLoadingWallet && <QhSpinner size="sm" className="text-emerald-600" />}
+                            </p>
+                            <p className="text-[11px] font-medium text-gray-500 font-mono">
+                              {t("wallet_balance", { amount: walletBalance.toLocaleString() })}
+                            </p>
                           </div>
                         </div>
-                        {walletBalance < finalTotal && (
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-red-500">
-                            Insuficiente
+
+                        {walletBalance < finalTotal ? (
+                          <span className="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded-full border border-red-200 dark:border-red-900/40">
+                            {t("insufficient_balance")}
                           </span>
-                        )}
-                        {selectedPaymentMethod === "WALLET_BALANCE" && (
-                          <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: providerColor }}
-                          />
+                        ) : (
+                          selectedPaymentMethod === "WALLET_BALANCE" && (
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                          )
                         )}
                       </button>
                     </div>
@@ -784,68 +649,54 @@ export function BookingSummary({
               </div>
             )}
 
-            {/* 🚀 BOTÓN DE CHECKOUT INTELIGENTE */}
-            <div className="pt-4">
+            {/* 🚀 BOTÓN DE CHECKOUT */}
+            <div className="pt-2">
               <Button
+                type="button"
                 onClick={handleCheckoutClick}
                 disabled={
                   !validationRules.isReady ||
                   isProcessing ||
                   cartAnalysis.isEmpty
                 }
-                className={cn(
-                  "w-full h-14 rounded-none text-[10px] font-bold uppercase tracking-widest transition-opacity flex items-center justify-center border-0",
-                  !validationRules.isReady ||
-                    isProcessing ||
-                    cartAnalysis.isEmpty
-                    ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed"
-                    : "hover:opacity-90",
-                )}
+                className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={
-                  !validationRules.isReady ||
-                  isProcessing ||
-                  cartAnalysis.isEmpty
-                    ? {}
-                    : { backgroundColor: providerColor, color: "#ffffff" }
+                  providerColor && validationRules.isReady && !isProcessing
+                    ? { backgroundColor: safeColor }
+                    : undefined
                 }
               >
                 {isProcessing ? (
                   <>
-                    <Loader2
-                      className="w-4 h-4 mr-3 animate-spin"
-                      strokeWidth={2}
-                    />
-                    Ejecutando Transacción...
+                    <QhSpinner size="sm" className="text-white" />
+                    <span>{t("processing_transaction")}</span>
                   </>
                 ) : cartAnalysis.isEmpty ? (
-                  "Directorio Vacío"
+                  <span>{t("empty_directory_btn")}</span>
                 ) : !validationRules.isTimeValid ? (
                   <>
-                    <AlertCircle className="w-4 h-4 mr-3" strokeWidth={2} />
-                    Definir Parámetro Temporal
+                    <AlertCircle className="w-4 h-4" strokeWidth={2} />
+                    <span>{t("select_time_btn")}</span>
                   </>
                 ) : isUsingPackage ? (
                   <>
-                    <Sparkles className="w-4 h-4 mr-3" strokeWidth={1.5} />
-                    Confirmar Cita (Crédito Aplicado)
+                    <Sparkles className="w-4 h-4" strokeWidth={2} />
+                    <span>{t("confirm_package_btn")}</span>
                   </>
                 ) : (
                   <>
-                    <CreditCard className="w-4 h-4 mr-3" strokeWidth={1.5} />
-                    Inicializar Pasarela Segura
+                    <CreditCard className="w-4 h-4" strokeWidth={2} />
+                    <span>{t("checkout_btn")}</span>
                   </>
                 )}
               </Button>
 
-              {/* Trust Badge */}
+              {/* Sello de Confianza */}
               {!cartAnalysis.isEmpty && validationRules.isReady && (
-                <p className="text-center text-[9px] font-bold uppercase tracking-widest text-gray-500 flex items-center justify-center gap-2 mt-4">
-                  <span
-                    className="w-1.5 h-1.5 border border-transparent"
-                    style={{ backgroundColor: providerColor }}
-                  />
-                  Protocolo de Pago Cifrado
-                </p>
+                <div className="flex items-center justify-center gap-1.5 mt-4 text-[11px] font-semibold text-gray-400 text-center">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                  <span>{t("encrypted_protocol")}</span>
+                </div>
               )}
             </div>
           </div>
