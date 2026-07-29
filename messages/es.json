@@ -1817,6 +1817,7 @@
     "toast_appointment_created": "Cita creada exitosamente.",
     "toast_appointment_failed": "No se pudo crear la cita.",
     "new_appointment_modal": {
+      "submit": "Crear Cita",
       "title": "Nueva cita",
       "description": "Selecciona un paciente del directorio o créalo al momento para vincular la cita.",
       "patient_label": "Paciente",
@@ -2090,6 +2091,10 @@
   },
 
  "CashRegister": {
+    "step_2_label": "Paso 2",
+    "notes_placeholder": "Añadir notas aquí...",
+    "btn_cancel": "Cancelar",
+    "btn_confirm": "Confirmar",
     "loading": "Consultando estado de caja...",
     "closed": {
       "status_inactive": "Estado: Inactivo",
@@ -2602,6 +2607,8 @@
   },
 
   "DashboardMessages": {
+    "tab_inbox": "Bandeja de Entrada",
+    "tab_social": "Social",
     "title": "Mensajes y redes sociales",
     "subtitle": "Gestión unificada de consultas desde WhatsApp, correo y redes sociales",
     "crm_badge": "Módulo CRM omnicanal",

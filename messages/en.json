@@ -1745,6 +1745,7 @@
     "toast_appointment_created": "Appointment created successfully.",
     "toast_appointment_failed": "Failed to create appointment.",
     "new_appointment_modal": {
+      "submit": "Create Appointment",
       "title": "New Appointment",
       "description": "Select a patient from the directory or create one on the spot to link the appointment.",
       "patient_label": "Patient",
@@ -2171,6 +2172,10 @@
   },
 
  "CashRegister": {
+    "step_2_label": "Step 2",
+    "notes_placeholder": "Add notes here...",
+    "btn_cancel": "Cancel",
+    "btn_confirm": "Confirm",
     "loading": "Checking cash register status...",
     "closed": {
       "status_inactive": "Status: Inactive",
@@ -3230,6 +3235,8 @@
   },
   
   "DashboardMessages": {
+    "tab_inbox": "Inbox",
+    "tab_social": "Social",
     "title": "Social & channel messages",
     "subtitle": "Unified inbox for patient inquiries across WhatsApp, email, and social media",
     "crm_badge": "Omnichannel CRM module",
