@@ -2525,7 +2525,6 @@
     "footer_note": "Nota al pie de la receta",
     "footer_note_placeholder": "Ej. Si presenta efectos adversos, suspenda el medicamento y comuníquese inmediatamente.",
     "saving": "Guardando...",
-    "save_preferences": "Guardar Preferencias",
     "digital_signature_placeholder": "Firma digital",
     "error_loading": "No se pudieron cargar las preferencias.",
     "success_logo_upload": "Logotipo subido exitosamente.",
@@ -2533,9 +2532,10 @@
     "success_signature_upload": "Firma digital subida y protegida exitosamente.",
     "error_signature_upload": "Hubo un problema al subir la firma digital.",
     "success_save": "Preferencias de receta guardadas con éxito.",
-    "error_save": "Hubo un problema al guardar las preferencias.",
-    "loading_preferences": "Cargando preferencias..."
+    "error_save": "Hubo un problema al guardar las preferencias."
   },
+
+
   
   "DashboardHistory": {
     "title": "Historial de atenciones",
@@ -2596,29 +2596,33 @@
   },
 
   "DashboardHistoryDetail": {
-    "title": "Detalle del Servicio",
-    "specialist_label": "Especialista",
-    "patient_label": "Paciente",
-    "service_type": "Tipo de Servicio",
-    "status_rescheduled": "Reprogramado",
-    "your_rating": "Tu Calificación",
-    "received_rating": "Calificación Recibida",
-    "stars_of": "{rating} de 5 estrellas",
-    "excellent": "Excelente experiencia",
-    "good": "Buena experiencia",
-    "can_improve": "Puede mejorar",
-    "service_notes": "Notas del Servicio",
-    "download_receipt": "Descargar Comprobante",
-    "downloading": "Descargando...",
-    "download_success": "Comprobante descargado correctamente",
-    "download_error": "No se pudo descargar el comprobante",
-    "share": "Compartir",
-    "share_success": "Enlace copiado al portapapeles",
-    "close": "Cerrar",
-    "rate_service": "Calificar Servicio",
-    "status_pending": "Pendiente",
+    "title": "Expediente de Servicio",
     "status_completed": "Completado",
-    "status_cancelled": "Cancelado"
+    "status_cancelled": "Cancelado",
+    "status_pending": "Pendiente",
+    "status_rescheduled": "Reagendado",
+    "download_success": "Recibo descargado con éxito.",
+    "share_success": "Enlace del servicio copiado al portapapeles.",
+    "specialist_label": "Especialista a cargo",
+    "patient_label": "Paciente",
+    "service_type": "Concepto de atención",
+    "service_timeline": "Línea de tiempo del servicio",
+    "timeline_arrival": "Registro de llegada",
+    "timeline_wait": "Tiempo de espera:",
+    "timeline_start": "Inicio de consulta",
+    "timeline_consultation": "Duración de atención:",
+    "timeline_completed": "Servicio finalizado",
+    "your_rating": "Tu valoración",
+    "received_rating": "Valoración recibida",
+    "excellent": "Excelente",
+    "good": "Bueno",
+    "can_improve": "Por mejorar",
+    "service_notes": "Observaciones y notas clínicas",
+    "download_receipt": "Descargar Recibo",
+    "share": "Compartir",
+    "close": "Cerrar Expediente",
+    "rate_service": "Evaluar Atención",
+    "extracting": "Descargando..."
   },
 
   "DashboardMessages": {
