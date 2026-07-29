@@ -1,168 +1,233 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Save, X, FileText } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from '@/components/ui/sheet';
-import { QhSpinner } from '@/components/ui/QhSpinner';
-import { budgetService, BudgetRequestDTO } from '@/services/budget.service';
-import { financeService, BudgetPeriodDTO } from '@/services/finance.service';
-import { accountingService } from '@/services/accounting.service';
-import { CostCenterDTO } from '@/types/accounting';
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import { toast } from "react-toastify";
+import { Save, X, FileText } from "lucide-react";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { budgetService, BudgetRequestDTO } from "@/services/budget.service";
+import { financeService, BudgetPeriodDTO } from "@/services/finance.service";
+import { accountingService } from "@/services/accounting.service";
+import { CostCenterDTO } from "@/types/accounting";
 
 interface CreateBudgetForm {
-    name: string;
-    periodId: string;
-    costCenterId: string;
+  name: string;
+  periodId: string;
+  costCenterId: string;
 }
 
-export const CreateBudgetDrawer = ({
-    open,
-    onOpenChange,
-    onSuccess
-}: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onSuccess: () => void;
-}) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateBudgetForm>();
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    // Select data
-    const [periods, setPeriods] = useState<BudgetPeriodDTO[]>([]);
-    const [costCenters, setCostCenters] = useState<CostCenterDTO[]>([]);
-    const [isLoadingData, setIsLoadingData] = useState(false);
+interface CreateBudgetDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+}
 
-    useEffect(() => {
-        if (open) {
-            const loadData = async () => {
-                setIsLoadingData(true);
-                try {
-                    const [periodsData, costCentersData] = await Promise.all([
-                        financeService.listBudgetPeriods(),
-                        accountingService.listCostCenters()
-                    ]);
-                    setPeriods(periodsData);
-                    setCostCenters(costCentersData);
-                } catch (error) {
-                    toast.error("Error al cargar catálogos", { theme: "colored" });
-                } finally {
-                    setIsLoadingData(false);
-                }
-            };
-            loadData();
-        }
-    }, [open]);
+export function CreateBudgetDrawer({
+  open,
+  onOpenChange,
+  onSuccess,
+}: CreateBudgetDrawerProps) {
+  const t = useTranslations("CreateBudgetDrawer");
 
-    const onSubmit = async (data: CreateBudgetForm) => {
-        setIsSubmitting(true);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CreateBudgetForm>();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [periods, setPeriods] = useState<BudgetPeriodDTO[]>([]);
+  const [costCenters, setCostCenters] = useState<CostCenterDTO[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      const loadData = async () => {
+        setIsLoadingData(true);
         try {
-            const payload: BudgetRequestDTO = {
-                name: data.name,
-                periodId: Number(data.periodId),
-                costCenterId: data.costCenterId ? Number(data.costCenterId) : null,
-            };
-            
-            await budgetService.createBudget(payload);
-            toast.success("Presupuesto creado correctamente", { theme: "colored" });
-            reset();
-            onSuccess();
-            onOpenChange(false);
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Error al crear el presupuesto", { theme: "colored" });
+          const [periodsData, costCentersData] = await Promise.all([
+            financeService.listBudgetPeriods(),
+            accountingService.listCostCenters(),
+          ]);
+          setPeriods(periodsData || []);
+          setCostCenters(costCentersData || []);
+        } catch (error) {
+          console.error(error);
+          toast.error(t("toasts.load_catalogs_error"));
         } finally {
-            setIsSubmitting(false);
+          setIsLoadingData(false);
         }
-    };
+      };
+      loadData();
+    } else {
+      reset();
+    }
+  }, [open, reset, t]);
 
-    return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent position="right" size="lg" className="p-0 border-l border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] flex flex-col h-full sm:rounded-l-3xl shadow-2xl">
-                <SheetHeader className="p-8 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 text-left rounded-tl-3xl">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 flex items-center justify-center shrink-0 shadow-sm">
-                                <FileText className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                            </div>
-                            <div>
-                                <SheetTitle className="text-2xl font-bold text-gray-900 dark:text-white leading-none">
-                                    Nuevo Presupuesto
-                                </SheetTitle>
-                                <SheetDescription className="text-sm font-medium text-gray-500 mt-1">
-                                    Planeación financiera
-                                </SheetDescription>
-                            </div>
-                        </div>
-                        <SheetClose className="w-10 h-10 rounded-full border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] flex items-center justify-center transition-colors shadow-sm">
-                            <X className="w-5 h-5 text-gray-500" strokeWidth={2} />
-                        </SheetClose>
-                    </div>
-                </SheetHeader>
+  const onSubmit = async (data: CreateBudgetForm) => {
+    setIsSubmitting(true);
+    try {
+      const payload: BudgetRequestDTO = {
+        name: data.name,
+        periodId: Number(data.periodId),
+        costCenterId: data.costCenterId ? Number(data.costCenterId) : null,
+      };
 
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                    {isLoadingData ? (
-                        <div className="flex flex-col items-center justify-center h-40 gap-4">
-                            <QhSpinner size="md" className="text-emerald-600" />
-                            <p className="text-sm font-medium text-gray-500">Cargando...</p>
-                        </div>
-                    ) : (
-                        <form id="create-budget-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                            
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Nombre del Presupuesto *</label>
-                                <input 
-                                    {...register("name", { required: true })}
-                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
-                                    placeholder="Ej. Presupuesto Operativo Q3"
-                                />
-                                {errors.name && <span className="text-xs text-red-500 font-semibold">Este campo es requerido</span>}
-                            </div>
-                            
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Periodo Fiscal *</label>
-                                <select 
-                                    {...register("periodId", { required: true })}
-                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
-                                >
-                                    <option value="">Seleccionar periodo...</option>
-                                    {periods.map(p => (
-                                        <option key={p.id} value={p.id}>{p.year} - {p.status}</option>
-                                    ))}
-                                </select>
-                                {errors.periodId && <span className="text-xs text-red-500 font-semibold">Este campo es requerido</span>}
-                            </div>
+      await budgetService.createBudget(payload);
+      toast.success(t("toasts.create_success"));
+      reset();
+      onSuccess();
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(
+        error?.response?.data?.message || t("toasts.create_error")
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Centro de Costos (Opcional)</label>
-                                <select 
-                                    {...register("costCenterId")}
-                                    className="w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
-                                >
-                                    <option value="">General</option>
-                                    {costCenters.map(cc => (
-                                        <option key={cc.id} value={cc.id}>{cc.code} - {cc.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </form>
-                    )}
-                </div>
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border-l border-gray-100 dark:border-gray-800 p-0 overflow-y-auto sm:rounded-l-3xl shadow-2xl flex flex-col h-full font-sans text-gray-900 dark:text-white">
+        
+        {/* ── HEADER SHEET ────────────────────────────────────────────── */}
+        <SheetHeader className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] shrink-0 rounded-tl-3xl text-left">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+                <FileText className="w-6 h-6" strokeWidth={2} />
+              </div>
+              <div>
+                <SheetTitle className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+                  {t("title")}
+                </SheetTitle>
+                <SheetDescription className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                  {t("subtitle")}
+                </SheetDescription>
+              </div>
+            </div>
+            <SheetClose className="w-9 h-9 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] flex items-center justify-center transition-all shadow-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              <X className="w-4 h-4" strokeWidth={2} />
+            </SheetClose>
+          </div>
+        </SheetHeader>
 
-                <div className="p-8 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 rounded-bl-3xl">
-                    <button 
-                        type="submit"
-                        form="create-budget-form"
-                        disabled={isSubmitting || isLoadingData}
-                        className="w-full h-12 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 rounded-xl shadow-sm disabled:opacity-50"
-                    >
-                        {isSubmitting ? (
-                            <><QhSpinner size="sm" className="text-current" /> Creando...</>
-                        ) : (
-                            <><Save className="w-5 h-5" strokeWidth={2} /> Confirmar</>
-                        )}
-                    </button>
-                </div>
-            </SheetContent>
-        </Sheet>
-    );
-};
+        {/* ── FORMULARIO PRINCIPAL ─────────────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar">
+          {isLoadingData ? (
+            <div className="flex flex-col items-center justify-center min-h-[200px] gap-3">
+              <QhSpinner size="md" />
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
+                {t("loading")}
+              </p>
+            </div>
+          ) : (
+            <form
+              id="create-budget-form"
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
+              {/* Nombre */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {t("label_name")}
+                </label>
+                <input
+                  {...register("name", { required: true })}
+                  className="w-full h-11 px-3 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm transition-all"
+                  placeholder={t("placeholder_name")}
+                />
+                {errors.name && (
+                  <span className="text-[10px] text-rose-500 font-bold">
+                    {t("field_required")}
+                  </span>
+                )}
+              </div>
+
+              {/* Periodo Fiscal */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {t("label_period")}
+                </label>
+                <select
+                  {...register("periodId", { required: true })}
+                  className="w-full h-11 px-3 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm transition-all"
+                >
+                  <option value="">{t("placeholder_period")}</option>
+                  {periods.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.year} - {p.status}
+                    </option>
+                  ))}
+                </select>
+                {errors.periodId && (
+                  <span className="text-[10px] text-rose-500 font-bold">
+                    {t("field_required")}
+                  </span>
+                )}
+              </div>
+
+              {/* Centro de Costos */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {t("label_cost_center")}
+                </label>
+                <select
+                  {...register("costCenterId")}
+                  className="w-full h-11 px-3 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm transition-all"
+                >
+                  <option value="">
+                    {t("placeholder_cost_center_general")}
+                  </option>
+                  {costCenters.map((cc) => (
+                    <option key={cc.id} value={cc.id}>
+                      {cc.code} - {cc.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </form>
+          )}
+        </div>
+
+        {/* ── FOOTER ACCIONES ─────────────────────────────────────────── */}
+        <div className="p-6 sm:p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] shrink-0 rounded-bl-3xl">
+          <button
+            type="submit"
+            form="create-budget-form"
+            disabled={isSubmitting || isLoadingData}
+            className="w-full h-11 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 transition-all text-xs font-bold flex items-center justify-center gap-2 border-0 rounded-xl shadow-sm disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <>
+                <QhSpinner size="sm" />
+                <span>{t("btn_submitting")}</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" strokeWidth={2} />
+                <span>{t("btn_submit")}</span>
+              </>
+            )}
+          </button>
+        </div>
+
+      </SheetContent>
+    </Sheet>
+  );
+}

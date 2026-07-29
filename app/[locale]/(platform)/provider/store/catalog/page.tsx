@@ -1,11 +1,20 @@
-"use client"
+"use client";
+
 /* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/no-giant-component */;
+/* eslint-disable react-doctor/no-giant-component */
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, BriefcaseMedical, Sparkles, Info, ShoppingBag, GraduationCap, Package } from "lucide-react";
+import {
+  ArrowLeft,
+  BriefcaseMedical,
+  Sparkles,
+  Info,
+  ShoppingBag,
+  GraduationCap,
+  Package,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,467 +22,604 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
-// Importamos los Managers
+// Managers
 import { ServicesManager } from "@/components/marketplace/ServicesManager";
 import { PackagesManager } from "@/components/marketplace/PackagesManager";
 import { ProductsManager } from "@/components/marketplace/ProductsManager";
 import { CoursesManager } from "@/components/marketplace/CoursesManager";
 
-// Importamos el Hook y los Tipos
+// Hook y Tipos
 import { useCatalog } from "@/hooks/useCatalog";
-import { usePlanLimits } from "@/hooks/usePlanLimits"; // 🚀 Nuevo Hook de límites
-import { UI_Service, UI_Package, UI_Product, UI_Course } from "@/types/catalog";
+import { usePlanLimits } from "@/hooks/usePlanLimits";
+import {
+  UI_Service,
+  UI_Package,
+  UI_Product,
+  UI_Course,
+} from "@/types/catalog";
 import { cn } from "@/lib/utils";
-import { handleApiError } from '@/lib/handleApiError';
 
-type TabType = 'SERVICES' | 'PACKAGES' | 'PRODUCTS' | 'COURSES';
+type TabType = "SERVICES" | "PACKAGES" | "PRODUCTS" | "COURSES";
 
 export default function CatalogSetupPage() {
- const router = useRouter();
- const t = useTranslations('StoreCatalog');
+  const router = useRouter();
+  const t = useTranslations("StoreCatalog");
 
- const [activeTab, setActiveTab] = useState<TabType>('SERVICES');
+  const [activeTab, setActiveTab] = useState<TabType>("SERVICES");
 
- // Hook central de Catálogo
- const {
- services, setServices, saveService, deleteService,
- packages, setPackages, savePackage, deletePackage,
- products, setProducts, saveProduct, deleteProduct,
- courses, setCourses, saveCourse, deleteCourse,
- isLoading, fetchInventory, uploadItemImage
- } = useCatalog();
+  // Hook central de Catálogo
+  const {
+    services,
+    setServices,
+    saveService,
+    deleteService,
+    packages,
+    setPackages,
+    savePackage,
+    deletePackage,
+    products,
+    setProducts,
+    saveProduct,
+    deleteProduct,
+    courses,
+    setCourses,
+    saveCourse,
+    deleteCourse,
+    isLoading,
+    fetchInventory,
+    uploadItemImage,
+  } = useCatalog();
 
- // 🚀 Hook central de Límites de Plan
- const { usage, isLoadingLimits, refreshLimits } = usePlanLimits();
+  // Hook central de Límites de Plan
+  const { usage, isLoadingLimits, refreshLimits } = usePlanLimits();
 
- // 🚀 REGLAS DE NEGOCIO DINÁMICAS (Si el backend no lo envía, asumimos true para no bloquear por error)
- const canAddService = usage?.metrics?.services?.canAdd ?? true;
- const canAddPackage = usage?.metrics?.packages?.canAdd ?? true;
- // Nota: Si luego agregas "products" y "courses" al backend, esto los leerá automáticamente
- const canAddProduct = usage?.metrics?.products?.canAdd ?? true;
- const canAddCourse = usage?.metrics?.courses?.canAdd ?? true;
+  // Reglas de negocio dinámicas
+  const canAddService = usage?.metrics?.services?.canAdd ?? true;
+  const canAddPackage = usage?.metrics?.packages?.canAdd ?? true;
+  const canAddProduct = usage?.metrics?.products?.canAdd ?? true;
+  const canAddCourse = usage?.metrics?.courses?.canAdd ?? true;
 
- useEffect(() => {
- fetchInventory();
- }, [fetchInventory]);
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
 
- // ==========================================
- // HANDLERS: SERVICIOS
- // ==========================================
- const handleAddService = () => {
- if (!canAddService) {
- toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
- return;
- }
- const newService: UI_Service = {
- id: Date.now(), name: "", description: "", category: "", duration: 30, price: 0,
- serviceDeliveryType: "in_person", cancellationPolicy: "flexible", isNew: true, hasUnsavedChanges: true,
- };
- setServices([newService, ...services]);
- };
+  // ==========================================
+  // HANDLERS: SERVICIOS
+  // ==========================================
+  const handleAddService = () => {
+    if (!canAddService) {
+      toast.warning(t("toasts.limit_reached"));
+      return;
+    }
+    const newService: UI_Service = {
+      id: Date.now(),
+      name: "",
+      description: "",
+      category: "",
+      duration: 30,
+      price: 0,
+      serviceDeliveryType: "in_person",
+      cancellationPolicy: "flexible",
+      isNew: true,
+      hasUnsavedChanges: true,
+    };
+    setServices([newService, ...services]);
+  };
 
- const handleUpdateService = (id: number, updates: Partial<UI_Service>) => {
- setServices(prev => prev.map(s => s.id === id ? { ...s, ...updates, hasUnsavedChanges: true } : s));
- };
+  const handleUpdateService = (id: number, updates: Partial<UI_Service>) => {
+    setServices((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, ...updates, hasUnsavedChanges: true } : s
+      )
+    );
+  };
 
   const handleSaveService = async (service: UI_Service) => {
     const wordCount = service.name.trim().split(/\s+/).length;
     if (wordCount < 3) {
-      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      toast.warning(t("toasts.validation_name"));
       return;
     }
     if ((service.description?.length || 0) < 150) {
-      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      toast.warning(t("toasts.validation_desc"));
       return;
     }
     if (!service.imageUrl) {
-      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
+      toast.warning(t("toasts.validation_image"));
       return;
     }
     if (!service.requiresEvaluation && service.price <= 0) return;
-    
+
     const saved = await saveService(service);
     if (saved) {
-      setServices(prev => prev.map(s => s.id === service.id ? saved : s));
-      refreshLimits(); // 🚀 Refrescamos límites
-      toast.success(t('toasts.service_saved', { name: saved.name }));
+      setServices((prev) => prev.map((s) => (s.id === service.id ? saved : s)));
+      refreshLimits();
+      toast.success(t("toasts.service_saved", { name: saved.name }));
     }
   };
 
- const handleDeleteService = async (id: number) => {
- const isInPackage = packages.some(pkg => (pkg.packageItems || []).some(item => item.id === id));
- if (isInPackage) return;
- const s = services.find(s => s.id === id);
- if (!s) return;
- if (s.isNew) return setServices(prev => prev.filter(s => s.id !== id));
+  const handleDeleteService = async (id: number) => {
+    const isInPackage = packages.some((pkg) =>
+      (pkg.packageItems || []).some((item) => item.id === id)
+    );
+    if (isInPackage) {
+      toast.warning(t("toasts.service_in_package"));
+      return;
+    }
+    const s = services.find((serv) => serv.id === id);
+    if (!s) return;
+    if (s.isNew) return setServices((prev) => prev.filter((serv) => serv.id !== id));
 
- if (await deleteService(id)) {
- setServices(prev => prev.filter(s => s.id !== id));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.service_deleted', { defaultValue: 'Servicio eliminado' }));
- }
- };
+    if (await deleteService(id)) {
+      setServices((prev) => prev.filter((serv) => serv.id !== id));
+      refreshLimits();
+      toast.success(t("toasts.service_deleted"));
+    }
+  };
 
- const handleDuplicateService = (service: UI_Service) => {
- if (!canAddService) {
- toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
- return;
- }
- const duplicated: UI_Service = { ...service, id: Date.now(), name: `${service.name} (Copia)`, imageUrl: undefined, isNew: true, hasUnsavedChanges: true };
- const index = services.findIndex(s => s.id === service.id);
- const newServices = [...services];
- newServices.splice(index + 1, 0, duplicated);
- setServices(newServices);
- };
+  const handleDuplicateService = (service: UI_Service) => {
+    if (!canAddService) {
+      toast.warning(t("toasts.limit_reached"));
+      return;
+    }
+    const duplicated: UI_Service = {
+      ...service,
+      id: Date.now(),
+      name: `${service.name} (Copia)`,
+      imageUrl: undefined,
+      isNew: true,
+      hasUnsavedChanges: true,
+    };
+    const index = services.findIndex((s) => s.id === service.id);
+    const newServices = [...services];
+    newServices.splice(index + 1, 0, duplicated);
+    setServices(newServices);
+  };
 
- // ==========================================
- // HANDLERS: PAQUETES
- // ==========================================
- const handleAddPackage = () => {
- if (!canAddPackage) {
- toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
- return;
- }
- const newPackage: UI_Package = {
- id: -Date.now(), name: "", description: "", price: 0, packageItems: [], isNew: true, hasUnsavedChanges: true 
- };
- setPackages([newPackage, ...packages]);
- };
+  // ==========================================
+  // HANDLERS: PAQUETES
+  // ==========================================
+  const handleAddPackage = () => {
+    if (!canAddPackage) {
+      toast.warning(t("toasts.limit_reached"));
+      return;
+    }
+    const newPackage: UI_Package = {
+      id: -Date.now(),
+      name: "",
+      description: "",
+      price: 0,
+      packageItems: [],
+      isNew: true,
+      hasUnsavedChanges: true,
+    };
+    setPackages([newPackage, ...packages]);
+  };
 
   const handleSavePackage = async (pkg: UI_Package): Promise<boolean> => {
     const wordCount = pkg.name.trim().split(/\s+/).length;
     if (wordCount < 3) {
-      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      toast.warning(t("toasts.validation_name"));
       return false;
     }
     if ((pkg.description?.length || 0) < 150) {
-      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      toast.warning(t("toasts.validation_desc"));
       return false;
     }
 
     const saved = await savePackage(pkg);
     if (saved) {
-      if (pkg.isNew) setPackages(prev => [saved, ...prev.filter(p => p.id !== pkg.id)]);
-      else setPackages(prev => prev.map(p => p.id === pkg.id ? saved : p));
-      refreshLimits(); // 🚀 Refrescamos límites
-      toast.success(t('toasts.package_saved', { defaultValue: 'Paquete guardado' }));
+      if (pkg.isNew)
+        setPackages((prev) => [saved, ...prev.filter((p) => p.id !== pkg.id)]);
+      else setPackages((prev) => prev.map((p) => (p.id === pkg.id ? saved : p)));
+      refreshLimits();
+      toast.success(t("toasts.package_saved"));
       return true;
     }
     return false;
   };
 
- const handleDeletePackage = async (id: number) => {
- const p = packages.find(p => p.id === id);
- if (!p) return;
- if (p.isNew) return setPackages(prev => prev.filter(p => p.id !== id));
+  const handleDeletePackage = async (id: number) => {
+    const p = packages.find((pkg) => pkg.id === id);
+    if (!p) return;
+    if (p.isNew) return setPackages((prev) => prev.filter((pkg) => pkg.id !== id));
 
- if (await deletePackage(id)) {
- setPackages(prev => prev.filter(p => p.id !== id));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.package_deleted', { defaultValue: 'Paquete eliminado' }));
- }
- };
+    if (await deletePackage(id)) {
+      setPackages((prev) => prev.filter((pkg) => pkg.id !== id));
+      refreshLimits();
+      toast.success(t("toasts.package_deleted"));
+    }
+  };
 
- // ==========================================
- // HANDLERS: PRODUCTOS
- // ==========================================
- const handleAddProduct = () => {
- if (!canAddProduct) {
- toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
- return;
- }
- const newProduct: UI_Product = {
- id: Date.now(), name: "", description: "", category: "", price: 0, stockQuantity: 1, 
- activeIngredient: "", manufacturer: "", requiresPrescription: false,
- isNew: true, hasUnsavedChanges: true,
- };
- setProducts([newProduct, ...products]);
- };
+  // ==========================================
+  // HANDLERS: PRODUCTOS
+  // ==========================================
+  const handleAddProduct = () => {
+    if (!canAddProduct) {
+      toast.warning(t("toasts.limit_reached"));
+      return;
+    }
+    const newProduct: UI_Product = {
+      id: Date.now(),
+      name: "",
+      description: "",
+      category: "",
+      price: 0,
+      stockQuantity: 1,
+      activeIngredient: "",
+      manufacturer: "",
+      requiresPrescription: false,
+      isNew: true,
+      hasUnsavedChanges: true,
+    };
+    setProducts([newProduct, ...products]);
+  };
 
- const handleUpdateProduct = (id: number, updates: Partial<UI_Product>) => {
- setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates, hasUnsavedChanges: true } : p));
- };
+  const handleUpdateProduct = (id: number, updates: Partial<UI_Product>) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...updates, hasUnsavedChanges: true } : p))
+    );
+  };
 
   const handleSaveProduct = async (product: UI_Product) => {
     const wordCount = product.name.trim().split(/\s+/).length;
     if (wordCount < 3) {
-      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      toast.warning(t("toasts.validation_name"));
       return;
     }
     if ((product.description?.length || 0) < 150) {
-      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      toast.warning(t("toasts.validation_desc"));
       return;
     }
     if (!product.imageUrl) {
-      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
+      toast.warning(t("toasts.validation_image"));
       return;
     }
 
     const saved = await saveProduct(product);
     if (saved) {
-      setProducts(prev => prev.map(p => p.id === product.id ? saved : p));
-      refreshLimits(); // 🚀 Refrescamos límites
-      toast.success(t('toasts.product_saved', { defaultValue: 'Producto guardado' }));
+      setProducts((prev) => prev.map((p) => (p.id === product.id ? saved : p)));
+      refreshLimits();
+      toast.success(t("toasts.product_saved"));
     }
   };
 
- const handleDeleteProduct = async (id: number) => {
- const p = products.find(p => p.id === id);
- if (!p) return;
- if (p.isNew) return setProducts(prev => prev.filter(p => p.id !== id));
- if (await deleteProduct(id)) {
- setProducts(prev => prev.filter(p => p.id !== id));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.product_deleted', { defaultValue: 'Producto eliminado' }));
- }
- };
+  const handleDeleteProduct = async (id: number) => {
+    const p = products.find((prod) => prod.id === id);
+    if (!p) return;
+    if (p.isNew) return setProducts((prev) => prev.filter((prod) => prod.id !== id));
 
- // ==========================================
- // HANDLERS: CURSOS
- // ==========================================
- const handleAddCourse = () => {
- if (!canAddCourse) {
- toast.warning(t('toasts.limit_reached', { defaultValue: 'Has alcanzado el límite de tu plan.' }));
- return;
- }
- const newCourse: UI_Course = {
- id: Date.now(), name: "", description: "", category: "", price: 0, contentUrl: "", isNew: true, hasUnsavedChanges: true,
- };
- setCourses([newCourse, ...courses]);
- };
+    if (await deleteProduct(id)) {
+      setProducts((prev) => prev.filter((prod) => prod.id !== id));
+      refreshLimits();
+      toast.success(t("toasts.product_deleted"));
+    }
+  };
 
- const handleUpdateCourse = (id: number, updates: Partial<UI_Course>) => {
- setCourses(prev => prev.map(c => c.id === id ? { ...c, ...updates, hasUnsavedChanges: true } : c));
- };
+  // ==========================================
+  // HANDLERS: CURSOS
+  // ==========================================
+  const handleAddCourse = () => {
+    if (!canAddCourse) {
+      toast.warning(t("toasts.limit_reached"));
+      return;
+    }
+    const newCourse: UI_Course = {
+      id: Date.now(),
+      name: "",
+      description: "",
+      category: "",
+      price: 0,
+      contentUrl: "",
+      isNew: true,
+      hasUnsavedChanges: true,
+    };
+    setCourses([newCourse, ...courses]);
+  };
+
+  const handleUpdateCourse = (id: number, updates: Partial<UI_Course>) => {
+    setCourses((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...updates, hasUnsavedChanges: true } : c))
+    );
+  };
 
   const handleSaveCourse = async (course: UI_Course) => {
     const wordCount = course.name.trim().split(/\s+/).length;
     if (wordCount < 3) {
-      toast.warning(t('toasts.validation_name', { defaultValue: 'El título debe tener al menos 3 palabras para un buen SEO.' }));
+      toast.warning(t("toasts.validation_name"));
       return;
     }
     if ((course.description?.length || 0) < 150) {
-      toast.warning(t('toasts.validation_desc', { defaultValue: 'La descripción debe tener al menos 150 caracteres.' }));
+      toast.warning(t("toasts.validation_desc"));
       return;
     }
     if (!course.imageUrl) {
-      toast.warning(t('toasts.validation_image', { defaultValue: 'Debes incluir al menos una imagen de alta calidad.' }));
+      toast.warning(t("toasts.validation_image"));
       return;
     }
 
     const saved = await saveCourse(course);
     if (saved) {
-      setCourses(prev => prev.map(c => c.id === course.id ? saved : c));
-      refreshLimits(); // 🚀 Refrescamos límites
-      toast.success(t('toasts.course_saved', { defaultValue: 'Curso guardado' }));
+      setCourses((prev) => prev.map((c) => (c.id === course.id ? saved : c)));
+      refreshLimits();
+      toast.success(t("toasts.course_saved"));
     }
   };
 
- const handleDeleteCourse = async (id: number) => {
- const c = courses.find(c => c.id === id);
- if (!c) return;
- if (c.isNew) return setCourses(prev => prev.filter(c => c.id !== id));
- if (await deleteCourse(id)) {
- setCourses(prev => prev.filter(c => c.id !== id));
- refreshLimits(); // 🚀 Refrescamos límites
- toast.success(t('toasts.course_deleted', { defaultValue: 'Curso eliminado' }));
- }
- };
+  const handleDeleteCourse = async (id: number) => {
+    const c = courses.find((crs) => crs.id === id);
+    if (!c) return;
+    if (c.isNew) return setCourses((prev) => prev.filter((crs) => crs.id !== id));
 
- // ==========================================
- // UPLOAD IMÁGENES (GENÉRICO)
- // ==========================================
- const handleImageUpload = async (id: number, file: File, type: TabType) => {
- const newUrl = await uploadItemImage(file);
- if (!newUrl) return;
+    if (await deleteCourse(id)) {
+      setCourses((prev) => prev.filter((crs) => crs.id !== id));
+      refreshLimits();
+      toast.success(t("toasts.course_deleted"));
+    }
+  };
 
- if (type === 'SERVICES') {
- handleUpdateService(id, { imageUrl: newUrl });
- } else if (type === 'PACKAGES') {
- setPackages(prev => prev.map(p => p.id === id ? { ...p, imageUrl: newUrl, hasUnsavedChanges: true } : p));
- } else if (type === 'PRODUCTS') {
- handleUpdateProduct(id, { imageUrl: newUrl });
- } else if (type === 'COURSES') {
- handleUpdateCourse(id, { imageUrl: newUrl });
- }
- toast.success(t('toasts.image_uploaded', { defaultValue: 'Imagen subida correctamente' }));
- };
+  // ==========================================
+  // UPLOAD IMÁGENES (GENÉRICO)
+  // ==========================================
+  const handleImageUpload = async (id: number, file: File, type: TabType) => {
+    const newUrl = await uploadItemImage(file);
+    if (!newUrl) return;
 
- // ==========================================
- // RENDER: LOADING STATE (Sincronizado)
- // ==========================================
- if (isLoading || isLoadingLimits) {
- return (
- <div className="min-h-screen flex flex-col justify-center items-center gap-6 bg-white dark:bg-[#0a0a0a] transition-colors duration-300 selection:bg-gray-200 dark:selection:bg-white/20">
- <QhSpinner size="lg" />
- <p className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white animate-pulse">
- {t('loading_subtitle', { defaultValue: 'Preparando tu inventario...' })}
- </p>
- </div>
- );
- }
+    if (type === "SERVICES") {
+      handleUpdateService(id, { imageUrl: newUrl });
+    } else if (type === "PACKAGES") {
+      setPackages((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, imageUrl: newUrl, hasUnsavedChanges: true } : p
+        )
+      );
+    } else if (type === "PRODUCTS") {
+      handleUpdateProduct(id, { imageUrl: newUrl });
+    } else if (type === "COURSES") {
+      handleUpdateCourse(id, { imageUrl: newUrl });
+    }
+    toast.success(t("toasts.image_uploaded"));
+  };
 
- const hasUnsavedChanges = services.some(s => s.hasUnsavedChanges || s.isNew) || packages.some(p => p.hasUnsavedChanges || p.isNew);
- const availableServicesForPackages = services.filter(s => !s.isNew && !s.hasUnsavedChanges);
+  // ==========================================
+  // RENDER: ESTADO DE CARGA
+  // ==========================================
+  if (isLoading || isLoadingLimits) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 gap-3">
+        <QhSpinner size="lg" />
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
+          {t("loading_subtitle")}
+        </p>
+      </div>
+    );
+  }
 
- return (
- <div className="min-h-screen bg-white dark:bg-[#0a0a0a] p-6 md:p-12 font-sans selection:bg-gray-200 dark:selection:bg-white/20 transition-colors duration-300">
- <div className="max-w-6xl mx-auto space-y-12 pb-24">
+  const hasUnsavedChanges =
+    services.some((s) => s.hasUnsavedChanges || s.isNew) ||
+    packages.some((p) => p.hasUnsavedChanges || p.isNew);
 
- {/* Top Bar Navigation */}
- <div className="flex items-center justify-between pb-6 sticky top-0 bg-white dark:bg-[#0a0a0a] z-40 pt-4">
- <Button
- variant="ghost"
- onClick={() => router.push('/provider/store')}
- className="rounded-xl text-sm font-semibold text-gray-600 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors px-4 h-10"
- >
- <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} />
- {t('back', { defaultValue: 'Volver' })}
- </Button>
+  const availableServicesForPackages = services.filter(
+    (s) => !s.isNew && !s.hasUnsavedChanges
+  );
 
- {hasUnsavedChanges && (
- <span className="bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 animate-pulse">
- <Info className="w-4 h-4" strokeWidth={2} /> {t('unsaved', { defaultValue: 'Cambios sin guardar' })}
- </span>
- )}
- </div>
+  return (
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pt-8 px-6 md:px-10 pb-24">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* Barra Superior NAVEGACIÓN */}
+        <div className="flex items-center justify-between pb-6 border-b border-gray-100 dark:border-gray-800">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/provider/store")}
+            className="h-10 px-4 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2 text-gray-700 dark:text-gray-200" strokeWidth={2} />
+            <span>{t("back")}</span>
+          </Button>
 
- {/* Header Contextual */}
- <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-6">
- <div className="flex flex-col md:flex-row md:items-center gap-6">
- <div className="w-16 h-16 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-center bg-white dark:bg-[#0a0a0a] shrink-0 shadow-sm">
- <ShoppingBag className="w-7 h-7 text-emerald-600" strokeWidth={2} />
- </div>
- <div>
- <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-3">
- {t('title', { defaultValue: 'Catálogo de Precios' })}
- </h1>
- <div className="flex flex-col sm:flex-row sm:items-center gap-3">
- <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit">
- <Sparkles className="w-3.5 h-3.5" strokeWidth={2} /> {t('badge', { defaultValue: 'Inventario Unificado' })}
- </span>
- <span className="text-xs font-semibold text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
- {services.length + packages.length + products.length + courses.length} Ítems Activos
- </span>
- </div>
- </div>
- </div>
- <p className="text-sm text-gray-500 font-medium leading-relaxed max-w-2xl mt-4">
- {t('subtitle', { defaultValue: 'Configura los servicios, paquetes, productos y cursos que ofrecerás a tus pacientes.' })}
- </p>
- </motion.div>
+          {hasUnsavedChanges && (
+            <span className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-400 px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 shadow-sm animate-pulse">
+              <Info className="w-4 h-4 shrink-0" strokeWidth={2} />
+              <span>{t("unsaved")}</span>
+            </span>
+          )}
+        </div>
 
- {/* NAVEGACIÓN DE PESTAÑAS */}
- <div className="flex overflow-x-auto border-b border-gray-100 dark:border-gray-800 scrollbar-hide pt-4">
- {[
- { id: 'SERVICES', label: 'Servicios', icon: BriefcaseMedical, count: services.length },
- { id: 'PACKAGES', label: 'Paquetes', icon: Package, count: packages.length },
- { id: 'PRODUCTS', label: 'Farmacia / Productos', icon: ShoppingBag, count: products.length },
- { id: 'COURSES', label: 'Cursos / Digitales', icon: GraduationCap, count: courses.length }
- ].map((tab) => (
- <button
- key={tab.id}
- onClick={() => setActiveTab(tab.id as TabType)}
- className={cn(
- "flex shrink-0 items-center gap-3 px-6 py-4 text-sm font-semibold transition-colors whitespace-nowrap rounded-t-2xl relative",
- activeTab === tab.id
- ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/10"
- : "text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#111]"
- )}
- >
- <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-emerald-600" : "text-gray-400")} strokeWidth={2} />
- {tab.label}
- <span className={cn(
- "px-2 py-0.5 rounded-full text-xs",
- activeTab === tab.id ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800"
- )}>
- {tab.count}
- </span>
- {activeTab === tab.id && (
- <motion.div layoutId="activeCatalogTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />
- )}
- </button>
- ))}
- </div>
+        {/* Encabezado Principal */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-4"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+              <ShoppingBag className="w-7 h-7" strokeWidth={2} />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2.5 mb-1">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+                  {t("title")}
+                </h1>
+                <span className="px-3 py-0.5 text-[10px] font-bold rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400 shadow-sm flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" strokeWidth={2} />
+                  <span>{t("badge")}</span>
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">
+                {t("subtitle")}
+              </p>
+            </div>
+          </div>
+        </motion.div>
 
- {/* CONTENIDO DE LAS PESTAÑAS */}
- <div className="bg-white dark:bg-[#0a0a0a] rounded-b-3xl border border-t-0 border-gray-100 dark:border-gray-800 shadow-sm p-6 md:p-8">
- <AnimatePresence mode="wait">
+        {/* PESTAÑAS DE NAVEGACIÓN */}
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
+          <div className="flex items-center bg-gray-50/50 dark:bg-[#050505] p-2 gap-2 border-b border-gray-100 dark:border-gray-800 overflow-x-auto custom-scrollbar">
+            {[
+              {
+                id: "SERVICES",
+                label: t("tabs.services"),
+                icon: BriefcaseMedical,
+                count: services.length,
+              },
+              {
+                id: "PACKAGES",
+                label: t("tabs.packages"),
+                icon: Package,
+                count: packages.length,
+              },
+              {
+                id: "PRODUCTS",
+                label: t("tabs.products"),
+                icon: ShoppingBag,
+                count: products.length,
+              },
+              {
+                id: "COURSES",
+                label: t("tabs.courses"),
+                icon: GraduationCap,
+                count: courses.length,
+              },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabType)}
+                  className={cn(
+                    "h-10 px-5 rounded-xl border transition-all text-xs font-bold flex items-center justify-center gap-2 shrink-0 relative",
+                    isActive
+                      ? "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-emerald-700 dark:text-emerald-400 shadow-sm"
+                      : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 bg-transparent"
+                  )}
+                >
+                  <tab.icon className="w-4 h-4 shrink-0" strokeWidth={2} />
+                  <span>{tab.label}</span>
+                  <span
+                    className={cn(
+                      "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold",
+                      isActive
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+                        : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
- {activeTab === 'SERVICES' && (
- <motion.div key="services" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
- <ServicesManager
- // @ts-ignore
- services={services}
- onAdd={handleAddService}
- onUpdate={handleUpdateService}
- onSave={handleSaveService}
- onDelete={handleDeleteService}
- onDuplicate={handleDuplicateService}
- onImageUpload={(id, file) => handleImageUpload(id, file, 'SERVICES')}
- canAdd={canAddService}
- currentUsage={usage?.metrics?.services?.current}
- maxLimit={usage?.metrics?.services?.limit}
- />
- </motion.div>
- )}
+          {/* CONTENIDO DE PESTAÑA SELECCIONADA */}
+          <div className="p-6 md:p-8">
+            <AnimatePresence mode="wait">
+              {activeTab === "SERVICES" && (
+                <motion.div
+                  key="services"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ServicesManager
+                    // @ts-ignore
+                    services={services}
+                    onAdd={handleAddService}
+                    onUpdate={handleUpdateService}
+                    onSave={handleSaveService}
+                    onDelete={handleDeleteService}
+                    onDuplicate={handleDuplicateService}
+                    onImageUpload={(id, file) =>
+                      handleImageUpload(id, file, "SERVICES")
+                    }
+                    canAdd={canAddService}
+                    currentUsage={usage?.metrics?.services?.current}
+                    maxLimit={usage?.metrics?.services?.limit}
+                  />
+                </motion.div>
+              )}
 
- {activeTab === 'PACKAGES' && (
- <motion.div key="packages" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
- <PackagesManager
- // @ts-ignore
- packages={packages}
- // @ts-ignore
- availableServices={availableServicesForPackages}
- onAdd={handleAddPackage} 
- onSave={handleSavePackage}
- onDelete={handleDeletePackage}
- onImageUpload={(id, file) => handleImageUpload(id, file, 'PACKAGES')}
- canAdd={canAddPackage}
- currentUsage={usage?.metrics?.packages?.current}
- maxLimit={usage?.metrics?.packages?.limit}
- />
- </motion.div>
- )}
+              {activeTab === "PACKAGES" && (
+                <motion.div
+                  key="packages"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <PackagesManager
+                    // @ts-ignore
+                    packages={packages}
+                    // @ts-ignore
+                    availableServices={availableServicesForPackages}
+                    onAdd={handleAddPackage}
+                    onSave={handleSavePackage}
+                    onDelete={handleDeletePackage}
+                    onImageUpload={(id, file) =>
+                      handleImageUpload(id, file, "PACKAGES")
+                    }
+                    canAdd={canAddPackage}
+                    currentUsage={usage?.metrics?.packages?.current}
+                    maxLimit={usage?.metrics?.packages?.limit}
+                  />
+                </motion.div>
+              )}
 
- {activeTab === 'PRODUCTS' && (
- <motion.div key="products" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
- <ProductsManager
- // @ts-ignore
- products={products}
- onAdd={handleAddProduct}
- onUpdate={handleUpdateProduct}
- onSave={handleSaveProduct}
- onDelete={handleDeleteProduct}
- onImageUpload={(id, file) => handleImageUpload(id, file, 'PRODUCTS')}
- canAdd={canAddProduct}
- currentUsage={usage?.metrics?.products?.current ?? 0}
- maxLimit={usage?.metrics?.products?.limit ?? undefined}
- />
- </motion.div>
- )}
+              {activeTab === "PRODUCTS" && (
+                <motion.div
+                  key="products"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ProductsManager
+                    // @ts-ignore
+                    products={products}
+                    onAdd={handleAddProduct}
+                    onUpdate={handleUpdateProduct}
+                    onSave={handleSaveProduct}
+                    onDelete={handleDeleteProduct}
+                    onImageUpload={(id, file) =>
+                      handleImageUpload(id, file, "PRODUCTS")
+                    }
+                    canAdd={canAddProduct}
+                    currentUsage={usage?.metrics?.products?.current ?? 0}
+                    maxLimit={usage?.metrics?.products?.limit ?? undefined}
+                  />
+                </motion.div>
+              )}
 
- {activeTab === 'COURSES' && (
- <motion.div key="courses" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
- <CoursesManager
- // @ts-ignore
- courses={courses}
- onAdd={handleAddCourse}
- onUpdate={handleUpdateCourse}
- onSave={handleSaveCourse}
- onDelete={handleDeleteCourse}
- onImageUpload={(id, file) => handleImageUpload(id, file, 'COURSES')}
- canAdd={canAddCourse}
- currentUsage={usage?.metrics?.courses?.current ?? 0}
- maxLimit={usage?.metrics?.courses?.limit ?? undefined}
- />
- </motion.div>
- )}
-
- </AnimatePresence>
- </div>
-
- </div>
- </div>
- );
+              {activeTab === "COURSES" && (
+                <motion.div
+                  key="courses"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <CoursesManager
+                    // @ts-ignore
+                    courses={courses}
+                    onAdd={handleAddCourse}
+                    onUpdate={handleUpdateCourse}
+                    onSave={handleSaveCourse}
+                    onDelete={handleDeleteCourse}
+                    onImageUpload={(id, file) =>
+                      handleImageUpload(id, file, "COURSES")
+                    }
+                    canAdd={canAddCourse}
+                    currentUsage={usage?.metrics?.courses?.current ?? 0}
+                    maxLimit={usage?.metrics?.courses?.limit ?? undefined}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

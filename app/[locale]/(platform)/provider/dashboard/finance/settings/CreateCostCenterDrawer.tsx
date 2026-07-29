@@ -1,196 +1,282 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Save, Building2 } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Controller } from 'react-hook-form';
-import { QhSpinner } from '@/components/ui/QhSpinner';
-import { accountingService, CostCenterRequestDTO } from '@/services/accounting.service';
-import { CostCenterDTO } from '@/types/accounting';
-import { locationService } from '@/services/location.service';
-import { ProviderLocation } from '@/types/providerLocation';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useState, useEffect, useCallback } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { useTranslations } from "next-intl";
+import { toast } from "react-toastify";
+import { Save, Building2, X } from "lucide-react";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetClose,
+} from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+
+import {
+  accountingService,
+  CostCenterRequestDTO,
+} from "@/services/accounting.service";
+import { CostCenterDTO } from "@/types/accounting";
+import { locationService } from "@/services/location.service";
+import { ProviderLocation } from "@/types/providerLocation";
 
 interface CreateCostCenterForm {
-    name: string;
-    code: string;
-    locationId: string;
+  name: string;
+  code: string;
+  locationId: string;
 }
 
-export const CreateCostCenterDrawer = ({
-    open,
-    onOpenChange,
-    onSuccess,
-    parentId,
-    parentName,
-    editNode
-}: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onSuccess: () => void;
-    parentId?: string | null;
-    parentName?: string;
-    editNode?: CostCenterDTO | null;
-}) => {
-    const { register, handleSubmit, reset, control, setValue, formState: { errors } } = useForm<CreateCostCenterForm>();
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [locations, setLocations] = useState<ProviderLocation[]>([]);
-    const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+interface CreateCostCenterDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+  parentId?: string | null;
+  parentName?: string;
+  editNode?: CostCenterDTO | null;
+}
 
-    useEffect(() => {
-        if (open) {
-            const fetchLocations = async () => {
-                setIsLoadingLocations(true);
-                try {
-                    const data = await locationService.getMyLocations();
-                    setLocations(data);
-                } catch (error) {
-                    toast.error("Error al cargar ubicaciones de negocio", { theme: "colored" });
-                } finally {
-                    setIsLoadingLocations(false);
-                }
-            };
-            fetchLocations();
+export function CreateCostCenterDrawer({
+  open,
+  onOpenChange,
+  onSuccess,
+  parentId,
+  parentName,
+  editNode,
+}: CreateCostCenterDrawerProps) {
+  const t = useTranslations("CreateCostCenterDrawer");
 
-            if (editNode) {
-                setValue('name', editNode.name);
-                setValue('code', editNode.code);
-                if (editNode.associatedAreaId) {
-                    setValue('locationId', editNode.associatedAreaId.toString());
-                }
-            } else {
-                reset();
-            }
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<CreateCostCenterForm>();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locations, setLocations] = useState<ProviderLocation[]>([]);
+  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+
+  const fetchLocations = useCallback(async () => {
+    setIsLoadingLocations(true);
+    try {
+      const data = await locationService.getMyLocations();
+      setLocations(data || []);
+    } catch (error) {
+      console.error(error);
+      toast.error(t("toasts.load_locations_error"));
+    } finally {
+      setIsLoadingLocations(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    if (open) {
+      fetchLocations();
+
+      if (editNode) {
+        setValue("name", editNode.name);
+        setValue("code", editNode.code);
+        if (editNode.associatedAreaId) {
+          setValue("locationId", editNode.associatedAreaId.toString());
         }
-    }, [open, editNode, setValue, reset]);
+      } else {
+        reset();
+      }
+    }
+  }, [open, editNode, setValue, reset, fetchLocations]);
 
-    const onSubmit = async (data: CreateCostCenterForm) => {
-        setIsSubmitting(true);
-        try {
-            const payload: CostCenterRequestDTO = {
-                name: data.name,
-                code: data.code,
-                locationId: Number(data.locationId)
-            };
+  const onSubmit = async (data: CreateCostCenterForm) => {
+    setIsSubmitting(true);
+    try {
+      const payload: CostCenterRequestDTO = {
+        name: data.name,
+        code: data.code,
+        locationId: Number(data.locationId),
+      };
 
-            if (parentId && !editNode) {
-                payload.parentId = parentId;
-            }
-            
-            if (editNode) {
-                await accountingService.updateCostCenter(editNode.id, payload);
-                toast.success("Centro de Costo actualizado correctamente", { theme: "colored" });
-            } else {
-                await accountingService.createCostCenter(payload);
-                toast.success("Centro de Costo creado correctamente", { theme: "colored" });
-            }
-            
-            reset();
-            onSuccess();
-            onOpenChange(false);
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || "Error al crear el centro de costo", { theme: "colored" });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+      if (parentId && !editNode) {
+        payload.parentId = parentId;
+      }
 
-    return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent position="right" size="lg" className="p-0 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col h-full shadow-2xl">
-                <SheetHeader className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shrink-0 text-left">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                                <Building2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div>
-                                <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                                    {editNode ? 'Editar Centro de Costo' : parentId ? 'Nuevo Sub-Centro de Costo' : 'Nuevo Centro de Costo'}
-                                </SheetTitle>
-                                <SheetDescription className="text-sm font-medium text-gray-500">
-                                    {editNode ? `Modificando: ${editNode.name}` : parentId ? `Dependiente de: ${parentName}` : 'Vinculado a sucursal'}
-                                </SheetDescription>
-                            </div>
-                        </div>
-                    </div>
-                </SheetHeader>
+      if (editNode) {
+        await accountingService.updateCostCenter(editNode.id, payload);
+        toast.success(t("toasts.update_success"));
+      } else {
+        await accountingService.createCostCenter(payload);
+        toast.success(t("toasts.create_success"));
+      }
 
-                <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
-                    {isLoadingLocations ? (
-                        <div className="flex flex-col items-center justify-center h-40 gap-4">
-                            <QhSpinner size="md" className="text-emerald-600" />
-                            <p className="text-sm font-semibold text-gray-500 animate-pulse">Cargando ubicaciones...</p>
-                        </div>
-                    ) : (
-                        <form id="create-cost-center-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                            
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Ubicación Física (Sucursal) *</Label>
-                                <Controller
-                                    name="locationId"
-                                    control={control}
-                                    rules={{ required: true }}
-                                    render={({ field }) => (
-                                        <Select onValueChange={field.onChange} value={field.value}>
-                                            <SelectTrigger className="w-full h-12 px-4 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#111] font-semibold text-gray-900 dark:text-white">
-                                                <SelectValue placeholder="Seleccionar sucursal..." />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-xl border-gray-200 dark:border-gray-800">
-                                                {locations.map(loc => (
-                                                    <SelectItem key={loc.id} value={loc.id.toString()} className="rounded-lg">
-                                                        {loc.name} {loc.isMain ? '(Matriz)' : ''}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                {errors.locationId && <span className="text-xs text-red-500 font-bold">REQUERIDO</span>}
-                            </div>
+      reset();
+      onSuccess();
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error(error);
+      const apiMessage = error?.response?.data?.message;
+      toast.error(apiMessage || t("toasts.default_error"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Nombre del Centro de Costo *</Label>
-                                <Input 
-                                    {...register("name", { required: true })}
-                                    className="w-full h-12 px-4 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#111]"
-                                    placeholder="Ej. Clínica Centro - Gastos Generales"
-                                />
-                                {errors.name && <span className="text-xs text-red-500 font-bold">REQUERIDO</span>}
-                            </div>
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border-l border-gray-100 dark:border-gray-800 p-0 overflow-y-auto sm:rounded-l-3xl shadow-2xl flex flex-col h-full font-sans text-gray-900 dark:text-white">
+        
+        {/* ── HEADER SHEET ────────────────────────────────────────────── */}
+        <SheetHeader className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] shrink-0 rounded-tl-3xl text-left">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-sm">
+              <Building2 className="w-6 h-6" strokeWidth={2} />
+            </div>
+            <SheetClose className="w-9 h-9 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] flex items-center justify-center transition-all shadow-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              <X className="w-4 h-4" strokeWidth={2} />
+            </SheetClose>
+          </div>
+          <SheetTitle className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+            {editNode
+              ? t("title_edit")
+              : parentId
+              ? t("title_sub")
+              : t("title_new")}
+          </SheetTitle>
+          <SheetDescription className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+            {editNode
+              ? t("subtitle_edit", { name: editNode.name })
+              : parentId
+              ? t("subtitle_sub", { name: parentName || "" })
+              : t("subtitle_new")}
+          </SheetDescription>
+        </SheetHeader>
 
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Código Contable Interno *</Label>
-                                <Input 
-                                    {...register("code", { required: true })}
-                                    className="w-full h-12 px-4 rounded-xl border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-[#111] uppercase font-mono"
-                                    placeholder="Ej. CC-001"
-                                />
-                                {errors.code && <span className="text-xs text-red-500 font-bold">REQUERIDO</span>}
-                            </div>
-                            
-                        </form>
-                    )}
-                </div>
+        {/* ── FORMULARIO PRINCIPAL ─────────────────────────────────────── */}
+        <div className="p-6 sm:p-8 flex-1 overflow-y-auto custom-scrollbar">
+          {isLoadingLocations ? (
+            <div className="flex flex-col items-center justify-center h-48 gap-3">
+              <QhSpinner size="md" />
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
+                {t("loading_locations")}
+              </p>
+            </div>
+          ) : (
+            <form
+              id="create-cost-center-form"
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
+              {/* Sucursal / Ubicación */}
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {t("label_location")}
+                </Label>
+                <Controller
+                  name="locationId"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full h-11 px-3 text-xs font-bold rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm">
+                        <SelectValue placeholder={t("placeholder_location")} />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg max-h-52">
+                        {locations.map((loc) => (
+                          <SelectItem
+                            key={loc.id}
+                            value={loc.id.toString()}
+                            className="text-xs font-bold rounded-xl"
+                          >
+                            {loc.name}{" "}
+                            {loc.isMain ? t("main_branch_tag") : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.locationId && (
+                  <span className="text-[10px] text-rose-500 font-bold block mt-1">
+                    {t("error_required")}
+                  </span>
+                )}
+              </div>
 
-                <div className="p-6 md:p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 shrink-0">
-                    <button 
-                        type="submit"
-                        form="create-cost-center-form"
-                        disabled={isSubmitting || isLoadingLocations}
-                        className="w-full h-12 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 rounded-xl shadow-sm disabled:opacity-50"
-                    >
-                        {isSubmitting ? (
-                            <><QhSpinner size="sm" className="mr-2" /> Guardando...</>
-                        ) : (
-                            <><Save className="w-4 h-4" /> Guardar Centro de Costo</>
-                        )}
-                    </button>
-                </div>
-            </SheetContent>
-        </Sheet>
-    );
-};
+              {/* Nombre */}
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {t("label_name")}
+                </Label>
+                <Input
+                  {...register("name", { required: true })}
+                  className="w-full h-11 px-3 text-xs font-bold rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm"
+                  placeholder={t("placeholder_name")}
+                />
+                {errors.name && (
+                  <span className="text-[10px] text-rose-500 font-bold block mt-1">
+                    {t("error_required")}
+                  </span>
+                )}
+              </div>
+
+              {/* Código */}
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {t("label_code")}
+                </Label>
+                <Input
+                  {...register("code", { required: true })}
+                  className="w-full h-11 px-3 text-xs font-mono font-bold uppercase rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm"
+                  placeholder={t("placeholder_code")}
+                />
+                {errors.code && (
+                  <span className="text-[10px] text-rose-500 font-bold block mt-1">
+                    {t("error_required")}
+                  </span>
+                )}
+              </div>
+            </form>
+          )}
+        </div>
+
+        {/* ── FOOTER BOTÓN ────────────────────────────────────────────── */}
+        <div className="p-6 sm:p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] shrink-0 rounded-bl-3xl">
+          <Button
+            type="submit"
+            form="create-cost-center-form"
+            disabled={isSubmitting || isLoadingLocations}
+            className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 rounded-xl shadow-sm transition-all border-0 disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <>
+                <QhSpinner size="sm" />
+                <span>{t("btn_saving")}</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" strokeWidth={2} />
+                <span>{t("btn_save")}</span>
+              </>
+            )}
+          </Button>
+        </div>
+
+      </SheetContent>
+    </Sheet>
+  );
+}

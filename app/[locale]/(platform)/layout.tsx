@@ -1,22 +1,26 @@
 import React from "react";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+
 import { Sidebar } from "@/components/platform/Sidebar";
 import { MobileNavbar } from "@/components/platform/MobileNavbar";
-import AuthProvider from '@/components/providers/AuthProvider';
-import type { Metadata } from 'next';
+import AuthProvider from "@/components/providers/AuthProvider";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
-  const isEnglish = locale === 'en';
+  const t = await getTranslations({ locale, namespace: "PlatformLayout" });
 
   return {
     title: {
-      default: isEnglish ? "Dashboard | QuHealthy" : "Dashboard | QuHealthy",
+      default: t("meta_title"),
       template: "%s | QuHealthy",
     },
-    description: isEnglish
-      ? "Manage your services, appointments, clients, and wellness offerings on the QuHealthy platform."
-      : "Gestiona tus servicios, citas, clientes y ofertas de bienestar en la plataforma QuHealthy.",
-    
+    description: t("meta_description"),
+
     // Importante: No indexar el dashboard
     robots: {
       index: false,
@@ -29,23 +33,26 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default function PlatformLayout({ children }: { children: React.ReactNode }) {
+export default function PlatformLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <AuthProvider>
-      {/* Contenedor principal arquitectónico */}
-      <div className="flex flex-col md:flex-row h-screen w-full bg-white dark:bg-[#0a0a0a] text-black dark:text-white font-sans antialiased selection:bg-gray-200 dark:selection:bg-white/20 overflow-hidden transition-colors duration-300">
-        
+      {/* Contenedor principal arquitectónico Soft Health */}
+      <div className="flex flex-col md:flex-row h-screen w-full bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white font-sans antialiased selection:bg-emerald-100 dark:selection:bg-emerald-950/30 overflow-hidden transition-colors duration-500">
         {/* Navbar (Mobile only) */}
         <MobileNavbar />
 
         {/* Sidebar (Desktop only) */}
-        <div className="hidden md:flex flex-shrink-0 h-full z-50 border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
+        <div className="hidden md:flex flex-shrink-0 h-full z-50 border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
           <Sidebar />
         </div>
 
-        {/* Main Content Area con Scroll nativo y minimalista */}
-        <main className="flex-1 overflow-y-auto relative bg-white dark:bg-[#0a0a0a] transition-colors duration-300 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 dark:[&::-webkit-scrollbar-track]:bg-[#0a0a0a] dark:[&::-webkit-scrollbar-thumb]:bg-gray-800 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700">
-          <div className="mx-auto w-full p-6 md:p-10 lg:p-12 max-w-7xl animate-in fade-in-0 duration-500">
+        {/* Main Content Area con Scroll customizado */}
+        <main className="flex-1 overflow-y-auto relative bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 custom-scrollbar">
+          <div className="mx-auto w-full p-6 md:p-10 lg:p-12 max-w-7xl animate-in fade-in-0 duration-300">
             {children}
           </div>
         </main>

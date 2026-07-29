@@ -11,23 +11,45 @@ import { useForm } from "react-hook-form";
 import { securityService } from "@/services/security.service";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+
+interface PasswordFormValues {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 
 export default function PasswordPage() {
   const t = useTranslations("SettingsSecurity");
+
   const [loading, setLoading] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, watch, reset } = useForm();
-  
-  const newPassword = watch("newPassword");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    reset,
+  } = useForm<PasswordFormValues>();
 
-  const onSubmit = async (data: any) => {
+  const newPasswordValue = watch("newPassword");
+
+  const onSubmit = async (data: PasswordFormValues) => {
     if (data.newPassword !== data.confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
+      toast.error(t("password_page.mismatch"));
       return;
     }
 
@@ -37,108 +59,185 @@ export default function PasswordPage() {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
-      toast.success("Contraseña actualizada exitosamente");
+      toast.success(t("password_page.success_toast"));
       reset();
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Error al actualizar la contraseña");
+      console.error(error);
+      toast.error(
+        error.response?.data?.error || t("password_page.error_toast")
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pt-8 px-6 md:px-10 pb-24">
       <div className="max-w-xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center space-x-4 mb-4">
-          <Link href="/provider/dashboard/settings" className="p-2 border border-black dark:border-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-black dark:text-white" />
+        
+        {/* ── HEADER PRINCIPAL ────────────────────────────────────────────── */}
+        <div className="flex items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+          <Link
+            href="/provider/dashboard/settings"
+            className="w-10 h-10 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] flex items-center justify-center transition-all shadow-sm shrink-0"
+          >
+            <ArrowLeft
+              className="w-4 h-4 text-gray-700 dark:text-gray-200"
+              strokeWidth={2}
+            />
           </Link>
-          <div className="p-3 bg-black dark:bg-white border border-black dark:border-white w-fit">
-            <Lock className="w-6 h-6 text-white dark:text-black" />
+
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+            <Lock className="w-6 h-6" strokeWidth={2} />
           </div>
+
           <div>
-            <h1 className="text-xl font-bold uppercase tracking-tighter text-black dark:text-white">
-              {t("options.password.title") || "Cambiar Contraseña"}
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+              {t("options.password.title")}
             </h1>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 dark:text-gray-400 mt-1">
-              {t("options.password.desc") || "Actualiza tu contraseña de acceso"}
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+              {t("options.password.desc")}
             </p>
           </div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        {/* ── CARD Y FORMULARIO DE CAMBIO DE CONTRASEÑA ───────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Card className="bg-transparent border-black/20 dark:border-white/20 rounded-none">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold uppercase tracking-tight">
-                  Contraseña de Seguridad
+            <Card className="bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
+              <CardHeader className="p-6 md:p-8 bg-gray-50/50 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 space-y-1">
+                <CardTitle className="text-base font-bold text-gray-900 dark:text-white">
+                  {t("password_page.title")}
                 </CardTitle>
-                <CardDescription className="text-xs uppercase tracking-wide mt-1">
-                  Tu contraseña debe tener al menos 8 caracteres.
+                <CardDescription className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                  {t("password_page.subtitle")}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                
-                <div className="space-y-2 relative">
-                  <Label className="text-xs uppercase font-bold tracking-widest">Contraseña Actual</Label>
-                  <div className="relative">
-                    <Input 
-                      type={showCurrent ? "text" : "password"} 
-                      className="rounded-none border-black/20 dark:border-white/20 pr-10" 
-                      {...register("currentPassword", { required: "Este campo es requerido" })}
-                    />
-                    <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-2.5 text-gray-500">
-                      {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {errors.currentPassword && <p className="text-red-500 text-[10px] uppercase font-bold">{errors.currentPassword.message as string}</p>}
-                </div>
 
-                <div className="space-y-2 relative">
-                  <Label className="text-xs uppercase font-bold tracking-widest">Nueva Contraseña</Label>
+              <CardContent className="p-6 md:p-8 space-y-5">
+                {/* Contraseña Actual */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("password_page.current_password")}
+                  </Label>
                   <div className="relative">
-                    <Input 
-                      type={showNew ? "text" : "password"} 
-                      className="rounded-none border-black/20 dark:border-white/20 pr-10" 
-                      {...register("newPassword", { 
-                        required: "Este campo es requerido",
-                        minLength: { value: 8, message: "Mínimo 8 caracteres" }
+                    <Input
+                      type={showCurrent ? "text" : "password"}
+                      placeholder={t("password_page.current_placeholder")}
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold focus:ring-2 focus:ring-emerald-500/20 pr-10 shadow-sm"
+                      {...register("currentPassword", {
+                        required: t("password_page.field_required"),
                       })}
                     />
-                    <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-2.5 text-gray-500">
-                      {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrent(!showCurrent)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                    >
+                      {showCurrent ? (
+                        <EyeOff className="w-4 h-4" strokeWidth={2} />
+                      ) : (
+                        <Eye className="w-4 h-4" strokeWidth={2} />
+                      )}
                     </button>
                   </div>
-                  {errors.newPassword && <p className="text-red-500 text-[10px] uppercase font-bold">{errors.newPassword.message as string}</p>}
+                  {errors.currentPassword && (
+                    <p className="text-[11px] font-bold text-rose-500 mt-1">
+                      {errors.currentPassword.message}
+                    </p>
+                  )}
                 </div>
 
-                <div className="space-y-2 relative">
-                  <Label className="text-xs uppercase font-bold tracking-widest">Confirmar Contraseña</Label>
-                  <Input 
-                    type={showNew ? "text" : "password"} 
-                    className="rounded-none border-black/20 dark:border-white/20" 
-                    {...register("confirmPassword", { 
-                      required: "Este campo es requerido",
-                      validate: value => value === newPassword || "Las contraseñas no coinciden"
-                    })}
-                  />
-                  {errors.confirmPassword && <p className="text-red-500 text-[10px] uppercase font-bold">{errors.confirmPassword.message as string}</p>}
+                {/* Nueva Contraseña */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("password_page.new_password")}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type={showNew ? "text" : "password"}
+                      placeholder={t("password_page.new_placeholder")}
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold focus:ring-2 focus:ring-emerald-500/20 pr-10 shadow-sm"
+                      {...register("newPassword", {
+                        required: t("password_page.field_required"),
+                        minLength: {
+                          value: 8,
+                          message: t("password_page.min_length"),
+                        },
+                      })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNew(!showNew)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                    >
+                      {showNew ? (
+                        <EyeOff className="w-4 h-4" strokeWidth={2} />
+                      ) : (
+                        <Eye className="w-4 h-4" strokeWidth={2} />
+                      )}
+                    </button>
+                  </div>
+                  {errors.newPassword && (
+                    <p className="text-[11px] font-bold text-rose-500 mt-1">
+                      {errors.newPassword.message}
+                    </p>
+                  )}
                 </div>
 
+                {/* Confirmar Nueva Contraseña */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("password_page.confirm_password")}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirm ? "text" : "password"}
+                      placeholder={t("password_page.confirm_placeholder")}
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold focus:ring-2 focus:ring-emerald-500/20 pr-10 shadow-sm"
+                      {...register("confirmPassword", {
+                        required: t("password_page.field_required"),
+                        validate: (value) =>
+                          value === newPasswordValue ||
+                          t("password_page.mismatch"),
+                      })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                    >
+                      {showConfirm ? (
+                        <EyeOff className="w-4 h-4" strokeWidth={2} />
+                      ) : (
+                        <Eye className="w-4 h-4" strokeWidth={2} />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-[11px] font-bold text-rose-500 mt-1">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
               </CardContent>
-              <CardFooter className="bg-black/5 dark:bg-white/5 border-t border-black/10 dark:border-white/10 p-4">
-                <Button 
-                  type="submit" 
+
+              <CardFooter className="p-6 md:p-8 bg-gray-50/50 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex justify-end">
+                <Button
+                  type="submit"
                   disabled={loading}
-                  className="w-full rounded-none uppercase text-[10px] tracking-widest font-bold"
+                  className="w-full sm:w-auto h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-bold transition-all shadow-sm border-0 flex items-center justify-center gap-2"
                 >
                   {loading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white dark:border-black"></div>
+                    <QhSpinner size="sm" />
                   ) : (
                     <>
-                      <Save className="w-4 h-4 mr-2" />
-                      Guardar Contraseña
+                      <Save className="w-4 h-4" strokeWidth={2} />
+                      <span>{t("password_page.save_btn")}</span>
                     </>
                   )}
                 </Button>

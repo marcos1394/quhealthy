@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Bell, ArrowLeft, Save, AlertCircle } from "lucide-react";
@@ -11,14 +11,23 @@ import { securityService } from "@/services/security.service";
 import { ProviderSettingsResponse } from "@/types/security";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function AlertsPage() {
   const t = useTranslations("SettingsSecurity");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   const [settings, setSettings] = useState<ProviderSettingsResponse>({
     emailNotificationsEnabled: true,
     smsNotificationsEnabled: true,
@@ -28,119 +37,139 @@ export default function AlertsPage() {
     loginAlertsEnabled: true,
   });
 
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       setLoading(true);
       const data = await securityService.getProviderSettings();
       setSettings(data);
     } catch (error) {
-      toast.error(t("alerts.error_loading") || "Error cargando la configuración de alertas");
+      console.error(error);
+      toast.error(t("alerts.error_loading"));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [fetchSettings]);
 
   const handleSave = async () => {
     try {
       setSaving(true);
       await securityService.updateProviderSettings(settings);
-      toast.success(t("alerts.success_save") || "Alertas actualizadas exitosamente");
+      toast.success(t("alerts.success_save"));
     } catch (error) {
-      toast.error(t("alerts.error_save") || "Error guardando las alertas");
+      console.error(error);
+      toast.error(t("alerts.error_save"));
     } finally {
       setSaving(false);
     }
   };
 
   const toggleAlert = (key: keyof ProviderSettingsResponse) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: !prev[key],
     }));
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black dark:border-white"></div>
+      <div className="flex flex-col items-center justify-center min-h-[70vh] bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 gap-3">
+        <QhSpinner size="lg" />
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse">
+          {t("alerts.loading")}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-transparent p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pt-8 px-6 md:px-10 pb-24">
       <div className="max-w-xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center space-x-4 mb-4">
-          <Link href="/provider/dashboard/settings" className="p-2 border border-black dark:border-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-black dark:text-white" />
+        
+        {/* ── HEADER PRINCIPAL ────────────────────────────────────────────── */}
+        <div className="flex items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+          <Link
+            href="/provider/dashboard/settings"
+            className="w-10 h-10 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] flex items-center justify-center transition-all shadow-sm shrink-0"
+          >
+            <ArrowLeft
+              className="w-4 h-4 text-gray-700 dark:text-gray-200"
+              strokeWidth={2}
+            />
           </Link>
-          <div className="p-3 bg-black dark:bg-white border border-black dark:border-white w-fit">
-            <Bell className="w-6 h-6 text-white dark:text-black" />
+
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+            <Bell className="w-6 h-6" strokeWidth={2} />
           </div>
+
           <div>
-            <h1 className="text-xl font-bold uppercase tracking-tighter text-black dark:text-white">
-              {t("options.alerts.title") || "Alertas de Seguridad"}
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+              {t("options.alerts.title")}
             </h1>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 dark:text-gray-400 mt-1">
-              {t("options.alerts.desc") || "Recibe notificaciones de actividad inusual"}
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+              {t("options.alerts.desc")}
             </p>
           </div>
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="bg-transparent border-black/20 dark:border-white/20 rounded-none">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold uppercase tracking-tight">
-                Notificaciones
+        {/* ── TARJETA CONFIGURACIÓN DE ALERTAS ────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
+            <CardHeader className="p-6 md:p-8 bg-gray-50/50 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 space-y-1">
+              <CardTitle className="text-base font-bold text-gray-900 dark:text-white">
+                {t("alerts.title")}
               </CardTitle>
-              <CardDescription className="text-xs uppercase tracking-wide mt-1">
-                Configura cómo te avisamos de los eventos importantes.
+              <CardDescription className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                {t("alerts.subtitle")}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              
-              <div className="flex items-center justify-between p-4 border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 transition-colors">
-                <div className="space-y-0.5">
-                  <div className="font-bold text-sm uppercase tracking-tight">
-                    Nuevo Inicio de Sesión
-                  </div>
-                  <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                    Te enviaremos un correo si detectamos un dispositivo nuevo.
-                  </div>
+
+            <CardContent className="p-6 md:p-8 space-y-6">
+              {/* Opción: Alertas de Nuevo Inicio de Sesión */}
+              <div className="flex items-center justify-between p-5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-200 dark:hover:border-emerald-900/40 transition-all shadow-sm">
+                <div className="space-y-1 pr-4">
+                  <p className="font-bold text-xs text-gray-900 dark:text-white">
+                    {t("alerts.login_alerts_title")}
+                  </p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {t("alerts.login_alerts_desc")}
+                  </p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.loginAlertsEnabled}
                   onCheckedChange={() => toggleAlert("loginAlertsEnabled")}
-                  className="data-[state=checked]:bg-black dark:data-[state=checked]:bg-white"
+                  className="data-[state=checked]:bg-emerald-600 dark:data-[state=checked]:bg-emerald-500"
                 />
               </div>
 
-              {/* Informative notice */}
-              <div className="flex items-start space-x-3 p-4 bg-blue-50 dark:bg-blue-950/20 border-l-4 border-blue-600">
-                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-                <p className="text-xs font-medium text-blue-800 dark:text-blue-300">
-                  Las alertas te ayudan a proteger tu cuenta actuando rápidamente frente a inicios de sesión no autorizados. Recomendamos dejarlas siempre encendidas.
+              {/* Mensaje Informativo Recomendado */}
+              <div className="flex items-start gap-3 p-4 bg-sky-50/60 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/30 rounded-2xl text-sky-800 dark:text-sky-300">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-sky-600 dark:text-sky-400" strokeWidth={2} />
+                <p className="text-xs font-medium leading-relaxed">
+                  {t("alerts.recommendation_notice")}
                 </p>
               </div>
-
             </CardContent>
-            <CardFooter className="bg-black/5 dark:bg-white/5 border-t border-black/10 dark:border-white/10 p-4">
-              <Button 
-                onClick={handleSave} 
+
+            <CardFooter className="p-6 md:p-8 bg-gray-50/50 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex justify-end">
+              <Button
+                onClick={handleSave}
                 disabled={saving}
-                className="w-full rounded-none uppercase text-[10px] tracking-widest font-bold"
+                className="w-full sm:w-auto h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white text-xs font-bold transition-all shadow-sm border-0 flex items-center justify-center gap-2"
               >
                 {saving ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white dark:border-black"></div>
+                  <QhSpinner size="sm" />
                 ) : (
                   <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Guardar Preferencias
+                    <Save className="w-4 h-4" strokeWidth={2} />
+                    <span>{t("alerts.save_btn")}</span>
                   </>
                 )}
               </Button>
