@@ -1819,6 +1819,33 @@
   },
 
   "DashboardBilling": {
+    "title": "Billing & Payments",
+    "subtitle": "Manage your transactions, receipts, and payouts",
+    "stripe_section": "Stripe Integration",
+    "stripe_subtitle": "Manage your bank accounts and payout settings via Stripe Connect",
+    "export_csv": "Export to CSV",
+    "export_pdf": "Export to PDF",
+    "types": {
+      "appointment_payment": "Appointment Payment"
+    },
+    "table": {
+      "date": "Date",
+      "settled": "Settled",
+      "service": "Service",
+      "status": "Status",
+      "amount": "Amount",
+      "receipt": "Receipt"
+    },
+    "pagination": {
+      "page_of": "Page {page} of {totalPages}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "modal": {
+      "internal_receipt": "Internal Receipt",
+      "print": "Print",
+      "download_pdf": "Download PDF"
+    },
     "transactions_title": "Transaction history",
     "transactions_subtitle": "Review and download your payment receipts transparently.",
     "btn_export_csv": "Export CSV",
@@ -2165,6 +2192,8 @@
   },
 
  "CashRegister": {
+    "btn_processing": "Processing...",
+    "toast_close_success": "Cash register closed successfully.",
     "close_modal_protocol": "Closing Protocol",
     "close_modal_title": "Close Cash Register",
     "expected_balance": "Expected Balance",
@@ -6560,6 +6589,14 @@
   },
   
   "PrescriptionSettings": {
+    "loading_preferences": "Loading preferences...",
+    "description": "Adjust colors and add your logo to give a more professional image to your patients.",
+    "primary_color": "Primary Color",
+    "logo_recommended": "Logo (Recommended)",
+    "digital_signature_optional": "Digital Signature (Optional)",
+    "footer_note": "Prescription Footer Note",
+    "footer_note_placeholder": "e.g., If you experience adverse effects, stop the medication and contact immediately.",
+    "save_preferences": "Save Preferences",
     "meta_title": "Digital Prescription Settings | QuHealthy",
     "meta_description": "Customize the logo, digital signature, contact info, and notes for your medical prescriptions.",
     "title": "Digital prescription",

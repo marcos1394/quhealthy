@@ -1892,6 +1892,33 @@
   },
 
 "DashboardBilling": {
+    "title": "Facturación y Pagos",
+    "subtitle": "Administra tus transacciones, recibos y transferencias",
+    "stripe_section": "Integración con Stripe",
+    "stripe_subtitle": "Administra tus cuentas bancarias y configuración de pagos vía Stripe Connect",
+    "export_csv": "Exportar a CSV",
+    "export_pdf": "Exportar a PDF",
+    "types": {
+      "appointment_payment": "Pago de cita"
+    },
+    "table": {
+      "date": "Fecha",
+      "settled": "Liquidado",
+      "service": "Servicio",
+      "status": "Estado",
+      "amount": "Monto",
+      "receipt": "Recibo"
+    },
+    "pagination": {
+      "page_of": "Página {page} de {totalPages}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "modal": {
+      "internal_receipt": "Recibo Interno",
+      "print": "Imprimir",
+      "download_pdf": "Descargar PDF"
+    },
     "transactions_title": "Historial de transacciones",
     "transactions_subtitle": "Consulta y descarga tus comprobantes de pago de forma transparente.",
     "btn_export_csv": "Exportar CSV",
@@ -2084,6 +2111,8 @@
   },
 
  "CashRegister": {
+    "btn_processing": "Procesando...",
+    "toast_close_success": "Caja registradora cerrada exitosamente.",
     "close_modal_protocol": "Protocolo de Cierre",
     "close_modal_title": "Cerrar Caja Registradora",
     "expected_balance": "Balance Esperado",
@@ -2484,6 +2513,8 @@
   },
 
  "PrescriptionSettings": {
+    "loading_preferences": "Cargando preferencias...",
+    "save_preferences": "Guardar Preferencias",
     "title": "Personaliza tu Receta",
     "description": "Ajusta los colores y añade tu logotipo para dar una imagen más profesional a tus pacientes.",
     "primary_color": "Color Principal",
