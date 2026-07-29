@@ -4043,6 +4043,16 @@
   },
  
   "PatientBooking": {
+    "preparing_booking": "Preparando reserva...",
+    "weekdays": [
+      "Lun",
+      "Mar",
+      "Mié",
+      "Jue",
+      "Vie",
+      "Sáb",
+      "Dom"
+    ],
     "cart_summary": "Resumen de Cita",
     "order_summary": "Resumen de Orden",
     "empty_cart": "Sin selección actual",

@@ -4435,6 +4435,16 @@
   },
   
   "PatientBooking": {
+    "preparing_booking": "Preparing booking...",
+    "weekdays": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
     "cart_summary": "Appointment Summary",
     "order_summary": "Order Summary",
     "empty_cart": "No selection made",
