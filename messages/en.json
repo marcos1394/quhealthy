@@ -4732,6 +4732,8 @@
     "step_date": "Select date",
     "step_date_desc": "Choose a date for your appointment",
     "step_time": "Select time",
+    "step_patient_title": "Select patient",
+    "step_patient_desc": "Who is this appointment for?",
     "weekdays": [
       "Mon",
       "Tue",

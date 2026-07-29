@@ -4346,6 +4346,8 @@
     "step_date": "Seleccionar fecha",
     "step_date_desc": "Elige una fecha para tu cita",
     "step_time": "Seleccionar hora",
+    "step_patient_title": "Seleccionar paciente",
+    "step_patient_desc": "¿Para quién es esta cita?",
     "weekdays": [
       "Lun",
       "Mar",
