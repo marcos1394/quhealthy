@@ -355,6 +355,8 @@
     "google_login": "Continue with Google",
     "apple_login": "Continue with Apple",
     "apple_tooltip": "Apple login available on supported devices",
+    "connecting": "Connecting...",
+    "welcome_user": "Welcome back!",
     "or_continue": "Or continue with email",
     "secure_connection": "Secure Connection",
     "secure_desc": "Your data is protected with SSL",
@@ -2165,53 +2167,69 @@
     }
   },
 
-  "CashRegister": {
+ "CashRegister": {
     "loading": "Checking cash register status...",
     "closed": {
       "status_inactive": "Status: Inactive",
       "title": "Cash Register Closed",
-      "subtitle": "Open the cash register to start accepting cash payments and set your starting float.",
-      "step_1": "Initial Cash Balance *",
+      "subtitle": "Open the cash register to start receiving cash payments and enter your initial float.",
+      "step_1": "Initial Cash Float *",
       "placeholder_amount": "0.00",
       "show_breakdown": "Enable cash breakdown (Optional)",
       "hide_breakdown": "Hide cash breakdown",
       "breakdown_help": "Physical count of bills and coins",
-      "btn_open": "Open Register",
-      "btn_opening": "Opening register...",
-      "toast_negative_balance": "Initial balance cannot be negative.",
+      "btn_open": "Open Cash Register",
+      "btn_opening": "Processing opening...",
+      "toast_negative_balance": "Initial float cannot be negative.",
       "toast_open_success": "Cash register opened successfully.",
-      "toast_open_error": "Failed to open cash register."
+      "toast_open_error": "Could not open cash register."
     },
     "active": {
       "tab_current": "Active Register",
       "tab_history": "Register History",
       "title": "Current Shift",
       "status_open": "Open",
-      "opened_at": "Opened at: {date}",
-      "btn_expense": "Cash Payout",
+      "opened_at": "Opened: {date}",
+      "btn_expense": "Cash Outflow",
       "btn_close": "Close Register",
-      "kpi_initial": "Starting Balance",
+      "kpi_initial": "Initial Float",
       "kpi_income": "Daily Income",
       "kpi_expense": "Daily Expenses",
       "kpi_expected": "Expected Balance",
-      "ledger_title": "Cash Ledger",
+      "ledger_title": "Register Transactions",
       "empty_title": "No transactions",
-      "empty_desc": "Shift payments and cash outflows will be listed here."
+      "empty_desc": "Shift cash collections and outflows will appear here."
     },
     "history": {
-      "title": "Past Shifts",
+      "title": "Previous Closings",
       "btn_refresh": "Refresh",
       "loading": "Loading history...",
       "th_status": "Status",
       "th_opened": "Opened",
       "th_closed": "Closed",
-      "th_initial": "Starting Float",
-      "th_final": "Actual Close",
+      "th_initial": "Initial Float",
+      "th_final": "Actual Closing",
       "th_difference": "Difference",
       "status_open": "Open",
       "status_closed": "Closed",
-      "empty_title": "History empty",
-      "empty_desc": "No closed shifts recorded in the system yet."
+      "empty_title": "Empty history",
+      "empty_desc": "No register closings have been recorded in the system yet."
+    },
+    "close_modal": {
+      "protocol": "Financial Protocol",
+      "title": "Cash Register Closing",
+      "expected_balance": "Expected System Balance",
+      "step_1_label": "Physical Counted Cash *",
+      "surplus_detected": "Surplus Detected",
+      "shortage_detected": "Shortage Detected",
+      "step_2_label": "Justification (Optional)",
+      "notes_placeholder": "Enter cash register closing observations...",
+      "btn_cancel": "Cancel",
+      "btn_confirm": "Confirm Closing",
+      "btn_processing": "Processing...",
+      "error_negative_balance": "Balance cannot be negative.",
+      "toast_close_success": "Cash register closed successfully.",
+      "error_close_generic": "Error closing cash register"
     }
   },
 

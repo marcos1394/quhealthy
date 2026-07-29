@@ -352,6 +352,11 @@
     "loading": "Iniciando sesión...",
     "no_account": "¿Aún no tienes una cuenta?",
     "create_account": "Crear Cuenta",
+    "google_login": "Continuar con Google",
+    "apple_login": "Continuar con Apple",
+    "apple_tooltip": "Inicio de sesión con Apple disponible en dispositivos compatibles",
+    "connecting": "Conectando...",
+    "welcome_user": "¡Bienvenido de nuevo!",
     "or_continue": "O continúa con email",
     "secure_connection": "Conexión Segura",
     "secure_desc": "Tus datos están protegidos con SSL",
@@ -2081,7 +2086,7 @@
     }
   },
 
-  "CashRegister": {
+ "CashRegister": {
     "loading": "Consultando estado de caja...",
     "closed": {
       "status_inactive": "Estado: Inactivo",
@@ -2128,8 +2133,24 @@
       "status_closed": "Cerrada",
       "empty_title": "Historial vacío",
       "empty_desc": "Aún no se han registrado cierres de caja en el sistema."
+    },
+    "close_modal": {
+      "protocol": "Protocolo Financiero",
+      "title": "Cierre de Caja",
+      "expected_balance": "Balance Esperado del Sistema",
+      "step_1_label": "Efectivo Contado (Arqueo) *",
+      "surplus_detected": "Sobrante Detectado",
+      "shortage_detected": "Faltante Detectado",
+      "step_2_label": "Justificación (Opcional)",
+      "notes_placeholder": "Escribe las observaciones del cierre de caja...",
+      "btn_cancel": "Cancelar",
+      "btn_confirm": "Confirmar Cierre",
+      "btn_processing": "Procesando...",
+      "error_negative_balance": "El balance no puede ser negativo.",
+      "toast_close_success": "Caja cerrada correctamente.",
+      "error_close_generic": "Error al cerrar la caja"
     }
-  }, 
+  },
 
   "DashboardCalendarView": {
     "confirmed": "Confirmada",
@@ -4053,6 +4074,8 @@
     "processing_transaction": "Procesando transacción...",
     "encrypted_protocol": "Protocolo de pago cifrado con seguridad de grado médico"
   },
+
+ 
 
   "BookingTimeStep": {
     "step_time": "Selecciona el horario de atención",
