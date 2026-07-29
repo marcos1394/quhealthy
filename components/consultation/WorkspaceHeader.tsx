@@ -1,78 +1,120 @@
+"use client";
+
 /* eslint-disable react-doctor/button-has-type */
-import React from 'react';
+
+import React from "react";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Stethoscope, Mic, Save, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Stethoscope,
+  Mic,
+  Save,
+  CheckCircle2,
+} from "lucide-react";
+
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 interface WorkspaceHeaderProps {
- appointmentId: number;
- displayFullName: string;
- isOfflinePatient: boolean;
- isRecording: boolean;
- isSubmitting: boolean;
- onComplete: () => void;
- onBack: () => void;
+  appointmentId: number;
+  displayFullName: string;
+  isOfflinePatient: boolean;
+  isRecording: boolean;
+  isSubmitting: boolean;
+  onComplete: () => void;
+  onBack: () => void;
 }
 
 export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
- appointmentId,
- displayFullName,
- isOfflinePatient,
- isRecording,
- isSubmitting,
- onComplete,
- onBack
+  appointmentId,
+  displayFullName,
+  isOfflinePatient,
+  isRecording,
+  isSubmitting,
+  onComplete,
+  onBack,
 }) => {
- const t = useTranslations('EHR');
+  const t = useTranslations("EHR");
 
- return (
- <header className="bg-white dark:bg-[#0a0a0a] border-b border-black dark:border-white px-6 py-4 flex flex-wrap items-center justify-between shadow-[0_4px_0_0_rgba(0,0,0,1)] dark:shadow-[0_4px_0_0_rgba(255,255,255,1)] z-10 shrink-0 gap-4">
- 
- {/* Lado Izquierdo: Back & Info */}
- <div className="flex items-center gap-4 md:gap-6">
- <button 
- onClick={onBack} 
- className="w-10 h-10 border border-black dark:border-white flex justify-center items-center text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
- >
- <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
- </button>
- <div>
- <h1 className="text-xl md:text-2xl font-serif font-bold text-black dark:text-white flex items-center gap-3 uppercase">
- <Stethoscope className="w-5 h-5" strokeWidth={1.5} /> 
- {t('title_consultation')}
- </h1>
- <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1 flex flex-wrap items-center gap-3">
- <span>CITA #{appointmentId}</span>
- <span className="hidden sm:inline">|</span>
- <span>{displayFullName}</span>
- {isOfflinePatient && (
- <span className="border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-2 py-0.5 ml-2">
- OFFLINE
- </span>
- )}
- </div>
- </div>
- </div>
- 
- {/* Lado Derecho: Acciones */}
- <div className="flex items-center gap-4 w-full md:w-auto justify-end mt-4 md:mt-0">
- {isRecording && (
- <div className="border border-red-600 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-2 text-[9px] font-bold uppercase tracking-widest flex items-center animate-pulse shadow-[4px_4px_0_0_#dc2626]">
- <Mic className="w-3 h-3 md:mr-2" strokeWidth={2} /> <span className="hidden md:inline">ESCUCHANDO...</span>
- </div>
- )}
- <button 
- className="flex items-center gap-2 border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black px-4 py-3 text-[10px] uppercase tracking-widest font-bold transition-colors shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]"
- >
- <Save className="w-4 h-4" strokeWidth={1.5} /> <span className="hidden lg:inline">GUARDAR BORRADOR</span>
- </button>
- <button 
- onClick={onComplete} 
- disabled={isSubmitting}
- className="flex items-center gap-2 border border-black dark:border-white bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 px-6 py-3 text-[10px] uppercase tracking-widest font-bold transition-colors shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] disabled:opacity-50"
- >
- <CheckCircle className="w-4 h-4" strokeWidth={1.5} /> <span className="hidden md:inline">FINALIZAR Y COBRAR</span>
- </button>
- </div>
- </header>
- );
+  return (
+    <header className="bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between shadow-xs z-10 shrink-0 gap-4 font-sans transition-colors">
+      {/* ── LADO IZQUIERDO: BOTÓN REGRESAR E INFORMACIÓN DE LA CONSULTA ── */}
+      <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+        <button
+          type="button"
+          onClick={onBack}
+          className="w-10 h-10 rounded-2xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
+        >
+          <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+        </button>
+
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs hidden sm:flex">
+            <Stethoscope className="w-5 h-5" strokeWidth={2} />
+          </div>
+
+          <div className="space-y-0.5 min-w-0">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight truncate">
+              {t("title_consultation")}
+            </h1>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-500 font-mono">
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                {t("appointment_num", { id: appointmentId })}
+              </span>
+              <span>•</span>
+              <span className="text-gray-900 dark:text-white truncate font-sans font-bold">
+                {displayFullName}
+              </span>
+
+              {isOfflinePatient && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 text-[10px] font-bold">
+                  {t("offline_badge")}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── LADO DERECHO: INDICADORES Y ACCIONES DE CABECERA ───────────── */}
+      <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+        {/* Indicador de Escucha de Audio en Vivo */}
+        {isRecording && (
+          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 text-xs font-bold animate-pulse shadow-2xs">
+            <Mic className="w-3.5 h-3.5" strokeWidth={2} />
+            <span className="hidden md:inline">{t("listening_status")}</span>
+          </div>
+        )}
+
+        {/* Guardar Borrador */}
+        <button
+          type="button"
+          className="h-11 px-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <Save className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span className="hidden md:inline">{t("btn_save_draft")}</span>
+        </button>
+
+        {/* Finalizar y Cobrar */}
+        <button
+          type="button"
+          onClick={onComplete}
+          disabled={isSubmitting}
+          className="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border-0"
+        >
+          {isSubmitting ? (
+            <>
+              <QhSpinner size="sm" className="text-white" />
+              <span>{t("btn_processing")}</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
+              <span>{t("btn_finish_and_charge")}</span>
+            </>
+          )}
+        </button>
+      </div>
+    </header>
+  );
 };

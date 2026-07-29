@@ -1,12 +1,27 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { ehrService } from '@/services/ehr.service';
-import { Button } from '@/components/ui/button';
-import { Loader2, Plus, X, Save } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { PatientBackgroundRequest } from '@/types/ehr';
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import {
+  Plus,
+  X,
+  Save,
+  ShieldCheck,
+  Users,
+  Activity,
+  HeartHandshake,
+  FileText,
+} from "lucide-react";
+import { toast } from "react-toastify";
+
+import { ehrService } from "@/services/ehr.service";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { PatientBackgroundRequest } from "@/types/ehr";
 
 interface Props {
   patientDirectoryId?: number | null;
@@ -14,74 +29,88 @@ interface Props {
   healthProfileId?: number | null;
 }
 
-export function PatientBackgroundPanel({ patientDirectoryId, consumerId, healthProfileId }: Props) {
-  const t = useTranslations('EHR');
+export function PatientBackgroundPanel({
+  patientDirectoryId,
+  consumerId,
+  healthProfileId,
+}: Props) {
+  const t = useTranslations("EHR");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [internalProfileId, setInternalProfileId] = useState<number | null>(healthProfileId || null);
-  
-  // States for dynamic backgrounds
-  const [familyBackground, setFamilyBackground] = useState<Record<string, string>>({});
-  const [personalBackground, setPersonalBackground] = useState<Record<string, string>>({});
-  const [socialBackground, setSocialBackground] = useState<Record<string, string>>({});
+  const [internalProfileId, setInternalProfileId] = useState<number | null>(
+    healthProfileId || null
+  );
+
+  // Estados para antecedentes dinámicos
+  const [familyBackground, setFamilyBackground] = useState<
+    Record<string, string>
+  >({});
+  const [personalBackground, setPersonalBackground] = useState<
+    Record<string, string>
+  >({});
+  const [socialBackground, setSocialBackground] = useState<
+    Record<string, string>
+  >({});
+
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (patientDirectoryId) {
+        const profile = await ehrService.getDirectoryPatientHealthProfile(
+          patientDirectoryId
+        );
+        if (profile) {
+          if (profile.id) setInternalProfileId(profile.id);
+          setFamilyBackground(profile.familyBackground || {});
+          setPersonalBackground(profile.personalBackground || {});
+          setSocialBackground(profile.socialBackground || {});
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching health profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [patientDirectoryId]);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      try {
-        if (patientDirectoryId) {
-          const profile = await ehrService.getDirectoryPatientHealthProfile(patientDirectoryId);
-          if (profile) {
-            if (profile.id) setInternalProfileId(profile.id);
-            setFamilyBackground(profile.familyBackground || {});
-            setPersonalBackground(profile.personalBackground || {});
-            setSocialBackground(profile.socialBackground || {});
-          }
-        } else if (consumerId) {
-          // Si tuviéramos un endpoint para consumer profile lo llamaríamos aquí
-        }
-      } catch (error) {
-        console.error("Error fetching health profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     if (patientDirectoryId || consumerId) {
-       fetchProfile();
+      fetchProfile();
     } else {
-       setLoading(false);
+      setLoading(false);
     }
-  }, [patientDirectoryId, consumerId]);
+  }, [patientDirectoryId, consumerId, fetchProfile]);
 
   const handleSave = async () => {
     const activeId = internalProfileId || healthProfileId;
     if (!activeId && !consumerId) {
-      toast.error(t('health_profile_missing') || "Error: Perfil de salud no encontrado.");
+      toast.error(t("health_profile_missing"));
       return;
     }
 
     setSaving(true);
     try {
       const payload: PatientBackgroundRequest = {
-        healthProfileId: activeId || 0, // Fallback, the backend will ignore if not found and use consumerId
+        healthProfileId: activeId || 0,
         familyBackground,
         personalBackground,
-        socialBackground
+        socialBackground,
       };
 
       if (patientDirectoryId) {
         await ehrService.updateProviderPatientBackground(payload);
       } else if (consumerId) {
-        // Backend ignores healthProfileId if null for updatePatientBackground, but TS might complain if we don't pass anything. We can pass it without healthProfileId.
-        const consumerPayload = { ...payload, healthProfileId: activeId || undefined } as unknown as PatientBackgroundRequest;
+        const consumerPayload = {
+          ...payload,
+          healthProfileId: activeId || undefined,
+        } as unknown as PatientBackgroundRequest;
         await ehrService.updatePatientBackground(consumerPayload);
       }
 
-      toast.success(t('background_updated_success') || "Antecedentes actualizados correctamente.");
+      toast.success(t("background_updated_success"));
     } catch (error) {
       console.error("Error saving backgrounds:", error);
-      toast.error(t('background_update_failed') || "Error al actualizar antecedentes.");
+      toast.error(t("background_update_failed"));
     } finally {
       setSaving(false);
     }
@@ -89,6 +118,7 @@ export function PatientBackgroundPanel({ patientDirectoryId, consumerId, healthP
 
   const renderMapEditor = (
     title: string,
+    icon: React.ReactNode,
     data: Record<string, string>,
     setData: React.Dispatch<React.SetStateAction<Record<string, string>>>
   ) => {
@@ -114,44 +144,68 @@ export function PatientBackgroundPanel({ patientDirectoryId, consumerId, healthP
       setData(newData);
     };
 
+    const entries = Object.entries(data);
+
     return (
-      <div className="mb-6 bg-gray-50/50 dark:bg-[#050505] p-5 rounded-2xl border border-gray-100 dark:border-gray-800">
-        <div className="flex justify-between items-center mb-5">
-          <h4 className="font-bold text-gray-900 dark:text-white">{title}</h4>
-          <Button variant="outline" size="sm" onClick={handleAdd} className="rounded-xl border-gray-200 bg-white font-semibold text-gray-700 hover:bg-gray-50 shadow-sm dark:bg-gray-900 dark:border-gray-800 dark:text-gray-200 dark:hover:bg-gray-800">
-            <Plus className="w-4 h-4 mr-1.5" /> {t('add')}
+      <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs space-y-4 transition-colors">
+        <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+              {icon}
+            </div>
+            <h4 className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">
+              {title}
+            </h4>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAdd}
+            className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-9 px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+            <span>{t("btn_add_entry")}</span>
           </Button>
         </div>
-        
-        {Object.keys(data).length === 0 ? (
-          <p className="text-sm text-gray-500 italic text-center py-4 bg-white dark:bg-[#0a0a0a] rounded-xl border border-dashed border-gray-200 dark:border-gray-800">{t('no_data_added') || "Sin registros"}</p>
+
+        {entries.length === 0 ? (
+          <div className="py-6 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]">
+            <p className="text-xs font-medium text-gray-400">
+              {t("no_data_added")}
+            </p>
+          </div>
         ) : (
-          <div className="space-y-3">
-            {Object.entries(data).map(([key, value], index) => (
-              <div key={index} className="flex gap-3 items-start">
-                <div className="w-1/3">
-                  <input
+          <div className="space-y-2.5">
+            {entries.map(([key, value], index) => (
+              <div key={index} className="flex gap-2.5 items-center">
+                <div className="w-1/3 min-w-[120px]">
+                  <Input
                     type="text"
                     value={key}
-                    placeholder={t('condition_or_relation') || "Condición / Familiar"}
+                    placeholder={t("condition_or_relation_placeholder")}
                     onChange={(e) => handleKeyChange(key, e.target.value)}
-                    className="w-full text-sm p-3 rounded-xl border border-gray-200 bg-white shadow-sm focus:ring-emerald-500 focus:border-emerald-500 transition-colors dark:border-gray-700 dark:bg-[#0a0a0a] dark:text-white"
+                    className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
                   />
                 </div>
+
                 <div className="flex-1">
-                  <input
+                  <Input
                     type="text"
                     value={value}
-                    placeholder={t('description_or_details') || "Detalles"}
+                    placeholder={t("description_or_details_placeholder")}
                     onChange={(e) => handleValChange(key, e.target.value)}
-                    className="w-full text-sm p-3 rounded-xl border border-gray-200 bg-white shadow-sm focus:ring-emerald-500 focus:border-emerald-500 transition-colors dark:border-gray-700 dark:bg-[#0a0a0a] dark:text-white"
+                    className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
                   />
                 </div>
-                <button 
+
+                <button
+                  type="button"
                   onClick={() => handleRemove(key)}
-                  className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-colors shrink-0"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors shrink-0 cursor-pointer border border-gray-100 dark:border-gray-800"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" strokeWidth={2} />
                 </button>
               </div>
             ))}
@@ -163,31 +217,74 @@ export function PatientBackgroundPanel({ patientDirectoryId, consumerId, healthP
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center p-8">
-        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+      <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 space-y-3 font-sans shadow-xs">
+        <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-semibold text-gray-400">{t("nom004_title")}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm">
-      <div className="p-6 bg-gray-50/50 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-          {t('medical_history_base') || "Expediente Base (NOM-004)"}
-        </h3>
-        <Button onClick={handleSave} disabled={saving} size="sm" className="bg-quhealthy-green hover:bg-emerald-700 text-white rounded-xl h-10 px-5 font-bold shadow-sm">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-          {t('save_background') || "Guardar Cambios"}
+    <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm font-sans transition-colors">
+      {/* ── CABECERA ─────────────────────────────────────────────────── */}
+      <div className="p-5 sm:p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
+            <ShieldCheck className="w-5 h-5" strokeWidth={2} />
+          </div>
+          <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
+            {t("nom004_title")}
+          </h3>
+        </div>
+
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50"
+        >
+          {saving ? (
+            <>
+              <QhSpinner size="sm" className="text-white" />
+              <span>{t("btn_saving_changes")}</span>
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" strokeWidth={2} />
+              <span>{t("btn_save_changes")}</span>
+            </>
+          )}
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        <div className="mb-6 text-sm font-medium text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900/30">
-          {t('nom004_background_notice') || "Estos datos pertenecen al expediente único e interoperable del paciente y deben completarse para poder firmar una consulta de Primera Vez."}
+      {/* ── NOTICIA DE NORMATIVA ──────────────────────────────────────── */}
+      <div className="p-5 sm:p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 text-emerald-800 dark:text-emerald-300 text-xs font-medium leading-relaxed">
+          <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+          <span>{t("nom004_notice")}</span>
         </div>
-        {renderMapEditor(t('family_background') || "Heredo-familiares", familyBackground, setFamilyBackground)}
-        {renderMapEditor(t('personal_background') || "Personales Patológicos", personalBackground, setPersonalBackground)}
-        {renderMapEditor(t('social_background') || "No Patológicos", socialBackground, setSocialBackground)}
+
+        {/* ── SECCIONES DE ANTECEDENTES ───────────────────────────────── */}
+        {renderMapEditor(
+          t("family_background"),
+          <Users className="w-4 h-4" strokeWidth={2} />,
+          familyBackground,
+          setFamilyBackground
+        )}
+
+        {renderMapEditor(
+          t("personal_background"),
+          <Activity className="w-4 h-4" strokeWidth={2} />,
+          personalBackground,
+          setPersonalBackground
+        )}
+
+        {renderMapEditor(
+          t("social_background"),
+          <HeartHandshake className="w-4 h-4" strokeWidth={2} />,
+          socialBackground,
+          setSocialBackground
+        )}
       </div>
     </div>
   );

@@ -1,23 +1,36 @@
 "use client";
-/* eslint-disable react-doctor/button-has-type */
 
-import React from "react";
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import {
   Mic,
   Square,
   Sparkles,
-  Video,
   ArrowRight,
   ArrowLeft,
   FileText,
   Cpu,
+  Activity,
+  Stethoscope,
 } from "lucide-react";
+
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { catalogService } from "@/services/catalog.service";
-import { clinicalTemplateService, ClinicalTemplateResponse } from "@/services/clinicalTemplates.service";
+import {
+  clinicalTemplateService,
+  ClinicalTemplateResponse,
+} from "@/services/clinicalTemplates.service";
 import { TemplateSelectorModal } from "./TemplateSelectorModal";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { SoapNotes, AppointmentDiagnosis, VitalSignRequest } from "@/types/ehr";
@@ -60,27 +73,30 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   onBack,
   onNext,
   syncAiSoapNote,
-  serviceId
+  serviceId,
 }) => {
   const t = useTranslations("EHR");
 
-  const [isCopilotOpen, setIsCopilotOpen] = React.useState(false);
-  const [isTemplateModalOpen, setIsTemplateModalOpen] = React.useState(false);
-  const [isSyncingAi, setIsSyncingAi] = React.useState(false);
-  const [targetField, setTargetField] = React.useState<
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isSyncingAi, setIsSyncingAi] = useState(false);
+  const [targetField, setTargetField] = useState<
     "subjective" | "objective" | "assessment" | "plan" | null
   >(null);
 
-  const [linkedTemplate, setLinkedTemplate] = React.useState<ClinicalTemplateResponse | null>(null);
-  const [templateData, setTemplateData] = React.useState<Record<string, any>>({});
+  const [linkedTemplate, setLinkedTemplate] =
+    useState<ClinicalTemplateResponse | null>(null);
+  const [templateData, setTemplateData] = useState<Record<string, any>>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchLinkedTemplate = async () => {
       if (!serviceId) return;
       try {
         const item = await catalogService.getItemDetail(serviceId);
         if (item.metadata?.clinicalTemplateId) {
-          const tmpl = await clinicalTemplateService.getTemplate(item.metadata.clinicalTemplateId);
+          const tmpl = await clinicalTemplateService.getTemplate(
+            item.metadata.clinicalTemplateId
+          );
           setLinkedTemplate(tmpl);
         }
       } catch (err) {
@@ -91,16 +107,14 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   }, [serviceId]);
 
   const updateTemplateData = (fieldId: string, value: any) => {
-    setTemplateData(prev => ({ ...prev, [fieldId]: value }));
+    setTemplateData((prev) => ({ ...prev, [fieldId]: value }));
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (syncAiSoapNote && appointmentType === 'ONLINE') {
-      // Intento inicial
-      syncAiSoapNote().then(success => {
+    if (syncAiSoapNote && appointmentType === "ONLINE") {
+      syncAiSoapNote().then((success) => {
         if (!success) {
-          // Si aún no está listo, hacemos polling cada 5 segundos
           interval = setInterval(async () => {
             const found = await syncAiSoapNote();
             if (found) clearInterval(interval);
@@ -123,239 +137,222 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
       const currentContent = soapNotes[targetField] || "";
       updateSoapNote(
         targetField,
-        currentContent ? `${currentContent}\n\n${content}` : content,
+        currentContent ? `${currentContent}\n\n${content}` : content
       );
     }
   };
 
   return (
-    <div className="flex flex-col gap-8 transition-colors duration-300">
-      {/* 📝 DOCUMENTACIÓN SOAP MANUALES (Full Width) */}
-      <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-none">
+    <div className="flex flex-col gap-6 font-sans transition-colors">
+      {/* ── CONTENEDOR PRINCIPAL S.O.A.P. ───────────────────────────────── */}
+      <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
         {/* Header del Expediente */}
-        <div className="bg-white dark:bg-[#0a0a0a] p-4 md:p-6 border-b border-black dark:border-white shrink-0 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505]">
-              <FileText
-                className="w-4 h-4 text-black dark:text-white"
-                strokeWidth={1.5}
-              />
+        <div className="p-5 sm:p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
+              <FileText className="w-5 h-5" strokeWidth={2} />
             </div>
-            <div>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
-                Estructura de Valoración
+            <div className="space-y-0.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                {t("valuation_structure")}
               </p>
-              <h2 className="text-base md:text-lg font-semibold tracking-tight text-black dark:text-white uppercase leading-none">
-                {t("soap_documentation", {
-                  defaultValue: "DOCUMENTACIÓN CLÍNICA (S.O.A.P.)",
-                })}
+              <h2 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("soap_documentation")}
               </h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Copiloto AI Button */}
             <button
+              type="button"
               onClick={() => setIsCopilotOpen(!isCopilotOpen)}
               className={cn(
-                "flex items-center gap-2 h-10 px-4 border text-[9px] font-bold uppercase tracking-widest transition-colors rounded-none",
+                "flex-1 sm:flex-none h-10 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer",
                 isCopilotOpen || isRecording || isTranscribing
-                  ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-                  : "bg-transparent text-black dark:text-white border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white",
+                  ? "bg-emerald-600 text-white border-emerald-600"
+                  : "bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-800 hover:border-emerald-500/40"
               )}
             >
-              <Cpu className="w-3.5 h-3.5" strokeWidth={1.5} />
-              <span className="hidden sm:inline">AI SCRIBE</span>
+              <Cpu className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <span>{t("ai_scribe")}</span>
             </button>
 
+            {/* Plantillas Button */}
             <button
+              type="button"
               onClick={() => setIsTemplateModalOpen(true)}
-              className="h-10 px-4 flex items-center justify-center gap-2 border border-black dark:border-white text-[9px] font-bold uppercase tracking-widest text-black dark:text-white bg-white dark:bg-[#0a0a0a] hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+              className="flex-1 sm:flex-none h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
             >
-              <span>✨ Cargar Plantilla</span>
+              <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <span>{t("load_template")}</span>
             </button>
           </div>
         </div>
 
-        {/* === CAMPOS DE PLANTILLA VINCULADA === */}
-        {linkedTemplate && linkedTemplate.schema?.fields && linkedTemplate.schema.fields.length > 0 && (
-          <div className="border-b border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a]">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
-                <FileText className="w-4 h-4" strokeWidth={1.5} />
+        {/* ── PLANTILLA VINCULADA AL SERVICIO (SI EXISTE) ──────────────── */}
+        {linkedTemplate &&
+          linkedTemplate.schema?.fields &&
+          linkedTemplate.schema.fields.length > 0 && (
+            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-800 bg-emerald-50/20 dark:bg-emerald-950/10 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <Stethoscope className="w-4 h-4" strokeWidth={2} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                    {t("service_specific_data")}
+                  </h4>
+                  <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    {t("template_prefix", { name: linkedTemplate.name })}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none">
-                  DATOS ESPECÍFICOS DEL SERVICIO
-                </h4>
-                <p className="text-[9px] uppercase tracking-widest text-gray-500 mt-1">
-                  PLANTILLA: {linkedTemplate.name}
-                </p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {linkedTemplate.schema.fields.map(field => (
-                <div key={field.id} className="border border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-[#050505]">
-                  <label className="text-[10px] uppercase tracking-widest text-black dark:text-white mb-2 block font-bold">
-                    {field.label} {field.required && <span className="text-red-500">*</span>}
-                  </label>
-                  {field.type === 'textarea' ? (
-                     <Textarea 
-                       value={templateData[field.id] || ""}
-                       onChange={e => updateTemplateData(field.id, e.target.value)}
-                       className="w-full min-h-[60px] bg-white dark:bg-black border-black/20 dark:border-white/20 p-2 text-xs rounded-none" 
-                     />
-                  ) : field.type === 'select' ? (
-                     <Select value={templateData[field.id]} onValueChange={v => updateTemplateData(field.id, v)}>
-                        <SelectTrigger className="rounded-none h-8 text-xs bg-white dark:bg-black border-black/20 dark:border-white/20">
-                          <SelectValue placeholder="Seleccionar..." />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {linkedTemplate.schema.fields.map((field) => (
+                  <div
+                    key={field.id}
+                    className="border border-gray-100 dark:border-gray-800 p-4 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xs space-y-2"
+                  >
+                    <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                      {field.label}{" "}
+                      {field.required && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </label>
+
+                    {field.type === "textarea" ? (
+                      <Textarea
+                        value={templateData[field.id] || ""}
+                        onChange={(e) =>
+                          updateTemplateData(field.id, e.target.value)
+                        }
+                        className="w-full min-h-[60px] bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 p-3 text-xs rounded-xl focus-visible:ring-emerald-500/20"
+                      />
+                    ) : field.type === "select" ? (
+                      <Select
+                        value={templateData[field.id]}
+                        onValueChange={(v) => updateTemplateData(field.id, v)}
+                      >
+                        <SelectTrigger className="rounded-xl h-10 text-xs bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 focus:ring-emerald-500/20">
+                          <SelectValue placeholder={t("select_placeholder")} />
                         </SelectTrigger>
-                        <SelectContent>
-                           {field.options?.map(opt => (
-                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                           ))}
+                        <SelectContent className="rounded-2xl font-sans">
+                          {field.options?.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
-                     </Select>
-                  ) : (
-                     <Input 
-                       type={field.type} 
-                       value={templateData[field.id] || ""}
-                       onChange={e => updateTemplateData(field.id, e.target.value)}
-                       className="rounded-none h-8 text-xs bg-white dark:bg-black border-black/20 dark:border-white/20" 
-                     />
-                  )}
-                </div>
-              ))}
+                      </Select>
+                    ) : (
+                      <Input
+                        type={field.type}
+                        value={templateData[field.id] || ""}
+                        onChange={(e) =>
+                          updateTemplateData(field.id, e.target.value)
+                        }
+                        className="rounded-xl h-10 text-xs bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 focus-visible:ring-emerald-500/20"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
+
+        {/* ── GRID S.O.A.P. ESTRUCTURADO ─────────────────────────────────── */}
+        <div className="p-5 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-[#0a0a0a]">
+          {/* S - Subjetivo */}
+          <div className="p-5 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0">
+                S
+              </span>
+              <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                {t("soap_subjective")}
+              </h4>
+            </div>
+            <Textarea
+              value={soapNotes.subjective}
+              onChange={(e) => updateSoapNote("subjective", e.target.value)}
+              onFocus={() => setTargetField("subjective")}
+              placeholder={t("soap_subjective_placeholder")}
+              className="w-full min-h-[110px] rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-3.5 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 placeholder:text-gray-400 transition-all resize-none shadow-xs"
+            />
           </div>
-        )}
 
-        {/* Grid Blueprint SOAP */}
-        <div className="bg-gray-50 dark:bg-[#050505] p-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-black/10 dark:border-white/10">
-            {/* S - Subjetivo */}
-            <div className="border-b border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 md:p-6 flex flex-col">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
-                  S
-                </div>
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                  {t("soap_subjective", { defaultValue: "SUBJETIVO" })}
-                </h4>
-              </div>
-              <Textarea
-                value={soapNotes.subjective}
-                onChange={(e) => updateSoapNote("subjective", e.target.value)}
-                onFocus={() => setTargetField("subjective")}
-                onInput={(e) => {
-                  e.currentTarget.style.height = "auto";
-                  e.currentTarget.style.height =
-                    e.currentTarget.scrollHeight + "px";
-                }}
-                placeholder={t("soap_subjective_placeholder", {
-                  defaultValue:
-                    "Motivo de consulta y síntomas referidos por el paciente...",
-                })}
-                className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors"
-              />
+          {/* O - Objetivo */}
+          <div className="p-5 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0">
+                O
+              </span>
+              <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                {t("soap_objective")}
+              </h4>
             </div>
+            <Textarea
+              value={soapNotes.objective}
+              onChange={(e) => updateSoapNote("objective", e.target.value)}
+              onFocus={() => setTargetField("objective")}
+              placeholder={t("soap_objective_placeholder")}
+              className="w-full min-h-[110px] rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-3.5 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 placeholder:text-gray-400 transition-all resize-none shadow-xs"
+            />
+          </div>
 
-            {/* O - Objetivo */}
-            <div className="border-b md:border-r-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 md:p-6 flex flex-col">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
-                  O
-                </div>
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                  {t("soap_objective", { defaultValue: "OBJETIVO" })}
-                </h4>
-              </div>
-              <Textarea
-                value={soapNotes.objective}
-                onChange={(e) => updateSoapNote("objective", e.target.value)}
-                onFocus={() => setTargetField("objective")}
-                onInput={(e) => {
-                  e.currentTarget.style.height = "auto";
-                  e.currentTarget.style.height =
-                    e.currentTarget.scrollHeight + "px";
-                }}
-                placeholder={t("soap_objective_placeholder", {
-                  defaultValue:
-                    "Signos vitales, hallazgos físicos y resultados de laboratorio...",
-                })}
-                className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors"
-              />
+          {/* A - Análisis */}
+          <div className="p-5 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0">
+                A
+              </span>
+              <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                {t("soap_assessment")}
+              </h4>
             </div>
+            <Textarea
+              value={soapNotes.assessment}
+              onChange={(e) => updateSoapNote("assessment", e.target.value)}
+              onFocus={() => setTargetField("assessment")}
+              placeholder={t("soap_assessment_placeholder")}
+              className="w-full min-h-[110px] rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-3.5 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 placeholder:text-gray-400 transition-all resize-none shadow-xs"
+            />
+          </div>
 
-            {/* A - Análisis / Assessment */}
-            <div className="border-b md:border-b-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 md:p-6 flex flex-col">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
-                  A
-                </div>
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                  {t("soap_assessment", { defaultValue: "ANÁLISIS" })}
-                </h4>
-              </div>
-              <Textarea
-                value={soapNotes.assessment}
-                onChange={(e) => updateSoapNote("assessment", e.target.value)}
-                onFocus={() => setTargetField("assessment")}
-                onInput={(e) => {
-                  e.currentTarget.style.height = "auto";
-                  e.currentTarget.style.height =
-                    e.currentTarget.scrollHeight + "px";
-                }}
-                placeholder={t("soap_assessment_placeholder", {
-                  defaultValue:
-                    "Diagnóstico diferencial, razonamiento clínico y estado actual...",
-                })}
-                className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors"
-              />
+          {/* P - Plan */}
+          <div className="p-5 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0">
+                P
+              </span>
+              <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                {t("soap_plan")}
+              </h4>
             </div>
-
-            {/* P - Plan */}
-            <div className="bg-white dark:bg-[#0a0a0a] p-4 md:p-6 flex flex-col">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
-                  P
-                </div>
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                  {t("soap_plan", { defaultValue: "PLAN" })}
-                </h4>
-              </div>
-              <Textarea
-                value={soapNotes.plan}
-                onChange={(e) => updateSoapNote("plan", e.target.value)}
-                onFocus={() => setTargetField("plan")}
-                onInput={(e) => {
-                  e.currentTarget.style.height = "auto";
-                  e.currentTarget.style.height =
-                    e.currentTarget.scrollHeight + "px";
-                }}
-                placeholder={t("soap_plan_placeholder", {
-                  defaultValue:
-                    "Tratamiento, medicamentos, estudios solicitados y seguimiento...",
-                })}
-                className="w-full min-h-[100px] overflow-hidden resize-none rounded-none border border-black/10 dark:border-white/10 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white bg-gray-50 dark:bg-[#050505] p-4 text-xs font-semibold uppercase tracking-widest text-black dark:text-white placeholder:text-[9px] placeholder:font-bold placeholder:uppercase placeholder:tracking-widest placeholder:text-gray-400 shadow-none transition-colors"
-              />
-            </div>
+            <Textarea
+              value={soapNotes.plan}
+              onChange={(e) => updateSoapNote("plan", e.target.value)}
+              onFocus={() => setTargetField("plan")}
+              placeholder={t("soap_plan_placeholder")}
+              className="w-full min-h-[110px] rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-3.5 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 placeholder:text-gray-400 transition-all resize-none shadow-xs"
+            />
           </div>
         </div>
 
-        {/* 🩺 DIAGNÓSTICOS (CIE-10) */}
-        <div className="border-t border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a] relative z-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
+        {/* ── DIAGNÓSTICOS (CIE-10) ─────────────────────────────────────── */}
+        <div className="p-5 sm:p-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xs shrink-0 shadow-xs">
               CIE
             </div>
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none">
-                DIAGNÓSTICOS (CIE-10)
+            <div className="space-y-0.5">
+              <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                {t("icd10_title")}
               </h4>
-              <p className="text-[9px] uppercase tracking-widest text-gray-500 mt-1">
-                SE AGREGARÁN AUTOMÁTICAMENTE A LOS PROBLEMAS ACTIVOS DEL
-                PACIENTE
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                {t("icd10_desc")}
               </p>
             </div>
           </div>
@@ -367,22 +364,21 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
           />
         </div>
 
-        {/* 💓 SIGNOS VITALES */}
-        <div className="border-t border-black/10 dark:border-white/10 p-4 md:p-6 bg-white dark:bg-[#0a0a0a]">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 border border-black/20 dark:border-white/20 flex items-center justify-center shrink-0 bg-gray-50 dark:bg-[#050505] text-xs font-bold text-black dark:text-white">
-              SV
+        {/* ── SIGNOS VITALES ────────────────────────────────────────────── */}
+        <div className="p-5 sm:p-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
+              <Activity className="w-4 h-4" strokeWidth={2} />
             </div>
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white leading-none flex items-center gap-2">
-                SIGNOS VITALES
-                <span className="bg-red-500 text-white px-1.5 py-0.5 rounded-sm text-[8px] tracking-widest">
-                  NOM-004 OBLIGATORIO
+            <div className="space-y-0.5">
+              <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>{t("vitals_title")}</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 border border-red-200 dark:border-red-900/40 text-[9px] font-bold">
+                  {t("vitals_nom_badge")}
                 </span>
               </h4>
-              <p className="text-[9px] uppercase tracking-widest text-gray-500 mt-1">
-                REGISTRO ESTRUCTURADO OBLIGATORIO PARA CUMPLIMIENTO NORMATIVO Y
-                GRÁFICAS DE EVOLUCIÓN
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                {t("vitals_desc")}
               </p>
             </div>
           </div>
@@ -395,72 +391,70 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         </div>
       </div>
 
-      {/* 🤖 BOTTOM BAR: COPILOTO IA */}
+      {/* ── BANNER COPILOTO IA ─────────────────────────────────────────── */}
       {(isCopilotOpen || isRecording || isTranscribing) && (
-        <div className="border border-black dark:border-white bg-white dark:bg-[#0a0a0a] transition-colors rounded-none p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-              <Cpu
-                className="w-5 h-5 text-black dark:text-white"
-                strokeWidth={1.5}
-              />
+        <div className="p-5 rounded-3xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-500/30 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Cpu className="w-5 h-5" strokeWidth={2} />
             </div>
-            <div>
-              <h3 className="text-sm font-semibold text-black dark:text-white uppercase tracking-tight">
-                {t("clinical_copilot", { defaultValue: "COPILOTO CLÍNICO" })}
+            <div className="space-y-0.5">
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("clinical_copilot")}
               </h3>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-0.5">
-                {t("copilot_desc_short", {
-                  defaultValue: "TRANSCRIPCIÓN EN TIEMPO REAL",
-                })}
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                {t("copilot_desc_short")}
               </p>
             </div>
           </div>
+
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             {syncAiSoapNote && (
               <button
+                type="button"
                 onClick={handleSyncAi}
                 disabled={isSyncingAi}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none border border-black/20 dark:border-white/20 bg-transparent text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 h-10 rounded-xl text-xs font-bold bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all cursor-pointer shadow-xs"
               >
                 {isSyncingAi ? (
                   <>
-                    <QhSpinner size="sm" className="text-current" /> SINCRONIZANDO...
+                    <QhSpinner size="sm" className="text-emerald-600" />
+                    <span>{t("syncing_ai")}</span>
                   </>
                 ) : (
                   <>
-                    <Cpu className="w-3.5 h-3.5" strokeWidth={1.5} /> SINCRONIZAR IA
+                    <Cpu className="w-4 h-4 text-emerald-600" strokeWidth={2} />
+                    <span>{t("sync_ai")}</span>
                   </>
                 )}
               </button>
             )}
 
             <button
+              type="button"
               onClick={handleToggleRecording}
               disabled={isTranscribing}
               className={cn(
-                "w-full sm:w-auto flex items-center justify-center gap-2 px-6 h-12 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none border",
+                "w-full sm:w-auto flex items-center justify-center gap-2 px-5 h-10 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs border-0",
                 isRecording
-                  ? "border-red-600 bg-red-50 text-red-600 dark:bg-red-900/20"
-                  : "bg-black text-white dark:bg-white dark:text-black border-transparent hover:bg-gray-800 dark:hover:bg-gray-200",
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
               )}
             >
               {isTranscribing ? (
                 <>
-                  <QhSpinner size="sm" className="text-current" /> PROCESANDO...
+                  <QhSpinner size="sm" className="text-white" />
+                  <span>{t("processing_ai")}</span>
                 </>
               ) : isRecording ? (
                 <>
-                  <Square
-                    className="w-3.5 h-3.5 fill-current"
-                    strokeWidth={1.5}
-                  />{" "}
-                  DETENER AUDITORÍA
+                  <Square className="w-4 h-4 fill-current" strokeWidth={2} />
+                  <span>{t("stop_listening")}</span>
                 </>
               ) : (
                 <>
-                  <Mic className="w-3.5 h-3.5" strokeWidth={1.5} /> INICIALIZAR
-                  ESCUCHA
+                  <Mic className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("start_listening")}</span>
                 </>
               )}
             </button>
@@ -468,24 +462,28 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         </div>
       )}
 
-      {/* FOOTER DE COMANDOS */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2 shrink-0">
+      {/* ── BOTONES DE NAVEGACIÓN Y ACCIÓN ─────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2 shrink-0">
         <button
+          type="button"
           onClick={onBack}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-transparent border border-black dark:border-white h-12 px-8 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-none"
+          className="w-full sm:w-auto h-12 px-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />{" "}
-          {t("btn_back", { defaultValue: "RETORNAR" })}
+          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+          <span>{t("btn_back")}</span>
         </button>
+
         <button
+          type="button"
           onClick={onNext}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors rounded-none border-0"
+          className="w-full sm:w-auto h-12 px-7 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm border-0 cursor-pointer"
         >
-          {t("btn_continue_treatment", { defaultValue: "CONTINUAR" })}{" "}
-          <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+          <span>{t("btn_continue_treatment")}</span>
+          <ArrowRight className="w-4 h-4" strokeWidth={2} />
         </button>
       </div>
 
+      {/* Modal Selección Plantilla */}
       <TemplateSelectorModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
