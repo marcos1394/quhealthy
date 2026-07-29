@@ -36,7 +36,6 @@ import {
 import { HealthMetricInputModal } from "@/components/dashboard/HealthMetricInputModal";
 import {
   MedicationInputModal,
-  FREQUENCY_OPTIONS,
 } from "@/components/dashboard/MedicationInputModal";
 import { cn } from "@/lib/utils";
 
@@ -98,7 +97,20 @@ export default function EldercarePage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations("PatientEldercare");
+  const tModal = useTranslations("Eldercare.MedicationModal");
   const locale = useLocale();
+
+  const getFrequencyLabel = (freq: string) => {
+    switch (freq) {
+      case "EVERY_4_HOURS": return tModal("freq_every_4");
+      case "EVERY_6_HOURS": return tModal("freq_every_6");
+      case "EVERY_8_HOURS": return tModal("freq_every_8");
+      case "EVERY_12_HOURS": return tModal("freq_every_12");
+      case "ONCE_DAILY": return tModal("freq_once_daily");
+      case "AS_NEEDED": return tModal("freq_as_needed");
+      default: return freq;
+    }
+  };
 
   const { family, isLoading } = useFamily();
   const [member, setMember] = useState<any>(null);
@@ -445,9 +457,7 @@ export default function EldercarePage() {
                     <div className="bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit border border-indigo-100 dark:border-indigo-900/40 shadow-sm">
                       <CalendarClock className="w-3.5 h-3.5" strokeWidth={2} />
                       <span>
-                        {FREQUENCY_OPTIONS.find(
-                          (opt) => opt.value === med.frequency
-                        )?.label || med.frequency}
+                        {getFrequencyLabel(med.frequency)}
                       </span>
                     </div>
                   </div>
