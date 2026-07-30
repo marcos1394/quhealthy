@@ -2331,6 +2331,15 @@
       "saturday": "Sábado",
       "sunday": "Domingo"
     },
+    "days_short": {
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mié",
+      "thursday": "Jue",
+      "friday": "Vie",
+      "saturday": "Sáb",
+      "sunday": "Dom"
+    },
     "closed": "Cerrado",
     "to": "a",
     "copy_all": "Copiar a todos",

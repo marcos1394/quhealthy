@@ -2411,6 +2411,15 @@
       "saturday": "Saturday",
       "sunday": "Sunday"
     },
+    "days_short": {
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
+    },
     "closed": "Closed",
     "to": "to",
     "copy_all": "Copy all",
