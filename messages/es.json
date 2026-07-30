@@ -2309,6 +2309,10 @@
   "DashboardOperatingHours": {
     "title": "Horario de Atención",
     "subtitle": "Define tu disponibilidad para consultas.",
+    "tmpl_standard_name": "Estándar",
+    "tmpl_extended_name": "Extendido",
+    "tmpl_allweek_name": "Toda la semana",
+    "timezone_prefix": "Zona horaria:",
     "templates_label": "Plantillas Rápidas",
     "template_standard": "Lun–Vie",
     "template_standard_desc": "9:00 – 18:00",
@@ -3789,6 +3793,7 @@
       "member_plural": "integrantes",
       "business_plan_badge": "Plan Business",
       "btn_add": "Agregar integrante",
+      "confirm_delete_title": "¿Eliminar integrante?",
       "roles": {
         "lead": "Director / Responsable",
         "specialist": "Especialista",
@@ -4767,7 +4772,9 @@
     "unlock_title": "Desbloquea tu QuScore",
     "unlock_desc": "Completa al menos 5 consultas a través de QuHealthy para desbloquear tu Índice de Reputación y destacar en las búsquedas.",
     "top_percentile": "Estás en el <highlight>Top {percent}%</highlight> de tu zona.",
-    "loading": "Calculando tu reputación..."
+    "loading": "Calculando tu reputación...",
+    "quality_metrics": "Métricas de Calidad",
+    "audit_title": "Auditoría de Reputación"
   },
   "ProviderScore": {
     "band_elite": "Elite",
@@ -7832,12 +7839,5 @@
     "new_patient": "Nuevo paciente",
     "upload_document": "Subir documento",
     "settings": "Configuración"
-  },
-  "ProviderReputation": {
-    "quality_metrics": "Métricas de Calidad",
-    "audit_title": "Auditoría de Reputación",
-    "unlock_title": "Desbloquea tu reputación",
-    "unlock_desc": "Completa tu perfil para acceder a tus métricas",
-    "loading": "Cargando reputación..."
   }
 }

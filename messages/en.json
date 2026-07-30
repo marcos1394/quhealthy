@@ -2389,6 +2389,10 @@
   "DashboardOperatingHours": {
     "title": "Operating Hours",
     "subtitle": "Define your availability for consultations.",
+    "tmpl_standard_name": "Standard",
+    "tmpl_extended_name": "Extended",
+    "tmpl_allweek_name": "All Week",
+    "timezone_prefix": "Timezone:",
     "templates_label": "Quick Templates",
     "template_standard": "Mon–Fri",
     "template_standard_desc": "9:00 – 18:00",
@@ -4271,6 +4275,7 @@
       "member_plural": "members",
       "business_plan_badge": "Business Plan",
       "btn_add": "Add team member",
+      "confirm_delete_title": "Delete team member?",
       "roles": {
         "lead": "Director / Lead",
         "specialist": "Specialist",
@@ -5349,7 +5354,9 @@
     "unlock_title": "Unlock your QuScore",
     "unlock_desc": "Complete at least 5 appointments through QuHealthy to unlock your Reputation Index and stand out in searches.",
     "top_percentile": "You are in the <highlight>Top {percent}%</highlight> of your area.",
-    "loading": "Calculating your reputation..."
+    "loading": "Calculating your reputation...",
+    "quality_metrics": "Quality Metrics",
+    "audit_title": "Reputation Audit"
   },
   "ProviderScore": {
     "band_elite": "Elite",
@@ -7782,12 +7789,5 @@
     "new_patient": "New patient",
     "upload_document": "Upload document",
     "settings": "Settings"
-  },
-  "ProviderReputation": {
-    "quality_metrics": "Quality Metrics",
-    "audit_title": "Reputation Audit",
-    "unlock_title": "Unlock your reputation",
-    "unlock_desc": "Complete your profile to access your metrics",
-    "loading": "Loading reputation..."
   }
 }
