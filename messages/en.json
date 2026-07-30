@@ -1532,10 +1532,39 @@
   },
 
   "PatientDashboard": {
-    "Hero": "Welcome",
-    "QuickAccess": "Quick Access",
-    "score": "Health Score",
-    "telemetry": "Telemetry",
+    "Hero": {
+      "title": "Welcome",
+      "empty_title": "Your schedule is clear",
+      "empty_desc": "You have no upcoming appointments scheduled. Is it time for a checkup?",
+      "btn_search": "Find a Doctor"
+    },
+    "QuickAccess": {
+      "section_title": "Quick Access",
+      "card_history": "Medical History",
+      "card_history_desc": "Access your diagnoses, prescriptions, and lab results.",
+      "card_history_link": "Explore Documents",
+      "card_profile": "My Record",
+      "card_profile_desc": "Manage your contact info, insurance, and family group.",
+      "card_profile_link": "Update Profile",
+      "card_wallet": "My Wallet",
+      "card_wallet_desc": "Balance, top-ups, and transactions.",
+      "card_packages": "Packages & Subscriptions",
+      "card_packages_desc": "Active prepaid consultations.",
+      "card_orders": "My Orders",
+      "card_orders_desc": "Pharmacy tracking.",
+      "card_reviews": "My Reviews",
+      "card_reviews_desc": "Your medical evaluations."
+    },
+    "score": {
+      "title": "Health Score",
+      "status_collecting": "Collecting data...",
+      "accumulating": "Accumulating..."
+    },
+    "telemetry": {
+      "title": "Telemetry",
+      "updated_prefix": "Updated:",
+      "not_registered": "Not registered"
+    },
     "greeting": "Hello, {name}! 👋",
     "subtitle": "Here is a summary of your medical activity.",
     "loading": "Preparing your health...",
@@ -1544,23 +1573,6 @@
     "fallback_name": "Patient",
     "next_badge": "UPCOMING APPOINTMENT",
     "btn_details": "Manage Appointment",
-    "empty_title": "Your schedule is clear",
-    "empty_desc": "You have no upcoming appointments scheduled. Is it time for a checkup?",
-    "btn_search": "Find a Doctor",
-    "card_history": "Medical History",
-    "card_history_desc": "Access your diagnoses, prescriptions, and lab results.",
-    "card_history_link": "Explore Documents",
-    "card_profile": "My Record",
-    "card_profile_desc": "Manage your contact info, insurance, and family group.",
-    "card_profile_link": "Update Profile",
-    "card_wallet": "My Wallet",
-    "card_wallet_desc": "Balance, top-ups, and transactions.",
-    "card_packages": "Packages & Subscriptions",
-    "card_packages_desc": "Active prepaid consultations.",
-    "card_orders": "My Orders",
-    "card_orders_desc": "Pharmacy tracking.",
-    "card_reviews": "My Reviews",
-    "card_reviews_desc": "Your medical evaluations.",
     "Widget": {
       "loading": "Calculating your score...",
       "cta_title": "Unlock your QuHealthScore™",
@@ -7755,12 +7767,27 @@
     "ai_consent_desc": "To provide you with better care, your doctor may use artificial intelligence during the consultation. Please select which uses you authorize."
   },
   "Dashboard": {
-    "SummaryCard": "Summary",
-    "RevenueChart": "Revenue"
+    "SummaryCard": {
+      "title": "Summary",
+      "vs_period": "vs previous period"
+    },
+    "RevenueChart": {
+      "title": "Revenue",
+      "loading": "Loading revenue..."
+    }
   },
-  "DashboardQuickActions": "Quick Actions",
+  "DashboardQuickActions": {
+    "title": "Quick Actions",
+    "schedule_appointment": "Schedule appointment",
+    "new_patient": "New patient",
+    "upload_document": "Upload document",
+    "settings": "Settings"
+  },
   "ProviderReputation": {
     "quality_metrics": "Quality Metrics",
-    "audit_title": "Reputation Audit"
+    "audit_title": "Reputation Audit",
+    "unlock_title": "Unlock your reputation",
+    "unlock_desc": "Complete your profile to access your metrics",
+    "loading": "Loading reputation..."
   }
 }

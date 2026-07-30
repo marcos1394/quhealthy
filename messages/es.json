@@ -1687,10 +1687,39 @@
   },
   
   "PatientDashboard": {
-    "Hero": "Bienvenido",
-    "QuickAccess": "Acceso Rápido",
-    "score": "Puntuación de Salud",
-    "telemetry": "Telemetría",
+    "Hero": {
+      "title": "Bienvenido",
+      "empty_title": "Tu agenda está libre",
+      "empty_desc": "No tienes citas programadas próximamente. ¿Es momento de un chequeo?",
+      "btn_search": "Encontrar Médico"
+    },
+    "QuickAccess": {
+      "section_title": "Acceso Rápido",
+      "card_history": "Historial Médico",
+      "card_history_desc": "Accede a tus diagnósticos, recetas y resultados de laboratorio.",
+      "card_history_link": "Explorar Documentos",
+      "card_profile": "Mi Expediente",
+      "card_profile_desc": "Gestiona tu información de contacto, seguros y familiares.",
+      "card_profile_link": "Actualizar Perfil",
+      "card_wallet": "Mi Billetera",
+      "card_wallet_desc": "Saldo, recargas y movimientos.",
+      "card_packages": "Paquetes y Suscripciones",
+      "card_packages_desc": "Consultas prepagadas activas.",
+      "card_orders": "Mis Pedidos",
+      "card_orders_desc": "Seguimiento de farmacia.",
+      "card_reviews": "Mis Reseñas",
+      "card_reviews_desc": "Tus evaluaciones médicas."
+    },
+    "score": {
+      "title": "Puntuación de Salud",
+      "status_collecting": "Recopilando datos...",
+      "accumulating": "Acumulando..."
+    },
+    "telemetry": {
+      "title": "Telemetría",
+      "updated_prefix": "Actualizado:",
+      "not_registered": "No registrado"
+    },
     "greeting": "¡Hola, {name}! 👋",
     "subtitle": "Aquí tienes un resumen de tu actividad médica.",
     "loading": "Preparando tu salud...",
@@ -1699,23 +1728,6 @@
     "fallback_name": "Paciente",
     "next_badge": "PRÓXIMA CITA",
     "btn_details": "Gestionar Cita",
-    "empty_title": "Tu agenda está libre",
-    "empty_desc": "No tienes citas programadas próximamente. ¿Es momento de un chequeo?",
-    "btn_search": "Encontrar Médico",
-    "card_history": "Historial Médico",
-    "card_history_desc": "Accede a tus diagnósticos, recetas y resultados de laboratorio.",
-    "card_history_link": "Explorar Documentos",
-    "card_profile": "Mi Expediente",
-    "card_profile_desc": "Gestiona tu información de contacto, seguros y familiares.",
-    "card_profile_link": "Actualizar Perfil",
-    "card_wallet": "Mi Billetera",
-    "card_wallet_desc": "Saldo, recargas y movimientos.",
-    "card_packages": "Paquetes y Suscripciones",
-    "card_packages_desc": "Consultas prepagadas activas.",
-    "card_orders": "Mis Pedidos",
-    "card_orders_desc": "Seguimiento de farmacia.",
-    "card_reviews": "Mis Reseñas",
-    "card_reviews_desc": "Tus evaluaciones médicas.",
     "Widget": {
       "loading": "Calculando tu índice...",
       "cta_title": "Desbloquea tu QuHealthScore™",
@@ -7805,12 +7817,27 @@
     "ai_consent_desc": "Para brindarte una mejor atención, tu médico puede utilizar inteligencia artificial durante la consulta. Por favor, selecciona qué usos autorizas."
   },
   "Dashboard": {
-    "SummaryCard": "Resumen",
-    "RevenueChart": "Ingresos"
+    "SummaryCard": {
+      "title": "Resumen",
+      "vs_period": "vs el periodo anterior"
+    },
+    "RevenueChart": {
+      "title": "Ingresos",
+      "loading": "Cargando ingresos..."
+    }
   },
-  "DashboardQuickActions": "Acciones Rápidas",
+  "DashboardQuickActions": {
+    "title": "Acciones Rápidas",
+    "schedule_appointment": "Agendar cita",
+    "new_patient": "Nuevo paciente",
+    "upload_document": "Subir documento",
+    "settings": "Configuración"
+  },
   "ProviderReputation": {
     "quality_metrics": "Métricas de Calidad",
-    "audit_title": "Auditoría de Reputación"
+    "audit_title": "Auditoría de Reputación",
+    "unlock_title": "Desbloquea tu reputación",
+    "unlock_desc": "Completa tu perfil para acceder a tus métricas",
+    "loading": "Cargando reputación..."
   }
 }
