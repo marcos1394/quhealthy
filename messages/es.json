@@ -1687,6 +1687,10 @@
   },
   
   "PatientDashboard": {
+    "Hero": "Bienvenido",
+    "QuickAccess": "Acceso Rápido",
+    "score": "Puntuación de Salud",
+    "telemetry": "Telemetría",
     "greeting": "¡Hola, {name}! 👋",
     "subtitle": "Aquí tienes un resumen de tu actividad médica.",
     "loading": "Preparando tu salud...",
@@ -4199,6 +4203,8 @@
 "PatientPackages": {
     "title": "Mis Paquetes de Salud",
     "subtitle": "Consulta y utiliza las sesiones o tratamientos que has comprado.",
+    "available_credits": "Créditos Disponibles",
+    "btn_use_credits": "Usar Créditos",
     "loading": "Cargando tus paquetes...",
     "btn_explore": "Explorar Paquetes",
     "active_title": "Paquetes Activos",
@@ -4348,6 +4354,8 @@
     "step_time": "Seleccionar hora",
     "step_patient_title": "Seleccionar paciente",
     "step_patient_desc": "¿Para quién es esta cita?",
+    "existing_credit_warning_title": "Ya tienes un crédito",
+    "existing_credit_warning_desc": "Actualmente tienes un crédito disponible para este servicio. Si continúas con esta compra, agregarás otro crédito a tu cuenta para uso futuro.",
     "weekdays": [
       "Lun",
       "Mar",

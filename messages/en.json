@@ -1532,6 +1532,10 @@
   },
 
   "PatientDashboard": {
+    "Hero": "Welcome",
+    "QuickAccess": "Quick Access",
+    "score": "Health Score",
+    "telemetry": "Telemetry",
     "greeting": "Hello, {name}! 👋",
     "subtitle": "Here is a summary of your medical activity.",
     "loading": "Preparing your health...",
@@ -4661,6 +4665,8 @@
   "PatientPackages": {
     "title": "My Health Packages",
     "subtitle": "Check and use the sessions or treatments you have purchased.",
+    "available_credits": "Available Credits",
+    "btn_use_credits": "Use Credits",
     "loading": "Loading your packages...",
     "btn_explore": "Explore Packages",
     "active_title": "Active Packages",
@@ -4734,6 +4740,8 @@
     "step_time": "Select time",
     "step_patient_title": "Select patient",
     "step_patient_desc": "Who is this appointment for?",
+    "existing_credit_warning_title": "You already have a credit",
+    "existing_credit_warning_desc": "You currently have an available credit for this service. Continuing with this purchase will add another credit to your account for future use.",
     "weekdays": [
       "Mon",
       "Tue",

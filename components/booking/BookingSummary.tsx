@@ -216,7 +216,9 @@ export function BookingSummary({
   const packageDetails = useMemo(() => {
     if (
       cart.length === 1 &&
-      (cart[0].type === "SERVICE" || cart[0].type === "PACKAGE")
+      cart[0].type === "SERVICE" &&
+      !cart[0].isPackage &&
+      packages.length > 0
     ) {
       const itemId = cart[0].id;
       let availableCredits = 0;
@@ -228,11 +230,12 @@ export function BookingSummary({
         }
       }
 
-      const canUsePackage = availableCredits >= (cart[0].quantity || 1);
-      return { canUsePackage, availableCredits };
+      const hasCredits = availableCredits > 0;
+      const canUsePackage = scheduleNow && availableCredits >= (cart[0].quantity || 1);
+      return { canUsePackage, availableCredits, hasCredits };
     }
-    return { canUsePackage: false, availableCredits: 0 };
-  }, [cart, packages]);
+    return { canUsePackage: false, availableCredits: 0, hasCredits: false };
+  }, [cart, packages, scheduleNow]);
 
   const isUsingPackage = packageDetails.canUsePackage;
   const finalTotal = isUsingPackage ? 0 : total;
@@ -516,6 +519,21 @@ export function BookingSummary({
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </div>
+              </div>
+            )}
+
+            {/* ── ADVERTENCIA DE CRÉDITO EXISTENTE ────────────────────────────── */}
+            {!scheduleNow && packageDetails.hasCredits && (
+              <div className="bg-amber-50 border border-amber-200 dark:bg-amber-950/30 dark:border-amber-900/50 rounded-2xl p-4 text-xs font-medium text-amber-800 dark:text-amber-300 flex gap-3 shadow-sm">
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-amber-900 dark:text-amber-100 mb-0.5">
+                    {t("existing_credit_warning_title")}
+                  </h4>
+                  <p className="leading-relaxed">
+                    {t("existing_credit_warning_desc")}
+                  </p>
                 </div>
               </div>
             )}
