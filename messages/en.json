@@ -2432,7 +2432,11 @@
     "saving": "Saving...",
     "created": "Created!",
     "success_toast": "Time blocked!",
-    "success_msg": "Time blocked successfully."
+    "success_msg": "Time blocked successfully.",
+    "tmpl_lunch": "Lunch",
+    "tmpl_break": "Break",
+    "tmpl_vacation": "Vacation",
+    "tmpl_morning": "Morning Routine"
   },
   
   "DashboardDocuments": {

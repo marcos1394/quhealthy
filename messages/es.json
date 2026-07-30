@@ -2353,7 +2353,11 @@
     "saving": "Guardando...",
     "created": "¡Creado!",
     "success_toast": "¡Tiempo bloqueado!",
-    "success_msg": "El tiempo ha sido bloqueado exitosamente."
+    "success_msg": "El tiempo ha sido bloqueado exitosamente.",
+    "tmpl_lunch": "Comida",
+    "tmpl_break": "Descanso",
+    "tmpl_vacation": "Vacaciones",
+    "tmpl_morning": "Rutina Matutina"
   },
 
   "DashboardDocuments": {
