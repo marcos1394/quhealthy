@@ -165,7 +165,7 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
             "w-full pointer-events-auto custom-scrollbar h-full overflow-y-auto",
             viewMode === "MAP"
               ? "flex overflow-x-auto overflow-y-hidden gap-3.5 pb-4 md:flex-col md:flex-1 md:overflow-x-hidden md:overflow-y-auto md:gap-3.5 md:pb-6 px-4 md:px-0"
-              : "pb-20 md:pb-0 flex gap-6 max-w-7xl mx-auto"
+              : "pb-20 md:pb-0 flex items-start gap-6 max-w-7xl mx-auto"
           )}
         >
           {/* Panel Lateral de Filtros (Vista GRID) */}
