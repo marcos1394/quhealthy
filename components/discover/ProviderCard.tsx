@@ -28,6 +28,7 @@ interface ProviderCardProps {
   isFavorited?: boolean;
   scoreData?: ProviderScoreResponse;
   canUseFavorites?: boolean;
+  isGrid?: boolean;
   onClick?: () => void;
   onHover?: () => void;
   onLeave?: () => void;
@@ -40,6 +41,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   isFavorited = false,
   scoreData,
   canUseFavorites = false,
+  isGrid = false,
   onClick,
   onHover,
   onLeave,
@@ -117,7 +119,8 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
         }
       }}
       className={cn(
-        "relative w-72 shrink-0 md:w-full self-start bg-white dark:bg-[#0a0a0a] transition-all duration-200 cursor-pointer flex flex-col group rounded-3xl font-sans select-none overflow-hidden",
+        "relative self-start bg-white dark:bg-[#0a0a0a] transition-all duration-200 cursor-pointer flex flex-col group rounded-3xl font-sans select-none overflow-hidden",
+        isGrid ? "w-full" : "w-72 shrink-0 md:w-full",
         isSelected
           ? "border-2 border-emerald-500 shadow-md z-10"
           : "border border-gray-100 dark:border-gray-800 shadow-2xs hover:shadow-md hover:border-emerald-500/30"

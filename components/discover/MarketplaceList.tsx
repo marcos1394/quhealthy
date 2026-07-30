@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useMemo } from "react";
-import { AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -194,7 +193,7 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
                 : "flex gap-3.5 md:flex-col md:gap-3.5 w-full"
             )}
           >
-            <AnimatePresence>
+            <>
               {searchType === "STORE"
                 ? enrichedProviders.map((provider) => (
                     <ProviderCard
@@ -204,6 +203,7 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
                       isFavorited={favoriteIds.has(provider.id)}
                       scoreData={batchScores[provider.id]}
                       canUseFavorites={canUseFavorites}
+                      isGrid={viewMode === "GRID"}
                       onClick={() => handleSelectProvider(provider)}
                       onHover={() => setHoveredId(provider.id)}
                       onLeave={() => setHoveredId(null)}
@@ -214,12 +214,13 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
                     <DiscoverItemCard
                       key={`item-card-${item.id}`}
                       item={item}
+                      isGrid={viewMode === "GRID"}
                       isFavorited={favoriteIds.has(item.id)}
                       canUseFavorites={canUseFavorites}
                       onAuthRequired={() => handleAuthRequired("favorite")}
                     />
                   ))}
-            </AnimatePresence>
+            </>
 
             {/* Cargar más en Modo GRID */}
             {!isReachingEnd && viewMode === "GRID" && (

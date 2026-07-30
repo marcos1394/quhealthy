@@ -21,24 +21,24 @@ import {
   Star,
   User,
 } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
-import { generateSlug } from "@/lib/utils";
+import { cn, generateSlug } from "@/lib/utils";
 import { DiscoverItem } from "@/types/discover";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { StorefrontItem } from "@/types/storefront";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 
-export const DiscoverItemCard = ({
   item,
   isFavorited = false,
   onAuthRequired,
   canUseFavorites = true,
+  isGrid = false,
 }: {
   item: DiscoverItem;
   isFavorited?: boolean;
   onAuthRequired?: () => void;
   canUseFavorites?: boolean;
+  isGrid?: boolean;
 }) => {
   const t = useTranslations("Discover.DiscoverItemCard");
   const router = useRouter();
@@ -146,7 +146,10 @@ export const DiscoverItemCard = ({
           handleItemClick();
         }
       }}
-      className="group flex flex-col w-full bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer rounded-3xl shadow-2xs hover:shadow-md font-sans select-none overflow-hidden"
+      className={cn(
+        "group flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer rounded-3xl shadow-2xs hover:shadow-md font-sans select-none overflow-hidden relative self-start",
+        isGrid ? "w-full" : "w-72 shrink-0 md:w-full"
+      )}
     >
       {/* ── IMAGEN DE PORTADA ───────────────────────────────────────── */}
       <div className="relative aspect-video w-full bg-gray-50 dark:bg-[#050505] overflow-hidden border-b border-gray-100 dark:border-gray-800/80">
