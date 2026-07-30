@@ -51,7 +51,7 @@ export function CreatableSelect({
   const displayValue = options.find((opt) => opt.value === value)?.label || value;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
