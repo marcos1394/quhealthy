@@ -38,6 +38,7 @@ export interface StorefrontItem {
 
   // 📦 NUEVOS CAMPOS: Paquetes
   packageContents?: StorefrontItem[];
+  isPackage?: boolean;
 }
 
 export interface StorefrontData {

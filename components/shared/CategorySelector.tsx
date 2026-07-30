@@ -478,7 +478,15 @@ export default function CategorySelector({
                     <CommandItem
                       key={cat.id}
                       value={cat.name}
+                      disabled={false}
+                      style={{ pointerEvents: "auto", opacity: 1 }}
                       onSelect={() => {
+                        handleCatChange(cat.id);
+                        setOpenCat(false);
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         handleCatChange(cat.id);
                         setOpenCat(false);
                       }}
@@ -597,7 +605,15 @@ export default function CategorySelector({
                         <CommandItem
                           key={sub.id}
                           value={sub.name}
+                          disabled={false}
+                          style={{ pointerEvents: "auto", opacity: 1 }}
                           onSelect={() => {
+                            handleSubChange(sub.id);
+                            setOpenSub(false);
+                          }}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             handleSubChange(sub.id);
                             setOpenSub(false);
                           }}
