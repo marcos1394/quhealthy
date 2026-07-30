@@ -29,6 +29,24 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({ store, scoreData
     ? store.galleryImages.map(img => img.imageUrl)
     : store.bannerUrl ? [store.bannerUrl] : [];
 
+  const handleShare = async () => {
+    const shareData = {
+      title: store.displayName,
+      text: `Agenda tu cita con ${store.displayName} en QuHealthy`,
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Error al compartir", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Enlace copiado al portapapeles");
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-12">
       
@@ -67,7 +85,7 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({ store, scoreData
 
         {/* Acciones */}
         <div className="flex items-center gap-3 shrink-0 mt-4 md:mt-0">
-          <Button variant="outline" className="h-10 px-4 text-sm font-semibold rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm transition-all">
+          <Button variant="outline" onClick={handleShare} className="h-10 px-4 text-sm font-semibold rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm transition-all">
             <Share className="w-4 h-4 mr-2" strokeWidth={2} /> Compartir
           </Button>
           <div className="flex items-center text-sm font-semibold text-gray-700 gap-2 h-10 px-4 rounded-full border border-gray-200 shadow-sm hover:bg-gray-50 transition-all cursor-pointer">

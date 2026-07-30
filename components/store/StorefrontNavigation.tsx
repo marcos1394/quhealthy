@@ -25,6 +25,24 @@ export const StorefrontNavigation: React.FC<StorefrontNavigationProps> = ({ stor
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleShare = async () => {
+    const shareData = {
+      title: storeName,
+      text: `Agenda tu cita con ${storeName} en QuHealthy`,
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Error al compartir", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Enlace copiado al portapapeles");
+    }
+  };
+
   return (
     <>
       {/* Desktop Breadcrumbs (Static Top) */}
@@ -69,7 +87,7 @@ export const StorefrontNavigation: React.FC<StorefrontNavigationProps> = ({ stor
           </h1>
 
           <div className="flex items-center gap-1">
-            <button className="w-10 h-10 flex items-center justify-center pointer-events-auto rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <button onClick={handleShare} className="w-10 h-10 flex items-center justify-center pointer-events-auto rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <Share className="w-4 h-4 text-gray-700 dark:text-gray-300" strokeWidth={2} />
             </button>
           </div>
