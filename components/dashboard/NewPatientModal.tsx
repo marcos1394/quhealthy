@@ -122,7 +122,7 @@ export function NewPatientModal({
       open={isOpen}
       onOpenChange={(open) => !open && !isSubmitting && onClose()}
     >
-      <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans transition-colors [&>button]:hidden">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans transition-colors [&>button]:hidden">
         {/* ── HEADER ─────────────────────────────────────────────────── */}
         <div className="flex items-start justify-between p-6 sm:p-8 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div className="flex items-center gap-4">

@@ -64,7 +64,7 @@ export function CreatableSelect({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none">
+      <PopoverContent className="z-[100] w-full p-0 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none">
         <Command>
           <CommandInput 
             placeholder="Buscar o escribir nuevo..." 
