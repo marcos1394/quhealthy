@@ -8,8 +8,8 @@ type StorefrontData = {
   galleryImages?: Array<{ imageUrl: string }>;
 };
 
-export async function generateMetadata({ params }: { params: { slug: string; locale: string } }): Promise<Metadata> {
-  const { slug } = params;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; locale: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
@@ -66,8 +66,10 @@ export async function generateMetadata({ params }: { params: { slug: string; loc
 
 export default function StorefrontLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ slug: string; locale: string }>;
 }) {
   return <>{children}</>;
 }
