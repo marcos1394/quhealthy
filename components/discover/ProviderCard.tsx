@@ -119,7 +119,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
         }
       }}
       className={cn(
-        "relative self-start bg-white dark:bg-[#0a0a0a] transition-all duration-200 cursor-pointer flex flex-col group rounded-3xl font-sans select-none overflow-hidden",
+        "relative h-full bg-white dark:bg-[#0a0a0a] transition-all duration-200 cursor-pointer flex flex-col group rounded-3xl font-sans select-none overflow-hidden",
         isGrid ? "w-full" : "w-72 shrink-0 md:w-full",
         isSelected
           ? "border-2 border-emerald-500 shadow-md z-10"
@@ -259,7 +259,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
       </div>
 
       {/* ── CUERPO Y DETALLES ───────────────────────────────────────── */}
-      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 space-y-4">
+      <div className="p-4 sm:p-5 flex flex-col justify-between grow space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col min-w-0 space-y-0.5">
             <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug line-clamp-2 tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">

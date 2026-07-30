@@ -147,7 +147,7 @@ export const DiscoverItemCard = ({
         }
       }}
       className={cn(
-        "group flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer rounded-3xl shadow-2xs hover:shadow-md font-sans select-none overflow-hidden relative self-start",
+        "group flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer rounded-3xl shadow-2xs hover:shadow-md font-sans select-none overflow-hidden relative h-full",
         isGrid ? "w-full" : "w-72 shrink-0 md:w-full"
       )}
     >
@@ -222,7 +222,7 @@ export const DiscoverItemCard = ({
       </div>
 
       {/* ── CUERPO DE LA TARJETA ────────────────────────────────────── */}
-      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between space-y-4">
+      <div className="p-4 sm:p-5 flex flex-col justify-between grow space-y-4">
         <div className="space-y-2">
           {/* Título e Ítem */}
           <Link

@@ -188,8 +188,8 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
             className={cn(
               viewMode === "GRID"
                 ? isFiltersOpen
-                  ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-start transition-all duration-300"
-                  : "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start transition-all duration-300"
+                  ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 transition-all duration-300"
+                  : "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 transition-all duration-300"
                 : "flex gap-3.5 md:flex-col md:gap-3.5 w-full"
             )}
           >
