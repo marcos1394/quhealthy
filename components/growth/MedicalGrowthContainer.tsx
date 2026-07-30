@@ -1,7 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "react-toastify";
+
 import { growthService } from "@/services/growth.service";
 import {
   GrowthMeasurementRequest,
@@ -10,8 +14,8 @@ import {
 } from "@/types/growth";
 import MedicalGrowthChart from "./MedicalGrowthChart";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { toast } from "react-toastify";
 import GrowthMeasurementForm from "./GrowthMeasurementForm";
+import { cn } from "@/lib/utils";
 
 interface MedicalGrowthContainerProps {
   dependentId: number;
@@ -22,7 +26,7 @@ export function MedicalGrowthContainer({
   dependentId,
   sex,
 }: MedicalGrowthContainerProps) {
-  const t = useTranslations("DashboardPatientDetail");
+  const t = useTranslations("Growth.MedicalContainer");
 
   const [history, setHistory] = useState<GrowthMeasurementResponse[]>([]);
   const [standards, setStandards] = useState<WhoGrowthStandard[]>([]);
@@ -33,7 +37,7 @@ export function MedicalGrowthContainer({
     "WEIGHT_FOR_AGE" | "LENGTH_FOR_AGE" | "HEAD_CIRCUMFERENCE_FOR_AGE"
   >("WEIGHT_FOR_AGE");
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [histRes, stdRes] = await Promise.all([
@@ -44,25 +48,25 @@ export function MedicalGrowthContainer({
       setStandards(stdRes);
     } catch (error) {
       console.error("Error fetching pediatric growth data", error);
-      toast.error("Error al cargar los datos de crecimiento.");
+      toast.error(t("error_loading"));
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dependentId, t]);
 
   useEffect(() => {
     fetchData();
-  }, [dependentId]);
+  }, [fetchData]);
 
   const handleSubmit = async (request: GrowthMeasurementRequest) => {
     setIsSubmitting(true);
     try {
       await growthService.recordMeasurementProvider(request);
-      toast.success("Medición registrada con éxito.");
+      toast.success(t("success_saving"));
       fetchData();
     } catch (error) {
       console.error(error);
-      toast.error("Error al registrar la medición.");
+      toast.error(t("error_saving"));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,61 +74,68 @@ export function MedicalGrowthContainer({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center p-24 bg-gray-50 dark:bg-[#050505]">
-        <QhSpinner size="lg" className="text-black dark:text-white" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-6 animate-pulse">
-          CARGANDO GRÁFICAS DE CRECIMIENTO OMS...
+      <div className="flex flex-col items-center justify-center p-16 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xs font-sans space-y-4">
+        <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+          {t("loading_charts")}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col">
-      {/* Registration Form */}
+    <div className="flex flex-col gap-6 font-sans transition-colors">
+      {/* Formulario de Registro */}
       <GrowthMeasurementForm
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
       />
 
-      {/* Chart Viewer */}
-      <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a]">
-        <div className="flex gap-2 mb-6 overflow-x-auto hide-scrollbar">
+      {/* Visualizador de Gráficas y Filtros */}
+      <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xs space-y-6">
+        {/* Píldoras de Selección de Indicador */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           <button
+            type="button"
             onClick={() => setActiveIndicator("WEIGHT_FOR_AGE")}
-            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest border transition-colors whitespace-nowrap rounded-none
-              ${
-                activeIndicator === "WEIGHT_FOR_AGE"
-                  ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                  : "bg-transparent text-gray-500 border-black/20 dark:border-white/20 hover:text-black dark:hover:text-white"
-              }`}
+            className={cn(
+              "px-4 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer whitespace-nowrap shadow-2xs",
+              activeIndicator === "WEIGHT_FOR_AGE"
+                ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-[#111] hover:border-emerald-500/30"
+            )}
           >
-            Peso para la Edad
+            {t("weight_for_age")}
           </button>
+
           <button
+            type="button"
             onClick={() => setActiveIndicator("LENGTH_FOR_AGE")}
-            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest border transition-colors whitespace-nowrap rounded-none
-              ${
-                activeIndicator === "LENGTH_FOR_AGE"
-                  ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                  : "bg-transparent text-gray-500 border-black/20 dark:border-white/20 hover:text-black dark:hover:text-white"
-              }`}
+            className={cn(
+              "px-4 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer whitespace-nowrap shadow-2xs",
+              activeIndicator === "LENGTH_FOR_AGE"
+                ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-[#111] hover:border-emerald-500/30"
+            )}
           >
-            Talla para la Edad
+            {t("length_for_age")}
           </button>
+
           <button
+            type="button"
             onClick={() => setActiveIndicator("HEAD_CIRCUMFERENCE_FOR_AGE")}
-            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest border transition-colors whitespace-nowrap rounded-none
-              ${
-                activeIndicator === "HEAD_CIRCUMFERENCE_FOR_AGE"
-                  ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white"
-                  : "bg-transparent text-gray-500 border-black/20 dark:border-white/20 hover:text-black dark:hover:text-white"
-              }`}
+            className={cn(
+              "px-4 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer whitespace-nowrap shadow-2xs",
+              activeIndicator === "HEAD_CIRCUMFERENCE_FOR_AGE"
+                ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-[#111] hover:border-emerald-500/30"
+            )}
           >
-            Perímetro Cefálico
+            {t("head_circumference_for_age")}
           </button>
         </div>
 
+        {/* Componente Gráfico */}
         {standards.length > 0 ? (
           <MedicalGrowthChart
             measurements={history}
@@ -133,8 +144,8 @@ export function MedicalGrowthContainer({
             indicator={activeIndicator}
           />
         ) : (
-          <div className="p-12 text-center text-gray-500 text-sm">
-            Los estándares de la OMS no están disponibles en este momento.
+          <div className="p-12 text-center text-gray-400 text-xs font-medium bg-gray-50/50 dark:bg-[#050505] rounded-2xl border border-gray-100 dark:border-gray-800">
+            {t("no_standards")}
           </div>
         )}
       </div>

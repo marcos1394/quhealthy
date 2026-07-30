@@ -1,8 +1,10 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-doctor/no-event-handler */
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -10,11 +12,11 @@ import {
   MarkerClustererF,
   InfoWindowF,
 } from "@react-google-maps/api";
-import { useIntelligenceMap } from "@/hooks/useIntelligence";
 import { useTheme } from "next-themes";
-import { Building2, MapPin, ExternalLink, Sparkles } from "lucide-react";
+import { Building2, ExternalLink } from "lucide-react";
+
+import { useIntelligenceMap } from "@/hooks/useIntelligence";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { cn } from "@/lib/utils";
 
 interface HealthcareMapDto {
   clues: string;
@@ -98,6 +100,7 @@ const darkMapStyle = [
 const defaultCenter = { lat: 23.6345, lng: -102.5528 };
 
 export default function NationalHealthcareMap() {
+  const t = useTranslations("Intelligence.NationalHealthcareMap");
   const { data: pointsRaw, loading } = useIntelligenceMap();
 
   // Limitar a 2500 puntos para optimizar rendimiento de renderizado
@@ -171,24 +174,23 @@ export default function NationalHealthcareMap() {
     return (
       <div className="w-full min-h-[600px] h-full flex flex-col items-center justify-center gap-3 bg-gray-50/50 dark:bg-[#050505] font-sans">
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
-        <span className="text-xs font-semibold text-gray-400">
-          Inicializando motor geográfico...
+        <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 animate-pulse">
+          {t("initializing_map")}
         </span>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full min-h-[600px] relative z-0 font-sans">
-      
+    <div className="w-full h-full min-h-[600px] relative z-0 font-sans select-none">
       {/* ── OVERLAY DE SINCRONIZACIÓN DE PUNTOS ────────────────────────────── */}
       {loading && (
         <div className="absolute inset-0 z-10 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md flex flex-col items-center justify-center gap-3 transition-all duration-300">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs">
             <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
           </div>
           <span className="text-xs font-bold text-gray-900 dark:text-white">
-            Sintetizando coordenadas de infraestructura...
+            {t("synthesizing_coords")}
           </span>
         </div>
       )}
@@ -244,7 +246,6 @@ export default function NationalHealthcareMap() {
             onCloseClick={() => setSelectedPoint(null)}
           >
             <div className="p-0 min-w-[260px] max-w-[300px] bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl font-sans -m-1">
-              
               {/* Street View Preview */}
               <div className="w-full h-32 bg-gray-100 dark:bg-gray-900 relative">
                 <img
@@ -253,11 +254,11 @@ export default function NationalHealthcareMap() {
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
-                      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="%239ca3af">VISTA NO DISPONIBLE</text></svg>';
+                      `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="%239ca3af">${t("view_not_available")}</text></svg>`;
                   }}
                 />
-                <div className="absolute top-2 left-2 bg-emerald-600 text-white px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full shadow-sm">
-                  Street View
+                <div className="absolute top-2 left-2 bg-emerald-600 text-white px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full shadow-2xs">
+                  {t("street_view")}
                 </div>
               </div>
 
@@ -272,41 +273,39 @@ export default function NationalHealthcareMap() {
 
                 <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-300 font-medium">
                   <p>
-                    <strong className="text-gray-900 dark:text-white font-bold">Institución:</strong>{" "}
+                    <strong className="text-gray-900 dark:text-white font-bold">{t("institution")}</strong>{" "}
                     {selectedPoint.nombreInstitucion}
                   </p>
                   <p>
-                    <strong className="text-gray-900 dark:text-white font-bold">Tipo:</strong>{" "}
+                    <strong className="text-gray-900 dark:text-white font-bold">{t("type")}</strong>{" "}
                     {selectedPoint.nombreTipoEstablecimiento}
                   </p>
                   <p>
-                    <strong className="text-gray-900 dark:text-white font-bold">Nivel:</strong>{" "}
+                    <strong className="text-gray-900 dark:text-white font-bold">{t("level")}</strong>{" "}
                     {selectedPoint.nivelAtencion}
                   </p>
                   <p className="truncate">
-                    <strong className="text-gray-900 dark:text-white font-bold">Ubicación:</strong>{" "}
+                    <strong className="text-gray-900 dark:text-white font-bold">{t("location")}</strong>{" "}
                     {selectedPoint.municipio}, {selectedPoint.entidad}
                   </p>
                 </div>
 
                 <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
                   <span className="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-900/40">
-                    CLUES: {selectedPoint.clues}
+                    {t("clues", { clues: selectedPoint.clues })}
                   </span>
 
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${selectedPoint.latitud},${selectedPoint.longitud}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-8 px-3 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-[10px] font-bold shadow-sm flex items-center gap-1 shrink-0"
+                    className="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-[10px] font-bold shadow-2xs flex items-center gap-1 shrink-0 border-0"
                   >
-                    <span>Google Maps</span>
+                    <span>{t("google_maps")}</span>
                     <ExternalLink className="w-3 h-3" strokeWidth={2} />
                   </a>
                 </div>
-
               </div>
-
             </div>
           </InfoWindowF>
         )}

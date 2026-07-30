@@ -1,108 +1,128 @@
+"use client";
+
 /* eslint-disable react-doctor/no-event-handler */
 /* eslint-disable react-doctor/rerender-state-only-in-handlers */
 /* eslint-disable react-doctor/no-chain-state-updates */
-// Ubicación: src/components/guards/ProviderGuard.tsx
-"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSessionStore } from '@/stores/SessionStore';
-import { QhSpinner } from '@/components/ui/QhSpinner';
-import { onboardingService } from '@/services/onboarding.service';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+
+import { useSessionStore } from "@/stores/SessionStore";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { onboardingService } from "@/services/onboarding.service";
 
 export function ProviderGuard({ children }: { children: React.ReactNode }) {
- const router = useRouter();
- 
- const { role, status, isAuthenticated, isLoading } = useSessionStore();
- const updateToken = useSessionStore((s) => s.updateToken);
+  const t = useTranslations("Guards.ProviderGuard");
+  const router = useRouter();
 
- // Estado local para la re-evaluación de onboarding
- const [isReEvaluating, setIsReEvaluating] = useState(false);
- const [hasReEvaluated, setHasReEvaluated] = useState(false);
+  const { role, status, isAuthenticated, isLoading } = useSessionStore();
+  const updateToken = useSessionStore((s) => s.updateToken);
 
- useEffect(() => {
- if (isLoading) return;
+  // Estado local para la re-evaluación de onboarding
+  const [isReEvaluating, setIsReEvaluating] = useState(false);
+  const [hasReEvaluated, setHasReEvaluated] = useState(false);
 
- // 1. Si no es provider ni staff autenticado, expulsar
- if (!isAuthenticated || (role !== 'ROLE_PROVIDER' && role !== 'ROLE_STAFF')) {
- console.warn('⛔ Acceso denegado: Área exclusiva para especialistas');
- router.replace('/login');
- return;
- }
+  useEffect(() => {
+    if (isLoading) return;
 
- // 2. Verificación de correo
- if (status && !status.emailVerified) {
- console.warn('⛔ Acceso denegado: Email no verificado');
- router.replace('/verify-email');
- return;
- }
+    // 1. Si no es provider ni staff autenticado, expulsar
+    if (
+      !isAuthenticated ||
+      (role !== "ROLE_PROVIDER" && role !== "ROLE_STAFF")
+    ) {
+      console.warn("⛔ Acceso denegado: Área exclusiva para especialistas");
+      router.replace("/login");
+      return;
+    }
 
- // 3. 🚀 FIX: Si onboarding parece incompleto, re-evaluar desde el backend
- // antes de redirigir. Esto resuelve el caso donde el paso fiscal era
- // obligatorio y ahora es opcional — el JWT puede tener el valor stale.
- // NOTA: ROLE_STAFF no pasa por onboarding propio, se omite esta verificación.
- if (role !== 'ROLE_STAFF' && status && !status.onboardingComplete && !hasReEvaluated) {
- setIsReEvaluating(true);
+    // 2. Verificación de correo
+    if (status && !status.emailVerified) {
+      console.warn("⛔ Acceso denegado: Email no verificado");
+      router.replace("/verify-email");
+      return;
+    }
 
- (async () => {
- try {
- // A. Pedirle al backend que re-evalúe el onboarding
- await onboardingService.finalizeOnboarding();
+    // 3. Re-evaluación de onboarding desde backend si el JWT tiene valor stale
+    if (
+      role !== "ROLE_STAFF" &&
+      status &&
+      !status.onboardingComplete &&
+      !hasReEvaluated
+    ) {
+      setIsReEvaluating(true);
 
- // B. Obtener el estado fresco
- const freshStatus = await onboardingService.getOnboardingStatus();
+      (async () => {
+        try {
+          await onboardingService.finalizeOnboarding();
+          const freshStatus = await onboardingService.getOnboardingStatus();
 
- if (freshStatus.globalStatus === 'APPROVED') {
- // ✅ El onboarding ya está completo — actualizar la sesión local
- console.log('✅ [ProviderGuard] Onboarding re-evaluado como COMPLETO');
- updateToken({
- status: {
- ...status,
- onboardingComplete: true,
- }
- });
- } else {
- // ❌ Realmente está incompleto — redirigir
- console.warn('⛔ Acceso denegado: Onboarding incompleto (confirmado por backend)');
- router.replace('/onboarding');
- }
- } catch (error) {
- console.error('❌ Error al re-evaluar onboarding:', error);
- // En caso de error, redirigir al onboarding por seguridad
- router.replace('/onboarding');
- } finally {
- setIsReEvaluating(false);
- setHasReEvaluated(true);
- }
- })();
- return;
- }
+          if (freshStatus.globalStatus === "APPROVED") {
+            console.log(
+              "✅ [ProviderGuard] Onboarding re-evaluado como COMPLETO"
+            );
+            updateToken({
+              status: {
+                ...status,
+                onboardingComplete: true,
+              },
+            });
+          } else {
+            console.warn(
+              "⛔ Acceso denegado: Onboarding incompleto (confirmado por backend)"
+            );
+            router.replace("/onboarding");
+          }
+        } catch (error) {
+          console.error("❌ Error al re-evaluar onboarding:", error);
+          router.replace("/onboarding");
+        } finally {
+          setIsReEvaluating(false);
+          setHasReEvaluated(true);
+        }
+      })();
+      return;
+    }
 
- // 4. Si ya re-evaluamos y sigue incompleto, redirigir (solo aplica a PROVIDER)
- if (role !== 'ROLE_STAFF' && status && !status.onboardingComplete && hasReEvaluated) {
- router.replace('/onboarding');
- return;
- }
+    // 4. Si ya re-evaluamos y sigue incompleto, redirigir
+    if (
+      role !== "ROLE_STAFF" &&
+      status &&
+      !status.onboardingComplete &&
+      hasReEvaluated
+    ) {
+      router.replace("/onboarding");
+      return;
+    }
+  }, [
+    isLoading,
+    isAuthenticated,
+    role,
+    status,
+    router,
+    hasReEvaluated,
+    updateToken,
+  ]);
 
- }, [isLoading, isAuthenticated, role, status, router, hasReEvaluated, updateToken]);
+  // Pantalla de carga con diseño Soft Health Tech
+  if (
+    isLoading ||
+    isReEvaluating ||
+    !isAuthenticated ||
+    (role !== "ROLE_PROVIDER" && role !== "ROLE_STAFF") ||
+    !status?.emailVerified ||
+    (role !== "ROLE_STAFF" && !status?.onboardingComplete)
+  ) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] font-sans transition-colors">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400 mt-4 tracking-tight">
+          {t("verifying")}
+        </p>
+      </div>
+    );
+  }
 
- // Pantalla de carga
- if (
- isLoading || 
- isReEvaluating ||
- !isAuthenticated || 
- (role !== 'ROLE_PROVIDER' && role !== 'ROLE_STAFF') || 
- !status?.emailVerified || 
- (role !== 'ROLE_STAFF' && !status?.onboardingComplete)
- ) {
- return (
- <div className="flex flex-col items-center justify-center h-[60vh]">
- <QhSpinner size="lg" className="text-medical-600" />
- <p className="text-slate-500 font-medium mt-4">Verificando credenciales del especialista...</p>
- </div>
- );
- }
-
- // Todo en orden
- return <>{children}</>;
+  // Todo en orden
+  return <>{children}</>;
 }

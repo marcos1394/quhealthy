@@ -1,5 +1,11 @@
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
+
 import React from "react";
-import { Clock, ChevronDown, Check, FileCheck2, Loader2 } from "lucide-react";
+import { Clock, ChevronDown, Check, FileCheck2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import {
   Accordion,
   AccordionContent,
@@ -7,6 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
 import { VaccinationStatusDto } from "@/types/vaccination";
 
@@ -21,31 +28,32 @@ export function VaccinesList({
   simulatingAction,
   onToggleVaccine,
 }: VaccinesListProps) {
+  const t = useTranslations("VaccinesList");
+
   return (
-    <Accordion type="multiple" className="space-y-8">
+    <Accordion type="multiple" className="space-y-4 font-sans transition-colors">
       {groupedVaccines.map((stage) => (
         <AccordionItem
           value={stage.ageGroup}
           key={stage.ageGroup}
-          className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-none data-[state=open]:border-black dark:data-[state=open]:border-white transition-colors"
+          className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden shadow-2xs transition-all duration-200"
         >
           {/* Cabecera del Grupo */}
-          <AccordionTrigger className="bg-gray-50 dark:bg-[#050505] px-6 py-4 hover:no-underline hover:bg-gray-100 dark:hover:bg-[#111111] transition-colors border-b border-transparent data-[state=open]:border-gray-200 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180">
+          <AccordionTrigger className="bg-gray-50/60 dark:bg-[#050505] px-6 py-4.5 hover:no-underline hover:bg-gray-100/60 dark:hover:bg-[#111] transition-colors border-b border-transparent data-[state=open]:border-gray-100 dark:data-[state=open]:border-gray-800 [&[data-state=open]>svg]:rotate-180 select-none">
             <div className="flex items-center gap-3">
-              <Clock
-                className="w-4 h-4 text-black dark:text-white"
-                strokeWidth={1.5}
-              />
-              <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-                Fase: {stage.ageGroup}
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                <Clock className="w-4 h-4" strokeWidth={2} />
+              </div>
+              <h2 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("phase_label", { ageGroup: stage.ageGroup })}
               </h2>
             </div>
-            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white" />
+            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-gray-400" strokeWidth={2} />
           </AccordionTrigger>
 
           {/* Filas de Vacunas */}
           <AccordionContent className="p-0">
-            <div className="divide-y divide-gray-200 dark:divide-gray-800">
+            <div className="divide-y divide-gray-100 dark:divide-gray-800/80">
               {stage.vaccines.map((vaccine) => {
                 const isApplied = vaccine.isApplied;
                 const isSimulating =
@@ -54,51 +62,54 @@ export function VaccinesList({
                 return (
                   <div
                     key={vaccine.vaccineCatalogId}
-                    className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-gray-50 dark:hover:bg-[#050505] transition-colors group"
+                    className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 hover:bg-gray-50/40 dark:hover:bg-[#050505] transition-colors group select-none"
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Checkbox Arquitectónico */}
+                    <div className="flex items-start gap-3.5 min-w-0">
+                      {/* Checkbox Semántico */}
                       <button
                         type="button"
                         onClick={() => onToggleVaccine(vaccine)}
                         disabled={isSimulating}
                         className={cn(
-                          "mt-0.5 w-6 h-6 border flex items-center justify-center shrink-0 transition-colors focus:outline-none",
+                          "mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 transition-all cursor-pointer shadow-2xs",
                           isApplied
-                            ? "bg-black border-black text-white dark:bg-white dark:border-white dark:text-black"
-                            : "border-gray-300 dark:border-gray-700 bg-transparent hover:border-black dark:hover:border-white",
+                            ? "bg-emerald-600 border-emerald-600 text-white"
+                            : "border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-500/50"
                         )}
                       >
                         {isSimulating ? (
-                          <Loader2
-                            className="w-3.5 h-3.5 animate-spin"
-                            strokeWidth={2}
-                          />
+                          <QhSpinner size="sm" className="text-current" />
                         ) : isApplied ? (
-                          <Check className="w-4 h-4" strokeWidth={3} />
+                          <Check className="w-4 h-4 stroke-[3]" strokeWidth={3} />
                         ) : null}
                       </button>
 
-                      <div>
+                      <div className="space-y-0.5 min-w-0">
                         <h4
                           className={cn(
-                            "text-sm font-bold uppercase tracking-widest transition-colors mb-1",
+                            "text-xs sm:text-sm font-bold tracking-tight transition-colors leading-snug",
                             isApplied
-                              ? "text-gray-500"
-                              : "text-black dark:text-white",
+                              ? "text-gray-400 dark:text-gray-500 line-through"
+                              : "text-gray-900 dark:text-white"
                           )}
                         >
                           {vaccine.name}
                         </h4>
-                        <p className="text-[10px] text-gray-500 font-light uppercase tracking-widest">
-                          {vaccine.diseasePrevented} (Dosis {vaccine.doseNumber}
-                          )
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                          {vaccine.diseasePrevented} •{" "}
+                          <span className="font-mono text-[11px]">
+                            {t("dose_number", { doseNumber: vaccine.doseNumber })}
+                          </span>
                         </p>
 
                         {isApplied && vaccine.appliedDate && (
-                          <div className="flex items-center gap-2 mt-3 text-[9px] font-bold uppercase tracking-widest text-black dark:text-white border border-gray-300 dark:border-gray-700 px-2 py-1 w-fit bg-gray-50 dark:bg-[#050505]">
-                            <FileCheck2 className="w-3 h-3" strokeWidth={1.5} />
-                            Aplicada: {vaccine.appliedDate}
+                          <div className="pt-1.5">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 px-2.5 py-0.5 rounded-lg shadow-2xs">
+                              <FileCheck2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                              <span>
+                                {t("applied_date", { date: vaccine.appliedDate })}
+                              </span>
+                            </span>
                           </div>
                         )}
                       </div>
@@ -107,12 +118,15 @@ export function VaccinesList({
                     {!isApplied && (
                       <Button
                         type="button"
-                        variant="outline"
                         disabled={isSimulating}
                         onClick={() => onToggleVaccine(vaccine)}
-                        className="rounded-none border border-black dark:border-white h-8 px-4 text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                        className="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all border-0 cursor-pointer shrink-0 self-start sm:self-center"
                       >
-                        Registrar Dosis
+                        {isSimulating ? (
+                          <QhSpinner size="sm" className="text-white" />
+                        ) : (
+                          <span>{t("register_dose")}</span>
+                        )}
                       </Button>
                     )}
                   </div>

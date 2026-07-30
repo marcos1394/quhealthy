@@ -3164,6 +3164,87 @@
     }
   },
 
+  "EmergencyConsole": {
+    "console_title": "Medical Care Console",
+    "soap_title": "New Evolution Note (SOAP)",
+    "hourly_badge": "Hourly Progress",
+    "subjective_label": "S • Subjective",
+    "subjective_placeholder": "Symptoms reported by the patient...",
+    "objective_label": "O • Objective",
+    "objective_placeholder": "Physical examination, vital signs, lab results...",
+    "assessment_label": "A • Assessment / Diagnosis",
+    "assessment_placeholder": "Clinical interpretation and progress...",
+    "plan_label": "P • Management Plan",
+    "plan_placeholder": "Medical orders, medications, further studies...",
+    "btn_save_note": "Record Hourly Progress Note",
+    "btn_saving_note": "Saving...",
+    "toast_note_success": "Hourly progress note recorded successfully.",
+    "toast_note_error": "Error recording progress note.",
+    "discharge_title": "Finalize Emergency Event",
+    "discharge_desc": "Upon finalizing, active care timing will close and the unalterable digital record will be signed under NOM-004 compliance.",
+    "destination_label": "Patient Destination / Discharge",
+    "dest_alta": "Medical Discharge",
+    "dest_hospitalizacion": "Hospital Admission",
+    "dest_traslado": "Transfer to Another Facility",
+    "dest_defuncion": "Deceased",
+    "btn_complete": "Discharge / Close Emergency",
+    "btn_completing": "Processing Discharge...",
+    "toast_complete_success": "Emergency finalized and PDF record generated (NOM-004).",
+    "toast_complete_error": "Error finalizing emergency."
+  },
+
+  "RegisterEmergencyModal": {
+    "subtitle": "Direct Admission • Walk-In",
+    "title": "Admit to Emergency",
+    "description": "Enter the patient ID to register their admission to the waiting room and start the Triage timer immediately.",
+    "patient_id_label": "Patient Directory ID",
+    "patient_id_placeholder": "E.g. 1045",
+    "search_hint": "Direct search by medical record or unique patient key.",
+    "cancel": "Cancel",
+    "submit_button": "Register & Start Triage",
+    "submitting_button": "Registering...",
+    "error_toast": "Error registering patient in emergency"
+  },
+
+  "Emergency": {
+    "TriageMonitor": {
+      "empty_title": "Empty Waiting Room",
+      "empty_desc": "There are currently no patients registered in the emergency monitor.",
+      "status_waiting": "Waiting",
+      "status_attending": "In Progress",
+      "reason_label": "EMERGENCY REASON",
+      "no_reason": "No prior evaluation recorded.",
+      "btn_attend": "Attend",
+      "level_1": "Level 1 • Immediate",
+      "level_2": "Level 2 • Emergent",
+      "level_3": "Level 3 • Urgent",
+      "level_4": "Level 4 • Less Urgent",
+      "level_5": "Level 5 • Non-Urgent",
+      "level_none": "No Triage"
+    }
+  },
+
+ "VaccinationModals": {
+    "audit_title": "Vaccine Record",
+    "audit_desc": "Select the date this dose was given to keep your history up to date.",
+    "record_date_label": "Administration Date",
+    "select_date_placeholder": "Select date",
+    "cancel": "Cancel",
+    "sync": "Save Date",
+    "syncing": "Saving..."
+  },
+  "VaccinesList": {
+    "phase_label": "Phase: {ageGroup}",
+    "dose_number": "Dose {doseNumber}",
+    "applied_date": "Administered: {date}",
+    "register_dose": "Register Dose"
+  },
+
+  "WidgetRenderer": {
+    "unsupported_module": "Unsupported module",
+    "unrecognized_type": "Unrecognized widget type:"
+  },
+
   "AccountingMapping": {
     "title": "Automatic Account Mapping",
     "subtitle": "Set up rules to automatically generate journal entries.",
@@ -5434,7 +5515,204 @@
     "action_vaccination_schedule": "Vaccination Schedule",
     "action_geriatric_care": "Geriatric Care",
     "action_document_vault": "Document Vault",
-    "delete_record_tooltip": "Delete Record"
+    "delete_record_tooltip": "Delete Record",
+    "AddMemberForm": {
+      "form_title": "Add Family Member or Dependent",
+      "form_subtitle": "Enter your family member's details to manage their appointments and health records.",
+      "label_first_name": "First Name(s)",
+      "placeholder_first_name": "E.g. Mary",
+      "label_last_name": "Last Name",
+      "placeholder_last_name": "E.g. Smith",
+      "label_dob": "Date of Birth",
+      "select_date": "Select date",
+      "label_relationship": "Relationship",
+      "select_relationship_placeholder": "Select relationship",
+      "rel_child": "Child",
+      "rel_parent": "Parent",
+      "rel_spouse": "Spouse",
+      "rel_sibling": "Sibling",
+      "rel_other": "Other",
+      "btn_cancel": "Cancel",
+      "btn_save": "Save Member",
+      "btn_saving": "Saving..."
+    }
+  },
+
+  "MedicalGrowthChart": {
+    "title_weight": "WHO Weight-for-Age Growth Chart",
+    "title_length": "WHO Height-for-Age Growth Chart",
+    "title_head": "WHO Head Circumference Growth Chart",
+    "axis_age": "Age (months)",
+    "label_weight": "Weight (kg)",
+    "label_length": "Height (cm)",
+    "label_head": "Circumference (cm)",
+    "percentile_97": "Percentile 97",
+    "percentile_50": "Percentile 50 (Median)",
+    "percentile_3": "Percentile 3",
+    "patient": "Patient",
+    "table_age": "Age (Months)",
+    "table_measurement": "Measurement",
+    "table_zscore": "Z-Score",
+    "table_status": "Status",
+    "status_normal": "Normal",
+    "status_vigilancia": "Monitoring Needed",
+    "status_alerta": "Attention Needed"
+  },
+
+  "Growth": {
+    "MedicalContainer": {
+      "loading_charts": "Loading growth charts...",
+      "error_loading": "Error loading growth information.",
+      "success_saving": "Measurement recorded successfully.",
+      "error_saving": "Error recording measurement.",
+      "weight_for_age": "Weight for Age",
+      "length_for_age": "Height for Age",
+      "head_circumference_for_age": "Head Circumference",
+      "no_standards": "WHO growth standards are currently unavailable."
+    },
+    "ParentContainer": {
+      "loading": "Loading growth information...",
+      "success_saving": "Measurement recorded successfully.",
+      "error_saving": "Error recording measurement."
+    },
+    "ParentHistory": {
+      "evolution_title": "Evolution of {indicator}",
+      "indicator_weight": "Weight",
+      "indicator_height": "Height",
+      "indicator_head": "Head Circumference",
+      "indicator_bmi": "BMI",
+      "healthy_range_info": "The shaded area indicates the WHO healthy range.",
+      "historical_info": "Patient's historical record (without comparison curve).",
+      "tab_weight": "Weight",
+      "tab_height": "Height",
+      "tab_head": "Head",
+      "tab_bmi": "BMI",
+      "y_axis_weight": "Weight (kg)",
+      "y_axis_height": "Height (cm)",
+      "y_axis_head": "Circumference (cm)",
+      "y_axis_bmi": "BMI",
+      "x_axis_age": "Age (months)",
+      "tooltip_age": "Age: {age} months",
+      "patient": "Patient",
+      "ideal_median": "Ideal Median",
+      "healthy_range": "Healthy Range",
+      "history_title": "Measurement History",
+      "th_date": "Date",
+      "th_age": "Age",
+      "th_weight": "Weight",
+      "th_height": "Height",
+      "th_bmi": "BMI",
+      "th_status": "Status",
+      "status_stable": "Stable",
+      "status_follow": "Monitoring Needed",
+      "status_alert": "Attention Needed",
+      "months_unit": "{months} months"
+    },
+    "ParentView": {
+      "no_measurements": "No measurements recorded yet to display growth status.",
+      "status_stable": "Stable Growth",
+      "status_vigilance": "Requires Monitoring",
+      "status_alert": "Medical Alert",
+      "default_message": "Growth indicators are being constantly monitored.",
+      "last_measurement": "Last Measurement",
+      "age": "Age",
+      "weight": "Weight",
+      "height": "Height",
+      "age_months": "{months} months"
+    },
+  "Guards": {
+    "ProviderGuard": {
+      "verifying": "Verifying specialist credentials..."
+    }
+    
+  }
+},
+
+"Intelligence": {
+    "HealthcareExplorerTable": {
+      "search_placeholder": "Search by CLUES, medical unit, or institution...",
+      "export_button": "Export Data ({count})",
+      "th_clues": "CLUES",
+      "th_unit": "Medical Unit",
+      "th_entity": "State / Entity",
+      "th_institution": "Institution",
+      "th_level": "Care Level",
+      "loading": "Loading health infrastructure directory...",
+      "empty_search": "No health records found matching your search.",
+      "showing_records": "Showing {start} - {end} of {total} records",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "InstitutionDistributionChart": {
+      "loading": "Processing institutional metrics...",
+      "error_title": "Error fetching institutional data",
+      "error_desc": "Unable to connect to the analytics engine.",
+      "total": "Total",
+      "units": "{count} units"
+    },
+    "SummaryRow": {
+      "loading": "Loading infrastructure metrics...",
+      "error": "Error fetching medical infrastructure metrics.",
+      "kpi_total": "Registered Assets",
+      "kpi_georeferenced": "Georeferenced",
+      "kpi_private": "Private Sector",
+      "kpi_entities": "Covered States"
+    },
+    "MapWrapper": {
+      "loading": "Loading health infrastructure map..."
+    },
+    "QueryBuilder": {
+      "group_by_label": "Group by:",
+      "opt_entidad": "Federal Entity / State",
+      "opt_institucion": "Governing Institution",
+      "opt_nivel": "Care Level",
+      "opt_tipo": "Establishment Type",
+      "active_filters": "Active Filters ({count})",
+      "badge_estado": "State",
+      "badge_institucion": "Institution",
+      "badge_nivel": "Level",
+      "badge_tipo": "Type",
+      "clear_all": "Clear All",
+      "hint_no_filters": "Click on charts or map elements to apply cross-filters."
+    },
+    "NationalHealthcareMap": {
+      "initializing_map": "Initializing geographic engine...",
+      "synthesizing_coords": "Synthesizing infrastructure coordinates...",
+      "street_view": "Street View",
+      "view_not_available": "VIEW NOT AVAILABLE",
+      "institution": "Institution:",
+      "type": "Type:",
+      "level": "Level:",
+      "location": "Location:",
+      "clues": "CLUES: {clues}",
+      "google_maps": "Google Maps"
+    },
+    "StateDistributionChart": {
+      "loading": "Processing state distribution census...",
+      "error_title": "Error fetching data by state",
+      "error_desc": "Unable to connect to the analytics engine.",
+      "total": "Total",
+      "units": "{count} units"
+    }
+  },
+
+  "DependentVaccineAlert": {
+    "delayed_count": "{count, plural, =1 {1 Pending Dose} other {{count} Pending Doses}}",
+    "tooltip_title": "Pending Vaccines",
+    "tooltip_desc": "{count, plural, =1 {There is 1 pending vaccine} other {There are {count} pending vaccines}} in the record. Click to record administration or schedule an appointment."
+  },
+  "GrowthMeasurementForm": {
+    "form_title": "Record New Measurement",
+    "warn_empty": "Please enter at least one value (Weight, Height, or Head Circumference).",
+    "label_date": "Measurement Date",
+    "select_date_placeholder": "Select date",
+    "label_weight": "Weight (kg)",
+    "placeholder_weight": "E.g. 14.5",
+    "label_height": "Height (cm)",
+    "placeholder_height": "E.g. 95.5",
+    "label_head": "Head Circumference (cm)",
+    "placeholder_head": "E.g. 48.0",
+    "btn_submit": "Save Measurement"
   },
 
   "PatientVideoCall": {

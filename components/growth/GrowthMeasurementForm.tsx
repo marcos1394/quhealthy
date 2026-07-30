@@ -1,19 +1,22 @@
 "use client";
 
+/* eslint-disable react-doctor/button-has-type */
+
 import React, { useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, CalendarIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { toast } from "react-toastify";
+
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { GrowthMeasurementRequest } from "@/types/growth";
-import { toast } from "react-toastify";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -26,19 +29,19 @@ export default function GrowthMeasurementForm({
   onSubmit,
   isSubmitting,
 }: GrowthMeasurementFormProps) {
+  const t = useTranslations("GrowthMeasurementForm");
+
   const [weightKg, setWeightKg] = useState("");
   const [heightCm, setHeightCm] = useState("");
   const [headCircumferenceCm, setHeadCircumferenceCm] = useState("");
   const [measurementDate, setMeasurementDate] = useState(
-    () => new Date().toISOString().split("T")[0],
+    () => new Date().toISOString().split("T")[0]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!weightKg && !heightCm && !headCircumferenceCm) {
-      toast.warn(
-        "Debes ingresar al menos una medición (Peso, Talla o Perímetro Cefálico).",
-      );
+      toast.warn(t("warn_empty"));
       return;
     }
 
@@ -53,7 +56,6 @@ export default function GrowthMeasurementForm({
 
     try {
       await onSubmit(request);
-      // Clear form only on success
       setWeightKg("");
       setHeightCm("");
       setHeadCircumferenceCm("");
@@ -63,43 +65,48 @@ export default function GrowthMeasurementForm({
   };
 
   return (
-    <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm">
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
-        Registrar Nueva Medición
+    <div className="p-6 md:p-8 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xs font-sans transition-colors">
+      <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight mb-5">
+        {t("form_title")}
       </h3>
+
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
       >
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-gray-500">
-            Fecha
+        {/* Fecha de Medición */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+            {t("label_date")}
           </label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
+                type="button"
                 variant="outline"
                 className={cn(
-                  "h-11 w-full justify-start rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm font-normal focus:ring-1 focus:border-teal-500 focus:ring-teal-500 hover:border-teal-500 dark:hover:border-teal-400 transition-all shadow-sm",
-                  !measurementDate && "text-gray-400",
+                  "h-11 w-full justify-start rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-2xs cursor-pointer",
+                  !measurementDate
+                    ? "text-gray-400"
+                    : "text-gray-900 dark:text-white font-semibold"
                 )}
               >
-                <CalendarIcon className="mr-3 h-4 w-4" strokeWidth={1.5} />
+                <CalendarIcon className="mr-2.5 h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                 {measurementDate ? (
-                  <span className="text-black dark:text-white font-semibold">
+                  <span className="font-mono">
                     {format(
                       new Date(`${measurementDate}T12:00:00`),
                       "dd MMM yyyy",
-                      { locale: es },
+                      { locale: es }
                     )}
                   </span>
                 ) : (
-                  <span>Seleccionar fecha</span>
+                  <span>{t("select_date_placeholder")}</span>
                 )}
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="z-[100] w-auto rounded-xl border border-gray-200 dark:border-gray-800 p-0 bg-white dark:bg-[#0a0a0a] shadow-lg"
+              className="z-[100] w-auto rounded-2xl border border-gray-100 dark:border-gray-800 p-2 bg-white dark:bg-[#0a0a0a] shadow-xl font-sans"
               align="start"
             >
               <CalendarUI
@@ -121,57 +128,67 @@ export default function GrowthMeasurementForm({
             </PopoverContent>
           </Popover>
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-gray-500">
-            Peso (kg)
+
+        {/* Peso (kg) */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+            {t("label_weight")}
           </label>
           <input
             type="number"
             step="0.01"
-            placeholder="Ej: 14.5"
+            placeholder={t("placeholder_weight")}
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
-            className="h-11 px-3 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl transition-all shadow-sm"
+            className="h-11 px-3.5 border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-mono font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rounded-xl transition-all shadow-2xs placeholder:text-gray-400 placeholder:font-normal"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-gray-500">
-            Talla (cm)
+
+        {/* Talla (cm) */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+            {t("label_height")}
           </label>
           <input
             type="number"
             step="0.1"
-            placeholder="Ej: 95.5"
+            placeholder={t("placeholder_height")}
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
-            className="h-11 px-3 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl transition-all shadow-sm"
+            className="h-11 px-3.5 border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-mono font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rounded-xl transition-all shadow-2xs placeholder:text-gray-400 placeholder:font-normal"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-gray-500">
-            Perímetro Cefálico (cm)
+
+        {/* Perímetro Cefálico (cm) */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+            {t("label_head")}
           </label>
           <input
             type="number"
             step="0.1"
-            placeholder="Ej: 48.0"
+            placeholder={t("placeholder_head")}
             value={headCircumferenceCm}
             onChange={(e) => setHeadCircumferenceCm(e.target.value)}
-            className="h-11 px-3 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm text-gray-900 dark:text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl transition-all shadow-sm"
+            className="h-11 px-3.5 border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-mono font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rounded-xl transition-all shadow-2xs placeholder:text-gray-400 placeholder:font-normal"
           />
         </div>
-        <div className="flex flex-col gap-2">
+
+        {/* Botón de Submit */}
+        <div className="flex flex-col gap-1.5">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-11 px-4 bg-quhealthy-green hover:bg-emerald-700 text-white transition-colors text-sm font-bold flex items-center justify-center gap-2 rounded-xl disabled:opacity-50 shadow-sm"
+            className="h-11 px-5 bg-emerald-600 hover:bg-emerald-700 text-white transition-all text-xs font-bold flex items-center justify-center gap-2 rounded-xl disabled:opacity-50 border-0 shadow-xs cursor-pointer"
           >
             {isSubmitting ? (
-              <QhSpinner size="sm" className="text-current" />
+              <QhSpinner size="sm" className="text-white" />
             ) : (
-              <PlusCircle className="w-4 h-4" strokeWidth={2} />
+              <>
+                <PlusCircle className="w-4 h-4" strokeWidth={2} />
+                <span>{t("btn_submit")}</span>
+              </>
             )}
-            Registrar
           </button>
         </div>
       </form>

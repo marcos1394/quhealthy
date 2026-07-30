@@ -2541,6 +2541,86 @@
     }
   },
 
+  "EmergencyConsole": {
+    "console_title": "Consola Médica de Atención",
+    "soap_title": "Nueva Nota de Evolución (SOAP)",
+    "hourly_badge": "Evolución Horaria",
+    "subjective_label": "S • Subjetivo",
+    "subjective_placeholder": "Sintomatología expresada por el paciente...",
+    "objective_label": "O • Objetivo",
+    "objective_placeholder": "Exploración física, constantes vitales, estudios de laboratorio...",
+    "assessment_label": "A • Análisis / Diagnóstico",
+    "assessment_placeholder": "Interpretación del cuadro clínico y evolución...",
+    "plan_label": "P • Plan de Manejo",
+    "plan_placeholder": "Indicaciones médicas, fármacos, estudios complementarios...",
+    "btn_save_note": "Registrar Evolución Horaria",
+    "btn_saving_note": "Guardando...",
+    "toast_note_success": "Nota de evolución horaria registrada exitosamente.",
+    "toast_note_error": "Error al guardar la nota de evolución.",
+    "discharge_title": "Finalizar Evento de Urgencia",
+    "discharge_desc": "Al concluir el evento, se cerrará el cronómetro de atención activa y se firmará el expediente digital inalterable bajo la norma NOM-004.",
+    "destination_label": "Destino / Egreso del Paciente",
+    "dest_alta": "Alta Médica",
+    "dest_hospitalizacion": "Ingreso a Hospitalización",
+    "dest_traslado": "Traslado a Otra Unidad",
+    "dest_defuncion": "Defunción",
+    "btn_complete": "Alta / Cierre de Urgencia",
+    "btn_completing": "Procesando Cierre...",
+    "toast_complete_success": "Urgencia finalizada y expediente PDF generado (NOM-004).",
+    "toast_complete_error": "Error al finalizar la urgencia."
+  },
+
+  "RegisterEmergencyModal": {
+    "subtitle": "Admisión Directa • Walk-In",
+    "title": "Ingresar a Urgencias",
+    "description": "Ingrese el identificador del paciente para registrar su ingreso en sala de espera e iniciar el cronómetro de Triage inmediatamente.",
+    "patient_id_label": "ID del Directorio de Pacientes",
+    "patient_id_placeholder": "Ej. 1045",
+    "search_hint": "Búsqueda directa por expediente o clave única de paciente.",
+    "cancel": "Cancelar",
+    "submit_button": "Registrar e Iniciar Triage",
+    "submitting_button": "Registrando...",
+    "error_toast": "Error al registrar paciente en urgencias"
+  },
+
+  "Emergency": {
+    "TriageMonitor": {
+      "empty_title": "Sala de Espera Vacía",
+      "empty_desc": "No hay pacientes registrados en el monitor de urgencias en este momento.",
+      "status_waiting": "En Espera",
+      "status_attending": "En Atención",
+      "reason_label": "MOTIVO DE URGENCIA",
+      "no_reason": "Sin evaluación previa registrada.",
+      "btn_attend": "Atender",
+      "level_1": "Nivel 1 • Inmediato",
+      "level_2": "Nivel 2 • Emergencia",
+      "level_3": "Nivel 3 • Urgencia",
+      "level_4": "Nivel 4 • Menos Urgente",
+      "level_5": "Nivel 5 • No Urgente",
+      "level_none": "Sin Triage"
+    }
+  },
+
+  "VaccinationModals": {
+    "audit_title": "Registro de Vacuna",
+    "audit_desc": "Indica la fecha en que se aplicó esta dosis para mantener tu historial al día.",
+    "record_date_label": "Fecha de Aplicación",
+    "select_date_placeholder": "Seleccionar fecha",
+    "cancel": "Cancelar",
+    "sync": "Guardar Fecha",
+    "syncing": "Guardando..."
+  },
+  "VaccinesList": {
+    "phase_label": "Fase: {ageGroup}",
+    "dose_number": "Dosis {doseNumber}",
+    "applied_date": "Aplicada: {date}",
+    "register_dose": "Registrar Dosis"
+  },
+
+  "WidgetRenderer": {
+    "unsupported_module": "Módulo no compatible",
+    "unrecognized_type": "Tipo de widget no reconocido:"
+  },
   
 
   "OnboardingWearables": {
@@ -4759,7 +4839,204 @@
     "action_vaccination_schedule": "Esquema de Vacunación",
     "action_geriatric_care": "Cuidados Geriátricos",
     "action_document_vault": "Bóveda Documental",
-    "delete_record_tooltip": "Eliminar Expediente"
+    "delete_record_tooltip": "Eliminar Expediente",
+    "AddMemberForm": {
+      "form_title": "Agregar Familiar o Dependiente",
+      "form_subtitle": "Ingresa los datos de tu familiar para poder gestionar sus citas e historial de salud.",
+      "label_first_name": "Nombre(s)",
+      "placeholder_first_name": "Ej. María",
+      "label_last_name": "Apellidos",
+      "placeholder_last_name": "Ej. Pérez",
+      "label_dob": "Fecha de nacimiento",
+      "select_date": "Seleccionar fecha",
+      "label_relationship": "Parentesco",
+      "select_relationship_placeholder": "Selecciona el vínculo",
+      "rel_child": "Hijo/a",
+      "rel_parent": "Padre/Madre",
+      "rel_spouse": "Cónyuge",
+      "rel_sibling": "Hermano/a",
+      "rel_other": "Otro",
+      "btn_cancel": "Cancelar",
+      "btn_save": "Guardar Familiar",
+      "btn_saving": "Guardando..."
+    }
+  },
+
+  "MedicalGrowthChart": {
+    "title_weight": "Curva de Peso para la Edad (OMS)",
+    "title_length": "Curva de Talla para la Edad (OMS)",
+    "title_head": "Curva de Perímetro Cefálico (OMS)",
+    "axis_age": "Edad (meses)",
+    "label_weight": "Peso (kg)",
+    "label_length": "Talla (cm)",
+    "label_head": "Perímetro (cm)",
+    "percentile_97": "Percentil 97",
+    "percentile_50": "Percentil 50 (Mediana)",
+    "percentile_3": "Percentil 3",
+    "patient": "Paciente",
+    "table_age": "Edad (Meses)",
+    "table_measurement": "Medición",
+    "table_zscore": "Z-Score",
+    "table_status": "Estado",
+    "status_normal": "Normal",
+    "status_vigilancia": "En Seguimiento",
+    "status_alerta": "Atención Requerida"
+  },
+
+  "Growth": {
+    "MedicalContainer": {
+      "loading_charts": "Cargando gráficas de crecimiento...",
+      "error_loading": "Error al cargar la información de crecimiento.",
+      "success_saving": "Medición registrada con éxito.",
+      "error_saving": "Error al registrar la medición.",
+      "weight_for_age": "Peso para la Edad",
+      "length_for_age": "Talla para la Edad",
+      "head_circumference_for_age": "Perímetro Cefálico",
+      "no_standards": "Los estándares de crecimiento de la OMS no están disponibles en este momento."
+    },
+    "ParentContainer": {
+      "loading": "Cargando información de crecimiento...",
+      "success_saving": "Medición registrada con éxito.",
+      "error_saving": "Error al registrar la medición."
+    },
+    "ParentView": {
+      "no_measurements": "Aún no hay mediciones registradas para mostrar el estado de crecimiento.",
+      "status_stable": "Crecimiento Estable",
+      "status_vigilance": "Requiere Seguimiento",
+      "status_alert": "Alerta Médica",
+      "default_message": "Los indicadores de crecimiento están siendo monitoreados constantemente.",
+      "last_measurement": "Última Medición",
+      "age": "Edad",
+      "weight": "Peso",
+      "height": "Estatura",
+      "age_months": "{months} meses"
+    },
+  "Guards": {
+    "ProviderGuard": {
+      "verifying": "Verificando credenciales del especialista..."
+    }
+  },
+  
+    "ParentHistory": {
+      "evolution_title": "Evolución de {indicator}",
+      "indicator_weight": "Peso",
+      "indicator_height": "Estatura",
+      "indicator_head": "Perímetro Cefálico",
+      "indicator_bmi": "IMC",
+      "healthy_range_info": "La zona sombreada indica el rango saludable según los estándares de la OMS.",
+      "historical_info": "Comportamiento histórico del paciente (sin curva comparativa).",
+      "tab_weight": "Peso",
+      "tab_height": "Estatura",
+      "tab_head": "Cráneo",
+      "tab_bmi": "IMC",
+      "y_axis_weight": "Peso (kg)",
+      "y_axis_height": "Estatura (cm)",
+      "y_axis_head": "Perímetro (cm)",
+      "y_axis_bmi": "IMC",
+      "x_axis_age": "Edad (meses)",
+      "tooltip_age": "Edad: {age} meses",
+      "patient": "Paciente",
+      "ideal_median": "Media Ideal",
+      "healthy_range": "Rango Saludable",
+      "history_title": "Historial de Mediciones",
+      "th_date": "Fecha",
+      "th_age": "Edad",
+      "th_weight": "Peso",
+      "th_height": "Estatura",
+      "th_bmi": "IMC",
+      "th_status": "Estado",
+      "status_stable": "Estable",
+      "status_follow": "En Seguimiento",
+      "status_alert": "Atención Requerida",
+      "months_unit": "{months} meses"
+    }
+  },
+
+  "Intelligence": {
+    "HealthcareExplorerTable": {
+      "search_placeholder": "Buscar por CLUES, unidad médica o institución...",
+      "export_button": "Extraer Datos ({count})",
+      "th_clues": "CLUES",
+      "th_unit": "Unidad Médica",
+      "th_entity": "Entidad",
+      "th_institution": "Institución",
+      "th_level": "Nivel de Atención",
+      "loading": "Cargando directorio de infraestructura médica...",
+      "empty_search": "No se encontraron registros que coincidan con tu búsqueda.",
+      "showing_records": "Mostrando {start} - {end} de {total} registros",
+      "prev": "Anterior",
+      "next": "Siguiente"
+    },
+    "InstitutionDistributionChart": {
+      "loading": "Procesando métricas institucionales...",
+      "error_title": "Error al consultar datos institucionales",
+      "error_desc": "No fue posible conectar con el motor de analítica.",
+      "total": "Total",
+      "units": "{count} unidades"
+    },
+    "SummaryRow": {
+      "loading": "Cargando métricas de infraestructura...",
+      "error": "Error al consultar las métricas de infraestructura médica.",
+      "kpi_total": "Activos Registrados",
+      "kpi_georeferenced": "Georreferenciados",
+      "kpi_private": "Sector Privado",
+      "kpi_entities": "Entidades Cubiertas"
+    },
+    "MapWrapper": {
+      "loading": "Cargando mapa de infraestructura médica..."
+    },
+    "QueryBuilder": {
+      "group_by_label": "Agrupar por:",
+      "opt_entidad": "Entidad Federativa",
+      "opt_institucion": "Institución Rectora",
+      "opt_nivel": "Nivel de Atención",
+      "opt_tipo": "Tipo de Establecimiento",
+      "active_filters": "Filtros Activos ({count})",
+      "badge_estado": "Estado",
+      "badge_institucion": "Institución",
+      "badge_nivel": "Nivel",
+      "badge_tipo": "Tipo",
+      "clear_all": "Limpiar Todo",
+      "hint_no_filters": "Haz clic en las barras o elementos de los gráficos para aplicar filtros cruzados."
+    },
+    "NationalHealthcareMap": {
+      "initializing_map": "Inicializando motor geográfico...",
+      "synthesizing_coords": "Sintetizando coordenadas de infraestructura...",
+      "street_view": "Street View",
+      "view_not_available": "VISTA NO DISPONIBLE",
+      "institution": "Institución:",
+      "type": "Tipo:",
+      "level": "Nivel:",
+      "location": "Ubicación:",
+      "clues": "CLUES: {clues}",
+      "google_maps": "Google Maps"
+    },
+    "StateDistributionChart": {
+      "loading": "Procesando censo por entidad federativa...",
+      "error_title": "Error al consultar datos por estado",
+      "error_desc": "No fue posible conectar con el motor de analítica.",
+      "total": "Total",
+      "units": "{count} unidades"
+    }
+  },
+
+  "DependentVaccineAlert": {
+    "delayed_count": "{count, plural, =1 {1 Dosis Pendiente} other {{count} Dosis Pendientes}}",
+    "tooltip_title": "Vacunas Pendientes",
+    "tooltip_desc": "Se {count, plural, =1 {identificó 1 vacuna} other {identificaron {count} vacunas}} pendientes en el historial. Haz clic para registrar la aplicación o programar una cita."
+  },
+  "GrowthMeasurementForm": {
+    "form_title": "Registrar Nueva Medición",
+    "warn_empty": "Ingresa al menos un dato (Peso, Talla o Perímetro Cefálico).",
+    "label_date": "Fecha de Medición",
+    "select_date_placeholder": "Seleccionar fecha",
+    "label_weight": "Peso (kg)",
+    "placeholder_weight": "Ej. 14.5",
+    "label_height": "Talla / Estatura (cm)",
+    "placeholder_height": "Ej. 95.5",
+    "label_head": "Perímetro Cefálico (cm)",
+    "placeholder_head": "Ej. 48.0",
+    "btn_submit": "Guardar Medición"
   },
 
   "PatientFavoritesDashboard": {
