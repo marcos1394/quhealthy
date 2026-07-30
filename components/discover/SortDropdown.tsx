@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowDownAZ,
   Star,
   MapPin,
   DollarSign,
@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const SortDropdown = () => {
+  const t = useTranslations("Discover.SortDropdown");
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentSort = searchParams.get("sort") || "relevance";
@@ -26,7 +27,7 @@ export const SortDropdown = () => {
   const handleSortChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("sort", value);
-    // Restart pagination when sorting changes
+    // Reiniciar paginación al cambiar el orden
     params.delete("page");
     router.replace(`?${params.toString()}`);
   };
@@ -34,34 +35,33 @@ export const SortDropdown = () => {
   const getSortLabel = () => {
     switch (currentSort) {
       case "relevance":
-        return "Recomendados";
+        return t("relevance");
       case "price_asc":
-        return "Menor Precio";
+        return t("price_asc");
       case "price_desc":
-        return "Mayor Precio";
+        return t("price_desc");
       case "distance":
-        return "Más Cercanos";
+        return t("distance");
       case "rating":
-        return "Mejor Evaluados";
+        return t("rating");
       default:
-        return "Recomendados";
+        return t("relevance");
     }
   };
 
   const getSortIcon = () => {
     switch (currentSort) {
       case "relevance":
-        return <TrendingUp className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />;
+        return <TrendingUp className="w-3.5 h-3.5 mr-1.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />;
       case "price_asc":
-        return <DollarSign className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />;
       case "price_desc":
-        return <DollarSign className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />;
+        return <DollarSign className="w-3.5 h-3.5 mr-1.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />;
       case "distance":
-        return <MapPin className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />;
+        return <MapPin className="w-3.5 h-3.5 mr-1.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />;
       case "rating":
-        return <Star className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />;
+        return <Star className="w-3.5 h-3.5 mr-1.5 text-amber-500 fill-amber-500" strokeWidth={2} />;
       default:
-        return <TrendingUp className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />;
+        return <TrendingUp className="w-3.5 h-3.5 mr-1.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />;
     }
   };
 
@@ -71,59 +71,74 @@ export const SortDropdown = () => {
         <Button
           variant="outline"
           size="sm"
-          className="rounded-none h-8 px-4 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap transition-colors border-gray-300 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:border-black dark:hover:border-white shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]"
+          className="rounded-xl h-10 px-3.5 text-xs font-bold whitespace-nowrap transition-all border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:border-emerald-500/30 hover:bg-gray-50 dark:hover:bg-[#111] shadow-2xs font-sans cursor-pointer"
         >
-          {getSortIcon()} {getSortLabel()}
+          {getSortIcon()}
+          <span>{getSortLabel()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-48 bg-white dark:bg-black border-black dark:border-white rounded-none shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] z-50"
+        className="w-48 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl p-1.5 font-sans z-50 space-y-0.5"
       >
         <DropdownMenuItem
           className={cn(
-            "cursor-pointer font-bold uppercase tracking-widest text-[10px] rounded-none",
-            currentSort === "relevance" && "bg-gray-100 dark:bg-gray-900",
+            "cursor-pointer font-bold text-xs px-3 py-2.5 rounded-xl transition-colors focus:bg-gray-50 dark:focus:bg-[#111]",
+            currentSort === "relevance" &&
+              "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
           )}
           onClick={() => handleSortChange("relevance")}
         >
-          <TrendingUp className="w-3 h-3 mr-2" strokeWidth={2} /> Recomendados
+          <TrendingUp className="w-3.5 h-3.5 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>{t("relevance")}</span>
         </DropdownMenuItem>
+
         <DropdownMenuItem
           className={cn(
-            "cursor-pointer font-bold uppercase tracking-widest text-[10px] rounded-none",
-            currentSort === "distance" && "bg-gray-100 dark:bg-gray-900",
+            "cursor-pointer font-bold text-xs px-3 py-2.5 rounded-xl transition-colors focus:bg-gray-50 dark:focus:bg-[#111]",
+            currentSort === "distance" &&
+              "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
           )}
           onClick={() => handleSortChange("distance")}
         >
-          <MapPin className="w-3 h-3 mr-2" strokeWidth={2} /> Más Cercanos
+          <MapPin className="w-3.5 h-3.5 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>{t("distance")}</span>
         </DropdownMenuItem>
+
         <DropdownMenuItem
           className={cn(
-            "cursor-pointer font-bold uppercase tracking-widest text-[10px] rounded-none",
-            currentSort === "price_asc" && "bg-gray-100 dark:bg-gray-900",
+            "cursor-pointer font-bold text-xs px-3 py-2.5 rounded-xl transition-colors focus:bg-gray-50 dark:focus:bg-[#111]",
+            currentSort === "price_asc" &&
+              "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
           )}
           onClick={() => handleSortChange("price_asc")}
         >
-          <DollarSign className="w-3 h-3 mr-2" strokeWidth={2} /> Menor Precio
+          <DollarSign className="w-3.5 h-3.5 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>{t("price_asc")}</span>
         </DropdownMenuItem>
+
         <DropdownMenuItem
           className={cn(
-            "cursor-pointer font-bold uppercase tracking-widest text-[10px] rounded-none",
-            currentSort === "price_desc" && "bg-gray-100 dark:bg-gray-900",
+            "cursor-pointer font-bold text-xs px-3 py-2.5 rounded-xl transition-colors focus:bg-gray-50 dark:focus:bg-[#111]",
+            currentSort === "price_desc" &&
+              "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
           )}
           onClick={() => handleSortChange("price_desc")}
         >
-          <DollarSign className="w-3 h-3 mr-2" strokeWidth={2} /> Mayor Precio
+          <DollarSign className="w-3.5 h-3.5 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>{t("price_desc")}</span>
         </DropdownMenuItem>
+
         <DropdownMenuItem
           className={cn(
-            "cursor-pointer font-bold uppercase tracking-widest text-[10px] rounded-none",
-            currentSort === "rating" && "bg-gray-100 dark:bg-gray-900",
+            "cursor-pointer font-bold text-xs px-3 py-2.5 rounded-xl transition-colors focus:bg-gray-50 dark:focus:bg-[#111]",
+            currentSort === "rating" &&
+              "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
           )}
           onClick={() => handleSortChange("rating")}
         >
-          <Star className="w-3 h-3 mr-2" strokeWidth={2} /> Mejor Evaluados
+          <Star className="w-3.5 h-3.5 mr-2 text-amber-500 fill-amber-500" strokeWidth={2} />
+          <span>{t("rating")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

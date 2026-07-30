@@ -1,10 +1,15 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import React from "react";
-import useSWR from "swr";
-import { discoverService } from "@/services/discover.service";
-import { ChevronRight, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import useSWR from "swr";
+import { useTranslations } from "next-intl";
+import { ChevronRight, ShoppingBag, ArrowRight } from "lucide-react";
+
+import { discoverService } from "@/services/discover.service";
+import { cn } from "@/lib/utils";
 
 interface CrossSellingCarouselProps {
   itemType: "COURSE" | "PRODUCT";
@@ -17,24 +22,31 @@ export const CrossSellingCarousel: React.FC<CrossSellingCarouselProps> = ({
   title,
   subtitle,
 }) => {
+  const t = useTranslations("Discover.CrossSellingCarousel");
+
   const { data: items, isLoading } = useSWR(
     ["/discover/cross-selling", itemType],
     () => discoverService.getCrossSellingRecommendations(itemType, 10),
     {
       revalidateOnFocus: false,
       dedupingInterval: 120000, // 2 minutos de caché para recomendaciones
-    },
+    }
   );
 
+  // ── ESTADO CARGANDO (SKELETON SOFT HEALTH) ───────────────────────────
   if (isLoading) {
     return (
-      <div className="py-8 w-full">
-        <div className="animate-pulse flex space-x-4 overflow-x-auto">
+      <div className="py-6 sm:py-8 w-full font-sans">
+        <div className="flex space-x-4 overflow-x-auto custom-scrollbar pb-4 select-none">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="min-w-[280px] h-40 bg-gray-200 rounded-xl"
-            />
+              className="min-w-[260px] sm:min-w-[300px] h-48 bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-3xl animate-pulse p-4 space-y-3"
+            >
+              <div className="w-full h-24 bg-gray-200/60 dark:bg-gray-800/60 rounded-2xl" />
+              <div className="w-3/4 h-4 bg-gray-200/60 dark:bg-gray-800/60 rounded-lg" />
+              <div className="w-1/2 h-3 bg-gray-200/60 dark:bg-gray-800/60 rounded-lg" />
+            </div>
           ))}
         </div>
       </div>
@@ -44,62 +56,87 @@ export const CrossSellingCarousel: React.FC<CrossSellingCarouselProps> = ({
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="py-8 w-full border-t border-gray-100 mt-8">
-      <div className="flex justify-between items-end mb-6">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+    <div className="py-6 sm:py-8 w-full border-t border-gray-100 dark:border-gray-800/80 mt-6 font-sans transition-colors">
+      {/* ── HEADER DE LA SECCIÓN ────────────────────────────────────── */}
+      <div className="flex justify-between items-end mb-4 sm:mb-6 gap-4">
+        <div className="space-y-0.5">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
             {title}
           </h2>
-          {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              {subtitle}
+            </p>
+          )}
         </div>
+
         <Link
           href={`/discover?type=${itemType.toLowerCase()}`}
-          className="text-primary hover:text-primary/80 text-sm font-medium flex items-center group"
+          className="text-xs font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 flex items-center gap-1 transition-colors shrink-0 group"
         >
-          Ver todos{" "}
-          <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+          <span>{t("view_all")}</span>
+          <ChevronRight
+            className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+            strokeWidth={2}
+          />
         </Link>
       </div>
 
-      <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide">
+      {/* ── CARRUSEL HORIZONTAL ──────────────────────────────────────── */}
+      <div
+        className="flex overflow-x-auto gap-4 sm:gap-5 pb-4 snap-x snap-mandatory scroll-smooth custom-scrollbar select-none"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
         {items.map((item) => (
           <Link
-            href={`/item/${item.id}`}
             key={item.id}
-            className="min-w-[280px] md:min-w-[320px] bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all group snap-start block"
+            href={`/item/${item.id}`}
+            className="min-w-[260px] sm:min-w-[300px] max-w-[320px] bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xs hover:shadow-md hover:border-emerald-500/30 transition-all duration-200 group snap-start flex flex-col justify-between"
           >
-            <div className="h-32 bg-gray-100 relative overflow-hidden">
+            {/* Contenedor de Imagen */}
+            <div className="h-32 bg-gray-50 dark:bg-[#050505] relative overflow-hidden shrink-0">
               {item.imageUrl ? (
                 <img
                   src={item.imageUrl}
                   alt={item.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-400">
-                  <ExternalLink className="w-8 h-8 opacity-20" />
+                <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-700">
+                  <ShoppingBag className="w-8 h-8 opacity-40" strokeWidth={1.5} />
                 </div>
               )}
+
               {item.category && (
-                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-xs font-semibold px-2 py-1 rounded-md text-gray-700 shadow-sm">
+                <div className="absolute top-3 left-3 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md text-[10px] font-bold px-2.5 py-0.5 rounded-full text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-800 shadow-2xs">
                   {item.category}
                 </div>
               )}
             </div>
 
-            <div className="p-4">
-              <h3 className="font-bold text-gray-900 line-clamp-1">
-                {item.name}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1 line-clamp-2 min-h-[40px]">
-                {item.description || "Sin descripción disponible"}
-              </p>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="font-bold text-lg">
-                  ${item.price?.toFixed(2)}
+            {/* Detalles del Ítem */}
+            <div className="p-4 flex flex-col flex-1 justify-between space-y-3">
+              <div className="space-y-1">
+                <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white tracking-tight line-clamp-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  {item.name}
+                </h3>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed min-h-[32px]">
+                  {item.description || t("no_description")}
+                </p>
+              </div>
+
+              {/* Precio y Acción */}
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
+                <span className="font-bold font-mono text-sm sm:text-base text-gray-900 dark:text-white">
+                  ${item.price != null ? item.price.toFixed(2) : "0.00"}
                 </span>
-                <span className="text-primary text-sm font-semibold hover:underline">
-                  Ver detalles
+
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <span>{t("view_details")}</span>
+                  <ArrowRight
+                    className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={2}
+                  />
                 </span>
               </div>
             </div>

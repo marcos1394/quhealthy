@@ -1,13 +1,19 @@
 "use client";
 
+/* eslint-disable react-doctor/button-has-type */
+
 import React, { useState, useEffect } from "react";
 import { Navigation } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import { useDiscoverFilters } from "@/hooks/useDiscoverFilters";
 import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 
 const PRESETS = [5, 10, 20, 50];
 
 export function DistanceFilter() {
+  const t = useTranslations("Discover.DistanceFilter");
   const { filters, setFilter } = useDiscoverFilters();
   const [radiusKm, setRadiusKm] = useState<number>(filters.radiusKm || 50);
 
@@ -20,35 +26,42 @@ export function DistanceFilter() {
   }, [filters.radiusKm]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-1.5 mb-1">
-        <Navigation className="w-3 h-3 text-gray-500" strokeWidth={2} />
-        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-          Distancia Máx. (KM)
+    <div className="space-y-4 font-sans transition-colors">
+      {/* Etiqueta del Filtro */}
+      <div className="flex items-center gap-2">
+        <Navigation className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+          {t("title")}
         </span>
       </div>
 
-      {/* Presets rápidos */}
-      <div className="flex flex-wrap gap-1.5">
-        {PRESETS.map((p) => (
-          <button
-            key={p}
-            onClick={() => {
-              setRadiusKm(p);
-              setFilter("radiusKm", p);
-            }}
-            className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest border transition-all duration-200 ${
-              filters.radiusKm === p
-                ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]"
-                : "bg-white text-black border-black dark:bg-[#0a0a0a] dark:text-white dark:border-white hover:shadow-[2px_2px_0_0_#000] dark:hover:shadow-[2px_2px_0_0_#fff]"
-            }`}
-          >
-            {p} km
-          </button>
-        ))}
+      {/* Presets Rápidos */}
+      <div className="flex flex-wrap gap-2">
+        {PRESETS.map((p) => {
+          const isSelected = filters.radiusKm === p;
+          return (
+            <button
+              key={p}
+              type="button"
+              onClick={() => {
+                setRadiusKm(p);
+                setFilter("radiusKm", p);
+              }}
+              className={cn(
+                "px-3 py-1.5 text-xs font-bold font-mono rounded-xl border transition-all cursor-pointer shadow-2xs",
+                isSelected
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                  : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-[#111] hover:border-emerald-500/30"
+              )}
+            >
+              {t("km_unit", { radius: p })}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="pt-6 pb-2 px-2">
+      {/* Contrenedor de Slider */}
+      <div className="pt-3 pb-1 px-1 space-y-2">
         <Slider
           value={[radiusKm]}
           max={100}
@@ -61,10 +74,13 @@ export function DistanceFilter() {
           }}
           className="w-full"
         />
-        <div className="flex justify-between mt-2 text-[10px] font-bold text-gray-500">
-          <span>0</span>
-          <span>{radiusKm} km</span>
-          <span>100+</span>
+
+        <div className="flex justify-between items-center text-[11px] font-mono font-bold text-gray-400">
+          <span>{t("zero_km")}</span>
+          <span className="text-emerald-600 dark:text-emerald-400 text-xs">
+            {t("km_unit", { radius: radiusKm })}
+          </span>
+          <span>{t("max_km")}</span>
         </div>
       </div>
     </div>

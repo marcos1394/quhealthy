@@ -1,13 +1,17 @@
 "use client";
 
+/* eslint-disable react-doctor/button-has-type */
+
 import React from "react";
 import { SlidersHorizontal, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+
 import { ModalityFilter } from "./ModalityFilter";
 import { PriceFilter } from "./PriceFilter";
 import { DistanceFilter } from "./DistanceFilter";
 import { useDiscoverFilters } from "@/hooks/useDiscoverFilters";
 import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
 
 interface FilterPanelProps {
   isCollapsed?: boolean;
@@ -18,6 +22,7 @@ export function FilterPanel({
   isCollapsed = false,
   onToggle,
 }: FilterPanelProps) {
+  const t = useTranslations("Discover.FilterPanel");
   const searchParams = useSearchParams();
   const searchType = searchParams.get("type") || "STORE";
 
@@ -30,82 +35,95 @@ export function FilterPanel({
 
   return (
     <div
-      className={cn(
-        "bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl sticky top-24 transition-all duration-300",
-        isCollapsed
-          ? "p-3 w-[60px] flex flex-col items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
-          : "p-5 w-[300px] space-y-6",
-      )}
+      role={isCollapsed && onToggle ? "button" : undefined}
+      tabIndex={isCollapsed && onToggle ? 0 : undefined}
       onClick={isCollapsed && onToggle ? onToggle : undefined}
+      onKeyDown={(e) => {
+        if (isCollapsed && onToggle && (e.key === "Enter" || e.key === " ")) {
+          onToggle();
+        }
+      }}
+      className={cn(
+        "bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-2xs rounded-3xl sticky top-24 transition-all duration-300 font-sans select-none shrink-0",
+        isCollapsed
+          ? "p-3 w-[60px] flex flex-col items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111] hover:border-emerald-500/30"
+          : "p-5 sm:p-6 w-[280px] sm:w-[300px] space-y-5"
+      )}
     >
-      {/* Header */}
+      {/* ── HEADER DEL PANEL ────────────────────────────────────────── */}
       <div
         className={cn(
           "flex items-center",
-          isCollapsed ? "justify-center" : "justify-between",
+          isCollapsed ? "justify-center" : "justify-between"
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
+            type="button"
             onClick={(e) => {
               if (!isCollapsed) {
                 e.stopPropagation();
                 onToggle?.();
               }
             }}
-            className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#1a1a1a] hover:bg-white dark:hover:bg-[#222] hover:shadow-sm transition-all cursor-pointer"
-            title={isCollapsed ? "Mostrar filtros" : "Ocultar filtros"}
+            aria-label={isCollapsed ? t("show_filters") : t("hide_filters")}
+            title={isCollapsed ? t("show_filters") : t("hide_filters")}
+            className="w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center bg-gray-50/50 dark:bg-[#050505] hover:bg-white dark:hover:bg-[#111] hover:border-emerald-500/30 text-gray-700 dark:text-gray-200 transition-all cursor-pointer shadow-2xs"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-black dark:text-white" />
+            <SlidersHorizontal className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
           </button>
           {!isCollapsed && (
-            <h2 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-              Filtros
+            <h2 className="text-xs font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("title")}
             </h2>
           )}
         </div>
+
         {!isCollapsed && hasActiveFilters && (
           <button
+            type="button"
             onClick={clearFilters}
-            className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+            className="flex items-center gap-1 text-xs font-bold text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
           >
-            <X className="w-3 h-3" />
-            Limpiar
+            <X className="w-3.5 h-3.5" strokeWidth={2} />
+            <span>{t("clear")}</span>
           </button>
         )}
       </div>
 
       {!isCollapsed && (
         <>
-          {/* Divider */}
-          <div className="w-full h-px bg-black dark:bg-white" />
+          {/* Divisor Separador */}
+          <div className="w-full h-px bg-gray-100 dark:bg-gray-800/80" />
 
-          {/* Filtro de Modalidad: Solo para Cursos, Servicios y Paquetes */}
+          {/* Filtro de Modalidad: Solo Cursos, Servicios y Paquetes */}
           {["COURSE", "SERVICE", "PACKAGE"].includes(searchType) && (
             <>
               <ModalityFilter />
-              <div className="w-full h-px bg-black dark:bg-white" />
+              <div className="w-full h-px bg-gray-100 dark:bg-gray-800/80" />
             </>
           )}
 
-          {/* Filtro de Precio: Para Productos, Cursos, Servicios y Paquetes (oculto en Tiendas) */}
+          {/* Filtro de Precio: Todo excepto Tiendas */}
           {searchType !== "STORE" && (
             <>
               <PriceFilter />
-              <div className="w-full h-px bg-black dark:bg-white" />
+              <div className="w-full h-px bg-gray-100 dark:bg-gray-800/80" />
             </>
           )}
 
           {/* Ubicación y Distancia */}
           <div className="space-y-4">
             <DistanceFilter />
-            <div className="w-full h-px bg-black dark:bg-white" />
-            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-              Ubicación
-            </span>
-            <p className="text-[10px] text-gray-600 uppercase tracking-wider font-bold">
-              Búsqueda por ciudad — próximamente
-            </p>
+            <div className="w-full h-px bg-gray-100 dark:bg-gray-800/80" />
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                {t("location")}
+              </span>
+              <p className="text-[11px] font-medium text-gray-400 leading-relaxed">
+                {t("city_search_soon")}
+              </p>
+            </div>
           </div>
         </>
       )}

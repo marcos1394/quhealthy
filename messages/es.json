@@ -1435,7 +1435,6 @@
     }
   },
 
-
   "BiomedicalEquipments": {
     "subtitle": "Ingeniería Clínica",
     "title": "Catálogo de Equipos",
@@ -2416,6 +2415,130 @@
     },
     "empty_title": "Sin documentos",
     "empty_desc": "No se encontraron documentos registrados en esta sección."
+  },
+
+  "Discover": {
+    "CategoryRow": {
+      "view_all": "Ver todos"
+    },
+    "CrossSellingCarousel": {
+      "view_all": "Ver todos",
+      "view_details": "Ver detalles",
+      "no_description": "Sin descripción disponible"
+    },
+    "DiscoverItemCard": {
+      "type_service": "Servicio",
+      "type_product": "Producto",
+      "type_package": "Paquete",
+      "type_course": "Curso",
+      "type_item": "Ítem",
+      "cta_service": "Reservar Cita",
+      "cta_product": "Comprar",
+      "cta_package": "Contratar",
+      "cta_course": "Inscribirme",
+      "cta_item": "Ver Detalle",
+      "modality_in_person": "Presencial",
+      "modality_online": "En Línea",
+      "modality_hybrid": "Híbrido",
+      "new_badge": "Nuevo",
+      "distance_prefix": "a {distance} km",
+      "price_rate": "Tarifa",
+      "price_enrollment": "Inscripción",
+      "price_price": "Precio",
+      "quote_required": "Por cotizar",
+      "min_short": "min"
+    },
+    "DiscoverServiceCard": {
+      "no_image": "Sin Imagen",
+      "modality_in_person": "Presencial",
+      "modality_online": "En Línea",
+      "modality_hybrid": "Híbrido",
+      "investment": "Inversión",
+      "distance": "a {distance} km",
+      "min_short": "MIN",
+      "no_description": "Servicio médico especializado"
+    },
+    "DistanceFilter": {
+      "title": "Distancia Máxima (KM)",
+      "km_unit": "{radius} km",
+      "zero_km": "0 km",
+      "max_km": "100+ km"
+    },
+    "FilterPanel": {
+      "title": "Filtros",
+      "show_filters": "Mostrar filtros",
+      "hide_filters": "Ocultar filtros",
+      "clear": "Limpiar",
+      "location": "Ubicación",
+      "city_search_soon": "Búsqueda por ciudad — próximamente"
+    },
+    "MarketplaceHeader": {
+      "search_placeholder": "Busca especialistas, clínicas o servicios...",
+      "type_store": "Clínicas y Especialistas",
+      "type_service": "Consultas y Procedimientos",
+      "type_package": "Paquetes de Salud",
+      "type_course": "Cursos y Clases",
+      "type_product": "Farmacia y Productos",
+      "filters": "Filtros",
+      "location_confirmed_title": "Ubicación Confirmada",
+      "location_confirmed_desc": "Buscando opciones cercanas...",
+      "verifying_permissions_title": "Verificando Permisos",
+      "verifying_permissions_desc": "Revisa la alerta de tu navegador",
+      "permission_denied_title": "Permiso Denegado",
+      "permission_denied_desc": "Tu navegador bloqueó el acceso a la ubicación. Puedes buscar manualmente en la barra superior.",
+      "find_options_title": "Encuentra opciones cerca de ti",
+      "find_options_desc": "Permítenos conocer tu ubicación para mostrarte especialistas y servicios disponibles en tu zona.",
+      "btn_understood": "Entendido",
+      "btn_allow": "Permitir",
+      "btn_not_now": "Ahora no"
+    },
+    "MarketplaceList": {
+      "no_results_title": "No encontramos coincidencias",
+      "no_results_desc": "Intenta ampliando los parámetros de tu búsqueda o eliminando algunos filtros.",
+      "loading": "Cargando...",
+      "load_more": "Cargar más opciones"
+    },
+    "MarketplaceMap": {
+      "sponsored": "Patrocinado",
+      "clinic_default": "Clínica / Especialidad",
+      "new_badge": "Nuevo",
+      "from": "Desde",
+      "view_store": "Ver Tienda",
+      "view_details": "Ver Detalles",
+      "show_ui": "Mostrar Interfaz"
+    },
+    "ModalityFilter": {
+      "title": "Modalidad",
+      "opt_any": "Cualquiera",
+      "opt_in_person": "Presencial",
+      "opt_online": "En Línea",
+      "opt_hybrid": "Híbrido"
+    },
+    "PriceFilter": {
+      "title": "Presupuesto Máximo",
+      "zero_price": "$0",
+      "max_price": "$10k+",
+      "only_discounts": "Solo ofertas y descuentos"
+    },
+    "ProviderCard": {
+      "recommended": "Recomendado",
+      "specialist_default": "Especialista",
+      "new_badge": "Nuevo",
+      "consultation_from": "Consulta desde",
+      "quote_required": "Por cotizar",
+      "location_label": "Ubicación",
+      "distance_km": "a {distance} km",
+      "location_not_specified": "No especificada",
+      "view_profile": "Ver Perfil",
+      "top_badge": "TOP"
+    },
+    "SortDropdown": {
+      "relevance": "Recomendados",
+      "distance": "Más Cercanos",
+      "price_asc": "Menor Precio",
+      "price_desc": "Mayor Precio",
+      "rating": "Mejor Evaluados"
+    }
   },
 
   

@@ -3040,6 +3040,130 @@
     "btn_post": "Post Entry"
   },
 
+  "Discover": {
+    "CategoryRow": {
+      "view_all": "View all"
+    },
+    "CrossSellingCarousel": {
+      "view_all": "View all",
+      "view_details": "View details",
+      "no_description": "No description available"
+    },
+    "DiscoverItemCard": {
+      "type_service": "Service",
+      "type_product": "Product",
+      "type_package": "Package",
+      "type_course": "Course",
+      "type_item": "Item",
+      "cta_service": "Book Appointment",
+      "cta_product": "Buy Now",
+      "cta_package": "Get Package",
+      "cta_course": "Enroll",
+      "cta_item": "View Details",
+      "modality_in_person": "In-Person",
+      "modality_online": "Online",
+      "modality_hybrid": "Hybrid",
+      "new_badge": "New",
+      "distance_prefix": "{distance} km away",
+      "price_rate": "Rate",
+      "price_enrollment": "Enrollment",
+      "price_price": "Price",
+      "quote_required": "Quote required",
+      "min_short": "min"
+    },
+    "DiscoverServiceCard": {
+      "no_image": "No Image",
+      "modality_in_person": "In-Person",
+      "modality_online": "Online",
+      "modality_hybrid": "Hybrid",
+      "investment": "Investment",
+      "distance": "{distance} km away",
+      "min_short": "MIN",
+      "no_description": "Specialized medical service"
+    },
+    "DistanceFilter": {
+      "title": "Max Distance (KM)",
+      "km_unit": "{radius} km",
+      "zero_km": "0 km",
+      "max_km": "100+ km"
+    },
+    "FilterPanel": {
+      "title": "Filters",
+      "show_filters": "Show filters",
+      "hide_filters": "Hide filters",
+      "clear": "Clear",
+      "location": "Location",
+      "city_search_soon": "City search — coming soon"
+    },
+    "MarketplaceHeader": {
+      "search_placeholder": "Search specialists, clinics, or services...",
+      "type_store": "Clinics & Specialists",
+      "type_service": "Consultations & Procedures",
+      "type_package": "Health Packages",
+      "type_course": "Courses & Classes",
+      "type_product": "Pharmacy & Products",
+      "filters": "Filters",
+      "location_confirmed_title": "Location Confirmed",
+      "location_confirmed_desc": "Searching nearby options...",
+      "verifying_permissions_title": "Verifying Permissions",
+      "verifying_permissions_desc": "Check your browser prompt",
+      "permission_denied_title": "Permission Denied",
+      "permission_denied_desc": "Your browser blocked location access. You can search manually using the bar above.",
+      "find_options_title": "Find options near you",
+      "find_options_desc": "Allow location access to view specialists and services available in your area.",
+      "btn_understood": "Got it",
+      "btn_allow": "Allow",
+      "btn_not_now": "Not now"
+    },
+    "MarketplaceList": {
+      "no_results_title": "No matches found",
+      "no_results_desc": "Try broadening your search parameters or removing some filters.",
+      "loading": "Loading...",
+      "load_more": "Load more options"
+    },
+    "MarketplaceMap": {
+      "sponsored": "Sponsored",
+      "clinic_default": "Clinic / Specialty",
+      "new_badge": "New",
+      "from": "From",
+      "view_store": "View Store",
+      "view_details": "View Details",
+      "show_ui": "Show Interface"
+    },
+    "ModalityFilter": {
+      "title": "Modality",
+      "opt_any": "Any",
+      "opt_in_person": "In-Person",
+      "opt_online": "Online",
+      "opt_hybrid": "Hybrid"
+    },
+    "PriceFilter": {
+      "title": "Max Budget",
+      "zero_price": "$0",
+      "max_price": "$10k+",
+      "only_discounts": "Deals & discounts only"
+    },
+    "ProviderCard": {
+      "recommended": "Recommended",
+      "specialist_default": "Specialist",
+      "new_badge": "New",
+      "consultation_from": "Consultation from",
+      "quote_required": "Quote required",
+      "location_label": "Location",
+      "distance_km": "{distance} km away",
+      "location_not_specified": "Not specified",
+      "view_profile": "View Profile",
+      "top_badge": "TOP"
+    },
+    "SortDropdown": {
+      "relevance": "Recommended",
+      "distance": "Closest",
+      "price_asc": "Lowest Price",
+      "price_desc": "Highest Price",
+      "rating": "Top Rated"
+    }
+  },
+
   "AccountingMapping": {
     "title": "Automatic Account Mapping",
     "subtitle": "Set up rules to automatically generate journal entries.",

@@ -1,41 +1,35 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  Award,
-  PlayCircle,
-  Star,
-  Navigation,
-  ChevronRight,
-  User,
-  Image as ImageIcon,
-  Loader2,
-  Search,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useEffect, useMemo } from "react";
+import { AnimatePresence } from "framer-motion";
+import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 import { useDiscoverContext } from "./context/DiscoverContext";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { useProviderScore } from "@/hooks/useProviderScore";
-import { ProviderScoreBadge } from "@/components/provider/ProviderScoreBadge";
-import { FavoriteButton } from "@/components/ui/FavoriteButton";
-import { DiscoverProvider } from "@/types/discover";
-import { ProviderScoreResponse } from "@/types/providerScore";
 import { DiscoverItemCard } from "@/components/discover/DiscoverItemCard";
 import { FilterPanel } from "@/components/discover/FilterPanel";
 import { ProviderCard } from "@/components/discover/ProviderCard";
 import { DiscoverSkeleton } from "./DiscoverSkeleton";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
-export const MarketplaceList = ({
+interface MarketplaceListProps {
+  setAuthGateContext: (ctx: any) => void;
+  setAuthGateOpen: (open: boolean) => void;
+}
+
+export const MarketplaceList: React.FC<MarketplaceListProps> = ({
   setAuthGateContext,
   setAuthGateOpen,
-}: {
-  setAuthGateContext: any;
-  setAuthGateOpen: any;
 }) => {
+  const t = useTranslations("Discover.MarketplaceList");
+
   const {
     viewMode,
     searchType,
@@ -62,6 +56,7 @@ export const MarketplaceList = ({
     isLoading: isSessionLoading,
     token,
   } = useSessionStore();
+
   const canUseFavorites =
     _hasHydrated && !isSessionLoading && isAuthenticated && !!token;
 
@@ -69,8 +64,8 @@ export const MarketplaceList = ({
     searchType === "STORE"
       ? "PROVIDER"
       : (searchType as "PACKAGE" | "COURSE" | "PRODUCT" | "SERVICE");
-  const { favoriteIds } = useMyFavorites(currentEntityForFavs);
 
+  const { favoriteIds } = useMyFavorites(currentEntityForFavs);
   const { batchScores, fetchBatchScores } = useProviderScore();
 
   useEffect(() => {
@@ -102,26 +97,27 @@ export const MarketplaceList = ({
           coordinates.lat,
           coordinates.lng,
           p.lat,
-          p.lng,
+          p.lng
         );
       }
       return { ...p, distanceKm: distance };
     });
   }, [providers, coordinates, calculateDistance]);
 
+  // ── ESTADO CARGANDO (SKELETON) ───────────────────────────────────────
   if (isLoading) {
     return (
       <div
         className={cn(
-          "absolute z-20 pointer-events-none transition-all duration-500",
+          "absolute z-20 pointer-events-none transition-all duration-300 font-sans",
           viewMode === "MAP"
             ? cn(
                 "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] md:overflow-hidden md:flex md:flex-col",
                 isMapImmersive
                   ? "translate-y-[150%] md:-translate-x-[150%] opacity-0"
-                  : "translate-y-0 opacity-100",
+                  : "translate-y-0 opacity-100"
               )
-            : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4",
+            : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4"
         )}
       >
         <DiscoverSkeleton />
@@ -129,54 +125,56 @@ export const MarketplaceList = ({
     );
   }
 
+  const hasNoResults =
+    searchType === "STORE"
+      ? enrichedProviders.length === 0
+      : items.length === 0;
+
   return (
     <div
       className={cn(
-        "absolute z-20 pointer-events-none transition-all duration-500",
+        "absolute z-20 pointer-events-none transition-all duration-300 font-sans",
         viewMode === "MAP"
           ? cn(
               "bottom-6 left-0 w-full md:top-28 md:bottom-6 md:left-8 md:w-[460px] md:overflow-hidden md:flex md:flex-col",
               isMapImmersive
                 ? "translate-y-[150%] md:-translate-x-[150%] opacity-0"
-                : "translate-y-0 opacity-100",
+                : "translate-y-0 opacity-100"
             )
-          : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4",
+          : "top-32 left-4 right-4 md:left-8 md:right-8 md:bottom-8 bottom-4"
       )}
     >
-      {(
-        searchType === "STORE"
-          ? enrichedProviders.length === 0
-          : items.length === 0
-      ) ? (
-        <div className="w-[90%] md:w-full mx-auto bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-10 text-center pointer-events-auto shadow-sm rounded-2xl flex flex-col items-center justify-center min-h-[300px]">
-          <div className="bg-white dark:bg-black p-4 rounded-full shadow-sm mb-4">
-            <Search
-              className="w-8 h-8 text-teal-600 dark:text-teal-400"
-              strokeWidth={1.5}
-            />
+      {hasNoResults ? (
+        /* ── ESTADO SIN RESULTADOS ─────────────────────────────────── */
+        <div className="w-[92%] md:w-full mx-auto bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-8 sm:p-10 text-center pointer-events-auto shadow-sm rounded-3xl flex flex-col items-center justify-center min-h-[300px] space-y-3">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs shrink-0">
+            <Search className="w-7 h-7" strokeWidth={2} />
           </div>
-          <h3 className="text-gray-900 dark:text-white font-semibold text-lg tracking-tight mb-2">
-            No encontramos coincidencias
-          </h3>
-          <p className="text-gray-500 text-sm font-medium max-w-sm mx-auto">
-            Intenta ampliando los parámetros de tu búsqueda o eliminando algunos
-            filtros.
-          </p>
+          <div className="space-y-1">
+            <h3 className="text-gray-900 dark:text-white font-bold text-base sm:text-lg tracking-tight">
+              {t("no_results_title")}
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-xs font-medium max-w-sm mx-auto leading-relaxed">
+              {t("no_results_desc")}
+            </p>
+          </div>
         </div>
       ) : (
+        /* ── CONTENEDOR PRINCIPAL DE RESULTADOS ──────────────────────── */
         <div
           className={cn(
             "w-full pointer-events-auto custom-scrollbar h-full overflow-y-auto",
             viewMode === "MAP"
-              ? "flex overflow-x-auto overflow-y-hidden gap-3 pb-4 md:flex-col md:flex-1 md:overflow-x-hidden md:overflow-y-auto md:gap-3 md:pb-6 px-4 md:px-0"
-              : "pb-20 md:pb-0 flex gap-8 max-w-7xl mx-auto",
+              ? "flex overflow-x-auto overflow-y-hidden gap-3.5 pb-4 md:flex-col md:flex-1 md:overflow-x-hidden md:overflow-y-auto md:gap-3.5 md:pb-6 px-4 md:px-0"
+              : "pb-20 md:pb-0 flex gap-6 max-w-7xl mx-auto"
           )}
         >
+          {/* Panel Lateral de Filtros (Vista GRID) */}
           {viewMode === "GRID" && (
             <aside
               className={cn(
-                "hidden md:block flex-shrink-0 transition-all duration-300",
-                isFiltersOpen ? "w-[300px]" : "w-[60px]",
+                "hidden md:block shrink-0 transition-all duration-300",
+                isFiltersOpen ? "w-[300px]" : "w-[60px]"
               )}
             >
               <FilterPanel
@@ -186,13 +184,14 @@ export const MarketplaceList = ({
             </aside>
           )}
 
+          {/* Rejilla/Lista de Tarjetas */}
           <div
             className={cn(
               viewMode === "GRID"
                 ? isFiltersOpen
-                  ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start transition-all duration-300"
-                  : "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start transition-all duration-300"
-                : "flex gap-3 md:flex-col md:gap-3 w-full",
+                  ? "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-start transition-all duration-300"
+                  : "flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start transition-all duration-300"
+                : "flex gap-3.5 md:flex-col md:gap-3.5 w-full"
             )}
           >
             <AnimatePresence>
@@ -222,51 +221,50 @@ export const MarketplaceList = ({
                   ))}
             </AnimatePresence>
 
+            {/* Cargar más en Modo GRID */}
             {!isReachingEnd && viewMode === "GRID" && (
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center mt-8 mb-8 w-full">
-                <Button
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 flex justify-center mt-6 mb-8 w-full">
+                <button
+                  type="button"
                   onClick={loadMore}
                   disabled={isLoadingMore}
-                  className="h-12 px-8 bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all rounded-none font-bold uppercase tracking-widest text-[11px]"
+                  className="h-11 px-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoadingMore ? (
                     <>
-                      <Loader2
-                        className="w-4 h-4 mr-2 animate-spin"
-                        strokeWidth={2}
-                      />{" "}
-                      CARGANDO...
+                      <QhSpinner size="sm" className="text-white" />
+                      <span>{t("loading")}</span>
                     </>
                   ) : (
-                    "CARGAR MÁS OPCIONES"
+                    <span>{t("load_more")}</span>
                   )}
-                </Button>
+                </button>
               </div>
             )}
           </div>
 
+          {/* Cargar más en Modo MAP */}
           {!isReachingEnd && viewMode === "MAP" && (
-            <div className="w-full shrink-0 flex justify-center mt-12 mb-8 pr-4 md:pr-0">
-              <Button
+            <div className="w-full shrink-0 flex justify-center mt-6 mb-8 pr-4 md:pr-0">
+              <button
+                type="button"
                 onClick={loadMore}
                 disabled={isLoadingMore}
-                className="h-12 px-8 bg-white dark:bg-black text-black dark:text-white border-2 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all rounded-none font-bold uppercase tracking-widest text-[11px]"
+                className="h-11 px-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoadingMore ? (
                   <>
-                    <Loader2
-                      className="w-4 h-4 mr-2 animate-spin"
-                      strokeWidth={2}
-                    />{" "}
-                    CARGANDO...
+                    <QhSpinner size="sm" className="text-white" />
+                    <span>{t("loading")}</span>
                   </>
                 ) : (
-                  "CARGAR MÁS OPCIONES"
+                  <span>{t("load_more")}</span>
                 )}
-              </Button>
+              </button>
             </div>
           )}
-          <div className="w-6 md:hidden flex-shrink-0" />
+
+          <div className="w-6 md:hidden shrink-0" />
         </div>
       )}
     </div>
