@@ -147,8 +147,8 @@ export const DiscoverItemCard = ({
         }
       }}
       className={cn(
-        "group flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer rounded-3xl shadow-2xs hover:shadow-md font-sans select-none overflow-hidden relative h-full",
-        isGrid ? "w-full" : "w-72 shrink-0 md:w-full"
+        "group flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer rounded-3xl shadow-2xs hover:shadow-md font-sans select-none overflow-hidden relative",
+        isGrid ? "w-full h-full" : "w-72 shrink-0 md:w-full self-start"
       )}
     >
       {/* ── IMAGEN DE PORTADA ───────────────────────────────────────── */}
