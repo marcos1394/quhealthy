@@ -1,7 +1,12 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Edit2, Trash2, Sparkles, Camera } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import {
   AlertDialog,
   AlertDialogContent,
@@ -10,15 +15,9 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { motion, AnimatePresence } from "framer-motion";
-import { Edit2, Trash2, Sparkles, Camera } from "lucide-react";
-import { useTranslations } from "next-intl";
-
-import { UI_Package } from "@/types/catalog";
-import { UI_Service } from "@/types/catalog";
+import { UI_Package, UI_Service } from "@/types/catalog";
 import { GalleryUploadManager } from "@/components/ui/gallery/GalleryUploadManager";
 import { BeforeAfterUploader } from "@/components/ui/gallery/BeforeAfterUploader";
-import { cn } from "@/lib/utils";
 
 interface PackageItemCardProps {
   pkg: UI_Package;
@@ -37,7 +36,7 @@ export function PackageItemCard({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  // Helpers de cálculo
+  // Helpers de cálculo de valor real y ahorro
   const realVal = (pkg.packageItems || []).reduce((sum, item) => {
     const s = availableServices.find((srv) => srv.id === item.id);
     return sum + (s ? s.price * item.quantity : 0);
@@ -47,24 +46,31 @@ export function PackageItemCard({
   const savingsPerc =
     realVal > 0 ? Math.round((savingsAmt / realVal) * 100) : 0;
 
+  const totalServicesCount = (pkg.packageItems || []).reduce(
+    (acc, i) => acc + i.quantity,
+    0
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
-      className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl transition-colors hover:border-emerald-200 dark:hover:border-emerald-900/30 overflow-hidden shadow-sm"
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl transition-all hover:border-emerald-500/30 overflow-hidden shadow-2xs font-sans select-none"
     >
-      {/* --- CABECERA (DATOS Y COMANDOS) --- */}
-      <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col gap-4 bg-gray-50/50 dark:bg-[#050505]/50">
+      {/* ── CABECERA DE DATOS Y ACCIONES ────────────────────────────── */}
+      <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex flex-col gap-3 bg-gray-50/60 dark:bg-[#050505]">
         <div className="flex justify-between items-start gap-4">
-          <div className="flex flex-col gap-2">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-none">
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight truncate">
               {pkg.name}
             </h3>
+
             {savingsAmt > 0 && (
-              <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5 w-fit shadow-sm">
+              <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-2.5 py-0.5 text-[11px] font-bold rounded-full flex items-center gap-1.5 w-fit shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
-                {savingsPerc}% de ahorro
+                <span>{t("savings_percent", { percent: savingsPerc })}</span>
               </span>
             )}
           </div>
@@ -72,93 +78,101 @@ export function PackageItemCard({
           {/* Controles de Acción */}
           <div className="flex items-center gap-2 shrink-0">
             <button
+              type="button"
               onClick={() => onEdit(pkg)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-[#111] dark:hover:text-white transition-colors shadow-sm"
-              title={t("edit_btn", { defaultValue: "Editar Paquete" })}
+              className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all shadow-2xs cursor-pointer"
+              title={t("edit_btn")}
             >
               <Edit2 className="w-4 h-4" strokeWidth={2} />
             </button>
+
             <button
+              type="button"
               onClick={() => setIsDeleteModalOpen(true)}
-              className="w-10 h-10 flex items-center justify-center rounded-xl border border-red-100 dark:border-red-900/30 text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/10 transition-colors shadow-sm"
-              title={t("delete_btn", { defaultValue: "Eliminar Paquete" })}
+              className="w-9 h-9 flex items-center justify-center rounded-xl border border-rose-200 dark:border-rose-900/40 bg-white dark:bg-[#0a0a0a] text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all shadow-2xs cursor-pointer"
+              title={t("delete_btn")}
             >
               <Trash2 className="w-4 h-4" strokeWidth={2} />
             </button>
           </div>
         </div>
 
-        <p className="text-sm font-medium text-gray-500 line-clamp-2 leading-relaxed">
-          {pkg.description || "Paquete personalizado de servicios clínicos."}
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+          {pkg.description || t("default_desc")}
         </p>
       </div>
 
-      {/* --- INVENTARIO DE SERVICIOS (CHIPS TÉCNICOS) --- */}
-      <div className="p-6 flex-1 flex flex-col bg-white dark:bg-[#0a0a0a]">
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block">
-          Contenido del Paquete
+      {/* ── INVENTARIO DE SERVICIOS (CHIPS) ─────────────────────────── */}
+      <div className="p-6 flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] space-y-3">
+        <span className="text-xs font-bold text-gray-800 dark:text-gray-200 tracking-tight">
+          {t("package_content")}
         </span>
+
         <div className="flex flex-wrap gap-2 content-start">
           {(pkg.packageItems || []).map((item) => {
             const s = availableServices.find(
-              (service) => service.id === item.id,
+              (service) => service.id === item.id
             );
             return s && item.quantity > 0 ? (
               <span
                 key={item.id}
-                className="text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm"
+                className="text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-50/80 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-2xs"
               >
-                <div className="flex items-center justify-center bg-gray-200 dark:bg-gray-800 rounded-full px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:text-gray-400">
+                <span className="flex items-center justify-center bg-gray-200 dark:bg-gray-800 rounded-lg px-2 py-0.5 text-[10px] font-bold font-mono text-gray-800 dark:text-gray-200">
                   {item.quantity}x
-                </div>
-                {s.name}
+                </span>
+                <span>{s.name}</span>
               </span>
             ) : null;
           })}
         </div>
       </div>
 
-      {/* --- BOTÓN PARA TOGGLE DE GALERÍAS --- */}
-      <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex justify-center bg-gray-50/50 dark:bg-[#050505]/50">
+      {/* ── BOTÓN TOGGLE DE GALERÍAS ─────────────────────────────────── */}
+      <div className="p-3.5 border-t border-gray-100 dark:border-gray-800 flex justify-center bg-gray-50/40 dark:bg-[#050505]">
         <button
+          type="button"
           onClick={() => setIsGalleryOpen(!isGalleryOpen)}
-          className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl shadow-sm"
+          className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 px-4 py-2 rounded-xl shadow-2xs cursor-pointer"
         >
-          <Camera className="w-4 h-4" strokeWidth={2} />
-          {isGalleryOpen ? "Ocultar Galerías" : "Gestionar Galerías (Opcional)"}
+          <Camera className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>
+            {isGalleryOpen ? t("hide_galleries") : t("manage_galleries")}
+          </span>
         </button>
       </div>
 
-      {/* --- GALERÍAS DEL PAQUETE (TOGGLEABLE) --- */}
+      {/* ── GALERÍAS DEL PAQUETE (ACORDEÓN) ─────────────────────────── */}
       <AnimatePresence>
         {isGalleryOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-[#050505] shrink-0 shadow-sm">
-                  <Camera className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] space-y-8">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+                  <Camera className="w-5 h-5" strokeWidth={2} />
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                    Galería del Paquete
+                <div className="space-y-0.5">
+                  <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+                    {t("gallery_title")}
                   </h3>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">
-                    Muestra resultados integrales y transformaciones.
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {t("gallery_subtitle")}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-12">
+              <div className="space-y-8">
                 <GalleryUploadManager
                   galleryType="SERVICE_WORK"
                   catalogItemId={pkg.id}
-                  title="Fotos del Resultado"
-                  description="Añade fotos sobre los resultados que incluye este paquete."
+                  title={t("result_photos_title")}
+                  description={t("result_photos_desc")}
                   maxImages={5}
                 />
 
@@ -171,76 +185,73 @@ export function PackageItemCard({
         )}
       </AnimatePresence>
 
-      {/* --- TOTALES (FOOTER DE PRECIOS) --- */}
-      <div className="p-6 bg-gray-50 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex items-end justify-between shrink-0">
-        <div className="flex flex-col">
+      {/* ── FOOTER DE PRECIOS Y TOTALES ──────────────────────────────── */}
+      <div className="p-6 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex items-end justify-between shrink-0">
+        <div className="flex flex-col space-y-0.5">
           {savingsAmt > 0 && (
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs text-gray-400 line-through font-mono font-medium">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-xs font-mono font-semibold text-gray-400 line-through">
                 ${realVal}
               </span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                Ahorras ${savingsAmt}
+                {t("savings_amount", { amount: savingsAmt })}
               </span>
             </div>
           )}
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-bold text-gray-900 dark:text-white leading-none">
+            <span className="text-2xl font-mono font-black text-gray-900 dark:text-white tracking-tight leading-none">
               ${pkg.price}
             </span>
-            <span className="text-xs font-semibold text-gray-500 uppercase">
+            <span className="text-xs font-bold text-gray-400 uppercase">
               MXN
             </span>
           </div>
         </div>
 
-        <span className="text-xs font-bold text-gray-600 dark:text-gray-400 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-700 px-3 py-1.5 rounded-xl shadow-sm">
-          {(pkg.packageItems || []).reduce((acc, i) => acc + i.quantity, 0)}{" "}
-          {(pkg.packageItems || []).reduce((acc, i) => acc + i.quantity, 0) ===
-          1
-            ? "Servicio"
-            : "Servicios"}
+        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 px-3 py-1.5 rounded-xl shadow-2xs font-mono">
+          {t("services_count", { count: totalServicesCount })}
         </span>
       </div>
 
-      {/* Soft Confirmation Modal */}
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-3xl p-0 overflow-hidden shadow-2xl sm:max-w-md [&>button]:hidden">
+      {/* ── MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ───────────────────── */}
+      <AlertDialog
+        open={isDeleteModalOpen}
+        onOpenChange={setIsDeleteModalOpen}
+      >
+        <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-0 overflow-hidden shadow-2xl sm:max-w-md [&>button]:hidden font-sans">
           <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800">
-            <AlertDialogHeader className="space-y-4">
+            <AlertDialogHeader className="space-y-3">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0 border border-red-100 dark:border-red-900/30">
-                  <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" strokeWidth={2} />
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-2xs">
+                  <Trash2 className="w-6 h-6" strokeWidth={2} />
                 </div>
-                <AlertDialogTitle className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
-                  {t("delete_confirm_title", {
-                    defaultValue: "Eliminar Paquete",
-                  })}
+                <AlertDialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                  {t("delete_confirm_title")}
                 </AlertDialogTitle>
               </div>
-              <AlertDialogDescription className="text-sm text-gray-500 font-medium leading-relaxed text-left">
-                {t("delete_confirm_message", {
-                  defaultValue:
-                    "¿Estás seguro de que deseas eliminar este paquete? Esta acción no se puede deshacer.",
-                })}
+              <AlertDialogDescription className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed text-left">
+                {t("delete_confirm_message")}
               </AlertDialogDescription>
             </AlertDialogHeader>
           </div>
-          <AlertDialogFooter className="p-6 bg-gray-50 dark:bg-[#050505] flex flex-row gap-3 sm:space-x-0 border-none">
+
+          <AlertDialogFooter className="p-5 bg-gray-50/60 dark:bg-[#050505] flex flex-row gap-3 sm:space-x-0 border-none justify-end">
             <button
+              type="button"
               onClick={() => setIsDeleteModalOpen(false)}
-              className="flex-1 h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors shadow-sm"
+              className="flex-1 h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all shadow-2xs cursor-pointer"
             >
-              Cancelar
+              {t("cancel")}
             </button>
             <button
+              type="button"
               onClick={() => {
                 onDelete(pkg.id);
                 setIsDeleteModalOpen(false);
               }}
-              className="flex-1 h-12 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
+              className="flex-1 h-11 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all shadow-xs cursor-pointer border-0"
             >
-              Sí, eliminar
+              {t("confirm_delete")}
             </button>
           </AlertDialogFooter>
         </AlertDialogContent>

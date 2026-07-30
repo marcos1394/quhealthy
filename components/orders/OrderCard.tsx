@@ -1,5 +1,11 @@
-import React from "react";
-import { m } from "framer-motion";
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import {
   Package,
   Truck,
@@ -7,99 +13,24 @@ import {
   Clock,
   MapPin,
   AlertCircle,
-  Check,
   ExternalLink,
   FileText,
   ReceiptText,
+  Check,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
 
 type StatusKey =
   | "PENDING_PAYMENT"
+  | "PENDING_PRESCRIPTION_REVIEW"
   | "PROCESSING"
   | "SHIPPED"
   | "DELIVERED"
   | "CANCELLED"
   | string;
-
-const STATUS_CONFIG: Record<
-  string,
-  { label: string; color: string; accent: string; icon: React.ElementType }
-> = {
-  PENDING_PAYMENT: {
-    label: "PAGO PENDIENTE",
-    color:
-      "border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-900/10 dark:text-amber-400",
-    accent: "border-amber-500",
-    icon: Clock,
-  },
-  PENDING_PRESCRIPTION_REVIEW: {
-    label: "REVISIÓN DE RECETA",
-    color:
-      "border-gray-500 text-gray-600 bg-gray-50 dark:bg-gray-800/50 dark:text-gray-400",
-    accent: "border-gray-500",
-    icon: FileText,
-  },
-  PROCESSING: {
-    label: "PREPARANDO",
-    color:
-      "border-black text-black bg-gray-100 dark:border-white dark:text-white dark:bg-[#111]",
-    accent: "border-black dark:border-white",
-    icon: Package,
-  },
-  SHIPPED: {
-    label: "EN TRÁNSITO",
-    color:
-      "border-teal-500 text-teal-600 bg-teal-50 dark:bg-teal-900/10 dark:text-teal-400",
-    accent: "border-teal-500",
-    icon: Truck,
-  },
-  DELIVERED: {
-    label: "ENTREGADO",
-    color:
-      "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 dark:text-emerald-400",
-    accent: "border-emerald-500",
-    icon: CheckCircle2,
-  },
-  CANCELLED: {
-    label: "ANULADO",
-    color:
-      "border-red-500 text-red-600 bg-red-50 dark:bg-red-900/10 dark:text-red-400",
-    accent: "border-red-500",
-    icon: AlertCircle,
-  },
-};
-
-function getStatusConfig(status: StatusKey) {
-  return (
-    STATUS_CONFIG[status?.toUpperCase()] ?? {
-      label: status,
-      color: "border-gray-300 text-gray-500 bg-transparent",
-      accent: "border-gray-300",
-      icon: Package,
-    }
-  );
-}
-
-function formatDate(dateString: string) {
-  return new Date(dateString + "Z")
-    .toLocaleDateString("es-MX", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    })
-    .toUpperCase();
-}
-
-function formatCurrency(amount: number) {
-  return amount.toLocaleString("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-  });
-}
 
 interface OrderCardProps {
   order: any;
@@ -108,57 +39,136 @@ interface OrderCardProps {
   onMarkAsDelivered: (id: number) => void;
 }
 
+function formatDate(dateString: string) {
+  if (!dateString) return "";
+  const str = String(dateString);
+  const hasTimezone = /(Z|[+-]\d{2}(:\d{2})?)$/.test(str);
+  const date = new Date(hasTimezone ? str : `${str}Z`);
+
+  return date.toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+}
+
+function formatCurrency(amount: number) {
+  return (amount || 0).toLocaleString("es-MX", {
+    style: "currency",
+    currency: "MXN",
+    minimumFractionDigits: 2,
+  });
+}
+
 export function OrderCard({
   order,
   index,
   isUpdating,
   onMarkAsDelivered,
 }: OrderCardProps) {
-  const statusCfg = getStatusConfig(order.orderStatus);
+  const t = useTranslations("OrderCard");
+
+  const statusConfigs = useMemo<
+    Record<
+      string,
+      { labelKey: string; color: string; icon: React.ElementType }
+    >
+  >(
+    () => ({
+      PENDING_PAYMENT: {
+        labelKey: "status_pending_payment",
+        color:
+          "bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-900/40",
+        icon: Clock,
+      },
+      PENDING_PRESCRIPTION_REVIEW: {
+        labelKey: "status_pending_prescription_review",
+        color:
+          "bg-sky-50 text-sky-800 dark:bg-sky-950/30 dark:text-sky-400 border-sky-200 dark:border-sky-900/40",
+        icon: FileText,
+      },
+      PROCESSING: {
+        labelKey: "status_processing",
+        color:
+          "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700",
+        icon: Package,
+      },
+      SHIPPED: {
+        labelKey: "status_shipped",
+        color:
+          "bg-sky-50 text-sky-800 dark:bg-sky-950/30 dark:text-sky-400 border-sky-200 dark:border-sky-900/40",
+        icon: Truck,
+      },
+      DELIVERED: {
+        labelKey: "status_delivered",
+        color:
+          "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40",
+        icon: CheckCircle2,
+      },
+      CANCELLED: {
+        labelKey: "status_cancelled",
+        color:
+          "bg-rose-50 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400 border-rose-200 dark:border-rose-900/40",
+        icon: AlertCircle,
+      },
+    }),
+    []
+  );
+
+  const statusKey = (order.orderStatus || "").toUpperCase();
+  const statusCfg = statusConfigs[statusKey] || {
+    labelKey: "status_processing",
+    color:
+      "bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700",
+    icon: Package,
+  };
+
   const StatusIcon = statusCfg.icon;
-  const isShipped = order.orderStatus === "SHIPPED";
-  const isDelivered = order.orderStatus === "DELIVERED";
+  const isShipped = statusKey === "SHIPPED";
+  const isDelivered = statusKey === "DELIVERED";
+  const isCancelled = statusKey === "CANCELLED";
+
   const itemCount =
     order.items?.reduce(
       (total: number, item: any) => total + item.quantity,
-      0,
+      0
     ) || 0;
 
   return (
-    <m.div
-      initial={{ opacity: 0, y: 20 }}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] transition-colors flex flex-col hover:border-black dark:hover:border-white group"
+      transition={{ duration: 0.25, delay: index * 0.05, ease: "easeOut" }}
+      className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-2xs font-sans transition-all overflow-hidden select-none"
     >
-      {/* Header de Orden */}
-      <div className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex flex-col md:flex-row md:items-center justify-between">
-        <div className="p-6 md:p-8 flex items-start gap-5">
-          <div className="w-12 h-12 border border-black dark:border-white bg-white dark:bg-black flex items-center justify-center shrink-0">
-            <StatusIcon
-              className="h-5 w-5 text-black dark:text-white"
-              strokeWidth={1.5}
-            />
+      {/* ── CABECERA DE ORDEN ────────────────────────────────────────── */}
+      <div className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505] flex flex-col md:flex-row md:items-center justify-between">
+        <div className="p-6 md:p-8 flex items-start gap-4 sm:gap-5">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+            <StatusIcon className="h-6 w-6" strokeWidth={2} />
           </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h2 className="text-lg font-bold uppercase tracking-widest text-black dark:text-white leading-none">
-                Orden #{order.id}
+
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("order_number", { id: order.id })}
               </h2>
+
               <span
                 className={cn(
-                  "border px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5",
-                  statusCfg.color,
+                  "border px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 shadow-2xs",
+                  statusCfg.color
                 )}
               >
-                <StatusIcon className="h-3 w-3" strokeWidth={2} />
-                {statusCfg.label}
+                <StatusIcon className="h-3.5 w-3.5" strokeWidth={2} />
+                <span>{t(statusCfg.labelKey)}</span>
               </span>
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+
+            <p className="text-xs font-semibold text-gray-400">
               {formatDate(order.createdAt)}
               {order.providerName && (
-                <span className="text-black dark:text-white ml-2">
+                <span className="text-gray-700 dark:text-gray-300 ml-2 font-bold">
                   [{order.providerName}]
                 </span>
               )}
@@ -166,107 +176,107 @@ export function OrderCard({
           </div>
         </div>
 
-        <div className="flex border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-800 self-stretch">
-          <div className="p-6 md:p-8 border-r border-gray-200 dark:border-gray-800 flex flex-col justify-center flex-1 md:flex-none">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
-              Unidades
+        <div className="flex border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="p-5 md:p-8 border-r border-gray-100 dark:border-gray-800 flex flex-col justify-center flex-1 md:flex-none">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
+              {t("units")}
             </p>
-            <p className="text-xl font-semibold text-black dark:text-white tracking-tight">
+            <p className="text-base sm:text-lg font-mono font-bold text-gray-900 dark:text-white">
               {itemCount}
             </p>
           </div>
-          <div className="p-6 md:p-8 flex flex-col justify-center flex-1 md:flex-none">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">
-              Total MXN
+
+          <div className="p-5 md:p-8 flex flex-col justify-center flex-1 md:flex-none">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
+              {t("total")}
             </p>
-            <p className="text-xl font-semibold text-black dark:text-white tracking-tight">
+            <p className="text-base sm:text-lg font-mono font-black text-emerald-600 dark:text-emerald-400">
               {formatCurrency(order.totalAmount)}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Cuerpo de la Orden */}
+      {/* ── CUERPO DE DETALLES Y LOGÍSTICA ───────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-0">
         {/* Izquierda: Lista de Ítems */}
-        <div className="p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800">
-          <h4 className="mb-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-black dark:text-white">
-            <ReceiptText className="h-4 w-4" strokeWidth={1.5} />
-            Detalle de Adquisición
-          </h4>
-          <ul className="divide-y divide-gray-200 dark:divide-gray-800 border-t border-b border-gray-200 dark:border-gray-800">
+        <div className="p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800 space-y-4">
+          <div className="flex items-center gap-2">
+            <ReceiptText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <h4 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("acquisition_detail")}
+            </h4>
+          </div>
+
+          <div className="divide-y divide-gray-100 dark:divide-gray-800 border-t border-b border-gray-100 dark:border-gray-800">
             {order.items?.map((item: any) => (
-              <li
+              <div
                 key={item.id}
-                className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-[#050505] px-2 -mx-2 transition-colors"
+                className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50/50 dark:hover:bg-[#050505] transition-colors rounded-xl px-2 -mx-2"
               >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-1">
+                <div className="min-w-0 space-y-0.5">
+                  <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate">
                     {item.name}
                   </p>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-                    CANT: {item.quantity} | TIPO:{" "}
-                    {item.isDigital ? "DIGITAL" : "FÍSICO"}
+                  <p className="text-[11px] font-semibold text-gray-400 font-mono">
+                    {t("qty", { qty: item.quantity })} •{" "}
+                    {item.isDigital ? t("type_digital") : t("type_physical")}
                   </p>
                 </div>
-                <div className="shrink-0 sm:text-right flex sm:flex-col justify-between sm:justify-center items-center sm:items-end">
-                  <p className="font-semibold text-black dark:text-white text-sm">
+
+                <div className="shrink-0 sm:text-right flex sm:flex-col justify-between sm:justify-center items-baseline sm:items-end">
+                  <p className="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-white">
                     {formatCurrency(item.unitPrice * item.quantity)}
                   </p>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-                    {formatCurrency(item.unitPrice)} C/U
+                  <p className="text-[10px] font-mono font-semibold text-gray-400">
+                    {formatCurrency(item.unitPrice)} {t("unit_price")}
                   </p>
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
 
-        {/* Derecha: Módulo de Logística (Margin Notes) */}
-        <div className="p-6 md:p-8 bg-gray-50 dark:bg-[#050505] flex flex-col gap-8">
+        {/* Derecha: Módulo de Logística */}
+        <div className="p-6 md:p-8 bg-gray-50/40 dark:bg-[#050505] flex flex-col justify-between space-y-6">
           {/* Dirección / Método de Entrega */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {order.shippingAddress ? (
               order.shippingAddress === "PICKUP" ? (
-                <div className="border-l-2 border-black dark:border-white pl-4 py-1">
-                  <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                    <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
-                    Logística In-Situ
+                <div className="border-l-2 border-emerald-500 pl-3.5 space-y-1">
+                  <h4 className="flex items-center gap-1.5 text-xs font-bold text-gray-800 dark:text-gray-200">
+                    <MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <span>{t("pickup_title")}</span>
                   </h4>
-                  <p className="text-xs font-bold text-black dark:text-white uppercase tracking-widest mb-1">
-                    Recolección en Clínica
+                  <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                    {t("pickup_desc")}
                   </p>
                   {order.pickupTime && (
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
-                      <Clock className="h-3 w-3" strokeWidth={2} />
-                      Cita:{" "}
-                      {new Date(order.pickupTime)
-                        .toLocaleString("es-MX", {
-                          year: "numeric",
-                          month: "short",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                        .toUpperCase()}
+                    <p className="text-[11px] font-mono font-bold text-gray-500 flex items-center gap-1 mt-1">
+                      <Clock className="h-3.5 w-3.5" strokeWidth={2} />
+                      <span>
+                        {t("pickup_appointment", {
+                          date: formatDate(order.pickupTime),
+                        })}
+                      </span>
                     </p>
                   )}
                 </div>
               ) : (
-                <div className="border-l-2 border-black dark:border-white pl-4 py-1">
-                  <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
-                    <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
-                    Coordenadas de Entrega
+                <div className="border-l-2 border-emerald-500 pl-3.5 space-y-1">
+                  <h4 className="flex items-center gap-1.5 text-xs font-bold text-gray-800 dark:text-gray-200">
+                    <MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <span>{t("delivery_title")}</span>
                   </h4>
-                  <p className="text-xs font-light text-black dark:text-white leading-relaxed uppercase">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
                     {order.shippingAddress}
                   </p>
                 </div>
               )
             ) : (
-              <div className="border-l-2 border-amber-500 pl-4 py-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">
-                  Sin domicilio registrado. Adquisición digital o in-situ.
+              <div className="border-l-2 border-amber-400 pl-3.5">
+                <p className="text-xs font-semibold text-amber-800 dark:text-amber-400">
+                  {t("no_address")}
                 </p>
               </div>
             )}
@@ -274,44 +284,42 @@ export function OrderCard({
 
           {/* CTA de Rastreo (SHIPPED) */}
           {isShipped && (
-            <div className="border-l-2 border-teal-500 pl-4 py-2 space-y-5">
-              <div>
-                <h4 className="mb-2 flex items-center text-[10px] font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">
-                  <Truck className="mr-2 h-3.5 w-3.5" strokeWidth={2} />
-                  Tránsito Autorizado
+            <div className="border-l-2 border-sky-500 pl-3.5 space-y-4 pt-2">
+              <div className="space-y-1">
+                <h4 className="flex items-center text-xs font-bold text-sky-800 dark:text-sky-300">
+                  <Truck className="mr-1.5 h-4 w-4 text-sky-600 dark:text-sky-400" strokeWidth={2} />
+                  <span>{t("shipped_title")}</span>
                 </h4>
-                <p className="text-xs font-light text-black dark:text-white uppercase leading-relaxed">
+                <div className="text-xs font-mono font-semibold text-gray-600 dark:text-gray-400 space-y-0.5">
                   {order.shippingCarrier && (
-                    <>
-                      PROVEEDOR:{" "}
-                      <span className="font-bold">
+                    <p>
+                      {t("carrier")}{" "}
+                      <span className="font-bold text-gray-900 dark:text-white">
                         {order.shippingCarrier.replace("_", " ")}
                       </span>
-                      <br />
-                    </>
+                    </p>
                   )}
                   {order.trackingNumber && (
-                    <>
-                      ID RASTREO:{" "}
-                      <span className="font-bold">{order.trackingNumber}</span>
-                    </>
+                    <p>
+                      {t("tracking_id")}{" "}
+                      <span className="font-bold text-gray-900 dark:text-white">
+                        {order.trackingNumber}
+                      </span>
+                    </p>
                   )}
-                </p>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
                 {order.trackingUrl && (
                   <Button
                     type="button"
                     variant="outline"
-                    className="rounded-none border border-teal-500 text-teal-600 dark:text-teal-400 hover:bg-teal-500 hover:text-white w-full h-10 text-[9px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-4"
+                    className="rounded-xl border-sky-200 dark:border-sky-900/40 bg-white dark:bg-[#0a0a0a] text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/30 w-full h-10 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                     onClick={() => window.open(order.trackingUrl, "_blank")}
                   >
-                    <ExternalLink
-                      className="mr-3 h-3.5 w-3.5"
-                      strokeWidth={2}
-                    />
-                    Portal de Rastreo
+                    <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
+                    <span>{t("btn_tracking")}</span>
                   </Button>
                 )}
 
@@ -319,14 +327,19 @@ export function OrderCard({
                   type="button"
                   onClick={() => onMarkAsDelivered(order.id)}
                   disabled={isUpdating === order.id}
-                  className="rounded-none bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 w-full h-10 text-[9px] font-bold uppercase tracking-widest transition-colors flex justify-start pl-4 border-0 disabled:opacity-50"
+                  className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white w-full h-10 text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 border-0 cursor-pointer disabled:opacity-50"
                 >
                   {isUpdating === order.id ? (
-                    <QhSpinner size="sm" className="mr-3" />
+                    <>
+                      <QhSpinner size="sm" className="text-white mr-1" />
+                      <span>{t("btn_confirming")}</span>
+                    </>
                   ) : (
-                    <Check className="mr-3 h-3.5 w-3.5" strokeWidth={2} />
+                    <>
+                      <Check className="h-4 w-4" strokeWidth={2} />
+                      <span>{t("btn_confirm_delivered")}</span>
+                    </>
                   )}
-                  Confirmar Recepción
                 </Button>
               </div>
             </div>
@@ -334,45 +347,47 @@ export function OrderCard({
 
           {/* Entregado (DELIVERED) */}
           {isDelivered && (
-            <div className="border-l-2 border-emerald-500 pl-4 py-2">
-              <h4 className="flex items-center text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2">
-                <CheckCircle2 className="mr-2 h-3.5 w-3.5" strokeWidth={2} />
-                Recepción Confirmada
+            <div className="border-l-2 border-emerald-500 pl-3.5 space-y-1">
+              <h4 className="flex items-center text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                <CheckCircle2 className="mr-1.5 h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                <span>{t("delivered_title")}</span>
               </h4>
-              <p className="text-xs font-light text-black dark:text-white uppercase leading-relaxed">
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
                 {order.shippingCarrier
-                  ? `OPERACIÓN CONCLUIDA VÍA ${order.shippingCarrier.replace("_", " ")}.`
-                  : "OPERACIÓN CONCLUIDA EXITOSAMENTE."}
+                  ? t("delivered_desc_carrier", {
+                      carrier: order.shippingCarrier.replace("_", " "),
+                    })
+                  : t("delivered_desc_generic")}
               </p>
             </div>
           )}
 
           {/* Cancelado (CANCELLED) */}
-          {order.orderStatus === "CANCELLED" && (
-            <div className="border-l-2 border-red-500 pl-4 py-2 space-y-4">
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-red-600 dark:text-red-500">
-                <AlertCircle className="h-3.5 w-3.5" strokeWidth={2} />
-                <h4>Anulación Ejecutada</h4>
+          {isCancelled && (
+            <div className="border-l-2 border-rose-500 pl-3.5 space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-rose-800 dark:text-rose-300">
+                <AlertCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" strokeWidth={2} />
+                <h4>{t("cancelled_title")}</h4>
               </div>
 
               {order.rejectionReason && (
-                <div className="border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/10 p-3">
-                  <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-red-800 dark:text-red-400">
-                    Dictamen del Emisor:
+                <div className="border border-rose-200 dark:border-rose-900/40 bg-rose-50/40 dark:bg-rose-950/20 p-3 rounded-xl space-y-0.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-rose-800 dark:text-rose-300">
+                    {t("rejection_reason_title")}
                   </p>
-                  <p className="text-xs italic font-light text-red-900 dark:text-red-300 uppercase">
+                  <p className="text-xs font-medium italic text-rose-700/90 dark:text-rose-400">
                     "{order.rejectionReason}"
                   </p>
                 </div>
               )}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                Reintegro financiero procesado. Contacte a soporte si persisten
-                inconsistencias.
+
+              <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                {t("reconciliation_note")}
               </p>
             </div>
           )}
         </div>
       </div>
-    </m.div>
+    </motion.div>
   );
 }

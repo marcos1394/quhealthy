@@ -1,24 +1,16 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/click-events-have-key-events */
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */
-/* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable @next/next/no-img-element */
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Palette,
-  UploadCloud,
   Check,
-  X,
-  AlertCircle,
-  Info,
-  Sparkles,
-  Eye,
   Image as ImageIcon,
   Trash2,
-  RefreshCw,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -26,19 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { GalleryUploadManager } from "@/components/ui/gallery/GalleryUploadManager";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
-
-// Color presets - Architectural Selection
-const colorPresets = [
-  { name: "Negro Puro", value: "#000000", category: "neutral" },
-  { name: "Grafito", value: "#333333", category: "neutral" },
-  { name: "Púrpura", value: "#9333ea", category: "popular" },
-  { name: "Azul", value: "#3b82f6", category: "popular" },
-  { name: "Esmeralda", value: "#10b981", category: "popular" },
-  { name: "Rosa", value: "#ec4899", category: "popular" },
-  { name: "Naranja", value: "#f97316", category: "warm" },
-  { name: "Índigo", value: "#6366f1", category: "cool" },
-];
 
 export interface IdentitySettings {
   storeName: string;
@@ -63,38 +44,52 @@ export function VisualIdentitySection({
   onImageUpload,
   onImageDelete,
 }: VisualIdentitySectionProps) {
+  const t = useTranslations("VisualIdentitySection");
+
   const [slugError, setSlugError] = useState<string>("");
   const [uploadingType, setUploadingType] = useState<"logo" | "banner" | null>(
-    null,
+    null
   );
-  const [showPreview, setShowPreview] = useState(false);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  // Validate slug
+  const colorPresets = useMemo(
+    () => [
+      { name: t("preset_pure_black"), value: "#000000" },
+      { name: t("preset_graphite"), value: "#333333" },
+      { name: t("preset_purple"), value: "#9333ea" },
+      { name: t("preset_blue"), value: "#3b82f6" },
+      { name: t("preset_emerald"), value: "#10b981" },
+      { name: t("preset_pink"), value: "#ec4899" },
+      { name: t("preset_orange"), value: "#f97316" },
+      { name: t("preset_indigo"), value: "#6366f1" },
+    ],
+    [t]
+  );
+
+  // Validación de Slug
   const validateSlug = (slug: string) => {
     if (!slug) {
-      setSlugError("La URL es requerida");
+      setSlugError(t("err_slug_required"));
       return false;
     }
     if (slug.length < 3) {
-      setSlugError("Mínimo 3 caracteres");
+      setSlugError(t("err_slug_min"));
       return false;
     }
     if (slug.length > 50) {
-      setSlugError("Máximo 50 caracteres");
+      setSlugError(t("err_slug_max"));
       return false;
     }
     if (!/^[a-z0-9-]+$/.test(slug)) {
-      setSlugError("Solo letras, números y guiones");
+      setSlugError(t("err_slug_invalid"));
       return false;
     }
     setSlugError("");
     return true;
   };
 
-  // Handle slug change
   const handleSlugChange = (value: string) => {
     const sanitized = value
       .toLowerCase()
@@ -106,20 +101,18 @@ export function VisualIdentitySection({
 
   const handleImageUpload = async (
     type: "logo" | "banner",
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.warning(
-        "Por favor selecciona un archivo de imagen válido (JPG, PNG)",
-      );
+      toast.warning(t("toast_invalid_image"));
       event.target.value = "";
       return;
     }
-    if (file.size > 20 * 1024 * 1024) {
-      toast.warning("La imagen no debe superar los 5MB de peso");
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warning(t("toast_image_too_large"));
       event.target.value = "";
       return;
     }
@@ -130,7 +123,7 @@ export function VisualIdentitySection({
       try {
         await onImageUpload(type, file);
       } catch (error) {
-        console.error("Error en componente al subir imagen", error);
+        console.error("Error al subir imagen:", error);
       }
     }
 
@@ -138,104 +131,103 @@ export function VisualIdentitySection({
     event.target.value = "";
   };
 
-  // Get image specs
-  const getImageSpecs = (type: "logo" | "banner") => {
-    return type === "logo"
-      ? { size: "400x400px", aspect: "Cuadrado 1:1" }
-      : { size: "1200x400px", aspect: "Rectangular 3:1" };
-  };
-
-    return (
-    <div className="flex flex-col bg-transparent">
-      {/* Header Interior */}
-      <div className="border-b border-gray-100 dark:border-gray-800 p-6 md:p-8 bg-white dark:bg-[#0a0a0a] rounded-t-3xl">
+  return (
+    <div className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xs font-sans transition-colors select-none overflow-hidden">
+      {/* ── CABECERA INTERIOR ────────────────────────────────────────── */}
+      <div className="border-b border-gray-100 dark:border-gray-800 p-6 md:p-8 bg-gray-50/60 dark:bg-[#050505]">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
-            <Palette className="w-6 h-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+            <Palette className="w-6 h-6" strokeWidth={2} />
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-              Identidad Visual
+          <div className="space-y-0.5">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("header_title")}
             </h2>
-            <p className="text-sm font-medium text-gray-500">
-              Personaliza el branding y estilo de tu tienda.
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("header_subtitle")}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="p-6 md:p-8 space-y-12 bg-white dark:bg-[#0a0a0a] rounded-b-3xl">
-        
-        {/* Nombre y URL */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <Label className="text-sm font-bold text-gray-900 dark:text-white">
-              Nombre Comercial
+      <div className="p-6 md:p-8 space-y-10">
+        {/* ── NOMBRE Y URL DEL COMERCIO ───────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+              {t("label_store_name")}
             </Label>
             <Input
               value={settings.storeName}
               onChange={(e) => onChange("storeName", e.target.value)}
               onBlur={() => onSaveField?.("storeName", settings.storeName)}
-              placeholder="Ej: Clínica San José"
-              className="rounded-xl h-12 bg-gray-50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 focus-visible:ring-emerald-500 shadow-sm"
+              placeholder={t("placeholder_store_name")}
+              className="rounded-xl h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-2xs transition-all"
             />
           </div>
 
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <Label className="text-sm font-bold text-gray-900 dark:text-white">
-                URL de Tienda (Slug)
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center">
+              <Label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                {t("label_store_slug")}
               </Label>
-              {slugError && <span className="text-xs text-red-500 font-bold">{slugError}</span>}
+              {slugError && (
+                <span className="text-[11px] text-rose-500 font-bold font-mono">
+                  {slugError}
+                </span>
+              )}
             </div>
-            <div className="flex items-center rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 shadow-sm focus-within:ring-1 focus-within:ring-emerald-500 overflow-hidden h-12">
-              <div className="bg-gray-100 dark:bg-gray-800 px-4 flex items-center h-full border-r border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-500">
+
+            <div className="flex items-center rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 shadow-2xs focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 overflow-hidden h-11 transition-all">
+              <div className="bg-gray-100/80 dark:bg-gray-800/80 px-3.5 flex items-center h-full border-r border-gray-200 dark:border-gray-700 text-xs font-mono font-bold text-gray-500 dark:text-gray-400 select-none">
                 quhealthy.com/
               </div>
               <input
                 value={settings.storeSlug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 onBlur={() => onSaveField?.("storeSlug", settings.storeSlug)}
-                placeholder="clinica-san-jose"
-                className="flex-1 bg-transparent border-0 focus:ring-0 px-4 text-sm font-medium text-gray-900 dark:text-white outline-none"
+                placeholder={t("placeholder_store_slug")}
+                className="flex-1 bg-transparent border-0 focus:ring-0 px-3.5 text-xs font-mono font-bold text-gray-900 dark:text-white outline-none"
               />
             </div>
           </div>
         </div>
 
-        {/* Color Principal */}
-        <div className="space-y-6 pt-6 border-t border-gray-100 dark:border-gray-800">
-          <div>
-            <Label className="text-sm font-bold text-gray-900 dark:text-white block mb-1">
-              Color de Marca Principal
+        {/* ── SELECCIÓN DE COLOR PRINCIPAL DE MARCA ──────────────────── */}
+        <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-800">
+          <div className="space-y-0.5">
+            <Label className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white block">
+              {t("label_primary_color")}
             </Label>
-            <p className="text-xs text-gray-500 font-medium">
-              Este color se usará en los botones primarios y enlaces de tu tienda.
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("subtitle_primary_color")}
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap items-center gap-3.5 pt-1">
             {colorPresets.map((color) => (
               <button
                 key={color.value}
+                type="button"
                 onClick={() => onChange("primaryColor", color.value)}
                 className={cn(
-                  "w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-sm relative overflow-hidden",
-                  settings.primaryColor === color.value 
-                    ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-black scale-110" 
+                  "w-10 h-10 rounded-2xl flex items-center justify-center transition-all shadow-2xs relative overflow-hidden cursor-pointer",
+                  settings.primaryColor === color.value
+                    ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-[#0a0a0a] scale-105"
                     : "hover:scale-105"
                 )}
                 style={{ backgroundColor: color.value }}
+                title={color.name}
               >
                 {settings.primaryColor === color.value && (
-                  <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                  <Check className="w-4 h-4 text-white drop-shadow-md" strokeWidth={3} />
                 )}
               </button>
             ))}
-            
-            <div className="flex items-center gap-3 ml-2 border-l pl-6 border-gray-200 dark:border-gray-800">
-              <div 
-                className="w-12 h-12 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden relative cursor-pointer"
+
+            <div className="flex items-center gap-3 border-l border-gray-200 dark:border-gray-800 pl-4 ml-1">
+              <div
+                className="w-10 h-10 rounded-2xl shadow-2xs border border-gray-200 dark:border-gray-700 overflow-hidden relative cursor-pointer"
                 style={{ backgroundColor: settings.primaryColor }}
               >
                 <input
@@ -245,182 +237,203 @@ export function VisualIdentitySection({
                   className="absolute inset-[-10px] w-[200%] h-[200%] opacity-0 cursor-pointer"
                 />
               </div>
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                Hex<br/>{settings.primaryColor}
-              </span>
+
+              <div className="flex flex-col space-y-0.5">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  {t("color_hex")}
+                </span>
+                <span className="text-xs font-mono font-bold text-gray-900 dark:text-white uppercase">
+                  {settings.primaryColor}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Logo & Banner */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-6 border-t border-gray-100 dark:border-gray-800">
-          
+        {/* ── LOGOTIPO Y BANNER PROMOCIONAL ───────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-gray-100 dark:border-gray-800">
           {/* Logo Upload */}
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-bold text-gray-900 dark:text-white block mb-1">
-                Logotipo de Tienda
+          <div className="space-y-3">
+            <div className="space-y-0.5">
+              <Label className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white block">
+                {t("label_logo")}
               </Label>
-              <p className="text-xs text-gray-500 font-medium">
-                {getImageSpecs('logo').size} • {getImageSpecs('logo').aspect}
+              <p className="text-[11px] font-medium text-gray-400">
+                {t("specs_logo")}
               </p>
             </div>
-            
+
             {settings.storeLogoUrl ? (
-              <div className="relative group w-40 h-40 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black overflow-hidden shadow-sm flex items-center justify-center p-2">
-                <img src={settings.storeLogoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="relative group w-40 h-40 rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] overflow-hidden shadow-2xs flex items-center justify-center p-3">
+                <img
+                  src={settings.storeLogoUrl}
+                  alt="Logo"
+                  className="max-w-full max-h-full object-contain"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-2xs flex items-center justify-center">
                   <Button
-                    onClick={() => onImageDelete?.('logo')}
-                    className="rounded-xl border border-white/20 bg-red-500/80 hover:bg-red-500 text-white shadow-sm"
-                    size="sm"
+                    type="button"
+                    onClick={() => onImageDelete?.("logo")}
+                    className="rounded-xl border border-white/20 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-2xs h-9 px-3.5 cursor-pointer"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />
+                    <span>{t("delete_logo")}</span>
                   </Button>
                 </div>
               </div>
             ) : (
-              <div 
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => logoInputRef.current?.click()}
-                className="w-40 h-40 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-colors flex flex-col items-center justify-center cursor-pointer shadow-sm group"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    logoInputRef.current?.click();
+                  }
+                }}
+                className="w-40 h-40 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-500/50 hover:bg-emerald-50/20 transition-all flex flex-col items-center justify-center cursor-pointer shadow-2xs group"
               >
-                {uploadingType === 'logo' ? (
-                  <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" strokeWidth={2} />
+                {uploadingType === "logo" ? (
+                  <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
                 ) : (
                   <>
-                    <div className="w-12 h-12 rounded-full bg-white dark:bg-black flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                      <ImageIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center mb-2 shadow-2xs group-hover:scale-105 transition-transform">
+                      <ImageIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                     </div>
-                    <span className="text-xs font-bold text-gray-500">Subir Logo</span>
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                      {t("upload_logo")}
+                    </span>
                   </>
                 )}
               </div>
             )}
-            <input 
-              ref={logoInputRef} 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={(e) => handleImageUpload('logo', e)} 
+
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleImageUpload("logo", e)}
             />
           </div>
 
           {/* Banner Upload */}
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-bold text-gray-900 dark:text-white block mb-1">
-                Banner de Tienda
+          <div className="space-y-3">
+            <div className="space-y-0.5">
+              <Label className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white block">
+                {t("label_banner")}
               </Label>
-              <p className="text-xs text-gray-500 font-medium">
-                {getImageSpecs('banner').size} • {getImageSpecs('banner').aspect}
+              <p className="text-[11px] font-medium text-gray-400">
+                {t("specs_banner")}
               </p>
             </div>
-            
+
             {settings.bannerImageUrl ? (
-              <div className="relative group w-full aspect-[3/1] rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black overflow-hidden shadow-sm">
-                <img src={settings.bannerImageUrl} alt="Banner" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="relative group w-full aspect-[3/1] rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] overflow-hidden shadow-2xs">
+                <img
+                  src={settings.bannerImageUrl}
+                  alt="Banner"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-2xs flex items-center justify-center">
                   <Button
-                    onClick={() => onImageDelete?.('banner')}
-                    className="rounded-xl border border-white/20 bg-red-500/80 hover:bg-red-500 text-white shadow-sm"
-                    size="sm"
+                    type="button"
+                    onClick={() => onImageDelete?.("banner")}
+                    className="rounded-xl border border-white/20 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-2xs h-9 px-3.5 cursor-pointer"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" /> Eliminar Banner
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />
+                    <span>{t("delete_banner")}</span>
                   </Button>
                 </div>
               </div>
             ) : (
-              <div 
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => bannerInputRef.current?.click()}
-                className="w-full aspect-[3/1] rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-colors flex flex-col items-center justify-center cursor-pointer shadow-sm group"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    bannerInputRef.current?.click();
+                  }
+                }}
+                className="w-full aspect-[3/1] rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-500/50 hover:bg-emerald-50/20 transition-all flex flex-col items-center justify-center cursor-pointer shadow-2xs group"
               >
-                {uploadingType === 'banner' ? (
-                  <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" strokeWidth={2} />
+                {uploadingType === "banner" ? (
+                  <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
                 ) : (
                   <>
-                    <div className="w-12 h-12 rounded-full bg-white dark:bg-black flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                      <ImageIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center mb-2 shadow-2xs group-hover:scale-105 transition-transform">
+                      <ImageIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                     </div>
-                    <span className="text-xs font-bold text-gray-500">Subir Banner</span>
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                      {t("upload_banner")}
+                    </span>
                   </>
                 )}
               </div>
             )}
-            <input 
-              ref={bannerInputRef} 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              onChange={(e) => handleImageUpload('banner', e)} 
+
+            <input
+              ref={bannerInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleImageUpload("banner", e)}
             />
           </div>
-
         </div>
 
-        {/* Galería de Consultorio */}
-        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-              Galería de Instalaciones
+        {/* ── GALERÍA DE INSTALACIONES ────────────────────────────────── */}
+        <div className="space-y-4 pt-8 border-t border-gray-100 dark:border-gray-800">
+          <div className="space-y-0.5">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("gallery_facilities_title")}
             </h3>
-            <p className="text-xs text-gray-500 font-medium">
-              Sube fotos de tu consultorio, sala de espera o equipo médico.
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("gallery_facilities_desc")}
             </p>
           </div>
-          <GalleryUploadManager 
-            galleryType="OFFICE" 
-            maxImages={10} 
-          />
+          <GalleryUploadManager galleryType="OFFICE" maxImages={10} />
         </div>
 
-        {/* Galería de Certificaciones */}
-        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-              Certificaciones y Diplomas
+        {/* ── GALERÍA DE CERTIFICACIONES Y DIPLOMAS ───────────────────── */}
+        <div className="space-y-4 pt-8 border-t border-gray-100 dark:border-gray-800">
+          <div className="space-y-0.5">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("gallery_certifications_title")}
             </h3>
-            <p className="text-xs text-gray-500 font-medium">
-              Sube imágenes de tus títulos, especialidades o certificaciones relevantes.
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("gallery_certifications_desc")}
             </p>
           </div>
-          <GalleryUploadManager 
-            galleryType="CERTIFICATION" 
-            maxImages={5} 
-          />
+          <GalleryUploadManager galleryType="CERTIFICATION" maxImages={5} />
         </div>
 
-        {/* Galería de Equipo Médico */}
-        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-              Equipo Médico y Tecnología
+        {/* ── GALERÍA DE EQUIPO MÉDICO Y TECNOLOGÍA ───────────────────── */}
+        <div className="space-y-4 pt-8 border-t border-gray-100 dark:border-gray-800">
+          <div className="space-y-0.5">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("gallery_equipment_title")}
             </h3>
-            <p className="text-xs text-gray-500 font-medium">
-              Destaca la tecnología y el equipo especializado de tu consultorio.
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("gallery_equipment_desc")}
             </p>
           </div>
-          <GalleryUploadManager 
-            galleryType="EQUIPMENT" 
-            maxImages={10} 
-          />
+          <GalleryUploadManager galleryType="EQUIPMENT" maxImages={10} />
         </div>
 
-        {/* Galería de Antes y Después */}
-        <div className="space-y-6 pt-12 border-t border-gray-100 dark:border-gray-800">
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-              Casos de Éxito (Antes y Después)
+        {/* ── GALERÍA DE CASOS DE ÉXITO (ANTES Y DESPUÉS) ─────────────── */}
+        <div className="space-y-4 pt-8 border-t border-gray-100 dark:border-gray-800">
+          <div className="space-y-0.5">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("gallery_before_after_title")}
             </h3>
-            <p className="text-xs text-gray-500 font-medium">
-              Muestra los resultados de tus procedimientos y tratamientos médicos.
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("gallery_before_after_desc")}
             </p>
           </div>
-          <GalleryUploadManager 
-            galleryType="BEFORE_AFTER" 
-            maxImages={10} 
-          />
+          <GalleryUploadManager galleryType="BEFORE_AFTER" maxImages={10} />
         </div>
-
       </div>
     </div>
   );

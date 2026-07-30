@@ -1,4 +1,5 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 
 import React, { useState } from "react";
@@ -8,11 +9,8 @@ import { useTranslations } from "next-intl";
 import { toast } from "react-toastify";
 
 import { cn } from "@/lib/utils";
-
-// Subcomponentes
 import { PackageItemCard } from "./PackageItemCard";
 import { PackageEditorDialog } from "./PackageEditorDialog";
-
 import { UI_Package, UI_Service } from "@/types/catalog";
 
 interface PackagesManagerProps {
@@ -45,12 +43,7 @@ export function PackagesManager({
 
   const handleOpenDialog = (pkg?: UI_Package) => {
     if (!pkg && !canAdd) {
-      toast.warning(
-        t("limit_reached_msg", {
-          defaultValue: "ALERTA DE CAPACIDAD: LÍMITE DE INVENTARIO ALCANZADO.",
-        }),
-        { theme: "colored" },
-      );
+      toast.warning(t("limit_reached_msg"));
       return;
     }
 
@@ -79,168 +72,160 @@ export function PackagesManager({
     }
   };
 
+  const formattedMaxLimit = maxLimit === null || maxLimit === undefined ? "∞" : maxLimit;
+
   return (
-   <div className="flex flex-col min-h-screen transition-colors duration-500 font-sans p-6 md:p-8">
- {/* --- CABECERA --- */}
- <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm gap-6 shrink-0 mb-6">
- <div className="flex items-center gap-5">
- <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
- <Package
- className="w-6 h-6 text-emerald-600 dark:text-emerald-400"
- strokeWidth={2}
- />
- </div>
- <div>
- <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1">
- {t("title", { defaultValue: "Gestor de Ensambles" })}
- </p>
- <div className="flex flex-col sm:flex-row sm:items-center gap-3">
- <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-none">
- Paquetes Promocionales
- </h2>
+    <div className="flex flex-col min-h-screen font-sans transition-colors select-none p-6 md:p-8">
+      {/* ── CABECERA PRINCIPAL ────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-2xs gap-6 shrink-0 mb-6">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs shrink-0">
+            <Package className="w-7 h-7" strokeWidth={2} />
+          </div>
 
- <div className="flex items-center gap-2 mt-2 sm:mt-0">
- {packages.length > 0 && (
- <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
- <Sparkles className="w-3.5 h-3.5 text-emerald-500" strokeWidth={2} />
- {packages.length} Registros Activos
- </span>
- )}
+          <div className="space-y-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              {t("manager_tag")}
+            </p>
 
- {typeof currentUsage === "number" &&
- typeof maxLimit === "number" && (
- <span
- className={cn(
- "px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5",
- canAdd
- ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
- : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
- )}
- >
- Consumo: {currentUsage} /{" "}
- {maxLimit === null ? "∞" : maxLimit}
- </span>
- )}
- </div>
- </div>
- </div>
- </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+                {t("manager_title")}
+              </h2>
 
- <button
- onClick={() => handleOpenDialog()}
- disabled={!canAdd}
- className="w-full md:w-auto h-12 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 disabled:opacity-50 shadow-sm"
- >
- <Plus className="w-4 h-4" strokeWidth={2} />
- {!canAdd
- ? t("limit_reached_btn", { defaultValue: "Límite Agotado" })
- : t("create_package", { defaultValue: "Nuevo Ensamble" })}
- </button>
- </div>
+              <div className="flex flex-wrap items-center gap-2 mt-1 sm:mt-0">
+                {packages.length > 0 && (
+                  <span className="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+                    <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+                    <span>{t("active_count", { count: packages.length })}</span>
+                  </span>
+                )}
+
+                {typeof currentUsage === "number" && (
+                  <span
+                    className={cn(
+                      "px-3 py-1 rounded-full text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs border",
+                      canAdd
+                        ? "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800"
+                        : "bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900/40"
+                    )}
+                  >
+                    {t("usage_label", {
+                      current: currentUsage,
+                      max: formattedMaxLimit,
+                    })}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleOpenDialog()}
+          disabled={!canAdd}
+          className="w-full md:w-auto h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Plus className="w-4 h-4" strokeWidth={2} />
+          <span>{!canAdd ? t("limit_reached_btn") : t("create_package")}</span>
+        </button>
+      </div>
 
       <div className="space-y-6">
- {/* --- ALERTA DE LÍMITE (SISTEMA) --- */}
- <AnimatePresence>
- {!canAdd && packages.length > 0 && (
- <motion.div
- initial={{ opacity: 0, height: 0 }}
- animate={{ opacity: 1, height: "auto" }}
- exit={{ opacity: 0, height: 0 }}
- className="overflow-hidden"
- >
- <div className="p-4 rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/30 mb-6 flex flex-col">
- <p className="text-sm font-bold text-red-700 dark:text-red-400 flex items-center gap-2 mb-1">
- <Info className="w-5 h-5" strokeWidth={2} />{" "}
- {t("limit_alert_title", {
- defaultValue: "Alerta de Capacidad Máxima",
- })}
- </p>
- <p className="text-xs font-semibold text-red-600 dark:text-red-500 leading-relaxed ml-7">
- {t("limit_alert_desc", {
- defaultValue:
- "Elimine o archive registros obsoletos para liberar espacio en la base de datos.",
- })}
- </p>
- </div>
- </motion.div>
- )}
- </AnimatePresence>
+        {/* ── ALERTA DE LÍMITE DE CAPACIDAD ────────────────────────────── */}
+        <AnimatePresence>
+          {!canAdd && packages.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="p-5 rounded-3xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/60 dark:bg-rose-950/20 shadow-2xs flex gap-3.5">
+                <Info className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
+                <div className="space-y-0.5">
+                  <p className="text-xs sm:text-sm font-bold text-rose-800 dark:text-rose-300">
+                    {t("limit_alert_title")}
+                  </p>
+                  <p className="text-xs font-medium text-rose-700/90 dark:text-rose-400 leading-relaxed">
+                    {t("limit_alert_desc")}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
- {/* --- ESTADO VACÍO (EMPTY STATE) --- */}
- {packages.length === 0 ? (
- <motion.div
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- className="flex flex-col items-center justify-center py-24 text-center rounded-3xl border border-gray-100 dark:border-gray-800 border-dashed bg-white dark:bg-[#0a0a0a] shadow-sm"
- >
- <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-6">
- <Tag className="w-8 h-8 text-emerald-500" strokeWidth={2} />
- </div>
- <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">
- {t("empty_title", { defaultValue: "Cero Paquetes Activos" })}
- </p>
- <p className="text-sm font-medium text-gray-500 mb-8 max-w-xs leading-relaxed">
- {t("empty_desc", {
- defaultValue:
- "Estructure combinaciones de servicios para ofrecer condiciones comerciales en bloque.",
- })}
- </p>
- <button
- onClick={() => handleOpenDialog()}
- disabled={!canAdd}
- className="h-12 px-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-sm font-bold flex items-center justify-center gap-2 border-0 disabled:opacity-50 shadow-sm"
- >
- <Plus className="w-4 h-4" strokeWidth={2} />
- {!canAdd
- ? t("limit_reached_btn")
- : t("create_first", { defaultValue: "Iniciar Configuración" })}
- </button>
- </motion.div>
- ) : (
- /* --- GRID DE TARJETAS (MATRIZ) --- */
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
- <AnimatePresence>
- {packages.map((pkg) => (
- <PackageItemCard
- key={pkg.id}
- pkg={pkg}
- availableServices={availableServices}
- onEdit={handleOpenDialog}
- onDelete={onDelete}
- />
- ))}
- </AnimatePresence>
- </div>
- )}
+        {/* ── ESTADO VACÍO ────────────────────────────────────────────── */}
+        {packages.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-20 text-center rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-2xs p-8"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-5 shadow-2xs">
+              <Tag className="w-8 h-8" strokeWidth={2} />
+            </div>
+            <p className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight mb-1">
+              {t("empty_title")}
+            </p>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-6 max-w-sm leading-relaxed">
+              {t("empty_desc")}
+            </p>
+            <button
+              type="button"
+              onClick={() => handleOpenDialog()}
+              disabled={!canAdd}
+              className="h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-4 h-4" strokeWidth={2} />
+              <span>{!canAdd ? t("limit_reached_btn") : t("create_first")}</span>
+            </button>
+          </motion.div>
+        ) : (
+          /* ── MATRIZ DE PAQUETES ─────────────────────────────────────── */
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AnimatePresence>
+              {packages.map((pkg) => (
+                <PackageItemCard
+                  key={pkg.id}
+                  pkg={pkg}
+                  availableServices={availableServices}
+                  onEdit={handleOpenDialog}
+                  onDelete={onDelete}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
 
- {/* --- CONSEJO FINAL (OPTIMIZACIÓN COMERCIAL) --- */}
- {packages.length > 0 && (
- <motion.div
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- className="p-6 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] mt-8 flex flex-col md:flex-row gap-8 shadow-sm"
- >
- <div className="md:w-1/3 flex flex-col gap-2 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 pb-6 md:pb-0 pr-0 md:pr-8">
- <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
- <TrendingUp
- className="w-5 h-5 text-emerald-500"
- strokeWidth={2}
- />
- {t("tip_title", { defaultValue: "Estrategia Comercial" })}
- </p>
- </div>
- <div className="md:w-2/3 flex flex-col justify-center">
- <p className="text-sm font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
- {t("tip_desc", {
- defaultValue:
- "Se sugiere establecer un precio de paquete inferior a la sumatoria de los servicios individuales para incentivar la adquisición en bloque.",
- })}
- </p>
- </div>
- </motion.div>
- )}
+        {/* ── TARJETA DE CONSEJO DE ESTRATEGIA COMERCIAL ────────────────── */}
+        {packages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-6 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] mt-8 flex flex-col md:flex-row gap-6 shadow-2xs items-start md:items-center"
+          >
+            <div className="flex items-center gap-3 md:w-1/3 shrink-0 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 pb-4 md:pb-0 md:pr-6 w-full">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+                <TrendingUp className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("tip_title")}
+              </p>
+            </div>
 
-        {/* --- MODAL EDITOR --- */}
+            <div className="md:w-2/3">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                {t("tip_desc")}
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── DIÁLOGO EDITOR DE PAQUETES ──────────────────────────────── */}
         <PackageEditorDialog
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}

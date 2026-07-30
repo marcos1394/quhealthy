@@ -1,9 +1,13 @@
 "use client";
+
 /* eslint-disable react-doctor/rerender-state-only-in-handlers */
 /* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useRef, useState, useEffect } from "react";
-import { Camera, X, RefreshCw, Sparkles, AlertCircle } from "lucide-react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import { X, RefreshCw, Sparkles, AlertCircle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,27 +23,22 @@ interface CameraModalProps {
 }
 
 export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
+  const t = useTranslations("CameraModal");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      startCamera();
-    } else {
-      stopCamera();
+  const stopCamera = useCallback(() => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
-
-  useEffect(() => {
-    return () => stopCamera();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setIsReady(false);
   }, [stream]);
 
-  const startCamera = async () => {
+  const startCamera = useCallback(async () => {
     setError(null);
     setIsReady(false);
     try {
@@ -58,24 +57,24 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
     } catch (err: any) {
       console.error("Error accessing camera:", err);
       if (err.name === "NotAllowedError") {
-        setError(
-          "Permiso denegado. Por favor, habilita el acceso a la cámara en tu navegador.",
-        );
+        setError(t("permission_denied_error"));
       } else {
-        setError(
-          "No se pudo acceder a la cámara. Asegúrate de que no esté en uso por otra app.",
-        );
+        setError(t("access_error"));
       }
     }
-  };
+  }, [t]);
 
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      setStream(null);
+  useEffect(() => {
+    if (isOpen) {
+      startCamera();
+    } else {
+      stopCamera();
     }
-    setIsReady(false);
-  };
+  }, [isOpen, startCamera, stopCamera]);
+
+  useEffect(() => {
+    return () => stopCamera();
+  }, [stopCamera]);
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
@@ -96,27 +95,32 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-black border-none rounded-3xl">
-        <DialogHeader className="absolute top-4 left-4 z-10 p-0">
-          <DialogTitle className="text-white flex items-center gap-2 text-sm font-bold bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-            <Sparkles className="w-4 h-4 text-indigo-400" />
-            Escáner de Medicamentos IA
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-black border-none rounded-3xl font-sans shadow-2xl transition-colors select-none [&>button]:hidden">
+        {/* ── HEADER OVERLAY ─────────────────────────────────────────── */}
+        <DialogHeader className="absolute top-4 left-4 z-20 p-0">
+          <DialogTitle className="text-white flex items-center gap-2 text-xs font-bold bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2} />
+            <span>{t("title")}</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="relative aspect-[3/4] bg-slate-900 flex items-center justify-center">
+        {/* ── VISOR DE CÁMARA & MARCO DE ENFOQUE ─────────────────────── */}
+        <div className="relative aspect-[3/4] bg-[#050505] flex items-center justify-center overflow-hidden">
           {error ? (
-            <div className="p-8 text-center space-y-4">
-              <div className="mx-auto w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-red-500" />
+            <div className="p-8 text-center space-y-4 max-w-xs">
+              <div className="mx-auto w-14 h-14 bg-rose-500/20 rounded-2xl flex items-center justify-center text-rose-500 border border-rose-500/30 shadow-2xs">
+                <AlertCircle className="w-7 h-7" strokeWidth={2} />
               </div>
-              <p className="text-slate-300 text-sm">{error}</p>
+              <p className="text-gray-300 text-xs font-medium leading-relaxed">
+                {error}
+              </p>
               <Button
+                type="button"
                 variant="outline"
                 onClick={startCamera}
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-white/20 text-white hover:bg-white/10 rounded-xl text-xs font-bold h-10 px-6 cursor-pointer shadow-2xs"
               >
-                Reintentar
+                {t("retry")}
               </Button>
             </div>
           ) : (
@@ -128,13 +132,13 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
                 muted
                 className="w-full h-full object-cover"
               />
-              {/* Frame de enfoque */}
-              <div className="absolute inset-0 border-[40px] border-black/40 flex items-center justify-center">
-                <div className="w-full aspect-square border-2 border-white/50 rounded-3xl shadow-[0_0_0_400px_rgba(0,0,0,0.4)] relative">
-                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-indigo-500 rounded-tl-xl" />
-                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-indigo-500 rounded-tr-xl" />
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-indigo-500 rounded-bl-xl" />
-                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-indigo-500 rounded-br-xl" />
+              {/* Frame de enfoque inteligente */}
+              <div className="absolute inset-0 border-[32px] sm:border-[40px] border-black/50 flex items-center justify-center pointer-events-none">
+                <div className="w-full aspect-square border-2 border-white/40 rounded-3xl shadow-[0_0_0_400px_rgba(0,0,0,0.5)] relative">
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-emerald-500 rounded-tl-xl" />
+                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-emerald-500 rounded-tr-xl" />
+                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-emerald-500 rounded-bl-xl" />
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-emerald-500 rounded-br-xl" />
                 </div>
               </div>
             </>
@@ -142,30 +146,34 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
 
           {/* Botón de cierre */}
           <button
+            type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 bg-black/40 backdrop-blur-md rounded-full text-white border border-white/20 hover:bg-black/60 transition-colors"
+            className="absolute top-4 right-4 p-2 bg-black/60 backdrop-blur-md rounded-full text-white border border-white/10 hover:bg-black/80 transition-all cursor-pointer shadow-2xs z-20"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
 
-        <div className="bg-slate-950 p-8 flex items-center justify-around">
-          <div className="w-10" /> {/* Spacer */}
+        {/* ── FOOTER DE DISPARO Y ACCIONES ───────────────────────────── */}
+        <div className="bg-[#0a0a0a] p-6 sm:p-8 flex items-center justify-around border-t border-white/10">
+          <div className="w-10" /> {/* Espaciador simétrico */}
           <button
+            type="button"
             onClick={capturePhoto}
             disabled={!isReady}
-            className="group relative flex items-center justify-center"
+            className="group relative flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <div className="absolute inset-0 bg-indigo-500 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-            <div className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center transition-transform active:scale-90">
+            <div className="absolute inset-0 bg-emerald-500 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+            <div className="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center transition-transform active:scale-90 shadow-lg">
               <div className="w-12 h-12 bg-white rounded-full group-hover:scale-95 transition-transform" />
             </div>
           </button>
           <button
+            type="button"
             onClick={startCamera}
-            className="p-3 text-slate-400 hover:text-white transition-colors"
+            className="p-3 text-gray-400 hover:text-white transition-colors cursor-pointer rounded-xl hover:bg-white/5"
           >
-            <RefreshCw className="w-6 h-6" />
+            <RefreshCw className="w-5 h-5" strokeWidth={2} />
           </button>
         </div>
 

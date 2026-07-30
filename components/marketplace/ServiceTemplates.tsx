@@ -1,41 +1,14 @@
 "use client";
+
 /* eslint-disable react-doctor/button-has-type */
 
-import React from "react";
+import React, { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Video, MapPin, Info, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
-
-import { ServiceDeliveryType } from "@/types/catalog"; // Ajusta el path si es necesario
-
-// Plantillas predefinidas (Puedes agregar más en el futuro)
-const serviceTemplates = [
-  {
-    name: "Consulta General",
-    duration: 30,
-    price: 500,
-    type: "in_person" as ServiceDeliveryType,
-  },
-  {
-    name: "Consulta de Seguimiento",
-    duration: 20,
-    price: 350,
-    type: "video_call" as ServiceDeliveryType,
-  },
-  {
-    name: "Valoración Inicial",
-    duration: 45,
-    price: 700,
-    type: "in_person" as ServiceDeliveryType,
-  },
-  {
-    name: "Teleconsulta",
-    duration: 25,
-    price: 400,
-    type: "video_call" as ServiceDeliveryType,
-  },
-];
+import { ServiceDeliveryType } from "@/types/catalog";
 
 interface ServiceTemplatesProps {
   onApply: (template: {
@@ -50,74 +23,114 @@ interface ServiceTemplatesProps {
 export function ServiceTemplates({ onApply, onClose }: ServiceTemplatesProps) {
   const t = useTranslations("Marketplace.services");
 
+  const serviceTemplates = useMemo(
+    () => [
+      {
+        name: t("template_general_consultation"),
+        duration: 30,
+        price: 500,
+        type: "in_person" as ServiceDeliveryType,
+      },
+      {
+        name: t("template_followup_consultation"),
+        duration: 20,
+        price: 350,
+        type: "video_call" as ServiceDeliveryType,
+      },
+      {
+        name: t("template_initial_assessment"),
+        duration: 45,
+        price: 700,
+        type: "in_person" as ServiceDeliveryType,
+      },
+      {
+        name: t("template_teleconsultation"),
+        duration: 25,
+        price: 400,
+        type: "video_call" as ServiceDeliveryType,
+      },
+    ],
+    [t]
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, height: 0, marginBottom: 0 }}
       animate={{ opacity: 1, height: "auto", marginBottom: 24 }}
       exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-      className="flex flex-col border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] rounded-none overflow-hidden"
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="flex flex-col border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden shadow-2xs font-sans select-none"
     >
-      {/* Cabecera del Panel */}
-      <div className="flex items-start md:items-center justify-between p-6 border-b border-black/10 dark:border-white/10 bg-white dark:bg-[#0a0a0a] shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0">
-            <Info
-              className="w-4 h-4 text-black dark:text-white"
-              strokeWidth={1.5}
-            />
+      {/* ── CABECERA DEL PANEL DE PLANTILLAS ──────────────────────────── */}
+      <div className="flex items-center justify-between p-5 md:p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 shrink-0">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+            <Info className="w-5 h-5" strokeWidth={2} />
           </div>
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-tight text-black dark:text-white leading-none mb-1">
-              {t("quick_templates", { defaultValue: "PLANTILLAS BASE" })}
+
+          <div className="space-y-0.5">
+            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("quick_templates")}
             </p>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
-              {t("quick_templates_desc", {
-                defaultValue:
-                  "CARGUE UNA CONFIGURACIÓN PREESTABLECIDA PARA ACELERAR EL REGISTRO.",
-              })}
+            <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("quick_templates_desc")}
             </p>
           </div>
         </div>
-        {/* Botón de Cerrar */}
+
+        {/* Botón de Cierre */}
         <button
+          type="button"
           onClick={onClose}
-          className="w-10 h-10 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#111] transition-colors shrink-0 border border-transparent hover:border-black/20 dark:hover:border-white/20"
+          className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-gray-500 cursor-pointer shadow-2xs shrink-0"
         >
-          <X className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+          <X className="w-4 h-4" strokeWidth={2} />
         </button>
       </div>
 
-      {/* Grid de Plantillas (Matriz de Comandos) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 bg-white dark:bg-[#0a0a0a] border-b border-black/10 dark:border-white/10">
+      {/* ── GRID DE PLANTILLAS ────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 sm:p-5 bg-white dark:bg-[#0a0a0a]">
         {serviceTemplates.map((template, index) => (
           <button
             key={index}
+            type="button"
             onClick={() => onApply(template)}
-            className="flex flex-col text-left border-r border-b lg:border-b-0 border-black/10 dark:border-white/10 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors group p-0 rounded-none last:border-r-0 sm:nth-child(even):border-r-0 lg:nth-child(even):border-r"
+            className="flex flex-col text-left border border-gray-100 dark:border-gray-800 bg-gray-50/40 dark:bg-[#050505] hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 hover:border-emerald-500/40 transition-all rounded-2xl p-4 cursor-pointer group shadow-2xs justify-between space-y-4"
           >
-            <div className="p-5 flex-1 w-full">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-8 h-8 border border-black/20 dark:border-white/20 bg-gray-50 dark:bg-[#050505] flex items-center justify-center group-hover:border-white/30 dark:group-hover:border-black/30 group-hover:bg-transparent transition-colors">
+            <div className="space-y-3 w-full">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors shadow-2xs">
                   {template.type === "video_call" ? (
-                    <Video className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    <Video className="w-4 h-4" strokeWidth={2} />
                   ) : (
-                    <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    <MapPin className="w-4 h-4" strokeWidth={2} />
                   )}
                 </div>
-                <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border border-black/10 dark:border-white/10 group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
-                  {template.type === "video_call" ? "REMOTO" : "LOCAL"}
+
+                <span
+                  className={cn(
+                    "text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-2xs font-mono",
+                    template.type === "video_call"
+                      ? "bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-400 border-sky-200 dark:border-sky-900/40"
+                      : "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40"
+                  )}
+                >
+                  {template.type === "video_call"
+                    ? t("template_remote")
+                    : t("template_local")}
                 </span>
               </div>
-              <p className="text-xs font-semibold uppercase tracking-widest leading-tight mb-2">
+
+              <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors leading-tight">
                 {template.name}
               </p>
             </div>
 
-            <div className="w-full p-4 border-t border-black/10 dark:border-white/10 flex items-center justify-between bg-gray-50 dark:bg-[#050505] group-hover:bg-transparent group-hover:border-white/30 dark:group-hover:border-black/30 transition-colors">
-              <span className="text-[10px] font-mono font-bold tracking-widest">
-                ${template.price}
+            <div className="pt-3 border-t border-gray-200/60 dark:border-gray-800/80 flex items-center justify-between w-full">
+              <span className="text-xs font-mono font-bold text-gray-900 dark:text-white">
+                ${template.price} MXN
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-widest opacity-70">
+              <span className="text-[10px] font-bold font-mono text-gray-400">
                 {template.duration} MIN
               </span>
             </div>
