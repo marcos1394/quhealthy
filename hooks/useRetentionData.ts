@@ -1,9 +1,17 @@
-// hooks/useFinancialData.ts
+// hooks/useRetentionData.ts
 import { useState, useEffect, useCallback } from 'react';
 import { dashboardService } from '@/services/dashboard.service';
 
-export const useFinancialData = (limit: number = 6, period: 'DAYS' | 'WEEKS' | 'MONTHS' = 'MONTHS') => {
-  const [data, setData] = useState<{ name: string, revenue: number }[]>([]);
+export interface RetentionData {
+  retentionRate: number;
+  previousRetentionRate: number;
+  retentionRateGrowth: number;
+  avgVisitsPerPatient: number;
+  churnRiskCount: number;
+}
+
+export const useRetentionData = () => {
+  const [data, setData] = useState<RetentionData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,15 +19,15 @@ export const useFinancialData = (limit: number = 6, period: 'DAYS' | 'WEEKS' | '
     setIsLoading(true);
     setError(null);
     try {
-      const response = await dashboardService.getFinancialTimeseries(limit, period);
+      const response = await dashboardService.getRetentionMetrics();
       setData(response);
     } catch (err: any) {
-      console.error("❌ Error cargando la serie de tiempo financiera:", err);
-      setError(err.response?.data?.message || "Error al cargar datos financieros.");
+      console.error("❌ Error cargando métricas de retención:", err);
+      setError(err.response?.data?.message || "Error al cargar datos de retención.");
     } finally {
       setIsLoading(false);
     }
-  }, [limit, period]);
+  }, []);
 
   useEffect(() => {
     fetchData();

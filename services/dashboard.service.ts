@@ -27,11 +27,11 @@ export const dashboardService = {
   },
 
   /**
-   * 📊 Obtiene la serie de tiempo financiera (ingresos mensuales)
+   * 📊 Obtiene la serie de tiempo financiera (ingresos mensuales, semanales o diarios)
    * GET /api/appointments/dashboard/financial
    */
-  getFinancialTimeseries: async (months: number = 6): Promise<{ name: string, revenue: number }[]> => {
-    const response = await axiosInstance.get(`${BASE_URL}/financial`, { params: { months } });
+  getFinancialTimeseries: async (limit: number = 6, period: 'DAYS' | 'WEEKS' | 'MONTHS' = 'MONTHS'): Promise<{ name: string, revenue: number }[]> => {
+    const response = await axiosInstance.get(`${BASE_URL}/financial`, { params: { limit, period } });
     return response.data;
   }
   

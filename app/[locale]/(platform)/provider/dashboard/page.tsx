@@ -46,6 +46,7 @@ import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ProviderReputationCard } from "@/components/dashboard/ProviderReputationCard";
+import { RetentionWidget } from "@/components/dashboard/RetentionWidget";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { cn } from "@/lib/utils";
@@ -767,7 +768,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Tarjeta de Reputación */}
-        <ProviderReputationCard />
+        <div className="flex flex-col gap-6">
+          <ProviderReputationCard />
+          <RetentionWidget />
+        </div>
       </div>
 
       {/* ── AGENDA DEL DÍA (PRÓXIMAS CITAS) ────────────────────────────────── */}

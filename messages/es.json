@@ -7830,7 +7830,22 @@
     },
     "RevenueChart": {
       "title": "Ingresos",
-      "loading": "Cargando ingresos..."
+      "loading": "Cargando ingresos...",
+      "days_7": "7 Días",
+      "weeks_4": "4 Semanas",
+      "months_6": "6 Meses"
+    },
+    "RetentionWidget": {
+      "title": "Retención de Pacientes",
+      "subtitle": "Mes actual vs Mes anterior",
+      "retention_rate": "Tasa de Retención",
+      "avg_visits": "Visitas Promedio",
+      "per_patient": "/ paciente",
+      "churn_risk": "En Riesgo",
+      "churn_tooltip": "Pacientes sin citas en los últimos 60 días.",
+      "patients": "pacientes",
+      "loading": "Cargando métricas...",
+      "error": "No se pudieron cargar las métricas"
     }
   },
   "DashboardQuickActions": {
