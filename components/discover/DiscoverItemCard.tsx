@@ -27,7 +27,7 @@ import { DiscoverItem } from "@/types/discover";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { StorefrontItem } from "@/types/storefront";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
-
+export const DiscoverItemCard = ({
   item,
   isFavorited = false,
   onAuthRequired,
