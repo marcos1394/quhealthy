@@ -133,8 +133,7 @@
         "features": [
           "$0 Mensualidad fija",
           "Gestión básica de Citas y Pacientes",
-          "15% de comisión por cobros en app",
-          "Sin QuAI Credits"
+          "15% de comisión por cobros en app"
         ],
         "button_text": "Comenzar gratis"
       },
@@ -144,8 +143,7 @@
         "features": [
           "Hasta 50 Citas al mes",
           "Catálogo: 5 Servicios / 10 Productos",
-          "15% de Comisión",
-          "100 QuAI Credits/mes"
+          "15% de Comisión"
         ],
         "button_text": "Elegir Básico"
       },
@@ -156,8 +154,7 @@
           "Hasta 150 Citas al mes",
           "Catálogo: 15 Servicios / 30 Productos",
           "12% de Comisión",
-          "Acceso a ventas en QUMarket",
-          "500 QuAI Credits/mes"
+          "Acceso a ventas en QUMarket"
         ],
         "button_text": "Prueba 14 días gratis"
       },
@@ -168,8 +165,7 @@
           "Hasta 500 Citas al mes",
           "Catálogo: 50 Servicios / 100 Productos",
           "10% de Comisión",
-          "Reportes Avanzados e IA (QUBlocks)",
-          "2000 QuAI Credits/mes"
+          "Reportes Avanzados e IA (QUBlocks)"
         ],
         "button_text": "Elegir Premium"
       },
@@ -180,8 +176,7 @@
           "Citas y Catálogo Ilimitados",
           "Gestión Multi-usuario (Clínicas)",
           "Comisión VIP preferencial",
-          "Marketing y Soporte Nivel 4 (VIP)",
-          "Bolsa Personalizada de QuAI Credits"
+          "Marketing y Soporte Nivel 4 (VIP)"
         ],
         "button_text": "Contactar ventas"
       }
@@ -2996,6 +2991,8 @@
     "toast_save_error": "Hubo un problema al guardar las preferencias."
   },
 
+  
+
 
   
   "DashboardHistory": {
@@ -4421,7 +4418,6 @@
     "error_title": "Tienda no disponible",
     "error_desc": "El proveedor que buscas no existe o su tienda se encuentra temporalmente inactiva.",
     "error_back": "Regresar",
-    "default_bio": "Bienvenido a nuestro consultorio digital. Estamos listos para atenderte.",
     "tab_services": "Servicios",
     "tab_packages": "Paquetes",
     "modality_online": "En Línea",
@@ -4441,6 +4437,29 @@
     "btn_continue": "Continuar al Pago",
     "new_label": "Nuevo",
     "load_more": "Mostrar más",
+     "reviews_count": "{count, plural, =1 {1 reseña} other {{count} reseñas}}",
+    "new_provider": "Nuevo",
+    "consultorio": "Consultorio",
+    "share": "Compartir",
+    "save": "Guardar",
+    "view_all_photos": "Ver todas",
+    "no_images": "Sin imágenes disponibles",
+    "attended_by": "Atendido por {name}",
+    "verified_specialist": "Especialista verificado",
+    "medical_verification_title": "Verificación Médica",
+    "medical_verification_desc": "Cédula e identidad profesional validadas por QuHealthy.",
+    "availability_title": "Disponibilidad Inmediata",
+    "availability_desc": "Horarios flexibles presenciales y consultas en línea.",
+    "experience_title": "Alta Experiencia",
+    "experience_desc": "Calificación destacada por pacientes satisfechos.",
+    "location_title": "Ubicación Céntrica",
+    "location_desc": "Ubicado en {city}",
+    "default_city": "Ciudad Principal",
+    "about_specialist": "Sobre el Especialista",
+    "default_bio": "Especialista comprometido con la salud y el bienestar integral de sus pacientes, brindando atención médica personalizada de alta calidad.",
+    "contact_whatsapp": "Contactar por WhatsApp",
+    "follow_instagram": "Seguir en Instagram",
+    "copied_toast": "Enlace copiado al portapapeles.",
     "GlobalCartBar": {
       "cart_summary": "Resumen del Pedido",
       "items_count": "{count, plural, =1 {1 Ítem} other {{count} Ítems}}",
@@ -4448,6 +4467,85 @@
       "btn_continue": "Continuar con la Compra",
       "verifying": "Verificando..."
     }
+  },
+
+  "AiConsentModal": {
+    "title": "Asistente Médico con IA",
+    "description": "Para brindarte una mejor atención, tu médico puede utilizar inteligencia artificial durante la consulta. Por favor, selecciona qué usos autorizas.",
+    "audio_title": "Procesamiento de Audio",
+    "audio_desc": "Permito que la IA escuche y transcriba en tiempo real lo hablado en la consulta para ayudar al médico.",
+    "clinical_note_title": "Generación de Nota Clínica",
+    "clinical_note_desc": "Permito que la IA redacte un borrador de la nota médica (SOAP) para el expediente, basándose en la transcripción.",
+    "storage_title": "Almacenamiento Seguro",
+    "storage_desc": "Permito el almacenamiento encriptado temporal de estos datos generados por IA en mi expediente de salud.",
+    "notice": "Nota: Puedes ingresar a la consulta sin marcar estas opciones. Si no aceptas, el médico llevará a cabo la consulta sin asistencia de IA. Esta configuración solo aplica para esta cita.",
+    "btn_continue": "Continuar a la sala",
+    "consent_version": "v1.0"
+  },
+  "CallFinished": {
+    "title": "Consulta Finalizada",
+    "patient_desc": "La sesión ha terminado exitosamente. Esperamos que hayas tenido una excelente experiencia.",
+    "provider_desc": "La consulta ha finalizado. El tiempo se ha registrado en el sistema.",
+    "rating_title": "¿Cómo calificarías tu consulta?",
+    "btn_home": "Volver al Inicio",
+    "btn_schedule": "Agendar nueva cita"
+  },
+  "ConsultationLayout": {
+    "brand": "QuHealthy",
+    "status_device_setup": "Configuración de Equipo",
+    "status_joining": "Conectando a la sala...",
+    "status_waiting": "Sala de Espera",
+    "status_connecting": "Iniciando conexión segura...",
+    "status_reconnecting": "Reconectando...",
+    "status_connected": "Consulta en Progreso",
+    "status_completed": "Consulta Finalizada",
+    "status_failed": "Error de Conexión",
+    "status_default": "Cargando..."
+  },
+
+  "TeleconsultationRoom": {
+    "establishing_connection": "Estableciendo conexión segura...",
+    "waiting_video": "Esperando señal de video...",
+    "ai_active": "IA Activa",
+    "revoke_ai": "Revocar IA",
+    "revoking": "Revocando...",
+    "toast_ai_revoked": "Consentimiento revocado. La IA abandonará la sala.",
+    "toast_ai_error": "Hubo un error al revocar el consentimiento."
+  },
+  "DeviceSetup": {
+    "camera_not_accessible": "Cámara no accesible",
+    "requesting_permissions": "Solicitando permisos de cámara...",
+    "btn_retry": "Reintentar",
+    "cam_ok": "Cámara activa",
+    "cam_error": "Error en cámara",
+    "mic_ok": "Micrófono activo",
+    "mic_error": "Error en micrófono",
+    "net_ok": "Red estable",
+    "net_error": "Sin red",
+    "subtitle_language": "Idioma de Subtítulos y Traducción",
+    "lang_es": "Español",
+    "lang_en": "English (Inglés)",
+    "btn_join": "Entrar a la sala",
+    "btn_joining": "Conectando..."
+  },
+  "ProviderVideoWidget": {
+    "starting_call": "Iniciando videollamada...",
+    "connection_error_title": "Error de Conexión",
+    "connection_error_desc": "No se pudo establecer la conexión. Verifica tus permisos o tu conexión a internet.",
+    "finished_title": "Videollamada Finalizada",
+    "finished_desc": "Puedes continuar con la evaluación médica en el expediente.",
+    "btn_close_panel": "Cerrar Panel"
+  },
+  "WaitingRoom": {
+    "secure_connection": "Conexión Encriptada",
+    "patient_waiting_title": "Tu médico se unirá en breve",
+    "provider_waiting_title": "Esperando ingreso del paciente",
+    "patient_waiting_desc": "Permanece en esta pantalla. El especialista ha sido notificado.",
+    "provider_waiting_desc": "El paciente aún no ha ingresado a la sala. Te avisaremos cuando se conecte.",
+    "time_remaining": "Tiempo restante",
+    "auto_notice": "Notificación automática al iniciar la llamada.",
+    "camera_off": "Cámara desactivada",
+    "local_video_label": "Tu cámara (Vista previa)"
   },
 
   
@@ -5261,7 +5359,11 @@
     "error_invalid": "El enlace de la reseña ha expirado o es inválido.",
     "toast_rating_required": "Por favor selecciona una calificación en estrellas.",
     "toast_success": "¡Gracias! Tu reseña ha sido enviada con éxito.",
-    "toast_error": "Ocurrió un error al enviar tu reseña. Intenta nuevamente."
+    "toast_error": "Ocurrió un error al enviar tu reseña. Intenta nuevamente.",
+    "title_service": "Evaluación de Servicio",
+    "title_product": "Evaluación de Producto",
+    "title_order": "Evaluación de Orden"
+
   },
 
   "PatientSettings": {
@@ -5301,6 +5403,313 @@
     "empty_history_desc": "Tus opiniones aparecerán aquí después de calificar tus citas.",
     "pending_integration": "Estamos cruzando datos con tus citas recientes. ¡Pronto verás aquí a quién te falta calificar!",
     "toast_error": "No pudimos cargar tu historial. Intenta de nuevo."
+  },
+
+  "SettingsActiveSessions": {
+    "title": "Sesiones Activas",
+    "subtitle": "Dispositivos que actualmente tienen acceso autorizado a tu cuenta.",
+    "btn_revoke_all": "Revocar Restantes",
+    "btn_revoke": "Revocar",
+    "btn_revoking": "Revocando...",
+    "current_device": "Este dispositivo",
+    "unknown_device": "Dispositivo Desconocido",
+    "last_active": "Última actividad: {time}",
+    "toast_load_error": "No se pudieron cargar las sesiones activas.",
+    "toast_revoke_success": "Sesión revocada exitosamente.",
+    "toast_revoke_error": "Error al revocar la sesión.",
+    "toast_revoke_all_success": "Todas las demás sesiones fueron revocadas.",
+    "toast_revoke_all_error": "Error al revocar las sesiones."
+  },
+
+  "SecuritySettings": {
+    "title": "Seguridad y Acceso",
+    "subtitle": "Protege tu cuenta con contraseñas seguras y verificación en dos pasos.",
+    "change_password_title": "Cambiar Contraseña",
+    "current_password": "Contraseña Actual",
+    "new_password": "Nueva Contraseña",
+    "confirm_password": "Confirmar Contraseña",
+    "update_password_btn": "Actualizar Contraseña",
+    "updating_password": "Actualizando...",
+    "mfa_title": "Autenticación de Dos Factores (MFA)",
+    "mfa_enabled": "Activado",
+    "mfa_disabled": "Desactivado",
+    "mfa_desc": "Agrega una capa adicional de seguridad a tu cuenta solicitando un código temporal (TOTP) al iniciar sesión, además de tu contraseña.",
+    "disable_mfa_btn": "Desactivar MFA",
+    "setup_mfa_btn": "Configurar MFA",
+    "mfa_modal_title": "Configurar Aplicación Autenticadora",
+    "mfa_modal_desc": "Escanea este código QR con Google Authenticator, Authy o tu aplicación preferida.",
+    "mfa_qr_loading": "Cargando QR...",
+    "mfa_code_label": "Ingresa el código de 6 dígitos",
+    "mfa_code_placeholder": "000000",
+    "cancel": "Cancelar",
+    "activate": "Activar",
+    "verifying": "Verificando...",
+    "disable_mfa_modal_title": "Desactivar MFA",
+    "disable_mfa_modal_desc": "Para desactivar la autenticación en dos pasos, ingresa tu contraseña actual.",
+    "password": "Contraseña",
+    "placeholder_password": "••••••••",
+    "disable": "Desactivar",
+    "processing": "Procesando...",
+    "toast_password_mismatch": "Las contraseñas no coinciden.",
+    "toast_password_length": "La contraseña debe tener al menos 8 caracteres.",
+    "toast_password_success": "Contraseña actualizada exitosamente.",
+    "toast_password_error": "Error al cambiar la contraseña.",
+    "toast_mfa_setup_error": "Error al configurar MFA.",
+    "toast_mfa_enable_success": "MFA activado exitosamente.",
+    "toast_mfa_enable_error": "Código incorrecto.",
+    "toast_mfa_disable_success": "MFA desactivado.",
+    "toast_mfa_disable_error": "Contraseña incorrecta."
+  },
+
+  "SettingsWearables": {
+    "title": "Dispositivos y Wearables",
+    "subtitle": "Sincroniza tus dispositivos biométricos para enriquecer tu seguimiento clínico.",
+    "processing_auth": "Autenticando protocolo seguro...",
+    "connected_badge": "Enlazado",
+    "mobile_only_badge": "App iOS Requerida",
+    "btn_disconnect": "Revocar Acceso",
+    "btn_connect": "Sincronizar Protocolo",
+    "privacy_title": "Cifrado Biométrico E2E",
+    "privacy_desc": "La telemetría de tus dispositivos es cifrada de extremo a extremo. QuHealthy interactúa exclusivamente con los nodos autorizados para nutrir el modelo algorítmico consentido en tu perfil clínico.",
+    "toast_apple_info": "Apple Health requiere sincronización nativa desde un dispositivo iOS.",
+    "toast_google_missing_client": "Falta configurar NEXT_PUBLIC_GOOGLE_CLIENT_ID en el entorno.",
+    "toast_csrf_error": "Error de seguridad: La sesión de validación no coincide (Posible CSRF).",
+    "toast_oauth_success": "Dispositivo conectado: {provider}",
+    "toast_oauth_error": "Error al establecer conexión con el dispositivo.",
+    "toast_disconnect_success": "Enlace revocado exitosamente.",
+    "toast_disconnect_error": "Error al revocar permisos.",
+    "toast_upcoming_integration": "La integración técnica con {provider} estará disponible en la próxima actualización.",
+    "providers": {
+      "google_fit_desc": "Sincroniza pasos, sueño y ritmo cardíaco.",
+      "apple_health_desc": "Disponible exclusivamente en dispositivos iOS.",
+      "garmin_desc": "Sincroniza actividades deportivas y métricas avanzadas.",
+      "fitbit_desc": "Actividad diaria, monitoreo de sueño y niveles de estrés.",
+      "oura_desc": "Datos avanzados de recuperación biométrica y anillos inteligentes."
+    }
+  },
+
+  "LocationPicker": {
+    "loading_stage_1": "Inicializando el mapa interactivo...",
+    "loading_stage_2": "Sincronizando coordenadas del consultorio...",
+    "loading_stage_3": "Optimizando la vista geográfica...",
+    "loading_default": "Cargando mapa de ubicación...",
+    "loading_subtext": "Estableciendo la ubicación exacta para la atención presencial",
+    "error_title": "No se pudo cargar el mapa",
+    "error_desc": "Tuvimos un inconveniente al conectar con el servicio de mapas. Verifica tu conexión a internet e inténtalo de nuevo.",
+    "btn_retry": "Reintentar carga del mapa"
+  },
+
+  "MapModal": {
+    "search_placeholder": "Busca calle, número, colonia o código postal...",
+    "btn_2d_map": "Ver Mapa 2D",
+    "btn_street_view": "Vista Street View",
+    "processing_address": "Sincronizando dirección geográfica...",
+    "location_fixed": "Ubicación fijada correctamente",
+    "location_selected_default": "Ubicación seleccionada",
+    "error_libraries": "Error al cargar las librerías de Google Maps.",
+    "error_title": "Error de Conexión",
+    "error_desc": "No fue posible establecer conexión con el servicio de mapas.",
+    "btn_retry": "Reintentar Carga",
+    "synced_google": "Sincronizado con Google",
+    "tip_title": "Consejo:",
+    "tip_desc": "Si tu consultorio o clínica se ubica dentro de una plaza o torre médica, arrastra el marcador rojo exactamente a la puerta de entrada principal.",
+    "loading_stage_1": "Inicializando motor de mapas...",
+    "loading_stage_2": "Sincronizando con Google Maps...",
+    "loading_stage_3": "Preparando vista interactiva...",
+    "loading_default": "Cargando mapa...",
+    "loading_subtext": "Estableciendo coordenadas geográficas"
+  },
+
+  "CategorySelector": {
+    "loading_catalog": "Cargando catálogo de especialidades...",
+    "loading_subtext": "Selecciona tu área o sector para desplegar las disciplinas disponibles.",
+    "error_title": "No se pudo cargar el catálogo",
+    "btn_retry": "Reintentar",
+    "progress_title": "Especialidad y Área de Atención",
+    "step_category": "Categoría Principal",
+    "step_subcategory": "Enfoque Específico",
+    "step_tags": "Etiquetas Especializadas",
+    "label_category": "Categoría Médica / Disciplina Principal *",
+    "placeholder_category": "Selecciona una categoría o especialidad...",
+    "search_category": "Buscar categoría...",
+    "no_categories": "No se encontraron categorías.",
+    "btn_create": "Crear \"{name}\"",
+    "label_subcategory": "Enfoque Específico / Subespecialidad *",
+    "loading_subcategories": "Sincronizando subcategorías...",
+    "placeholder_subcategory": "Selecciona un enfoque o área de atención...",
+    "search_subcategory": "Buscar subespecialidad...",
+    "no_subcategories": "No se encontraron enfoques específicos.",
+    "label_tags": "Etiquetas y Descriptores de Búsqueda",
+    "optional_suffix": "(opcional)",
+    "tags_selected": "{count, plural, =1 {1 seleccionada} other {{count} seleccionadas}}",
+    "search_tags_placeholder": "Filtrar etiquetas o escribir palabras clave...",
+    "no_tags_found": "No se encontraron etiquetas que coincidan con \"{query}\"",
+    "btn_create_tag": "Crear etiqueta \"{name}\"",
+    "complete_title": "Especialidad Configurada Exitosamente",
+    "complete_desc": "Tus categorías y áreas de enfoque han sido vinculadas a tu perfil profesional.",
+    "toast_cat_selected": "Categoría seleccionada: {name}",
+    "toast_sub_selected": "Enfoque seleccionado: {name}"
+  },
+
+  "AuthGateModal": {
+    "default_title": "Acceso Requerido",
+    "default_description": "Regístrate o inicia sesión para desbloquear esta función y acceder a la experiencia completa de QuHealthy.",
+    "btn_create_account": "Crear Cuenta",
+    "btn_login": "Ya Tengo Cuenta"
+  },
+  "SportsMedicalEvaluationHistory": {
+    "title": "Historial de Medicina Deportiva",
+    "subtitle": "Evaluaciones de aptitud física, seguimiento de lesiones y certificados.",
+    "empty_title": "Sin Evaluaciones Registradas",
+    "empty_desc": "No se han encontrado dictámenes ni evaluaciones de aptitud física para este paciente.",
+    "col_date": "Fecha",
+    "col_type": "Tipo de Evaluación",
+    "col_result": "Resultado / Dictamen",
+    "col_document": "Documento",
+    "fitness_check": "Aptitud Física",
+    "injury_prefix": "Lesión: {type}",
+    "btn_pdf": "PDF",
+    "toast_download_error": "No se pudo descargar el certificado médico."
+  },
+
+  "CourseCurriculum": {
+    "loading": "Cargando plan de estudios...",
+    "title": "Plan de Estudios",
+    "summary": "{modules} Módulos • {lessons} Lecciones",
+    "module_label": "Módulo {index}",
+    "lessons_count": "{count, plural, =1 {1 Lección} other {{count} Lecciones}}",
+    "preview_badge": "Vista Previa",
+    "duration": "{minutes} min",
+    "preview_alert": "Esta lección es de vista previa. Próximamente estará disponible el reproductor interactivo."
+  },
+  "QuickAvailability": {
+    "subject_to_confirmation": "Agenda sujeta a confirmación",
+    "next_slots_title": "Próximos turnos disponibles",
+    "today": "Hoy",
+    "tomorrow": "Mñn"
+  },
+  "StickyBookingBar": {
+    "selection_label": "Tu Selección",
+    "items_count": "{count, plural, =1 {1 ítem} other {{count} ítems}}",
+    "btn_book": "Agendar Cita",
+    "btn_book_short": "Agendar"
+  },
+
+  "QuScoreModal": {
+    "title": "Desglose QuScore",
+    "subtitle": "Auditoría de Transparencia Algorítmica",
+    "new_provider_notice": "Aviso: El especialista aún no cumple el límite transaccional para un cálculo algorítmico completo.",
+    "btn_methodology": "Consultar Metodología Pública"
+  },
+  "StorefrontNavigation": {
+    "discover": "Descubrir",
+    "share_text": "Agenda tu cita con {name} en QuHealthy",
+    "copied_toast": "Enlace copiado al portapapeles."
+  },
+  "StorefrontReviews": {
+    "title": "Reseñas de Pacientes",
+    "verified_user": "Usuario Verificado",
+    "recent": "Reciente",
+    "authentic": "Auténtico",
+    "provider_response_title": "Respuesta del Especialista",
+    "show_all_btn": "Mostrar todas las {count} reseñas"
+  },
+
+ 
+
+  "CheckoutModal": {
+    "title_order_finalization": "Finalización de Pedido",
+    "title_booking_confirmation": "Confirmación de Reserva",
+    "title_contract_finalization": "Finalización de Contrato",
+    "subtitle_logistics": "Logística de Entrega",
+    "subtitle_clinical": "Validación Clínica",
+    "section_items_summary": "Resumen de Ítems",
+    "section_items_desc": "Verifica el contenido de tu orden antes de liquidar el pago.",
+    "type_package": "Paquete",
+    "type_service": "Servicio",
+    "type_digital": "Digital",
+    "type_physical": "Físico",
+    "section_shipping_title": "Parámetros de Logística",
+    "section_shipping_desc": "Defina el método de entrega para los productos físicos.",
+    "method_delivery": "Envío a Domicilio",
+    "method_pickup": "Recolección In-Situ",
+    "label_street": "Calle y Número *",
+    "placeholder_street": "Ej. Av. Insurgentes Sur 1234",
+    "label_colony": "Colonia *",
+    "placeholder_colony": "Ej. Del Valle",
+    "label_zip": "Código Postal *",
+    "placeholder_zip": "Ej. 03100",
+    "label_city": "Ciudad *",
+    "placeholder_city": "Ej. Ciudad de México",
+    "label_state": "Estado *",
+    "placeholder_state": "Ej. CDMX",
+    "pickup_notice": "Indica la fecha y el horario programado para tu recolección presencial.",
+    "label_pickup_date": "Fecha Programada *",
+    "placeholder_pickup_date": "DD/MM/AAAA",
+    "label_pickup_time": "Horario de Recolección *",
+    "placeholder_pickup_time": "HH:MM",
+    "section_rx_title": "Auditoría de Prescripción Médica",
+    "section_rx_desc": "Documentación clínica obligatoria para el surtimiento de medicamentos.",
+    "rx_active_ingredient": "Activo: {ingredient}",
+    "rx_verified_badge": "Verificada",
+    "rx_upload_btn_processing": "Procesando archivo...",
+    "rx_upload_btn_replace": "Reemplazar documento",
+    "rx_upload_btn_attach": "Adjuntar receta o documento médico",
+    "rx_upload_file_types": "PDF, JPG, PNG • Máximo 5 MB",
+    "rx_privacy_note": "La receta será cifrada y auditada exclusivamente por el especialista o farmacia autorizada.",
+    "section_payment_title": "Método de Pago",
+    "section_payment_desc": "Selecciona la fuente de fondos para completar tu compra.",
+    "payment_stripe": "Tarjeta / Pasarela Segura",
+    "payment_stripe_desc": "Pago encriptado con tarjeta de crédito o débito",
+    "payment_wallet": "QuWallet",
+    "payment_wallet_balance": "Saldo disponible: ${balance} MXN",
+    "payment_wallet_insufficient": "Saldo insuficiente",
+    "total_label": "Liquidación Total",
+    "btn_pay": "Pagar de Forma Segura",
+    "btn_processing": "Procesando Pago...",
+    "toast_rx_error": "Error al transferir la receta. Por favor reintente."
+  },
+
+  "SettingsNotifications": {
+    "title": "Preferencias de Notificaciones",
+    "subtitle": "Controla cómo y cuándo deseas recibir avisos y alertas de QuHealthy.",
+    "channels_title": "Canales de Comunicación",
+    "medical_reminders_title": "Recordatorios Médicos",
+    "medical_reminders_desc": "Citas programadas, tomas de medicamentos y alertas de parámetros vitales.",
+    "system_updates_title": "Actualizaciones del Sistema",
+    "system_updates_desc": "Nuevas funciones, reportes periódicos y avisos de seguridad.",
+    "promotions_title": "Promociones y Ofertas",
+    "promotions_desc": "Descuentos en consultas, paquetes y convenios con especialistas.",
+    "push_devices_title": "Dispositivos Registrados (Push)",
+    "push_devices_desc": "La gestión de notificaciones push estará disponible con el lanzamiento de la app móvil.",
+    "badge_coming_soon": "Próximamente"
+  },
+  "SettingsPrivacy": {
+    "title": "Privacidad y Manejo de Datos",
+    "subtitle": "Gestiona el uso de tus datos clínicos y preferencias de Inteligencia Artificial.",
+    "ai_title": "Motor de Inteligencia Artificial",
+    "consent_title": "Consentimiento Algorítmico",
+    "consent_desc": "Permite que los algoritmos de análisis predictivo de QuHealthy procesen tus parámetros biométricos (wearables, vacunas, laboratorios) de forma anónima y encriptada para sugerirte recomendaciones preventivas de salud.",
+    "export_title": "Exportar Expediente Clínico",
+    "export_desc": "Podrás descargar tu expediente completo en formatos interoperables (JSON / HL7-FHIR).",
+    "badge_coming_soon": "Próximamente",
+    "danger_zone_title": "Zona de Peligro",
+    "danger_zone_desc": "Eliminar tu cuenta borrará permanentemente tu expediente, conexiones y configuraciones. Esta acción no se puede deshacer.",
+    "btn_delete_account": "Eliminar Cuenta",
+    "dialog_title": "Confirmación de Eliminación Definitiva",
+    "dialog_desc": "Estás a punto de borrar tu cuenta permanentemente. Para confirmar, escribe {confirmWord} a continuación e ingresa tu contraseña actual.",
+    "confirm_keyword": "ELIMINAR",
+    "label_confirm": "Palabra de Confirmación",
+    "placeholder_confirm": "ELIMINAR",
+    "label_password": "Contraseña Actual",
+    "placeholder_password": "••••••••",
+    "btn_cancel": "Cancelar",
+    "btn_confirm_delete": "Destruir Cuenta",
+    "btn_deleting": "Procesando...",
+    "toast_consent_error": "No se pudo actualizar el consentimiento algorítmico.",
+    "toast_confirm_mismatch": "Debes escribir {word} para confirmar.",
+    "toast_password_required": "La contraseña es obligatoria.",
+    "toast_delete_success": "Cuenta eliminada correctamente. Redirigiendo..."
   },
 
  "PatientFamilyDashboard": {
@@ -5738,6 +6147,13 @@
     "btn_confirm": "Confirmar Llegada",
     "btn_confirming": "Procesando..."
   },
+
+  "AuthProvider": {
+    "restoring_session": "Restaurando sesión segura..."
+  },
+
+  
+
 
   "ProviderReputation": {
     "title": "Mi Reputación",

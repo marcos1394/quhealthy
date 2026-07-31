@@ -2,9 +2,11 @@
 
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-event-handler */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useReducer } from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -24,16 +26,16 @@ import {
   AlertCircle,
   Info,
   Search,
-  Sparkles,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 import { googleService } from "@/services/google.service";
 import { LocationData, LocationPickerProps } from "@/types/location";
-import { QhSpinner } from "@/components/ui/QhSpinner";
 import { handleApiError } from "@/lib/handleApiError";
+import { cn } from "@/lib/utils";
 
 const libraries: "places"[] = ["places"];
 
@@ -43,7 +45,7 @@ const mapContainerStyle = {
   minHeight: "420px",
 };
 
-// ☀️ ESTILO MODO CLARO (Limpio & Clínico)
+// ☀️ ESTILO MODO CLARO (Clínico & Suave)
 const lightMapStyle = [
   { elementType: "geometry", stylers: [{ color: "#f8fafc" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }] },
@@ -102,12 +104,15 @@ const darkMapStyle = [
 ];
 
 // ============================================================================
-// 1. COMPONENTE INTERNO DEL MAPA (Reactivo al Tema)
+// 1. COMPONENTE INTERNO DEL MAPA (Reactivo a i18n & Tema)
 // ============================================================================
 const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
   onLocationSelect,
   initialLocation,
 }) => {
+  const t = useTranslations("MapModal");
+  const { resolvedTheme } = useTheme();
+
   const [
     {
       map,
@@ -118,7 +123,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
       autocomplete,
     },
     dispatch,
-  ] = React.useReducer(
+  ] = useReducer(
     (state: any, action: any) => {
       switch (action.type) {
         case "SET_MAP":
@@ -195,8 +200,6 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
   const setAutocomplete = (val: any) =>
     dispatch({ type: "SET_AUTOCOMPLETE", payload: val });
 
-  const { resolvedTheme } = useTheme();
-
   const dynamicMapOptions = useMemo<google.maps.MapOptions>(
     () => ({
       disableDefaultUI: true,
@@ -230,7 +233,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
       const newLocation: LocationData = {
         lat,
         lng,
-        address: data.formatted_address || "Ubicación seleccionada",
+        address: data.formatted_address || t("location_selected_default"),
         placeId: placeId || data.place_id,
         city: selectedLocation?.city,
         state: selectedLocation?.state,
@@ -262,18 +265,18 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
   };
 
   return (
-    <div className="space-y-4 relative w-full h-full flex flex-col font-sans">
-      
+    <div className="space-y-4 relative w-full h-full flex flex-col font-sans select-none">
       {/* ── BARRA DE BÚSQUEDA Y AUTOCOMPLETADO ───────────────────────────── */}
-      <div className="relative z-20 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-2 flex items-center gap-3 shadow-sm transition-all">
-        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+      <div className="relative z-20 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-2 flex items-center gap-3 shadow-2xs transition-all">
+        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
           <Search className="w-4 h-4" strokeWidth={2} />
         </div>
+
         <div className="flex-1 min-w-0 h-10">
           <Autocomplete onLoad={setAutocomplete} onPlaceChanged={onPlaceChanged}>
             <input
               type="text"
-              placeholder="Busca calle, número, colonia o código postal..."
+              placeholder={t("search_placeholder")}
               defaultValue={inputValue}
               className="w-full h-full bg-transparent border-none outline-none text-xs font-semibold text-gray-900 dark:text-white placeholder:text-gray-400"
             />
@@ -282,15 +285,14 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
       </div>
 
       {/* ── CONTENEDOR DEL MAPA ───────────────────────────────────────────── */}
-      <div className="relative h-[420px] w-full rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm bg-gray-50 dark:bg-[#050505] group transition-colors">
-        
-        {/* Toggle Street View / Mapa */}
+      <div className="relative h-[420px] w-full rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-2xs bg-gray-50 dark:bg-[#050505] group transition-colors">
+        {/* Alternar Street View / Mapa 2D */}
         <div className="absolute top-4 left-4 z-10">
           <button
             type="button"
             onClick={() => setShowStreetView(!showStreetView)}
             className={cn(
-              "h-9 px-4 rounded-xl text-xs font-bold shadow-sm backdrop-blur-md border transition-all flex items-center gap-2",
+              "h-9 px-4 rounded-xl text-xs font-bold shadow-2xs backdrop-blur-md border transition-all flex items-center gap-2 cursor-pointer",
               showStreetView
                 ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-transparent"
                 : "bg-white/90 dark:bg-[#0a0a0a]/90 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-[#111]"
@@ -301,7 +303,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
             ) : (
               <Eye className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
             )}
-            <span>{showStreetView ? "Ver Mapa 2D" : "Vista Street View"}</span>
+            <span>{showStreetView ? t("btn_2d_map") : t("btn_street_view")}</span>
           </button>
         </div>
 
@@ -369,7 +371,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
               type="button"
               aria-label="Acercar mapa"
               onClick={() => map?.setZoom((map.getZoom() || 15) + 1)}
-              className="w-9 h-9 rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-white flex items-center justify-center hover:bg-white dark:hover:bg-[#111] transition-all shadow-sm"
+              className="w-9 h-9 rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-white flex items-center justify-center hover:bg-white dark:hover:bg-[#111] transition-all shadow-2xs cursor-pointer"
             >
               <ZoomIn className="w-4 h-4" strokeWidth={2} />
             </button>
@@ -378,7 +380,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
               type="button"
               aria-label="Alejar mapa"
               onClick={() => map?.setZoom((map.getZoom() || 15) - 1)}
-              className="w-9 h-9 rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-white flex items-center justify-center hover:bg-white dark:hover:bg-[#111] transition-all shadow-sm"
+              className="w-9 h-9 rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-white flex items-center justify-center hover:bg-white dark:hover:bg-[#111] transition-all shadow-2xs cursor-pointer"
             >
               <ZoomOut className="w-4 h-4" strokeWidth={2} />
             </button>
@@ -392,11 +394,11 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-md flex flex-col items-center justify-center gap-2 z-30"
+              className="absolute inset-0 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-30"
             >
               <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
               <span className="text-xs font-bold text-gray-900 dark:text-white">
-                Sincronizando dirección geográfica...
+                {t("processing_address")}
               </span>
             </motion.div>
           )}
@@ -408,7 +410,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between gap-3 shadow-sm"
+          className="p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between gap-3 shadow-2xs"
         >
           <div className="flex items-center gap-2.5">
             <CheckCircle2
@@ -416,7 +418,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
               strokeWidth={2.5}
             />
             <p className="text-xs font-bold text-gray-900 dark:text-white">
-              Ubicación Fijada Correctamente
+              {t("location_fixed")}
             </p>
           </div>
 
@@ -425,7 +427,6 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
           </p>
         </motion.div>
       )}
-
     </div>
   );
 };
@@ -434,6 +435,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
 // 2. ENHANCED LOCATION PICKER (Carga el script de Google Maps)
 // ============================================================================
 const EnhancedLocationPicker: React.FC<LocationPickerProps> = (props) => {
+  const t = useTranslations("MapModal");
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -442,9 +444,9 @@ const EnhancedLocationPicker: React.FC<LocationPickerProps> = (props) => {
 
   if (loadError)
     return (
-      <div className="p-5 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-2 font-sans">
+      <div className="p-5 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2 font-sans">
         <AlertCircle className="w-4 h-4" />
-        <span>Error al cargar las librerías de Google Maps.</span>
+        <span>{t("error_libraries")}</span>
       </div>
     );
 
@@ -456,15 +458,19 @@ const EnhancedLocationPicker: React.FC<LocationPickerProps> = (props) => {
 // ============================================================================
 // 3. MAP LOADING SKELETON (Animación inicial)
 // ============================================================================
-const loadingStages = [
-  { id: 1, label: "Inicializando mapas...", duration: 1000 },
-  { id: 2, label: "Sincronizando con Google Maps...", duration: 1500 },
-  { id: 3, label: "Preparando vista interactiva...", duration: 500 },
-];
-
 const MapLoadingSkeleton = () => {
+  const t = useTranslations("MapModal");
   const [currentStage, setCurrentStage] = useState(0);
   const [progress, setProgress] = useState(0);
+
+  const loadingStages = useMemo(
+    () => [
+      { id: 1, label: t("loading_stage_1"), duration: 1000 },
+      { id: 2, label: t("loading_stage_2"), duration: 1500 },
+      { id: 3, label: t("loading_stage_3"), duration: 500 },
+    ],
+    [t]
+  );
 
   useEffect(() => {
     const interval = setInterval(
@@ -482,43 +488,43 @@ const MapLoadingSkeleton = () => {
       return setTimeout(() => setCurrentStage(index), delay);
     });
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [loadingStages]);
 
   return (
-    <div className="space-y-4 font-sans">
+    <div className="space-y-4 font-sans select-none">
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="h-72 rounded-3xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 overflow-hidden relative shadow-sm"
+        className="h-72 rounded-3xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 overflow-hidden relative shadow-2xs"
       >
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xs text-center">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs">
             <MapPin className="w-6 h-6" strokeWidth={2} />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <div className="flex items-center gap-2 justify-center">
               <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
               <p className="text-xs font-bold text-gray-900 dark:text-white">
-                {loadingStages[currentStage]?.label || "Cargando mapa..."}
+                {loadingStages[currentStage]?.label || t("loading_default")}
               </p>
             </div>
             <p className="text-[11px] font-medium text-gray-400">
-              Estableciendo coordenadas geográficas
+              {t("loading_subtext")}
             </p>
           </div>
 
-          <div className="w-full max-w-[200px] h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+          <div className="w-full max-w-[200px] h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-2xs">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              className="h-full bg-emerald-600 rounded-full"
+              className="h-full bg-emerald-600 dark:bg-emerald-400 rounded-full"
             />
           </div>
         </div>
       </motion.div>
 
-      <div className="h-11 bg-white dark:bg-[#0a0a0a] rounded-xl border border-gray-100 dark:border-gray-800 flex items-center px-4 gap-3 shadow-sm">
+      <div className="h-11 bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center px-4 gap-3 shadow-2xs">
         <Navigation className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
         <div className="w-32 h-2 bg-gray-200 dark:bg-gray-800 rounded-full animate-pulse" />
       </div>
@@ -539,6 +545,7 @@ export default function LocationPicker({
   initialLocation,
   className,
 }: LocationPickerProps) {
+  const t = useTranslations("MapModal");
   const [isMapReady, setIsMapReady] = useState(false);
   const [hasError] = useState(false);
 
@@ -551,33 +558,35 @@ export default function LocationPicker({
     return (
       <div
         className={cn(
-          "p-8 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-red-200 dark:border-red-900/40 text-center space-y-4 shadow-sm font-sans"
+          "p-8 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-rose-200 dark:border-rose-900/40 text-center space-y-4 shadow-2xs font-sans select-none"
         )}
       >
-        <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 flex items-center justify-center text-red-500 mx-auto shadow-sm">
+        <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 mx-auto shadow-2xs">
           <AlertCircle className="w-6 h-6" strokeWidth={2} />
         </div>
+
         <div className="space-y-1">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-            Error de Conexión
+          <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
+            {t("error_title")}
           </h3>
-          <p className="text-xs font-medium text-gray-500">
-            No fue posible establecer conexión con el servicio de mapas.
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-sm mx-auto">
+            {t("error_desc")}
           </p>
         </div>
-        <button
+
+        <Button
           type="button"
           onClick={() => window.location.reload()}
-          className="h-10 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all"
+          className="h-10 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer"
         >
-          Reintentar Carga
-        </button>
+          {t("btn_retry")}
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className={cn("relative group font-sans", className)}>
+    <div className={cn("relative group font-sans select-none", className)}>
       <div className="relative z-0">
         <MapEngine
           onLocationSelect={onLocationSelect}
@@ -592,21 +601,25 @@ export default function LocationPicker({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             className="absolute top-3 right-3 z-10 pointer-events-none"
           >
-            <Badge className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/40 backdrop-blur-md px-3 py-1 text-[10px] font-bold shadow-sm">
+            <Badge className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/40 backdrop-blur-md px-3 py-1 text-[10px] font-bold shadow-2xs rounded-full">
               <CheckCircle2 className="w-3 h-3 mr-1" strokeWidth={2.5} />
-              <span>Sincronizado con Google</span>
+              <span>{t("synced_google")}</span>
             </Badge>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Sugerencia de Uso */}
-      <div className="mt-3 flex items-start gap-2.5 p-3 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800">
-        <div className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg shrink-0 text-emerald-600 dark:text-emerald-400">
+      <div className="mt-3 flex items-start gap-2.5 p-3.5 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 shadow-2xs">
+        <div className="p-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl shrink-0 text-emerald-600 dark:text-emerald-400 shadow-2xs">
           <Info className="w-3.5 h-3.5" strokeWidth={2} />
         </div>
-        <p className="text-[11px] font-medium text-gray-500 leading-relaxed pt-0.5">
-          <strong className="text-gray-900 dark:text-white font-bold">Consejo:</strong> Si tu consultorio o clínica se ubica dentro de una plaza o torre médica, arrastra el marcador rojo exactamente a la puerta de entrada principal.
+
+        <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed pt-0.5">
+          <strong className="text-gray-900 dark:text-white font-bold">
+            {t("tip_title")}{" "}
+          </strong>
+          {t("tip_desc")}
         </p>
       </div>
     </div>

@@ -1,16 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
-import { scheduleService } from '@/services/schedule.service';
-import { format, addDays } from 'date-fns';
-import { es } from 'date-fns/locale';
+import React, { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { format, addDays } from "date-fns";
+import { Calendar, Clock, ArrowRight } from "lucide-react";
+
+import { scheduleService } from "@/services/schedule.service";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 interface QuickAvailabilityProps {
   providerId: number;
 }
 
-export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId }) => {
+export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({
+  providerId,
+}) => {
+  const t = useTranslations("QuickAvailability");
   const [nextSlots, setNextSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,20 +25,18 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId
         setIsLoading(true);
         const today = new Date();
         const tomorrow = addDays(today, 1);
-        
-        // Asumiendo que 30 min es la duración estándar para mostrar disponibilidad rápida
+
         const slotsToday = await scheduleService.getAvailableSlots(
-          providerId, 
-          undefined, // Sin locationId específico por ahora en el storefront global
-          format(today, 'yyyy-MM-dd'),
-          format(tomorrow, 'yyyy-MM-dd'),
+          providerId,
+          undefined,
+          format(today, "yyyy-MM-dd"),
+          format(tomorrow, "yyyy-MM-dd"),
           30
         );
 
-        // Tomamos los primeros 3 slots
         setNextSlots(slotsToday.slice(0, 3));
       } catch (error) {
-        console.error("Error fetching quick availability", error);
+        console.error("Error al obtener disponibilidad rápida:", error);
       } finally {
         setIsLoading(false);
       }
@@ -44,38 +47,37 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-3 mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl animate-pulse bg-gray-50 dark:bg-[#050505]">
-        <div className="w-5 h-5 bg-gray-300 dark:bg-gray-700 rounded-full" />
-        <div className="h-4 bg-gray-300 dark:bg-gray-700 w-32 rounded" />
+      <div className="flex items-center gap-3 mt-6 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] shadow-2xs font-sans">
+        <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+        <span className="text-xs font-semibold text-gray-400 animate-pulse">
+          {t("next_slots_title")}...
+        </span>
       </div>
     );
   }
 
   if (nextSlots.length === 0) {
     return (
-      <div className="flex items-center justify-between mt-6 p-4 border border-gray-100 dark:border-gray-800 rounded-2xl bg-gray-50 dark:bg-[#050505]">
-        <div className="flex items-center gap-3">
-          <Calendar className="w-5 h-5 text-gray-400" />
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Agenda sujeta a confirmación
-          </span>
-        </div>
+      <div className="flex items-center gap-3 mt-6 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-500 dark:text-gray-400 shadow-2xs font-sans select-none">
+        <Calendar className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={2} />
+        <span>{t("subject_to_confirmation")}</span>
       </div>
     );
   }
 
   return (
-    <div className="mt-6 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-black shadow-sm group hover:border-teal-500 dark:hover:border-teal-400 hover:shadow-md transition-all cursor-pointer">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-          <Clock className="w-5 h-5" strokeWidth={2} />
-          <span className="text-sm font-semibold">
-            Próximos turnos disponibles
+    <div className="mt-6 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-2xs hover:border-emerald-500/30 transition-all cursor-pointer group font-sans select-none space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+          <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+          <span className="text-xs font-bold tracking-tight">
+            {t("next_slots_title")}
           </span>
         </div>
-        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-1 transition-all" />
+
+        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" strokeWidth={2} />
       </div>
-      
+
       <div className="flex flex-wrap gap-2">
         {nextSlots.map((slot, i) => {
           let dateObj: Date;
@@ -84,27 +86,41 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({ providerId
 
           try {
             if (Array.isArray(slot)) {
-              dateObj = new Date(slot[0], slot[1] - 1, slot[2], slot[3] || 0, slot[4] || 0);
-            } else if (typeof slot === 'string' && slot.includes(':') && !slot.includes('T')) {
-              // Si solo viene la hora "14:00"
-              const [h, m] = slot.split(':');
+              dateObj = new Date(
+                slot[0],
+                slot[1] - 1,
+                slot[2],
+                slot[3] || 0,
+                slot[4] || 0
+              );
+            } else if (
+              typeof slot === "string" &&
+              slot.includes(":") &&
+              !slot.includes("T")
+            ) {
+              const [h, m] = slot.split(":");
               dateObj = new Date();
-              dateObj.setHours(parseInt(h), parseInt(m), 0, 0);
+              dateObj.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
             } else {
               dateObj = new Date(slot);
             }
 
             if (isNaN(dateObj.getTime())) throw new Error("Invalid");
 
-            time = format(dateObj, 'HH:mm');
-            isToday = format(dateObj, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+            time = format(dateObj, "HH:mm");
+            isToday =
+              format(dateObj, "yyyy-MM-dd") ===
+              format(new Date(), "yyyy-MM-dd");
           } catch {
             return null;
           }
-          
+
           return (
-            <div key={i} className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#111] text-xs font-semibold text-gray-700 dark:text-gray-300 group-hover:bg-teal-50 group-hover:border-teal-200 group-hover:text-teal-700 dark:group-hover:bg-teal-950 dark:group-hover:border-teal-800 dark:group-hover:text-teal-400 transition-colors">
-              {isToday ? 'Hoy' : 'Mñn'} {time}
+            <div
+              key={i}
+              className="px-3 py-1.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505] text-xs font-mono font-bold text-gray-700 dark:text-gray-300 group-hover:border-emerald-500/30 group-hover:bg-emerald-50/20 dark:group-hover:bg-emerald-950/20 group-hover:text-emerald-800 dark:group-hover:text-emerald-300 transition-colors shadow-2xs"
+            >
+              {isToday ? t("today") : t("tomorrow")} {time}
             </div>
           );
         })}

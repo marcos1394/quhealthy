@@ -1,91 +1,119 @@
-import React, { useEffect } from 'react';
-import { useTeleconsultation } from '@/hooks/useTeleconsultation';
-import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
-import { DeviceSetup } from '@/components/teleconsultation/DeviceSetup';
-import { WaitingRoom } from '@/components/teleconsultation/WaitingRoom';
-import { ConsultationRoom } from '@/components/teleconsultation/ConsultationRoom';
-import { CallFinished } from '@/components/teleconsultation/CallFinished';
-import { QhSpinner } from '@/components/ui/QhSpinner';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { AlertCircle, CheckCircle } from "lucide-react";
+
+import { useTeleconsultation } from "@/hooks/useTeleconsultation";
+import { useTeleconsultationStore } from "@/stores/TeleconsultationStore";
+import { DeviceSetup } from "@/components/teleconsultation/DeviceSetup";
+import { WaitingRoom } from "@/components/teleconsultation/WaitingRoom";
+import { ConsultationRoom } from "@/components/teleconsultation/ConsultationRoom";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { Button } from "@/components/ui/button";
 
 interface ProviderVideoWidgetProps {
- appointmentId: number;
- onClosePanel?: () => void;
+  appointmentId: number;
+  onClosePanel?: () => void;
 }
 
-export const ProviderVideoWidget: React.FC<ProviderVideoWidgetProps> = ({ appointmentId, onClosePanel }) => {
- const { startSetup, joinCall, cleanup, endCall, media } = useTeleconsultation(appointmentId.toString(), 'PROVIDER');
- const { state } = useTeleconsultationStore();
+export const ProviderVideoWidget: React.FC<ProviderVideoWidgetProps> = ({
+  appointmentId,
+  onClosePanel,
+}) => {
+  const t = useTranslations("ProviderVideoWidget");
+  const { startSetup, joinCall, cleanup, endCall, media } = useTeleconsultation(
+    appointmentId.toString(),
+    "PROVIDER"
+  );
+  const { state } = useTeleconsultationStore();
 
- useEffect(() => {
- if (state === 'IDLE') {
- startSetup();
- }
- }, [state, startSetup]);
+  useEffect(() => {
+    if (state === "IDLE") {
+      startSetup();
+    }
+  }, [state, startSetup]);
 
- useEffect(() => {
- return () => {
- cleanup();
- };
- }, [cleanup]);
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, [cleanup]);
 
- const handleJoin = async () => {
- await joinCall(appointmentId.toString());
- };
+  const handleJoin = async () => {
+    await joinCall(appointmentId.toString());
+  };
 
- if (state === 'IDLE' || state === 'CHECKING_ACCESS') {
- return (
- <div className="w-full h-full flex flex-col items-center justify-center bg-white dark:bg-[#050505] text-black dark:text-white">
- <QhSpinner size="lg" />
- <p className="text-[10px] font-bold uppercase tracking-widest mt-6 animate-pulse">Iniciando videollamada...</p>
- </div>
- );
- }
+  if (state === "IDLE" || state === "CHECKING_ACCESS") {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans select-none space-y-3">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-bold text-gray-400 animate-pulse">
+          {t("starting_call")}
+        </p>
+      </div>
+    );
+  }
 
- if (state === 'FAILED') {
- return (
- <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#050505] text-black dark:text-white">
- <div className="w-12 h-12 bg-red-500/10 dark:bg-red-500/20 rounded-none flex items-center justify-center mb-4 border border-red-500">
- <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-500" />
- </div>
- <h3 className="text-[12px] font-bold uppercase tracking-widest mb-2">Error de conexión</h3>
- <p className="text-[10px] uppercase font-semibold text-gray-500">
- No se pudo establecer la conexión. Verifica tus permisos o conexión a internet.
- </p>
- </div>
- );
- }
+  if (state === "FAILED") {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#0a0a0a] font-sans select-none space-y-4">
+        <div className="w-14 h-14 bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-2xs">
+          <AlertCircle className="w-7 h-7" strokeWidth={2} />
+        </div>
 
- return (
- <div className="w-full h-full relative overflow-hidden bg-white dark:bg-[#050505]">
- {state === 'DEVICE_SETUP' && (
- <DeviceSetup media={media} onJoin={handleJoin} isLoading={false} />
- )}
- 
- {(state === 'JOINING' || state === 'WAITING') && (
- <WaitingRoom />
- )}
- 
- {(state === 'CONNECTING' || state === 'RECONNECTING' || state === 'CONNECTED') && (
- <ConsultationRoom onHangup={endCall} />
- )}
- 
- {state === 'COMPLETED' && (
- <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#050505] text-black dark:text-white">
-   <div className="w-12 h-12 bg-green-500/10 dark:bg-green-500/20 rounded-none flex items-center justify-center mb-4 border border-green-500">
-     <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-500" />
-   </div>
-   <h3 className="text-[12px] font-bold uppercase tracking-widest mb-2">Videollamada Finalizada</h3>
-   <p className="text-[10px] uppercase font-semibold text-gray-500 mb-6">
-     Puedes continuar con la evaluación clínica.
-   </p>
-   {onClosePanel && (
-     <button onClick={onClosePanel} className="border border-black dark:border-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
-       Cerrar Panel
-     </button>
-   )}
- </div>
- )}
- </div>
- );
+        <div className="space-y-1">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+            {t("connection_error_title")}
+          </h3>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
+            {t("connection_error_desc")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full relative overflow-hidden bg-white dark:bg-[#0a0a0a] font-sans">
+      {state === "DEVICE_SETUP" && (
+        <DeviceSetup media={media} onJoin={handleJoin} isLoading={false} />
+      )}
+
+      {(state === "JOINING" || state === "WAITING") && <WaitingRoom />}
+
+      {(state === "CONNECTING" ||
+        state === "RECONNECTING" ||
+        state === "CONNECTED") && <ConsultationRoom onHangup={endCall} />}
+
+      {state === "COMPLETED" && (
+        <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-white dark:bg-[#0a0a0a] font-sans select-none space-y-4">
+          <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs">
+            <CheckCircle className="w-7 h-7" strokeWidth={2} />
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+              {t("finished_title")}
+            </h3>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
+              {t("finished_desc")}
+            </p>
+          </div>
+
+          {onClosePanel && (
+            <Button
+              type="button"
+              onClick={onClosePanel}
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer h-10 px-5"
+            >
+              {t("btn_close_panel")}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };

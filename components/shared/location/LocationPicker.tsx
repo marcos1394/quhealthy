@@ -2,23 +2,30 @@
 
 /* eslint-disable react-doctor/button-has-type */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { MapPin, Navigation, AlertCircle, RefreshCw } from "lucide-react";
+
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LocationPickerProps } from "@/types/location";
 
-const loadingStages = [
-  { id: 1, label: "Inicializando motor de mapas...", duration: 1000 },
-  { id: 2, label: "Sincronizando con Google Maps...", duration: 1500 },
-  { id: 3, label: "Preparando vista interactiva...", duration: 500 },
-];
-
 const MapLoadingSkeleton = () => {
+  const t = useTranslations("LocationPicker");
   const [currentStage, setCurrentStage] = useState(0);
   const [progress, setProgress] = useState(0);
+
+  const loadingStages = useMemo(
+    () => [
+      { id: 1, label: t("loading_stage_1"), duration: 1000 },
+      { id: 2, label: t("loading_stage_2"), duration: 1500 },
+      { id: 3, label: t("loading_stage_3"), duration: 500 },
+    ],
+    [t]
+  );
 
   useEffect(() => {
     const interval = setInterval(
@@ -36,17 +43,18 @@ const MapLoadingSkeleton = () => {
       return setTimeout(() => setCurrentStage(index), delay);
     });
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [loadingStages]);
 
   return (
-    <div className="space-y-4 font-sans">
-      {/* Container de Carga Mapa */}
+    <div className="space-y-4 font-sans select-none">
+      {/* ── CONTENEDOR DE CARGA DEL MAPA ─────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="h-72 rounded-3xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] relative overflow-hidden shadow-sm"
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="h-72 rounded-3xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] relative overflow-hidden shadow-2xs"
       >
-        {/* Sutil Grid de Fondo */}
+        {/* Cuadrícula de Fondo */}
         <div
           className="absolute inset-0 opacity-[0.04] dark:opacity-[0.02] pointer-events-none"
           style={{
@@ -57,36 +65,38 @@ const MapLoadingSkeleton = () => {
         />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-xs p-6 text-center">
-          {/* Icon Box Esmeralda */}
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+          {/* Caja de Icono Esmeralda */}
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs shrink-0">
             <MapPin className="w-6 h-6" strokeWidth={2} />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <div className="flex items-center justify-center gap-2">
               <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
               <p className="text-xs font-bold text-gray-900 dark:text-white">
-                {loadingStages[currentStage]?.label || "Cargando mapa..."}
+                {loadingStages[currentStage]?.label || t("loading_default")}
               </p>
             </div>
+
             <p className="text-[11px] font-medium text-gray-400">
-              Estableciendo coordenadas geográficas
+              {t("loading_subtext")}
             </p>
           </div>
 
-          {/* Barra de Progreso Suavizada */}
-          <div className="w-full max-w-[220px] h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+          {/* Barra de Progreso */}
+          <div className="w-full max-w-[220px] h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden shadow-2xs">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              className="h-full bg-emerald-600 rounded-full"
+              transition={{ ease: "easeOut" }}
+              className="h-full bg-emerald-600 dark:bg-emerald-400 rounded-full"
             />
           </div>
         </div>
       </motion.div>
 
-      {/* Input Skeleton */}
-      <div className="h-11 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center px-4 gap-3 shadow-sm">
+      {/* ── SKELETON DEL CAMPO BÚSQUEDA ──────────────────────────────── */}
+      <div className="h-11 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex items-center px-4 gap-3 shadow-2xs">
         <Navigation className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
         <div className="w-36 h-2 bg-gray-200 dark:bg-gray-800 rounded-full animate-pulse" />
       </div>
@@ -104,44 +114,45 @@ export default function LocationPicker({
   initialLocation,
   className,
 }: LocationPickerProps) {
+  const t = useTranslations("LocationPicker");
   const [hasError] = useState(false);
 
   if (hasError) {
     return (
       <div
         className={cn(
-          "bg-white dark:bg-[#0a0a0a] border border-red-200 dark:border-red-900/40 rounded-3xl p-8 shadow-sm font-sans space-y-6 text-center",
+          "bg-white dark:bg-[#0a0a0a] border border-rose-200 dark:border-rose-900/40 rounded-3xl p-8 shadow-2xs font-sans transition-colors select-none space-y-6 text-center",
           className
         )}
       >
-        <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 flex items-center justify-center text-red-500 mx-auto shadow-sm">
+        <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 mx-auto shadow-2xs">
           <AlertCircle className="w-6 h-6" strokeWidth={2} />
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-            Error de Conexión
+          <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
+            {t("error_title")}
           </h3>
-          <p className="text-xs font-medium text-gray-500">
-            No fue posible conectar con los servicios de cartografía e imágenes.
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-sm mx-auto">
+            {t("error_desc")}
           </p>
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={() => window.location.reload()}
-          className="h-11 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm inline-flex items-center justify-center gap-2"
+          className="h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer inline-flex items-center justify-center gap-2"
         >
           <RefreshCw className="w-4 h-4" strokeWidth={2} />
-          <span>Reintentar Conexión</span>
-        </button>
+          <span>{t("btn_retry")}</span>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className={cn("relative space-y-4 font-sans", className)}>
-      <div className="relative z-0 border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-sm">
+    <div className={cn("relative space-y-4 font-sans select-none", className)}>
+      <div className="relative z-0 border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-2xs">
         <MapEngine
           onLocationSelect={onLocationSelect}
           initialLocation={initialLocation}

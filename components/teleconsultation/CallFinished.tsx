@@ -1,62 +1,93 @@
-import React from 'react';
-import { CheckCircle, Calendar, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useTeleconsultationStore } from '@/stores/TeleconsultationStore';
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
+
+import React, { useState } from "react";
+import { useTranslations } from "next-intl";
+import { CheckCircle, Calendar, Star } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { useTeleconsultationStore } from "@/stores/TeleconsultationStore";
 
 export const CallFinished: React.FC = () => {
- const { role } = useTeleconsultationStore();
- const isPatient = role === 'PATIENT';
+  const t = useTranslations("CallFinished");
+  const { role } = useTeleconsultationStore();
+  const isPatient = role === "PATIENT";
+  const [rating, setRating] = useState(0);
 
- return (
- <div className="w-full max-w-lg mx-auto p-6 text-center text-white">
- <div className="bg-gray-800 rounded-3xl p-8 shadow-2xl border border-gray-700">
- 
- <div className="mx-auto w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6">
- <CheckCircle className="w-10 h-10 text-green-500" />
- </div>
+  return (
+    <div className="w-full max-w-md mx-auto p-6 text-center font-sans select-none">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-8 shadow-2xl border border-gray-100 dark:border-gray-800 space-y-6">
+        
+        {/* Icono de Éxito */}
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center shadow-2xs">
+          <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+        </div>
 
- <h2 className="text-3xl font-bold mb-4 tracking-tight">Consulta Finalizada</h2>
- 
- <p className="text-gray-400 mb-8 text-lg">
- {isPatient 
- ? 'La sesión ha terminado exitosamente. Esperamos que hayas tenido una excelente experiencia.' 
- : 'La consulta ha finalizado. El tiempo se ha registrado en el sistema.'}
- </p>
+        <div className="space-y-2">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+            {t("title")}
+          </h2>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+            {isPatient ? t("patient_desc") : t("provider_desc")}
+          </p>
+        </div>
 
- {isPatient && (
- <div className="bg-gray-900 rounded-2xl p-6 mb-8 border border-gray-700 text-left">
- <h3 className="font-semibold text-lg mb-4 text-center">¿Cómo calificarías tu consulta?</h3>
- <div className="flex justify-center gap-2 mb-4">
- {[1, 2, 3, 4, 5].map((star) => (
- <button key={star} className="text-gray-600 hover:text-yellow-400 transition-colors">
- <Star className="w-8 h-8 fill-current" />
- </button>
- ))}
- </div>
- </div>
- )}
+        {/* Sección de Calificación para Pacientes */}
+        {isPatient && (
+          <div className="bg-gray-50/60 dark:bg-[#050505] rounded-2xl p-6 border border-gray-100 dark:border-gray-800 space-y-3 shadow-2xs">
+            <h3 className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("rating_title")}
+            </h3>
+            <div className="flex justify-center gap-1.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className="p-1 cursor-pointer transition-transform hover:scale-110"
+                >
+                  <Star
+                    className={`w-7 h-7 ${
+                      star <= rating
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-gray-300 dark:text-gray-700 fill-transparent"
+                    }`}
+                    strokeWidth={1.5}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
- <div className="flex flex-col gap-3">
- <Button 
- onClick={() => window.location.href = isPatient ? '/patient/dashboard' : '/provider/dashboard'}
- className="w-full py-6 text-lg rounded-xl font-medium"
- >
- Volver al Inicio
- </Button>
- 
- {isPatient && (
- <Button 
- variant="outline" 
- className="w-full py-6 text-lg rounded-xl text-black"
- onClick={() => window.location.href = '/patient/appointments'}
- >
- <Calendar className="w-5 h-5 mr-2" />
- Agendar nueva cita
- </Button>
- )}
- </div>
+        {/* Botones de Navegación */}
+        <div className="flex flex-col gap-2.5 pt-2">
+          <Button
+            type="button"
+            onClick={() =>
+              (window.location.href = isPatient
+                ? "/patient/dashboard"
+                : "/provider/dashboard")
+            }
+            className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer"
+          >
+            {t("btn_home")}
+          </Button>
 
- </div>
- </div>
- );
+          {isPatient && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center justify-center gap-2"
+              onClick={() => (window.location.href = "/patient/appointments")}
+            >
+              <Calendar className="w-4 h-4" strokeWidth={2} />
+              <span>{t("btn_schedule")}</span>
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };

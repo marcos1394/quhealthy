@@ -1,51 +1,49 @@
-// Ubicación: src/components/providers/AuthProvider.tsx
 "use client";
 
-import React, { useEffect, useRef } from 'react';
-import { useSessionStore } from '@/stores/SessionStore';
-import { QhSpinner } from '@/components/ui/QhSpinner';
-import { useSessionTimeout } from '@/hooks/useSessionTimeout';
+import React, { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
-export default function AuthProvider({ children }: { children: React.ReactNode }) {
- const { initializeSession, isLoading, _hasHydrated } = useSessionStore();
- 
- // Usamos useRef para evitar que React Strict Mode haga doble petición en desarrollo
- const hasInitialized = useRef(false);
+import { useSessionStore } from "@/stores/SessionStore";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 
- useEffect(() => {
- // 1. Esperamos a que Zustand hidrate los datos básicos (user, role) de localStorage
- if (!_hasHydrated) return;
+export default function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const t = useTranslations("AuthProvider");
+  const { initializeSession, isLoading, _hasHydrated } = useSessionStore();
 
- // 2. Disparamos la recuperación silenciosa del token vía Cookie HttpOnly
- if (!hasInitialized.current) {
- hasInitialized.current = true;
- initializeSession();
- }
- }, [_hasHydrated, initializeSession]);
+  // Ref para prevenir doble inicialización en React Strict Mode (Desarrollo)
+  const hasInitialized = useRef(false);
 
- // 🛡️ ENTERPRISE: Idle timeout — auto-logout tras 30min de inactividad
- useSessionTimeout();
+  useEffect(() => {
+    // 1. Espera a la hidratación de datos básicos en localStorage
+    if (!_hasHydrated) return;
 
- // =========================================================================
- // 🛡️ EL FRENO DE MANO (BLOQUEO CRÍTICO)
- // Mientras se hidrata Zustand o mientras Axios espera la respuesta del backend,
- // devolvemos el Spinner. LOS COMPONENTES HIJOS NO SE MONTARÁN.
- // =========================================================================
- if (!_hasHydrated || isLoading) {
- return (
- <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
- <QhSpinner size="lg" />
- <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-4 animate-pulse">
- Restaurando sesión segura...
- </p>
- </div>
- );
- }
+    // 2. Dispara la recuperación silenciosa del token
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      initializeSession();
+    }
+  }, [_hasHydrated, initializeSession]);
 
- // =========================================================================
- // ✅ ACCESO PERMITIDO
- // Cuando isLoading pasa a false (ya sea porque el token llegó o porque 
- // falló y mandó al usuario a /login), finalmente soltamos a los hijos.
- // =========================================================================
- return <>{children}</>;
+  // Auto-logout tras período de inactividad
+  useSessionTimeout();
+
+  // 🛡️ BLOQUEO DE SEGURIDAD / ESTADO DE CARGA CRÍTICO
+  if (!_hasHydrated || isLoading) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] font-sans select-none transition-colors">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 mt-4 animate-pulse">
+          {t("restoring_session")}
+        </p>
+      </div>
+    );
+  }
+
+  // ✅ ACCESO CONCEDIDO
+  return <>{children}</>;
 }

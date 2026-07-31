@@ -1,106 +1,113 @@
-"use client"
+"use client";
+
+/* eslint-disable react-doctor/button-has-type */
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, Lock, ArrowRight } from "lucide-react";
+import { X, Lock, ArrowRight } from "lucide-react";
+
 import { useRouter } from "@/i18n/routing";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface AuthGateModalProps {
- isOpen: boolean;
- onClose: () => void;
- icon?: React.ReactNode;
- title?: string;
- description?: string;
+  isOpen: boolean;
+  onClose: () => void;
+  icon?: React.ReactNode;
+  title?: string;
+  description?: string;
 }
 
 export const AuthGateModal: React.FC<AuthGateModalProps> = ({
- isOpen,
- onClose,
- icon,
- title = "ACCESO REQUERIDO",
- description = "Regístrate para desbloquear esta función y acceder a toda la experiencia QuHealthy.",
+  isOpen,
+  onClose,
+  icon,
+  title,
+  description,
 }) => {
- const router = useRouter();
+  const t = useTranslations("AuthGateModal");
+  const router = useRouter();
 
- return (
- <AnimatePresence>
- {isOpen && (
- <>
- {/* BACKDROP */}
- <motion.div
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- onClick={onClose}
- className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
- />
+  const modalTitle = title || t("default_title");
+  const modalDescription = description || t("default_description");
 
- {/* MODAL */}
- <motion.div
- initial={{ opacity: 0, scale: 0.95 }}
- animate={{ opacity: 1, scale: 1 }}
- exit={{ opacity: 0, scale: 0.95 }}
- transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
- className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-[#0a0a0a] border border-black dark:border-white shadow-[8px_8px_0_0_#000] dark:shadow-[8px_8px_0_0_#fff] z-50"
- >
- {/* CLOSE BUTTON */}
- <button
- onClick={onClose}
- className="absolute top-4 right-4 w-8 h-8 border border-gray-300 dark:border-gray-700 flex items-center justify-center hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors z-10"
- >
- <X className="w-4 h-4" strokeWidth={1.5} />
- </button>
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* ── TELÓN DE FONDO (BACKDROP) ────────────────────────────── */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 transition-all"
+          />
 
- {/* CONTENT */}
- <div className="p-8 pt-14 flex flex-col items-center text-center">
- {/* ICON */}
- <div className="w-14 h-14 border border-black dark:border-white bg-gray-50 dark:bg-[#050505] flex items-center justify-center mb-6">
- {icon || <Lock className="w-6 h-6 text-black dark:text-white" strokeWidth={1.5} />}
- </div>
+          {/* ── MODAL FLOTANTE ───────────────────────────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: "-48%" }}
+            animate={{ opacity: 1, scale: 1, y: "-50%" }}
+            exit={{ opacity: 0, scale: 0.95, y: "-48%" }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xl p-6 sm:p-8 z-50 font-sans transition-colors select-none"
+          >
+            {/* Botón de Cierre */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-2xs z-10"
+            >
+              <X className="w-4 h-4" strokeWidth={2} />
+            </button>
 
- {/* TITLE */}
- <h2 className="text-[10px] font-bold uppercase tracking-widest text-black dark:text-white mb-3">
- {title}
- </h2>
+            {/* Contenido Principal */}
+            <div className="flex flex-col items-center text-center space-y-4 pt-2">
+              {/* Contenedor del Icono */}
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-2xs shrink-0">
+                {icon || <Lock className="w-6 h-6" strokeWidth={2} />}
+              </div>
 
- {/* DESCRIPTION */}
- <p className="text-[10px] uppercase tracking-widest text-gray-500 leading-relaxed max-w-[280px] mb-8">
- {description}
- </p>
+              {/* Título y Descripción */}
+              <div className="space-y-1.5">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                  {modalTitle}
+                </h2>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-[280px]">
+                  {modalDescription}
+                </p>
+              </div>
 
- {/* DIVIDER */}
- <div className="w-full border-t border-gray-300 dark:border-gray-800 mb-8" />
+              {/* Botones de Acción */}
+              <div className="w-full space-y-2.5 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    router.push("/register");
+                  }}
+                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>{t("btn_create_account")}</span>
+                  <ArrowRight className="w-4 h-4" strokeWidth={2} />
+                </Button>
 
- {/* ACTIONS */}
- <div className="w-full space-y-3">
- {/* PRIMARY — Crear Cuenta */}
- <button
- onClick={() => {
- onClose();
- router.push("/register");
- }}
- className="w-full h-12 flex items-center justify-center gap-3 bg-black text-white dark:bg-white dark:text-black border border-black dark:border-white text-[10px] font-bold uppercase tracking-widest hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors"
- >
- Crear Cuenta
- <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
- </button>
-
- {/* SECONDARY — Ya Tengo Cuenta */}
- <button
- onClick={() => {
- onClose();
- router.push("/login");
- }}
- className="w-full h-12 flex items-center justify-center gap-3 bg-transparent border border-black dark:border-white text-black dark:text-white text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
- >
- Ya Tengo Cuenta
- </button>
- </div>
- </div>
- </motion.div>
- </>
- )}
- </AnimatePresence>
- );
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    onClose();
+                    router.push("/login");
+                  }}
+                  className="w-full h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                >
+                  <span>{t("btn_login")}</span>
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 };
