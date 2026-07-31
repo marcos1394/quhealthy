@@ -133,7 +133,8 @@
         "features": [
           "$0 Fixed monthly fee",
           "Basic Appointment and Patient Management",
-          "15% commission on in-app payments"
+          "15% commission on in-app payments",
+          "No QuAI Credits"
         ],
         "button_text": "Start for free"
       },
@@ -143,7 +144,8 @@
         "features": [
           "Up to 50 Appointments per month",
           "Catalog: 5 Services / 10 Products",
-          "15% Commission"
+          "15% Commission",
+          "100 QuAI Credits/month"
         ],
         "button_text": "Choose Basic"
       },
@@ -154,7 +156,8 @@
           "Up to 150 Appointments per month",
           "Catalog: 15 Services / 30 Products",
           "12% Commission",
-          "Access to sales on QUMarket"
+          "Access to sales on QUMarket",
+          "500 QuAI Credits/month"
         ],
         "button_text": "Start 14-day free trial"
       },
@@ -165,7 +168,8 @@
           "Up to 500 Appointments per month",
           "Catalog: 50 Services / 100 Products",
           "10% Commission",
-          "Advanced Reports & AI (QUBlocks)"
+          "Advanced Reports & AI (QUBlocks)",
+          "2000 QuAI Credits/month"
         ],
         "button_text": "Choose Premium"
       },
@@ -176,7 +180,8 @@
           "Unlimited Appointments & Catalog",
           "Multi-user Management (Clinics)",
           "Preferential VIP Commission",
-          "Marketing & Tier 4 Support (VIP)"
+          "Marketing & Tier 4 Support (VIP)",
+          "Custom QuAI Credits Quota"
         ],
         "button_text": "Contact sales"
       }

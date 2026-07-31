@@ -60,7 +60,7 @@ export default function DashboardPage() {
   const dateLocale = locale === "es" ? es : enUS;
   const [dateRange, setDateRange] = useState("this_month");
 
-  const { data, isLoading, refetch } = useDashboardData(dateRange);
+  const { data, visitsData, isLoading, refetch } = useDashboardData(dateRange);
   const { appointments: allAppointments } = useProviderAppointments();
 
   const { isStaff, roleLabel } = useProviderRole();
@@ -767,8 +767,54 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Tarjeta de Reputación */}
+        {/* Tarjeta de Reputación y Top Artículos */}
         <div className="flex flex-col gap-6">
+          {analytics.topSellingItems && analytics.topSellingItems.length > 0 && (
+            <div className="border border-emerald-200/50 bg-emerald-50/30 dark:bg-emerald-950/10 dark:border-emerald-900/30 rounded-3xl p-6 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-[#0a0a0a] text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+                  <ShoppingBag className="w-5 h-5" strokeWidth={2} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">
+                    Artículos más vendidos
+                  </h4>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">
+                    Top 5 del mes
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {analytics.topSellingItems.slice(0, 5).map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 text-gray-400 font-bold text-xs">
+                        #{idx + 1}
+                      </div>
+                      <div className="truncate">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                          {item.name}
+                        </p>
+                        <p className="text-[10px] font-medium text-gray-500 uppercase">
+                          {item.type} • {item.quantity} ud.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                        {item.revenue.toLocaleString(locale === "es" ? "es-MX" : "en-US", {
+                          style: "currency",
+                          currency: "MXN",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <ProviderReputationCard />
           <RetentionWidget />
         </div>
@@ -880,6 +926,99 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* ── MÉTRICAS DE VISITAS A LA TIENDA ────────────────────────────────── */}
+      {visitsData && visitsData.visitsByDate && (
+        <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col transition-colors rounded-3xl shadow-sm overflow-hidden mt-8">
+          <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl border border-sky-100 dark:border-sky-900/40 bg-sky-50 dark:bg-sky-950/30 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 shadow-sm">
+              <Store className="w-6 h-6" strokeWidth={2} />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                Rendimiento de Tienda
+              </p>
+              <h4 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                Tráfico y Demografía
+              </h4>
+            </div>
+          </div>
+
+          <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-white dark:bg-[#0a0a0a]">
+            {/* Total Visitas */}
+            <div className="col-span-1 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm bg-gray-50/50 dark:bg-[#050505]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                Visitas Totales
+              </p>
+              <p className="text-3xl font-mono font-bold text-gray-900 dark:text-white">
+                {visitsData.visitsByDate.reduce((acc: number, item: any) => acc + (item.visits || 0), 0)}
+              </p>
+            </div>
+
+            {/* Búsquedas Populares */}
+            <div className="col-span-1 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm bg-gray-50/50 dark:bg-[#050505]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                Términos Buscados
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {visitsData.topSearchQueries && visitsData.topSearchQueries.length > 0 ? (
+                  visitsData.topSearchQueries.slice(0, 3).map((query: any, idx: number) => (
+                    <span key={idx} className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md">
+                      {query.query} ({query.count})
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-500">Sin datos</span>
+                )}
+              </div>
+            </div>
+
+            {/* Demografía: Edad */}
+            <div className="col-span-1 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm bg-gray-50/50 dark:bg-[#050505]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                Edades (Top 3)
+              </p>
+              <div className="space-y-2">
+                {visitsData.demographicsAge ? (
+                  Object.entries(visitsData.demographicsAge)
+                    .sort(([, a], [, b]) => (b as number) - (a as number))
+                    .slice(0, 3)
+                    .map(([age, count], idx) => (
+                      <div key={idx} className="flex justify-between items-center text-xs">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{age} años</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{count as number}</span>
+                      </div>
+                    ))
+                ) : (
+                  <span className="text-xs text-gray-500">Sin datos</span>
+                )}
+              </div>
+            </div>
+
+            {/* Demografía: Género */}
+            <div className="col-span-1 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm bg-gray-50/50 dark:bg-[#050505]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                Género
+              </p>
+              <div className="space-y-2">
+                {visitsData.demographicsGender ? (
+                  Object.entries(visitsData.demographicsGender)
+                    .sort(([, a], [, b]) => (b as number) - (a as number))
+                    .slice(0, 3)
+                    .map(([gender, count], idx) => (
+                      <div key={idx} className="flex justify-between items-center text-xs">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{gender}</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{count as number}</span>
+                      </div>
+                    ))
+                ) : (
+                  <span className="text-xs text-gray-500">Sin datos</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Flotador de Acciones Rápida */}
       <QuickActions />

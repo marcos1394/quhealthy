@@ -133,7 +133,8 @@
         "features": [
           "$0 Mensualidad fija",
           "Gestión básica de Citas y Pacientes",
-          "15% de comisión por cobros en app"
+          "15% de comisión por cobros en app",
+          "Sin QuAI Credits"
         ],
         "button_text": "Comenzar gratis"
       },
@@ -143,7 +144,8 @@
         "features": [
           "Hasta 50 Citas al mes",
           "Catálogo: 5 Servicios / 10 Productos",
-          "15% de Comisión"
+          "15% de Comisión",
+          "100 QuAI Credits/mes"
         ],
         "button_text": "Elegir Básico"
       },
@@ -154,7 +156,8 @@
           "Hasta 150 Citas al mes",
           "Catálogo: 15 Servicios / 30 Productos",
           "12% de Comisión",
-          "Acceso a ventas en QUMarket"
+          "Acceso a ventas en QUMarket",
+          "500 QuAI Credits/mes"
         ],
         "button_text": "Prueba 14 días gratis"
       },
@@ -165,7 +168,8 @@
           "Hasta 500 Citas al mes",
           "Catálogo: 50 Servicios / 100 Productos",
           "10% de Comisión",
-          "Reportes Avanzados e IA (QUBlocks)"
+          "Reportes Avanzados e IA (QUBlocks)",
+          "2000 QuAI Credits/mes"
         ],
         "button_text": "Elegir Premium"
       },
@@ -176,7 +180,8 @@
           "Citas y Catálogo Ilimitados",
           "Gestión Multi-usuario (Clínicas)",
           "Comisión VIP preferencial",
-          "Marketing y Soporte Nivel 4 (VIP)"
+          "Marketing y Soporte Nivel 4 (VIP)",
+          "Bolsa Personalizada de QuAI Credits"
         ],
         "button_text": "Contactar ventas"
       }

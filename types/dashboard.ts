@@ -6,11 +6,26 @@ export interface PlanInfo {
   daysLeft: number;
 }
 
+export interface TopItemDto {
+  name: string;
+  type: string;
+  quantity: number;
+  revenue: number;
+}
+
+export interface LocationMetricDto {
+  locationId: number;
+  locationName: string;
+  revenue: number;
+  appointmentCount: number;
+}
+
 export interface DashboardAnalytics {
   monthlyRevenue: number;
   completedAppointments: number;
   newClients: number;
   revenueByItemType?: Record<string, number>;
+  topSellingItems?: TopItemDto[];
   revenueGrowth: number;
   appointmentsGrowth: number;
   clientsGrowth: number;
@@ -30,5 +45,6 @@ export interface ProviderDashboardResponse {
   plan: PlanInfo;
   hasConfiguredStore: boolean;
   analytics: DashboardAnalytics;
+  metricsByLocation?: LocationMetricDto[];
   upcomingAppointments: UpcomingAppointmentDto[];
 }

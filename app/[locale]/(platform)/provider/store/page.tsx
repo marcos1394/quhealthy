@@ -404,26 +404,6 @@ export default function StoreSetupPage() {
               </div>
             </div>
 
-            {/* Bloque: Métricas de Tienda */}
-            <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] flex flex-col shadow-sm overflow-hidden">
-              <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] flex items-center gap-3">
-                <Trophy className="w-5 h-5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                  Métricas de Tienda
-                </h3>
-              </div>
-              <div className="p-6 md:p-8 flex-1 flex flex-col justify-between space-y-6">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                  Monitorea el rendimiento de tu catálogo, visitas, conversiones y datos demográficos.
-                </p>
-                <Button
-                  onClick={() => router.push("/provider/store/metrics")}
-                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm border-0"
-                >
-                  Ver Métricas
-                </Button>
-              </div>
-            </div>
 
           </div>
         </div>
