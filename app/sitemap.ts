@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let page = 0;
     let hasMoreStores = true;
     while (hasMoreStores && page < 10) { // Safety limit 10 pages
-      const res = await fetch(`${apiUrl}/api/catalog/storefront?size=100&page=${page}`, {
+      const res = await fetch(`${apiUrl}/api/catalog/storefront?size=100&page=${page}&radiusKm=999999`, {
         next: { revalidate: 3600 },
       });
       if (!res.ok) break;
@@ -67,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let page = 0;
     let hasMoreItems = true;
     while (hasMoreItems && page < 20) { // Safety limit 20 pages
-      const res = await fetch(`${apiUrl}/api/catalog/search/items?size=100&page=${page}`, {
+      const res = await fetch(`${apiUrl}/api/catalog/search/items?size=100&page=${page}&radiusKm=999999`, {
         next: { revalidate: 3600 },
       });
 
