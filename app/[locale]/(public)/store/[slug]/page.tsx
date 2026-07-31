@@ -102,6 +102,21 @@ export default function PublicStorePage() {
         store.primaryColor || "#000000",
       );
       fetchSingleScore(store.providerId);
+      
+      // LOG VISIT TO ANALYTICS
+      import('@/services/analytics.service').then(({ analyticsService }) => {
+        const searchQuery = searchParams?.get("q") || "";
+        const referrer = document.referrer || "";
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        
+        analyticsService.logStoreVisit({
+          providerId: store.providerId,
+          consumerId: user?.id,
+          searchQuery,
+          referrer,
+          deviceType: isMobile ? "MOBILE" : "DESKTOP"
+        }).catch(err => console.error("Error logging store visit", err));
+      });
     }
   }, [
     store?.providerId,
@@ -110,6 +125,8 @@ export default function PublicStorePage() {
     slug,
     setProvider,
     fetchSingleScore,
+    user?.id,
+    searchParams
   ]);
 
   // AUTO-BOOK LOGIC

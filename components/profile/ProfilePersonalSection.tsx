@@ -1,181 +1,190 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { User, Calendar as CalendarIcon, Phone, MapPin, Users } from 'lucide-react';
-import { format, parse, isValid } from 'date-fns';
-import { es, enUS } from 'date-fns/locale';
-import { useLocale } from 'next-intl';
+import React from "react";
+import { useTranslations } from "next-intl";
+import { User, Phone, MapPin, Users } from "lucide-react";
+import { format, parse, isValid } from "date-fns";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { cn } from "@/lib/utils";
-import { ConsumerProfile } from '@/types/consumerProfile';
+import { ConsumerProfile } from "@/types/consumerProfile";
 
 interface Props {
- form: ConsumerProfile;
- handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
- handleSelectChange: (name: string, value: string) => void;
+  form: ConsumerProfile;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSelectChange: (name: string, value: string) => void;
 }
 
-export function ProfilePersonalSection({ form, handleInputChange, handleSelectChange }: Props) {
- const t = useTranslations('PatientProfile');
- const locale = useLocale();
- const dateLocale = locale === 'es' ? es : enUS;
+export function ProfilePersonalSection({
+  form,
+  handleInputChange,
+  handleSelectChange,
+}: Props) {
+  const t = useTranslations("PatientProfile");
 
+  // Parse birthDate string (YYYY-MM-DD)
+  const selectedDate = form.birthDate
+    ? parse(form.birthDate, "yyyy-MM-dd", new Date())
+    : undefined;
 
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date && isValid(date)) {
+      const syntheticEvent = {
+        target: {
+          name: "birthDate",
+          value: format(date, "yyyy-MM-dd"),
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleInputChange(syntheticEvent);
+    }
+  };
 
- // Parse birthDate string (YYYY-MM-DD) to Date object for the Calendar
- const selectedDate = form.birthDate
- ? parse(form.birthDate, 'yyyy-MM-dd', new Date())
- : undefined;
+  return (
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 shadow-2xs font-sans transition-colors select-none space-y-8">
+      {/* ── CABECERA DE SECCIÓN ────────────────────────────────────────── */}
+      <div className="pb-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900/30 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 shadow-2xs">
+          <User className="w-6 h-6" strokeWidth={2} />
+        </div>
 
- const handleDateSelect = (date: Date | undefined) => {
- if (date && isValid(date)) {
- // Create a synthetic event to maintain compatibility with handleInputChange
- const syntheticEvent = {
- target: {
- name: 'birthDate',
- value: format(date, 'yyyy-MM-dd'),
- },
- } as React.ChangeEvent<HTMLInputElement>;
- handleInputChange(syntheticEvent);
- }
- };
+        <div className="space-y-0.5">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+            {t("section_personal")}
+          </h3>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+            {t("section_personal_desc")}
+          </p>
+        </div>
+      </div>
 
- const displayDate = selectedDate && isValid(selectedDate)
- ? format(selectedDate, 'PPP', { locale: dateLocale })
- : null;
+      {/* ── FORMULARIO PRINCIPAL DE DATOS PERSONALIZADOS ─────────────── */}
+      <div className="space-y-5">
+        {/* Nombre Completo */}
+        <div className="space-y-1.5">
+          <Label htmlFor="fullName" className="text-xs font-bold text-gray-800 dark:text-gray-200">
+            {t("label_name")}
+          </Label>
+          <div className="relative">
+            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" strokeWidth={2} />
+            <Input
+              id="fullName"
+              name="fullName"
+              value={form.fullName}
+              onChange={handleInputChange}
+              placeholder={t("placeholder_name")}
+              className="pl-10 h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 rounded-xl transition-all shadow-2xs"
+            />
+          </div>
+        </div>
 
- return (
- <div className="space-y-8">
- {/* Section Header */}
- <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
- <div className="flex items-center gap-3 mb-2">
- <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl">
- <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
- </div>
- <h3 className="text-xl font-medium text-slate-900 dark:text-white tracking-tight">
- {t('section_personal')}
- </h3>
- </div>
- <p className="text-slate-500 dark:text-slate-400 font-light text-sm ml-12">
- {t('section_personal_desc')}
- </p>
- </div>
+        {/* Fecha de Nacimiento y Sexo Biológico */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* DatePicker */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("label_birth")}
+            </Label>
+            <DatePicker
+              value={selectedDate}
+              onChange={handleDateSelect}
+              disabled={(date) =>
+                date > new Date() || date < new Date("1900-01-01")
+              }
+              fromYear={1920}
+              toYear={new Date().getFullYear()}
+              placeholder={t("placeholder_birth")}
+              className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white shadow-2xs"
+              popoverClassName="rounded-2xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-xl"
+            />
+          </div>
 
- {/* Fields */}
- <div className="space-y-6">
+          {/* Sexo Biológico */}
+          <div className="space-y-1.5">
+            <Label htmlFor="gender" className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("label_gender")}
+            </Label>
+            <div className="relative">
+              <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10 pointer-events-none" strokeWidth={2} />
+              <Select
+                value={form.gender}
+                onValueChange={(val) => handleSelectChange("gender", val)}
+              >
+                <SelectTrigger className="pl-10 h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 rounded-xl transition-all shadow-2xs">
+                  <SelectValue placeholder="—" />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans text-xs">
+                  <SelectItem value="male" className="rounded-xl font-medium">
+                    {t("gender_male")}
+                  </SelectItem>
+                  <SelectItem value="female" className="rounded-xl font-medium">
+                    {t("gender_female")}
+                  </SelectItem>
+                  <SelectItem value="other" className="rounded-xl font-medium">
+                    {t("gender_other")}
+                  </SelectItem>
+                  <SelectItem value="none" className="rounded-xl font-medium">
+                    {t("gender_none")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
- {/* Full Name */}
- <div className="space-y-2">
- <Label htmlFor="fullName" className="text-slate-700 dark:text-slate-300 font-medium">
- {t('label_name')}
- </Label>
- <div className="relative">
- <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
- <Input
- id="fullName"
- name="fullName"
- value={form.fullName}
- onChange={handleInputChange}
- placeholder={t('placeholder_name', { defaultValue: 'Ej. Juan Pérez López' })}
- className="pl-11 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
- />
- </div>
- </div>
+        {/* Ubicación y Teléfono */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+          {/* Dirección/Ubicación */}
+          <div className="space-y-1.5">
+            <Label htmlFor="location" className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("label_address")}
+            </Label>
+            <p className="text-[11px] font-medium text-gray-400 leading-relaxed">
+              {t("help_address")}
+            </p>
+            <div className="relative">
+              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" strokeWidth={2} />
+              <Input
+                id="location"
+                name="location"
+                value={form.location}
+                onChange={handleInputChange}
+                placeholder={t("placeholder_address")}
+                className="pl-10 h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 rounded-xl transition-all shadow-2xs"
+              />
+            </div>
+          </div>
 
- {/* Birth Date (Popover Calendar) & Biological Sex */}
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- {/* Elegant Date Picker */}
- <div className="space-y-2">
- <Label className="text-slate-700 dark:text-slate-300 font-medium">
- {t('label_birth')}
- </Label>
- <DatePicker
- value={selectedDate}
- onChange={handleDateSelect}
- disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
- fromYear={1920}
- toYear={new Date().getFullYear()}
- placeholder={t('placeholder_birth', { defaultValue: 'DD/MM/AAAA' })}
- className="h-14 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
- popoverClassName="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl"
- />
- </div>
-
- {/* Biological Sex */}
- <div className="space-y-2">
- <Label htmlFor="gender" className="text-slate-700 dark:text-slate-300 font-medium">
- {t('label_gender')}
- </Label>
- <div className="relative">
- <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10 pointer-events-none" />
- <Select value={form.gender} onValueChange={(val) => handleSelectChange('gender', val)}>
- <SelectTrigger className="pl-11 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-medical-500/20 focus:border-medical-500 rounded-xl transition-all">
- <SelectValue placeholder="—" />
- </SelectTrigger>
- <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl">
- <SelectItem value="male">{t('gender_male')}</SelectItem>
- <SelectItem value="female">{t('gender_female')}</SelectItem>
- <SelectItem value="other">{t('gender_other')}</SelectItem>
- <SelectItem value="none">{t('gender_none')}</SelectItem>
- </SelectContent>
- </Select>
- </div>
- </div>
- </div>
-
- {/* Location & Phone */}
- <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- {/* Location (City / Postal Code) */}
- <div className="space-y-2">
- <Label htmlFor="location" className="text-slate-700 dark:text-slate-300 font-medium">
- {t('label_address')}
- </Label>
- <p className="text-xs text-slate-500 dark:text-slate-400 font-light">
- {t('help_address', { defaultValue: 'Solo ciudad o código postal, para conectarte con especialistas cercanos.' })}
- </p>
- <div className="relative">
- <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
- <Input
- id="location"
- name="location"
- value={form.location}
- onChange={handleInputChange}
- placeholder={t('placeholder_address', { defaultValue: 'Ej. Ciudad de México, CDMX' })}
- className="pl-11 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
- />
- </div>
- </div>
-
- {/* Phone */}
- <div className="space-y-2">
- <Label htmlFor="phoneNumber" className="text-slate-700 dark:text-slate-300 font-medium">
- {t('label_phone')}
- </Label>
- <p className="text-xs text-slate-500 dark:text-slate-400 font-light">
- {t('help_phone', { defaultValue: 'Para recordatorios de citas vía WhatsApp.' })}
- </p>
- <div className="relative">
- <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
- <Input
- id="phoneNumber"
- type="tel"
- name="phoneNumber"
- value={form.phoneNumber}
- onChange={handleInputChange}
- placeholder="+52 55 1234 5678"
- className="pl-11 h-14 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-medical-500 focus:ring-medical-500/20 rounded-xl transition-all"
- />
- </div>
- </div>
- </div>
-
- </div>
- </div>
- );
+          {/* Teléfono */}
+          <div className="space-y-1.5">
+            <Label htmlFor="phoneNumber" className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("label_phone")}
+            </Label>
+            <p className="text-[11px] font-medium text-gray-400 leading-relaxed">
+              {t("help_phone")}
+            </p>
+            <div className="relative">
+              <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" strokeWidth={2} />
+              <Input
+                id="phoneNumber"
+                type="tel"
+                name="phoneNumber"
+                value={form.phoneNumber}
+                onChange={handleInputChange}
+                placeholder="+52 55 1234 5678"
+                className="pl-10 h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-mono font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 rounded-xl transition-all shadow-2xs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

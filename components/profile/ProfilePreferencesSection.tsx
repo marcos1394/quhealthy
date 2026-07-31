@@ -1,126 +1,155 @@
 "use client";
 
-import React from 'react';
-import { useTranslations } from 'next-intl';
-import { Sparkles, Target, Video, Building2, Home } from 'lucide-react';
+/* eslint-disable react-doctor/button-has-type */
+
+import React from "react";
+import { useTranslations } from "next-intl";
+import { Sparkles, Target, Video, Building2, Home } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { ConsumerProfile } from '@/types/consumerProfile';
+import { ConsumerProfile } from "@/types/consumerProfile";
+import { cn } from "@/lib/utils";
 
 const GOALS_OPTIONS_KEYS = [
- 'goal_weight_loss',
- 'goal_skin',
- 'goal_stress',
- 'goal_energy',
- 'goal_rehab',
+  "goal_weight_loss",
+  "goal_skin",
+  "goal_stress",
+  "goal_energy",
+  "goal_rehab",
 ] as const;
 
 const MODALITY_OPTIONS = [
- { value: 'in_person', icon: Building2, colorActive: 'bg-medical-600 border-medical-600 dark:bg-medical-500 dark:border-medical-500' },
- { value: 'video_call', icon: Video, colorActive: 'bg-indigo-600 border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500' },
- { value: 'home_visit', icon: Home, colorActive: 'bg-emerald-600 border-emerald-600 dark:bg-emerald-500 dark:border-emerald-500' },
+  { value: "in_person", icon: Building2 },
+  { value: "video_call", icon: Video },
+  { value: "home_visit", icon: Home },
 ] as const;
 
 interface Props {
- form: ConsumerProfile;
- toggleArrayItem: (field: 'healthGoals', value: string) => void;
- handleSelectChange: (name: string, value: string) => void;
- handleInterestChange: (activity: string, value: number[]) => void;
+  form: ConsumerProfile;
+  toggleArrayItem: (field: "healthGoals", value: string) => void;
+  handleSelectChange: (name: string, value: string) => void;
+  handleInterestChange: (activity: string, value: number[]) => void;
 }
 
-export function ProfilePreferencesSection({ form, toggleArrayItem, handleSelectChange }: Props) {
- const t = useTranslations('PatientProfile');
+export function ProfilePreferencesSection({
+  form,
+  toggleArrayItem,
+  handleSelectChange,
+}: Props) {
+  const t = useTranslations("PatientProfile");
 
- return (
- <div className="space-y-8">
- {/* Section Header */}
- <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
- <div className="flex items-center gap-3 mb-2">
- <div className="p-2 bg-amber-50 dark:bg-amber-500/10 rounded-xl">
- <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
- </div>
- <h3 className="text-xl font-medium text-slate-900 dark:text-white tracking-tight">
- {t('section_preferences')}
- </h3>
- </div>
- <p className="text-slate-500 dark:text-slate-400 font-light text-sm ml-12">
- {t('section_preferences_desc')}
- </p>
- </div>
+  return (
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 shadow-2xs font-sans transition-colors select-none space-y-8">
+      {/* ── CABECERA DE SECCIÓN ────────────────────────────────────────── */}
+      <div className="pb-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-2xs">
+          <Sparkles className="w-6 h-6" strokeWidth={2} />
+        </div>
 
- {/* Fields */}
- <div className="space-y-8">
+        <div className="space-y-0.5">
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+            {t("section_preferences")}
+          </h3>
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+            {t("section_preferences_desc")}
+          </p>
+        </div>
+      </div>
 
- {/* Health Goals */}
- <div className="space-y-3">
- <div className="flex items-center gap-2">
- <Target className="w-4 h-4 text-medical-500" />
- <Label className="text-slate-700 dark:text-slate-300 font-medium">
- {t('label_health_goals')}
- </Label>
- </div>
- <p className="text-xs text-slate-500 dark:text-slate-400 font-light ml-6">
- {t('help_health_goals')}
- </p>
+      {/* ── CAMPOS DE PREFERENCIAS ────────────────────────────────────── */}
+      <div className="space-y-8">
+        {/* Objetivos de Salud */}
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+              <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                {t("label_health_goals")}
+              </Label>
+            </div>
+            <p className="text-[11px] font-medium text-gray-400 leading-relaxed">
+              {t("help_health_goals")}
+            </p>
+          </div>
 
- <div className="flex flex-wrap gap-2.5 ml-6">
- {GOALS_OPTIONS_KEYS.map(goalKey => {
- const goalValue = t(goalKey);
- const isSelected = form.healthGoals.includes(goalValue);
- return (
- <Badge
- key={goalKey}
- variant="outline"
- onClick={() => toggleArrayItem('healthGoals', goalValue)}
- className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-all rounded-xl select-none hover:scale-[1.03] active:scale-95 ${isSelected
- ? 'bg-medical-600 text-white border-medical-600 dark:bg-medical-500 dark:border-medical-500 shadow-md shadow-medical-500/20'
- : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
- }`}
- >
- {goalValue}
- </Badge>
- );
- })}
- </div>
- </div>
+          <div className="flex flex-wrap gap-2.5 pt-1">
+            {GOALS_OPTIONS_KEYS.map((goalKey) => {
+              const goalValue = t(goalKey);
+              const isSelected = form.healthGoals.includes(goalValue);
 
- {/* Consultation Modality */}
- <div className="space-y-3">
- <div className="flex items-center gap-2">
- <Video className="w-4 h-4 text-indigo-500" />
- <Label className="text-slate-700 dark:text-slate-300 font-medium">
- {t('label_modality')}
- </Label>
- </div>
- <p className="text-xs text-slate-500 dark:text-slate-400 font-light ml-6">
- {t('help_modality')}
- </p>
+              return (
+                <Badge
+                  key={goalKey}
+                  variant="outline"
+                  onClick={() => toggleArrayItem("healthGoals", goalValue)}
+                  className={cn(
+                    "cursor-pointer px-4 py-2 text-xs font-bold transition-all rounded-xl border select-none shadow-2xs",
+                    isSelected
+                      ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500 dark:border-emerald-500 shadow-xs"
+                      : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/30"
+                  )}
+                >
+                  {goalValue}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
 
- <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 ml-6">
- {MODALITY_OPTIONS.map((modality) => {
- const isSelected = form.preferredModality === modality.value.toUpperCase();
- const Icon = modality.icon;
- return (
- <button
- key={modality.value}
- type="button"
- onClick={() => handleSelectChange('preferredModality', modality.value.toUpperCase())}
- className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${isSelected
- ? `${modality.colorActive} text-white shadow-lg`
- : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
- }`}
- >
- <Icon className={`w-7 h-7 ${isSelected ? 'text-white' : ''}`} strokeWidth={1.5} />
- <span className="text-sm font-semibold">
- {t(`modality_${modality.value}`)}
- </span>
- </button>
- );
- })}
- </div>
- </div>
+        {/* Modalidad de Consulta */}
+        <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800/80">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Video className="w-4 h-4 text-sky-500 shrink-0" strokeWidth={2} />
+              <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                {t("label_modality")}
+              </Label>
+            </div>
+            <p className="text-[11px] font-medium text-gray-400 leading-relaxed">
+              {t("help_modality")}
+            </p>
+          </div>
 
- </div>
- </div>
- );
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            {MODALITY_OPTIONS.map((modality) => {
+              const isSelected =
+                form.preferredModality === modality.value.toUpperCase();
+              const Icon = modality.icon;
+
+              return (
+                <button
+                  key={modality.value}
+                  type="button"
+                  onClick={() =>
+                    handleSelectChange(
+                      "preferredModality",
+                      modality.value.toUpperCase()
+                    )
+                  }
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border transition-all cursor-pointer text-center shadow-2xs",
+                    isSelected
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                      : "bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-500/30"
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "w-6 h-6 shrink-0 transition-colors",
+                      isSelected ? "text-white" : "text-emerald-600 dark:text-emerald-400"
+                    )}
+                    strokeWidth={2}
+                  />
+                  <span className="text-xs font-bold">
+                    {t(`modality_${modality.value}`)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -1,317 +1,377 @@
-// Ubicación: src/components/provider/settings/ProviderLocationsSettings.tsx
 "use client";
 
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useEffect, useState } from "react";
-import { Plus, MapPin, Building2, CheckCircle2, AlertTriangle, Building } from "lucide-react";
 import { useTranslations } from "next-intl";
+import {
+  Plus,
+  MapPin,
+  Building2,
+  CheckCircle2,
+  AlertTriangle,
+  Building,
+} from "lucide-react";
 
 import { useProviderLocations } from "@/hooks/useProviderLocations";
-import { ProviderLocation, CreateLocationRequest } from "@/types/providerLocation";
+import {
+  ProviderLocation,
+  CreateLocationRequest,
+} from "@/types/providerLocation";
 
-// Componentes de shadcn/ui
+// Componentes UI de shadcn
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import {
- Dialog,
- DialogContent,
- DialogHeader,
- DialogTitle,
- DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
-// Tu LocationPicker (asegúrate de que la ruta sea correcta)
 import EnhancedLocationPicker from "@/components/shared/location/MapModal";
+import { cn } from "@/lib/utils";
 
 export function ProviderLocationsSettings() {
- const t = useTranslations("ProviderSettings");
- const {
- locations,
- isLoading,
- isMutating,
- fetchLocations,
- createLocation,
- updateLocation,
- toggleLocation,
- } = useProviderLocations();
+  const t = useTranslations("ProviderSettings.Locations");
+  const {
+    locations,
+    isLoading,
+    isMutating,
+    fetchLocations,
+    createLocation,
+    updateLocation,
+    toggleLocation,
+  } = useProviderLocations();
 
- // Estados para el Modal
- const [isModalOpen, setIsModalOpen] = useState(false);
- const [editingLocation, setEditingLocation] = useState<ProviderLocation | null>(null);
+  // Estados para el Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingLocation, setEditingLocation] =
+    useState<ProviderLocation | null>(null);
 
- // Estados del Formulario
- const [formData, setFormData] = useState<CreateLocationRequest>({
- name: "",
- address: "",
- latitude: 0,
- longitude: 0,
- googlePlaceId: "",
- isMain: false,
- });
+  // Estados del Formulario
+  const [formData, setFormData] = useState<CreateLocationRequest>({
+    name: "",
+    address: "",
+    latitude: 0,
+    longitude: 0,
+    googlePlaceId: "",
+    isMain: false,
+  });
 
- // Cargar sedes al montar el componente
- useEffect(() => {
- fetchLocations();
- }, [fetchLocations]);
+  // Cargar sedes al montar el componente
+  useEffect(() => {
+    fetchLocations();
+  }, [fetchLocations]);
 
- // Manejador para abrir el modal (Crear o Editar)
- const openModal = (location?: ProviderLocation) => {
- if (location) {
- setEditingLocation(location);
- setFormData({
- name: location.name,
- address: location.address,
- latitude: location.latitude,
- longitude: location.longitude,
- googlePlaceId: location.googlePlaceId || "",
- isMain: location.isMain,
- });
- } else {
- setEditingLocation(null);
- setFormData({
- name: "",
- address: "",
- latitude: 0,
- longitude: 0,
- googlePlaceId: "",
- isMain: false, // Si es la primera, el backend lo forzará a true
- });
- }
- setIsModalOpen(true);
- };
+  // Manejador para abrir el modal (Crear o Editar)
+  const openModal = (location?: ProviderLocation) => {
+    if (location) {
+      setEditingLocation(location);
+      setFormData({
+        name: location.name,
+        address: location.address,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        googlePlaceId: location.googlePlaceId || "",
+        isMain: location.isMain,
+      });
+    } else {
+      setEditingLocation(null);
+      setFormData({
+        name: "",
+        address: "",
+        latitude: 0,
+        longitude: 0,
+        googlePlaceId: "",
+        isMain: false,
+      });
+    }
+    setIsModalOpen(true);
+  };
 
- const handleCloseModal = () => {
- setIsModalOpen(false);
- setEditingLocation(null);
- };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingLocation(null);
+  };
 
- // Manejador del LocationPicker
- const handleLocationSelect = (locationData: any) => {
- setFormData((prev) => ({
- ...prev,
- address: locationData.address,
- latitude: locationData.lat,
- longitude: locationData.lng,
- googlePlaceId: locationData.placeId,
- }));
- };
+  // Manejador del LocationPicker
+  const handleLocationSelect = (locationData: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      address: locationData.address,
+      latitude: locationData.lat,
+      longitude: locationData.lng,
+      googlePlaceId: locationData.placeId,
+    }));
+  };
 
- // Guardar (Crear o Actualizar)
- const handleSave = async () => {
- // Validación básica
- if (!formData.name.trim() || formData.latitude === 0) return;
+  // Guardar (Crear o Actualizar)
+  const handleSave = async () => {
+    if (!formData.name.trim() || formData.latitude === 0) return;
 
- let success = false;
- if (editingLocation) {
- success = await updateLocation(editingLocation.id, formData);
- } else {
- success = await createLocation(formData);
- }
+    let success = false;
+    if (editingLocation) {
+      success = await updateLocation(editingLocation.id, formData);
+    } else {
+      success = await createLocation(formData);
+    }
 
- if (success) {
- handleCloseModal();
- }
- };
+    if (success) {
+      handleCloseModal();
+    }
+  };
 
- if (isLoading) {
- return (
- <div className="flex justify-center items-center h-48">
- <QhSpinner size="lg" />
- </div>
- );
- }
+  if (isLoading) {
+    return (
+      <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-12 shadow-2xs flex items-center justify-center min-h-[350px]">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+      </div>
+    );
+  }
 
- return (
- <div className="space-y-6">
- {/* Header y Botón Agregar */}
- <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
- <div>
- <h2 className="text-xl font-bold text-black dark:text-white uppercase tracking-tighter">
- Mis Sedes y Consultorios
- </h2>
- <p className="text-[10px] uppercase tracking-widest text-gray-500 mt-1 font-bold">
- Gestiona dónde atiendes a tus pacientes presencialmente.
- </p>
- </div>
- <Button
- onClick={() => openModal()}
- disabled={locations.length >= 5 || isMutating}
- className="rounded-none bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 text-xs font-bold uppercase tracking-widest h-10 px-6"
- >
- <Plus className="w-4 h-4 mr-2" />
- Agregar Sede
- </Button>
- </div>
+  return (
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 shadow-2xs font-sans transition-colors select-none space-y-6">
+      {/* ── CABECERA Y BOTÓN DE ACCIÓN ───────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+            <Building2 className="w-6 h-6" strokeWidth={2} />
+          </div>
 
- {locations.length >= 5 && (
- <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
- <div className="flex">
- <AlertTriangle className="h-5 w-5 text-yellow-400" />
- <p className="ml-3 text-sm text-yellow-700">
- Has alcanzado el límite máximo de 5 sedes permitidas.
- </p>
- </div>
- </div>
- )}
+          <div className="space-y-0.5">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("title")}
+            </h2>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("subtitle")}
+            </p>
+          </div>
+        </div>
 
- {/* Lista de Tarjetas */}
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {locations.length === 0 ? (
- <div className="col-span-full py-12 text-center border border-dashed border-gray-300 dark:border-gray-700">
- <Building className="mx-auto h-12 w-12 text-gray-400" />
- <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white uppercase">Sin sedes configuradas</h3>
- <p className="mt-1 text-xs text-gray-500">Agrega tu primer consultorio para habilitar citas presenciales.</p>
- </div>
- ) : (
- locations.map((loc) => (
- <div
- key={loc.id}
- className={`border p-5 bg-white dark:bg-slate-900 transition-colors relative ${
- loc.isMain ? "border-black dark:border-white" : "border-gray-200 dark:border-gray-800"
- }`}
- >
- <div className="flex justify-between items-start mb-4">
- <div className="flex items-center gap-3">
- <div className={`p-2 rounded-full ${loc.isActive ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
- <Building2 className="w-5 h-5" />
- </div>
- <div>
- <div className="flex items-center gap-2">
- <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white">
- {loc.name}
- </h3>
- {loc.isMain && (
- <span className="bg-black text-white dark:bg-white dark:text-black text-[9px] font-bold uppercase tracking-widest px-2 py-0.5">
- Principal
- </span>
- )}
- </div>
- <div className="flex items-center text-xs text-gray-500 mt-1">
- <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
- <span className="truncate max-w-[200px]">{loc.address}</span>
- </div>
- </div>
- </div>
+        <Button
+          type="button"
+          onClick={() => openModal()}
+          disabled={locations.length >= 5 || isMutating}
+          className="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          <Plus className="w-4 h-4" strokeWidth={2} />
+          <span>{t("add_btn")}</span>
+        </Button>
+      </div>
 
- <div className="flex flex-col items-end gap-2">
- <Switch
- checked={loc.isActive}
- onCheckedChange={() => toggleLocation(loc.id)}
- disabled={isMutating}
- aria-label="Toggle Sede"
- />
- <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
- {loc.isActive ? 'Activa' : 'Inactiva'}
- </span>
- </div>
- </div>
+      {/* ── ALERTA DE LÍMITE DE SEDES ─────────────────────────────────── */}
+      {locations.length >= 5 && (
+        <div className="rounded-2xl border border-amber-200/80 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20 p-4 shadow-2xs flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={2} />
+          <p className="text-xs font-medium text-amber-800 dark:text-amber-300 leading-relaxed">
+            {t("limit_warning")}
+          </p>
+        </div>
+      )}
 
- <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800 mt-2">
- <Button
- variant="ghost"
- onClick={() => openModal(loc)}
- disabled={isMutating}
- className="text-xs uppercase font-bold tracking-widest text-gray-500 hover:text-black dark:hover:text-white rounded-none"
- >
- Editar Detalles
- </Button>
- </div>
- </div>
- ))
- )}
- </div>
+      {/* ── LISTA DE SEDES / MATRIZ ───────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {locations.length === 0 ? (
+          <div className="col-span-full py-12 px-4 text-center rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/40 dark:bg-[#050505] flex flex-col items-center justify-center space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-400 mb-1 shadow-2xs">
+              <Building className="h-6 w-6" strokeWidth={2} />
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("empty_title")}
+            </h3>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-sm leading-relaxed">
+              {t("empty_desc")}
+            </p>
+          </div>
+        ) : (
+          locations.map((loc) => (
+            <div
+              key={loc.id}
+              className={cn(
+                "rounded-3xl border transition-all duration-200 bg-white dark:bg-[#0a0a0a] p-6 shadow-2xs flex flex-col justify-between space-y-5 overflow-hidden",
+                loc.isMain
+                  ? "border-emerald-500/80 ring-1 ring-emerald-500/20"
+                  : "border-gray-100 dark:border-gray-800 hover:border-emerald-500/30"
+              )}
+            >
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex items-start gap-3.5 min-w-0">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-2xl border flex items-center justify-center shrink-0 shadow-2xs",
+                      loc.isActive
+                        ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/30 text-emerald-600 dark:text-emerald-400"
+                        : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400"
+                    )}
+                  >
+                    <Building2 className="w-5 h-5" strokeWidth={2} />
+                  </div>
 
- {/* Modal Agregar/Editar Sede */}
- <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
- <DialogContent className="sm:max-w-[700px] p-0 rounded-none border-black dark:border-white gap-0">
- <div className="p-6 border-b border-gray-200 dark:border-gray-800">
- <DialogHeader>
- <DialogTitle className="text-xl font-bold uppercase tracking-tighter">
- {editingLocation ? "Editar Sede" : "Agregar Nueva Sede"}
- </DialogTitle>
- <DialogDescription className="text-xs uppercase tracking-widest font-medium">
- Configura los detalles de tu consultorio físico.
- </DialogDescription>
- </DialogHeader>
- </div>
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white tracking-tight truncate">
+                        {loc.name}
+                      </h3>
 
- <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
- 
- {/* Nombre y Principal */}
- <div className="flex flex-col sm:flex-row gap-6">
- <div className="flex-1 space-y-2">
- <Label className="text-xs font-bold uppercase tracking-widest">Nombre del Consultorio/Sede</Label>
- <Input
- placeholder="Ej: Consultorio Polanco, Torre Médica Sur..."
- value={formData.name}
- onChange={(e) => setFormData({ ...formData, name: e.target.value })}
- className="rounded-none border-gray-300 focus-visible:ring-black dark:focus-visible:ring-white"
- />
- </div>
+                      {loc.isMain && (
+                        <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
+                          {t("badge_main")}
+                        </Badge>
+                      )}
+                    </div>
 
- <div className="flex items-center space-x-2 pt-6">
- <Switch
- id="is-main-mode"
- checked={formData.isMain}
- onCheckedChange={(checked) => setFormData({ ...formData, isMain: checked })}
- disabled={editingLocation?.isMain} // No se puede quitar a sí mismo si ya es main
- />
- <Label htmlFor="is-main-mode" className="text-xs font-bold uppercase tracking-widest cursor-pointer">
- Marcar como Sede Principal
- </Label>
- </div>
- </div>
+                    <div className="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400">
+                      <MapPin className="w-3.5 h-3.5 mr-1 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <span className="truncate">{loc.address}</span>
+                    </div>
+                  </div>
+                </div>
 
- {/* Selector de Mapa */}
- <div className="space-y-2">
- <Label className="text-xs font-bold uppercase tracking-widest flex items-center justify-between">
- <span>Ubicación Exacta</span>
- {formData.latitude !== 0 && (
- <span className="flex items-center text-green-600 dark:text-green-400 normal-case text-[10px]">
- <CheckCircle2 className="w-3 h-3 mr-1" /> Ubicación capturada
- </span>
- )}
- </Label>
- <div className="h-[400px] border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-slate-900 relative">
- <EnhancedLocationPicker
- onLocationSelect={handleLocationSelect}
- initialLocation={
- formData.latitude !== 0
- ? {
- lat: formData.latitude,
- lng: formData.longitude,
- address: formData.address,
- }
- : undefined
- }
- />
- </div>
- </div>
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  <Switch
+                    checked={loc.isActive}
+                    onCheckedChange={() => toggleLocation(loc.id)}
+                    disabled={isMutating}
+                    aria-label="Alternar estado de Sede"
+                  />
+                  <span className="text-[10px] font-bold font-mono text-gray-400 uppercase">
+                    {loc.isActive ? t("status_active") : t("status_inactive")}
+                  </span>
+                </div>
+              </div>
 
- </div>
+              <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => openModal(loc)}
+                  disabled={isMutating}
+                  className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] h-9 px-4 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                >
+                  {t("btn_edit")}
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
 
- <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 bg-gray-50 dark:bg-slate-900/50">
- <Button
- variant="outline"
- onClick={handleCloseModal}
- disabled={isMutating}
- className="rounded-none text-xs font-bold uppercase tracking-widest border-gray-300"
- >
- Cancelar
- </Button>
- <Button
- onClick={handleSave}
- disabled={isMutating || !formData.name.trim() || formData.latitude === 0}
- className="rounded-none bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 text-xs font-bold uppercase tracking-widest"
- >
- {isMutating && <QhSpinner size="sm" className="mr-2" />}
- Guardar Sede
- </Button>
- </div>
- </DialogContent>
- </Dialog>
- </div>
- );
+      {/* ── MODAL AGREGAR / EDITAR SEDE ───────────────────────────────── */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[700px] p-0 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] overflow-hidden font-sans shadow-2xl">
+          <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505]">
+            <DialogHeader>
+              <DialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                {editingLocation ? t("modal_edit_title") : t("modal_create_title")}
+              </DialogTitle>
+              <DialogDescription className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                {t("modal_desc")}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-6 md:p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            {/* Nombre y Principal */}
+            <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-end">
+              <div className="flex-1 space-y-1.5 w-full">
+                <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("label_name")}
+                </Label>
+                <Input
+                  placeholder={t("placeholder_name")}
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="rounded-xl h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2.5 sm:pb-2">
+                <Switch
+                  id="is-main-mode"
+                  checked={formData.isMain}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isMain: checked })
+                  }
+                  disabled={editingLocation?.isMain}
+                />
+                <Label
+                  htmlFor="is-main-mode"
+                  className="text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer select-none"
+                >
+                  {t("label_is_main")}
+                </Label>
+              </div>
+            </div>
+
+            {/* Selector de Mapa */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center justify-between">
+                <span>{t("label_exact_location")}</span>
+                {formData.latitude !== 0 && (
+                  <span className="flex items-center text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" strokeWidth={2} />
+                    {t("location_captured")}
+                  </span>
+                )}
+              </Label>
+
+              <div className="h-[380px] rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] overflow-hidden relative shadow-2xs">
+                <EnhancedLocationPicker
+                  onLocationSelect={handleLocationSelect}
+                  initialLocation={
+                    formData.latitude !== 0
+                      ? {
+                          lat: formData.latitude,
+                          lng: formData.longitude,
+                          address: formData.address,
+                        }
+                      : undefined
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 bg-gray-50/60 dark:bg-[#050505]">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCloseModal}
+              disabled={isMutating}
+              className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-10 px-5 shadow-2xs cursor-pointer"
+            >
+              {t("btn_cancel")}
+            </Button>
+
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={
+                isMutating || !formData.name.trim() || formData.latitude === 0
+              }
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-6 text-xs font-bold transition-all shadow-xs border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isMutating ? (
+                <>
+                  <QhSpinner size="sm" className="text-white" />
+                  <span>{t("btn_saving")}</span>
+                </>
+              ) : (
+                <span>{t("btn_save")}</span>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

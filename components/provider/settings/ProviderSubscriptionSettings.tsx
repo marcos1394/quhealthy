@@ -1,28 +1,47 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { toast } from 'react-toastify';
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useState, useEffect } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
+import { loadStripe } from "@stripe/stripe-js";
+import { toast } from "react-toastify";
 import {
-  ShieldCheck, CreditCard, CheckCircle2, Zap, AlertTriangle,
-  Clock, CheckCircle, XCircle, RefreshCw, Mail
-} from 'lucide-react';
-import axiosInstance from '@/lib/axios';
-import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
+  ShieldCheck,
+  CreditCard,
+  CheckCircle2,
+  Zap,
+  AlertTriangle,
+  Clock,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  Mail,
+  Sparkles,
+} from "lucide-react";
+
+import axiosInstance from "@/lib/axios";
+import { cn } from "@/lib/utils";
+import { handleApiError } from "@/lib/handleApiError";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 // Componentes Modulares
-import { PlansHeader } from '@/components/dashboard/subscription/PlansHeader';
-import { ConfirmationModal } from '@/components/dashboard/subscription/ConfirmationModal';
-import { handleApiError } from '@/lib/handleApiError';
-import { useParams, useSearchParams } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { PlansHeader } from "@/components/dashboard/subscription/PlansHeader";
+import { ConfirmationModal } from "@/components/dashboard/subscription/ConfirmationModal";
 
-// Utilidades
-import { BackendPlan, buildFeaturesForPlan } from '@/lib/subscriptionUtils';
-import { subscriptionService, CurrentSubscription } from '@/services/subscription.service';
+// Utilidades y Servicios
+import { BackendPlan, buildFeaturesForPlan } from "@/lib/subscriptionUtils";
+import {
+  subscriptionService,
+  CurrentSubscription,
+} from "@/services/subscription.service";
 
-// Tipos adicionales
+// Tipos
 export type UserRole = "paciente" | "proveedor";
 export type BillingCycle = "monthly" | "yearly";
 
@@ -36,87 +55,105 @@ export interface Plan {
   savings?: number;
   isPopular?: boolean;
   planKey?: string;
-  isEnterprise?: boolean;    // Plan empresarial: contactar ventas, no checkout
-  hasStripeId?: boolean;     // Si el plan tiene stripePriceId en la BD
+  isEnterprise?: boolean;
+  hasStripeId?: boolean;
 }
 
-// Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+// Stripe SDK
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
+);
 
-// ── Helper: días restantes ────────────────────────────────────────────────────
+// ── Helper: Días Restantes ──────────────────────────────────────────────
 function getDaysLeft(endDate: string | null | undefined): number | null {
   if (!endDate) return null;
   const end = new Date(endDate);
   const now = new Date();
-  const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const diff = Math.ceil(
+    (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+  );
   return diff;
 }
 
-// ── Banner de estado de suscripción ──────────────────────────────────────────
-function SubscriptionStatusBanner({ sub }: { sub: CurrentSubscription | null }) {
+// ── BANNER DE ESTADO DE SUSCRIPCIÓN ─────────────────────────────────────
+function SubscriptionStatusBanner({
+  sub,
+}: {
+  sub: CurrentSubscription | null;
+}) {
+  const t = useTranslations("SettingsSubscription.status");
+
   if (!sub) return null;
 
   const daysLeft = getDaysLeft(sub.currentPeriodEnd);
   const isExpired = daysLeft !== null && daysLeft <= 0;
   const isUrgent = daysLeft !== null && daysLeft > 0 && daysLeft <= 7;
 
-  let bg = 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10';
+  let bgClass =
+    "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/40 text-emerald-900 dark:text-emerald-200";
   let Icon = CheckCircle;
-  let text = '';
-  let subtext = '';
+  let titleText = "";
+  let descText = "";
 
-  if (sub.status === 'ACTIVE' || sub.status === 'TRIALING') {
+  if (sub.status === "ACTIVE" || sub.status === "TRIALING") {
     if (isExpired) {
-      bg = 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50';
+      bgClass =
+        "bg-rose-50/50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/40 text-rose-900 dark:text-rose-200";
       Icon = XCircle;
-      text = 'Plan vencido';
-      subtext = 'Tu período ha terminado. Selecciona un plan para continuar.';
+      titleText = t("expired_title");
+      descText = t("expired_desc");
     } else if (isUrgent) {
-      bg = 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/50';
+      bgClass =
+        "bg-amber-50/50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/40 text-amber-900 dark:text-amber-200";
       Icon = AlertTriangle;
-      text = `${daysLeft} día${daysLeft === 1 ? '' : 's'} restante${daysLeft === 1 ? '' : 's'}`;
-      subtext = `Tu plan "${sub.planName}" vence pronto. Renueva para evitar interrupciones.`;
+      titleText = t("urgent_title", { days: daysLeft ?? 0 });
+      descText = t("urgent_desc", { plan: sub.planName });
     } else {
-      bg = 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800/50';
+      bgClass =
+        "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/40 text-emerald-900 dark:text-emerald-200";
       Icon = CheckCircle;
-      text = sub.status === 'TRIALING'
-        ? `Período de prueba — ${daysLeft ?? '?'} días restantes`
-        : `Plan activo — ${daysLeft ?? '?'} días restantes`;
-      subtext = `Plan: ${sub.planName}`;
+      titleText =
+        sub.status === "TRIALING"
+          ? t("trial_title", { days: daysLeft ?? 0 })
+          : t("active_title", { days: daysLeft ?? 0 });
+      descText = t("active_desc", { plan: sub.planName });
     }
-  } else if (sub.status === 'PAST_DUE') {
-    bg = 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50';
+  } else if (sub.status === "PAST_DUE") {
+    bgClass =
+      "bg-rose-50/50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/40 text-rose-900 dark:text-rose-200";
     Icon = AlertTriangle;
-    text = 'Pago pendiente';
-    subtext = 'No pudimos procesar tu pago. Actualiza tu método de pago.';
-  } else if (sub.status === 'CANCELED') {
-    bg = 'bg-gray-50 dark:bg-gray-900/30 border-gray-200 dark:border-gray-700';
+    titleText = t("past_due_title");
+    descText = t("past_due_desc");
+  } else if (sub.status === "CANCELED") {
+    bgClass =
+      "bg-gray-50/60 dark:bg-[#050505] border-gray-100 dark:border-gray-800 text-gray-800 dark:text-gray-200";
     Icon = XCircle;
-    text = 'Suscripción cancelada';
-    subtext = sub.cancelAtPeriodEnd
-      ? `Tendrás acceso hasta que venza el período actual.`
-      : 'Selecciona un plan para volver a activar tu cuenta.';
+    titleText = t("canceled_title");
+    descText = sub.cancelAtPeriodEnd ? t("canceled_end") : t("canceled_now");
   }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className={cn(
-        'w-full max-w-2xl mx-auto flex items-start gap-4 p-4 border rounded-none mb-8',
-        bg
+        "w-full max-w-2xl mx-auto flex items-start gap-3.5 p-4 rounded-2xl border shadow-2xs font-sans",
+        bgClass
       )}
     >
-      <Icon className="w-5 h-5 mt-0.5 shrink-0" />
-      <div>
-        <p className="text-[11px] font-bold uppercase tracking-widest">{text}</p>
-        <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 mt-0.5">{subtext}</p>
+      <Icon className="w-5 h-5 shrink-0 mt-0.5" strokeWidth={2} />
+      <div className="space-y-0.5 min-w-0">
+        <p className="text-xs font-bold tracking-tight">{titleText}</p>
+        <p className="text-xs font-medium opacity-80 leading-relaxed">
+          {descText}
+        </p>
       </div>
     </motion.div>
   );
 }
 
-// ── Pricing Card adaptada para el dashboard ───────────────────────────────────
+// ── TARJETA DE PRECIO PARA DASHBOARD ────────────────────────────────────
 interface DashboardPricingCardProps {
   plan: Plan;
   onSelect: (plan: Plan) => void;
@@ -125,138 +162,151 @@ interface DashboardPricingCardProps {
   index: number;
 }
 
-function DashboardPricingCard({ plan, onSelect, currentSub, locale, index }: DashboardPricingCardProps) {
-  const t = useTranslations('SettingsSubscription.PricingCard');
+function DashboardPricingCard({
+  plan,
+  onSelect,
+  currentSub,
+  locale,
+  index,
+}: DashboardPricingCardProps) {
+  const t = useTranslations("SettingsSubscription.PricingCard");
 
   const daysLeft = getDaysLeft(currentSub?.currentPeriodEnd);
   const isExpiredOrCanceled =
     !currentSub ||
-    currentSub.status === 'CANCELED' ||
+    currentSub.status === "CANCELED" ||
     (daysLeft !== null && daysLeft <= 0);
 
-  // ¿Es el plan que el usuario tiene activo ahora?
   const isCurrentPlan =
     !!currentSub &&
     !isExpiredOrCanceled &&
-    currentSub.planName?.toLowerCase().includes(plan.planKey ?? '');
+    currentSub.planName?.toLowerCase().includes(plan.planKey ?? "");
 
-  // El plan empresarial siempre va a contacto, nunca checkout
-  const canCheckout = !plan.isEnterprise && plan.hasStripeId;
-
-  let btnLabel = '';
+  let btnLabel = "";
   let btnDisabled = false;
-  let btnVariant: 'current' | 'enterprise' | 'upgrade' | 'nostripe' = 'upgrade';
+  let btnVariant: "current" | "enterprise" | "upgrade" | "nostripe" =
+    "upgrade";
 
   if (plan.isEnterprise) {
-    btnLabel = 'Contactar Ventas';
-    btnVariant = 'enterprise';
+    btnLabel = t("contact_sales");
+    btnVariant = "enterprise";
   } else if (!plan.hasStripeId) {
-    btnLabel = 'No disponible';
+    btnLabel = t("unavailable");
     btnDisabled = true;
-    btnVariant = 'nostripe';
+    btnVariant = "nostripe";
   } else if (isCurrentPlan) {
-    btnLabel = 'Tu plan actual ✓';
-    btnVariant = 'current';
-    // No deshabilitamos — el usuario puede cambiar su plan incluso si ya lo tiene
+    btnLabel = t("current_plan");
+    btnVariant = "current";
   } else {
     btnLabel = isExpiredOrCanceled
-      ? `Activar ${plan.name}`
-      : `Cambiar a ${plan.name}`;
-    btnVariant = 'upgrade';
+      ? t("activate_plan", { name: plan.name })
+      : t("switch_plan", { name: plan.name });
+    btnVariant = "upgrade";
   }
 
   const btnStyles: Record<string, string> = {
     current:
-      'bg-black/5 dark:bg-white/5 text-black dark:text-white border-black/30 dark:border-white/30 hover:bg-black/10 dark:hover:bg-white/10',
+      "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40 hover:bg-emerald-100 dark:hover:bg-emerald-950/50",
     enterprise:
-      'bg-transparent border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black',
-    upgrade:
-      plan.isPopular
-        ? 'bg-black text-white dark:bg-white dark:text-black hover:bg-black/80 dark:hover:bg-white/80 border-black dark:border-white'
-        : 'bg-transparent border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black',
+      "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 dark:hover:bg-emerald-600 dark:hover:text-white",
+    upgrade: plan.isPopular
+      ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs border-0"
+      : "bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 dark:hover:bg-emerald-600 dark:hover:text-white",
     nostripe:
-      'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-60',
+      "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-60",
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08 }}
+      transition={{ duration: 0.25, delay: index * 0.06, ease: "easeOut" }}
       className={cn(
-        'relative flex flex-col h-full border rounded-none transition-all duration-300',
+        "relative flex flex-col h-full rounded-3xl bg-white dark:bg-[#0a0a0a] transition-all duration-200 shadow-2xs font-sans overflow-hidden select-none",
         plan.isPopular
-          ? 'border-2 border-black dark:border-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:shadow-[6px_6px_0_0_rgba(255,255,255,1)]'
-          : 'border border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white'
+          ? "border-2 border-emerald-500 shadow-xs ring-1 ring-emerald-500/20"
+          : "border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 hover:shadow-md"
       )}
     >
-      {/* Popular badge */}
+      {/* Insignia Popular */}
       {plan.isPopular && (
-        <div className="absolute -top-4 left-0 right-0 flex justify-center z-10">
-          <span className="bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold uppercase tracking-widest px-4 py-1 border border-black dark:border-white">
-            ⭐ MÁS POPULAR
-          </span>
+        <div className="absolute top-3 right-3 z-10">
+          <Badge className="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
+            {t("popular_badge")}
+          </Badge>
         </div>
       )}
 
-      {/* Current plan badge */}
+      {/* Insignia de Plan Actual */}
       {isCurrentPlan && (
-        <div className="absolute top-3 right-3">
-          <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[9px] font-bold uppercase tracking-widest px-2 py-1 border border-green-300 dark:border-green-700">
-            ACTIVO
-          </span>
+        <div className="absolute top-3 left-3 z-10">
+          <Badge className="bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
+            {t("active_badge")}
+          </Badge>
         </div>
       )}
 
-      {/* Header */}
-      <div className={cn(
-        'p-6 pb-4 text-center border-b space-y-3',
-        plan.isPopular
-          ? 'bg-black/5 dark:bg-white/5 border-black/20 dark:border-white/20'
-          : 'bg-transparent border-black/10 dark:border-white/10'
-      )}>
-        <h3 className="text-xl font-bold uppercase tracking-tighter text-black dark:text-white">
+      {/* Cabecera */}
+      <div
+        className={cn(
+          "p-6 pb-5 text-center border-b space-y-3",
+          plan.isPopular
+            ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/40"
+            : "bg-gray-50/50 dark:bg-[#050505] border-gray-100 dark:border-gray-800"
+        )}
+      >
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
           {plan.name}
         </h3>
-        <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 leading-relaxed min-h-[32px]">
+
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 min-h-[32px] leading-relaxed">
           {plan.description}
         </p>
 
-        {/* Price */}
-        <div className="flex items-baseline justify-center gap-1 pt-2">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            {locale === 'en' && plan.price > 0 ? '~$' : '$'}
+        {/* Precio */}
+        <div className="flex items-baseline justify-center gap-1 pt-1">
+          <span className="text-xs font-mono font-bold text-gray-400">
+            {locale === "en" && plan.price > 0 ? "~$" : "$"}
           </span>
-          <span className="text-5xl font-bold tracking-tighter text-black dark:text-white">
+          <span className="text-4xl sm:text-5xl font-mono font-black text-gray-900 dark:text-white tracking-tight">
             {plan.price.toLocaleString()}
           </span>
-          <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest ml-1">
-            {locale === 'en' && plan.price > 0 ? 'USD' : 'MXN'}/
-            {plan.duration === 'monthly' ? 'mes' : 'año'}
+          <span className="text-xs font-mono font-bold text-gray-400 ml-1">
+            {locale === "en" && plan.price > 0 ? "USD" : "MXN"}
+            {plan.duration === "monthly" ? t("per_month") : t("per_year")}
           </span>
         </div>
 
         {plan.savings && plan.savings > 0 && (
-          <span className="inline-flex items-center gap-1 bg-black dark:bg-white text-white dark:text-black border border-black dark:border-white text-[9px] font-bold uppercase tracking-widest px-2 py-1">
-            <Zap className="w-3 h-3" />
-            Ahorra ${plan.savings.toLocaleString()}
+          <span className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
+            <Zap className="w-3 h-3 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <span>{t("save_amount", { amount: plan.savings.toLocaleString() })}</span>
           </span>
         )}
       </div>
 
-      {/* Features */}
-      <div className="p-6 pt-4 flex-1">
+      {/* Características */}
+      <div className="p-6 pt-5 flex-1 space-y-3">
         <ul className="space-y-3">
           {plan.features.map((feature: any, i: number) => (
             <li key={i} className="flex items-start gap-2.5 text-left">
-              <CheckCircle2 className={cn(
-                'w-4 h-4 mt-0.5 shrink-0',
-                feature.highlighted ? 'text-black dark:text-white' : 'text-gray-400 dark:text-gray-500'
-              )} />
-              <span className={cn(
-                'text-[11px] font-bold uppercase tracking-widest',
-                feature.highlighted ? 'text-black dark:text-white' : 'text-gray-600 dark:text-gray-400'
-              )}>
+              <CheckCircle2
+                className={cn(
+                  "w-4 h-4 mt-0.5 shrink-0",
+                  feature.highlighted
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-gray-400"
+                )}
+                strokeWidth={2}
+              />
+              <span
+                className={cn(
+                  "text-xs font-medium leading-relaxed",
+                  feature.highlighted
+                    ? "font-bold text-gray-900 dark:text-white"
+                    : "text-gray-600 dark:text-gray-400"
+                )}
+              >
                 {feature.title}
               </span>
             </li>
@@ -264,44 +314,52 @@ function DashboardPricingCard({ plan, onSelect, currentSub, locale, index }: Das
         </ul>
       </div>
 
-      {/* CTA */}
-      <div className="p-6 pt-0">
-        <button
+      {/* Botón CTA */}
+      <div className="p-6 pt-0 space-y-2">
+        <Button
+          type="button"
           disabled={btnDisabled}
           onClick={() => {
             if (plan.isEnterprise) {
-              window.open('mailto:ventas@quhealthy.org?subject=Plan%20Empresarial%20QuHealthy', '_blank');
+              window.open(
+                "mailto:ventas@quhealthy.org?subject=Plan%20Empresarial%20QuHealthy",
+                "_blank"
+              );
               return;
             }
             if (!btnDisabled) onSelect(plan);
           }}
           className={cn(
-            'w-full h-11 text-[10px] uppercase tracking-widest font-bold transition-all duration-200 border flex items-center justify-center gap-2 rounded-none',
+            "w-full h-11 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs",
             btnStyles[btnVariant]
           )}
         >
           {plan.isEnterprise ? (
-            <><Mail className="w-4 h-4" />{btnLabel}</>
+            <>
+              <Mail className="w-4 h-4" strokeWidth={2} />
+              <span>{btnLabel}</span>
+            </>
           ) : (
-            <>{btnLabel}</>
+            <span>{btnLabel}</span>
           )}
-        </button>
-        <p className="text-[9px] font-bold uppercase tracking-widest text-center text-gray-400 mt-2">
-          Sin contratos. Cancela cuando quieras.
+        </Button>
+
+        <p className="text-[11px] font-medium text-center text-gray-400">
+          {t("no_contracts")}
         </p>
       </div>
     </motion.div>
   );
 }
 
-// ── Componente principal ──────────────────────────────────────────────────────
+// ── COMPONENTE PRINCIPAL DE CONFIGURACIÓN DE SUSCRIPCIÓN ────────────────
 export function ProviderSubscriptionSettings() {
-  const t = useTranslations('SettingsSubscription');
-  const tPricing = useTranslations('Pricing');
+  const t = useTranslations("SettingsSubscription");
+  const tPricing = useTranslations("Pricing");
   const params = useParams();
   const searchParams = useSearchParams();
-  const planIdParam = searchParams.get('planId');
-  const locale = (params?.locale as string | string[]) || 'es';
+  const planIdParam = searchParams.get("planId");
+  const locale = (params?.locale as string | string[]) || "es";
 
   const role: UserRole = "proveedor";
 
@@ -311,7 +369,9 @@ export function ProviderSubscriptionSettings() {
   const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
   const [displayPlans, setDisplayPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentSub, setCurrentSub] = useState<CurrentSubscription | null>(null);
+  const [currentSub, setCurrentSub] = useState<CurrentSubscription | null>(
+    null
+  );
   const [isLoadingSub, setIsLoadingSub] = useState(true);
 
   // 1. Cargar suscripción actual del proveedor
@@ -335,7 +395,9 @@ export function ProviderSubscriptionSettings() {
     const fetchPlans = async () => {
       setIsLoading(true);
       try {
-        const { data } = await axiosInstance.get<BackendPlan[]>('/api/payments/plans');
+        const { data } = await axiosInstance.get<BackendPlan[]>(
+          "/api/payments/plans"
+        );
         setRawPlans(data);
       } catch (err) {
         console.error("Error cargando planes:", err);
@@ -352,77 +414,108 @@ export function ProviderSubscriptionSettings() {
     if (rawPlans.length === 0) return;
 
     const currentInterval = billingCycle === "monthly" ? "MONTHLY" : "YEARLY";
-    const filtered = rawPlans.filter((p: BackendPlan) => p.billingInterval === currentInterval);
+    const filtered = rawPlans.filter(
+      (p: BackendPlan) => p.billingInterval === currentInterval
+    );
 
     const EXCHANGE_RATE = 20;
 
-    const uiPlans: Plan[] = filtered.map((bp: BackendPlan) => {
-      const nameLower = bp.name.toLowerCase();
-      let planKey = "basic";
-      if (nameLower.includes("gratis") || nameLower.includes("free")) planKey = "free";
-      else if (nameLower.includes("estándar") || nameLower.includes("standard")) planKey = "standard";
-      else if (nameLower.includes("premium")) planKey = "premium";
-      else if (nameLower.includes("empresarial") || nameLower.includes("enterprise")) planKey = "enterprise";
+    const uiPlans: Plan[] = filtered
+      .map((bp: BackendPlan) => {
+        const nameLower = bp.name.toLowerCase();
+        let planKey = "basic";
+        if (nameLower.includes("gratis") || nameLower.includes("free"))
+          planKey = "free";
+        else if (
+          nameLower.includes("estándar") ||
+          nameLower.includes("standard")
+        )
+          planKey = "standard";
+        else if (nameLower.includes("premium")) planKey = "premium";
+        else if (
+          nameLower.includes("empresarial") ||
+          nameLower.includes("enterprise")
+        )
+          planKey = "enterprise";
 
-      const isEnterprise = planKey === "enterprise";
-      const displayPrice = locale === 'en' ? Math.round(bp.price / EXCHANGE_RATE) : bp.price;
+        const isEnterprise = planKey === "enterprise";
+        const displayPrice =
+          locale === "en" ? Math.round(bp.price / EXCHANGE_RATE) : bp.price;
 
-      // Cálculo de ahorro anual vs. mensual equivalente
-      const matchingMonthly = rawPlans.find(
-        (m: BackendPlan) =>
-          m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") &&
-          m.billingInterval === "MONTHLY"
-      );
-      const baseMonthlyPrice = matchingMonthly
-        ? (locale === 'en' ? Math.round(matchingMonthly.price / EXCHANGE_RATE) : matchingMonthly.price)
-        : displayPrice / 12;
-      const savings =
-        currentInterval === "YEARLY" && baseMonthlyPrice > 0
-          ? (baseMonthlyPrice * 12) - displayPrice
-          : undefined;
+        const matchingMonthly = rawPlans.find(
+          (m: BackendPlan) =>
+            m.name.replace(" Anual", "") === bp.name.replace(" Anual", "") &&
+            m.billingInterval === "MONTHLY"
+        );
+        const baseMonthlyPrice = matchingMonthly
+          ? locale === "en"
+            ? Math.round(matchingMonthly.price / EXCHANGE_RATE)
+            : matchingMonthly.price
+          : displayPrice / 12;
 
-      const isPopular = nameLower.includes("estándar") || nameLower.includes("standard") || nameLower.includes("prof");
+        const savings =
+          currentInterval === "YEARLY" && baseMonthlyPrice > 0
+            ? baseMonthlyPrice * 12 - displayPrice
+            : undefined;
 
-      return {
-        id: bp.stripePriceId || `plan_${bp.id}`,
-        name: isEnterprise
-          ? 'Empresarial'
-          : (() => {
-              try { return tPricing(`plans.${planKey}.title`); }
-              catch { return bp.name; }
-            })(),
-        description: (() => {
-          try { return tPricing(`plans.${planKey}.description`); }
-          catch { return bp.description || ''; }
-        })(),
-        price: displayPrice,
-        duration: billingCycle,
-        savings: savings && savings > 0 ? savings : undefined,
-        isPopular,
-        features: buildFeaturesForPlan(bp, currentInterval === "YEARLY", tPricing),
-        planKey,
-        isEnterprise,
-        hasStripeId: !!bp.stripePriceId,
-      };
-    }).sort((a: Plan, b: Plan) => a.price - b.price);
+        const isPopular =
+          nameLower.includes("estándar") ||
+          nameLower.includes("standard") ||
+          nameLower.includes("prof");
+
+        return {
+          id: bp.stripePriceId || `plan_${bp.id}`,
+          name: isEnterprise
+            ? t("enterprise_name")
+            : (() => {
+                try {
+                  return tPricing(`plans.${planKey}.title`);
+                } catch {
+                  return bp.name;
+                }
+              })(),
+          description: (() => {
+            try {
+              return tPricing(`plans.${planKey}.description`);
+            } catch {
+              return bp.description || "";
+            }
+          })(),
+          price: displayPrice,
+          duration: billingCycle,
+          savings: savings && savings > 0 ? savings : undefined,
+          isPopular,
+          features: buildFeaturesForPlan(
+            bp,
+            currentInterval === "YEARLY",
+            tPricing
+          ),
+          planKey,
+          isEnterprise,
+          hasStripeId: !!bp.stripePriceId,
+        };
+      })
+      .sort((a: Plan, b: Plan) => a.price - b.price);
 
     setDisplayPlans(uiPlans);
 
-    // Auto-abrir modal si viene ?planId=X en la URL
     if (planIdParam && !selectedPlan) {
-      const match = uiPlans.find(p => p.id === planIdParam || p.id === `plan_${planIdParam}`);
+      const match = uiPlans.find(
+        (p) => p.id === planIdParam || p.id === `plan_${planIdParam}`
+      );
       if (match) setSelectedPlan(match);
     }
-  }, [billingCycle, rawPlans, planIdParam, locale]);
+  }, [billingCycle, rawPlans, planIdParam, locale, t, tPricing, selectedPlan]);
 
   // Manejo del checkout con Stripe
   const handleCheckout = async () => {
     if (!selectedPlan) return;
     setIsProcessing(true);
-    toast.info(t('toast_processing') || "Procesando petición...");
+    toast.info(t("toast_processing"));
 
     const matchingBackendPlan = rawPlans.find(
-      (bp: BackendPlan) => (bp.stripePriceId || `plan_${bp.id}`) === selectedPlan.id
+      (bp: BackendPlan) =>
+        (bp.stripePriceId || `plan_${bp.id}`) === selectedPlan.id
     );
 
     if (!matchingBackendPlan) {
@@ -443,22 +536,23 @@ export function ProviderSubscriptionSettings() {
         gateway: "STRIPE",
       };
 
-      console.log("Enviando petición a /api/payments/subscriptions/checkout", payload);
-      const response = await axiosInstance.post('/api/payments/subscriptions/checkout', payload);
+      const response = await axiosInstance.post(
+        "/api/payments/subscriptions/checkout",
+        payload
+      );
       const data = response.data;
-      console.log("Respuesta del checkout:", data);
 
       if (data && data.url) {
-        console.log("Redirigiendo a:", data.url);
         window.location.assign(data.url);
         return;
       }
-      
+
       if (data && data.sessionId) {
-        console.log("Redirigiendo via Stripe SDK con session:", data.sessionId);
         const stripe = await stripePromise;
         if (!stripe) throw new Error("Error cargando pasarela de pago.");
-        const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: data.sessionId,
+        });
         if (error) throw error;
       } else {
         throw new Error("El servidor no devolvió una URL válida de pago.");
@@ -475,91 +569,111 @@ export function ProviderSubscriptionSettings() {
   const isReady = !isLoading && !isLoadingSub;
 
   return (
-    <div className="min-h-screen bg-transparent px-4 py-12 md:p-8 flex flex-col items-center font-sans">
-      <div className="w-full max-w-7xl mx-auto space-y-12">
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 shadow-2xs font-sans transition-colors select-none space-y-8">
+      {/* ── ENCABEZADO Y SELECTOR DE FACTURACIÓN ──────────────────────── */}
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+            <Sparkles className="w-6 h-6" strokeWidth={2} />
+          </div>
 
-        {/* Header con Toggle de facturación */}
+          <div className="space-y-0.5">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("title")}
+            </h1>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("subtitle")}
+            </p>
+          </div>
+        </div>
+
         <PlansHeader
           role={role}
           billingCycle={billingCycle}
           setBillingCycle={(cycle) => setBillingCycle(cycle as BillingCycle)}
         />
+      </div>
 
-        {/* Banner de estado de suscripción actual */}
-        {!isLoadingSub && <SubscriptionStatusBanner sub={currentSub} />}
+      {/* Banner de Estado */}
+      {!isLoadingSub && <SubscriptionStatusBanner sub={currentSub} />}
 
-        {/* Grid de Planes */}
-        {!isReady ? (
-          <div className="flex flex-col items-center justify-center py-24 space-y-4">
-            <div className="w-10 h-10 border-4 border-black/20 border-t-black rounded-none animate-spin dark:border-white/20 dark:border-t-white" />
-            <p className="text-black dark:text-white font-bold uppercase tracking-widest text-[10px] animate-pulse">
-              {t('loading') || "Cargando planes..."}
-            </p>
-          </div>
-        ) : displayPlans.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 space-y-4 text-center">
-            <XCircle className="w-10 h-10 text-gray-400" />
-            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">
-              No hay planes disponibles en este momento.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest border border-black dark:border-white px-4 py-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
-            >
-              <RefreshCw className="w-4 h-4" /> Reintentar
-            </button>
-          </div>
-        ) : (
-          <div className={cn(
-            "grid gap-8 max-w-6xl mx-auto items-stretch",
+      {/* ── PARRILLA DE PLANES ────────────────────────────────────────── */}
+      {!isReady ? (
+        <div className="flex flex-col items-center justify-center py-20 space-y-3">
+          <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
+          <p className="text-xs font-semibold text-gray-400">
+            {t("loading")}
+          </p>
+        </div>
+      ) : displayPlans.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 space-y-4 text-center rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/40 dark:bg-[#050505] p-6">
+          <XCircle className="w-10 h-10 text-gray-400" strokeWidth={2} />
+          <p className="text-xs font-semibold text-gray-500">
+            {t("no_plans")}
+          </p>
+          <Button
+            type="button"
+            onClick={() => window.location.reload()}
+            variant="outline"
+            className="rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold transition-all shadow-2xs h-9 px-4 cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />
+            <span>{t("retry")}</span>
+          </Button>
+        </div>
+      ) : (
+        <div
+          className={cn(
+            "grid gap-6 mx-auto items-stretch",
             displayPlans.length <= 3
               ? "grid-cols-1 md:grid-cols-3"
               : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-          )}>
-            {displayPlans.map((plan, index) => (
-              <DashboardPricingCard
-                key={plan.id}
-                plan={plan}
-                onSelect={setSelectedPlan}
-                currentSub={currentSub}
-                locale={locale}
-                index={index}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Badges de Confianza */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="pt-16 pb-8 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 text-black dark:text-white text-[9px] font-bold tracking-widest uppercase"
+          )}
         >
-          <div className="flex items-center gap-2.5 bg-transparent px-4 py-2 rounded-none border border-black/20 dark:border-white/20 shadow-none">
-            <ShieldCheck className="w-5 h-5 text-black dark:text-white" />
-            <span>{t('secure_payments') || "Pagos Seguros"}</span>
-          </div>
-          <div className="flex items-center gap-2.5 bg-transparent px-4 py-2 rounded-none border border-black/20 dark:border-white/20 shadow-none">
-            <CreditCard className="w-5 h-5 text-black dark:text-white" />
-            <span>{t('accept_cards') || "Aceptamos todas las tarjetas"}</span>
-          </div>
-          <div className="flex items-center gap-2.5 bg-transparent px-4 py-2 rounded-none border border-black/20 dark:border-white/20 shadow-none">
-            <Clock className="w-5 h-5 text-black dark:text-white" />
-            <span>{t('cancel_anytime') || "Cancela cuando quieras"}</span>
-          </div>
-        </motion.div>
+          {displayPlans.map((plan, index) => (
+            <DashboardPricingCard
+              key={plan.id}
+              plan={plan}
+              onSelect={setSelectedPlan}
+              currentSub={currentSub}
+              locale={locale}
+              index={index}
+            />
+          ))}
+        </div>
+      )}
 
-        {/* Modal de Confirmación */}
-        <ConfirmationModal
-          plan={selectedPlan}
-          isOpen={!!selectedPlan}
-          onConfirm={handleCheckout}
-          onCancel={() => setSelectedPlan(null)}
-          isLoading={isProcessing}
-        />
+      {/* ── INSIGNIAS DE CONFIANZA ────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs font-medium text-gray-500 dark:text-gray-400"
+      >
+        <div className="flex items-center gap-2 bg-gray-50/60 dark:bg-[#050505] px-4 py-2 rounded-2xl border border-gray-100 dark:border-gray-800/80 shadow-2xs">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>{t("secure_payments")}</span>
+        </div>
 
-      </div>
+        <div className="flex items-center gap-2 bg-gray-50/60 dark:bg-[#050505] px-4 py-2 rounded-2xl border border-gray-100 dark:border-gray-800/80 shadow-2xs">
+          <CreditCard className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>{t("accept_cards")}</span>
+        </div>
+
+        <div className="flex items-center gap-2 bg-gray-50/60 dark:bg-[#050505] px-4 py-2 rounded-2xl border border-gray-100 dark:border-gray-800/80 shadow-2xs">
+          <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+          <span>{t("cancel_anytime")}</span>
+        </div>
+      </motion.div>
+
+      {/* Modal de Confirmación */}
+      <ConfirmationModal
+        plan={selectedPlan}
+        isOpen={!!selectedPlan}
+        onConfirm={handleCheckout}
+        onCancel={() => setSelectedPlan(null)}
+        isLoading={isProcessing}
+      />
     </div>
   );
 }

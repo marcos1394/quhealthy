@@ -1,16 +1,15 @@
 "use client";
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+/* eslint-disable react-doctor/prefer-module-scope-pure-function */
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React, { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   Users,
   UserPlus,
-  Save,
-  Loader2,
   Key,
-  X,
-  ShieldAlert,
   CheckCircle2,
   MoreVertical,
   Trash2,
@@ -19,6 +18,7 @@ import {
   Mail,
 } from "lucide-react";
 import { toast } from "react-toastify";
+
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { useClinicStaff } from "@/hooks/useClinicStaff";
@@ -46,21 +46,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
-const AVAILABLE_MODULES = [
-  { key: "calendar", label: "Calendario" },
-  { key: "patients", label: "Pacientes" },
-  { key: "store", label: "Perfil Público" },
-  { key: "cash_register", label: "Caja" },
-  { key: "orders", label: "Órdenes" },
-  { key: "inventory", label: "Inventario" },
-  { key: "billing", label: "Facturación" },
-  { key: "appointments", label: "Citas" },
-  { key: "messages", label: "Mensajes" },
-];
+const AVAILABLE_MODULE_KEYS = [
+  "calendar",
+  "patients",
+  "store",
+  "cash_register",
+  "orders",
+  "inventory",
+  "billing",
+  "appointments",
+  "messages",
+] as const;
 
 export function ProviderTeamSettings() {
-  const router = useRouter();
+  const t = useTranslations("ProviderTeamSettings");
+
   const {
     staff,
     isLoading,
@@ -184,7 +186,7 @@ export function ProviderTeamSettings() {
       isPermissionsOpen: false,
       editingStaffId: null,
       editingPermissions: [],
-    },
+    }
   );
 
   const setIsInviteOpen = (val: any) =>
@@ -214,7 +216,7 @@ export function ProviderTeamSettings() {
 
   const handleInviteSubmit = async () => {
     if (!inviteEmail || !inviteFirstName || !inviteLastName || !inviteRole) {
-      toast.error("Por favor completa todos los campos requeridos");
+      toast.error(t("toast_fill_required"));
       return;
     }
     setIsSubmitting(true);
@@ -223,11 +225,11 @@ export function ProviderTeamSettings() {
       inviteFirstName,
       inviteLastName,
       inviteRole,
-      invitePermissions,
+      invitePermissions
     );
     setIsSubmitting(false);
     if (success) {
-      toast.success("Invitación enviada correctamente");
+      toast.success(t("toast_invite_sent"));
       setIsInviteOpen(false);
       setInviteEmail("");
       setInviteFirstName("");
@@ -235,30 +237,33 @@ export function ProviderTeamSettings() {
       setInviteRole("MEDICAL_ASSISTANT");
       setInvitePermissions([]);
     } else {
-      toast.error("Error al enviar la invitación");
+      toast.error(t("toast_invite_error"));
     }
   };
 
   const handlePermissionsSubmit = async () => {
     if (!editingStaffId) return;
     setIsSubmitting(true);
-    const success = await updatePermissions(editingStaffId, editingPermissions);
+    const success = await updatePermissions(
+      editingStaffId,
+      editingPermissions
+    );
     setIsSubmitting(false);
     if (success) {
-      toast.success("Permisos actualizados");
+      toast.success(t("toast_permissions_updated"));
       setIsPermissionsOpen(false);
       setEditingStaffId(null);
     } else {
-      toast.error("Error al actualizar los permisos");
+      toast.error(t("toast_permissions_error"));
     }
   };
 
   const handleResendInvite = async (staffId: number) => {
     const success = await resendInvite(staffId);
     if (success) {
-      toast.success("Invitación reenviada correctamente");
+      toast.success(t("toast_resend_sent"));
     } else {
-      toast.error("Error al reenviar la invitación");
+      toast.error(t("toast_resend_error"));
     }
   };
 
@@ -271,7 +276,7 @@ export function ProviderTeamSettings() {
   const togglePermission = (
     permissionsList: string[],
     setPermissionsList: React.Dispatch<React.SetStateAction<string[]>>,
-    key: string,
+    key: string
   ) => {
     if (permissionsList.includes(key)) {
       setPermissionsList(permissionsList.filter((p) => p !== key));
@@ -282,167 +287,178 @@ export function ProviderTeamSettings() {
 
   if (isLoading && staff.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <QhSpinner size="lg" />
+      <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-12 shadow-2xs flex items-center justify-center min-h-[350px]">
+        <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-8 font-sans">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-black/20 dark:border-white/20 pb-4">
-        <div>
-          <h1 className="text-2xl font-bold uppercase tracking-tighter text-black dark:text-white flex items-center gap-2">
-            <Users className="w-6 h-6 text-black dark:text-white" />
-            Gestión de Equipo (Staff)
-          </h1>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">
-            Invita y administra los permisos de acceso de tu equipo.
-          </p>
+    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 shadow-2xs font-sans transition-colors select-none space-y-6">
+      {/* ── ENCABEZADO Y BOTÓN DE INVITAR ────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+            <Users className="w-6 h-6" strokeWidth={2} />
+          </div>
+
+          <div className="space-y-0.5">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("title")}
+            </h1>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("subtitle")}
+            </p>
+          </div>
         </div>
+
         <Button
+          type="button"
           onClick={() => setIsInviteOpen(true)}
-          className="gap-2 rounded-none border border-black bg-black text-white hover:bg-white hover:text-black dark:border-white dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white uppercase tracking-widest text-[10px] font-bold transition-all"
+          className="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer flex items-center justify-center gap-2"
         >
-          <UserPlus className="w-4 h-4" />
-          Invitar Staff
+          <UserPlus className="w-4 h-4" strokeWidth={2} />
+          <span>{t("btn_invite")}</span>
         </Button>
       </div>
 
-      {/* STAFF LIST */}
-      <div className="bg-transparent rounded-none border border-black/20 dark:border-white/20 overflow-hidden">
+      {/* ── LISTADO / MATRIZ DE COLABORADORES ────────────────────────── */}
+      <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] overflow-hidden shadow-2xs">
         {staff.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-[10px] font-bold uppercase tracking-widest">
-            No tienes miembros en tu equipo aún. Invita a alguien para comenzar.
+          <div className="p-8 text-center text-gray-400 text-xs font-medium italic">
+            {t("empty_staff")}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-black/5 dark:bg-white/5 border-b border-black/20 dark:border-white/20 text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-[10px]">
-                <tr>
-                  <th className="px-6 py-4">Usuario</th>
-                  <th className="px-6 py-4">Estado</th>
-                  <th className="px-6 py-4">Módulos Permitidos</th>
-                  <th className="px-6 py-4 text-right">Acciones</th>
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 text-gray-400 font-bold uppercase tracking-wider">
+                  <th className="px-5 py-3.5">{t("col_user")}</th>
+                  <th className="px-5 py-3.5">{t("col_status")}</th>
+                  <th className="px-5 py-3.5">{t("col_modules")}</th>
+                  <th className="px-5 py-3.5 text-right">{t("col_actions")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/10 dark:divide-white/10">
+
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {staff.map((member) => (
                   <tr
                     key={member.id}
-                    className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    className="bg-white dark:bg-[#0a0a0a] hover:bg-gray-50/50 dark:hover:bg-[#050505] transition-colors"
                   >
-                    <td className="px-6 py-4">
-                      <div className="font-bold uppercase tracking-tight text-black dark:text-white">
-                        {member.name || "Usuario Pendiente"}
+                    <td className="px-5 py-4">
+                      <div className="font-bold text-gray-900 dark:text-white">
+                        {member.name || t("user_pending")}
                       </div>
-                      <div className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mt-1">
+                      <div className="text-[11px] font-mono font-medium text-gray-400 mt-0.5">
                         {member.email}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+
+                    <td className="px-5 py-4">
                       {member.status === "ACTIVE" ? (
-                        <Badge className="bg-black text-white dark:bg-white dark:text-black border-black dark:border-white rounded-none text-[9px] uppercase tracking-widest hover:bg-black dark:hover:bg-white">
-                          <CheckCircle2 className="w-3 h-3 mr-1" /> Activo
+                        <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
+                          <CheckCircle2 className="w-3 h-3 mr-1" strokeWidth={2} />
+                          <span>{t("status_active")}</span>
                         </Badge>
                       ) : member.status === "INACTIVE" ? (
-                        <Badge
-                          variant="outline"
-                          className="border-black/50 dark:border-white/50 text-gray-500 dark:text-gray-400 rounded-none text-[9px] uppercase tracking-widest"
-                        >
-                          Pendiente / Inactivo
+                        <Badge className="bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
+                          <span>{t("status_pending")}</span>
                         </Badge>
                       ) : (
-                        <Badge
-                          variant="outline"
-                          className="border-red-500 text-red-500 rounded-none text-[9px] uppercase tracking-widest"
-                        >
-                          Suspendido
+                        <Badge className="bg-rose-50 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
+                          <span>{t("status_suspended")}</span>
                         </Badge>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
+
+                    <td className="px-5 py-4">
+                      <div className="flex flex-wrap gap-1.5">
                         {member.permissions?.length > 0 ? (
-                          member.permissions.map((p) => (
+                          member.permissions.map((p: string) => (
                             <Badge
                               key={p}
                               variant="outline"
-                              className="text-[9px] uppercase tracking-widest rounded-none border-black/20 dark:border-white/20 bg-transparent text-gray-600 dark:text-gray-300"
+                              className="text-[10px] font-bold rounded-full border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 shadow-2xs"
                             >
-                              {AVAILABLE_MODULES.find((m) => m.key === p)
-                                ?.label || p}
+                              {AVAILABLE_MODULE_KEYS.includes(p as any)
+                                ? t(`modules.${p}`)
+                                : p}
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-gray-400 text-[9px] font-bold uppercase tracking-widest italic">
-                            Sin acceso
+                          <span className="text-gray-400 text-[11px] font-medium italic">
+                            {t("no_access")}
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+
+                    <td className="px-5 py-4 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
+                            type="button"
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 rounded-none border border-black/10 hover:border-black dark:border-white/10 dark:hover:border-white"
+                            className="h-8 w-8 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer shadow-2xs"
                           >
-                            <MoreVertical className="w-4 h-4" />
+                            <MoreVertical className="w-4 h-4" strokeWidth={2} />
                           </Button>
                         </DropdownMenuTrigger>
+
                         <DropdownMenuContent
                           align="end"
-                          className="w-48 rounded-none border-black dark:border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                          className="w-52 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white p-1.5 shadow-xl font-sans text-xs"
                         >
                           <DropdownMenuItem
                             onClick={() =>
                               openPermissionsModal(
                                 member.id,
-                                member.permissions,
+                                member.permissions
                               )
                             }
-                            className="uppercase tracking-widest text-[10px] font-bold focus:bg-black/5 dark:focus:bg-white/5 cursor-pointer"
+                            className="cursor-pointer rounded-xl px-3 py-2 font-bold hover:bg-gray-50 dark:hover:bg-[#050505]"
                           >
-                            <Key className="w-4 h-4 mr-2" />
-                            Editar Permisos
+                            <Key className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                            <span>{t("menu_edit_permissions")}</span>
                           </DropdownMenuItem>
-                          
+
                           {member.status === "INACTIVE" && (
                             <DropdownMenuItem
                               onClick={() => handleResendInvite(member.id)}
-                              className="uppercase tracking-widest text-[10px] font-bold focus:bg-black/5 dark:focus:bg-white/5 cursor-pointer text-blue-600 focus:text-blue-700"
+                              className="cursor-pointer rounded-xl px-3 py-2 font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/30"
                             >
-                              <Mail className="w-4 h-4 mr-2" />
-                              Reenviar Invitación
+                              <Mail className="w-4 h-4 mr-2" strokeWidth={2} />
+                              <span>{t("menu_resend_invite")}</span>
                             </DropdownMenuItem>
                           )}
 
                           <DropdownMenuItem
                             onClick={() => toggleStatus(member.id)}
-                            className="uppercase tracking-widest text-[10px] font-bold focus:bg-black/5 dark:focus:bg-white/5 cursor-pointer"
+                            className="cursor-pointer rounded-xl px-3 py-2 font-bold hover:bg-gray-50 dark:hover:bg-[#050505]"
                           >
                             {member.status === "ACTIVE" ? (
                               <>
-                                <PowerOff className="w-4 h-4 mr-2 text-orange-500" />{" "}
-                                Suspender Acceso
+                                <PowerOff className="w-4 h-4 mr-2 text-amber-500" strokeWidth={2} />
+                                <span>{t("menu_suspend")}</span>
                               </>
                             ) : (
                               <>
-                                <Power className="w-4 h-4 mr-2 text-emerald-500" />{" "}
-                                Reactivar Acceso
+                                <Power className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                                <span>{t("menu_reactivate")}</span>
                               </>
                             )}
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-black/20 dark:bg-white/20" />
+
+                          <DropdownMenuSeparator className="bg-gray-100 dark:bg-gray-800" />
+
                           <DropdownMenuItem
-                            className="text-red-600 uppercase tracking-widest text-[10px] font-bold focus:bg-red-50 focus:text-red-700 cursor-pointer"
                             onClick={() => revokeAccess(member.id)}
+                            className="cursor-pointer rounded-xl px-3 py-2 font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                           >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Eliminar Usuario
+                            <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} />
+                            <span>{t("menu_delete")}</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -455,208 +471,262 @@ export function ProviderTeamSettings() {
         )}
       </div>
 
-      {/* MODAL: INVITAR STAFF */}
+      {/* ── MODAL: INVITAR STAFF ─────────────────────────────────────── */}
       <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-        <DialogContent className="sm:max-w-md bg-white dark:bg-[#050505] rounded-none border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="uppercase font-bold tracking-tighter text-black dark:text-white">
-              Invitar al Equipo
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="space-y-2">
-              <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">
-                Correo electrónico
+        <DialogContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-0 overflow-hidden font-sans shadow-2xl">
+          <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505]">
+            <DialogHeader>
+              <DialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("modal_invite_title")}
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+
+          <div className="p-6 md:p-8 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            {/* Correo */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                {t("label_email")}
               </Label>
               <Input
                 type="email"
-                placeholder="ej. asistente@clinica.com"
-                className="rounded-none border-black/20 focus-visible:ring-black dark:border-white/20 dark:focus-visible:ring-white"
+                placeholder={t("placeholder_email")}
+                className="rounded-xl h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">
-                  Nombre
+
+            {/* Nombre y Apellido */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("label_firstname")}
                 </Label>
                 <Input
                   type="text"
-                  placeholder="Nombre"
-                  className="rounded-none border-black/20 focus-visible:ring-black dark:border-white/20 dark:focus-visible:ring-white"
+                  placeholder={t("placeholder_firstname")}
+                  className="rounded-xl h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
                   value={inviteFirstName}
                   onChange={(e) => setInviteFirstName(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">
-                  Apellido
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  {t("label_lastname")}
                 </Label>
                 <Input
                   type="text"
-                  placeholder="Apellido"
-                  className="rounded-none border-black/20 focus-visible:ring-black dark:border-white/20 dark:focus-visible:ring-white"
+                  placeholder={t("placeholder_lastname")}
+                  className="rounded-xl h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
                   value={inviteLastName}
                   onChange={(e) => setInviteLastName(e.target.value)}
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">
-                Rol
+
+            {/* Rol */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                {t("label_role")}
               </Label>
               <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger className="w-full h-10 rounded-none border border-black/20 bg-transparent px-3 py-2 text-sm focus:ring-1 focus:ring-black dark:border-white/20 dark:focus:ring-white">
-                  <SelectValue placeholder="Selecciona un rol" />
+                <SelectTrigger className="w-full h-11 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-2xs">
+                  <SelectValue placeholder={t("placeholder_role")} />
                 </SelectTrigger>
-                <SelectContent className="rounded-none border-black dark:border-white">
-                  <SelectItem
-                    className="cursor-pointer"
-                    value="MEDICAL_ASSISTANT"
-                  >
-                    Médico Asistente
+                <SelectContent className="bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans text-xs">
+                  <SelectItem value="MEDICAL_ASSISTANT" className="rounded-xl font-medium">
+                    {t("role_assistant")}
                   </SelectItem>
-                  <SelectItem className="cursor-pointer" value="RECEPTIONIST">
-                    Recepcionista
+                  <SelectItem value="RECEPTIONIST" className="rounded-xl font-medium">
+                    {t("role_receptionist")}
                   </SelectItem>
-                  <SelectItem className="cursor-pointer" value="CLINIC_OWNER">
-                    Dueño de Clínica
+                  <SelectItem value="CLINIC_OWNER" className="rounded-xl font-medium">
+                    {t("role_owner")}
                   </SelectItem>
-                  <SelectItem className="cursor-pointer" value="FINANCE_VIEWER">
-                    Visor de Finanzas
+                  <SelectItem value="FINANCE_VIEWER" className="rounded-xl font-medium">
+                    {t("role_finance_viewer")}
                   </SelectItem>
-                  <SelectItem
-                    className="cursor-pointer"
-                    value="FINANCE_OPERATOR"
-                  >
-                    Operador de Finanzas
+                  <SelectItem value="FINANCE_OPERATOR" className="rounded-xl font-medium">
+                    {t("role_finance_operator")}
                   </SelectItem>
-                  <SelectItem
-                    className="cursor-pointer"
-                    value="FINANCE_APPROVER"
-                  >
-                    Aprobador de Finanzas
+                  <SelectItem value="FINANCE_APPROVER" className="rounded-xl font-medium">
+                    {t("role_finance_approver")}
                   </SelectItem>
-                  <SelectItem
-                    className="cursor-pointer"
-                    value="FINANCE_DIRECTOR"
-                  >
-                    Director de Finanzas
+                  <SelectItem value="FINANCE_DIRECTOR" className="rounded-xl font-medium">
+                    {t("role_finance_director")}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-3">
-              <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">
-                Módulos de Acceso
+
+            {/* Módulos de Acceso */}
+            <div className="space-y-2 pt-2">
+              <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                {t("label_modules")}
               </Label>
+
               <div className="grid grid-cols-2 gap-2">
-                {AVAILABLE_MODULES.map((module) => (
-                  <label
-                    key={module.key}
-                    className="flex items-center space-x-2 border border-black/20 dark:border-white/20 p-2 rounded-none cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      className="rounded-none border-black/50 text-black focus:ring-black dark:border-white/50 dark:checked:bg-white dark:focus:ring-white"
-                      checked={invitePermissions.includes(module.key)}
-                      onChange={() =>
+                {AVAILABLE_MODULE_KEYS.map((key) => {
+                  const isChecked = invitePermissions.includes(key);
+
+                  return (
+                    <label
+                      key={key}
+                      onClick={() =>
                         togglePermission(
                           invitePermissions,
                           setInvitePermissions,
-                          module.key,
+                          key
                         )
                       }
-                    />
-                    <span className="text-[10px] uppercase font-bold tracking-widest">
-                      {module.label}
-                    </span>
-                  </label>
-                ))}
+                      className={cn(
+                        "flex items-center gap-2.5 p-3 rounded-2xl border transition-all cursor-pointer select-none text-xs font-bold shadow-2xs",
+                        isChecked
+                          ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-500 text-emerald-900 dark:text-emerald-300"
+                          : "bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-500/30"
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={isChecked}
+                        onChange={() => {}}
+                      />
+                      <div
+                        className={cn(
+                          "w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors",
+                          isChecked
+                            ? "bg-emerald-600 border-emerald-600 text-white"
+                            : "border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]"
+                        )}
+                      >
+                        {isChecked && <CheckCircle2 className="w-3 h-3 stroke-[3]" />}
+                      </div>
+                      <span className="truncate">{t(`modules.${key}`)}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </div>
-          <DialogFooter>
+
+          <div className="p-5 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 bg-gray-50/60 dark:bg-[#050505]">
             <Button
+              type="button"
               variant="outline"
-              className="rounded-none border-black dark:border-white uppercase tracking-widest text-[10px] font-bold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
               onClick={() => setIsInviteOpen(false)}
+              className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-10 px-5 shadow-2xs cursor-pointer"
             >
-              Cancelar
+              {t("btn_cancel")}
             </Button>
+
             <Button
-              className="rounded-none border border-black bg-black text-white hover:bg-white hover:text-black dark:border-white dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white uppercase tracking-widest text-[10px] font-bold"
+              type="button"
               onClick={handleInviteSubmit}
               disabled={!inviteEmail || isSubmitting}
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-6 text-xs font-bold transition-all shadow-xs border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isSubmitting && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              {isSubmitting ? (
+                <>
+                  <QhSpinner size="sm" className="text-white" />
+                  <span>{t("btn_sending")}</span>
+                </>
+              ) : (
+                <span>{t("btn_send_invite")}</span>
               )}
-              Enviar Invitación
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* MODAL: EDITAR PERMISOS */}
+      {/* ── MODAL: EDITAR PERMISOS ───────────────────────────────────── */}
       <Dialog open={isPermissionsOpen} onOpenChange={setIsPermissionsOpen}>
-        <DialogContent className="sm:max-w-md bg-white dark:bg-[#050505] rounded-none border-black dark:border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-          <DialogHeader>
-            <DialogTitle className="uppercase font-bold tracking-tighter text-black dark:text-white">
-              Editar Permisos de Acceso
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="space-y-3">
-              <Label className="uppercase font-bold tracking-widest text-[10px] text-gray-500">
-                Módulos Seleccionados
-              </Label>
-              <div className="grid grid-cols-2 gap-2">
-                {AVAILABLE_MODULES.map((module) => (
+        <DialogContent className="sm:max-w-md bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-0 overflow-hidden font-sans shadow-2xl">
+          <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505]">
+            <DialogHeader>
+              <DialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("modal_edit_permissions_title")}
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+
+          <div className="p-6 md:p-8 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              {t("label_selected_modules")}
+            </Label>
+
+            <div className="grid grid-cols-2 gap-2">
+              {AVAILABLE_MODULE_KEYS.map((key) => {
+                const isChecked = editingPermissions.includes(key);
+
+                return (
                   <label
-                    key={module.key}
-                    className="flex items-center space-x-2 border border-black/20 dark:border-white/20 p-2 rounded-none cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    key={key}
+                    onClick={() =>
+                      togglePermission(
+                        editingPermissions,
+                        setEditingPermissions,
+                        key
+                      )
+                    }
+                    className={cn(
+                      "flex items-center gap-2.5 p-3 rounded-2xl border transition-all cursor-pointer select-none text-xs font-bold shadow-2xs",
+                      isChecked
+                        ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-500 text-emerald-900 dark:text-emerald-300"
+                        : "bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-500/30"
+                    )}
                   >
                     <input
                       type="checkbox"
-                      className="rounded-none border-black/50 text-black focus:ring-black dark:border-white/50 dark:checked:bg-white dark:focus:ring-white"
-                      checked={editingPermissions.includes(module.key)}
-                      onChange={() =>
-                        togglePermission(
-                          editingPermissions,
-                          setEditingPermissions,
-                          module.key,
-                        )
-                      }
+                      className="sr-only"
+                      checked={isChecked}
+                      onChange={() => {}}
                     />
-                    <span className="text-[10px] uppercase font-bold tracking-widest">
-                      {module.label}
-                    </span>
+                    <div
+                      className={cn(
+                        "w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors",
+                        isChecked
+                          ? "bg-emerald-600 border-emerald-600 text-white"
+                          : "border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]"
+                      )}
+                    >
+                      {isChecked && <CheckCircle2 className="w-3 h-3 stroke-[3]" />}
+                    </div>
+                    <span className="truncate">{t(`modules.${key}`)}</span>
                   </label>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
-          <DialogFooter>
+
+          <div className="p-5 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 bg-gray-50/60 dark:bg-[#050505]">
             <Button
+              type="button"
               variant="outline"
-              className="rounded-none border-black dark:border-white uppercase tracking-widest text-[10px] font-bold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
               onClick={() => setIsPermissionsOpen(false)}
+              className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-10 px-5 shadow-2xs cursor-pointer"
             >
-              Cancelar
+              {t("btn_cancel")}
             </Button>
+
             <Button
-              className="rounded-none border border-black bg-black text-white hover:bg-white hover:text-black dark:border-white dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white uppercase tracking-widest text-[10px] font-bold"
+              type="button"
               onClick={handlePermissionsSubmit}
               disabled={isSubmitting}
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-6 text-xs font-bold transition-all shadow-xs border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isSubmitting && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              {isSubmitting ? (
+                <>
+                  <QhSpinner size="sm" className="text-white" />
+                  <span>{t("btn_saving")}</span>
+                </>
+              ) : (
+                <span>{t("btn_save_permissions")}</span>
               )}
-              Guardar Permisos
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
