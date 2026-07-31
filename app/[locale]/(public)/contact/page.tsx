@@ -128,7 +128,7 @@ export default function ContactPage() {
 
                 {/* Sede Card */}
                 <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm flex items-start gap-4 hover:border-emerald-500/30 transition-all">
-                  <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm mt-0.5">
                     <MapPin className="w-5 h-5" strokeWidth={2} />
                   </div>
                   <div className="space-y-1">
@@ -136,7 +136,24 @@ export default function ContactPage() {
                       Sede Principal
                     </h3>
                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
-                      Los Mochis, Sinaloa • México
+                      Quhealthy S.A.S<br/>
+                      Del Roble 220, Col. Tabachines 1<br/>
+                      Los Mochis, Ahome, Sinaloa
+                    </p>
+                  </div>
+                </div>
+
+                {/* Phone Card */}
+                <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm flex items-start gap-4 hover:border-emerald-500/30 transition-all">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                    <MessageSquare className="w-5 h-5" strokeWidth={2} />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      Línea de Atención
+                    </h3>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                      668 184 2487
                     </p>
                   </div>
                 </div>

@@ -237,7 +237,7 @@ export default function PrivacyPage() {
                   </h2>
                 </div>
                 <p className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {t("s1_desc", { defaultValue: "QuHealthy México S.A.P.I. de C.V., con domicilio legal en Los Mochis, Sinaloa, México, es el responsable directo del tratamiento de los datos personales proporcionados por pacientes y profesionales de la salud." })}
+                  {t("s1_desc", { defaultValue: "Quhealthy S.A.S, con domicilio legal en Del Roble 220 Colonia Tabachines 1 Los Mochis Ahome Sinaloa y teléfono 6681842487, es el responsable directo del tratamiento de los datos personales proporcionados por pacientes y profesionales de la salud." })}
                 </p>
               </section>
 

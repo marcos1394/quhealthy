@@ -181,7 +181,7 @@ export default function TermsPage() {
                   </h2>
                 </div>
                 <p className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {t("intro_desc", { defaultValue: "Al acceder o hacer uso de la plataforma QuHealthy, declaras haber leído, comprendido y aceptado en su totalidad las presentes Condiciones de Servicio. Si no estás de acuerdo con alguna de las estipulaciones, debes abstenerte de utilizar la plataforma." })}
+                  {t("intro_desc", { defaultValue: "Al acceder o hacer uso de la plataforma QuHealthy, operada por Quhealthy S.A.S (con domicilio en Del Roble 220 Colonia Tabachines 1 Los Mochis Ahome Sinaloa, Tel: 6681842487), declaras haber leído, comprendido y aceptado en su totalidad las presentes Condiciones de Servicio. Si no estás de acuerdo con alguna de las estipulaciones, debes abstenerte de utilizar la plataforma." })}
                 </p>
               </section>
 

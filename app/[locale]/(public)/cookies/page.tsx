@@ -496,7 +496,7 @@ export default function CookiesPage() {
                     {t("contact_title", { defaultValue: "11. Contacto de Privacidad" })}
                   </h2>
                 </div>
-                {renderText(t("contact_desc", { defaultValue: "Para consultas relacionadas con cookies o privacidad de datos:" }))}
+                {renderText(t("contact_desc", { defaultValue: "Para consultas relacionadas con cookies o privacidad de datos, puedes contactar a Quhealthy S.A.S en Del Roble 220 Colonia Tabachines 1 Los Mochis Ahome Sinaloa, teléfono 6681842487 o a través del siguiente correo:" }))}
 
                 <div className="pt-2">
                   <a

@@ -160,11 +160,11 @@ const Footer: React.FC = () => {
                   </a>
                 </li>
 
-                <li className="flex items-center gap-2.5 text-gray-500 dark:text-gray-400">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+                <li className="flex items-start gap-2.5 text-gray-500 dark:text-gray-400">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs mt-0.5">
                     <MapPin size={14} strokeWidth={2} />
                   </div>
-                  <span>Los Mochis, Sinaloa, México</span>
+                  <span className="leading-tight">Del Roble 220, Col. Tabachines 1<br/>Los Mochis, Ahome, Sinaloa</span>
                 </li>
               </ul>
             </motion.div>
@@ -179,10 +179,10 @@ const Footer: React.FC = () => {
             {/* Información Legal Corta */}
             <div className="text-xs font-medium text-gray-400">
               <p>
-                &copy; {currentYear} <strong className="text-gray-700 dark:text-gray-200">QUHEALTHY</strong>. Todos los derechos reservados.
+                &copy; {currentYear} <strong className="text-gray-700 dark:text-gray-200">Quhealthy S.A.S</strong>. Todos los derechos reservados.
                 <span className="hidden md:inline mx-2">•</span>
                 <span className="block md:inline mt-1 md:mt-0">
-                  Operado por Marcos Sandoval Ruiz.
+                  Tel: 6681842487
                 </span>
               </p>
             </div>
