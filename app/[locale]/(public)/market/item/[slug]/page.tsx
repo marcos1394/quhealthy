@@ -114,6 +114,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     },
     alternates: {
       canonical: url,
+      languages: {
+        es: `https://www.quhealthy.org/es/market/item/${slug}`,
+        en: `https://www.quhealthy.org/en/market/item/${slug}`,
+        'x-default': `https://www.quhealthy.org/es/market/item/${slug}`,
+      },
     }
   };
 }

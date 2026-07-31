@@ -95,13 +95,14 @@ export function proxy(request: NextRequest) {
   }
 
   // 🤖 5. SEO / BOT INTERCEPTION 🤖
-  // Redes sociales (Twitter, WhatsApp, etc.) no siguen redirecciones 307 correctamente al leer metadatos.
-  // Si un bot visita la raíz (/), le reescribimos internamente a /es para que reciba un 200 OK con el HTML y OG tags.
+  // Redes sociales y buscadores no siguen redirecciones 307 correctamente al leer metadatos.
+  // Si un bot visita una ruta sin locale (ej. / o /academy), reescribimos internamente a /es...
   const userAgent = request.headers.get('user-agent') || '';
-  const isBot = /Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|SkypeUriPreview|TelegramBot|Slackbot|Discordbot/i.test(userAgent);
+  const isBot = /Googlebot|bingbot|YandexBot|Slurp|DuckDuckBot|Baiduspider|Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|SkypeUriPreview|TelegramBot|Slackbot|Discordbot/i.test(userAgent);
 
-  if (isBot && (pathname === '/' || pathname === '')) {
-    return NextResponse.rewrite(new URL('/es', request.url));
+  if (isBot && !localeMatch) {
+    const newPath = pathname === '/' || pathname === '' ? '/es' : `/es${pathname}`;
+    return NextResponse.rewrite(new URL(newPath, request.url));
   }
 
   // Obtener respuesta base

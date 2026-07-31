@@ -77,15 +77,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     creator: 'QuHealthy',
     publisher: 'QuHealthy',
 
-    // Hreflang
-    alternates: {
-      languages: {
-        es: '/es',
-        en: '/en',
-        'x-default': '/es',
-      },
-    },
-
     openGraph: {
       title: content.ogTitle,
       description: content.ogDescription,
