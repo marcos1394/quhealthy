@@ -73,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
       if (!res.ok) break;
       const data = await res.json();
-      const items = data.content || [];
+      const items = [...(data.sponsored || []), ...(data.organic || [])];
 
       if (items.length === 0) {
         hasMoreItems = false;
@@ -98,12 +98,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
       }
       
-      // If it's a paginated response and we hit the end
-      if (data.last) {
-        hasMoreItems = false;
-      } else {
-        page++;
-      }
+      page++;
     }
   } catch (error) {
     console.error('Error generating items for sitemap:', error);
