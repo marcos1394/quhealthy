@@ -83,7 +83,7 @@ export default async function StorefrontLayout({
 }) {
   const { slug, locale } = await params;
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
-  let jsonLd = null;
+  let jsonLd: any = null;
 
   try {
     const res = await fetch(`${baseUrl}/api/catalog/storefront/${slug}`, { next: { revalidate: 60 } });
