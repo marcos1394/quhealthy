@@ -1541,7 +1541,13 @@
       "title": "Welcome",
       "empty_title": "Your schedule is clear",
       "empty_desc": "You have no upcoming appointments scheduled. Is it time for a checkup?",
-      "btn_search": "Find a Doctor"
+      "btn_search": "Find a Doctor",
+      "next_badge": "Next Appointment",
+      "modality_online": "Online",
+      "scheduled_date": "Date",
+      "scheduled_time": "Time",
+      "hrs": "hrs",
+      "btn_details": "View details"
     },
     "QuickAccess": {
       "section_title": "Quick Access",

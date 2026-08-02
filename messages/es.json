@@ -1763,7 +1763,13 @@
       "title": "Bienvenido",
       "empty_title": "Tu agenda está libre",
       "empty_desc": "No tienes citas programadas próximamente. ¿Es momento de un chequeo?",
-      "btn_search": "Encontrar Médico"
+      "btn_search": "Encontrar Médico",
+      "next_badge": "Próxima Cita",
+      "modality_online": "En línea",
+      "scheduled_date": "Fecha",
+      "scheduled_time": "Hora",
+      "hrs": "hrs",
+      "btn_details": "Ver detalles"
     },
     "QuickAccess": {
       "section_title": "Acceso Rápido",
