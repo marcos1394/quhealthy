@@ -234,27 +234,30 @@ export function EditPatientModal({
                   <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
                     {t("ethnic_group_label")}
                   </label>
-                  <CreatableSelect
-                    options={[
-                      { label: "Ninguno", value: "Ninguno" },
-                      { label: "Náhuatl", value: "Náhuatl" },
-                      { label: "Maya", value: "Maya" },
-                      { label: "Zapoteco", value: "Zapoteco" },
-                      { label: "Mixteco", value: "Mixteco" },
-                      { label: "Otomí", value: "Otomí" },
-                      { label: "Totonaca", value: "Totonaca" },
-                      { label: "Tsotsil", value: "Tsotsil" },
-                      { label: "Tzeltal", value: "Tzeltal" },
-                      { label: "Mazahua", value: "Mazahua" },
-                      { label: "Huasteco", value: "Huasteco" },
-                    ]}
+                  <Select
                     value={formData.ethnicGroup || ""}
-                    onChange={(val) =>
+                    onValueChange={(val) =>
                       setFormData({ ...formData, ethnicGroup: val })
                     }
-                    placeholder={t("ethnic_group_placeholder")}
                     disabled={isSubmitting}
-                  />
+                  >
+                    <SelectTrigger className="h-11 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500/20 shadow-2xs">
+                      <SelectValue placeholder={t("ethnic_group_placeholder")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ninguno">Ninguno</SelectItem>
+                      <SelectItem value="Náhuatl">Náhuatl</SelectItem>
+                      <SelectItem value="Maya">Maya</SelectItem>
+                      <SelectItem value="Zapoteco">Zapoteco</SelectItem>
+                      <SelectItem value="Mixteco">Mixteco</SelectItem>
+                      <SelectItem value="Otomí">Otomí</SelectItem>
+                      <SelectItem value="Totonaca">Totonaca</SelectItem>
+                      <SelectItem value="Tsotsil">Tsotsil</SelectItem>
+                      <SelectItem value="Tzeltal">Tzeltal</SelectItem>
+                      <SelectItem value="Mazahua">Mazahua</SelectItem>
+                      <SelectItem value="Huasteco">Huasteco</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

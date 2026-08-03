@@ -257,22 +257,25 @@ export default function ConsumerOnboardingWizard() {
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                   {t("steps.identity.ethnic_label")}
                 </label>
-                <CreatableSelect
-                  options={[
-                    { label: "Ninguno", value: "Ninguno" },
-                    { label: "Náhuatl", value: "Náhuatl" },
-                    { label: "Maya", value: "Maya" },
-                    { label: "Zapoteco", value: "Zapoteco" },
-                    { label: "Mixteco", value: "Mixteco" },
-                    { label: "Otomí", value: "Otomí" },
-                    { label: "Totonaca", value: "Totonaca" },
-                    { label: "Tsotsil", value: "Tsotsil" },
-                    { label: "Tzeltal", value: "Tzeltal" },
-                  ]}
+                <Select
                   value={data.ethnicGroup || ""}
-                  onChange={(val) => updateData({ ethnicGroup: val })}
-                  placeholder={t("steps.identity.ethnic_placeholder")}
-                />
+                  onValueChange={(val) => updateData({ ethnicGroup: val })}
+                >
+                  <SelectTrigger className="w-full h-12 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold rounded-xl focus:ring-2 focus:ring-emerald-500/20">
+                    <SelectValue placeholder={t("steps.identity.ethnic_placeholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Ninguno">Ninguno</SelectItem>
+                    <SelectItem value="Náhuatl">Náhuatl</SelectItem>
+                    <SelectItem value="Maya">Maya</SelectItem>
+                    <SelectItem value="Zapoteco">Zapoteco</SelectItem>
+                    <SelectItem value="Mixteco">Mixteco</SelectItem>
+                    <SelectItem value="Otomí">Otomí</SelectItem>
+                    <SelectItem value="Totonaca">Totonaca</SelectItem>
+                    <SelectItem value="Tsotsil">Tsotsil</SelectItem>
+                    <SelectItem value="Tzeltal">Tzeltal</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Contacto de Emergencia */}
