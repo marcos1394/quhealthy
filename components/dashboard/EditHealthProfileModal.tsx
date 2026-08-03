@@ -49,7 +49,7 @@ export function EditHealthProfileModal({
   onSave,
   isSubmitting: externalSubmitting = false,
 }: EditHealthProfileModalProps) {
-  const t = useTranslations("EditHealthProfileModal");
+  const t = useTranslations("PatientDashboard.EditHealthProfileModal");
   const [localSubmitting, setLocalSubmitting] = useState(false);
   const [formData, setFormData] = useState<Partial<PatientHealthProfile>>({
     bloodType: null,
