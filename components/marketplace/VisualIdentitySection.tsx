@@ -180,7 +180,7 @@ export function VisualIdentitySection({
 
             <div className="flex items-center rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 shadow-2xs focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 overflow-hidden h-11 transition-all">
               <div className="bg-gray-100/80 dark:bg-gray-800/80 px-3.5 flex items-center h-full border-r border-gray-200 dark:border-gray-700 text-xs font-mono font-bold text-gray-500 dark:text-gray-400 select-none">
-                quhealthy.com/
+                quhealthy.org/
               </div>
               <input
                 value={settings.storeSlug}
