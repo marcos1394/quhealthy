@@ -1994,6 +1994,15 @@
       "view_history": "Ver Historial",
       "open_monitor": "Abrir Monitor Clínico"
     },
+    "kanbanCard": {
+      "online": "Videollamada",
+      "in_person": "Presencial",
+      "unknown_patient": "Paciente Desconocido",
+      "default_service": "Servicio General",
+      "waiting_time_title": "Tiempo de espera",
+      "consultation_time_title": "Tiempo de consulta",
+      "open_console": "Abrir Consola"
+    },
     "empty": {
       "title": "Sin citas",
       "description": "No tienes citas en esta categoría."

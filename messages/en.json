@@ -1769,6 +1769,15 @@
       "view_history": "View History",
       "open_monitor": "Open Clinical Monitor"
     },
+    "kanbanCard": {
+      "online": "Video call",
+      "in_person": "In person",
+      "unknown_patient": "Unknown Patient",
+      "default_service": "General Service",
+      "waiting_time_title": "Waiting time",
+      "consultation_time_title": "Consultation time",
+      "open_console": "Open Console"
+    },
     "empty": {
       "title": "No appointments",
       "description": "You have no appointments in this category."
