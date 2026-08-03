@@ -23,6 +23,13 @@ import {
 
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
 import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CreatableSelect } from "@/components/ui/creatable-select";
 import { WearablesStep } from "./WearablesStep";
 import { DependentsStep } from "./DependentsStep";
