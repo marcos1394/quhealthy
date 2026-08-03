@@ -115,17 +115,8 @@ export default function CatalogSetupPage() {
   };
 
   const handleSaveService = async (service: UI_Service) => {
-    const wordCount = service.name.trim().split(/\s+/).length;
-    if (wordCount < 3) {
+    if (!service.name.trim()) {
       toast.warning(t("toasts.validation_name"));
-      return;
-    }
-    if ((service.description?.length || 0) < 150) {
-      toast.warning(t("toasts.validation_desc"));
-      return;
-    }
-    if (!service.imageUrl) {
-      toast.warning(t("toasts.validation_image"));
       return;
     }
     if (!service.requiresEvaluation && service.price <= 0) return;
@@ -197,13 +188,8 @@ export default function CatalogSetupPage() {
   };
 
   const handleSavePackage = async (pkg: UI_Package): Promise<boolean> => {
-    const wordCount = pkg.name.trim().split(/\s+/).length;
-    if (wordCount < 3) {
+    if (!pkg.name.trim()) {
       toast.warning(t("toasts.validation_name"));
-      return false;
-    }
-    if ((pkg.description?.length || 0) < 150) {
-      toast.warning(t("toasts.validation_desc"));
       return false;
     }
 
@@ -262,17 +248,8 @@ export default function CatalogSetupPage() {
   };
 
   const handleSaveProduct = async (product: UI_Product) => {
-    const wordCount = product.name.trim().split(/\s+/).length;
-    if (wordCount < 3) {
+    if (!product.name.trim()) {
       toast.warning(t("toasts.validation_name"));
-      return;
-    }
-    if ((product.description?.length || 0) < 150) {
-      toast.warning(t("toasts.validation_desc"));
-      return;
-    }
-    if (!product.imageUrl) {
-      toast.warning(t("toasts.validation_image"));
       return;
     }
 
@@ -324,17 +301,8 @@ export default function CatalogSetupPage() {
   };
 
   const handleSaveCourse = async (course: UI_Course) => {
-    const wordCount = course.name.trim().split(/\s+/).length;
-    if (wordCount < 3) {
+    if (!course.name.trim()) {
       toast.warning(t("toasts.validation_name"));
-      return;
-    }
-    if ((course.description?.length || 0) < 150) {
-      toast.warning(t("toasts.validation_desc"));
-      return;
-    }
-    if (!course.imageUrl) {
-      toast.warning(t("toasts.validation_image"));
       return;
     }
 

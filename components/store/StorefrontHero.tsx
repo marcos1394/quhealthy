@@ -3,7 +3,7 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable @next/next/no-img-element */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import {
   Star,
@@ -15,6 +15,8 @@ import {
   Clock,
   MessageCircle,
   Instagram,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -40,16 +42,36 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
 }) => {
   const t = useTranslations("StorePublic");
   const [showQuScoreModal, setShowQuScoreModal] = useState(false);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
 
   const safePrimaryColor = store.primaryColor || "#059669";
 
-  // Galería de imágenes con fallback
-  const images =
-    store.galleryImages && store.galleryImages.length > 0
-      ? store.galleryImages.map((img) => img.imageUrl)
-      : store.bannerUrl
-      ? [store.bannerUrl]
-      : [];
+  // Galería de imágenes: Banner como imagen principal (índice 0), seguido de las demás
+  const images: string[] = [];
+  if (store.bannerUrl) {
+    images.push(store.bannerUrl);
+  }
+  if (store.galleryImages && store.galleryImages.length > 0) {
+    images.push(...store.galleryImages.map((img) => img.imageUrl));
+  }
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIdx((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIdx((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIdx((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -149,66 +171,53 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
         </div>
       </div>
 
-      {/* ── 2. GALERÍA DE IMÁGENES ───────────────────────────────────── */}
+      {/* ── 2. GALERÍA DE IMÁGENES (CARRUSEL) ────────────────────────── */}
       <div className="w-full mb-10">
-        {images.length >= 5 ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 h-[320px] md:h-[420px] rounded-3xl overflow-hidden shadow-2xs border border-gray-100 dark:border-gray-800">
-            <div className="md:col-span-2 md:row-span-2 relative bg-gray-50 dark:bg-[#050505] overflow-hidden group cursor-pointer">
-              <img
-                src={images[0]}
-                alt="Foto principal"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-
-            <div className="hidden md:block relative bg-gray-50 dark:bg-[#050505] overflow-hidden group cursor-pointer">
-              <img
-                src={images[1]}
-                alt="Foto 2"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-
-            <div className="hidden md:block relative bg-gray-50 dark:bg-[#050505] overflow-hidden group cursor-pointer">
-              <img
-                src={images[2]}
-                alt="Foto 3"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-
-            <div className="hidden md:block relative bg-gray-50 dark:bg-[#050505] overflow-hidden group cursor-pointer">
-              <img
-                src={images[3]}
-                alt="Foto 4"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-
-            <div className="hidden md:block relative bg-gray-50 dark:bg-[#050505] overflow-hidden group cursor-pointer">
-              <img
-                src={images[4]}
-                alt="Foto 5"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-
-              <div className="absolute bottom-3 right-3">
-                <Button
-                  type="button"
-                  className="rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md text-gray-900 dark:text-white hover:bg-white text-xs font-bold shadow-2xs border border-gray-200 dark:border-gray-800 px-3.5 h-9"
-                >
-                  {t("view_all_photos")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : images.length > 0 ? (
-          <div className="w-full h-[280px] md:h-[400px] relative rounded-3xl shadow-2xs border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] overflow-hidden">
+        {images.length > 0 ? (
+          <div className="relative w-full h-[320px] md:h-[420px] rounded-3xl overflow-hidden shadow-2xs border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] group">
             <img
-              src={images[0]}
-              alt="Banner del consultorio"
-              className="w-full h-full object-cover"
+              src={images[currentImageIdx]}
+              alt={`Imagen ${currentImageIdx + 1} de ${images.length}`}
+              className="w-full h-full object-cover transition-opacity duration-500"
             />
+            
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePrevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
+                  aria-label="Imagen anterior"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/60"
+                  aria-label="Siguiente imagen"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+                
+                {/* Indicadores de galería */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+                  {images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIdx(idx)}
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-all duration-300",
+                        currentImageIdx === idx 
+                          ? "bg-white scale-125 shadow-[0_0_4px_rgba(0,0,0,0.5)]" 
+                          : "bg-white/50 hover:bg-white/80"
+                      )}
+                      aria-label={`Ir a imagen ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="w-full h-[240px] relative rounded-3xl shadow-2xs border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505] flex items-center justify-center">

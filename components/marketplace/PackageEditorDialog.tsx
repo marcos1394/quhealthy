@@ -304,7 +304,7 @@ export function PackageEditorDialog({
                     <span
                       className={
                         descChars < 150
-                          ? "text-rose-500"
+                          ? "text-gray-500 dark:text-gray-400"
                           : "text-emerald-600 dark:text-emerald-400"
                       }
                     >
