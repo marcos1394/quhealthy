@@ -41,6 +41,20 @@ export interface StorefrontItem {
   isPackage?: boolean;
 }
 
+export interface StorefrontStaff {
+  id: number;
+  providerId: number;
+  name: string;
+  specialty?: string;
+  bio?: string;
+  imageUrl?: string;
+  role?: string;
+  assignedServices?: {
+    catalogItemId: number;
+    catalogItemName?: string;
+  }[];
+}
+
 export interface StorefrontData {
   providerId: number;
   displayName: string;
@@ -70,6 +84,8 @@ export interface StorefrontData {
   packages: StorefrontItem[];
   products: StorefrontItem[]; // 🚀 Nueva lista de Farmacia
   courses: StorefrontItem[];  // 🚀 Nueva lista de Cursos
+  staff?: StorefrontStaff[];  // 🚀 Equipo y Profesionales
+  
   
   galleryImages?: GalleryImage[];
 }

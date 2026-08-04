@@ -22,6 +22,8 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { useClinicStaff } from "@/hooks/useClinicStaff";
+import { useStaff } from "@/hooks/useStaff";
+import { useCatalog } from "@/hooks/useCatalog";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -74,6 +76,13 @@ export function ProviderTeamSettings() {
     revokeAccess,
   } = useClinicStaff();
 
+  const { saveMember } = useStaff();
+  const { catalogItems, fetchCatalog } = useCatalog();
+
+  useEffect(() => {
+    fetchCatalog();
+  }, [fetchCatalog]);
+
   const [
     {
       isInviteOpen,
@@ -86,6 +95,9 @@ export function ProviderTeamSettings() {
       isPermissionsOpen,
       editingStaffId,
       editingPermissions,
+      baseSalary,
+      commissionPercentage,
+      assignedServices,
     },
     dispatch,
   ] = React.useReducer(
@@ -171,6 +183,24 @@ export function ProviderTeamSettings() {
                 ? action.payload(state.editingPermissions)
                 : action.payload,
           };
+        case "SET_BASESALARY":
+          return {
+            ...state,
+            baseSalary: action.payload,
+          };
+        case "SET_COMMISSIONPERCENTAGE":
+          return {
+            ...state,
+            commissionPercentage: action.payload,
+          };
+        case "SET_ASSIGNEDSERVICES":
+          return {
+            ...state,
+            assignedServices:
+              typeof action.payload === "function"
+                ? action.payload(state.assignedServices)
+                : action.payload,
+          };
         default:
           return state;
       }
@@ -186,6 +216,9 @@ export function ProviderTeamSettings() {
       isPermissionsOpen: false,
       editingStaffId: null,
       editingPermissions: [],
+      baseSalary: "",
+      commissionPercentage: "",
+      assignedServices: [],
     }
   );
 
@@ -209,6 +242,12 @@ export function ProviderTeamSettings() {
     dispatch({ type: "SET_EDITINGSTAFFID", payload: val });
   const setEditingPermissions = (val: any) =>
     dispatch({ type: "SET_EDITINGPERMISSIONS", payload: val });
+  const setBaseSalary = (val: any) =>
+    dispatch({ type: "SET_BASESALARY", payload: val });
+  const setCommissionPercentage = (val: any) =>
+    dispatch({ type: "SET_COMMISSIONPERCENTAGE", payload: val });
+  const setAssignedServices = (val: any) =>
+    dispatch({ type: "SET_ASSIGNEDSERVICES", payload: val });
 
   useEffect(() => {
     fetchStaff();
@@ -227,6 +266,25 @@ export function ProviderTeamSettings() {
       inviteRole,
       invitePermissions
     );
+    
+    // Si es un rol profesional/médico, creamos el perfil público en el catálogo
+    if (success && (inviteRole === "PROFESSIONAL" || inviteRole === "CLINIC_OWNER" || inviteRole === "MEDICAL_ASSISTANT")) {
+       await saveMember({
+         id: 0,
+         name: `${inviteFirstName} ${inviteLastName}`,
+         specialty: "",
+         bio: "",
+         role: inviteRole === "PROFESSIONAL" ? "professional" : inviteRole === "CLINIC_OWNER" ? "lead" : "assistant",
+         isNew: true,
+         baseSalary: baseSalary ? parseFloat(baseSalary) : undefined,
+         commissionPercentage: commissionPercentage ? parseFloat(commissionPercentage) : undefined,
+         assignedServices: assignedServices.map((id: number) => ({
+           catalogItemId: id,
+           commissionPercentage: commissionPercentage ? parseFloat(commissionPercentage) : undefined
+         }))
+       } as any);
+    }
+
     setIsSubmitting(false);
     if (success) {
       toast.success(t("toast_invite_sent"));
@@ -236,6 +294,9 @@ export function ProviderTeamSettings() {
       setInviteLastName("");
       setInviteRole("MEDICAL_ASSISTANT");
       setInvitePermissions([]);
+      setBaseSalary("");
+      setCommissionPercentage("");
+      setAssignedServices([]);
     } else {
       toast.error(t("toast_invite_error"));
     }
@@ -536,6 +597,9 @@ export function ProviderTeamSettings() {
                   <SelectValue placeholder={t("placeholder_role")} />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans text-xs">
+                  <SelectItem value="PROFESSIONAL" className="rounded-xl font-medium">
+                    Profesional (Médico, Terapeuta)
+                  </SelectItem>
                   <SelectItem value="MEDICAL_ASSISTANT" className="rounded-xl font-medium">
                     {t("role_assistant")}
                   </SelectItem>
@@ -561,8 +625,92 @@ export function ProviderTeamSettings() {
               </Select>
             </div>
 
+            {/* Configuraciones de Profesional (Condicional) */}
+            {inviteRole === "PROFESSIONAL" && (
+              <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  Compensación y Servicios (Opcional)
+                </Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                      Salario Base Mensual
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="Ej. 10000"
+                      className="rounded-xl h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                      value={baseSalary}
+                      onChange={(e) => setBaseSalary(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                      Comisión General (%)
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="Ej. 30"
+                      className="rounded-xl h-11 bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                      value={commissionPercentage}
+                      onChange={(e) => setCommissionPercentage(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                    Servicios Asignados
+                  </Label>
+                  <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
+                    {catalogItems?.map((item) => {
+                      const isChecked = assignedServices.includes(item.id);
+                      return (
+                        <label
+                          key={item.id}
+                          className={cn(
+                            "flex items-center gap-2.5 p-3 rounded-2xl border transition-all cursor-pointer select-none text-xs font-bold shadow-2xs",
+                            isChecked
+                              ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-500 text-emerald-900 dark:text-emerald-300"
+                              : "bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-500/30"
+                          )}
+                        >
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={isChecked}
+                            onChange={() => {
+                              if (isChecked) {
+                                setAssignedServices(assignedServices.filter((id: number) => id !== item.id));
+                              } else {
+                                setAssignedServices([...assignedServices, item.id]);
+                              }
+                            }}
+                          />
+                          <div
+                            className={cn(
+                              "w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors",
+                              isChecked
+                                ? "bg-emerald-600 border-emerald-600 text-white"
+                                : "border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a]"
+                            )}
+                          >
+                            {isChecked && <CheckCircle2 className="w-3 h-3 stroke-[3]" />}
+                          </div>
+                          <span className="truncate">{item.name}</span>
+                        </label>
+                      );
+                    })}
+                    {(!catalogItems || catalogItems.length === 0) && (
+                       <div className="text-xs text-gray-500 italic p-2 text-center">No hay servicios en tu catálogo.</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Módulos de Acceso */}
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
               <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
                 {t("label_modules")}
               </Label>

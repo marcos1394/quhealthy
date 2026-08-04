@@ -1,7 +1,7 @@
 // types/staff.ts
 
 // Enums exactos de tu Backend Java
-export type StaffRoleBackend = 'LEAD' | 'SPECIALIST' | 'ASSISTANT';
+export type StaffRoleBackend = 'LEAD' | 'SPECIALIST' | 'ASSISTANT' | 'PROFESSIONAL';
 export type StaffStatus = 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE';
 
 // DTO para las peticiones Axios
@@ -19,6 +19,14 @@ export interface StaffDTO {
   averageRating?: number;
   reviewCount?: number;
   status?: StaffStatus;
+  baseSalary?: number;
+  commissionPercentage?: number;
+  assignedServices?: {
+    catalogItemId: number;
+    catalogItemName?: string;
+    commissionPercentage?: number;
+    fixedFee?: number;
+  }[];
 }
 
 // Interfaz para el Componente UI (StaffManager.tsx)
@@ -28,7 +36,7 @@ export interface UI_StaffMember {
   specialty: string;
   bio: string;
   imageUrl?: string;
-  role: 'lead' | 'specialist' | 'assistant'; // El componente usa minúsculas
+  role: 'lead' | 'specialist' | 'assistant' | 'professional'; // El componente usa minúsculas
   credentials?: string;
   isNew?: boolean;
   hasUnsavedChanges?: boolean;

@@ -15,12 +15,14 @@ export const useStaff = () => {
   const mapRoleToUI = (role: StaffRoleBackend): UI_StaffMember['role'] => {
     if (role === 'LEAD') return 'lead';
     if (role === 'ASSISTANT') return 'assistant';
+    if (role === 'PROFESSIONAL') return 'professional';
     return 'specialist';
   };
 
   const mapRoleToBackend = (role: UI_StaffMember['role']): StaffRoleBackend => {
     if (role === 'lead') return 'LEAD';
     if (role === 'assistant') return 'ASSISTANT';
+    if (role === 'professional') return 'PROFESSIONAL';
     return 'SPECIALIST';
   };
 
@@ -55,7 +57,11 @@ export const useStaff = () => {
       bio: member.bio,
       imageUrl: member.imageUrl,
       role: mapRoleToBackend(member.role),
-      credentials: member.credentials
+      credentials: member.credentials,
+      // Se agregan como opcionales si existen en la UI
+      baseSalary: (member as any).baseSalary,
+      commissionPercentage: (member as any).commissionPercentage,
+      assignedServices: (member as any).assignedServices
     };
 
     try {

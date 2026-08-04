@@ -30,6 +30,7 @@ import { CalendarDay } from "@/components/booking/CalendarDay";
 import { TimeSlot } from "@/components/booking/TimeSlot";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { PatientSelector } from "@/components/booking/PatientSelector";
+import { ProfessionalSelector } from "@/components/booking/ProfessionalSelector";
 import { CheckoutModal } from "@/components/store/CheckoutModal";
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 import { PackageMultiScheduler } from "@/components/booking/PackageMultiScheduler";
@@ -92,6 +93,7 @@ export default function BookingPage({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
 
   // --- ESTADOS DE E-COMMERCE ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -128,6 +130,13 @@ export default function BookingPage({
       item.type === "PACKAGE" &&
       item.packageContents?.some((sub) => sub.type === "SERVICE")
   );
+
+  // Filtrar profesionales que pueden realizar los servicios
+  const cartServiceIds = cart.filter(item => item.type === "SERVICE").map(item => item.id);
+  const relevantStaff = store?.staff?.filter(member => {
+    if (!member.assignedServices || member.assignedServices.length === 0) return false;
+    return cartServiceIds.every(id => member.assignedServices?.some(as => as.catalogItemId === id));
+  }) || [];
 
   // ESTADO PARA AGENDAMIENTO MÚLTIPLE DE PAQUETES
   const [scheduledPackageServices, setScheduledPackageServices] = useState<
@@ -193,8 +202,9 @@ export default function BookingPage({
     if (isBefore(date, startOfDay(new Date()))) return;
     setSelectedDate(date);
     setSelectedTime(null);
-    if (providerId) {
-      fetchAvailableSlots(providerId, undefined, date, getTotalDuration());
+    const targetProviderId = selectedStaffId || providerId;
+    if (targetProviderId) {
+      fetchAvailableSlots(targetProviderId, undefined, date, getTotalDuration());
     }
   };
 
@@ -219,9 +229,10 @@ export default function BookingPage({
       setPendingSymptoms(symptomsText);
       setShowCheckoutModal(true);
     } else {
-      if (providerId) {
+      const targetProviderId = selectedStaffId || providerId;
+      if (targetProviderId) {
         await processCheckout({
-          providerId,
+          providerId: targetProviderId,
           selectedDate:
             requiresScheduling && scheduleNow && !isPackageMultiSchedule
               ? selectedDate
@@ -424,12 +435,32 @@ export default function BookingPage({
                 </motion.section>
               )}
 
+              {/* Paso: Selección de Profesional (Si hay más de 1 que puede dar el servicio) */}
+              <AnimatePresence>
+                {scheduleNow && relevantStaff.length > 0 && (
+                  <ProfessionalSelector
+                    staff={relevantStaff}
+                    selectedStaffId={selectedStaffId}
+                    onSelect={(id) => {
+                       setSelectedStaffId(id);
+                       setSelectedDate(null);
+                       setSelectedTime(null);
+                    }}
+                    safeColor={safeColor}
+                    stepCounter={stepCounter++}
+                    title={t("step_professional") || "Selecciona un Profesional"}
+                    subtitle={t("step_professional_desc") || "Elige con quién deseas atenderte"}
+                    noPreferenceText={t("no_preference") || "Cualquiera disponible"}
+                  />
+                )}
+              </AnimatePresence>
+
               {/* Paso: Agendamiento Múltiple de Paquetes */}
               <AnimatePresence>
                 {scheduleNow && isPackageMultiSchedule && (
                   <PackageMultiScheduler
                     cart={cart}
-                    providerId={providerId}
+                    providerId={selectedStaffId || providerId}
                     providerColor={safeColor}
                     onSchedulePackageService={handleSchedulePackageService}
                     stepCounterStart={stepCounter++}
@@ -676,9 +707,10 @@ export default function BookingPage({
           paymentMethod
         ) => {
           setShowCheckoutModal(false);
-          if (providerId) {
+          const targetProviderId = selectedStaffId || providerId;
+          if (targetProviderId) {
             processCheckout({
-              providerId,
+              providerId: targetProviderId,
               selectedDate: requiresScheduling ? selectedDate : null,
               selectedTime: requiresScheduling ? selectedTime : null,
               cart,
