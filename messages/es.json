@@ -3860,6 +3860,7 @@
       "per_month": "/ mes",
       "no_contracts": "Sin contratos, cancela cuando quieras.",
       "contact_sales": "Contactar Ventas",
+      "switch_plan": "Cambiar de plan",
       "trust_indicator": "Sin tarjeta de crédito • Cancela cuando quieras"
     },
     "ConfirmationModal": {

@@ -4274,6 +4274,7 @@
       "per_month": "/ month",
       "no_contracts": "No contracts, cancel anytime.",
       "contact_sales": "Contact Sales",
+      "switch_plan": "Switch plan",
       "trust_indicator": "No credit card required • Cancel anytime"
     },
     "ConfirmationModal": {
