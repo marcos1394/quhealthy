@@ -1766,6 +1766,8 @@
       "btn_search": "Encontrar Médico",
       "next_badge": "Próxima Cita",
       "modality_online": "En línea",
+      "modality_in_person": "Presencial",
+      "modality_home": "A domicilio",
       "scheduled_date": "Fecha",
       "scheduled_time": "Hora",
       "hrs": "hrs",

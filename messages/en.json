@@ -1544,6 +1544,8 @@
       "btn_search": "Find a Doctor",
       "next_badge": "Next Appointment",
       "modality_online": "Online",
+      "modality_in_person": "In-person",
+      "modality_home": "Home Visit",
       "scheduled_date": "Date",
       "scheduled_time": "Time",
       "hrs": "hrs",
