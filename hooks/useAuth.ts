@@ -38,6 +38,10 @@ interface UseAuthReturn {
   checkSession: () => Promise<AuthResponse | null>;
   logout: () => Promise<void>; // 🚀 FS-002: Ahora es una promesa
 
+  // MFA
+  verifyMfaLogin: (data: { mfaChallengeToken: string; code: string }) => Promise<AuthResponse>;
+  verifyMfaRecovery: (data: { mfaChallengeToken: string; recoveryCode: string }) => Promise<AuthResponse>;
+
   // Verificación
   verifyEmail: (token: string) => Promise<MessageResponse>;
   verifyPhone: (data: VerifyPhoneRequest) => Promise<MessageResponse>;
@@ -87,7 +91,9 @@ export const useAuth = (): UseAuthReturn => {
     setLoading(true); setError(null);
     try {
       const response = await authService.login(data);
-      useSessionStore.getState().setSession(response);
+      if (!response.mfaRequired) {
+        useSessionStore.getState().setSession(response);
+      }
       return response;
     }
     catch (err) { return handleError(err); }
@@ -98,6 +104,28 @@ export const useAuth = (): UseAuthReturn => {
     setLoading(true); setError(null);
     try {
       const response = await authService.socialLogin(data);
+      useSessionStore.getState().setSession(response);
+      return response;
+    }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const verifyMfaLogin = async (data: { mfaChallengeToken: string; code: string }) => {
+    setLoading(true); setError(null);
+    try {
+      const response = await authService.verifyMfaLogin(data);
+      useSessionStore.getState().setSession(response);
+      return response;
+    }
+    catch (err) { return handleError(err); }
+    finally { setLoading(false); }
+  };
+
+  const verifyMfaRecovery = async (data: { mfaChallengeToken: string; recoveryCode: string }) => {
+    setLoading(true); setError(null);
+    try {
+      const response = await authService.verifyMfaRecovery(data);
       useSessionStore.getState().setSession(response);
       return response;
     }
@@ -204,6 +232,8 @@ export const useAuth = (): UseAuthReturn => {
     loginWithGoogle,
     checkSession,
     logout,
+    verifyMfaLogin,
+    verifyMfaRecovery,
     verifyEmail,
     verifyPhone,
     resendVerification,

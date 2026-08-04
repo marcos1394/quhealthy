@@ -45,10 +45,14 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, verifyMfaLogin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [, setCaptchaToken] = useState<string>("");
+
+  const [isMfaStep, setIsMfaStep] = useState(false);
+  const [mfaToken, setMfaToken] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
 
   // Referencias de control
   const turnstileRef = useRef<any>(null);
@@ -133,6 +137,14 @@ export default function LoginPage() {
         role: userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER",
       });
 
+      if (response.mfaRequired) {
+        setIsMfaStep(true);
+        setMfaToken(response.mfaChallengeToken || "");
+        toast.info(response.message || "Se requiere MFA", { theme: "colored" });
+        setLoading(false);
+        return;
+      }
+
       toast.success(t("login_success"), {
         theme: "colored",
       });
@@ -169,6 +181,27 @@ export default function LoginPage() {
 
     isIntentionalSubmitRef.current = true;
     turnstileRef.current?.execute();
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mfaCode.length !== 6) {
+      setError("El código debe tener 6 dígitos.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await verifyMfaLogin({ mfaChallengeToken: mfaToken, code: mfaCode });
+      toast.success(t("login_success"), { theme: "colored" });
+      await handleAuthNavigation(response);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Código inválido.");
+      handleApiError(err);
+      setLoading(false);
+    }
   };
 
   // Carga dinámica del arreglo según el tipo de usuario mediante t.raw()
@@ -309,7 +342,67 @@ export default function LoginPage() {
               </TabsList>
             </Tabs>
 
-            {/* Contenedor Principal del Formulario */}
+            {isMfaStep ? (
+              <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Verificación en dos pasos</h2>
+                  <p className="text-xs font-medium text-gray-500 mt-2">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</p>
+                </div>
+                
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 rounded-2xl border border-red-200 bg-red-50/60 dark:bg-red-950/20 flex items-start gap-3 shadow-sm mb-4">
+                        <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5" strokeWidth={2} />
+                        <p className="text-xs font-semibold text-red-700 dark:text-red-400">{error}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <form onSubmit={handleMfaSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">Código MFA</label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={mfaCode}
+                      onChange={(e) => {
+                        setMfaCode(e.target.value.replace(/\D/g, ''));
+                        setError("");
+                      }}
+                      className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-center text-lg font-bold tracking-[0.2em] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading || mfaCode.length !== 6}
+                    className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center disabled:opacity-50"
+                  >
+                    {loading ? <QhSpinner size="sm" color="white" /> : "Verificar"}
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMfaStep(false);
+                      setMfaCode("");
+                      setMfaToken("");
+                      setError("");
+                    }}
+                    className="w-full h-12 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold transition-all"
+                  >
+                    Volver
+                  </button>
+                </form>
+              </div>
+            ) : (
             <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
               
               {/* Social Login */}
@@ -524,7 +617,7 @@ export default function LoginPage() {
                 {t("create_account")}
               </Link>
             </div>
-
+            )}
           </motion.div>
         </div>
 

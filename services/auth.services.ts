@@ -62,6 +62,24 @@ export const authService = {
     return response.data;
   },
 
+  verifyMfaLogin: async (data: { mfaChallengeToken: string; code: string }): Promise<AuthResponse> => {
+    const response = await axiosInstance.post<AuthResponse>(
+      `${BASE_AUTH}/mfa/verify`,
+      data,
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
+  verifyMfaRecovery: async (data: { mfaChallengeToken: string; recoveryCode: string }): Promise<AuthResponse> => {
+    const response = await axiosInstance.post<AuthResponse>(
+      `${BASE_AUTH}/mfa/recovery`,
+      data,
+      { withCredentials: true }
+    );
+    return response.data;
+  },
+
  /**
    * 🚀 FIX FF-002: Enrutamiento dinámico para Google y Apple
    */

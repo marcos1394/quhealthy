@@ -85,6 +85,8 @@ export interface AuthResponse {
   message: string;
   user: AuthUser;
   status: AuthStatus;
+  mfaRequired?: boolean;
+  mfaChallengeToken?: string;
 }
 
 // ================================
