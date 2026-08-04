@@ -601,6 +601,7 @@ export default function LoginPage() {
               </form>
 
             </div>
+            )}
 
             {/* Signup Link */}
             <div className="text-center pt-2">
@@ -617,7 +618,6 @@ export default function LoginPage() {
                 {t("create_account")}
               </Link>
             </div>
-            )}
           </motion.div>
         </div>
 
