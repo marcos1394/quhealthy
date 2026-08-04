@@ -343,18 +343,6 @@ export default function LoginPage() {
               </TabsList>
             </Tabs>
 
-            {isMfaStep ? (
-              <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Verificación en dos pasos</h2>
-                  <p className="text-xs font-medium text-gray-500 mt-2">Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.</p>
-                </div>
-                
-                <AnimatePresence>
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
             <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
               
               {/* Social Login */}
