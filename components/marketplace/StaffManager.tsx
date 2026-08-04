@@ -38,7 +38,7 @@ export interface StaffMember {
   specialty: string;
   bio: string;
   imageUrl?: string;
-  role?: "lead" | "specialist" | "assistant";
+  role?: "professional" | "lead" | "specialist" | "assistant";
   credentials?: string;
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
@@ -85,8 +85,12 @@ export function StaffManager({
           label: t("roles.assistant"),
           icon: User,
         },
+        professional: {
+          label: t("roles.professional") || "Profesional",
+          icon: Star,
+        },
       };
-      return roles[role as keyof typeof roles] || roles.specialist;
+      return roles[role as keyof typeof roles] || roles.professional;
     };
   }, [t]);
 
