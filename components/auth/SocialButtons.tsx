@@ -78,10 +78,12 @@ export default function SocialAuthButtons({
           role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
         });
 
-        toast.success(
-          t("welcome_user", { name: response.user?.firstName || "" }),
-          { theme: "colored" }
-        );
+        if (!response.mfaRequired) {
+          toast.success(
+            t("welcome_user", { name: response.user?.firstName || "" }),
+            { theme: "colored" }
+          );
+        }
 
         if (onSuccess) {
           await onSuccess(response);
@@ -109,10 +111,12 @@ export default function SocialAuthButtons({
         role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
       });
 
-      toast.success(
-        t("welcome_user", { name: response.user?.firstName || "" }),
-        { theme: "colored" }
-      );
+      if (!response.mfaRequired) {
+        toast.success(
+          t("welcome_user", { name: response.user?.firstName || "" }),
+          { theme: "colored" }
+        );
+      }
 
       if (onSuccess) {
         onSuccess(response);
