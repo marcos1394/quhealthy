@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import {
@@ -67,6 +67,25 @@ export default function TwoFactorPage() {
     formState: { errors: errorsDisable },
     reset: resetDisable,
   } = useForm<DisableFormValues>();
+
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Fetch initial MFA state
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const settings = await securityService.getProviderSettings();
+        if (settings.mfaEnabled !== undefined) {
+          setMfaEnabled(settings.mfaEnabled);
+        }
+      } catch (error) {
+        console.error("Failed to fetch MFA status", error);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+    fetchStatus();
+  }, []);
 
   // Iniciar flujo de configuración (Paso 1: Generar QR/Secreto)
   const handleStartSetup = async () => {
@@ -141,6 +160,12 @@ export default function TwoFactorPage() {
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pt-8 px-6 md:px-10 pb-24">
       <div className="max-w-xl mx-auto space-y-8">
         
+        {isInitializing ? (
+          <div className="flex justify-center items-center h-40">
+            <QhSpinner className="w-8 h-8 text-emerald-600" />
+          </div>
+        ) : (
+          <>
         {/* ── HEADER PRINCIPAL ────────────────────────────────────────────── */}
         <div className="flex items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
           <Link
@@ -421,6 +446,8 @@ export default function TwoFactorPage() {
             </Card>
           )}
         </motion.div>
+        </>
+        )}
       </div>
     </div>
   );

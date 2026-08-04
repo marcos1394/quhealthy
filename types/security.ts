@@ -22,6 +22,7 @@ export interface ProviderSettingsResponse {
   marketingEmailsOptIn: boolean;
   appointmentRemindersEnabled: boolean;
   loginAlertsEnabled: boolean;
+  mfaEnabled?: boolean;
 }
 
 export interface UpdateProviderSettingsRequest {
