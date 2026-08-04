@@ -385,7 +385,7 @@ export default function LoginPage() {
                     disabled={loading || mfaCode.length !== 6}
                     className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center disabled:opacity-50"
                   >
-                    {loading ? <QhSpinner size="sm" color="white" /> : "Verificar"}
+                    {loading ? <QhSpinner size="sm" className="text-current" /> : "Verificar"}
                   </button>
                   
                   <button
