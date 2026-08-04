@@ -2426,6 +2426,7 @@
     "template_allweek": "Full Week",
     "template_allweek_desc": "9:00 – 17:00",
     "template_applied": "\"{name}\" applied",
+    "macro_applied": "\"{name}\" applied",
     "your_week": "Your Week",
     "days": {
       "monday": "Monday",
@@ -8050,6 +8051,8 @@
     "tab_subscription_desc": "Manage active plan, payment methods, and billing details.",
     "tab_connections": "Integrations",
     "tab_connections_desc": "Connect your calendar, video calls, and external services.",
+    "tab_locations": "Locations",
+    "tab_locations_desc": "Manage the clinics and branches where you work.",
     "tab_team": "Team members",
     "tab_team_desc": "Manage access roles and permissions for assistants and colleagues.",
     "tab_notifications": "Notifications",

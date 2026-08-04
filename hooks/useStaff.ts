@@ -39,6 +39,10 @@ export const useStaff = () => {
         imageUrl: member.imageUrl,
         role: mapRoleToUI(member.role),
         credentials: member.credentials || '',
+        email: member.email,
+        baseSalary: member.baseSalary,
+        commissionPercentage: member.commissionPercentage,
+        assignedServices: member.assignedServices,
         isNew: false,
         hasUnsavedChanges: false
       }));

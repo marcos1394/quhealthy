@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { ProviderSecuritySettings } from "@/components/provider/settings/ProviderSecuritySettings";
 import { ProviderSubscriptionSettings } from "@/components/provider/settings/ProviderSubscriptionSettings";
 import { ProviderConnectionsSettings } from "@/components/provider/settings/ProviderConnectionsSettings";
+import { ProviderLocationsSettings } from "@/components/provider/settings/ProviderLocationsSettings";
 import { ProviderTeamSettings } from "@/components/provider/settings/ProviderTeamSettings";
 
 export default function ProviderSettingsPage() {
@@ -17,7 +18,7 @@ export default function ProviderSettingsPage() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
-      if (["security", "subscription", "connections", "team"].includes(hash)) {
+      if (["security", "subscription", "connections", "locations", "team"].includes(hash)) {
         setActiveTab(hash);
       }
     };
@@ -87,6 +88,14 @@ export default function ProviderSettingsPage() {
               </TabsTrigger>
 
               <TabsTrigger
+                value="locations"
+                className="h-10 px-5 rounded-xl border border-transparent data-[state=active]:border-gray-200 dark:data-[state=active]:border-gray-800 data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0"
+              >
+                <MapPin className="w-4 h-4 shrink-0" strokeWidth={2} />
+                <span>{t("tab_locations")}</span>
+              </TabsTrigger>
+
+              <TabsTrigger
                 value="team"
                 className="h-10 px-5 rounded-xl border border-transparent data-[state=active]:border-gray-200 dark:data-[state=active]:border-gray-800 data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0"
               >
@@ -116,6 +125,13 @@ export default function ProviderSettingsPage() {
                 className="m-0 focus-visible:ring-0 outline-none"
               >
                 <ProviderConnectionsSettings />
+              </TabsContent>
+
+              <TabsContent
+                value="locations"
+                className="m-0 focus-visible:ring-0 outline-none"
+              >
+                <ProviderLocationsSettings />
               </TabsContent>
 
               <TabsContent

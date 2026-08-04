@@ -38,6 +38,13 @@ export interface UI_StaffMember {
   imageUrl?: string;
   role: 'lead' | 'specialist' | 'assistant' | 'professional'; // El componente usa minúsculas
   credentials?: string;
+  email?: string;
+  baseSalary?: number;
+  commissionPercentage?: number;
+  assignedServices?: {
+    catalogItemId: number;
+    commissionPercentage?: number;
+  }[];
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
