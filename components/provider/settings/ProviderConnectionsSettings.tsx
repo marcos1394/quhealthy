@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useGoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { motion } from "framer-motion";
 import { Shield, Globe, Trash2, Plus, Smartphone } from "lucide-react";
 import { toast } from "react-toastify";
@@ -34,7 +34,7 @@ interface ProviderSettings {
   isAppleConnected?: boolean;
 }
 
-export function ProviderConnectionsSettings() {
+function ProviderConnectionsSettingsInner() {
   const t = useTranslations("SettingsConnections");
   const searchParams = useSearchParams();
 
@@ -430,5 +430,13 @@ export function ProviderConnectionsSettings() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function ProviderConnectionsSettings() {
+  return (
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+      <ProviderConnectionsSettingsInner />
+    </GoogleOAuthProvider>
   );
 }
