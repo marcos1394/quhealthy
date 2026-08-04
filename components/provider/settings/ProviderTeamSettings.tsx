@@ -574,13 +574,6 @@ export function ProviderTeamSettings() {
                   return (
                     <label
                       key={key}
-                      onClick={() =>
-                        togglePermission(
-                          invitePermissions,
-                          setInvitePermissions,
-                          key
-                        )
-                      }
                       className={cn(
                         "flex items-center gap-2.5 p-3 rounded-2xl border transition-all cursor-pointer select-none text-xs font-bold shadow-2xs",
                         isChecked
@@ -592,7 +585,13 @@ export function ProviderTeamSettings() {
                         type="checkbox"
                         className="sr-only"
                         checked={isChecked}
-                        onChange={() => {}}
+                        onChange={() =>
+                          togglePermission(
+                            invitePermissions,
+                            setInvitePermissions,
+                            key
+                          )
+                        }
                       />
                       <div
                         className={cn(
@@ -664,13 +663,6 @@ export function ProviderTeamSettings() {
                 return (
                   <label
                     key={key}
-                    onClick={() =>
-                      togglePermission(
-                        editingPermissions,
-                        setEditingPermissions,
-                        key
-                      )
-                    }
                     className={cn(
                       "flex items-center gap-2.5 p-3 rounded-2xl border transition-all cursor-pointer select-none text-xs font-bold shadow-2xs",
                       isChecked
@@ -682,7 +674,13 @@ export function ProviderTeamSettings() {
                       type="checkbox"
                       className="sr-only"
                       checked={isChecked}
-                      onChange={() => {}}
+                      onChange={() =>
+                        togglePermission(
+                          editingPermissions,
+                          setEditingPermissions,
+                          key
+                        )
+                      }
                     />
                     <div
                       className={cn(
