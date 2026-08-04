@@ -109,8 +109,10 @@ export default function LoginPage() {
     const role = response.role;
 
     if (role === "ROLE_ADMIN") {
+      toast.success(t("login_success"), { theme: "colored" });
       router.push("/admin/dashboard");
     } else if (role === "ROLE_PROVIDER" || role === "ROLE_STAFF") {
+      toast.success(t("login_success"), { theme: "colored" });
       const isOnboardingComplete = response.status?.onboardingComplete;
       if (isOnboardingComplete) {
         router.push("/provider/dashboard");
@@ -118,6 +120,7 @@ export default function LoginPage() {
         router.push("/onboarding");
       }
     } else if (role === "ROLE_CONSUMER") {
+      toast.success(t("login_success"), { theme: "colored" });
       try {
         const profile: any = await consumerProfileService.getProfile();
         const step = profile?.onboardingStep || 0;
@@ -132,6 +135,7 @@ export default function LoginPage() {
         router.push("/onboarding/patient");
       }
     } else {
+      toast.success(t("login_success"), { theme: "colored" });
       router.push("/discover");
     }
   };
@@ -145,9 +149,6 @@ export default function LoginPage() {
         role: userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER",
       });
 
-      toast.success(t("login_success"), {
-        theme: "colored",
-      });
       await handleAuthNavigation(response);
     } catch (err: any) {
       console.error(err);
@@ -354,55 +355,6 @@ export default function LoginPage() {
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="p-4 rounded-2xl border border-red-200 bg-red-50/60 dark:bg-red-950/20 flex items-start gap-3 shadow-sm mb-4">
-                        <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5" strokeWidth={2} />
-                        <p className="text-xs font-semibold text-red-700 dark:text-red-400">{error}</p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <form onSubmit={handleMfaSubmit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">Código MFA</label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={mfaCode}
-                      onChange={(e) => {
-                        setMfaCode(e.target.value.replace(/\D/g, ''));
-                        setError("");
-                      }}
-                      className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-center text-lg font-bold tracking-[0.2em] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loading || mfaCode.length !== 6}
-                    className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center disabled:opacity-50"
-                  >
-                    {loading ? <QhSpinner size="sm" className="text-current" /> : "Verificar"}
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMfaStep(false);
-                      setMfaCode("");
-                      setMfaToken("");
-                      setError("");
-                    }}
-                    className="w-full h-12 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold transition-all"
-                  >
-                    Volver
-                  </button>
-                </form>
-              </div>
-            ) : (
             <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
               
               {/* Social Login */}
@@ -601,7 +553,6 @@ export default function LoginPage() {
               </form>
 
             </div>
-            )}
 
             {/* Signup Link */}
             <div className="text-center pt-2">
@@ -622,6 +573,75 @@ export default function LoginPage() {
         </div>
 
       </div>
+
+      {/* MFA Modal Overlay */}
+      <AnimatePresence>
+        {isMfaStep && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-md bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative"
+            >
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-6 h-6" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Verificación de 2 Pasos
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  Ingresa el código de 6 dígitos generado por tu aplicación autenticadora (Google Authenticator, Authy, etc).
+                </p>
+              </div>
+              
+              <form onSubmit={handleMfaSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 text-center">
+                    Código MFA
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+                    className="w-full text-center tracking-[0.5em] text-3xl h-14 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl px-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none font-mono"
+                    placeholder="000000"
+                    required
+                    autoFocus
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading || mfaCode.length !== 6}
+                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-sm transition-all flex items-center justify-center disabled:opacity-50"
+                >
+                  {loading ? <QhSpinner size="sm" className="text-current" /> : "Verificar y Entrar"}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMfaStep(false);
+                    setMfaCode("");
+                    setMfaToken("");
+                    setError("");
+                  }}
+                  className="w-full h-12 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold transition-all"
+                >
+                  Cancelar
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </GoogleOAuthProvider>
   );
 }
