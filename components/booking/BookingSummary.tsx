@@ -493,13 +493,13 @@ export function BookingSummary({
                                 <div key={doc.id} className="flex items-start gap-2.5">
                                   <Checkbox
                                     id={`doc-${doc.id}`}
-                                    checked={selectedDocumentIds.includes(doc.id)}
+                                    checked={(selectedDocumentIds || []).includes(doc.id)}
                                     onCheckedChange={(checked) => {
                                       if (checked) {
-                                        setSelectedDocumentIds((prev: any) => [...prev, doc.id]);
+                                        setSelectedDocumentIds([...(selectedDocumentIds || []), doc.id]);
                                       } else {
-                                        setSelectedDocumentIds((prev: any) =>
-                                          prev.filter((id: any) => id !== doc.id)
+                                        setSelectedDocumentIds(
+                                          (selectedDocumentIds || []).filter((id: any) => id !== doc.id)
                                         );
                                       }
                                     }}

@@ -24,10 +24,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     
     let ogImage = 'https://www.quhealthy.org/images/default-og.png'; // Fallback
 
-    if (store.galleryImages && store.galleryImages.length > 0) {
-      ogImage = store.galleryImages[0].imageUrl;
-    } else if (store.bannerUrl) {
+    if (store.bannerUrl) {
       ogImage = store.bannerUrl;
+    } else if (store.galleryImages && store.galleryImages.length > 0) {
+      ogImage = store.galleryImages[0].imageUrl;
     } else if (store.logoUrl) {
       ogImage = store.logoUrl;
     }
