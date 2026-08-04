@@ -99,6 +99,7 @@ export function ProviderTeamSettings() {
       baseSalary,
       commissionPercentage,
       assignedServices,
+      serviceCommissions,
     },
     dispatch,
   ] = React.useReducer(
