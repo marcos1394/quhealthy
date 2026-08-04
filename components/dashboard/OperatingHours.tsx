@@ -345,7 +345,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
                             {t(tmpl.titleKey)}
                           </p>
                           <p className="text-[11px] font-mono font-medium text-gray-400 truncate">
-                            {tmpl.descKey}
+                            {t(tmpl.descKey)}
                           </p>
                         </div>
                       </button>
@@ -382,7 +382,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
                           "flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:px-5 sm:py-3.5 rounded-2xl border transition-all duration-200 shadow-2xs select-none",
                           day.isActive
                             ? "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800"
-                            : "bg-gray-50/50 dark:bg-[#050505] border-gray-100 dark:border-gray-800/60 opacity-60",
+                            : "bg-gray-50/50 dark:bg-[#050505] border-gray-100 dark:border-gray-800/60",
                           isCopied
                             ? "border-emerald-500 ring-2 ring-emerald-500/20"
                             : ""
