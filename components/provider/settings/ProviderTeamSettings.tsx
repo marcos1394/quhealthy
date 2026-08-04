@@ -77,7 +77,7 @@ export function ProviderTeamSettings() {
   } = useClinicStaff();
 
   const { saveMember } = useStaff();
-  const { catalogItems, fetchCatalog } = useCatalog();
+  const { services: catalogItems, fetchInventory: fetchCatalog } = useCatalog();
 
   useEffect(() => {
     fetchCatalog();
