@@ -104,7 +104,9 @@ export const useAuth = (): UseAuthReturn => {
     setLoading(true); setError(null);
     try {
       const response = await authService.socialLogin(data);
-      useSessionStore.getState().setSession(response);
+      if (!response.mfaRequired) {
+        useSessionStore.getState().setSession(response);
+      }
       return response;
     }
     catch (err) { return handleError(err); }

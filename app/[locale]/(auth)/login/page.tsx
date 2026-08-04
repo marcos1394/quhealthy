@@ -98,6 +98,14 @@ export default function LoginPage() {
   };
 
   const handleAuthNavigation = async (response: AuthResponse) => {
+    if (response.mfaRequired) {
+      setIsMfaStep(true);
+      setMfaToken(response.mfaChallengeToken || "");
+      toast.info(response.message || "Se requiere MFA", { theme: "colored" });
+      setLoading(false);
+      return;
+    }
+
     const role = response.role;
 
     if (role === "ROLE_ADMIN") {
@@ -136,14 +144,6 @@ export default function LoginPage() {
         captchaToken: token,
         role: userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER",
       });
-
-      if (response.mfaRequired) {
-        setIsMfaStep(true);
-        setMfaToken(response.mfaChallengeToken || "");
-        toast.info(response.message || "Se requiere MFA", { theme: "colored" });
-        setLoading(false);
-        return;
-      }
 
       toast.success(t("login_success"), {
         theme: "colored",
