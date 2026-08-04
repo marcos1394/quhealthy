@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, CreditCard, Plug, Users, Settings } from "lucide-react";
+import { Shield, CreditCard, Plug, Users, Settings, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ProviderSecuritySettings } from "@/components/provider/settings/ProviderSecuritySettings";
