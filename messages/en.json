@@ -4269,6 +4269,11 @@
       "more_features": "And {count} more benefits",
       "btn_popular": "Start Now",
       "btn_regular": "Choose {planName}",
+      "current_plan": "Current Plan",
+      "active_badge": "Active",
+      "per_month": "/ month",
+      "no_contracts": "No contracts, cancel anytime.",
+      "contact_sales": "Contact Sales",
       "trust_indicator": "No credit card required • Cancel anytime"
     },
     "ConfirmationModal": {
