@@ -14,6 +14,8 @@ export const useBookingCheckout = () => {
 
   const processCheckout = async ({
     providerId,
+    locationId,
+    staffId,
     consumerId,
     dependentId,
     selectedDate,
@@ -63,7 +65,9 @@ export const useBookingCheckout = () => {
           startTime: startTimeIso,
           appointmentType: item.modality === 'ONLINE' ? 'ONLINE' : 'IN_PERSON',
           consumerSymptoms: consumerSymptoms || "Reserva de servicio médico",
-          paymentMethod: paymentMethod || 'CREDIT_CARD'
+          paymentMethod: paymentMethod || 'CREDIT_CARD',
+          locationId,
+          staffId
         };
 
         // 1. Crear Cita Normal (Backend Java: /api/appointments/create)
@@ -123,13 +127,16 @@ export const useBookingCheckout = () => {
             }
 
             // Agregamos el ítem principal
-            cartItemsPayload.push({
+            const req: CartItemRequest = {
               catalogItemId: item.id,
               itemType: item.type || 'SERVICE',
               quantity: item.quantity || 1,
               startTime: startTimeIso,
-              appointmentType: appointmentType
-            });
+              appointmentType: appointmentType,
+              locationId,
+              staffId
+            };
+            cartItemsPayload.push(req);
 
             // Si el paquete tiene servicios que fueron agendados, los agregamos separados con el packageId
             if (item.type === 'PACKAGE' && item.packageContents && scheduledPackageServices) {
@@ -147,7 +154,9 @@ export const useBookingCheckout = () => {
                             quantity: 1,
                             startTime: subItemStartTime,
                             appointmentType: subItem.modality || 'IN_PERSON',
-                            packageId: item.id // 🚀 Enlaza el servicio agendado al paquete comprado
+                            packageId: item.id, // 🚀 Enlaza el servicio agendado al paquete comprado
+                            locationId,
+                            staffId
                         });
                     }
                 });

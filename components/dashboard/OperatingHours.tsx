@@ -40,6 +40,8 @@ interface OperatingHoursModalProps {
   onClose: () => void;
   onSaveSuccess: () => void;
   locationId: number;
+  staffId?: number | null;
+  staffName?: string;
 }
 
 const daysOfWeek = [
@@ -161,6 +163,8 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
   onClose,
   onSaveSuccess,
   locationId,
+  staffId,
+  staffName,
 }) => {
   const t = useTranslations("DashboardOperatingHours");
   const { fetchSchedules, saveSchedules, isLoading, isSaving } =
@@ -191,7 +195,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
   useEffect(() => {
     if (isOpen && locationId) {
       const loadData = async () => {
-        const data = await fetchSchedules(locationId);
+        const data = await fetchSchedules(locationId, staffId || undefined);
         const merged = daysOfWeek.map(
           (d) =>
             data.find((h) => h.dayOfWeek === d.id) || {
@@ -208,7 +212,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
       };
       loadData();
     }
-  }, [isOpen, fetchSchedules, locationId]);
+  }, [isOpen, fetchSchedules, locationId, staffId]);
 
   useEffect(() => {
     const errors: Record<number, string> = {};
@@ -257,7 +261,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
   const handleSave = async () => {
     if (Object.keys(validationErrors).length > 0) return;
     setSavingStep("saving");
-    const success = await saveSchedules(locationId, schedules);
+    const success = await saveSchedules(locationId, schedules, staffId || undefined);
     if (success) {
       setSavingStep("success");
       toast.success(t("save_success"));
@@ -288,7 +292,7 @@ export const OperatingHoursModal: React.FC<OperatingHoursModalProps> = ({
                 {t("subtitle")}
               </p>
               <DialogTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
-                {t("title")}
+                {t("title")} {staffName && `- ${staffName}`}
               </DialogTitle>
             </div>
           </div>

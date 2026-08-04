@@ -6,20 +6,26 @@ const BASE_URL = '/api/appointments/schedules'; // 🚀 Ajustado
 
 export const scheduleService = {
   /**
-   * Obtiene la configuración de la semana laboral del doctor para una sede
-   * 🚀 FIX: Ahora pasa locationId como path param (GET /schedules/{locationId})
+   * Obtiene la configuración de la semana laboral del doctor o staff para una sede
    */
-  getMySchedule: async (locationId: number): Promise<ProviderSchedule[]> => {
-    const response = await axiosInstance.get<ProviderSchedule[]>(`${BASE_URL}/${locationId}`);
+  getMySchedule: async (locationId: number, staffId?: number): Promise<ProviderSchedule[]> => {
+    const response = await axiosInstance.get<ProviderSchedule[]>(`${BASE_URL}/${locationId}`, {
+      params: {
+        ...(staffId ? { staffId } : {})
+      }
+    });
     return response.data;
   },
 
   /**
-   * Actualiza (Wipe & Replace) la configuración de la semana laboral por sede
-   * 🚀 FIX: Ahora pasa locationId como path param (PUT /schedules/{locationId})
+   * Actualiza (Wipe & Replace) la configuración de la semana laboral por sede y staff
    */
-  updateSchedule: async (locationId: number, schedules: ProviderSchedule[]): Promise<ProviderSchedule[]> => {
-    const response = await axiosInstance.put<ProviderSchedule[]>(`${BASE_URL}/${locationId}`, schedules);
+  updateSchedule: async (locationId: number, schedules: ProviderSchedule[], staffId?: number): Promise<ProviderSchedule[]> => {
+    const response = await axiosInstance.put<ProviderSchedule[]>(`${BASE_URL}/${locationId}`, schedules, {
+      params: {
+        ...(staffId ? { staffId } : {})
+      }
+    });
     return response.data;
   },
 
@@ -41,13 +47,15 @@ export const scheduleService = {
     locationId: number | undefined,
     startDate: string,
     endDate: string,
-    durationMinutes: number
+    durationMinutes: number,
+    staffId?: number
   ): Promise<string[]> => {
     const response = await axiosInstance.get<string[]>(
       `${BASE_URL}/${providerId}/available-slots`,
       {
         params: {
           ...(locationId ? { locationId } : {}),
+          ...(staffId ? { staffId } : {}),
           startDate,
           endDate,
           durationMinutes

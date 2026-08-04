@@ -41,6 +41,19 @@ export interface StorefrontItem {
   isPackage?: boolean;
 }
 
+export interface StorefrontLocation {
+  id: number;
+  providerId: number;
+  name: string;
+  isMain: boolean;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
 export interface StorefrontStaff {
   id: number;
   providerId: number;
@@ -85,6 +98,7 @@ export interface StorefrontData {
   products: StorefrontItem[]; // 🚀 Nueva lista de Farmacia
   courses: StorefrontItem[];  // 🚀 Nueva lista de Cursos
   staff?: StorefrontStaff[];  // 🚀 Equipo y Profesionales
+  locations?: StorefrontLocation[]; // 🚀 Sedes y Ubicaciones
   
   
   galleryImages?: GalleryImage[];

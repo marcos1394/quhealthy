@@ -31,6 +31,7 @@ import { TimeSlot } from "@/components/booking/TimeSlot";
 import { BookingSummary } from "@/components/booking/BookingSummary";
 import { PatientSelector } from "@/components/booking/PatientSelector";
 import { ProfessionalSelector } from "@/components/booking/ProfessionalSelector";
+import { LocationSelector } from "@/components/booking/LocationSelector";
 import { CheckoutModal } from "@/components/store/CheckoutModal";
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 import { PackageMultiScheduler } from "@/components/booking/PackageMultiScheduler";
@@ -94,6 +95,7 @@ export default function BookingPage({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
 
   // --- ESTADOS DE E-COMMERCE ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -202,9 +204,8 @@ export default function BookingPage({
     if (isBefore(date, startOfDay(new Date()))) return;
     setSelectedDate(date);
     setSelectedTime(null);
-    const targetProviderId = selectedStaffId || providerId;
-    if (targetProviderId) {
-      fetchAvailableSlots(targetProviderId, undefined, date, getTotalDuration());
+    if (providerId) {
+      fetchAvailableSlots(providerId, selectedLocationId || undefined, date, getTotalDuration(), selectedStaffId || undefined);
     }
   };
 
@@ -229,10 +230,11 @@ export default function BookingPage({
       setPendingSymptoms(symptomsText);
       setShowCheckoutModal(true);
     } else {
-      const targetProviderId = selectedStaffId || providerId;
-      if (targetProviderId) {
+      if (providerId) {
         await processCheckout({
-          providerId: targetProviderId,
+          providerId: providerId,
+          locationId: selectedLocationId || undefined,
+          staffId: selectedStaffId || undefined,
           selectedDate:
             requiresScheduling && scheduleNow && !isPackageMultiSchedule
               ? selectedDate
@@ -435,6 +437,25 @@ export default function BookingPage({
                 </motion.section>
               )}
 
+              {/* Paso: Selección de Ubicación (Si hay más de 1) */}
+              <AnimatePresence>
+                {scheduleNow && (store?.locations || []).length > 1 && (
+                  <LocationSelector
+                    locations={store?.locations || []}
+                    selectedLocationId={selectedLocationId}
+                    onSelect={(id) => {
+                      setSelectedLocationId(id);
+                      setSelectedDate(null);
+                      setSelectedTime(null);
+                    }}
+                    safeColor={safeColor}
+                    stepCounter={stepCounter++}
+                    title={t("location_selector_title") || "Ubicación"}
+                    subtitle={t("location_selector_desc") || "¿Dónde te gustaría atenderte?"}
+                  />
+                )}
+              </AnimatePresence>
+
               {/* Paso: Selección de Profesional (Si hay más de 1 que puede dar el servicio) */}
               <AnimatePresence>
                 {scheduleNow && relevantStaff.length > 0 && (
@@ -478,20 +499,25 @@ export default function BookingPage({
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden space-y-6"
                   >
-                    <div className="flex items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
-                      <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs shadow-sm"
-                        style={{ backgroundColor: safeColor, color: "#ffffff" }}
-                      >
-                        {stepCounter++}
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
-                          {t("step_date")}
-                        </h2>
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
-                          {t("step_date_desc")}
-                        </p>
+                    <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs shadow-sm"
+                          style={{
+                            backgroundColor: safeColor,
+                            color: "#ffffff",
+                          }}
+                        >
+                          {stepCounter++}
+                        </div>
+                        <div>
+                          <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+                            {t("date_time_title")}
+                          </h2>
+                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
+                            {t("date_time_subtitle")}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
@@ -707,10 +733,11 @@ export default function BookingPage({
           paymentMethod
         ) => {
           setShowCheckoutModal(false);
-          const targetProviderId = selectedStaffId || providerId;
-          if (targetProviderId) {
+          if (providerId) {
             processCheckout({
-              providerId: targetProviderId,
+              providerId: providerId,
+              locationId: selectedLocationId || undefined,
+              staffId: selectedStaffId || undefined,
               selectedDate: requiresScheduling ? selectedDate : null,
               selectedTime: requiresScheduling ? selectedTime : null,
               cart,

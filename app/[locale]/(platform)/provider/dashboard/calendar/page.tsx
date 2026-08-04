@@ -28,6 +28,7 @@ import { TimeBlockModal } from "@/components/dashboard/TimeBlockModal";
 import { useCalendarIntegration } from "@/hooks/useCalendarIntegration";
 import { useOperatingHours } from "@/hooks/useOperatingHours";
 import { useProviderLocations } from "@/hooks/useProviderLocations";
+import { useStaff } from "@/hooks/useStaff";
 import {
   Select,
   SelectContent,
@@ -60,12 +61,14 @@ function CalendarContent() {
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
     null
   );
+  const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
 
   const { isGoogleConnected, isCheckingGoogle, handleGoogleConnect } =
     useCalendarIntegration();
   const { fetchSchedules } = useOperatingHours();
   const { locations, fetchLocations, isLoading: isLoadingLocations } =
     useProviderLocations();
+  const { staff, fetchStaff } = useStaff();
   const t = useTranslations("DashboardCalendar");
 
   const searchParams = useSearchParams();
@@ -73,7 +76,8 @@ function CalendarContent() {
 
   useEffect(() => {
     fetchLocations();
-  }, [fetchLocations]);
+    fetchStaff();
+  }, [fetchLocations, fetchStaff]);
 
   useEffect(() => {
     if (locations.length > 0 && !selectedLocationId) {
@@ -101,11 +105,11 @@ function CalendarContent() {
   useEffect(() => {
     const loadHours = async () => {
       if (!selectedLocationId) return;
-      const data = await fetchSchedules(selectedLocationId);
+      const data = await fetchSchedules(selectedLocationId, selectedStaffId || undefined);
       setHasConfiguredHours(data.length > 0 && data.some((d) => d.isActive));
     };
     loadHours();
-  }, [fetchSchedules, refreshKey, selectedLocationId]);
+  }, [fetchSchedules, refreshKey, selectedLocationId, selectedStaffId]);
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-24">
@@ -149,6 +153,35 @@ function CalendarContent() {
                       className="text-xs font-bold cursor-pointer rounded-xl focus:bg-emerald-50 dark:focus:bg-emerald-950/30"
                     >
                       {location.name} {location.isMain ? "(Principal)" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* SELECTOR DE STAFF (Opcional) */}
+            <div className="w-full sm:w-64">
+              <Select
+                value={selectedStaffId ? selectedStaffId.toString() : "all"}
+                onValueChange={(value) => setSelectedStaffId(value === "all" ? null : Number(value))}
+                disabled={staff.length === 0}
+              >
+                <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm font-bold text-xs">
+                  <div className="flex items-center gap-2 truncate">
+                    <SelectValue placeholder="General (Todos)" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg z-50">
+                  <SelectItem value="all" className="text-xs font-bold cursor-pointer rounded-xl focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
+                    General (Todos)
+                  </SelectItem>
+                  {staff.map((member) => (
+                    <SelectItem
+                      key={member.id}
+                      value={member.id.toString()}
+                      className="text-xs font-bold cursor-pointer rounded-xl focus:bg-emerald-50 dark:focus:bg-emerald-950/30"
+                    >
+                      {member.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -362,6 +395,8 @@ function CalendarContent() {
             onClose={() => setIsHoursModalOpen(false)}
             onSaveSuccess={() => setRefreshKey((p) => p + 1)}
             locationId={selectedLocationId}
+            staffId={selectedStaffId}
+            staffName={staff.find(s => s.id === selectedStaffId)?.name}
           />
         )}
         <TimeBlockModal

@@ -3,6 +3,8 @@ import { StorefrontItem } from "./storefront";
 
 export interface CheckoutParams {
   providerId: number;
+  locationId?: number;
+  staffId?: number;
   consumerId?: number; 
   dependentId?: number | null; 
   selectedDate: Date | null;
@@ -31,6 +33,7 @@ export interface CreateAppointmentRequest {
   paymentMethod: 'CREDIT_CARD' | 'CASH' | 'TRANSFER'; 
   consumerSymptoms?: string; 
   locationId?: number;
+  staffId?: number;
 }
 
 export interface StripeCheckoutResponse {
@@ -45,6 +48,7 @@ export interface CartItemRequest {
   startTime?: string | null;
   appointmentType?: string;
   locationId?: number;
+  staffId?: number;
   packageId?: number;
 }
 
