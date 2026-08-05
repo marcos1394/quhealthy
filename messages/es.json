@@ -9010,27 +9010,29 @@
     "error": "No se pudo obtener la ubicación. Inténtalo más tarde.",
     "not_supported": "Tu navegador no soporta geolocalización."
   },
-  "CookieConsent": {
+
+ "CookieConsent": {
     "title": "Privacidad y Cookies",
-    "description": "Utilizamos cookies para mejorar tu experiencia, analizar nuestro tráfico y personalizar el contenido. Al hacer clic en \"Aceptar todas\", aceptas su uso.",
-    "accept_all": "Aceptar todas",
-    "reject": "Rechazar",
+    "description": "Utilizamos cookies esenciales y de rendimiento para garantizar el funcionamiento seguro de QuHealthy y mejorar la experiencia clínica en la plataforma.",
+    "accept_all": "Aceptar Todas",
+    "reject": "Solo Esenciales",
     "configure": "Configurar",
-    "preferences_title": "Preferencias",
-    "back_label": "Volver al aviso de cookies",
-    "essential_title": "Esenciales",
-    "essential_desc": "Necesarias para el funcionamiento básico del sitio. No se pueden desactivar.",
-    "analytics_title": "Analíticas",
-    "analytics_desc": "Nos ayudan a entender cómo usas QuHealthy para mejorar tu experiencia.",
-    "toggle_analytics": "Activar o desactivar cookies analíticas",
-    "marketing_title": "Marketing",
-    "marketing_desc": "Utilizadas para mostrarte anuncios relevantes y campañas personalizadas.",
-    "toggle_marketing": "Activar o desactivar cookies de marketing",
-    "functional_title": "Funcionales",
-    "functional_desc": "Recuerdan elecciones como idioma o preferencias de visualización para no tener que configurarlas de nuevo.",
-    "toggle_functional": "Activar o desactivar cookies funcionales",
-    "save_btn": "Guardar Preferencias"
-  },
+    "preferences_title": "Preferencias de Cookies",
+    "essential_title": "Cookies Esenciales",
+    "essential_desc": "Requeridas para la autenticación segura, encriptación y operaciones fundamentales del sistema. No se pueden desactivar.",
+    "functional_title": "Cookies Funcionales",
+    "functional_desc": "Recuerdan tus preferencias de idioma, temas visuales y ajustes de interfaz personalizada.",
+    "analytics_title": "Cookies de Análisis",
+    "analytics_desc": "Nos permiten medir el rendimiento del sistema de forma anónima para optimizar tiempos de respuesta.",
+    "marketing_title": "Cookies de Rendimiento",
+    "marketing_desc": "Utilizadas para evaluar el alcance de los canales de comunicación y avisos institucionales.",
+    "save_btn": "Guardar Preferencias",
+    "back_label": "Volver al aviso general",
+    "toggle_functional": "Alternar cookies funcionales",
+    "toggle_analytics": "Alternar cookies de análisis",
+    "toggle_marketing": "Alternar cookies de rendimiento"
+  }
+
   "AuthGate": {
     "title": "ACCESO REQUERIDO",
     "description": "Regístrate para desbloquear esta función y acceder a toda la experiencia QuHealthy.",
