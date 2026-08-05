@@ -3,7 +3,8 @@ import { googleService } from '@/services/google.service';
 
 export interface AutocompletePrediction {
   description: string;
-  place_id: string;
+  place_id?: string;
+  placeId?: string;
 }
 
 export function useGoogleAutocomplete() {
@@ -14,6 +15,7 @@ export function useGoogleAutocomplete() {
   useEffect(() => {
     if (!query || query.trim().length < 3) {
       setSuggestions([]);
+      return;
     }
 
     const fetchSuggestions = async () => {

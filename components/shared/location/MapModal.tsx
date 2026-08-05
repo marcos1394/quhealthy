@@ -36,8 +36,7 @@ import { LocationData, LocationPickerProps } from "@/types/location";
 import { handleApiError } from "@/lib/handleApiError";
 import { cn } from "@/lib/utils";
 
-// Removed "places" from libraries since it's deprecated for new customers and we use a backend API now
-const libraries: any[] = [];
+
 
 const mapContainerStyle = {
   width: "100%",
@@ -315,21 +314,25 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
                 exit={{ opacity: 0, y: -5 }}
                 className="absolute left-0 top-full mt-2 w-full z-50 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden max-h-56 overflow-y-auto rounded-xl custom-scrollbar"
               >
-                {suggestions.map((sug) => (
-                  <li
-                    key={sug.place_id}
-                    onClick={() =>
-                      handleSelectSuggestion(sug.place_id, sug.description)
-                    }
-                    className="px-4 py-3 text-xs font-semibold text-gray-900 dark:text-white hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 cursor-pointer border-b border-gray-100 dark:border-gray-800 last:border-0 flex items-start gap-2.5 transition-colors"
-                  >
-                    <MapPin
-                      className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400"
-                      strokeWidth={2}
-                    />
-                    <span className="leading-relaxed">{sug.description}</span>
-                  </li>
-                ))}
+                {suggestions.map((sug) => {
+                  const placeId = sug.placeId || sug.place_id;
+                  if (!placeId) return null;
+                  return (
+                    <li
+                      key={placeId}
+                      onClick={() =>
+                        handleSelectSuggestion(placeId, sug.description)
+                      }
+                      className="px-4 py-3 text-xs font-semibold text-gray-900 dark:text-white hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 cursor-pointer border-b border-gray-100 dark:border-gray-800 last:border-0 flex items-start gap-2.5 transition-colors"
+                    >
+                      <MapPin
+                        className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400"
+                        strokeWidth={2}
+                      />
+                      <span className="leading-relaxed">{sug.description}</span>
+                    </li>
+                  );
+                })}
               </motion.ul>
             )}
           </AnimatePresence>
@@ -491,7 +494,6 @@ const EnhancedLocationPicker: React.FC<LocationPickerProps> = (props) => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries,
   });
 
   if (loadError)
