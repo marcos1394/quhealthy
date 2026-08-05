@@ -78,7 +78,7 @@ export default function SocialAuthButtons({
           role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
         });
 
-        if (!response.mfaRequired) {
+        if (!response.mfaRequired && !onSuccess) {
           toast.success(
             t("welcome_user", { name: response.user?.firstName || "" }),
             { theme: "colored" }
@@ -111,7 +111,7 @@ export default function SocialAuthButtons({
         role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
       });
 
-      if (!response.mfaRequired) {
+      if (!response.mfaRequired && !onSuccess) {
         toast.success(
           t("welcome_user", { name: response.user?.firstName || "" }),
           { theme: "colored" }
