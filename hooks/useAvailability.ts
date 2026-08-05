@@ -9,6 +9,9 @@ export const useAvailability = () => {
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
+  const [monthAvailability, setMonthAvailability] = useState<Record<string, string[]>>({});
+  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
+
   // Consulta al servicio los horarios libres reales para una fecha exacta
   const fetchAvailableSlots = useCallback(async (providerId: number, locationId: number | undefined, date: Date, durationMinutes: number, staffId?: number | null) => {
     setIsLoadingSlots(true);
@@ -43,9 +46,38 @@ export const useAvailability = () => {
     }
   }, []);
 
+  // Consulta al servicio los horarios libres para un rango de fechas (ej. un mes)
+  const fetchMonthAvailability = useCallback(async (providerId: number, locationId: number | undefined, startDate: Date, endDate: Date, durationMinutes: number, staffId?: number | null) => {
+    setIsLoadingMonth(true);
+    
+    try {
+      const formattedStartDate = format(startDate, 'yyyy-MM-dd');
+      const formattedEndDate = format(endDate, 'yyyy-MM-dd');
+      
+      const slotsMap = await scheduleService.getAvailableSlotsForRange(
+        providerId,
+        locationId,
+        formattedStartDate,
+        formattedEndDate,
+        durationMinutes,
+        staffId || undefined
+      );
+      
+      setMonthAvailability(slotsMap);
+    } catch (error: any) {
+      console.error("Error al obtener disponibilidad mensual:", error);
+      setMonthAvailability({});
+    } finally {
+      setIsLoadingMonth(false);
+    }
+  }, []);
+
   return {
     availableSlots,
     isLoadingSlots,
-    fetchAvailableSlots
+    fetchAvailableSlots,
+    monthAvailability,
+    isLoadingMonth,
+    fetchMonthAvailability
   };
 };

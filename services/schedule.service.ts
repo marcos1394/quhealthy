@@ -68,6 +68,45 @@ export const scheduleService = {
     return response.data.map((dateTimeStr: string) => {
       return dateTimeStr.split('T')[1].substring(0, 5); 
     });
-  }
+  },
 
+  /**
+   * Obtiene los horarios disponibles y los agrupa por fecha.
+   * Retorna un objeto: { "2026-02-23": ["09:00", "09:30"], ... }
+   */
+  getAvailableSlotsForRange: async (
+    providerId: number,
+    locationId: number | undefined,
+    startDate: string,
+    endDate: string,
+    durationMinutes: number,
+    staffId?: number
+  ): Promise<Record<string, string[]>> => {
+    const response = await axiosInstance.get<string[]>(
+      `${BASE_URL}/${providerId}/available-slots`,
+      {
+        params: {
+          ...(locationId ? { locationId } : {}),
+          ...(staffId ? { staffId } : {}),
+          startDate,
+          endDate,
+          durationMinutes
+        }
+      }
+    );
+
+    const grouped: Record<string, string[]> = {};
+    
+    response.data.forEach((dateTimeStr: string) => {
+      const [datePart, timePart] = dateTimeStr.split('T');
+      const timeStr = timePart.substring(0, 5);
+      
+      if (!grouped[datePart]) {
+        grouped[datePart] = [];
+      }
+      grouped[datePart].push(timeStr);
+    });
+
+    return grouped;
+  }
 };

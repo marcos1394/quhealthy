@@ -5,7 +5,7 @@
 /* eslint-disable react-doctor/no-giant-component */
 /* eslint-disable react-doctor/prefer-useReducer */
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, use, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -80,7 +80,7 @@ export default function BookingPage({
     setProvider,
     addToCart,
   } = useBookingStore();
-  const { availableSlots, isLoadingSlots, fetchAvailableSlots } =
+  const { availableSlots, isLoadingSlots, fetchAvailableSlots, monthAvailability, fetchMonthAvailability, isLoadingMonth } =
     useAvailability();
   const { processCheckout, isProcessing } = useBookingCheckout();
 
@@ -163,6 +163,39 @@ export default function BookingPage({
       };
     });
   };
+
+  // LÓGICA DE DISPONIBILIDAD MENSUAL
+  useEffect(() => {
+    if (providerId) {
+      const currentMonthStart = startOfMonth(currentMonth);
+      const currentMonthEnd = endOfMonth(currentMonth);
+      fetchMonthAvailability(
+        providerId,
+        selectedLocationId || undefined,
+        currentMonthStart,
+        currentMonthEnd,
+        getTotalDuration(),
+        selectedStaffId || undefined
+      );
+    }
+  }, [providerId, selectedLocationId, currentMonth, getTotalDuration, selectedStaffId, fetchMonthAvailability]);
+
+  const nextAvailableSlot = useMemo(() => {
+    if (!monthAvailability || Object.keys(monthAvailability).length === 0) return null;
+    const sortedDates = Object.keys(monthAvailability).sort();
+    
+    for (const dateStr of sortedDates) {
+      const parts = dateStr.split("-");
+      const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      if (!isBefore(dateObj, startOfDay(new Date()))) {
+        const slots = monthAvailability[dateStr];
+        if (slots && slots.length > 0) {
+          return { date: dateObj, time: slots.sort()[0] };
+        }
+      }
+    }
+    return null;
+  }, [monthAvailability]);
 
   // LÓGICA DE AUTO-RESERVA
   useEffect(() => {
@@ -553,6 +586,32 @@ export default function BookingPage({
                         </div>
                       </div>
 
+                      {/* Recomendación de próximo espacio */}
+                      {nextAvailableSlot && !selectedDate && (
+                        <div className="mb-6 p-4 rounded-2xl border border-store-200 bg-store-50 dark:bg-store-950/20 dark:border-store-900/40 flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-store-100 dark:bg-store-900/50 flex items-center justify-center shrink-0">
+                            <CalendarIcon className="w-5 h-5 text-store-600 dark:text-store-400" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                              Próximo espacio disponible
+                            </h4>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 mb-3">
+                              {format(nextAvailableSlot.date, locale === "en" ? "EEEE, MMMM d" : "EEEE, d 'de' MMMM", { locale: dateLocale })} a las {nextAvailableSlot.time}
+                            </p>
+                            <button
+                              onClick={() => {
+                                handleDateSelect(nextAvailableSlot.date);
+                                setSelectedTime(nextAvailableSlot.time);
+                              }}
+                              className="text-xs font-bold text-store-700 dark:text-store-400 bg-store-200 dark:bg-store-900/60 px-3 py-1.5 rounded-lg hover:bg-store-300 dark:hover:bg-store-800 transition-colors"
+                            >
+                              Seleccionar este horario
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Días de la Semana */}
                       <div className="grid grid-cols-7 mb-3 text-center">
                         {weekdaysList.map((d, idx) => (
@@ -567,17 +626,22 @@ export default function BookingPage({
 
                       {/* Cuadrícula de Días */}
                       <div className="grid grid-cols-7 gap-1.5">
-                        {calendarDays.map((date, i) => (
-                          <CalendarDay
-                            key={i}
-                            date={date}
-                            isCurrentMonth={isSameMonth(date, monthStart)}
-                            isPast={isBefore(date, startOfDay(new Date()))}
-                            selectedDate={selectedDate}
-                            providerColor={safeColor}
-                            onSelect={handleDateSelect}
-                          />
-                        ))}
+                        {calendarDays.map((date, i) => {
+                          const dateStr = format(date, "yyyy-MM-dd");
+                          const hasSlots = monthAvailability && monthAvailability[dateStr] && monthAvailability[dateStr].length > 0;
+                          return (
+                            <CalendarDay
+                              key={i}
+                              date={date}
+                              isCurrentMonth={isSameMonth(date, monthStart)}
+                              isPast={isBefore(date, startOfDay(new Date()))}
+                              selectedDate={selectedDate}
+                              providerColor={safeColor}
+                              onSelect={handleDateSelect}
+                              hasSlots={hasSlots}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   </motion.section>

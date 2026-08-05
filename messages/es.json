@@ -5242,6 +5242,8 @@
     "location_selector_desc": "Elige dónde quieres tu cita",
     "date_time_title": "Fecha y Hora",
     "date_time_subtitle": "Selecciona tu horario preferido",
+    "no_slots": "No hay horarios disponibles",
+    "select_date": "Intenta seleccionar otra fecha",
     "preparing_booking": "Preparando reserva...",
     "back_to_directory": "Volver al directorio",
     "subtitle": "Agendando cita con",
