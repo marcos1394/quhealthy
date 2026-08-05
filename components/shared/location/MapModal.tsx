@@ -37,6 +37,8 @@ import { handleApiError } from "@/lib/handleApiError";
 import { cn } from "@/lib/utils";
 
 
+// Keep "places" in libraries to match other components and prevent useJsApiLoader conflicts
+const libraries: "places"[] = ["places"];
 
 const mapContainerStyle = {
   width: "100%",
@@ -286,6 +288,40 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
     }
   };
 
+  const handleManualSearch = () => {
+    if (!query.trim() || !window.google) return;
+    setIsProcessing(true);
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ address: query }, (results, status) => {
+      setIsProcessing(false);
+      if (status === "OK" && results && results[0]) {
+        const place = results[0];
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        const newLocation: LocationData = {
+          lat,
+          lng,
+          address: place.formatted_address,
+          placeId: place.place_id,
+          city: selectedLocation?.city,
+          state: selectedLocation?.state,
+        };
+        setSelectedLocation(newLocation);
+        setInputValue(place.formatted_address);
+        setQuery(place.formatted_address);
+        setSuggestions([]);
+        onLocationSelect(newLocation);
+        
+        if (map) {
+          map.panTo({ lat, lng });
+          map.setZoom(17);
+        }
+      } else {
+        console.error("Geocode error: ", status);
+      }
+    });
+  };
+
   return (
     <div className="space-y-4 relative w-full h-full flex flex-col font-sans select-none">
       {/* ── BARRA DE BÚSQUEDA Y AUTOCOMPLETADO ───────────────────────────── */}
@@ -302,6 +338,12 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
             onChange={(e) => {
               setInputValue(e.target.value);
               setQuery(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleManualSearch();
+              }
             }}
             className="w-full h-full bg-transparent border-none outline-none text-xs font-semibold text-gray-900 dark:text-white placeholder:text-gray-400"
           />
@@ -494,6 +536,7 @@ const EnhancedLocationPicker: React.FC<LocationPickerProps> = (props) => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries,
   });
 
   if (loadError)
