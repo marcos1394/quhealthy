@@ -317,19 +317,26 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">
               {t("location_label")}
             </span>
-            <span className="flex items-center text-[10px] font-bold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-full px-2.5 py-1 shadow-2xs">
-              <Navigation
-                className="w-3 h-3 mr-1 text-emerald-600 dark:text-emerald-400"
-                strokeWidth={2}
-              />
-              <span>
-                {provider.distanceKm
-                  ? t("distance_km", {
-                      distance: provider.distanceKm.toFixed(1),
-                    })
-                  : t("location_not_specified")}
+            <div className="flex items-center gap-1.5">
+              {provider.locationsCount && provider.locationsCount > 1 && (
+                <span className="text-[9px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/30 px-1.5 py-0.5 rounded-full border border-sky-100 dark:border-sky-900/50">
+                  +{provider.locationsCount - 1} suc.
+                </span>
+              )}
+              <span className="flex items-center text-[10px] font-bold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-full px-2.5 py-1 shadow-2xs">
+                <Navigation
+                  className="w-3 h-3 mr-1 text-emerald-600 dark:text-emerald-400"
+                  strokeWidth={2}
+                />
+                <span>
+                  {provider.distanceKm
+                    ? t("distance_km", {
+                        distance: provider.distanceKm.toFixed(1),
+                      })
+                    : t("location_not_specified")}
+                </span>
               </span>
-            </span>
+            </div>
           </div>
         </div>
 

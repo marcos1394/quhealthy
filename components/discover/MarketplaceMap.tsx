@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-doctor/button-has-type */
 
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -114,6 +114,16 @@ export const MarketplaceMap = () => {
     [resolvedTheme]
   );
 
+  const [activePinKey, setActivePinKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedId) {
+      setActivePinKey(`store-${selectedId}-main`);
+    } else {
+      setActivePinKey(null);
+    }
+  }, [selectedId]);
+
   const mapCenter = useMemo(() => {
     if (coordinates) return { lat: coordinates.lat, lng: coordinates.lng };
     return defaultCenter;
@@ -183,154 +193,170 @@ export const MarketplaceMap = () => {
             zIndex={100}
           />
         )}
-
         {/* Marcadores de Tiendas / Proveedores */}
         {searchType === "STORE"
-          ? enrichedProviders.map((provider) => {
+          ? enrichedProviders.flatMap((provider) => {
               const isSelected = selectedId === provider.id;
               const isHovered = hoveredId === provider.id;
 
-              if (!provider.lat || !provider.lng) return null;
+              if (!provider.lat || !provider.lng) return [];
 
-              return (
-                <MarkerF
-                  key={`marker-store-${provider.id}`}
-                  position={{ lat: provider.lat, lng: provider.lng }}
-                  onClick={(e) => {
-                    if (e.domEvent) {
-                      e.domEvent.stopPropagation();
-                    }
-                    setSelectedId(provider.id);
-                    if (map) {
-                      map.panTo({ lat: provider.lat, lng: provider.lng });
-                      map.setZoom(14);
-                    }
-                  }}
-                  onMouseOver={() => setHoveredId(provider.id)}
-                  onMouseOut={() => setHoveredId(null)}
-                  icon={{
-                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                    fillColor: provider.color || "#059669",
-                    fillOpacity: isSelected || isHovered ? 1 : 0.85,
-                    strokeWeight: isSelected ? 3 : 2,
-                    strokeColor: "#ffffff",
-                    scale: isSelected ? 1.6 : 1.3,
-                    anchor: new google.maps.Point(12, 24),
-                  }}
-                  zIndex={isSelected ? 50 : 10}
-                >
-                  {isSelected && (
-                    <InfoWindowF
-                      position={{ lat: provider.lat, lng: provider.lng }}
-                      onCloseClick={() => setSelectedId(null)}
-                      options={{ pixelOffset: new google.maps.Size(0, -45) }}
-                    >
-                      <div className="min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800">
-                        <div className="w-full h-24 relative bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                          {provider.imageUrl || provider.logoUrl ? (
-                            <img
-                              src={provider.imageUrl || provider.logoUrl}
-                              alt={provider.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-emerald-50 to-gray-50 dark:from-emerald-950/20 dark:to-[#050505] flex items-center justify-center">
-                              <User className="w-6 h-6 text-gray-400" />
-                            </div>
-                          )}
-                          {provider.isPromoted && (
-                            <div className="absolute top-2 left-2 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
-                              {t("sponsored")}
-                            </div>
-                          )}
-                        </div>
+              const locations = [
+                { lat: provider.lat, lng: provider.lng, key: `store-${provider.id}-main` },
+                ...(provider.additionalLocations || []).map((loc, idx) => ({
+                  lat: loc.lat,
+                  lng: loc.lng,
+                  key: `store-${provider.id}-add-${idx}`,
+                })),
+              ];
 
-                        <div className="p-3.5 bg-white dark:bg-[#0a0a0a] space-y-3">
-                          <div className="flex justify-between items-start gap-2">
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">
-                                {provider.name}
-                              </h4>
-                              <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate capitalize">
-                                {(
-                                  provider.category || t("clinic_default")
-                                ).toLowerCase()}
-                              </p>
-                            </div>
-                            <div className="w-8 h-8 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden shrink-0 shadow-2xs bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                              {provider.logoUrl ? (
-                                <img
-                                  src={provider.logoUrl}
-                                  alt={provider.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <User className="w-4 h-4 text-gray-400" />
-                              )}
-                            </div>
+              return locations.map((loc) => {
+                const isPinActive = activePinKey === loc.key || (isSelected && activePinKey === null);
+                
+                return (
+                  <MarkerF
+                    key={loc.key}
+                    position={{ lat: loc.lat, lng: loc.lng }}
+                    onClick={(e) => {
+                      if (e.domEvent) {
+                        e.domEvent.stopPropagation();
+                      }
+                      setSelectedId(provider.id);
+                      setActivePinKey(loc.key);
+                      if (map) {
+                        map.panTo({ lat: loc.lat, lng: loc.lng });
+                        map.setZoom(14);
+                      }
+                    }}
+                    onMouseOver={() => setHoveredId(provider.id)}
+                    onMouseOut={() => setHoveredId(null)}
+                    icon={{
+                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                      fillColor: provider.color || "#059669",
+                      fillOpacity: isSelected || isHovered ? 1 : 0.85,
+                      strokeWeight: isSelected ? 3 : 2,
+                      strokeColor: "#ffffff",
+                      scale: isSelected ? 1.6 : 1.3,
+                      anchor: new google.maps.Point(12, 24),
+                    }}
+                    zIndex={isSelected ? 50 : 10}
+                  >
+                    {isPinActive && (
+                      <InfoWindowF
+                        position={{ lat: loc.lat, lng: loc.lng }}
+                        onCloseClick={() => {
+                          setSelectedId(null);
+                          setActivePinKey(null);
+                        }}
+                        options={{ pixelOffset: new google.maps.Size(0, -45) }}
+                      >
+                        <div className="min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800">
+                          <div className="w-full h-24 relative bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                            {provider.imageUrl || provider.logoUrl ? (
+                              <img
+                                src={provider.imageUrl || provider.logoUrl}
+                                alt={provider.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-emerald-50 to-gray-50 dark:from-emerald-950/20 dark:to-[#050505] flex items-center justify-center">
+                                <User className="w-6 h-6 text-gray-400" />
+                              </div>
+                            )}
+                            {provider.isPromoted && (
+                              <div className="absolute top-2 left-2 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
+                                {t("sponsored")}
+                              </div>
+                            )}
                           </div>
-
-                          <div className="flex flex-col gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                                {provider.reviews && provider.reviews > 0 ? (
-                                  <>
-                                    <span className="font-bold font-mono text-gray-900 dark:text-white">
-                                      {provider.rating?.toFixed(1)}
-                                    </span>
-                                    <span className="text-gray-400 text-[10px] font-mono">
-                                      ({provider.reviews})
-                                    </span>
-                                  </>
+  
+                          <div className="p-3.5 bg-white dark:bg-[#0a0a0a] space-y-3">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">
+                                  {provider.name}
+                                </h4>
+                                <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate capitalize">
+                                  {(
+                                    provider.category || t("clinic_default")
+                                  ).toLowerCase()}
+                                </p>
+                              </div>
+                              <div className="w-8 h-8 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden shrink-0 shadow-2xs bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                                {provider.logoUrl ? (
+                                  <img
+                                    src={provider.logoUrl}
+                                    alt={provider.name}
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
-                                  <span className="font-bold text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-full text-[10px]">
-                                    {t("new_badge")}
-                                  </span>
+                                  <User className="w-4 h-4 text-gray-400" />
                                 )}
                               </div>
-
-                              {provider.distanceKm !== undefined && (
-                                <div className="flex items-center gap-1 text-[10px] font-mono text-gray-400">
-                                  <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                  <span>
-                                    {provider.distanceKm.toFixed(1)} km
+                            </div>
+  
+                            <div className="flex flex-col gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                  {provider.reviews && provider.reviews > 0 ? (
+                                    <>
+                                      <span className="font-bold font-mono text-gray-900 dark:text-white">
+                                        {provider.rating?.toFixed(1)}
+                                      </span>
+                                      <span className="text-gray-400 text-[10px] font-mono">
+                                        ({provider.reviews})
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <span className="font-bold text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-full text-[10px]">
+                                      {t("new_badge")}
+                                    </span>
+                                  )}
+                                </div>
+  
+                                {provider.distanceKm !== undefined && (
+                                  <div className="flex items-center gap-1 text-[10px] font-mono text-gray-400">
+                                    <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                    <span>
+                                      {provider.distanceKm.toFixed(1)} km
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+  
+                              {provider.basePrice !== undefined && (
+                                <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800/80">
+                                  <span className="text-[10px] text-gray-400 font-medium">
+                                    {t("from")}
+                                  </span>
+                                  <span className="font-bold font-mono text-gray-900 dark:text-white text-xs">
+                                    ${provider.basePrice}
                                   </span>
                                 </div>
                               )}
                             </div>
-
-                            {provider.basePrice !== undefined && (
-                              <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800/80">
-                                <span className="text-[10px] text-gray-400 font-medium">
-                                  {t("from")}
-                                </span>
-                                <span className="font-bold font-mono text-gray-900 dark:text-white text-xs">
-                                  ${provider.basePrice}
-                                </span>
-                              </div>
-                            )}
+  
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/store/${provider.slug}`);
+                              }}
+                              className="w-full h-9 text-xs font-bold rounded-xl text-white shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
+                              style={{
+                                backgroundColor: provider.color || "#059669",
+                              }}
+                            >
+                              {t("view_store")}
+                            </button>
                           </div>
-
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/store/${provider.slug}`);
-                            }}
-                            className="w-full h-9 text-xs font-bold rounded-xl text-white shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
-                            style={{
-                              backgroundColor: provider.color || "#059669",
-                            }}
-                          >
-                            {t("view_store")}
-                          </button>
                         </div>
-                      </div>
-                    </InfoWindowF>
-                  )}
-                </MarkerF>
-              );
+                      </InfoWindowF>
+                    )}
+                  </MarkerF>
+                );
+              });
             })
           /* Marcadores de Ítems / Productos / Servicios */
           : items.map((item) => {

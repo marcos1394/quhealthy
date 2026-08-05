@@ -25,6 +25,8 @@ export interface DiscoverProvider {
   discountPercentage?: number; // CAT-P05
   scheduleSummary?: string; // 📅 Horarios resumidos
   schedules?: { day: string; hours: string; }[]; // Horarios detallados
+  locationsCount?: number; // Para mostrar "+X sucursales"
+  additionalLocations?: { lat: number; lng: number; }[]; // Pines adicionales
 }
 
 export interface DiscoverProviderWrapperResponse {
