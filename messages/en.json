@@ -4802,6 +4802,8 @@
     "status_default": "Loading..."
   },
 
+  
+
   "TeleconsultationRoom": {
     "establishing_connection": "Establishing secure connection...",
     "waiting_video": "Waiting for video stream...",
@@ -7783,6 +7785,8 @@
 "btn_saving_changes": "Saving...",
 "condition_or_relation_placeholder": "Condition / Relation (e.g., Mother - Hypertension)",
 "description_or_details_placeholder": "Details or evolution (e.g., Diagnosed 10 years ago)",
+"family_bg_key_placeholder": "Condition / Family member (e.g., Mother - Hypertension)",
+"family_bg_val_placeholder": "Details or evolution (e.g., Diagnosed 10 years ago)",
 "personal_bg_key_placeholder": "Condition or illness (e.g., Diabetes, Surgery)",
 "personal_bg_val_placeholder": "Details (e.g., Controlled, 2018)",
 "social_bg_key_placeholder": "Habit or factor (e.g., Smoking, Exercise)",
@@ -8969,6 +8973,7 @@
     "error": "Could not get your location. Please try again later.",
     "not_supported": "Your browser does not support geolocation."
   },
+
   "CookieConsent": {
     "title": "Privacy & Cookies",
     "description": "We use cookies to improve your experience, analyze traffic, and personalize content. By clicking \"Accept all\", you agree to their use.",
@@ -8990,6 +8995,7 @@
     "toggle_functional": "Enable or disable functional cookies",
     "save_btn": "Save Preferences"
   },
+  
   "AuthGate": {
     "title": "ACCESS REQUIRED",
     "description": "Sign up to unlock this feature and access the full QuHealthy experience.",
