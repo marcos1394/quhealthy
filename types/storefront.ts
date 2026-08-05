@@ -59,6 +59,7 @@ export interface StorefrontStaff {
   providerId: number;
   name: string;
   specialty?: string;
+  credentials?: string;
   bio?: string;
   imageUrl?: string;
   role?: string;
@@ -98,6 +99,7 @@ export interface StorefrontData {
   products: StorefrontItem[]; // 🚀 Nueva lista de Farmacia
   courses: StorefrontItem[];  // 🚀 Nueva lista de Cursos
   staff?: StorefrontStaff[];  // 🚀 Equipo y Profesionales
+  staffMembers?: StorefrontStaff[];
   locations?: StorefrontLocation[]; // 🚀 Sedes y Ubicaciones
   
   

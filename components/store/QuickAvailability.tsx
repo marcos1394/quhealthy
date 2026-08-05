@@ -8,12 +8,16 @@ import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { scheduleService } from "@/services/schedule.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
+import { StorefrontLocation } from "@/types/storefront";
+
 interface QuickAvailabilityProps {
   providerId: number;
+  locations?: StorefrontLocation[];
 }
 
 export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({
   providerId,
+  locations = [],
 }) => {
   const t = useTranslations("QuickAvailability");
   const [nextSlots, setNextSlots] = useState<string[]>([]);
@@ -26,9 +30,13 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({
         const today = new Date();
         const tomorrow = addDays(today, 1);
 
+        const mainLocationId =
+          locations.find((loc) => loc.isMain)?.id ||
+          (locations.length > 0 ? locations[0].id : undefined);
+
         const slotsToday = await scheduleService.getAvailableSlots(
           providerId,
-          undefined,
+          mainLocationId,
           format(today, "yyyy-MM-dd"),
           format(tomorrow, "yyyy-MM-dd"),
           30
@@ -43,7 +51,7 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({
     };
 
     fetchSlots();
-  }, [providerId]);
+  }, [providerId, locations]);
 
   if (isLoading) {
     return (

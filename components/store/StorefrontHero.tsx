@@ -334,16 +334,16 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
                   {t("location_title")}
                 </h4>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                  {t("location_desc", {
-                    city: store.city || t("default_city"),
-                  })}
+                  {store.locations && store.locations.length > 0
+                    ? store.locations.map(loc => loc.name).join(" • ")
+                    : t("location_desc", { city: store.city || t("default_city") })}
                 </p>
               </div>
             </div>
           </div>
 
           {/* Componente de Disponibilidad Rápida */}
-          <QuickAvailability providerId={store.providerId} />
+          <QuickAvailability providerId={store.providerId} locations={store.locations} />
 
           {/* Biografía y Contacto */}
           <div className="space-y-4 pt-2">
@@ -383,6 +383,44 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
               )}
             </div>
           </div>
+
+          {/* Staff / Equipo */}
+          {((store.staffMembers && store.staffMembers.length > 0) || (store.staff && store.staff.length > 0)) && (
+            <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-800">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("our_team", { defaultValue: "Nuestro Equipo" })}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(store.staffMembers || store.staff)?.map((member) => (
+                  <div key={member.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 shadow-2xs">
+                    {member.imageUrl ? (
+                      <img src={member.imageUrl} alt={member.name} className="w-12 h-12 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0">
+                        {member.name.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-tight">
+                        {member.name}
+                      </h4>
+                      {member.specialty && (
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                          {member.specialty}
+                        </p>
+                      )}
+                      {member.credentials && (
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 font-mono">
+                          Cédula: {member.credentials}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
 
