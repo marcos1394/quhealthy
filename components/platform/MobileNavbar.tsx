@@ -52,6 +52,7 @@ export function MobileNavbar() {
           </SheetTrigger>
 
           <SheetContent
+            position="left"
             className="p-0 w-[280px] !max-w-[280px] bg-white dark:bg-[#0a0a0a] border-r border-gray-100 dark:border-gray-800 font-sans"
           >
             <SheetTitle className="sr-only">{t("brand_name")}</SheetTitle>

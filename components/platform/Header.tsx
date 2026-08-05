@@ -103,6 +103,7 @@ export const Header = () => {
               </Button>
             </SheetTrigger>
             <SheetContent
+              position="left"
               className="p-0 bg-white dark:bg-[#0a0a0a] border-r border-gray-100 dark:border-gray-800 w-72"
             >
               <Sidebar />
