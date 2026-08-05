@@ -232,11 +232,11 @@ export const appointmentService = {
 
   /**
    * 📋 Obtiene el historial médico del paciente
-   * GET /api/patients/me/medical-history
+   * GET /api/appointments/patients/me/medical-history
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientMedicalHistory: async (): Promise<any> => {
-    const response = await axiosInstance.get('/api/patients/me/medical-history');
+    const response = await axiosInstance.get('/api/appointments/patients/me/medical-history');
     return response.data;
   }
 };

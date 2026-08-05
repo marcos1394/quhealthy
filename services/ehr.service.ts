@@ -93,9 +93,9 @@ export const ehrService = {
 
   /**
    * 🏥 Actualiza el Perfil Clínico Único (Antecedentes) desde la vista del Paciente
-   * PUT /api/patients/me/background
+   * PUT /api/appointments/patients/me/background
    */
   updatePatientBackground: async (payload: PatientBackgroundRequest): Promise<void> => {
-    await axiosInstance.put(`/api/patients/me/background`, payload);
+    await axiosInstance.put(`/api/appointments/patients/me/background`, payload);
   }
 };
