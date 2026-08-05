@@ -4711,6 +4711,7 @@
   
 
   "StorePublic": {
+    "our_team": "Our Team",
     "requires_eval": "Requires evaluation",
     "loading": "Preparing the store...",
     "error_title": "Store unavailable",

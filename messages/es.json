@@ -4442,6 +4442,7 @@
   },
 
   "StorePublic": {
+    "our_team": "Nuestro Equipo",
     "requires_eval": "Requiere evaluación",
     "loading": "Preparando la tienda...",
     "error_title": "Tienda no disponible",
