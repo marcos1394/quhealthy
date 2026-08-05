@@ -45,7 +45,7 @@ export function CalendarDay({
         selected
           ? "bg-store-600 text-white border-store-600 shadow-sm z-10 font-bold"
           : isAvailable
-            ? "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white hover:border-store-500/50 hover:bg-store-50/40 dark:hover:bg-store-950/20 hover:text-store-600 dark:hover:text-store-400"
+            ? "bg-store-50 dark:bg-store-900/20 border-store-200 dark:border-store-800/50 text-store-700 dark:text-store-300 hover:border-store-400 hover:bg-store-100 dark:hover:bg-store-800/40 hover:text-store-800 dark:hover:text-store-200"
             : ""
       )}
       style={

@@ -628,7 +628,7 @@ export default function BookingPage({
                       <div className="grid grid-cols-7 gap-1.5">
                         {calendarDays.map((date, i) => {
                           const dateStr = format(date, "yyyy-MM-dd");
-                          const hasSlots = monthAvailability && monthAvailability[dateStr] && monthAvailability[dateStr].length > 0;
+                          const hasSlots = monthAvailability ? Boolean(monthAvailability[dateStr]?.length > 0) : false;
                           return (
                             <CalendarDay
                               key={i}
