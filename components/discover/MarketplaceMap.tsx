@@ -203,7 +203,7 @@ export const MarketplaceMap = () => {
 
               const locations = [
                 { lat: provider.lat, lng: provider.lng, key: `store-${provider.id}-main` },
-                ...(provider.additionalLocations || []).map((loc, idx) => ({
+                ...(provider.additionalLocations || []).map((loc: { lat: number; lng: number }, idx: number) => ({
                   lat: loc.lat,
                   lng: loc.lng,
                   key: `store-${provider.id}-add-${idx}`,
