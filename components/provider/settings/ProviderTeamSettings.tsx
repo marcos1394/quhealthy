@@ -271,6 +271,42 @@ export function ProviderTeamSettings() {
     fetchStaff();
   }, [fetchStaff]);
 
+  const unifiedStaff = React.useMemo(() => {
+    const unified: any[] = [...staff];
+    
+    catalogStaff.forEach(catStaff => {
+      const exists = catStaff.email 
+        ? unified.find(s => s.email?.toLowerCase() === catStaff.email?.toLowerCase())
+        : unified.find(s => s.name?.toLowerCase() === catStaff.name?.toLowerCase());
+
+      if (!exists) {
+        unified.push({
+          id: `catalog-${catStaff.id}`, 
+          providerId: 0,
+          email: catStaff.email || "Sin correo",
+          name: catStaff.name,
+          status: "CATALOG_ONLY",
+          permissions: [],
+          isCatalogOnly: true,
+          catalogId: catStaff.id
+        });
+      } else {
+        exists.catalogId = catStaff.id;
+      }
+    });
+    
+    return unified;
+  }, [staff, catalogStaff]);
+
+  const handleInviteCatalogStaff = (catStaff: any) => {
+    const nameParts = catStaff.name ? catStaff.name.split(" ") : [];
+    setInviteFirstName(nameParts[0] || "");
+    setInviteLastName(nameParts.slice(1).join(" ") || "");
+    setInviteEmail(catStaff.email !== "Sin correo" ? catStaff.email : "");
+    setInviteRole("PROFESSIONAL");
+    setIsInviteOpen(true);
+  };
+
   const handleInviteSubmit = async () => {
     if (!inviteEmail || !inviteFirstName || !inviteLastName || !inviteRole) {
       toast.error(t("toast_fill_required"));
@@ -408,7 +444,7 @@ export function ProviderTeamSettings() {
     }
   };
 
-  if (isLoading && staff.length === 0) {
+  if (isLoading && unifiedStaff.length === 0) {
     return (
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-12 shadow-2xs flex items-center justify-center min-h-[350px]">
         <QhSpinner size="lg" className="text-emerald-600 dark:text-emerald-400" />
@@ -447,7 +483,7 @@ export function ProviderTeamSettings() {
 
       {/* ── LISTADO / MATRIZ DE COLABORADORES ────────────────────────── */}
       <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] overflow-hidden shadow-2xs">
-        {staff.length === 0 ? (
+        {unifiedStaff.length === 0 ? (
           <div className="p-8 text-center text-gray-400 text-xs font-medium italic">
             {t("empty_staff")}
           </div>
@@ -464,7 +500,7 @@ export function ProviderTeamSettings() {
               </thead>
 
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {staff.map((member) => (
+                {unifiedStaff.map((member) => (
                   <tr
                     key={member.id}
                     className="bg-white dark:bg-[#0a0a0a] hover:bg-gray-50/50 dark:hover:bg-[#050505] transition-colors"
@@ -487,6 +523,10 @@ export function ProviderTeamSettings() {
                       ) : member.status === "INACTIVE" ? (
                         <Badge className="bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
                           <span>{t("status_pending")}</span>
+                        </Badge>
+                      ) : member.status === "CATALOG_ONLY" ? (
+                        <Badge className="bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-400 border border-gray-200 dark:border-gray-800 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
+                          <span>{t("status_catalog_only")}</span>
                         </Badge>
                       ) : (
                         <Badge className="bg-rose-50 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
@@ -534,55 +574,67 @@ export function ProviderTeamSettings() {
                           align="end"
                           className="w-52 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white p-1.5 shadow-xl font-sans text-xs"
                         >
-                          <DropdownMenuItem
-                            onClick={() =>
-                              openPermissionsModal(
-                                member.id,
-                                member.permissions
-                              )
-                            }
-                            className="cursor-pointer rounded-xl px-3 py-2 font-bold hover:bg-gray-50 dark:hover:bg-[#050505]"
-                          >
-                            <Key className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                            <span>{t("menu_edit_permissions")}</span>
-                          </DropdownMenuItem>
-
-                          {member.status === "INACTIVE" && (
+                          {member.isCatalogOnly ? (
                             <DropdownMenuItem
-                              onClick={() => handleResendInvite(member.id)}
-                              className="cursor-pointer rounded-xl px-3 py-2 font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/30"
+                              onClick={() => handleInviteCatalogStaff(member)}
+                              className="cursor-pointer rounded-xl px-3 py-2 font-bold hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
                             >
-                              <Mail className="w-4 h-4 mr-2" strokeWidth={2} />
-                              <span>{t("menu_resend_invite")}</span>
+                              <UserPlus className="w-4 h-4 mr-2" strokeWidth={2} />
+                              <span>{t("menu_invite_platform")}</span>
                             </DropdownMenuItem>
+                          ) : (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  openPermissionsModal(
+                                    member.id,
+                                    member.permissions
+                                  )
+                                }
+                                className="cursor-pointer rounded-xl px-3 py-2 font-bold hover:bg-gray-50 dark:hover:bg-[#050505]"
+                              >
+                                <Key className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                                <span>{t("menu_edit_permissions")}</span>
+                              </DropdownMenuItem>
+
+                              {member.status === "INACTIVE" && (
+                                <DropdownMenuItem
+                                  onClick={() => handleResendInvite(member.id)}
+                                  className="cursor-pointer rounded-xl px-3 py-2 font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/30"
+                                >
+                                  <Mail className="w-4 h-4 mr-2" strokeWidth={2} />
+                                  <span>{t("menu_resend_invite")}</span>
+                                </DropdownMenuItem>
+                              )}
+
+                              <DropdownMenuItem
+                                onClick={() => toggleStatus(member.id)}
+                                className="cursor-pointer rounded-xl px-3 py-2 font-bold hover:bg-gray-50 dark:hover:bg-[#050505]"
+                              >
+                                {member.status === "ACTIVE" ? (
+                                  <>
+                                    <PowerOff className="w-4 h-4 mr-2 text-amber-500" strokeWidth={2} />
+                                    <span>{t("menu_suspend")}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Power className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                                    <span>{t("menu_reactivate")}</span>
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+
+                              <DropdownMenuSeparator className="bg-gray-100 dark:bg-gray-800" />
+
+                              <DropdownMenuItem
+                                onClick={() => revokeAccess(member.id)}
+                                className="cursor-pointer rounded-xl px-3 py-2 font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} />
+                                <span>{t("menu_delete")}</span>
+                              </DropdownMenuItem>
+                            </>
                           )}
-
-                          <DropdownMenuItem
-                            onClick={() => toggleStatus(member.id)}
-                            className="cursor-pointer rounded-xl px-3 py-2 font-bold hover:bg-gray-50 dark:hover:bg-[#050505]"
-                          >
-                            {member.status === "ACTIVE" ? (
-                              <>
-                                <PowerOff className="w-4 h-4 mr-2 text-amber-500" strokeWidth={2} />
-                                <span>{t("menu_suspend")}</span>
-                              </>
-                            ) : (
-                              <>
-                                <Power className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                                <span>{t("menu_reactivate")}</span>
-                              </>
-                            )}
-                          </DropdownMenuItem>
-
-                          <DropdownMenuSeparator className="bg-gray-100 dark:bg-gray-800" />
-
-                          <DropdownMenuItem
-                            onClick={() => revokeAccess(member.id)}
-                            className="cursor-pointer rounded-xl px-3 py-2 font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" strokeWidth={2} />
-                            <span>{t("menu_delete")}</span>
-                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
