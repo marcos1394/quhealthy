@@ -78,13 +78,6 @@ export default function SocialAuthButtons({
           role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
         });
 
-        if (!response.mfaRequired && !onSuccess) {
-          toast.success(
-            t("welcome_user", { name: response.user?.firstName || "" }),
-            { theme: "colored" }
-          );
-        }
-
         if (onSuccess) {
           await onSuccess(response);
         } else {
@@ -110,13 +103,6 @@ export default function SocialAuthButtons({
         token: appleToken,
         role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
       });
-
-      if (!response.mfaRequired && !onSuccess) {
-        toast.success(
-          t("welcome_user", { name: response.user?.firstName || "" }),
-          { theme: "colored" }
-        );
-      }
 
       if (onSuccess) {
         onSuccess(response);
