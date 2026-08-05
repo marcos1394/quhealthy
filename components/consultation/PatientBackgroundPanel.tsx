@@ -120,7 +120,9 @@ export function PatientBackgroundPanel({
     title: string,
     icon: React.ReactNode,
     data: Record<string, string>,
-    setData: React.Dispatch<React.SetStateAction<Record<string, string>>>
+    setData: React.Dispatch<React.SetStateAction<Record<string, string>>>,
+    placeholderKey: string,
+    placeholderVal: string
   ) => {
     const handleAdd = () => {
       setData({ ...data, "": "" });
@@ -184,7 +186,7 @@ export function PatientBackgroundPanel({
                   <Input
                     type="text"
                     value={key}
-                    placeholder={t("condition_or_relation_placeholder")}
+                    placeholder={placeholderKey}
                     onChange={(e) => handleKeyChange(key, e.target.value)}
                     className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
                   />
@@ -194,7 +196,7 @@ export function PatientBackgroundPanel({
                   <Input
                     type="text"
                     value={value}
-                    placeholder={t("description_or_details_placeholder")}
+                    placeholder={placeholderVal}
                     onChange={(e) => handleValChange(key, e.target.value)}
                     className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
                   />
@@ -269,21 +271,27 @@ export function PatientBackgroundPanel({
           t("family_background"),
           <Users className="w-4 h-4" strokeWidth={2} />,
           familyBackground,
-          setFamilyBackground
+          setFamilyBackground,
+          t("family_bg_key_placeholder"),
+          t("family_bg_val_placeholder")
         )}
 
         {renderMapEditor(
           t("personal_background"),
           <Activity className="w-4 h-4" strokeWidth={2} />,
           personalBackground,
-          setPersonalBackground
+          setPersonalBackground,
+          t("personal_bg_key_placeholder"),
+          t("personal_bg_val_placeholder")
         )}
 
         {renderMapEditor(
           t("social_background"),
           <HeartHandshake className="w-4 h-4" strokeWidth={2} />,
           socialBackground,
-          setSocialBackground
+          setSocialBackground,
+          t("social_bg_key_placeholder"),
+          t("social_bg_val_placeholder")
         )}
       </div>
     </div>
