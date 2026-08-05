@@ -99,10 +99,12 @@ export default function BookingSuccessPage() {
   const handleShare = async () => {
     try {
       const text = generateShareText();
+      const portalUrl = `${window.location.origin}/patient/dashboard/appointments/${appointmentId}`;
       if (navigator.share) {
         await navigator.share({
           title: t("share_title"),
           text: text,
+          url: portalUrl,
         });
       } else {
         await navigator.clipboard.writeText(text);
