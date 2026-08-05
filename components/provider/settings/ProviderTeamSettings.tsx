@@ -204,7 +204,6 @@ export function ProviderTeamSettings() {
             commissionPercentage: action.payload,
           };
         case "SET_ASSIGNEDSERVICES":
-          return {
           return { ...state, assignedServices: action.payload };
         case "SET_SERVICECOMMISSIONS":
           return {
