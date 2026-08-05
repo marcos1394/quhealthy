@@ -12,7 +12,6 @@ import {
   useJsApiLoader,
   MarkerF,
   StreetViewPanorama,
-  Autocomplete,
 } from "@react-google-maps/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -37,7 +36,8 @@ import { LocationData, LocationPickerProps } from "@/types/location";
 import { handleApiError } from "@/lib/handleApiError";
 import { cn } from "@/lib/utils";
 
-const libraries: "places"[] = ["places"];
+// Removed "places" from libraries since it's deprecated for new customers and we use a backend API now
+const libraries: any[] = [];
 
 const mapContainerStyle = {
   width: "100%",
@@ -106,12 +106,23 @@ const darkMapStyle = [
 // ============================================================================
 // 1. COMPONENTE INTERNO DEL MAPA (Reactivo a i18n & Tema)
 // ============================================================================
+import { useGoogleAutocomplete } from "@/hooks/useGoogleAutocomplete";
+
 const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
   onLocationSelect,
   initialLocation,
 }) => {
   const t = useTranslations("MapModal");
-  const { resolvedTheme } = useTheme();
+  const { theme, systemTheme } = useTheme();
+  const resolvedTheme = theme === "system" ? systemTheme : theme;
+
+  const {
+    query,
+    setQuery,
+    suggestions,
+    setSuggestions,
+    isLoading: isAutocompleteLoading,
+  } = useGoogleAutocomplete();
 
   const [
     {
@@ -120,7 +131,6 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
       inputValue,
       showStreetView,
       isProcessing,
-      autocomplete,
     },
     dispatch,
   ] = useReducer(
@@ -166,25 +176,16 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
                 ? action.payload(state.isProcessing)
                 : action.payload,
           };
-        case "SET_AUTOCOMPLETE":
-          return {
-            ...state,
-            autocomplete:
-              typeof action.payload === "function"
-                ? action.payload(state.autocomplete)
-                : action.payload,
-          };
         default:
           return state;
       }
     },
     {
       map: null,
-      selectedLocation: null,
-      inputValue: "",
       showStreetView: false,
+      inputValue: "",
       isProcessing: false,
-      autocomplete: null,
+      selectedLocation: null,
     }
   );
 
@@ -197,8 +198,7 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
     dispatch({ type: "SET_SHOWSTREETVIEW", payload: val });
   const setIsProcessing = (val: any) =>
     dispatch({ type: "SET_ISPROCESSING", payload: val });
-  const setAutocomplete = (val: any) =>
-    dispatch({ type: "SET_AUTOCOMPLETE", payload: val });
+
 
   const dynamicMapOptions = useMemo<google.maps.MapOptions>(
     () => ({
@@ -240,6 +240,8 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
       };
       setSelectedLocation(newLocation);
       setInputValue(newLocation.address);
+      setQuery(newLocation.address);
+      setSuggestions([]);
       onLocationSelect(newLocation);
     } catch (err) {
       console.error(err);
@@ -249,18 +251,39 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
     }
   };
 
-  const onPlaceChanged = () => {
-    if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
-      if (place.geometry && place.geometry.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        updateLocationDetails(lat, lng, place.place_id);
+  const handleSelectSuggestion = async (placeId: string, description: string) => {
+    setQuery(description);
+    setInputValue(description);
+    setSuggestions([]);
+    setIsProcessing(true);
+    try {
+      const response = await googleService.getDetails(placeId);
+      const data = typeof response === "string" ? JSON.parse(response) : response;
+      if (data.geometry && data.geometry.location) {
+        const lat = data.geometry.location.lat;
+        const lng = data.geometry.location.lng;
+        
+        const newLocation: LocationData = {
+          lat,
+          lng,
+          address: data.formatted_address || description,
+          placeId: placeId,
+          city: selectedLocation?.city,
+          state: selectedLocation?.state,
+        };
+        setSelectedLocation(newLocation);
+        onLocationSelect(newLocation);
+        
         if (map) {
           map.panTo({ lat, lng });
           map.setZoom(17);
         }
       }
+    } catch (err) {
+      console.error(err);
+      handleApiError(err);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -272,15 +295,44 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
           <Search className="w-4 h-4" strokeWidth={2} />
         </div>
 
-        <div className="flex-1 min-w-0 h-10">
-          <Autocomplete onLoad={setAutocomplete} onPlaceChanged={onPlaceChanged}>
-            <input
-              type="text"
-              placeholder={t("search_placeholder")}
-              defaultValue={inputValue}
-              className="w-full h-full bg-transparent border-none outline-none text-xs font-semibold text-gray-900 dark:text-white placeholder:text-gray-400"
-            />
-          </Autocomplete>
+        <div className="flex-1 min-w-0 h-10 relative">
+          <input
+            type="text"
+            placeholder={t("search_placeholder")}
+            value={inputValue !== query && query === "" ? inputValue : query}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              setQuery(e.target.value);
+            }}
+            className="w-full h-full bg-transparent border-none outline-none text-xs font-semibold text-gray-900 dark:text-white placeholder:text-gray-400"
+          />
+          {/* Autocompletado */}
+          <AnimatePresence>
+            {suggestions.length > 0 && query.length > 2 && (
+              <motion.ul
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="absolute left-0 top-full mt-2 w-full z-50 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden max-h-56 overflow-y-auto rounded-xl custom-scrollbar"
+              >
+                {suggestions.map((sug) => (
+                  <li
+                    key={sug.place_id}
+                    onClick={() =>
+                      handleSelectSuggestion(sug.place_id, sug.description)
+                    }
+                    className="px-4 py-3 text-xs font-semibold text-gray-900 dark:text-white hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 cursor-pointer border-b border-gray-100 dark:border-gray-800 last:border-0 flex items-start gap-2.5 transition-colors"
+                  >
+                    <MapPin
+                      className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400"
+                      strokeWidth={2}
+                    />
+                    <span className="leading-relaxed">{sug.description}</span>
+                  </li>
+                ))}
+              </motion.ul>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
