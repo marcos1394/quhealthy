@@ -24,6 +24,7 @@ import { QhSpinner } from "@/components/ui/QhSpinner";
 import { useClinicStaff } from "@/hooks/useClinicStaff";
 import { useStaff } from "@/hooks/useStaff";
 import { useCatalog } from "@/hooks/useCatalog";
+import { useProviderLocations } from "@/hooks/useProviderLocations";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -78,11 +79,13 @@ export function ProviderTeamSettings() {
 
   const { staff: catalogStaff, fetchStaff: fetchCatalogStaff, saveMember } = useStaff();
   const { services: catalogItems, fetchInventory: fetchCatalog } = useCatalog();
+  const { locations, fetchLocations } = useProviderLocations();
 
   useEffect(() => {
     fetchCatalog();
     fetchCatalogStaff();
-  }, [fetchCatalog, fetchCatalogStaff]);
+    fetchLocations();
+  }, [fetchCatalog, fetchCatalogStaff, fetchLocations]);
 
   const [
     {
@@ -100,6 +103,7 @@ export function ProviderTeamSettings() {
       commissionPercentage,
       assignedServices,
       serviceCommissions,
+      selectedLocationId,
     },
     dispatch,
   ] = React.useReducer(
@@ -108,10 +112,14 @@ export function ProviderTeamSettings() {
         case "SET_ISINVITEOPEN":
           return {
             ...state,
-            isInviteOpen:
-              typeof action.payload === "function"
-                ? action.payload(state.isInviteOpen)
-                : action.payload,
+            isInviteOpen: true,
+            inviteRole: "MEDICAL_ASSISTANT",
+            selectedLocationId: locations.length > 0 ? locations[0].id : null,
+          };
+        case "SET_ISINVITEOPEN_FALSE":
+          return {
+            ...state,
+            isInviteOpen: false,
           };
         case "SET_INVITEEMAIL":
           return {
@@ -197,20 +205,17 @@ export function ProviderTeamSettings() {
           };
         case "SET_ASSIGNEDSERVICES":
           return {
-            ...state,
-            assignedServices:
-              typeof action.payload === "function"
-                ? action.payload(state.assignedServices)
-                : action.payload,
-          };
+          return { ...state, assignedServices: action.payload };
         case "SET_SERVICECOMMISSIONS":
           return {
             ...state,
             serviceCommissions:
-              typeof action.payload === "function"
-                ? action.payload(state.serviceCommissions)
-                : action.payload,
+               typeof action.payload === "function"
+                 ? action.payload(state.serviceCommissions)
+                 : action.payload,
           };
+        case "SET_SELECTEDLOCATIONID":
+          return { ...state, selectedLocationId: action.payload };
         default:
           return state;
       }
@@ -230,11 +235,12 @@ export function ProviderTeamSettings() {
       commissionPercentage: "",
       assignedServices: [],
       serviceCommissions: {},
+      selectedLocationId: null,
     }
   );
 
-  const setIsInviteOpen = (val: any) =>
-    dispatch({ type: "SET_ISINVITEOPEN", payload: val });
+  const setIsInviteOpen = (val: boolean) =>
+    dispatch({ type: val ? "SET_ISINVITEOPEN" : "SET_ISINVITEOPEN_FALSE" });
   const setInviteEmail = (val: any) =>
     dispatch({ type: "SET_INVITEEMAIL", payload: val });
   const setInviteFirstName = (val: any) =>
@@ -259,8 +265,8 @@ export function ProviderTeamSettings() {
     dispatch({ type: "SET_COMMISSIONPERCENTAGE", payload: val });
   const setAssignedServices = (val: any) =>
     dispatch({ type: "SET_ASSIGNEDSERVICES", payload: val });
-  const setServiceCommissions = (val: any) =>
-    dispatch({ type: "SET_SERVICECOMMISSIONS", payload: val });
+  const setSelectedLocationId = (val: number | null) =>
+    dispatch({ type: "SET_SELECTEDLOCATIONID", payload: val });
 
   useEffect(() => {
     fetchStaff();
@@ -310,7 +316,7 @@ export function ProviderTeamSettings() {
       setBaseSalary("");
       setCommissionPercentage("");
       setAssignedServices([]);
-      setServiceCommissions({});
+      setSelectedLocationId(locations.length > 0 ? locations[0].id : null);
     } else {
       toast.error(t("toast_invite_error"));
     }
@@ -337,11 +343,8 @@ export function ProviderTeamSettings() {
           ...matchingCatalogStaff,
           baseSalary: baseSalary ? parseFloat(baseSalary) : undefined,
           commissionPercentage: commissionPercentage ? parseFloat(commissionPercentage) : undefined,
-          assignedServices: assignedServices.map((id: number) => ({
-            catalogItemId: id,
-            commissionPercentage: serviceCommissions[id] ? parseFloat(serviceCommissions[id]) : undefined
-          }))
-        });
+          assignedServices: assignedServices
+        } as any);
         await fetchCatalogStaff(); // Refresh catalog staff
       }
     }
@@ -368,6 +371,7 @@ export function ProviderTeamSettings() {
   const openPermissionsModal = (staffId: number, permissions: string[]) => {
     setEditingStaffId(staffId);
     setEditingPermissions(permissions || []);
+    setSelectedLocationId(locations.length > 0 ? locations[0].id : null);
     
     const authStaffMember = staff.find(s => s.id === staffId);
     let matchedCatalogStaff = null;
@@ -380,23 +384,14 @@ export function ProviderTeamSettings() {
       setBaseSalary(matchedCatalogStaff.baseSalary ? String(matchedCatalogStaff.baseSalary) : "");
       setCommissionPercentage(matchedCatalogStaff.commissionPercentage ? String(matchedCatalogStaff.commissionPercentage) : "");
       if (matchedCatalogStaff.assignedServices) {
-        setAssignedServices(matchedCatalogStaff.assignedServices.map(s => s.catalogItemId));
-        const comms: Record<number, string> = {};
-        matchedCatalogStaff.assignedServices.forEach(s => {
-          if (s.commissionPercentage !== undefined && s.commissionPercentage !== null) {
-             comms[s.catalogItemId] = String(s.commissionPercentage);
-          }
-        });
-        setServiceCommissions(comms);
+        setAssignedServices(matchedCatalogStaff.assignedServices);
       } else {
         setAssignedServices([]);
-        setServiceCommissions({});
       }
     } else {
       setBaseSalary("");
       setCommissionPercentage("");
       setAssignedServices([]);
-      setServiceCommissions({});
     }
 
     setIsPermissionsOpen(true);
@@ -726,13 +721,33 @@ export function ProviderTeamSettings() {
                   </div>
                 </div>
 
+                <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                    Sucursal
+                  </Label>
+                  <Select 
+                    value={selectedLocationId?.toString()} 
+                    onValueChange={(val) => setSelectedLocationId(Number(val))}
+                  >
+                    <SelectTrigger className="w-full h-11 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white shadow-2xs">
+                      <SelectValue placeholder="Selecciona una sucursal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {locations.map(loc => (
+                        <SelectItem key={loc.id} value={loc.id!.toString()}>{loc.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="space-y-2 pt-2">
                   <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                    Servicios Asignados
+                    Servicios Asignados en esta Sucursal
                   </Label>
                   <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
                     {catalogItems?.map((item) => {
-                      const isChecked = assignedServices.includes(item.id);
+                      const serviceAssignment = assignedServices.find((s: any) => s.catalogItemId === item.id && s.locationId === selectedLocationId);
+                      const isChecked = !!serviceAssignment;
                       return (
                         <div
                           key={item.id}
@@ -750,13 +765,9 @@ export function ProviderTeamSettings() {
                               checked={isChecked}
                               onChange={() => {
                                 if (isChecked) {
-                                  setAssignedServices(assignedServices.filter((id: number) => id !== item.id));
-                                  // Opcional: limpiar la comisión si se deselecciona
-                                  const newCommissions = { ...serviceCommissions };
-                                  delete newCommissions[item.id];
-                                  setServiceCommissions(newCommissions);
+                                  setAssignedServices(assignedServices.filter((s: any) => !(s.catalogItemId === item.id && s.locationId === selectedLocationId)));
                                 } else {
-                                  setAssignedServices([...assignedServices, item.id]);
+                                  setAssignedServices([...assignedServices, { catalogItemId: item.id, locationId: selectedLocationId }]);
                                 }
                               }}
                             />
@@ -780,8 +791,14 @@ export function ProviderTeamSettings() {
                               <Input
                                 type="number"
                                 placeholder={commissionPercentage || "0"}
-                                value={serviceCommissions[item.id] || ''}
-                                onChange={(e) => setServiceCommissions({ ...serviceCommissions, [item.id]: e.target.value })}
+                                value={serviceAssignment.commissionPercentage || ''}
+                                onChange={(e) => {
+                                  setAssignedServices(assignedServices.map((s: any) => 
+                                    (s.catalogItemId === item.id && s.locationId === selectedLocationId) 
+                                    ? { ...s, commissionPercentage: parseFloat(e.target.value) } 
+                                    : s
+                                  ));
+                                }}
                                 className="h-7 w-20 rounded-lg text-xs bg-white dark:bg-[#0a0a0a] border-emerald-200 dark:border-emerald-800 focus-visible:ring-1 focus-visible:ring-emerald-500 shadow-none px-2"
                               />
                             </div>
@@ -921,13 +938,33 @@ export function ProviderTeamSettings() {
                 </div>
               </div>
 
+              <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  Sucursal
+                </Label>
+                <Select 
+                  value={selectedLocationId?.toString()} 
+                  onValueChange={(val) => setSelectedLocationId(Number(val))}
+                >
+                  <SelectTrigger className="w-full h-11 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white shadow-2xs">
+                    <SelectValue placeholder="Selecciona una sucursal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map(loc => (
+                      <SelectItem key={loc.id} value={loc.id!.toString()}>{loc.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-2 pt-2">
                 <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                  Servicios Asignados
+                  Servicios Asignados en esta Sucursal
                 </Label>
                 <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
                   {catalogItems?.map((item) => {
-                    const isChecked = assignedServices.includes(item.id);
+                    const serviceAssignment = assignedServices.find((s: any) => s.catalogItemId === item.id && s.locationId === selectedLocationId);
+                    const isChecked = !!serviceAssignment;
                     return (
                         <div
                           key={item.id}
@@ -945,12 +982,9 @@ export function ProviderTeamSettings() {
                               checked={isChecked}
                               onChange={() => {
                                 if (isChecked) {
-                                  setAssignedServices(assignedServices.filter((id: number) => id !== item.id));
-                                  const newCommissions = { ...serviceCommissions };
-                                  delete newCommissions[item.id];
-                                  setServiceCommissions(newCommissions);
+                                  setAssignedServices(assignedServices.filter((s: any) => !(s.catalogItemId === item.id && s.locationId === selectedLocationId)));
                                 } else {
-                                  setAssignedServices([...assignedServices, item.id]);
+                                  setAssignedServices([...assignedServices, { catalogItemId: item.id, locationId: selectedLocationId }]);
                                 }
                               }}
                             />
@@ -974,8 +1008,14 @@ export function ProviderTeamSettings() {
                               <Input
                                 type="number"
                                 placeholder={commissionPercentage || "0"}
-                                value={serviceCommissions[item.id] || ''}
-                                onChange={(e) => setServiceCommissions({ ...serviceCommissions, [item.id]: e.target.value })}
+                                value={serviceAssignment.commissionPercentage || ''}
+                                onChange={(e) => {
+                                  setAssignedServices(assignedServices.map((s: any) => 
+                                    (s.catalogItemId === item.id && s.locationId === selectedLocationId) 
+                                    ? { ...s, commissionPercentage: parseFloat(e.target.value) } 
+                                    : s
+                                  ));
+                                }}
                                 className="h-7 w-20 rounded-lg text-xs bg-white dark:bg-[#0a0a0a] border-emerald-200 dark:border-emerald-800 focus-visible:ring-1 focus-visible:ring-emerald-500 shadow-none px-2"
                               />
                             </div>

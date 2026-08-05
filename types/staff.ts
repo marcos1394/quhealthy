@@ -23,7 +23,8 @@ export interface StaffDTO {
   commissionPercentage?: number;
   assignedServices?: {
     catalogItemId: number;
-    catalogItemName?: string;
+    locationId: number;
+    catalogItemName: string;
     commissionPercentage?: number;
     fixedFee?: number;
   }[];
@@ -43,6 +44,7 @@ export interface UI_StaffMember {
   commissionPercentage?: number;
   assignedServices?: {
     catalogItemId: number;
+    locationId: number;
     commissionPercentage?: number;
   }[];
   isNew?: boolean;
