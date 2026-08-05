@@ -5238,6 +5238,10 @@
   },
  
   "PatientBooking": {
+    "location_selector_title": "Seleccionar Sucursal",
+    "location_selector_desc": "Elige dónde quieres tu cita",
+    "date_time_title": "Fecha y Hora",
+    "date_time_subtitle": "Selecciona tu horario preferido",
     "preparing_booking": "Preparando reserva...",
     "back_to_directory": "Volver al directorio",
     "subtitle": "Agendando cita con",

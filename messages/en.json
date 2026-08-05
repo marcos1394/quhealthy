@@ -5560,6 +5560,10 @@
   },
 
   "PatientBooking": {
+    "location_selector_title": "Select Location",
+    "location_selector_desc": "Choose where you want your appointment",
+    "date_time_title": "Date & Time",
+    "date_time_subtitle": "Select your preferred time",
     "preparing_booking": "Preparing booking...",
     "back_to_directory": "Back to directory",
     "subtitle": "Booking appointment with",
