@@ -65,13 +65,21 @@ export function PatientBackgroundPanel({
           setPersonalBackground(profile.personalBackground || {});
           setSocialBackground(profile.socialBackground || {});
         }
+      } else if (consumerId) {
+        const profile = await ehrService.getPatientProfile(consumerId) as any;
+        if (profile) {
+          if (profile.healthProfileId) setInternalProfileId(profile.healthProfileId);
+          setFamilyBackground(profile.familyBackground || {});
+          setPersonalBackground(profile.personalBackground || {});
+          setSocialBackground(profile.socialBackground || {});
+        }
       }
     } catch (error) {
       console.error("Error fetching health profile:", error);
     } finally {
       setLoading(false);
     }
-  }, [patientDirectoryId]);
+  }, [patientDirectoryId, consumerId]);
 
   useEffect(() => {
     if (patientDirectoryId || consumerId) {
@@ -108,6 +116,7 @@ export function PatientBackgroundPanel({
       }
 
       toast.success(t("background_updated_success"));
+      await fetchProfile();
     } catch (error) {
       console.error("Error saving backgrounds:", error);
       toast.error(t("background_update_failed"));
