@@ -403,6 +403,7 @@ export default function ConsultationRoomPage() {
         if (appointment.consumerId) {
           setConsumerId(appointment.consumerId);
           setIsOfflinePatient(false);
+          setPatientDirectoryId(appointment.patientDirectoryId ?? null);
         } else {
           setIsOfflinePatient(true);
           setPatientDirectoryId(appointment.patientDirectoryId ?? null);
