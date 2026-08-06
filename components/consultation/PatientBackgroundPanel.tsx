@@ -55,23 +55,32 @@ export function PatientBackgroundPanel({
   >({});
 
   const fetchProfile = useCallback(async () => {
+    console.log("🏥 [PatientBackgroundPanel] fetchProfile iniciado", { mode, patientDirectoryId, consumerId });
     setLoading(true);
     try {
       if (mode === "PROVIDER") {
         if (patientDirectoryId) {
+          console.log("🏥 [PatientBackgroundPanel] Llamando a getDirectoryPatientHealthProfile con ID:", patientDirectoryId);
           const profile = await ehrService.getDirectoryPatientHealthProfile(patientDirectoryId);
+          console.log("🏥 [PatientBackgroundPanel] Respuesta de getDirectoryPatientHealthProfile:", profile);
           if (profile) {
-            if (profile.id) setInternalProfileId(profile.id);
+            if (profile.id) {
+              console.log("🏥 [PatientBackgroundPanel] ID de perfil interno establecido:", profile.id);
+              setInternalProfileId(profile.id);
+            } else {
+               console.warn("⚠️ [PatientBackgroundPanel] El perfil regresó pero sin ID");
+            }
             setFamilyBackground(profile.familyBackground || {});
             setPersonalBackground(profile.personalBackground || {});
             setSocialBackground(profile.socialBackground || {});
           }
         } else {
-          console.error("PatientDirectoryId is required in PROVIDER mode for PatientBackgroundPanel.");
+          console.error("🚨 [PatientBackgroundPanel] PatientDirectoryId es nulo o indefinido en modo PROVIDER. No se hará la llamada al backend.");
         }
       } else {
         // Modo CONSUMER original (o fallback)
         if (patientDirectoryId) {
+          console.log("🏥 [PatientBackgroundPanel] CONSUMER mode - Llamando getDirectoryPatientHealthProfile", patientDirectoryId);
           const profile = await ehrService.getDirectoryPatientHealthProfile(
             patientDirectoryId
           );
@@ -82,6 +91,7 @@ export function PatientBackgroundPanel({
             setSocialBackground(profile.socialBackground || {});
           }
         } else if (consumerId) {
+          console.log("🏥 [PatientBackgroundPanel] CONSUMER mode - Llamando getPatientProfile", consumerId);
           const profile = await ehrService.getPatientProfile(consumerId) as any;
           if (profile) {
             if (profile.healthProfileId) setInternalProfileId(profile.healthProfileId);
@@ -92,23 +102,29 @@ export function PatientBackgroundPanel({
         }
       }
     } catch (error) {
-      console.error("Error fetching health profile:", error);
+      console.error("❌ [PatientBackgroundPanel] Error fetching health profile:", error);
     } finally {
       setLoading(false);
     }
   }, [patientDirectoryId, consumerId, mode]);
 
   useEffect(() => {
+    console.log("🔄 [PatientBackgroundPanel] useEffect evaluando dependencias:", { patientDirectoryId, consumerId, mode });
     if (patientDirectoryId || (consumerId && mode !== "PROVIDER")) {
+      console.log("🔄 [PatientBackgroundPanel] Condición cumplida. Llamando fetchProfile()");
       fetchProfile();
     } else {
+      console.warn("⚠️ [PatientBackgroundPanel] Condición NO cumplida. Cancelando llamada al backend. patientDirectoryId está vacío en modo PROVIDER.");
       setLoading(false);
     }
   }, [patientDirectoryId, consumerId, fetchProfile, mode]);
 
   const handleSave = async () => {
+    console.log("💾 [PatientBackgroundPanel] Intentando guardar...", { internalProfileId, healthProfileId, consumerId, mode });
     const activeId = internalProfileId || healthProfileId;
+    
     if (!activeId && (!consumerId || mode === "PROVIDER")) {
+      console.error("🚫 [PatientBackgroundPanel] Bloqueado al guardar. No hay activeId y estamos en modo PROVIDER.");
       toast.error(t("health_profile_missing"));
       return;
     }
@@ -122,7 +138,10 @@ export function PatientBackgroundPanel({
         socialBackground,
       };
 
+      console.log("💾 [PatientBackgroundPanel] Payload a enviar:", payload);
+
       if (mode === "PROVIDER") {
+        console.log("💾 [PatientBackgroundPanel] Ejecutando updateProviderPatientBackground");
         await ehrService.updateProviderPatientBackground(payload);
       } else {
         if (patientDirectoryId) {
@@ -139,7 +158,7 @@ export function PatientBackgroundPanel({
       toast.success(t("background_updated_success"));
       await fetchProfile();
     } catch (error) {
-      console.error("Error saving backgrounds:", error);
+      console.error("❌ [PatientBackgroundPanel] Error saving backgrounds:", error);
       toast.error(t("background_update_failed"));
     } finally {
       setSaving(false);
