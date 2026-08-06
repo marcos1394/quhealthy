@@ -27,12 +27,14 @@ interface Props {
   patientDirectoryId?: number | null;
   consumerId?: number | null;
   healthProfileId?: number | null;
+  mode?: "PROVIDER" | "CONSUMER";
 }
 
 export function PatientBackgroundPanel({
   patientDirectoryId,
   consumerId,
   healthProfileId,
+  mode = "CONSUMER",
 }: Props) {
   const t = useTranslations("EHR");
   const [loading, setLoading] = useState(true);
@@ -55,23 +57,38 @@ export function PatientBackgroundPanel({
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
-      if (patientDirectoryId) {
-        const profile = await ehrService.getDirectoryPatientHealthProfile(
-          patientDirectoryId
-        );
-        if (profile) {
-          if (profile.id) setInternalProfileId(profile.id);
-          setFamilyBackground(profile.familyBackground || {});
-          setPersonalBackground(profile.personalBackground || {});
-          setSocialBackground(profile.socialBackground || {});
+      if (mode === "PROVIDER") {
+        if (patientDirectoryId) {
+          const profile = await ehrService.getDirectoryPatientHealthProfile(patientDirectoryId);
+          if (profile) {
+            if (profile.id) setInternalProfileId(profile.id);
+            setFamilyBackground(profile.familyBackground || {});
+            setPersonalBackground(profile.personalBackground || {});
+            setSocialBackground(profile.socialBackground || {});
+          }
+        } else {
+          console.error("PatientDirectoryId is required in PROVIDER mode for PatientBackgroundPanel.");
         }
-      } else if (consumerId) {
-        const profile = await ehrService.getPatientProfile(consumerId) as any;
-        if (profile) {
-          if (profile.healthProfileId) setInternalProfileId(profile.healthProfileId);
-          setFamilyBackground(profile.familyBackground || {});
-          setPersonalBackground(profile.personalBackground || {});
-          setSocialBackground(profile.socialBackground || {});
+      } else {
+        // Modo CONSUMER original (o fallback)
+        if (patientDirectoryId) {
+          const profile = await ehrService.getDirectoryPatientHealthProfile(
+            patientDirectoryId
+          );
+          if (profile) {
+            if (profile.id) setInternalProfileId(profile.id);
+            setFamilyBackground(profile.familyBackground || {});
+            setPersonalBackground(profile.personalBackground || {});
+            setSocialBackground(profile.socialBackground || {});
+          }
+        } else if (consumerId) {
+          const profile = await ehrService.getPatientProfile(consumerId) as any;
+          if (profile) {
+            if (profile.healthProfileId) setInternalProfileId(profile.healthProfileId);
+            setFamilyBackground(profile.familyBackground || {});
+            setPersonalBackground(profile.personalBackground || {});
+            setSocialBackground(profile.socialBackground || {});
+          }
         }
       }
     } catch (error) {
@@ -79,19 +96,19 @@ export function PatientBackgroundPanel({
     } finally {
       setLoading(false);
     }
-  }, [patientDirectoryId, consumerId]);
+  }, [patientDirectoryId, consumerId, mode]);
 
   useEffect(() => {
-    if (patientDirectoryId || consumerId) {
+    if (patientDirectoryId || (consumerId && mode !== "PROVIDER")) {
       fetchProfile();
     } else {
       setLoading(false);
     }
-  }, [patientDirectoryId, consumerId, fetchProfile]);
+  }, [patientDirectoryId, consumerId, fetchProfile, mode]);
 
   const handleSave = async () => {
     const activeId = internalProfileId || healthProfileId;
-    if (!activeId && !consumerId) {
+    if (!activeId && (!consumerId || mode === "PROVIDER")) {
       toast.error(t("health_profile_missing"));
       return;
     }
@@ -105,14 +122,18 @@ export function PatientBackgroundPanel({
         socialBackground,
       };
 
-      if (patientDirectoryId) {
+      if (mode === "PROVIDER") {
         await ehrService.updateProviderPatientBackground(payload);
-      } else if (consumerId) {
-        const consumerPayload = {
-          ...payload,
-          healthProfileId: activeId || undefined,
-        } as unknown as PatientBackgroundRequest;
-        await ehrService.updatePatientBackground(consumerPayload);
+      } else {
+        if (patientDirectoryId) {
+          await ehrService.updateProviderPatientBackground(payload);
+        } else if (consumerId) {
+          const consumerPayload = {
+            ...payload,
+            healthProfileId: activeId || undefined,
+          } as unknown as PatientBackgroundRequest;
+          await ehrService.updatePatientBackground(consumerPayload);
+        }
       }
 
       toast.success(t("background_updated_success"));
