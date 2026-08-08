@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 
-import { SecuritySettings } from "@/components/settings/SecuritySettings";
+import { PatientSecuritySettings } from "@/components/patient/settings/PatientSecuritySettings";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
 import { PrivacySettings } from "@/components/settings/PrivacySettings";
 import { WearablesSettings } from "@/components/settings/WearablesSettings";
@@ -146,7 +146,7 @@ export default function SettingsPage() {
             value="security"
             className="mt-0 focus-visible:ring-0 outline-none"
           >
-            <SecuritySettings />
+            <PatientSecuritySettings />
           </TabsContent>
 
           <TabsContent

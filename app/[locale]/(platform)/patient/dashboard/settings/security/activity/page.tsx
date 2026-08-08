@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { SharedActiveSessions } from "@/components/shared/settings/security/SharedActiveSessions";
 
-export default function ActivityPage() {
+export default function PatientActivityPage() {
   const t = useTranslations("SettingsSecurity");
 
   return (
@@ -17,7 +17,7 @@ export default function ActivityPage() {
         {/* ── HEADER PRINCIPAL ────────────────────────────────────────────── */}
         <div className="flex items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
           <Link
-            href="/provider/dashboard/settings"
+            href="/patient/dashboard/settings"
             className="w-10 h-10 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] flex items-center justify-center transition-all shadow-sm shrink-0"
           >
             <ArrowLeft
