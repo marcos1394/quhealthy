@@ -136,23 +136,23 @@ export function useHealthVault() {
         }
     };
 
-    const getLatestPanorama = async (dependentId?: number) => {
+    const getLatestPanorama = useCallback(async (dependentId?: number) => {
         try {
             return await healthVaultService.getLatestPanorama(dependentId);
         } catch (error: any) {
             console.error('Error getting latest panorama:', error);
             return null;
         }
-    };
+    }, []);
 
-    const getPanoramaHistory = async (dependentId?: number) => {
+    const getPanoramaHistory = useCallback(async (dependentId?: number) => {
         try {
             return await healthVaultService.getPanoramaHistory(dependentId);
         } catch (error: any) {
             console.error('Error getting panorama history:', error);
             return [];
         }
-    };
+    }, []);
 
     // 🗑️ 7. Eliminar documento
     const deleteDocument = async (documentId: string) => {

@@ -4632,7 +4632,8 @@
       "ai_unsupported": "Documento Seguro",
       "findings": "Hallazgos",
       "medications": "Medicamentos",
-      "btn_view": "Ver Documento"
+      "btn_view": "Ver Documento",
+      "confirm_delete": "¿Estás seguro de que deseas eliminar este documento? Esta acción no se puede deshacer."
     },
     "Notifications": {
       "error_size": "El archivo excede el límite de 10MB.",
