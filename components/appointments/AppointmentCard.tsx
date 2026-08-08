@@ -111,7 +111,7 @@ export function AppointmentCard({
     >
       <div className="group bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-md hover:border-emerald-500/30 flex flex-col lg:flex-row font-sans">
         {/* ── COLUMNA 1: FECHA Y ESTADO ────────────────────────────────── */}
-        <div className="bg-gray-50/50 dark:bg-[#050505] p-6 lg:w-48 flex flex-col justify-center items-start border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800 gap-3 shrink-0">
+        <div className="p-6 lg:w-48 flex flex-col justify-center items-start border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-gray-800 gap-3 shrink-0">
           <div>
             <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
               {format(new Date(appt.startTime), "MMM", { locale: es })}
@@ -217,7 +217,7 @@ export function AppointmentCard({
         </div>
 
         {/* ── COLUMNA 3: ACCIONES ───────────────────────────────────────── */}
-        <div className="p-6 lg:w-56 flex flex-col justify-center gap-2.5 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] shrink-0">
+        <div className="p-6 lg:w-56 flex flex-col justify-center gap-2.5 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 shrink-0">
           {canJoinVideo && (
             <Button
               onClick={() =>
