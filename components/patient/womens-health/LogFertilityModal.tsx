@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { womensHealthService, FertilityLog } from "@/services/womensHealth.service";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 
 interface Props {
   isOpen: boolean;
