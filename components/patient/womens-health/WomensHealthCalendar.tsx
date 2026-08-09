@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { format, parseISO, eachDayOfInterval, isBefore, isAfter, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
 import { CyclePredictionDto, MenstrualCycleLog } from "@/services/womensHealth.service";
 import { Button } from "@/components/ui/button";
 import { Droplet, Info, Plus } from "lucide-react";
@@ -24,7 +25,7 @@ export function WomensHealthCalendar({
   isLoading
 }: WomensHealthCalendarProps) {
   // Estado para la selección del rango
-  const [selectedRange, setSelectedRange] = useState<{ from?: Date; to?: Date } | undefined>();
+  const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
 
   // Generar modifiers basados en los ciclos históricos y las predicciones
   const { modifiers, modifiersStyles } = useMemo(() => {
