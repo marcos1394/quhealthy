@@ -4,52 +4,48 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import {
-  CalendarDays,
-  Activity,
   BrainCircuit,
-  Plus,
   AlertTriangle,
   Flower2,
-  Droplet,
   HeartPulse,
 } from "lucide-react";
-import { format, parseISO } from "date-fns";
-import { es, enUS } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 import { LogCycleModal } from "@/components/patient/womens-health/LogCycleModal";
 import { LogSymptomModal } from "@/components/patient/womens-health/LogSymptomModal";
+import { LogFertilityModal } from "@/components/patient/womens-health/LogFertilityModal";
 import { RemindersWidget } from "@/components/patient/womens-health/RemindersWidget";
 import { CycleHistoryTable } from "@/components/patient/womens-health/CycleHistoryTable";
-import { FertilityDashboardTab } from "@/components/patient/womens-health/FertilityDashboardTab";
+import { TodayCheckInWidget } from "@/components/patient/womens-health/TodayCheckInWidget";
+import { WomensHealthCalendar } from "@/components/patient/womens-health/WomensHealthCalendar";
 
 import { useSessionStore } from "@/stores/SessionStore";
 import {
   womensHealthService,
   CyclePredictionDto,
   CycleAiInsightDto,
+  MenstrualCycleLog
 } from "@/services/womensHealth.service";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 
 export default function WomensHealthDashboard() {
-  const t = useTranslations("PatientDashboard"); // Or specific translation
+  const t = useTranslations("PatientDashboard");
   const { user } = useSessionStore();
   const params = useParams();
-  const locale = params.locale as string;
-  const dateLocale = locale === "es" ? es : enUS;
-
+  
   const [isLoading, setIsLoading] = useState(true);
+  const [isSavingCycle, setIsSavingCycle] = useState(false);
   const [hasConsent, setHasConsent] = useState(false);
   const [prediction, setPrediction] = useState<CyclePredictionDto | null>(null);
   const [insights, setInsights] = useState<CycleAiInsightDto | null>(null);
+  const [cycles, setCycles] = useState<MenstrualCycleLog[]>([]);
 
   const [isCycleModalOpen, setIsCycleModalOpen] = useState(false);
   const [isSymptomModalOpen, setIsSymptomModalOpen] = useState(false);
-  
-  const [activeTab, setActiveTab] = useState<"MENSTRUACION" | "FERTILIDAD">("MENSTRUACION");
+  const [isFertilityModalOpen, setIsFertilityModalOpen] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -64,7 +60,13 @@ export default function WomensHealthDashboard() {
       setHasConsent(consent);
 
       if (consent) {
-        // Cargar predicción
+        try {
+          const fetchedCycles = await womensHealthService.getCycleLogs(user!.id);
+          setCycles(fetchedCycles || []);
+        } catch (e) {
+          console.error("Error cargando ciclos:", e);
+        }
+
         try {
           const pred = await womensHealthService.getPrediction(user!.id);
           setPrediction(pred);
@@ -72,7 +74,6 @@ export default function WomensHealthDashboard() {
           console.error("Error cargando predicción:", e);
         }
 
-        // Cargar insights
         try {
           const ai = await womensHealthService.getAiInsights(user!.id);
           setInsights(ai);
@@ -99,16 +100,30 @@ export default function WomensHealthDashboard() {
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "--";
+  const handleQuickLogCycle = async (startDate: string, endDate?: string) => {
+    if (!user?.id) return;
     try {
-      return format(parseISO(dateString), "dd MMM yyyy", { locale: dateLocale });
-    } catch {
-      return dateString;
+      setIsSavingCycle(true);
+      await womensHealthService.logCycle(user.id, {
+        startDate,
+        endDate,
+        intensity: "MEDIUM",
+        notes: "Registrado rápidamente desde el calendario"
+      });
+      toast.success("Menstruación registrada");
+      loadData();
+    } catch (error) {
+      toast.error("Error al registrar la menstruación");
+    } finally {
+      setIsSavingCycle(false);
     }
   };
 
-  if (isLoading) {
+  const handleOpenDayDetails = (date: Date) => {
+    setIsCycleModalOpen(true);
+  };
+
+  if (isLoading && cycles.length === 0) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <QhSpinner size="lg" />
@@ -116,7 +131,6 @@ export default function WomensHealthDashboard() {
     );
   }
 
-  // Vista cuando no hay consentimiento
   if (!hasConsent) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
@@ -157,7 +171,7 @@ export default function WomensHealthDashboard() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2 font-sans transition-colors">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4 font-sans transition-colors">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight flex items-center gap-3">
             <Flower2 className="w-8 h-8 text-pink-500" />
@@ -167,96 +181,29 @@ export default function WomensHealthDashboard() {
             Monitoreo inteligente de tu ciclo con IA
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            onClick={() => setIsSymptomModalOpen(true)}
-            className="bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20 border-none rounded-xl"
-          >
-            <Activity className="w-4 h-4 mr-2" />
-            Registrar Síntoma
-          </Button>
-          <Button 
-            onClick={() => setIsCycleModalOpen(true)}
-            className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl shadow-lg shadow-pink-600/20"
-          >
-            <Droplet className="w-4 h-4 mr-2" />
-            Registrar Ciclo
-          </Button>
-        </div>
       </div>
 
-      <div className="flex p-1 bg-gray-100/50 dark:bg-[#111111] rounded-2xl w-full max-w-sm mb-6 border border-gray-200 dark:border-gray-800">
-        <button
-          onClick={() => setActiveTab("MENSTRUACION")}
-          className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${
-            activeTab === "MENSTRUACION" 
-            ? "bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white shadow-sm" 
-            : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
-        >
-          Menstruación
-        </button>
-        <button
-          onClick={() => setActiveTab("FERTILIDAD")}
-          className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${
-            activeTab === "FERTILIDAD" 
-            ? "bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white shadow-sm" 
-            : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
-        >
-          Fertilidad
-        </button>
-      </div>
+      <TodayCheckInWidget 
+        cycles={cycles}
+        prediction={prediction}
+        onOpenSymptomModal={() => setIsSymptomModalOpen(true)}
+        onOpenFertilityModal={() => setIsFertilityModalOpen(true)}
+        onOpenCycleModal={() => setIsCycleModalOpen(true)}
+      />
 
-      {activeTab === "MENSTRUACION" ? (
-        <>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Columna Izquierda: Predicciones del Ciclo */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-pink-500/10 to-rose-500/10 blur-3xl -z-10 rounded-full" />
-            
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                <CalendarDays className="w-6 h-6 text-pink-500" />
-                Tu Próximo Ciclo
-              </h2>
-            </div>
-
-            {prediction ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-pink-50/50 dark:bg-pink-900/10 border border-pink-100 dark:border-pink-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
-                  <p className="text-sm font-semibold text-pink-600 dark:text-pink-400 mb-2">Próximo Periodo</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {formatDate(prediction.nextPeriodStart)}
-                  </p>
-                </div>
-                
-                <div className="bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
-                  <p className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-2">Día de Ovulación</p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {formatDate(prediction.ovulationDate)}
-                  </p>
-                </div>
-
-                <div className="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
-                  <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Ventana Fértil</p>
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">
-                    {formatDate(prediction.fertileWindowStart)} - <br/>{formatDate(prediction.fertileWindowEnd)}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                Registra al menos dos ciclos para ver tus predicciones.
-              </div>
-            )}
-          </div>
+          <WomensHealthCalendar 
+            cycles={cycles}
+            prediction={prediction}
+            onQuickLogCycle={handleQuickLogCycle}
+            onOpenDayDetails={handleOpenDayDetails}
+            isLoading={isSavingCycle}
+          />
         </div>
 
-        {/* Columna Derecha: Insights de IA */}
-        <div className="lg:col-span-1">
-          <div className="bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-[#0a0a0a] rounded-3xl p-6 border border-indigo-100 dark:border-indigo-900/30 shadow-sm h-full flex flex-col">
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-[#0a0a0a] rounded-3xl p-6 border border-indigo-100 dark:border-indigo-900/30 shadow-sm flex flex-col">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                 <BrainCircuit className="w-5 h-5" />
@@ -295,34 +242,16 @@ export default function WomensHealthDashboard() {
                     </ul>
                   </div>
                 )}
-
-                {insights.recommendations?.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                      Recomendaciones
-                    </h3>
-                    <ul className="space-y-2">
-                      {insights.recommendations.map((rec, idx) => (
-                        <li key={idx} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                          <span className="text-emerald-500 mt-1">✓</span> {rec}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </div>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  La Inteligencia Artificial de Gemini necesita más historial de ciclos y síntomas para generar un análisis clínico.
+                  La Inteligencia Artificial de Gemini necesita más historial para generar un análisis.
                 </p>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Columna Derecha: Recordatorios y Acciones Rápidas */}
-        <div className="space-y-6">
+          
           <RemindersWidget prediction={prediction} />
         </div>
       </div>
@@ -330,12 +259,7 @@ export default function WomensHealthDashboard() {
       <div className="mt-8">
         <CycleHistoryTable consumerId={user!.id} />
       </div>
-        </>
-      ) : (
-        <FertilityDashboardTab consumerId={user!.id} />
-      )}
 
-      {/* Modals */}
       {user?.id && (
         <>
           <LogCycleModal
@@ -347,6 +271,12 @@ export default function WomensHealthDashboard() {
           <LogSymptomModal
             isOpen={isSymptomModalOpen}
             onClose={() => setIsSymptomModalOpen(false)}
+            consumerId={user.id}
+            onSuccess={loadData}
+          />
+          <LogFertilityModal
+            isOpen={isFertilityModalOpen}
+            onClose={() => setIsFertilityModalOpen(false)}
             consumerId={user.id}
             onSuccess={loadData}
           />
