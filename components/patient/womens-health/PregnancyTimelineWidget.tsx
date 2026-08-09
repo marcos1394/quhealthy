@@ -9,9 +9,10 @@ import { es } from "date-fns/locale";
 
 interface PregnancyTimelineWidgetProps {
   pregnancy: PregnancyProfileDto;
+  onStartPostpartum?: () => void;
 }
 
-export function PregnancyTimelineWidget({ pregnancy }: PregnancyTimelineWidgetProps) {
+export function PregnancyTimelineWidget({ pregnancy, onStartPostpartum }: PregnancyTimelineWidgetProps) {
   const { currentGestationalWeek, currentGestationalDay, estimatedDueDate } = pregnancy;
   
   const totalWeeks = 40;
@@ -83,11 +84,21 @@ export function PregnancyTimelineWidget({ pregnancy }: PregnancyTimelineWidgetPr
         </div>
       </div>
       
-      <div className="relative z-10 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3">
-        <span className="text-2xl">👶</span>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Tu bebé tiene aproximadamente el tamaño de <span className="font-semibold text-gray-800 dark:text-gray-200">{babySize}</span>.
-        </p>
+      <div className="relative z-10 pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">👶</span>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Tu bebé tiene aproximadamente el tamaño de <span className="font-semibold text-gray-800 dark:text-gray-200">{babySize}</span>.
+          </p>
+        </div>
+        {onStartPostpartum && currentGestationalWeek >= 36 && (
+          <button 
+            onClick={onStartPostpartum}
+            className="text-sm bg-pink-600 hover:bg-pink-700 text-white font-medium px-4 py-2 rounded-xl transition-colors shrink-0 w-full sm:w-auto"
+          >
+            Registrar Nacimiento
+          </button>
+        )}
       </div>
     </div>
   );

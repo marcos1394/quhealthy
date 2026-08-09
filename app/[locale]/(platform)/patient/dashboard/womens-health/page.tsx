@@ -26,6 +26,8 @@ import { PregnancyVitalsGrid } from "@/components/patient/womens-health/Pregnanc
 import { FetalMonitoringWidget } from "@/components/patient/womens-health/FetalMonitoringWidget";
 import { PrenatalCareWidget } from "@/components/patient/womens-health/PrenatalCareWidget";
 import { PregnancyAiChatWidget } from "@/components/patient/womens-health/PregnancyAiChatWidget";
+import { PostpartumDashboard } from "@/components/patient/womens-health/PostpartumDashboard";
+import { StartPostpartumModal } from "@/components/patient/womens-health/StartPostpartumModal";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -54,11 +56,13 @@ export default function WomensHealthDashboard() {
   const [isTryingToConceive, setIsTryingToConceive] = useState(false);
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
   const [activePregnancy, setActivePregnancy] = useState<PregnancyProfileDto | null>(null);
+  const [hasPostpartum, setHasPostpartum] = useState(false);
 
   const [isCycleModalOpen, setIsCycleModalOpen] = useState(false);
   const [isSymptomModalOpen, setIsSymptomModalOpen] = useState(false);
   const [isFertilityModalOpen, setIsFertilityModalOpen] = useState(false);
   const [isPregnancyModalOpen, setIsPregnancyModalOpen] = useState(false);
+  const [isStartPostpartumModalOpen, setIsStartPostpartumModalOpen] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -85,6 +89,15 @@ export default function WomensHealthDashboard() {
           setActivePregnancy(preg);
         } catch (e) {
           console.error("Error cargando embarazo activo:", e);
+        }
+
+        if (!activePregnancy) {
+          try {
+            const pp = await womensHealthService.getPostpartumDashboard(user!.id);
+            setHasPostpartum(!!pp);
+          } catch (e) {
+            setHasPostpartum(false);
+          }
         }
 
         try {
@@ -225,10 +238,12 @@ export default function WomensHealthDashboard() {
             Salud Femenina
           </h1>
           <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
-            {activePregnancy ? "Monitoreo prenatal y cuidado materno" : "Monitoreo inteligente de tu ciclo con IA"}
+            {activePregnancy ? "Monitoreo prenatal y cuidado materno" : 
+             hasPostpartum ? "Seguimiento de postparto y cuidado del recién nacido" : 
+             "Monitoreo inteligente de tu ciclo con IA"}
           </p>
         </div>
-        {!activePregnancy && (
+        {!activePregnancy && !hasPostpartum && (
           <div className="flex flex-col sm:flex-row items-center gap-3">
             <div className="flex items-center space-x-2 bg-white dark:bg-[#111111] p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm mt-4 md:mt-0">
               <Switch 
@@ -256,7 +271,10 @@ export default function WomensHealthDashboard() {
 
       {activePregnancy ? (
         <div className="space-y-6">
-          <PregnancyTimelineWidget pregnancy={activePregnancy} />
+          <PregnancyTimelineWidget 
+            pregnancy={activePregnancy} 
+            onStartPostpartum={() => setIsStartPostpartumModalOpen(true)}
+          />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <PregnancyVitalsGrid pregnancy={activePregnancy} />
@@ -268,6 +286,8 @@ export default function WomensHealthDashboard() {
           </div>
           <PregnancyAiChatWidget pregnancy={activePregnancy} consumerId={user!.id} />
         </div>
+      ) : hasPostpartum ? (
+        <PostpartumDashboard />
       ) : (
         <>
           <TodayCheckInWidget 
@@ -327,6 +347,14 @@ export default function WomensHealthDashboard() {
             consumerId={user.id}
             onSuccess={() => {
               setIsPregnancyModalOpen(false);
+              loadData();
+            }}
+          />
+          <StartPostpartumModal
+            isOpen={isStartPostpartumModalOpen}
+            onClose={() => setIsStartPostpartumModalOpen(false)}
+            onSuccess={() => {
+              setIsStartPostpartumModalOpen(false);
               loadData();
             }}
           />

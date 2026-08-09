@@ -68,7 +68,7 @@ export interface PregnancyProfileDto {
   consumerId: number;
   lastMenstrualPeriod: string;
   estimatedDueDate: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'LOSS';
+  status: 'ACTIVE' | 'COMPLETED' | 'LOSS' | 'DELIVERED';
   currentGestationalWeek: number;
   currentGestationalDay: number;
   createdAt: string;
@@ -98,6 +98,36 @@ export interface PregnancyAiChatResponseDto {
   assistantMessage: string;
   isUrgent: boolean;
   urgencyReason?: string;
+}
+
+// ==========================================
+// POSTPARTUM
+// ==========================================
+export interface StartPostpartumRequest {
+  deliveryDate: string;
+  deliveryType: string;
+  babyName?: string;
+  babyBiologicalSex?: string;
+}
+
+export interface PostpartumLogDto {
+  id?: number;
+  postpartumProfileId?: number;
+  logDate: string;
+  painLevel?: number;
+  bleedingLevel?: string;
+  breastfeedingFrequency?: number;
+  breastfeedingDurationMins?: number;
+  emotionalStateScore?: number;
+}
+
+export interface PostpartumDashboardResponse {
+  profile: any;
+  logs: PostpartumLogDto[];
+  babyProfile: any;
+  latestBabyWeight: any;
+  nextVaccine: any;
+  upcomingAppointments: any[];
 }
 
 class WomensHealthService {
@@ -218,6 +248,23 @@ class WomensHealthService {
 
   async pregnancyAiChat(consumerId: number, userMessage: string): Promise<PregnancyAiChatResponseDto> {
     const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy/ai/chat`, { userMessage });
+    return response.data;
+  }
+
+  // ==========================================
+  // POSTPARTUM
+  // ==========================================
+  async startPostpartum(consumerId: number, data: StartPostpartumRequest): Promise<void> {
+    await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/postpartum/start`, data);
+  }
+
+  async logPostpartum(consumerId: number, data: PostpartumLogDto): Promise<PostpartumLogDto> {
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/postpartum/log`, data);
+    return response.data;
+  }
+
+  async getPostpartumDashboard(consumerId: number): Promise<PostpartumDashboardResponse> {
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/postpartum/dashboard`);
     return response.data;
   }
 }
