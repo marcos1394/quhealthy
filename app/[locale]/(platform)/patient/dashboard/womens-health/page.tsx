@@ -16,7 +16,6 @@ import {
 import { format, parseISO } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
@@ -110,12 +109,17 @@ export default function WomensHealthDashboard() {
   if (!hasConsent) {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
-        <DashboardHeader
-          title="Salud Femenina"
-          subtitle="Monitoreo del ciclo menstrual y salud reproductiva"
-          icon={Flower2}
-          color="pink"
-        />
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2 font-sans transition-colors">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight flex items-center gap-3">
+              <Flower2 className="w-8 h-8 text-pink-500" />
+              Salud Femenina
+            </h1>
+            <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+              Monitoreo del ciclo menstrual y salud reproductiva
+            </p>
+          </div>
+        </div>
         <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-8 border border-gray-100 dark:border-gray-800 text-center max-w-2xl mx-auto shadow-sm">
           <div className="w-16 h-16 bg-pink-100 dark:bg-pink-900/30 text-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <HeartPulse className="w-8 h-8" />
@@ -142,24 +146,27 @@ export default function WomensHealthDashboard() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
-      <DashboardHeader
-        title="Salud Femenina"
-        subtitle="Monitoreo inteligente de tu ciclo con IA"
-        icon={Flower2}
-        color="pink"
-        actions={
-          <div className="flex items-center gap-3">
-            <Button className="bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20 border-none rounded-xl">
-              <Activity className="w-4 h-4 mr-2" />
-              Registrar Síntoma
-            </Button>
-            <Button className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl shadow-lg shadow-pink-600/20">
-              <Droplet className="w-4 h-4 mr-2" />
-              Registrar Ciclo
-            </Button>
-          </div>
-        }
-      />
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2 font-sans transition-colors">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight flex items-center gap-3">
+            <Flower2 className="w-8 h-8 text-pink-500" />
+            Salud Femenina
+          </h1>
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+            Monitoreo inteligente de tu ciclo con IA
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button className="bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20 border-none rounded-xl">
+            <Activity className="w-4 h-4 mr-2" />
+            Registrar Síntoma
+          </Button>
+          <Button className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl shadow-lg shadow-pink-600/20">
+            <Droplet className="w-4 h-4 mr-2" />
+            Registrar Ciclo
+          </Button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Columna Izquierda: Predicciones del Ciclo */}
