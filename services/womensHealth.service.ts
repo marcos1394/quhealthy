@@ -94,6 +94,12 @@ export interface PregnancyLogDto {
   notes?: string;
 }
 
+export interface PregnancyAiChatResponseDto {
+  assistantMessage: string;
+  isUrgent: boolean;
+  urgencyReason?: string;
+}
+
 class WomensHealthService {
   // Configuración / Consentimiento
   async checkConsent(consumerId: number): Promise<boolean> {
@@ -207,6 +213,11 @@ class WomensHealthService {
 
   async logPregnancyVitals(consumerId: number, data: PregnancyLogDto): Promise<PregnancyLogDto> {
     const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy/logs`, data);
+    return response.data;
+  }
+
+  async pregnancyAiChat(consumerId: number, userMessage: string): Promise<PregnancyAiChatResponseDto> {
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy/ai/chat`, { userMessage });
     return response.data;
   }
 }

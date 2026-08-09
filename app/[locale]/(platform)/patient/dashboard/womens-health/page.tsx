@@ -4,8 +4,6 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import {
-  BrainCircuit,
-  AlertTriangle,
   Flower2,
   HeartPulse,
   Baby,
@@ -27,6 +25,7 @@ import { PregnancyTimelineWidget } from "@/components/patient/womens-health/Preg
 import { PregnancyVitalsGrid } from "@/components/patient/womens-health/PregnancyVitalsGrid";
 import { FetalMonitoringWidget } from "@/components/patient/womens-health/FetalMonitoringWidget";
 import { PrenatalCareWidget } from "@/components/patient/womens-health/PrenatalCareWidget";
+import { PregnancyAiChatWidget } from "@/components/patient/womens-health/PregnancyAiChatWidget";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -267,6 +266,7 @@ export default function WomensHealthDashboard() {
               <PrenatalCareWidget pregnancy={activePregnancy} />
             </div>
           </div>
+          <PregnancyAiChatWidget pregnancy={activePregnancy} consumerId={user!.id} />
         </div>
       ) : (
         <>
