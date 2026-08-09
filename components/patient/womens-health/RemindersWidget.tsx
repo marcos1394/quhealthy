@@ -35,13 +35,13 @@ export function RemindersWidget({ prediction }: Props) {
 
       <div className="space-y-3">
         {/* Period Reminder */}
-        <div className={`p-4 rounded-2xl flex gap-3 ${
+        <div className={`p-4 rounded-2xl flex items-start gap-3 ${
           isPeriodApproaching || isPeriodNow 
             ? "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300 border border-rose-100 dark:border-rose-900/50" 
             : "bg-gray-50 text-gray-700 dark:bg-[#121212] dark:text-gray-300 border border-gray-100 dark:border-gray-800"
         }`}>
           <AlertCircle className={`w-5 h-5 shrink-0 mt-0.5 ${isPeriodApproaching || isPeriodNow ? "text-rose-500" : "text-gray-400"}`} />
-          <div>
+          <div className="flex-1 min-w-0">
             <h4 className="font-semibold text-sm">
               {isPeriodNow ? "Tu periodo está activo o retrasado" : "Próximo Periodo"}
             </h4>
@@ -55,9 +55,9 @@ export function RemindersWidget({ prediction }: Props) {
 
         {/* Fertile Window Reminder */}
         {daysToFertile >= 0 && (
-          <div className="p-4 rounded-2xl flex gap-3 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
+          <div className="p-4 rounded-2xl flex items-start gap-3 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
             <Heart className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
-            <div>
+            <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm">Ventana Fértil</h4>
               <p className="text-xs mt-1 opacity-90">
                 Inicia en {daysToFertile} días. El {format(fertileDate, "d 'de' MMMM", { locale: es })}.
