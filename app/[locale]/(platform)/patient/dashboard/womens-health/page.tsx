@@ -328,11 +328,11 @@ export default function WomensHealthDashboard() {
       </div>
 
       <div className="mt-8">
-        <CycleHistoryTable consumerId={user.id} />
+        <CycleHistoryTable consumerId={user!.id} />
       </div>
         </>
       ) : (
-        <FertilityDashboardTab consumerId={user.id} />
+        <FertilityDashboardTab consumerId={user!.id} />
       )}
 
       {/* Modals */}
