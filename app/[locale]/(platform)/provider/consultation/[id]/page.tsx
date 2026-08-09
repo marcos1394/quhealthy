@@ -213,6 +213,7 @@ export default function ConsultationRoomPage() {
         frequencyEnum: "",
         durationDays: "",
         quantity: 1,
+        administrationRoute: "",
       },
       isRecording: false,
       isTranscribing: false,
@@ -376,6 +377,7 @@ export default function ConsultationRoomPage() {
           ? Number(newRx.durationDays)
           : undefined,
         instructions: newRx.instructions,
+        administrationRoute: newRx.administrationRoute,
         catalogItemId: newRx.catalogItemId,
         price: Number(newRx.price) || 0,
         quantity: newRx.quantity || 1,
@@ -386,6 +388,7 @@ export default function ConsultationRoomPage() {
         frequency: "",
         duration: "",
         instructions: "",
+        administrationRoute: "",
         price: "",
         frequencyEnum: "",
         durationDays: "",

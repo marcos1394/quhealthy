@@ -40,6 +40,7 @@ interface TreatmentCheckoutStepProps {
     frequency: string;
     duration: string;
     instructions: string;
+    administrationRoute?: string;
     catalogItemId?: number;
     price?: string | number;
     frequencyEnum?: string;
@@ -280,7 +281,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             </div>
 
             {/* Dosis */}
-            <div className="col-span-1 md:col-span-3 space-y-1.5">
+            <div className="col-span-1 md:col-span-2 space-y-1.5">
               <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
                 {t("dosage")}
               </label>
@@ -294,8 +295,23 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
               />
             </div>
 
+            {/* Vía de administración */}
+            <div className="col-span-1 md:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                Vía de adm.
+              </label>
+              <Input
+                placeholder="Ej. Oral, Tópica"
+                value={newRx.administrationRoute || ""}
+                onChange={(e) =>
+                  setNewRx({ ...newRx, administrationRoute: e.target.value })
+                }
+                className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 placeholder:text-gray-400 shadow-xs"
+              />
+            </div>
+
             {/* Cantidad Venta */}
-            <div className="col-span-1 md:col-span-3 space-y-1.5">
+            <div className="col-span-1 md:col-span-2 space-y-1.5">
               <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
                 {t("sale_quantity")}
               </label>
@@ -476,6 +492,11 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
                       </div>
 
                       <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-snug">
+                        {item.administrationRoute && (
+                          <span className="font-bold text-gray-700 dark:text-gray-300 mr-1">
+                            Vía {item.administrationRoute}.
+                          </span>
+                        )}
                         {t("take_medication", {
                           frequency: item.frequency,
                           duration: item.duration,
