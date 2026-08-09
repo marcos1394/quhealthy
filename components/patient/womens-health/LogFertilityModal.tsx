@@ -6,6 +6,7 @@ import { Loader2, Thermometer, TestTube2, Droplet, Heart, X } from "lucide-react
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { womensHealthService, FertilityLog } from "@/services/womensHealth.service";
 import { toast } from "react-toastify";
 
@@ -18,7 +19,7 @@ interface Props {
 
 export function LogFertilityModal({ isOpen, onClose, consumerId, onSuccess }: Props) {
   const [loading, setLoading] = useState(false);
-  const [logDate, setLogDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [logDate, setLogDate] = useState<Date | undefined>(new Date());
   const [basalTemp, setBasalTemp] = useState<string>("");
   const [lhResult, setLhResult] = useState<FertilityLog['ovulationTestResult'] | undefined>(undefined);
   const [mucus, setMucus] = useState<FertilityLog['cervicalMucus'] | undefined>(undefined);
@@ -43,7 +44,7 @@ export function LogFertilityModal({ isOpen, onClose, consumerId, onSuccess }: Pr
     try {
       setLoading(true);
       await womensHealthService.logFertility(consumerId, {
-        logDate,
+        logDate: format(logDate || new Date(), "yyyy-MM-dd"),
         basalTemperature: basalTemp ? parseFloat(basalTemp) : undefined,
         ovulationTestResult: lhResult,
         cervicalMucus: mucus,
@@ -77,11 +78,11 @@ export function LogFertilityModal({ isOpen, onClose, consumerId, onSuccess }: Pr
           {/* Fecha */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Fecha</label>
-            <Input
-              type="date"
+            <DatePicker
               value={logDate}
-              onChange={(e) => setLogDate(e.target.value)}
-              className="rounded-xl border-gray-200 dark:border-gray-800 dark:bg-[#111111]"
+              onChange={setLogDate}
+              placeholder="Selecciona la fecha"
+              disabled={(date) => date > new Date()}
             />
           </div>
 

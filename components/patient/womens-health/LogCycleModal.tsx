@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import { X, CalendarDays, Droplet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
+import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { womensHealthService, MenstrualCycleLog } from "@/services/womensHealth.service";
 
@@ -17,8 +18,8 @@ interface LogCycleModalProps {
 }
 
 export function LogCycleModal({ isOpen, onClose, consumerId, onSuccess }: LogCycleModalProps) {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   const [intensity, setIntensity] = useState<MenstrualCycleLog["intensity"]>("MEDIUM");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,8 +36,8 @@ export function LogCycleModal({ isOpen, onClose, consumerId, onSuccess }: LogCyc
     try {
       await womensHealthService.logCycle(consumerId, {
         consumerId,
-        startDate,
-        endDate: endDate || undefined,
+        startDate: format(startDate, "yyyy-MM-dd"),
+        endDate: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
         intensity,
       });
       toast.success("Ciclo registrado exitosamente");
@@ -72,27 +73,21 @@ export function LogCycleModal({ isOpen, onClose, consumerId, onSuccess }: LogCyc
             <div className="space-y-4">
               <div>
                 <Label htmlFor="startDate">Fecha de Inicio *</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  max={new Date().toISOString().split("T")[0]}
+                <DatePicker
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="mt-1"
-                  required
+                  onChange={setStartDate}
+                  placeholder="Selecciona la fecha de inicio"
+                  disabled={(date) => date > new Date()}
                 />
               </div>
 
               <div>
                 <Label htmlFor="endDate">Fecha de Fin (Opcional si aún no termina)</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  min={startDate}
-                  max={new Date().toISOString().split("T")[0]}
+                <DatePicker
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="mt-1"
+                  onChange={setEndDate}
+                  placeholder="Selecciona la fecha de fin"
+                  disabled={(date) => date > new Date() || (!!startDate && date < startDate)}
                 />
               </div>
 

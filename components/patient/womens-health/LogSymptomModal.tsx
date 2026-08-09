@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { X, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { womensHealthService, MenstrualSymptomLog } from "@/services/womensHealth.service";
 
@@ -27,7 +28,7 @@ const AVAILABLE_SYMPTOMS = [
 ];
 
 export function LogSymptomModal({ isOpen, onClose, consumerId, onSuccess }: LogSymptomModalProps) {
-  const [logDate, setLogDate] = useState(new Date().toISOString().split("T")[0]);
+  const [logDate, setLogDate] = useState<Date | undefined>(new Date());
   const [painLevel, setPainLevel] = useState(0);
   const [mood, setMood] = useState<MenstrualSymptomLog["mood"]>("CALM");
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -53,7 +54,7 @@ export function LogSymptomModal({ isOpen, onClose, consumerId, onSuccess }: LogS
     try {
       await womensHealthService.logSymptom(consumerId, {
         consumerId,
-        logDate,
+        logDate: format(logDate, "yyyy-MM-dd"),
         painLevel,
         mood,
         symptoms: selectedSymptoms,
@@ -92,14 +93,11 @@ export function LogSymptomModal({ isOpen, onClose, consumerId, onSuccess }: LogS
             <div className="space-y-4">
               <div>
                 <Label htmlFor="logDate">Fecha *</Label>
-                <Input
-                  id="logDate"
-                  type="date"
-                  max={new Date().toISOString().split("T")[0]}
+                <DatePicker
                   value={logDate}
-                  onChange={(e) => setLogDate(e.target.value)}
-                  className="mt-1"
-                  required
+                  onChange={setLogDate}
+                  placeholder="Selecciona la fecha"
+                  disabled={(date) => date > new Date()}
                 />
               </div>
 
