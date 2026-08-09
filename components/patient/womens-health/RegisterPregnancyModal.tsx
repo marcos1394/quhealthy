@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { womensHealthService } from "@/services/womensHealth.service";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
-import { format } from "date-fns";
 
 interface RegisterPregnancyModalProps {
   isOpen: boolean;
