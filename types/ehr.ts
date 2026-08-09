@@ -41,6 +41,7 @@ export interface PrescriptionItem {
   frequencyEnum?: string; // Enum estricto para Adherencia
   durationDays?: number;  // Entero estricto para Adherencia
   instructions?: string;  // Indicaciones adicionales
+  administrationRoute?: string; // Vía de administración
   catalogItemId?: number; // Enlace al producto en el Marketplace de QuHealthy
   price?: number;         // Precio del producto si está en catálogo
   quantity?: number;      // Cantidad de productos recetados/vendidos
@@ -58,6 +59,7 @@ export interface PrescriptionItemDto {
   frequencyEnum?: string;
   durationDays?: number;
   instructions?: string;
+  administrationRoute?: string;
   catalogItemId?: number;
   quantity?: number;
   price?: number;
