@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { womensHealthService } from "@/services/womensHealth.service";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
-import { useAuth } from "@/hooks/useAuth";
+import { useSessionStore } from "@/stores/SessionStore";
 
 interface StartPostpartumModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ interface StartPostpartumModalProps {
 }
 
 export function StartPostpartumModal({ isOpen, onClose, onSuccess }: StartPostpartumModalProps) {
-  const { user } = useAuth();
+  const { user } = useSessionStore();
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(new Date());
   const [deliveryType, setDeliveryType] = useState("VAGINAL");
   const [babyName, setBabyName] = useState("");

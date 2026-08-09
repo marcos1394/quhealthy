@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import { womensHealthService, PostpartumDashboardResponse } from "@/services/womensHealth.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { BabyCareIntegrationWidget } from "./BabyCareIntegrationWidget";
 import { PostpartumRecoveryWidget } from "./PostpartumRecoveryWidget";
 import { BreastfeedingTrackerWidget } from "./BreastfeedingTrackerWidget";
 import { UnifiedAppointmentsWidget } from "./UnifiedAppointmentsWidget";
+import { useSessionStore } from "@/stores/SessionStore";
 
 export function PostpartumDashboard() {
-  const { user } = useAuth();
+  const { user } = useSessionStore();
   const [data, setData] = useState<PostpartumDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
