@@ -39,6 +39,10 @@ export interface CycleAiInsightDto {
   requiresMedicalAttention: boolean;
 }
 
+export interface WomensHealthPreferencesDto {
+  tryingToConceive: boolean;
+}
+
 export interface FertilityLog {
   logDate: string;
   basalTemperature?: number;
@@ -70,6 +74,17 @@ class WomensHealthService {
 
   async recordConsent(consumerId: number): Promise<void> {
     await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/consent`);
+  }
+
+  // Preferencias
+  async getPreferences(consumerId: number): Promise<WomensHealthPreferencesDto> {
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/preferences`);
+    return response.data;
+  }
+
+  async updatePreferences(consumerId: number, data: WomensHealthPreferencesDto): Promise<WomensHealthPreferencesDto> {
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/preferences`, data);
+    return response.data;
   }
 
   // Ciclos

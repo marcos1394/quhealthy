@@ -14,6 +14,7 @@ interface TodayCheckInWidgetProps {
   onOpenSymptomModal: () => void;
   onOpenFertilityModal: () => void;
   onOpenCycleModal: () => void;
+  isTryingToConceive: boolean;
 }
 
 export function TodayCheckInWidget({ 
@@ -21,7 +22,8 @@ export function TodayCheckInWidget({
   prediction, 
   onOpenSymptomModal, 
   onOpenFertilityModal,
-  onOpenCycleModal 
+  onOpenCycleModal,
+  isTryingToConceive
 }: TodayCheckInWidgetProps) {
   const { user } = useSessionStore();
   const today = new Date();
@@ -109,6 +111,29 @@ export function TodayCheckInWidget({
       <div>
         <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-4">¿Cómo te sientes hoy?</h3>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {/* Si está buscando embarazo, los botones de fertilidad son los más destacados */}
+          {isTryingToConceive && (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={onOpenFertilityModal}
+                className="flex flex-col h-auto py-3 gap-2 border-purple-200 bg-purple-100 hover:bg-purple-200 dark:border-purple-800 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-2xl shadow-sm"
+              >
+                <Thermometer className="w-5 h-5" />
+                <span className="text-xs font-bold">Temp.</span>
+              </Button>
+
+              <Button 
+                variant="outline" 
+                onClick={onOpenFertilityModal}
+                className="flex flex-col h-auto py-3 gap-2 border-emerald-200 bg-emerald-100 hover:bg-emerald-200 dark:border-emerald-800 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-2xl shadow-sm"
+              >
+                <FlaskConical className="w-5 h-5" />
+                <span className="text-xs font-bold">Test LH</span>
+              </Button>
+            </>
+          )}
+
           <Button 
             variant="outline" 
             onClick={onOpenCycleModal}
@@ -145,23 +170,27 @@ export function TodayCheckInWidget({
             <span className="text-xs font-semibold">Flujo</span>
           </Button>
 
-          <Button 
-            variant="outline" 
-            onClick={onOpenFertilityModal}
-            className="flex flex-col h-auto py-3 gap-2 border-purple-100 bg-purple-50/50 hover:bg-purple-100 dark:border-purple-900/30 dark:bg-purple-900/10 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl"
-          >
-            <Thermometer className="w-5 h-5" />
-            <span className="text-xs font-semibold">Temp.</span>
-          </Button>
+          {!isTryingToConceive && (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={onOpenFertilityModal}
+                className="flex flex-col h-auto py-3 gap-2 border-purple-100 bg-purple-50/50 hover:bg-purple-100 dark:border-purple-900/30 dark:bg-purple-900/10 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl"
+              >
+                <Thermometer className="w-5 h-5" />
+                <span className="text-xs font-semibold">Temp.</span>
+              </Button>
 
-          <Button 
-            variant="outline" 
-            onClick={onOpenFertilityModal}
-            className="flex flex-col h-auto py-3 gap-2 border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100 dark:border-emerald-900/30 dark:bg-emerald-900/10 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl"
-          >
-            <FlaskConical className="w-5 h-5" />
-            <span className="text-xs font-semibold">Test</span>
-          </Button>
+              <Button 
+                variant="outline" 
+                onClick={onOpenFertilityModal}
+                className="flex flex-col h-auto py-3 gap-2 border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100 dark:border-emerald-900/30 dark:bg-emerald-900/10 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl"
+              >
+                <FlaskConical className="w-5 h-5" />
+                <span className="text-xs font-semibold">Test</span>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

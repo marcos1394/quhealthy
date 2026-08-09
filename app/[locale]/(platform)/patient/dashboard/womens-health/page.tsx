@@ -20,6 +20,9 @@ import { RemindersWidget } from "@/components/patient/womens-health/RemindersWid
 import { CycleHistoryTable } from "@/components/patient/womens-health/CycleHistoryTable";
 import { TodayCheckInWidget } from "@/components/patient/womens-health/TodayCheckInWidget";
 import { WomensHealthCalendar } from "@/components/patient/womens-health/WomensHealthCalendar";
+import { CycleInsightsWidget } from "@/components/patient/womens-health/CycleInsightsWidget";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 import { useSessionStore } from "@/stores/SessionStore";
 import {
@@ -42,6 +45,8 @@ export default function WomensHealthDashboard() {
   const [prediction, setPrediction] = useState<CyclePredictionDto | null>(null);
   const [insights, setInsights] = useState<CycleAiInsightDto | null>(null);
   const [cycles, setCycles] = useState<MenstrualCycleLog[]>([]);
+  const [isTryingToConceive, setIsTryingToConceive] = useState(false);
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
 
   const [isCycleModalOpen, setIsCycleModalOpen] = useState(false);
   const [isSymptomModalOpen, setIsSymptomModalOpen] = useState(false);
@@ -60,6 +65,13 @@ export default function WomensHealthDashboard() {
       setHasConsent(consent);
 
       if (consent) {
+        try {
+          const pref = await womensHealthService.getPreferences(user!.id);
+          setIsTryingToConceive(pref.tryingToConceive ?? false);
+        } catch (e) {
+          console.error("Error cargando preferencias:", e);
+        }
+
         try {
           const fetchedCycles = await womensHealthService.getCycleLogs(user!.id);
           setCycles(fetchedCycles || []);
@@ -97,6 +109,25 @@ export default function WomensHealthDashboard() {
       loadData();
     } catch (error) {
       toast.error("Error al guardar el consentimiento.");
+    }
+  };
+
+  const handleToggleConceive = async (checked: boolean) => {
+    if (!user?.id) return;
+    try {
+      setIsSavingPreferences(true);
+      const res = await womensHealthService.updatePreferences(user.id, { tryingToConceive: checked });
+      setIsTryingToConceive(res.tryingToConceive);
+      if (checked) {
+        toast.success("Modo Buscando Embarazo activado");
+      } else {
+        toast.success("Modo Monitoreo activado");
+      }
+    } catch (error) {
+      toast.error("Error al actualizar tus preferencias");
+      setIsTryingToConceive(!checked);
+    } finally {
+      setIsSavingPreferences(false);
     }
   };
 
@@ -181,6 +212,18 @@ export default function WomensHealthDashboard() {
             Monitoreo inteligente de tu ciclo con IA
           </p>
         </div>
+        <div className="flex items-center space-x-2 bg-white dark:bg-[#111111] p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm mt-4 md:mt-0">
+          <Switch 
+            id="conceive-mode" 
+            checked={isTryingToConceive}
+            onCheckedChange={handleToggleConceive}
+            disabled={isSavingPreferences}
+            className="data-[state=checked]:bg-purple-500"
+          />
+          <Label htmlFor="conceive-mode" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+            Buscando embarazo
+          </Label>
+        </div>
       </div>
 
       <TodayCheckInWidget 
@@ -189,6 +232,7 @@ export default function WomensHealthDashboard() {
         onOpenSymptomModal={() => setIsSymptomModalOpen(true)}
         onOpenFertilityModal={() => setIsFertilityModalOpen(true)}
         onOpenCycleModal={() => setIsCycleModalOpen(true)}
+        isTryingToConceive={isTryingToConceive}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -201,57 +245,8 @@ export default function WomensHealthDashboard() {
             isLoading={isSavingCycle}
           />
         </div>
-
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-[#0a0a0a] rounded-3xl p-6 border border-indigo-100 dark:border-indigo-900/30 shadow-sm flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                <BrainCircuit className="w-5 h-5" />
-              </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Gemini AI Insights</h2>
-            </div>
-
-            {insights ? (
-              <div className="space-y-6 flex-1">
-                {insights.requiresMedicalAttention && (
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-2xl p-4 flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-800 dark:text-red-300 font-medium">
-                      La IA ha detectado patrones que podrían requerir evaluación médica.
-                    </p>
-                  </div>
-                )}
-                
-                <div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {insights.summary}
-                  </p>
-                </div>
-
-                {insights.detectedPatterns?.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                      Patrones Detectados
-                    </h3>
-                    <ul className="space-y-2">
-                      {insights.detectedPatterns.map((pattern, idx) => (
-                        <li key={idx} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                          <span className="text-indigo-500 mt-1">•</span> {pattern}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  La Inteligencia Artificial de Gemini necesita más historial para generar un análisis.
-                </p>
-              </div>
-            )}
-          </div>
-          
+          <CycleInsightsWidget prediction={prediction} insights={insights} />
           <RemindersWidget prediction={prediction} />
         </div>
       </div>
