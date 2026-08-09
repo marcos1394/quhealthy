@@ -40,6 +40,7 @@ import {
   AlertTriangle,
   FileText,
   BrainCircuit,
+  Flower2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -82,6 +83,7 @@ const patientLinks = [
   { key: "dashboard", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
   { key: "copilot", href: "/copilot", icon: BrainCircuit, badge: { count: "IA" } },
   { key: "appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
+  { key: "womens_health", href: "/patient/dashboard/womens-health", icon: Flower2, badge: null },
   { key: "discover", href: "/discover", icon: Sparkles, badge: null },
   { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
   { key: "nutrition", href: "/patient/dashboard/nutrition", icon: Utensils, badge: { count: "IA" } },
@@ -138,6 +140,7 @@ const NavItem = ({
     if (["patients", "dependents", "public_profile", "profile"].includes(key))
       return "text-indigo-500";
     if (["calendar", "appointments"].includes(key)) return "text-orange-500";
+    if (["womens_health"].includes(key)) return "text-pink-500";
     if (["discover"].includes(key)) return "text-fuchsia-500";
     if (["emergencies"].includes(key)) return "text-rose-500";
     if (["nutrition"].includes(key)) return "text-lime-500";

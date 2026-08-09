@@ -1,0 +1,277 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
+import {
+  CalendarDays,
+  Activity,
+  BrainCircuit,
+  Plus,
+  AlertTriangle,
+  Flower2,
+  Droplet,
+  HeartPulse,
+} from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { es, enUS } from "date-fns/locale";
+
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { Button } from "@/components/ui/button";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+
+import { useSessionStore } from "@/stores/SessionStore";
+import {
+  womensHealthService,
+  CyclePredictionDto,
+  CycleAiInsightDto,
+} from "@/services/womensHealth.service";
+import { toast } from "react-toastify";
+import { useParams } from "next/navigation";
+
+export default function WomensHealthDashboard() {
+  const t = useTranslations("PatientDashboard"); // Or specific translation
+  const { user } = useSessionStore();
+  const params = useParams();
+  const locale = params.locale as string;
+  const dateLocale = locale === "es" ? es : enUS;
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasConsent, setHasConsent] = useState(false);
+  const [prediction, setPrediction] = useState<CyclePredictionDto | null>(null);
+  const [insights, setInsights] = useState<CycleAiInsightDto | null>(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadData();
+    }
+  }, [user]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const consent = await womensHealthService.checkConsent(user!.id);
+      setHasConsent(consent);
+
+      if (consent) {
+        // Cargar predicción
+        try {
+          const pred = await womensHealthService.getPrediction(user!.id);
+          setPrediction(pred);
+        } catch (e) {
+          console.error("Error cargando predicción:", e);
+        }
+
+        // Cargar insights
+        try {
+          const ai = await womensHealthService.getAiInsights(user!.id);
+          setInsights(ai);
+        } catch (e) {
+          console.error("Error cargando insights:", e);
+        }
+      }
+    } catch (error) {
+      toast.error("Error al cargar la información del ciclo.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConsent = async () => {
+    if (!user?.id) return;
+    try {
+      await womensHealthService.recordConsent(user.id);
+      setHasConsent(true);
+      toast.success("Consentimiento guardado exitosamente");
+      loadData();
+    } catch (error) {
+      toast.error("Error al guardar el consentimiento.");
+    }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "--";
+    try {
+      return format(parseISO(dateString), "dd MMM yyyy", { locale: dateLocale });
+    } catch {
+      return dateString;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <QhSpinner size="lg" />
+      </div>
+    );
+  }
+
+  // Vista cuando no hay consentimiento
+  if (!hasConsent) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <DashboardHeader
+          title="Salud Femenina"
+          subtitle="Monitoreo del ciclo menstrual y salud reproductiva"
+          icon={Flower2}
+          color="pink"
+        />
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-8 border border-gray-100 dark:border-gray-800 text-center max-w-2xl mx-auto shadow-sm">
+          <div className="w-16 h-16 bg-pink-100 dark:bg-pink-900/30 text-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <HeartPulse className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Privacidad y Consentimiento
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">
+            Para brindarte predicciones precisas y un análisis de IA sobre tu ciclo,
+            necesitamos recolectar y procesar datos sobre tu salud reproductiva.
+            Estos datos son altamente sensibles y están protegidos.
+            ¿Autorizas a QuHealthy a procesar esta información?
+          </p>
+          <Button
+            onClick={handleConsent}
+            className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl px-8 py-6 text-lg font-bold"
+          >
+            Aceptar y Continuar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+      <DashboardHeader
+        title="Salud Femenina"
+        subtitle="Monitoreo inteligente de tu ciclo con IA"
+        icon={Flower2}
+        color="pink"
+        actions={
+          <div className="flex items-center gap-3">
+            <Button className="bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20 border-none rounded-xl">
+              <Activity className="w-4 h-4 mr-2" />
+              Registrar Síntoma
+            </Button>
+            <Button className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl shadow-lg shadow-pink-600/20">
+              <Droplet className="w-4 h-4 mr-2" />
+              Registrar Ciclo
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Columna Izquierda: Predicciones del Ciclo */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-pink-500/10 to-rose-500/10 blur-3xl -z-10 rounded-full" />
+            
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                <CalendarDays className="w-6 h-6 text-pink-500" />
+                Tu Próximo Ciclo
+              </h2>
+            </div>
+
+            {prediction ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-pink-50/50 dark:bg-pink-900/10 border border-pink-100 dark:border-pink-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
+                  <p className="text-sm font-semibold text-pink-600 dark:text-pink-400 mb-2">Próximo Periodo</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                    {formatDate(prediction.estimatedNextPeriodStart)}
+                  </p>
+                </div>
+                
+                <div className="bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
+                  <p className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-2">Día de Ovulación</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                    {formatDate(prediction.estimatedOvulationDate)}
+                  </p>
+                </div>
+
+                <div className="bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
+                  <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Ventana Fértil</p>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">
+                    {formatDate(prediction.fertileWindowStart)} - <br/>{formatDate(prediction.fertileWindowEnd)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                Registra al menos dos ciclos para ver tus predicciones.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Columna Derecha: Insights de IA */}
+        <div className="lg:col-span-1">
+          <div className="bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-[#0a0a0a] rounded-3xl p-6 border border-indigo-100 dark:border-indigo-900/30 shadow-sm h-full flex flex-col">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <BrainCircuit className="w-5 h-5" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Gemini AI Insights</h2>
+            </div>
+
+            {insights ? (
+              <div className="space-y-6 flex-1">
+                {insights.requiresMedicalAttention && (
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-2xl p-4 flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-800 dark:text-red-300 font-medium">
+                      La IA ha detectado patrones que podrían requerir evaluación médica.
+                    </p>
+                  </div>
+                )}
+                
+                <div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {insights.summary}
+                  </p>
+                </div>
+
+                {insights.detectedPatterns?.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                      Patrones Detectados
+                    </h3>
+                    <ul className="space-y-2">
+                      {insights.detectedPatterns.map((pattern, idx) => (
+                        <li key={idx} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                          <span className="text-indigo-500 mt-1">•</span> {pattern}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {insights.recommendations?.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                      Recomendaciones
+                    </h3>
+                    <ul className="space-y-2">
+                      {insights.recommendations.map((rec, idx) => (
+                        <li key={idx} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                          <span className="text-emerald-500 mt-1">✓</span> {rec}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  La Inteligencia Artificial de Gemini necesita más historial de ciclos y síntomas para generar un análisis clínico.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
