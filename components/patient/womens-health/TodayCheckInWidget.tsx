@@ -78,7 +78,7 @@ export function TodayCheckInWidget({
     }
   }
 
-  const firstName = user?.name?.split(" ")[0] || "María";
+  const firstName = user?.firstName || "María";
 
   return (
     <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden mb-6">
