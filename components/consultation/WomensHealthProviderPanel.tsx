@@ -171,8 +171,8 @@ export function WomensHealthProviderPanel({ consumerId }: Props) {
                   <span className="text-gray-500 ml-2 font-normal">Dolor: {sym.painLevel}/10</span>
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {sym.symptoms.map(s => (
-                    <span key={s} className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs">
+                  {sym.symptoms?.map(s => (
+                    <span key={s} className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded text-[10px] font-medium">
                       {s}
                     </span>
                   ))}
