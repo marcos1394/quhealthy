@@ -61,7 +61,7 @@ export function PregnancyTimelineWidget({ pregnancy }: PregnancyTimelineWidgetPr
           <span>FUR: {formatLMP()}</span>
           <span>40 Semanas</span>
         </div>
-        <Progress value={progressPercent} className="h-3 bg-gray-100 dark:bg-gray-800" indicatorClassName="bg-gradient-to-r from-pink-400 to-rose-500" />
+        <Progress value={progressPercent} className="h-3 bg-gray-100 dark:bg-gray-800" indicatorColor="bg-gradient-to-r from-pink-400 to-rose-500" />
       </div>
       
       <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex gap-6 text-sm">
