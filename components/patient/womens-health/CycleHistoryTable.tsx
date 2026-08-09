@@ -83,7 +83,7 @@ export function CycleHistoryTable({ consumerId }: Props) {
                       cycle.intensity === 'MEDIUM' ? 'text-pink-500 fill-pink-500' :
                       cycle.intensity === 'LIGHT' ? 'text-pink-300 fill-pink-300' : 'text-gray-400'
                     }`} />
-                    <span className="capitalize">{cycle.intensity.toLowerCase()}</span>
+                    <span className="capitalize">{cycle.intensity?.toLowerCase() || "-"}</span>
                   </div>
                 </td>
               </tr>
