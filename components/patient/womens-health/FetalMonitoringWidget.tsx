@@ -69,18 +69,18 @@ export function FetalMonitoringWidget({ pregnancy }: FetalMonitoringWidgetProps)
               <p className="text-xs text-gray-500">Conteo diario</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <input 
               type="number" 
               placeholder="Cantidad" 
               value={movements}
               onChange={(e) => setMovements(e.target.value)}
-              className="flex-1 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="flex-1 min-w-[100px] bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <button 
               disabled={!movements || isSaving}
               onClick={handleSaveMovements}
-              className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white rounded-xl px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
             >
               Guardar
             </button>
@@ -97,25 +97,25 @@ export function FetalMonitoringWidget({ pregnancy }: FetalMonitoringWidgetProps)
               <p className="text-xs text-gray-500">Frecuencia y cantidad</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <input 
               type="number" 
               placeholder="Cant." 
               value={contractions}
               onChange={(e) => setContractions(e.target.value)}
-              className="w-16 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="flex-1 min-w-[70px] bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <input 
               type="number" 
               placeholder="Minutos" 
               value={frequency}
               onChange={(e) => setFrequency(e.target.value)}
-              className="flex-1 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="flex-[2] min-w-[100px] bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <button 
               disabled={!contractions || isSaving}
               onClick={handleSaveContractions}
-              className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white rounded-xl px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
             >
               Guardar
             </button>

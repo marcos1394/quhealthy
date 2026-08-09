@@ -53,18 +53,18 @@ export function PregnancyVitalsGrid({ pregnancy }: PregnancyVitalsGridProps) {
           <Weight className="w-6 h-6" />
         </div>
         <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-4">Peso Materno</h3>
-        <div className="flex w-full items-center gap-2 mt-auto">
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 mt-auto">
           <input 
             type="number" 
             placeholder="kg" 
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
-            className="flex-1 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 min-w-[80px] bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button 
             disabled={!weight || isSaving}
             onClick={() => handleSave("weight")}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
           >
             Guardar
           </button>
@@ -76,13 +76,13 @@ export function PregnancyVitalsGrid({ pregnancy }: PregnancyVitalsGridProps) {
           <Activity className="w-6 h-6" />
         </div>
         <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-4">Presión Arterial</h3>
-        <div className="flex w-full items-center gap-1 mt-auto">
+        <div className="flex w-full flex-wrap items-center justify-center gap-1 mt-auto">
           <input 
             type="number" 
             placeholder="Sys" 
             value={bpSys}
             onChange={(e) => setBpSys(e.target.value)}
-            className="w-16 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-center"
+            className="flex-1 min-w-[60px] bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-center"
           />
           <span className="text-gray-400">/</span>
           <input 
@@ -90,12 +90,12 @@ export function PregnancyVitalsGrid({ pregnancy }: PregnancyVitalsGridProps) {
             placeholder="Dia" 
             value={bpDia}
             onChange={(e) => setBpDia(e.target.value)}
-            className="w-16 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-center"
+            className="flex-1 min-w-[60px] bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-center"
           />
           <button 
             disabled={!bpSys || !bpDia || isSaving}
             onClick={() => handleSave("bp")}
-            className="ml-auto bg-red-600 hover:bg-red-700 text-white rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
           >
             Guardar
           </button>
@@ -107,18 +107,18 @@ export function PregnancyVitalsGrid({ pregnancy }: PregnancyVitalsGridProps) {
           <Droplet className="w-6 h-6" />
         </div>
         <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-4">Glucosa</h3>
-        <div className="flex w-full items-center gap-2 mt-auto">
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 mt-auto">
           <input 
             type="number" 
             placeholder="mg/dL" 
             value={glucose}
             onChange={(e) => setGlucose(e.target.value)}
-            className="flex-1 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="flex-1 min-w-[80px] bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
           />
           <button 
             disabled={!glucose || isSaving}
             onClick={() => handleSave("glucose")}
-            className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+            className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
           >
             Guardar
           </button>
