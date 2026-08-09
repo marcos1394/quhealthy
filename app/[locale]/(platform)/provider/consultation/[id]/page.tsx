@@ -32,6 +32,7 @@ import { ClinicalEvaluationStep } from "@/components/consultation/ClinicalEvalua
 import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentCheckoutStep";
 import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep";
 import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgroundPanel";
+import { WomensHealthProviderPanel } from "@/components/consultation/WomensHealthProviderPanel";
 
 // Modal de Caja
 import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
@@ -740,6 +741,15 @@ export default function ConsultationRoomPage() {
                   consumerId={consumerId}
                   mode="PROVIDER"
                 />
+                
+                {consumerId && (
+                  <div className="mt-8 border-t border-gray-100 dark:border-gray-800 pt-8">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+                      Salud Femenina y Reproductiva
+                    </h3>
+                    <WomensHealthProviderPanel consumerId={consumerId} />
+                  </div>
+                )}
               </div>
             )}
 

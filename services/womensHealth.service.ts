@@ -39,6 +39,23 @@ export interface CycleAiInsightDto {
   requiresMedicalAttention: boolean;
 }
 
+export interface FertilityLog {
+  logDate: string;
+  basalTemperature?: number;
+  ovulationTestResult?: 'POSITIVE' | 'NEGATIVE' | 'HIGH' | 'PEAK' | 'LOW';
+  cervicalMucus?: 'DRY' | 'STICKY' | 'CREAMY' | 'WATERY' | 'EGG_WHITE';
+  intercourse?: boolean;
+  notes?: string;
+}
+
+export interface FertilityAiInsightDto {
+  aiSummary: string;
+  ovulationConfirmed: boolean;
+  recommendGynecologist: boolean;
+  recommendationReason: string;
+  identifiedPatterns: string[];
+}
+
 class WomensHealthService {
   // Configuración / Consentimiento
   async checkConsent(consumerId: number): Promise<boolean> {
@@ -61,13 +78,25 @@ class WomensHealthService {
     return response.data;
   }
 
+  async getCycleLogs(consumerId: number): Promise<MenstrualCycleLog[]> {
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/cycle`);
+    return response.data;
+  }
+
   // Síntomas
   async logSymptom(consumerId: number, data: MenstrualSymptomLog): Promise<MenstrualSymptomLog> {
     const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/symptom`, data);
     return response.data;
   }
 
-  // Predicciones
+  async getSymptomLogs(consumerId: number, from: string, to: string): Promise<MenstrualSymptomLog[]> {
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/symptom`, {
+      params: { from, to }
+    });
+    return response.data;
+  }
+
+  // IA y Predicciones
   async getPrediction(consumerId: number): Promise<CyclePredictionDto> {
     const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/prediction`);
     return response.data;
@@ -76,6 +105,27 @@ class WomensHealthService {
   // Insights de IA
   async getAiInsights(consumerId: number): Promise<CycleAiInsightDto> {
     const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/insights`);
+    return response.data;
+  }
+
+  // ==========================================
+  // FERTILIDAD
+  // ==========================================
+  async logFertility(consumerId: number, data: FertilityLog): Promise<FertilityLog> {
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/fertility/log`, data);
+    return response.data;
+  }
+
+  async getFertilityLogs(consumerId: number, from?: string, to?: string): Promise<FertilityLog[]> {
+    const params: any = {};
+    if (from) params.from = from;
+    if (to) params.to = to;
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/fertility/log`, { params });
+    return response.data;
+  }
+
+  async getFertilityInsights(consumerId: number): Promise<FertilityAiInsightDto> {
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/fertility/insights`);
     return response.data;
   }
 }

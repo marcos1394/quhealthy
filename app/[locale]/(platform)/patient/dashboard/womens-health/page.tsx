@@ -19,6 +19,12 @@ import { es, enUS } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
+import { LogCycleModal } from "@/components/patient/womens-health/LogCycleModal";
+import { LogSymptomModal } from "@/components/patient/womens-health/LogSymptomModal";
+import { RemindersWidget } from "@/components/patient/womens-health/RemindersWidget";
+import { CycleHistoryTable } from "@/components/patient/womens-health/CycleHistoryTable";
+import { FertilityDashboardTab } from "@/components/patient/womens-health/FertilityDashboardTab";
+
 import { useSessionStore } from "@/stores/SessionStore";
 import {
   womensHealthService,
@@ -39,6 +45,11 @@ export default function WomensHealthDashboard() {
   const [hasConsent, setHasConsent] = useState(false);
   const [prediction, setPrediction] = useState<CyclePredictionDto | null>(null);
   const [insights, setInsights] = useState<CycleAiInsightDto | null>(null);
+
+  const [isCycleModalOpen, setIsCycleModalOpen] = useState(false);
+  const [isSymptomModalOpen, setIsSymptomModalOpen] = useState(false);
+  
+  const [activeTab, setActiveTab] = useState<"MENSTRUACION" | "FERTILIDAD">("MENSTRUACION");
 
   useEffect(() => {
     if (user?.id) {
@@ -157,18 +168,49 @@ export default function WomensHealthDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button className="bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20 border-none rounded-xl">
+          <Button 
+            onClick={() => setIsSymptomModalOpen(true)}
+            className="bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20 border-none rounded-xl"
+          >
             <Activity className="w-4 h-4 mr-2" />
             Registrar Síntoma
           </Button>
-          <Button className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl shadow-lg shadow-pink-600/20">
+          <Button 
+            onClick={() => setIsCycleModalOpen(true)}
+            className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl shadow-lg shadow-pink-600/20"
+          >
             <Droplet className="w-4 h-4 mr-2" />
             Registrar Ciclo
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex p-1 bg-gray-100/50 dark:bg-[#111111] rounded-2xl w-full max-w-sm mb-6 border border-gray-200 dark:border-gray-800">
+        <button
+          onClick={() => setActiveTab("MENSTRUACION")}
+          className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${
+            activeTab === "MENSTRUACION" 
+            ? "bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white shadow-sm" 
+            : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          }`}
+        >
+          Menstruación
+        </button>
+        <button
+          onClick={() => setActiveTab("FERTILIDAD")}
+          className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${
+            activeTab === "FERTILIDAD" 
+            ? "bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white shadow-sm" 
+            : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          }`}
+        >
+          Fertilidad
+        </button>
+      </div>
+
+      {activeTab === "MENSTRUACION" ? (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Columna Izquierda: Predicciones del Ciclo */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 md:p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
@@ -278,7 +320,38 @@ export default function WomensHealthDashboard() {
             )}
           </div>
         </div>
+
+        {/* Columna Derecha: Recordatorios y Acciones Rápidas */}
+        <div className="space-y-6">
+          <RemindersWidget prediction={prediction} />
+        </div>
       </div>
+
+      <div className="mt-8">
+        <CycleHistoryTable consumerId={user.id} />
+      </div>
+        </>
+      ) : (
+        <FertilityDashboardTab consumerId={user.id} />
+      )}
+
+      {/* Modals */}
+      {user?.id && (
+        <>
+          <LogCycleModal
+            isOpen={isCycleModalOpen}
+            onClose={() => setIsCycleModalOpen(false)}
+            consumerId={user.id}
+            onSuccess={loadData}
+          />
+          <LogSymptomModal
+            isOpen={isSymptomModalOpen}
+            onClose={() => setIsSymptomModalOpen(false)}
+            consumerId={user.id}
+            onSuccess={loadData}
+          />
+        </>
+      )}
     </div>
   );
 }
