@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Baby } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Label } from "@/components/ui/label";
 import { womensHealthService } from "@/services/womensHealth.service";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
@@ -21,8 +23,8 @@ export function RegisterPregnancyModal({
   consumerId,
   onSuccess,
 }: RegisterPregnancyModalProps) {
-  const [lmpDate, setLmpDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [eddDate, setEddDate] = useState("");
+  const [lmpDate, setLmpDate] = useState<Date | undefined>(new Date());
+  const [eddDate, setEddDate] = useState<Date | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,8 +32,8 @@ export function RegisterPregnancyModal({
     setIsSubmitting(true);
     try {
       await womensHealthService.createOrUpdatePregnancy(consumerId, {
-        lastMenstrualPeriod: lmpDate || undefined,
-        estimatedDueDate: eddDate || undefined,
+        lastMenstrualPeriod: lmpDate ? format(lmpDate, "yyyy-MM-dd") : undefined,
+        estimatedDueDate: eddDate ? format(eddDate, "yyyy-MM-dd") : undefined,
       });
       toast.success("Embarazo registrado con éxito");
       onSuccess();
@@ -74,29 +76,28 @@ export function RegisterPregnancyModal({
                 Ingresa la fecha de tu último periodo menstrual o tu fecha probable de parto si ya te la indicó tu médico.
               </p>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Fecha de Última Menstruación (FUR)
-                </label>
-                <input
-                  type="date"
-                  required={!eddDate}
-                  value={lmpDate}
-                  onChange={(e) => setLmpDate(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
-                />
-              </div>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="lmpDate">Fecha de Última Menstruación (FUR)</Label>
+                  <DatePicker
+                    value={lmpDate}
+                    onChange={setLmpDate}
+                    placeholder="Selecciona la fecha"
+                    disabled={(date) => date > new Date()}
+                  />
+                  {!eddDate && !lmpDate && (
+                    <p className="text-xs text-rose-500 mt-1">Requerido si no se ingresa FPP</p>
+                  )}
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Fecha Probable de Parto (Opcional)
-                </label>
-                <input
-                  type="date"
-                  value={eddDate}
-                  onChange={(e) => setEddDate(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
-                />
+                <div>
+                  <Label htmlFor="eddDate">Fecha Probable de Parto (Opcional)</Label>
+                  <DatePicker
+                    value={eddDate}
+                    onChange={setEddDate}
+                    placeholder="Selecciona la fecha"
+                  />
+                </div>
               </div>
 
               <div className="pt-4 flex justify-end gap-3">
