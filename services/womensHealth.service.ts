@@ -60,7 +60,7 @@ class WomensHealthService {
   // Configuración / Consentimiento
   async checkConsent(consumerId: number): Promise<boolean> {
     try {
-      const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}`);
+      const response = await axiosInstance.get(`/api/onboarding/consumer/profile`);
       return response.data?.reproductiveHealthConsentAccepted || false;
     } catch (error) {
       console.error("Error al obtener consentimiento de salud reproductiva", error);
