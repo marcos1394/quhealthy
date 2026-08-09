@@ -1,4 +1,4 @@
-import api from "./api";
+import axiosInstance from '@/lib/axios';
 
 // Tipos de datos
 export interface MenstrualCycleLog {
@@ -43,7 +43,7 @@ class WomensHealthService {
   // Configuración / Consentimiento
   async checkConsent(consumerId: number): Promise<boolean> {
     try {
-      const response = await api.get(`/onboarding/consumer/${consumerId}`);
+      const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}`);
       return response.data?.reproductiveHealthConsentAccepted || false;
     } catch (error) {
       console.error("Error al obtener consentimiento de salud reproductiva", error);
@@ -52,30 +52,30 @@ class WomensHealthService {
   }
 
   async recordConsent(consumerId: number): Promise<void> {
-    await api.post(`/onboarding/consumer/${consumerId}/womens-health/consent`);
+    await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/consent`);
   }
 
   // Ciclos
   async logCycle(consumerId: number, data: MenstrualCycleLog): Promise<MenstrualCycleLog> {
-    const response = await api.post(`/onboarding/consumer/${consumerId}/womens-health/cycle`, data);
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/cycle`, data);
     return response.data;
   }
 
   // Síntomas
   async logSymptom(consumerId: number, data: MenstrualSymptomLog): Promise<MenstrualSymptomLog> {
-    const response = await api.post(`/onboarding/consumer/${consumerId}/womens-health/symptom`, data);
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/symptom`, data);
     return response.data;
   }
 
   // Predicciones
   async getPrediction(consumerId: number): Promise<CyclePredictionDto> {
-    const response = await api.get(`/onboarding/consumer/${consumerId}/womens-health/prediction`);
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/prediction`);
     return response.data;
   }
 
   // Insights de IA
   async getAiInsights(consumerId: number): Promise<CycleAiInsightDto> {
-    const response = await api.get(`/onboarding/consumer/${consumerId}/womens-health/insights`);
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/insights`);
     return response.data;
   }
 }
