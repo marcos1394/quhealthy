@@ -136,6 +136,7 @@ export default function WomensHealthDashboard() {
     try {
       setIsSavingCycle(true);
       await womensHealthService.logCycle(user.id, {
+        consumerId: user.id,
         startDate,
         endDate,
         intensity: "MEDIUM",
