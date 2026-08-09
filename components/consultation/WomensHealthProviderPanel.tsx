@@ -101,11 +101,11 @@ export function WomensHealthProviderPanel({ consumerId }: Props) {
               <Brain className="w-4 h-4" /> IA Insights (Gemini)
             </h4>
             <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
-              {insights.aiSummary}
+              {insights.summary}
             </p>
-            {insights.identifiedPatterns.length > 0 && (
+            {insights.detectedPatterns.length > 0 && (
               <ul className="text-xs space-y-1 text-gray-600 dark:text-gray-400 list-disc list-inside">
-                {insights.identifiedPatterns.slice(0, 2).map((pattern, i) => (
+                {insights.detectedPatterns.slice(0, 2).map((pattern, i) => (
                   <li key={i}>{pattern}</li>
                 ))}
               </ul>
