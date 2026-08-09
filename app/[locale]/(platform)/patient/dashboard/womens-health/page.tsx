@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   Flower2,
   HeartPulse,
+  Baby,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,11 @@ import { CycleHistoryTable } from "@/components/patient/womens-health/CycleHisto
 import { TodayCheckInWidget } from "@/components/patient/womens-health/TodayCheckInWidget";
 import { WomensHealthCalendar } from "@/components/patient/womens-health/WomensHealthCalendar";
 import { CycleInsightsWidget } from "@/components/patient/womens-health/CycleInsightsWidget";
+import { RegisterPregnancyModal } from "@/components/patient/womens-health/RegisterPregnancyModal";
+import { PregnancyTimelineWidget } from "@/components/patient/womens-health/PregnancyTimelineWidget";
+import { PregnancyVitalsGrid } from "@/components/patient/womens-health/PregnancyVitalsGrid";
+import { FetalMonitoringWidget } from "@/components/patient/womens-health/FetalMonitoringWidget";
+import { PrenatalCareWidget } from "@/components/patient/womens-health/PrenatalCareWidget";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -29,7 +35,8 @@ import {
   womensHealthService,
   CyclePredictionDto,
   CycleAiInsightDto,
-  MenstrualCycleLog
+  MenstrualCycleLog,
+  PregnancyProfileDto
 } from "@/services/womensHealth.service";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
@@ -47,10 +54,12 @@ export default function WomensHealthDashboard() {
   const [cycles, setCycles] = useState<MenstrualCycleLog[]>([]);
   const [isTryingToConceive, setIsTryingToConceive] = useState(false);
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  const [activePregnancy, setActivePregnancy] = useState<PregnancyProfileDto | null>(null);
 
   const [isCycleModalOpen, setIsCycleModalOpen] = useState(false);
   const [isSymptomModalOpen, setIsSymptomModalOpen] = useState(false);
   const [isFertilityModalOpen, setIsFertilityModalOpen] = useState(false);
+  const [isPregnancyModalOpen, setIsPregnancyModalOpen] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -70,6 +79,13 @@ export default function WomensHealthDashboard() {
           setIsTryingToConceive(pref.tryingToConceive ?? false);
         } catch (e) {
           console.error("Error cargando preferencias:", e);
+        }
+
+        try {
+          const preg = await womensHealthService.getActivePregnancy(user!.id);
+          setActivePregnancy(preg);
+        } catch (e) {
+          console.error("Error cargando embarazo activo:", e);
         }
 
         try {
@@ -210,51 +226,80 @@ export default function WomensHealthDashboard() {
             Salud Femenina
           </h1>
           <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
-            Monitoreo inteligente de tu ciclo con IA
+            {activePregnancy ? "Monitoreo prenatal y cuidado materno" : "Monitoreo inteligente de tu ciclo con IA"}
           </p>
         </div>
-        <div className="flex items-center space-x-2 bg-white dark:bg-[#111111] p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm mt-4 md:mt-0">
-          <Switch 
-            id="conceive-mode" 
-            checked={isTryingToConceive}
-            onCheckedChange={handleToggleConceive}
-            disabled={isSavingPreferences}
-            className="data-[state=checked]:bg-purple-500"
-          />
-          <Label htmlFor="conceive-mode" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-            Buscando embarazo
-          </Label>
-        </div>
+        {!activePregnancy && (
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex items-center space-x-2 bg-white dark:bg-[#111111] p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm mt-4 md:mt-0">
+              <Switch 
+                id="conceive-mode" 
+                checked={isTryingToConceive}
+                onCheckedChange={handleToggleConceive}
+                disabled={isSavingPreferences}
+                className="data-[state=checked]:bg-purple-500"
+              />
+              <Label htmlFor="conceive-mode" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                Buscando embarazo
+              </Label>
+            </div>
+            
+            <Button
+              onClick={() => setIsPregnancyModalOpen(true)}
+              className="mt-4 md:mt-0 bg-pink-600 hover:bg-pink-700 text-white rounded-xl shadow-sm font-semibold"
+            >
+              <Baby className="w-4 h-4 mr-2" />
+              Registrar Embarazo
+            </Button>
+          </div>
+        )}
       </div>
 
-      <TodayCheckInWidget 
-        cycles={cycles}
-        prediction={prediction}
-        onOpenSymptomModal={() => setIsSymptomModalOpen(true)}
-        onOpenFertilityModal={() => setIsFertilityModalOpen(true)}
-        onOpenCycleModal={() => setIsCycleModalOpen(true)}
-        isTryingToConceive={isTryingToConceive}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <WomensHealthCalendar 
+      {activePregnancy ? (
+        <div className="space-y-6">
+          <PregnancyTimelineWidget pregnancy={activePregnancy} />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <PregnancyVitalsGrid pregnancy={activePregnancy} />
+              <FetalMonitoringWidget pregnancy={activePregnancy} />
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <PrenatalCareWidget pregnancy={activePregnancy} />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <TodayCheckInWidget 
             cycles={cycles}
             prediction={prediction}
-            onQuickLogCycle={handleQuickLogCycle}
-            onOpenDayDetails={handleOpenDayDetails}
-            isLoading={isSavingCycle}
+            onOpenSymptomModal={() => setIsSymptomModalOpen(true)}
+            onOpenFertilityModal={() => setIsFertilityModalOpen(true)}
+            onOpenCycleModal={() => setIsCycleModalOpen(true)}
+            isTryingToConceive={isTryingToConceive}
           />
-        </div>
-        <div className="lg:col-span-1 space-y-6">
-          <CycleInsightsWidget prediction={prediction} insights={insights} />
-          <RemindersWidget prediction={prediction} />
-        </div>
-      </div>
 
-      <div className="mt-8">
-        <CycleHistoryTable consumerId={user!.id} />
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <WomensHealthCalendar 
+                cycles={cycles}
+                prediction={prediction}
+                onQuickLogCycle={handleQuickLogCycle}
+                onOpenDayDetails={handleOpenDayDetails}
+                isLoading={isSavingCycle}
+              />
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <CycleInsightsWidget prediction={prediction} insights={insights} />
+              <RemindersWidget prediction={prediction} />
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <CycleHistoryTable consumerId={user!.id} />
+          </div>
+        </>
+      )}
 
       {user?.id && (
         <>
@@ -275,6 +320,15 @@ export default function WomensHealthDashboard() {
             onClose={() => setIsFertilityModalOpen(false)}
             consumerId={user.id}
             onSuccess={loadData}
+          />
+          <RegisterPregnancyModal
+            isOpen={isPregnancyModalOpen}
+            onClose={() => setIsPregnancyModalOpen(false)}
+            consumerId={user.id}
+            onSuccess={() => {
+              setIsPregnancyModalOpen(false);
+              loadData();
+            }}
           />
         </>
       )}

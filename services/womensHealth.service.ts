@@ -60,6 +60,40 @@ export interface FertilityAiInsightDto {
   identifiedPatterns: string[];
 }
 
+// ==========================================
+// PREGNANCY
+// ==========================================
+export interface PregnancyProfileDto {
+  id: number;
+  consumerId: number;
+  lastMenstrualPeriod: string;
+  estimatedDueDate: string;
+  status: 'ACTIVE' | 'COMPLETED' | 'LOSS';
+  currentGestationalWeek: number;
+  currentGestationalDay: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePregnancyProfileDto {
+  lastMenstrualPeriod?: string;
+  estimatedDueDate?: string;
+}
+
+export interface PregnancyLogDto {
+  id?: number;
+  pregnancyProfileId?: number;
+  logDate: string;
+  weightKg?: number;
+  bloodPressureSystolic?: number;
+  bloodPressureDiastolic?: number;
+  glucoseLevel?: number;
+  fetalMovementsCount?: number;
+  contractionsCount?: number;
+  contractionsFrequencyMins?: number;
+  notes?: string;
+}
+
 class WomensHealthService {
   // Configuración / Consentimiento
   async checkConsent(consumerId: number): Promise<boolean> {
@@ -141,6 +175,38 @@ class WomensHealthService {
 
   async getFertilityInsights(consumerId: number): Promise<FertilityAiInsightDto> {
     const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/fertility/insights`);
+    return response.data;
+  }
+
+  // ==========================================
+  // PREGNANCY
+  // ==========================================
+  async getActivePregnancy(consumerId: number): Promise<PregnancyProfileDto | null> {
+    try {
+      const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy/active`);
+      if (response.status === 204) return null;
+      return response.data;
+    } catch (e) {
+      return null; // Return null if not found
+    }
+  }
+
+  async createOrUpdatePregnancy(consumerId: number, data: CreatePregnancyProfileDto): Promise<PregnancyProfileDto> {
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy`, data);
+    return response.data;
+  }
+
+  async completePregnancy(consumerId: number, status: 'COMPLETED' | 'LOSS'): Promise<void> {
+    await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy/complete?status=${status}`);
+  }
+
+  async getPregnancyLogs(consumerId: number): Promise<PregnancyLogDto[]> {
+    const response = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy/logs`);
+    return response.data;
+  }
+
+  async logPregnancyVitals(consumerId: number, data: PregnancyLogDto): Promise<PregnancyLogDto> {
+    const response = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/womens-health/pregnancy/logs`, data);
     return response.data;
   }
 }
