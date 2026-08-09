@@ -11,7 +11,7 @@ interface CycleInsightsWidgetProps {
 
 export function CycleInsightsWidget({ prediction, insights }: CycleInsightsWidgetProps) {
   return (
-    <div className="bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-[#0a0a0a] rounded-3xl p-6 border border-indigo-100 dark:border-indigo-900/30 shadow-sm flex flex-col h-full">
+    <div className="bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/20 dark:to-[#0a0a0a] rounded-3xl p-6 border border-indigo-100 dark:border-indigo-900/30 shadow-sm flex flex-col">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
           <BrainCircuit className="w-5 h-5" />
