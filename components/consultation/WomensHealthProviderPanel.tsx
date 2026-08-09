@@ -143,7 +143,7 @@ export function WomensHealthProviderPanel({ consumerId }: Props) {
                     {cycle.endDate ? format(parseISO(cycle.endDate), "dd/MM/yy") : 'Actual'}
                   </td>
                   <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                    <span className="capitalize">{cycle.intensity.toLowerCase()}</span>
+                    <span className="capitalize">{cycle.intensity?.toLowerCase() || "-"}</span>
                   </td>
                 </tr>
               ))}
