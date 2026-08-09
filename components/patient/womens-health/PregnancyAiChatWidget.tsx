@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BrainCircuit, Send, X, ChevronDown, AlertTriangle, Bot } from "lucide-react";
 import { womensHealthService, PregnancyProfileDto, PregnancyAiChatResponseDto } from "@/services/womensHealth.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { consumerProfileService } from "@/services/consumerProfile.service";
+import { ConsumerProfile } from "@/types/consumerProfile";
 
 interface Message {
   role: "user" | "assistant";
@@ -36,12 +38,34 @@ export function PregnancyAiChatWidget({ pregnancy, consumerId }: PregnancyAiChat
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [profile, setProfile] = useState<ConsumerProfile | null>(null);
+
+  useEffect(() => {
+    consumerProfileService.getProfile().then(setProfile).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen]);
+
+  const getSuggestedQuestions = () => {
+    const questions = [...SUGGESTED_QUESTIONS];
+    if (profile?.medicalConditions && profile.medicalConditions.length > 0) {
+      const conditionNames = profile.medicalConditions
+        .map(c => typeof c === 'string' ? c : c.name?.toLowerCase() || '')
+        .join(' ');
+      
+      if (conditionNames.includes('diabet')) {
+        questions[0] = "¿Cómo controlo mi glucosa en el embarazo?";
+      }
+      if (conditionNames.includes('hiperten') || conditionNames.includes('presi')) {
+        questions[2] = "¿Cuándo es peligrosa la presión arterial alta?";
+      }
+    }
+    return questions;
+  };
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -117,7 +141,14 @@ export function PregnancyAiChatWidget({ pregnancy, consumerId }: PregnancyAiChat
                   <BrainCircuit className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm leading-tight">Asistente de Embarazo</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-white text-sm leading-tight">Asistente de Embarazo</p>
+                    {profile?.medicalConditions && profile.medicalConditions.length > 0 && (
+                      <span className="px-1.5 py-0.5 bg-amber-500 text-amber-950 text-[10px] font-bold rounded-md" title="Contexto clínico activado">
+                        +CLÍNICO
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-emerald-100">Semana {pregnancy.currentGestationalWeek} · Powered by Gemini</p>
                 </div>
               </div>
@@ -176,7 +207,7 @@ export function PregnancyAiChatWidget({ pregnancy, consumerId }: PregnancyAiChat
             {/* Suggested questions (show only when few messages) */}
             {messages.length <= 2 && (
               <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                {SUGGESTED_QUESTIONS.map((q, i) => (
+                {getSuggestedQuestions().map((q, i) => (
                   <button
                     key={i}
                     onClick={() => sendMessage(q)}
