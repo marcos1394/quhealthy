@@ -228,14 +228,14 @@ export default function WomensHealthDashboard() {
                 <div className="bg-pink-50/50 dark:bg-pink-900/10 border border-pink-100 dark:border-pink-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
                   <p className="text-sm font-semibold text-pink-600 dark:text-pink-400 mb-2">Próximo Periodo</p>
                   <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {formatDate(prediction.estimatedNextPeriodStart)}
+                    {formatDate(prediction.nextPeriodStart)}
                   </p>
                 </div>
                 
                 <div className="bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-5 text-center transition-all hover:scale-105">
                   <p className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-2">Día de Ovulación</p>
                   <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {formatDate(prediction.estimatedOvulationDate)}
+                    {formatDate(prediction.ovulationDate)}
                   </p>
                 </div>
 
