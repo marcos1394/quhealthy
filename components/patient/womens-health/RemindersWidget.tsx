@@ -16,7 +16,7 @@ export function RemindersWidget({ prediction }: Props) {
   const today = new Date();
   
   // Calculate days until next period
-  const nextPeriodDate = parseISO(prediction.nextPeriodStartDate);
+  const nextPeriodDate = parseISO(prediction.estimatedNextPeriodStart);
   const daysToPeriod = differenceInDays(nextPeriodDate, today);
   
   // Calculate days until fertile window
