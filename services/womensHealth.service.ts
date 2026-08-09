@@ -23,9 +23,9 @@ export interface MenstrualSymptomLog {
 }
 
 export interface CyclePredictionDto {
-  estimatedNextPeriodStart: string;
-  estimatedNextPeriodEnd: string;
-  estimatedOvulationDate: string;
+  nextPeriodStart: string;
+  nextPeriodEnd: string;
+  ovulationDate: string;
   fertileWindowStart: string;
   fertileWindowEnd: string;
   averageCycleLength: number;

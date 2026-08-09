@@ -81,8 +81,8 @@ export function WomensHealthProviderPanel({ consumerId }: Props) {
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Próximo Periodo:</span>
                 <span className="font-medium text-gray-900 dark:text-gray-100">
-                  {format(parseISO(prediction.estimatedNextPeriodStart), "d 'de' MMMM, yyyy", { locale: es })}
-                </span>
+                {format(parseISO(prediction.nextPeriodStart), "d 'de' MMMM, yyyy", { locale: es })}
+              </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Ventana Fértil:</span>
