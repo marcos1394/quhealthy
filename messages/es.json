@@ -5296,7 +5296,7 @@
     "total_settlement": "Total a liquidar",
     "foreign_currency_notice": "El cargo definitivo se procesará en {amount} MXN según el tipo de cambio oficial.",
     "payment_method_title": "Método de Pago",
-    "stripe_method": "Tarjeta de Débito / Crédito (Stripe)",
+    "stripe_method": "Tarjeta de Débito / Crédito",
     "quwallet_method": "QuWallet",
     "wallet_balance": "Saldo disponible: {amount} MXN",
     "insufficient_balance": "Saldo insuficiente",

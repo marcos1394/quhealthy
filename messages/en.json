@@ -5620,7 +5620,7 @@
     "total_settlement": "Total Settlement",
     "foreign_currency_notice": "The final charge will be processed in {amount} MXN based on official exchange rates.",
     "payment_method_title": "Payment Method",
-    "stripe_method": "Debit / Credit Card (Stripe)",
+    "stripe_method": "Debit / Credit Card",
     "quwallet_method": "QuWallet",
     "wallet_balance": "Available balance: {amount} MXN",
     "insufficient_balance": "Insufficient balance",
