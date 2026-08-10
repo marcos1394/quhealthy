@@ -23,6 +23,7 @@ import { useBookingStore } from "@/hooks/useBookingStore";
 import { paymentService } from "@/services/payment.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { Button } from "@/components/ui/button";
+import Script from "next/script";
 
 import { BackgroundEffects } from "@/components/booking/success/SuccessEffects";
 
@@ -40,6 +41,7 @@ interface UnifiedReceiptResponse {
   paymentMethod: string;
   customerName: string;
   shippingAddress?: string;
+  pickupTime?: string;
   items: ReceiptItemDto[];
 }
 
@@ -153,6 +155,47 @@ export default function HybridSuccessPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+      {receipt && (
+        <>
+          <Script id="gcr-init-hybrid" strategy="afterInteractive">
+            {`
+              window.renderOptIn = function() {
+                // Calcular fecha de entrega dinámicamente
+                var hasPhysicalProduct = ${receipt.items.some(i => i.type === 'PRODUCT')};
+                var isDelivery = ${!!receipt.shippingAddress};
+                var pickupTimeStr = "${receipt.pickupTime || ''}";
+                var deliveryDate = new Date();
+                
+                // Si es un producto físico y se enviará a domicilio, sumamos 5 días.
+                // Si es Pick Up en sitio, usamos la fecha seleccionada o sumamos 2 días por defecto.
+                if (hasPhysicalProduct && isDelivery) {
+                  deliveryDate.setDate(deliveryDate.getDate() + 5);
+                } else if (hasPhysicalProduct && !isDelivery) {
+                  if (pickupTimeStr) {
+                    deliveryDate = new Date(pickupTimeStr);
+                  } else {
+                    deliveryDate.setDate(deliveryDate.getDate() + 2); // 2 días para pick up por defecto
+                  }
+                }
+                
+                var formattedDate = deliveryDate.toISOString().split('T')[0];
+
+                window.gapi.load('surveyoptin', function() {
+                  window.gapi.surveyoptin.render({
+                    "merchant_id": 5836869157,
+                    "order_id": "${receipt.transactionId}",
+                    "email": "${receipt.customerName || ''}",
+                    "delivery_country": "MX",
+                    "estimated_delivery_date": formattedDate
+                  });
+                });
+              }
+            `}
+          </Script>
+          <Script src="https://apis.google.com/js/platform.js?onload=renderOptIn" strategy="afterInteractive" />
+        </>
+      )}
+
       <BackgroundEffects />
 
       <div className="max-w-3xl mx-auto relative z-10">

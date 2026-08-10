@@ -174,6 +174,28 @@ export default async function RootLayout({
                 })(document,"script");
               `}
             </Script>
+
+            {/* Google Customer Reviews Badge */}
+            <Script
+              id="merchantWidgetScript"
+              src="https://www.gstatic.com/shopping/merchant/merchantwidget.js"
+              strategy="afterInteractive"
+            />
+            <Script id="merchantWidgetInit" strategy="afterInteractive">
+              {`
+                var merchantScriptEl = document.getElementById('merchantWidgetScript');
+                if (merchantScriptEl) {
+                  merchantScriptEl.addEventListener('load', function () {
+                    if (window.merchantwidget) {
+                      window.merchantwidget.start({
+                        merchant_id: 5836869157,
+                        position: 'BOTTOM_LEFT'
+                      });
+                    }
+                  });
+                }
+              `}
+            </Script>
           </CustomProvider>
         </NextIntlClientProvider>
       </body>

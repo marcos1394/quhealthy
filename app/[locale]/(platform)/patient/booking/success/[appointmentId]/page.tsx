@@ -9,6 +9,7 @@ import { es, enUS } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { AlertCircle, ArrowLeft } from "lucide-react";
+import Script from "next/script";
 
 import { useAppointmentDetails } from "@/hooks/useAppointmentDetails";
 import { useSessionStore } from "@/stores/SessionStore";
@@ -203,6 +204,27 @@ export default function BookingSuccessPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+      {appointment && (
+        <>
+          <Script id="gcr-init" strategy="afterInteractive">
+            {`
+              window.renderOptIn = function() {
+                window.gapi.load('surveyoptin', function() {
+                  window.gapi.surveyoptin.render({
+                    "merchant_id": 5836869157,
+                    "order_id": "${appointmentId}",
+                    "email": "${appointment.consumerEmailSnapshot || ''}",
+                    "delivery_country": "MX",
+                    "estimated_delivery_date": "${new Date(appointment.startTime).toISOString().split('T')[0]}"
+                  });
+                });
+              }
+            `}
+          </Script>
+          <Script src="https://apis.google.com/js/platform.js?onload=renderOptIn" strategy="afterInteractive" />
+        </>
+      )}
+
       {/* Background técnico de puntos sutiles */}
       <BackgroundEffects />
       <Confetti show={showConfetti} />
