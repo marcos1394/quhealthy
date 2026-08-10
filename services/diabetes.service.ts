@@ -1,4 +1,4 @@
-import apiService from "@/lib/utils/api-utils";
+import axiosInstance from '@/lib/axios';
 
 export enum DiabetesType {
   TYPE_1 = "TYPE_1",
@@ -58,19 +58,23 @@ export interface DiabetesLogDto {
 
 class DiabetesService {
   async getProfile(consumerId: number): Promise<DiabetesProfileDto> {
-    return await apiService.get(`/api/onboarding/consumer/${consumerId}/diabetes/profile`);
+    const res = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/diabetes/profile`);
+    return res.data;
   }
 
   async upsertProfile(consumerId: number, data: Partial<DiabetesProfileDto>): Promise<DiabetesProfileDto> {
-    return await apiService.put(`/api/onboarding/consumer/${consumerId}/diabetes/profile`, data);
+    const res = await axiosInstance.put(`/api/onboarding/consumer/${consumerId}/diabetes/profile`, data);
+    return res.data;
   }
 
   async getLogs(consumerId: number): Promise<DiabetesLogDto[]> {
-    return await apiService.get(`/api/onboarding/consumer/${consumerId}/diabetes/logs`);
+    const res = await axiosInstance.get(`/api/onboarding/consumer/${consumerId}/diabetes/logs`);
+    return res.data;
   }
 
   async addLog(consumerId: number, data: Partial<DiabetesLogDto>): Promise<DiabetesLogDto> {
-    return await apiService.post(`/api/onboarding/consumer/${consumerId}/diabetes/logs`, data);
+    const res = await axiosInstance.post(`/api/onboarding/consumer/${consumerId}/diabetes/logs`, data);
+    return res.data;
   }
 }
 
