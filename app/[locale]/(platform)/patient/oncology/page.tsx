@@ -8,22 +8,27 @@ import { oncologyService } from "@/services/oncology.service";
 import { Ribbon, Activity, FileText } from "lucide-react";
 import { useSessionStore } from "@/stores/SessionStore";
 
+import { medicalTeamService, MedicalTeamMemberDto } from "@/services/medical-team.service";
+
 export default function OncologyDashboardPage() {
   const { user } = useSessionStore();
   const [profile, setProfile] = useState<OncologyProfileDto | null>(null);
   const [treatments, setTreatments] = useState<TreatmentDto[]>([]);
+  const [medicalTeam, setMedicalTeam] = useState<MedicalTeamMemberDto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       if (!user?.id) return;
       try {
-        const [profData, treatmentsData] = await Promise.all([
+        const [profData, treatmentsData, teamData] = await Promise.all([
           oncologyService.getProfile(user.id),
-          treatmentService.getMyTreatments()
+          treatmentService.getMyTreatments(),
+          medicalTeamService.getOncologyTeam().catch(() => []) // Fallback in case endpoint is not up
         ]);
         setProfile(profData);
         setTreatments(treatmentsData);
+        setMedicalTeam(teamData);
       } catch (err) {
         console.error("Failed to load oncology dashboard:", err);
       } finally {
@@ -73,17 +78,31 @@ export default function OncologyDashboardPage() {
              <div className="absolute top-0 right-0 p-4 opacity-10">
                <Ribbon className="w-24 h-24" />
              </div>
-             <h3 className="text-lg font-bold mb-2">Mi Equipo Médico</h3>
-             <p className="text-sm text-gray-400 mb-4">No estás solo en esto. Tu equipo multidisciplinario está conectado a QuHealthy.</p>
+             <h3 className="text-lg font-bold mb-2">
+               {medicalTeam.length > 0 && medicalTeam[0].assigned
+                 ? "Mi Equipo Médico"
+                 : "Especialistas Oncológicos Recomendados"}
+             </h3>
+             <p className="text-sm text-gray-400 mb-4">
+               {medicalTeam.length > 0 && medicalTeam[0].assigned
+                 ? "No estás solo en esto. Tu equipo multidisciplinario está conectado a QuHealthy."
+                 : "Aún no tienes oncólogos asignados. Te sugerimos estos especialistas de QuHealthy:"}
+             </p>
              <div className="space-y-3">
-               <div className="bg-gray-800/50 rounded-xl p-3 border border-gray-700">
-                 <p className="font-semibold text-sm">Dr. Ana Ruiz</p>
-                 <p className="text-xs text-gray-400">Oncóloga Médica</p>
-               </div>
-               <div className="bg-gray-800/50 rounded-xl p-3 border border-gray-700">
-                 <p className="font-semibold text-sm">Dr. Carlos Mendoza</p>
-                 <p className="text-xs text-gray-400">Radio-oncólogo</p>
-               </div>
+               {medicalTeam.length === 0 ? (
+                 <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-center">
+                   <p className="text-sm text-gray-400">Aún no tienes especialistas oncológicos asignados a tu expediente.</p>
+                 </div>
+               ) : (
+                 medicalTeam.map((member) => (
+                   <div key={member.id} className="bg-gray-800/50 rounded-xl p-3 border border-gray-700">
+                     <p className="font-semibold text-sm">
+                       {member.firstName} {member.lastName}
+                     </p>
+                     <p className="text-xs text-gray-400">{member.specialty}</p>
+                   </div>
+                 ))
+               )}
              </div>
           </div>
         </div>
