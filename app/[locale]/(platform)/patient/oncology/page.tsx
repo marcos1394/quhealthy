@@ -1,44 +1,44 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DiagnosisAndStagingWidget, OncologyProfileDto } from "@/components/patient/oncology/DiagnosisAndStagingWidget";
 import { TreatmentManager, TreatmentDto } from "@/components/patient/health-record/TreatmentManager";
+import { treatmentService } from "@/services/treatment.service";
+import { oncologyService } from "@/services/oncology.service";
 import { Ribbon, Activity, FileText } from "lucide-react";
+import { useSessionStore } from "@/stores/SessionStore";
 
 export default function OncologyDashboardPage() {
-  // Mock data for initial layout testing
-  const [profile, setProfile] = useState<OncologyProfileDto>({
-    id: 1,
-    cie10Code: "C50.9",
-    cie10Description: "Tumor maligno de la mama, parte no especificada",
-    diagnosisDate: "2026-07-15",
-    stagingT: "T2",
-    stagingN: "N1",
-    stagingM: "M0",
-    overallStage: "IIB",
-    treatmentLine: 1,
-    status: "ACTIVE"
-  });
+  const { user } = useSessionStore();
+  const [profile, setProfile] = useState<OncologyProfileDto | null>(null);
+  const [treatments, setTreatments] = useState<TreatmentDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [treatments, setTreatments] = useState<TreatmentDto[]>([
-    {
-      id: 2,
-      name: "Ciclofosfamida",
-      dosage: "600 mg/m2",
-      frequency: "Cada 21 días (Ciclo 1)",
-      route: "Intravenosa",
-      category: "ONCOLOGY",
-      startDate: "2026-08-05",
-      prescriber: "Centro Médico ABC",
-      status: "ACTIVE",
-      nextDoseTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10).toISOString(),
+  useEffect(() => {
+    async function load() {
+      if (!user?.id) return;
+      try {
+        const [profData, treatmentsData] = await Promise.all([
+          oncologyService.getProfile(user.id),
+          treatmentService.getMyTreatments()
+        ]);
+        setProfile(profData);
+        setTreatments(treatmentsData);
+      } catch (err) {
+        console.error("Failed to load oncology dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ]);
+    load();
+  }, []);
+
+  if (loading) return <div className="p-10 text-center text-gray-500">Cargando...</div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 p-6">
       <div className="flex items-center gap-4 mb-8 border-b border-gray-100 dark:border-gray-800 pb-6">
-        <div className="w-14 h-14 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-2xl flex items-center justify-center">
+        <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 rounded-2xl flex items-center justify-center">
           <Ribbon className="w-8 h-8" />
         </div>
         <div>
@@ -51,15 +51,15 @@ export default function OncologyDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <DiagnosisAndStagingWidget profile={profile} />
+          {profile && <DiagnosisAndStagingWidget profile={profile} />}
           
           <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
              <div className="flex items-center gap-2 mb-6">
-               <Activity className="w-6 h-6 text-purple-500" />
+               <Activity className="w-6 h-6 text-emerald-500" />
                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Terapias Oncológicas Activas</h2>
              </div>
              <p className="text-sm text-gray-500 mb-6">
-               Estos tratamientos se sincronizan automáticamente con tu <span className="font-semibold text-indigo-600">Gestor de Tratamientos Centralizado</span>. Si marcas un medicamento aquí, se actualizará en todo tu expediente.
+               Estos tratamientos se sincronizan automáticamente con tu <span className="font-semibold text-emerald-600">Gestor de Tratamientos Centralizado</span>. Si marcas un medicamento aquí, se actualizará en todo tu expediente.
              </p>
              <TreatmentManager 
                 treatments={treatments.filter(t => t.category === "ONCOLOGY")} 

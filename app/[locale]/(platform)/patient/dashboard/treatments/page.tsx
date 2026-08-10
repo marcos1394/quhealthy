@@ -1,41 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { TreatmentManager, TreatmentDto } from "@/components/patient/health-record/TreatmentManager";
+import { treatmentService } from "@/services/treatment.service";
 import { Button } from "@/components/ui/button";
 
 export default function TreatmentsPage() {
   // const t = useTranslations("Patient.Treatments"); // Ignoring translations for the prototype
   const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({ name: "", dosage: "", category: "GENERAL" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mock data for initial layout testing, soon to be fetched from appointment_service
-  const [treatments, setTreatments] = useState<TreatmentDto[]>([
-    {
-      id: 1,
-      name: "Paracetamol",
-      dosage: "500mg",
-      frequency: "Cada 8 horas",
-      route: "Oral",
-      category: "GENERAL",
-      startDate: "2026-08-01",
-      prescriber: "Dr. Ana Ruiz",
-      status: "ACTIVE",
-      nextDoseTime: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(),
-    },
-    {
-      id: 2,
-      name: "Ciclofosfamida",
-      dosage: "600 mg/m2",
-      frequency: "Cada 21 días (Ciclo 1)",
-      route: "Intravenosa",
-      category: "ONCOLOGY",
-      startDate: "2026-08-05",
-      prescriber: "Centro Médico ABC",
-      status: "ACTIVE",
-      nextDoseTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10).toISOString(),
+  const [treatments, setTreatments] = useState<TreatmentDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await treatmentService.getMyTreatments();
+        setTreatments(data);
+      } catch (err) {
+        console.error("Failed to fetch treatments:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ]);
+    load();
+  }, []);
+
+  const handleAddManual = async () => {
+    if (!formData.name || !formData.dosage) return;
+    setIsSubmitting(true);
+    try {
+      const newTreatment = await treatmentService.addManualTreatment({
+        name: formData.name,
+        dosage: formData.dosage,
+        category: formData.category,
+        frequency: "Indicado por el médico",
+        route: "Oral",
+        startDate: new Date().toISOString().split('T')[0],
+      });
+      setTreatments(prev => [...prev, newTreatment]);
+      setShowAddModal(false);
+      setFormData({ name: "", dosage: "", category: "GENERAL" });
+    } catch (error) {
+      console.error("Error adding treatment", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -60,16 +74,32 @@ export default function TreatmentsPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Nombre del Medicamento / Terapia</label>
-                <input type="text" className="w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3" placeholder="Ej. Trastuzumab o Losartán" />
+                <input 
+                  type="text" 
+                  className="w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3" 
+                  placeholder="Ej. Trastuzumab o Losartán" 
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Dosis</label>
-                  <input type="text" className="w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3" placeholder="Ej. 500mg" />
+                  <input 
+                    type="text" 
+                    className="w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3" 
+                    placeholder="Ej. 500mg" 
+                    value={formData.dosage}
+                    onChange={e => setFormData({ ...formData, dosage: e.target.value })}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Categoría</label>
-                  <select className="w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3">
+                  <select 
+                    className="w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3"
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  >
                     <option value="GENERAL">General</option>
                     <option value="ONCOLOGY">Oncología (Quimio, Inmuno...)</option>
                     <option value="CARDIOLOGY">Cardiología</option>
@@ -80,8 +110,10 @@ export default function TreatmentsPage() {
             </div>
 
             <div className="flex justify-end gap-3 mt-8">
-              <Button variant="ghost" onClick={() => setShowAddModal(false)}>Cancelar</Button>
-              <Button onClick={() => setShowAddModal(false)} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">Guardar Tratamiento</Button>
+              <Button variant="ghost" onClick={() => setShowAddModal(false)} disabled={isSubmitting}>Cancelar</Button>
+              <Button onClick={handleAddManual} disabled={isSubmitting || !formData.name || !formData.dosage} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
+                {isSubmitting ? "Guardando..." : "Guardar Tratamiento"}
+              </Button>
             </div>
           </div>
         </div>
