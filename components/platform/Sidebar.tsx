@@ -89,6 +89,7 @@ const patientLinks = [
   // ─── Módulos especializados: solo visibles si el paciente tiene un diagnóstico relacionado ───
   { key: "oncology",     href: "/patient/oncology",                   icon: Activity, badge: null, condition: "oncology" },
   { key: "womens_health",href: "/patient/dashboard/womens-health",    icon: Flower2,  badge: null, condition: "womens_health" },
+  { key: "diabetes",     href: "/patient/diabetes",                   icon: Activity, badge: null, condition: "diabetes" },
   // ─── Módulos base ───
   { key: "discover", href: "/discover", icon: Sparkles, badge: null },
   { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
@@ -146,7 +147,7 @@ const NavItem = ({
     if (["patients", "dependents", "public_profile", "profile"].includes(key))
       return "text-indigo-500";
     if (["calendar", "appointments"].includes(key)) return "text-orange-500";
-    if (["womens_health", "oncology"].includes(key)) return "text-pink-500";
+    if (["womens_health", "oncology", "diabetes"].includes(key)) return "text-pink-500";
     if (["discover"].includes(key)) return "text-fuchsia-500";
     if (["emergencies"].includes(key)) return "text-rose-500";
     if (["nutrition"].includes(key)) return "text-lime-500";
