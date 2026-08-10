@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
 
       media-src 'self' https://storage.googleapis.com https://cdn.plyr.io blob:;
       
-      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com;
+      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com https://www.google.com;
       
       connect-src *;
     `.replace(/\s{2,}/g, ' ').trim();
