@@ -3,18 +3,8 @@
 import React from "react";
 import { Stethoscope, Activity, FileText } from "lucide-react";
 
-export interface OncologyProfileDto {
-  id: number;
-  cie10Code: string;
-  cie10Description: string;
-  diagnosisDate: string;
-  stagingT: string;
-  stagingN: string;
-  stagingM: string;
-  overallStage: string;
-  treatmentLine: number;
-  status: string;
-}
+import { OncologyProfileDto } from "@/services/oncology.service";
+export type { OncologyProfileDto };
 
 export function DiagnosisAndStagingWidget({ profile }: { profile?: OncologyProfileDto | null }) {
   if (!profile) {
