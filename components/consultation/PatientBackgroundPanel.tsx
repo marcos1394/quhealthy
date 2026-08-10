@@ -18,6 +18,7 @@ import {
 import { toast } from "react-toastify";
 
 import { ehrService } from "@/services/ehr.service";
+import { consumerProfileService } from "@/services/consumerProfile.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -91,10 +92,9 @@ export function PatientBackgroundPanel({
             setSocialBackground(profile.socialBackground || {});
           }
         } else if (consumerId) {
-          console.log("🏥 [PatientBackgroundPanel] CONSUMER mode - Llamando getPatientProfile", consumerId);
-          const profile = await ehrService.getPatientProfile(consumerId) as any;
+          console.log("🏥 [PatientBackgroundPanel] CONSUMER mode - Llamando consumerProfileService.getProfile", consumerId);
+          const profile = await consumerProfileService.getProfile();
           if (profile) {
-            if (profile.healthProfileId) setInternalProfileId(profile.healthProfileId);
             setFamilyBackground(profile.familyBackground || {});
             setPersonalBackground(profile.personalBackground || {});
             setSocialBackground(profile.socialBackground || {});
@@ -147,11 +147,13 @@ export function PatientBackgroundPanel({
         if (patientDirectoryId) {
           await ehrService.updateProviderPatientBackground(payload);
         } else if (consumerId) {
-          const consumerPayload = {
-            ...payload,
-            healthProfileId: activeId || undefined,
-          } as unknown as PatientBackgroundRequest;
-          await ehrService.updatePatientBackground(consumerPayload);
+          const currentProfile = await consumerProfileService.getProfile();
+          await consumerProfileService.updateProfile({
+            ...currentProfile,
+            familyBackground,
+            personalBackground,
+            socialBackground,
+          });
         }
       }
 

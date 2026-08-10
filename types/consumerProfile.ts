@@ -24,6 +24,11 @@ export interface ConsumerProfile {
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   profilePictureUrl?: string;
+
+  // Antecedentes (Nuevo formato centralizado de health vault)
+  familyBackground?: Record<string, string>;
+  personalBackground?: Record<string, string>;
+  socialBackground?: Record<string, string>;
 }
 
 // Objeto por defecto para inicializar el formulario de forma segura
@@ -43,4 +48,7 @@ export const defaultConsumerProfile: ConsumerProfile = {
   emergencyContactName: "",
   emergencyContactPhone: "",
   profilePictureUrl: "",
+  familyBackground: {},
+  personalBackground: {},
+  socialBackground: {},
 };
