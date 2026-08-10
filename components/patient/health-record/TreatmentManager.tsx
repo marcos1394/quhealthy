@@ -4,19 +4,8 @@ import React from "react";
 import { Pill, Syringe, Activity, Clock, Plus, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export interface TreatmentDto {
-  id: number;
-  name: string;
-  dosage: string;
-  frequency: string;
-  route: string;
-  category: "ONCOLOGY" | "GENERAL" | "CARDIOLOGY" | "OTHER";
-  startDate: string;
-  endDate?: string;
-  prescriber: string;
-  status: "ACTIVE" | "COMPLETED" | "DISCONTINUED";
-  nextDoseTime?: string;
-}
+import { TreatmentDto } from "@/services/treatment.service";
+export type { TreatmentDto };
 
 export function TreatmentManager({ treatments, onAddManual }: { treatments: TreatmentDto[], onAddManual: () => void }) {
   const activeTreatments = treatments.filter(t => t.status === 'ACTIVE');

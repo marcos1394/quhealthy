@@ -6,12 +6,12 @@ export interface TreatmentDto {
   dosage: string;
   frequency: string;
   route: string;
-  category: string;
+  category: "ONCOLOGY" | "GENERAL" | "CARDIOLOGY" | "OTHER" | string;
   startDate: string;
   endDate?: string;
   reason?: string;
   prescriber?: string;
-  status?: string;
+  status?: "ACTIVE" | "COMPLETED" | "DISCONTINUED" | string;
   nextDoseTime?: string;
 }
 
