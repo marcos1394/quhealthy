@@ -46,6 +46,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionStore } from "@/stores/SessionStore";
+import { useModuleStore } from "@/stores/useModuleStore";
+import { useActiveModules } from "@/hooks/useActiveModules";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
@@ -84,8 +86,10 @@ const patientLinks = [
   { key: "copilot", href: "/copilot", icon: BrainCircuit, badge: { count: "IA" } },
   { key: "appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
   { key: "treatments", href: "/patient/dashboard/treatments", icon: BriefcaseMedical, badge: null },
-  { key: "oncology", href: "/patient/oncology", icon: Activity, badge: null },
-  { key: "womens_health", href: "/patient/dashboard/womens-health", icon: Flower2, badge: null },
+  // ─── Módulos especializados: solo visibles si el paciente tiene un diagnóstico relacionado ───
+  { key: "oncology",     href: "/patient/oncology",                   icon: Activity, badge: null, condition: "oncology" },
+  { key: "womens_health",href: "/patient/dashboard/womens-health",    icon: Flower2,  badge: null, condition: "womens_health" },
+  // ─── Módulos base ───
   { key: "discover", href: "/discover", icon: Sparkles, badge: null },
   { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
   { key: "nutrition", href: "/patient/dashboard/nutrition", icon: Utensils, badge: { count: "IA" } },
@@ -215,8 +219,12 @@ export const Sidebar = ({
 
   const { logout } = useAuth();
   const { role, user } = useSessionStore();
+  const { isModuleActive } = useModuleStore();
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
   const [isSwitchingProfile, setIsSwitchingProfile] = useState(false);
+
+  // Carga los módulos activos del paciente según sus diagnósticos CIE-10
+  useActiveModules();
 
   const isConsumer = role === "ROLE_CONSUMER";
   const isStaff = role === "ROLE_STAFF";
@@ -224,6 +232,14 @@ export const Sidebar = ({
 
   const currentLinks = useMemo(() => {
     let links = isConsumer ? patientLinks : providerLinks;
+    // Filter specialized modules by active diagnoses
+    if (isConsumer) {
+      links = links.filter((link) => {
+        const condition = (link as { condition?: string }).condition;
+        if (!condition) return true; // base links always visible
+        return isModuleActive(condition);
+      });
+    }
     if (isStaff && user?.permissions) {
       links = links.filter(
         (link) =>
@@ -231,7 +247,7 @@ export const Sidebar = ({
       );
     }
     return links;
-  }, [isConsumer, isStaff, user?.permissions]);
+  }, [isConsumer, isStaff, user?.permissions, isModuleActive]);
 
   const currentSettingsLinks = isConsumer
     ? patientSettingsLinks
