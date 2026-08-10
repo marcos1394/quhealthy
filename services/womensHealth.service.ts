@@ -126,7 +126,11 @@ export interface PostpartumDashboardResponse {
   logs: PostpartumLogDto[];
   babyProfile: any;
   latestBabyWeight: any;
-  nextVaccine: any;
+  nextVaccine?: {
+    vaccineCatalogId: number;
+    vaccineName: string;
+    recommendedAgeMonths: number;
+  };
   upcomingAppointments: any[];
 }
 
