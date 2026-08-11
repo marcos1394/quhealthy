@@ -25,11 +25,12 @@ export function GlobalCartBar() {
     cart,
     clearCart,
     getTotalPrice,
-    providerSlug,
-    providerId,
-    providerColor,
   } = useBookingStore();
   const totalCart = getTotalPrice();
+
+  const providerSlug = cart[0]?.providerSlug;
+  const providerId = cart[0]?.providerId;
+  const providerColor = cart[0]?.providerColor;
 
   const { processCheckout, isProcessing } = useBookingCheckout();
   const [showCheckout, setShowCheckout] = useState(false);

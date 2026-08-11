@@ -20,7 +20,7 @@ export function PatientSelector() {
   const router = useRouter();
   const { user } = useSessionStore();
   const { family, isLoading } = useFamily();
-  const { dependentId, setDependentId, providerColor } = useBookingStore();
+  const { dependentId, setDependentId } = useBookingStore();
 
   // Por defecto, seleccionar al titular (null) si no se ha definido
   useEffect(() => {

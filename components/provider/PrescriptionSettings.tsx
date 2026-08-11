@@ -39,6 +39,7 @@ interface State {
     signatureUrl: string;
     prescriptionFooterNote: string;
     prescriptionCustomHtml: string;
+    prescriptionHeaderData: Record<string, string>;
   };
   isLoading: boolean;
   isSaving: boolean;

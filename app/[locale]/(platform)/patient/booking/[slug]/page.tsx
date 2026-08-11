@@ -71,9 +71,6 @@ export default function BookingPage({
 
   const {
     cart,
-    providerId,
-    providerName,
-    providerColor,
     dependentId,
     getTotalPrice,
     getTotalDuration,
@@ -89,6 +86,11 @@ export default function BookingPage({
 
   // Storefront para obtener información del servicio si es necesario
   const { store, isLoading: isStoreLoading } = useStorefront(slug);
+
+  // Derivar datos del proveedor desde el store del storefront
+  const providerId = store?.providerId;
+  const providerName = store?.displayName || "Proveedor";
+  const providerColor = store?.primaryColor;
 
   // --- ESTADOS DE AGENDAMIENTO ---
   const [currentMonth, setCurrentMonth] = useState(new Date());
