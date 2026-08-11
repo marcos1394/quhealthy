@@ -115,6 +115,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         'max-snippet': -1,
       },
     },
+    icons: {
+      icon: '/og-image.png',
+      shortcut: '/og-image.png',
+      apple: '/og-image.png',
+    },
   };
 }
 
