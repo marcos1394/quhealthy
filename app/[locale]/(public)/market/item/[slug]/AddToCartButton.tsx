@@ -29,16 +29,14 @@ export function AddToCartButton({
   const router = useRouter();
   const [isAdding, setIsAdding] = useState(false);
   const addToCart = useBookingStore((state) => state.addToCart);
-  const setProvider = useBookingStore((state) => state.setProvider);
+  const openCart = useBookingStore((state) => state.openCart);
   const cart = useBookingStore((state) => state.cart);
 
   const isInCart = cart.some((c) => c.id === item.id && c.type === item.type);
 
   const handleAddToCart = () => {
-    const finalSlug = providerSlug || String(item.providerId);
-
     if (isInCart) {
-      router.push(`/store/${finalSlug}`);
+      openCart();
       return;
     }
 
@@ -63,10 +61,10 @@ export function AddToCartButton({
     setTimeout(() => {
       const finalSlug = providerSlug || String(item.providerId);
       const finalName = providerName || "Proveedor";
-      const color = "#000000";
+      const color = brandColor || "#000000";
 
-      setProvider(item.providerId || 0, finalSlug, finalName, color);
-      addToCart(storefrontItem, finalSlug);
+      addToCart(storefrontItem, finalSlug, finalName, color);
+      openCart();
 
       setIsAdding(false);
       toast.success(t("addedToCart", { fallback: "Agregado al carrito" }), {

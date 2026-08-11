@@ -22,6 +22,7 @@ import {
   ChevronDown,
   Sparkles,
   ShieldCheck,
+  ShoppingBag,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations, useLocale } from "next-intl";
@@ -30,6 +31,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/auth";
+import { useBookingStore } from "@/hooks/useBookingStore";
+import { GlobalCartDrawer } from "@/components/store/GlobalCartDrawer";
 
 // UI Components
 import {
@@ -112,6 +115,8 @@ export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const t = useTranslations("Navbar");
   const locale = useLocale();
+
+  const { cart, openCart } = useBookingStore();
 
   const hasInitialized = useRef(false);
 
@@ -418,6 +423,22 @@ export const Navbar: React.FC = () => {
                   </Button>
                 </Link>
               )}
+              
+              {/* Cart Action Desktop */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={openCart}
+                className="relative rounded-xl text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              >
+                <ShoppingBag size={18} />
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                    {cart.length}
+                  </span>
+                )}
+              </Button>
+
               {renderUserMenuDropdown()}
             </div>
           ) : (
@@ -434,6 +455,21 @@ export const Navbar: React.FC = () => {
                   {t("buttons.login")}
                 </Button>
               </Link>
+
+              {/* Cart Action Guest Desktop */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={openCart}
+                className="relative rounded-xl text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 mr-2"
+              >
+                <ShoppingBag size={18} />
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                    {cart.length}
+                  </span>
+                )}
+              </Button>
 
               {/* Menú Registrarse */}
               <DropdownMenu>
@@ -594,11 +630,26 @@ export const Navbar: React.FC = () => {
                 })}
               </div>
 
-              {/* Acciones de Cuenta en Móvil */}
               <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
                 <div className="flex items-center justify-between pb-2">
                   <span className="text-xs font-semibold text-gray-400">Preferencias:</span>
                   <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        openCart();
+                      }}
+                      className="relative rounded-xl text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                    >
+                      <ShoppingBag size={18} />
+                      {cart.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                          {cart.length}
+                        </span>
+                      )}
+                    </Button>
                     <ThemeToggle />
                     <LanguageToggle />
                   </div>
@@ -671,6 +722,7 @@ export const Navbar: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <GlobalCartDrawer />
     </header>
   );
 };

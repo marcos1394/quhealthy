@@ -2,24 +2,31 @@
 import { create } from 'zustand';
 import { StorefrontItem } from '@/types/storefront';
 
-interface BookingState {
-  // Datos del Doctor (Para mantener el diseño y consultar la API)
-  providerId: number | null;     // 🚀 NUEVO: Necesario para el endpoint de Java
-  providerSlug: string | null;   // Necesario para la URL
-  providerName: string | null;   // Necesario para el UI
-  providerColor: string | null;  // Necesario para el tema (Dark/Neon)
+export interface CartItem extends StorefrontItem {
+  cartQuantity: number;
+  providerSlug?: string;
+  providerName?: string;
+  providerColor?: string;
+}
 
-  // El carrito de compras
-  cart: StorefrontItem[];
+interface BookingState {
+  // El carrito de compras (Multi-proveedor)
+  cart: CartItem[];
+
+  // Estado del UI del carrito global
+  isCartOpen: boolean;
 
   // Para el paciente (Titular o Familiar)
   dependentId: number | null;
 
-
   // Acciones
-  // 🚀 ACTUALIZADO: Ahora recibe el ID numérico
+  openCart: () => void;
+  closeCart: () => void;
+  toggleCart: () => void;
+  
+  // Mantenemos setProvider por compatibilidad, aunque ya no es estricto a un solo proveedor
   setProvider: (id: number, slug: string, name: string, color: string) => void;
-  addToCart: (item: StorefrontItem, currentSlug: string) => void;
+  addToCart: (item: StorefrontItem, currentSlug: string, providerName?: string, providerColor?: string) => void;
   updateQuantity: (itemId: number, qty: number) => void;
   removeFromCart: (itemId: number) => void;
   setDependentId: (id: number | null) => void;
@@ -31,61 +38,42 @@ interface BookingState {
 }
 
 export const useBookingStore = create<BookingState>((set, get) => ({
-  providerId: null,
-  providerSlug: null,
-  providerName: null,
-  providerColor: null,
   cart: [],
+  isCartOpen: false,
   dependentId: null,
 
-  // 🚀 ACTUALIZADO: Guardamos el ID en el estado global y limpiamos el carrito si cambia
-  setProvider: (id, slug, name, color) =>
+  openCart: () => set({ isCartOpen: true }),
+  closeCart: () => set({ isCartOpen: false }),
+  toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
+
+  setProvider: (id, slug, name, color) => {
+    // Ya no limpiamos el carrito al cambiar de proveedor porque ahora es multi-proveedor
+  },
+
+  addToCart: (item, currentSlug, providerName, providerColor) => {
     set((state) => {
-      // Si el paciente cambia de doctor, limpiamos el carrito anterior por seguridad
-      if (state.providerId !== null && state.providerId !== id) {
-        return {
-          cart: [],
-          dependentId: null,
-          providerId: id,
-          providerSlug: slug,
-          providerName: name,
-          providerColor: color
-        };
-      }
-      return {
-        providerId: id,
-        providerSlug: slug,
-        providerName: name,
-        providerColor: color
-      };
-    }),
-
-  addToCart: (item, currentSlug) => {
-    const { providerSlug, clearCart } = get();
-
-    // Si el paciente cambia de doctor (cambia el slug), limpiamos el carrito anterior por seguridad
-    if (providerSlug && providerSlug !== currentSlug) {
-      clearCart();
-    }
-
-    set((state) => {
-      const exists = state.cart.find((cartItem) => cartItem.id === item.id);
+      const exists = state.cart.find((cartItem) => cartItem.id === item.id && cartItem.type === item.type);
       if (exists) {
         // Solo para productos físicos/digitales permitimos tener más de 1 unidad
         if (exists.type === 'PRODUCT') {
           return {
             cart: state.cart.map(c => 
-              c.id === item.id ? { ...c, cartQuantity: (c.cartQuantity || 1) + 1 } : c
-            ),
-            providerSlug: currentSlug
+              c.id === item.id && c.type === item.type ? { ...c, cartQuantity: (c.cartQuantity || 1) + 1 } : c
+            )
           };
         }
         return state;
       }
 
-      // Al agregarlo nuevo, le asignamos cantidad 1
-      const newItem = { ...item, cartQuantity: 1 };
-      return { cart: [...state.cart, newItem], providerSlug: currentSlug };
+      // Al agregarlo nuevo, le asignamos cantidad 1 y guardamos los datos del proveedor
+      const newItem: CartItem = { 
+        ...item, 
+        cartQuantity: 1, 
+        providerSlug: currentSlug,
+        providerName: providerName || "Proveedor",
+        providerColor: providerColor || "#000000"
+      };
+      return { cart: [...state.cart, newItem] };
     });
   },
 
@@ -101,14 +89,9 @@ export const useBookingStore = create<BookingState>((set, get) => ({
 
   setDependentId: (id) => set({ dependentId: id }),
 
-  // 🚀 ACTUALIZADO: Limpiamos también el providerId
   clearCart: () =>
     set({
       cart: [],
-      providerId: null,
-      providerSlug: null,
-      providerName: null,
-      providerColor: null,
       dependentId: null
     }),
 
