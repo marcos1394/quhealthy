@@ -85,7 +85,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 
   const provider = await getProviderProfile(item.providerId || 0);
-  const imageUrl = item.imageUrl || provider?.imageUrl;
+  const providerImage = provider?.bannerUrl || provider?.logoUrl || (provider?.galleryImages && provider.galleryImages.length > 0 ? provider.galleryImages[0].imageUrl : null);
+  const imageUrl = item.imageUrl || providerImage;
 
   const url = `https://www.quhealthy.org/${locale}/market/item/${slug}`;
   const title = `${item.name} | QuHealthy Marketplace`;
