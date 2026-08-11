@@ -316,21 +316,17 @@ export function ServiceItemCard({
                   type="number"
                   min="0"
                   step="50"
-                  value={service.requiresEvaluation ? 0 : service.price || ""}
+                  value={service.price || ""}
                   onChange={(e) =>
                     onUpdate(service.id, {
                       price: Number(e.target.value),
                       hasUnsavedChanges: true,
                     })
                   }
-                  disabled={service.requiresEvaluation}
                   className={cn(
                     "w-full h-11 pl-9 pr-3.5 rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-mono font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-2xs",
-                    !service.requiresEvaluation &&
-                      (!service.price || service.price <= 0) &&
-                      "border-rose-200 dark:border-rose-900/50",
-                    service.requiresEvaluation &&
-                      "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-[#111]"
+                    (!service.price || service.price < 0) &&
+                      "border-rose-200 dark:border-rose-900/50"
                   )}
                 />
               </div>
@@ -343,7 +339,6 @@ export function ServiceItemCard({
                   onChange={(e) =>
                     onUpdate(service.id, {
                       requiresEvaluation: e.target.checked,
-                      price: e.target.checked ? 0 : service.price,
                       hasUnsavedChanges: true,
                     })
                   }

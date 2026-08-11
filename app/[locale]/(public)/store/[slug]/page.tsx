@@ -497,14 +497,16 @@ export default function PublicStorePage() {
                               ${formatPrice(service.compareAtPrice)}
                             </span>
                           )}
-                        <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
-                          {service.requiresEvaluation
-                            ? t("requires_eval", {
-                                defaultValue: "REQUIERE VALORACIÓN",
-                              })
-                            : `$${formatPrice(service.price)}`}
-                        </span>
-                      </div>
+                        <div className="flex flex-col">
+                          <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                            ${formatPrice(service.price)}
+                          </span>
+                          {service.requiresEvaluation && (
+                            <span className="text-xs font-bold text-gray-500 mt-1">
+                              * {t("requires_eval", { defaultValue: "Requiere valoración" })}
+                            </span>
+                          )}
+                        </div>
 
                       {(() => {
                         const isInCart = cart.some(

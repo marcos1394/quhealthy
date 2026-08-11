@@ -226,8 +226,15 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                 {item.name}
               </h1>
 
-              <div className="text-3xl font-bold text-black dark:text-white mb-8">
-                ${item.price?.toFixed(2)} {(item as any).currency || 'MXN'}
+              <div className="flex flex-col mb-8">
+                <div className="text-3xl font-bold text-black dark:text-white">
+                  ${item.price?.toFixed(2)} {(item as any).currency || 'MXN'}
+                </div>
+                {item.requiresEvaluation && (
+                  <span className="text-sm font-bold text-gray-500 mt-1">
+                    * Requiere valoración
+                  </span>
+                )}
               </div>
 
               <div className="prose prose-gray dark:prose-invert max-w-none mb-10 text-gray-600 dark:text-gray-300 font-light leading-relaxed">
