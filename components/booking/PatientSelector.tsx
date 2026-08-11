@@ -93,7 +93,7 @@ export function PatientSelector() {
                 : "bg-store-50 dark:bg-store-950/30 border-store-100 dark:border-store-900/30 text-store-600 dark:text-store-400"
             )}
             style={
-              dependentId === null && providerColor
+              dependentId === null && cart[0]?.providerColor
                 ? { backgroundColor: safeColor, borderColor: safeColor }
                 : undefined
             }
@@ -141,7 +141,7 @@ export function PatientSelector() {
                   : "bg-store-50 dark:bg-store-950/30 border-store-100 dark:border-store-900/30 text-store-600 dark:text-store-400"
               )}
               style={
-                dependentId === member.id && providerColor
+                dependentId === member.id && cart[0]?.providerColor
                   ? { backgroundColor: safeColor, borderColor: safeColor }
                   : undefined
               }
