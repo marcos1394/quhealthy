@@ -27,7 +27,7 @@ export default function AccountRecoveryPage() {
   return (
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
       
-      {/* ── PANEL IZQUIERDO (HERO VISUAL & BRANDING) ────────────────────────── */}
+      {/* ── PANEL IZQUIERDO (HERO VISUAL & BRANDINGG) ────────────────────────── */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
         {/* Imagen de fondo con overlay suave */}
         <img
