@@ -704,9 +704,27 @@ export const PrescriptionSettings = () => {
         {formData.prescriptionCustomHtml && (
           <div className="w-full mt-6">
             <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">Diseño Generado por IA</h3>
-            <div 
-              className="bg-white dark:bg-[#0a0a0a] shadow-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 overflow-hidden"
-              dangerouslySetInnerHTML={{ __html: formData.prescriptionCustomHtml }}
+            <iframe 
+              srcDoc={formData.prescriptionCustomHtml
+                .replace(/{{PHONE}}/g, scanResult?.detectedText?.phone || "55 1234 5678")
+                .replace(/{{EMAIL}}/g, "dr@ejemplo.com")
+                .replace(/{{WEBSITE}}/g, "www.ejemplo.com")
+                .replace(/{{ADDRESS}}/g, scanResult?.detectedText?.address || "Consultorio 123, Ciudad")
+                .replace(/{{SPECIALTY}}/g, scanResult?.detectedText?.specialty || "Especialidad Médica")
+                .replace(/{{PROFESSIONAL_LICENSE}}/g, scanResult?.detectedText?.professionalLicense || "CED123456")
+                .replace(/{{INSTITUTION_NAME}}/g, scanResult?.detectedText?.clinicName || "Universidad de Ejemplo")
+                .replace(/{{PATIENT_NAME}}/g, "Nombre del Paciente")
+                .replace(/{{PATIENT_AGE}}/g, "30")
+                .replace(/{{DATE}}/g, new Date().toLocaleDateString())
+                .replace(/{{PRESCRIPTION_CONTENT}}/g, "1. Paracetamol 500mg cada 8 horas por 3 días.<br/>2. Reposo relativo.")
+                .replace(/{{DOCTOR_NAME}}/g, scanResult?.detectedText?.doctorName || "Dr. Nombre Apellido")
+                .replace(/{{SIGNATURE}}/g, formData.signatureUrl ? `<img src="${formData.signatureUrl}" style="max-height: 60px;" />` : "Firma Digital")
+                .replace(/{{LOGO}}/g, formData.prescriptionLogoUrl ? `<img src="${formData.prescriptionLogoUrl}" style="max-height: 60px;" />` : "Logotipo")
+                .replace(/{{PRIMARY_COLOR}}/g, formData.prescriptionColor || "#059669")
+              }
+              title="Vista previa del diseño IA"
+              className="w-full bg-white dark:bg-white shadow-xl rounded-2xl border border-gray-100 dark:border-gray-800"
+              style={{ minHeight: '600px', border: 'none' }}
             />
           </div>
         )}
