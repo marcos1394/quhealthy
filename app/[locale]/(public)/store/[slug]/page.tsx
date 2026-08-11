@@ -507,6 +507,7 @@ export default function PublicStorePage() {
                             </span>
                           )}
                         </div>
+                      </div>
 
                       {(() => {
                         const isInCart = cart.some(
