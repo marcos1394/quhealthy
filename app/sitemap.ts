@@ -103,6 +103,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (error) {
     console.error('Error generating items for sitemap:', error);
   }
+  // 3. Obtener todos los blogs
+  try {
+    const res = await fetch(`${apiUrl}/api/intelligence/blog/posts`, {
+      next: { revalidate: 3600 },
+    });
+
+    if (res.ok) {
+      const posts = await res.json();
+      for (const post of posts) {
+        if (post.slug) {
+          routes.push({
+            url: `${baseUrl}/es/blog/${post.slug}`,
+            lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt || new Date()),
+            changeFrequency: 'daily',
+            priority: 0.8,
+          });
+          routes.push({
+            url: `${baseUrl}/en/blog/${post.slug}`,
+            lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt || new Date()),
+            changeFrequency: 'daily',
+            priority: 0.8,
+          });
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error generating blogs for sitemap:', error);
+  }
 
   return routes;
 }

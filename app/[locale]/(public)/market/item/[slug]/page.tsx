@@ -84,6 +84,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     return { title: 'Item no encontrado - QuHealthy' };
   }
 
+  const provider = await getProviderProfile(item.providerId || 0);
+  const imageUrl = item.imageUrl || provider?.imageUrl;
+
   const url = `https://www.quhealthy.org/${locale}/market/item/${slug}`;
   const title = `${item.name} | QuHealthy Marketplace`;
   const description = item.description || `Compra ${item.name} en QuHealthy.`;
@@ -97,9 +100,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       description,
       url: url,
       siteName: 'QuHealthy',
-      images: item.imageUrl ? [
+      images: imageUrl ? [
         {
-          url: item.imageUrl,
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: item.name,
@@ -111,7 +114,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       card: 'summary_large_image',
       title,
       description,
-      images: item.imageUrl ? [item.imageUrl] : [],
+      images: imageUrl ? [imageUrl] : [],
     },
     alternates: {
       canonical: url,
@@ -289,6 +292,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                     item={item} 
                     providerName={providerProfile?.displayName} 
                     providerSlug={providerProfile?.slug} 
+                    brandColor={providerProfile?.primaryColor}
                   />
                 </div>
                 <div className="shrink-0 flex gap-4">
@@ -296,6 +300,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                   <SmartFavoriteButton 
                     entityType={item.type as any} 
                     entityId={item.id || 0}
+                    brandColor={providerProfile?.primaryColor}
                   />
                 </div>
               </div>
