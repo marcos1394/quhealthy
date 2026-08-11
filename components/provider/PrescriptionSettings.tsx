@@ -153,7 +153,7 @@ export const PrescriptionSettings = () => {
     loadPreferences();
   }, [t]);
 
-  const { isScanning, scanPrescriptionFile } = usePrescriptionScanner();
+  const { isScanning, scanResult, scanPrescriptionFile } = usePrescriptionScanner();
 
   const handleScanPrescription = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
