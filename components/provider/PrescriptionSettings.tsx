@@ -101,6 +101,14 @@ export const PrescriptionSettings = () => {
         signatureUrl: "",
         prescriptionFooterNote: "",
         prescriptionCustomHtml: "",
+        prescriptionHeaderData: {
+          clinicName: "",
+          doctorName: "",
+          specialty: "",
+          professionalLicense: "",
+          address: "",
+          phone: "",
+        },
       },
       isLoading: true,
       isSaving: false,
@@ -142,6 +150,14 @@ export const PrescriptionSettings = () => {
           signatureUrl: data.signatureUrl || "",
           prescriptionFooterNote: data.prescriptionFooterNote || "",
           prescriptionCustomHtml: data.prescriptionCustomHtml || "",
+          prescriptionHeaderData: data.prescriptionHeaderData || {
+            clinicName: "",
+            doctorName: "",
+            specialty: "",
+            professionalLicense: "",
+            address: "",
+            phone: "",
+          },
         });
       } catch (error) {
         console.error("Error al obtener preferencias:", error);
@@ -166,6 +182,14 @@ export const PrescriptionSettings = () => {
           ...prev,
           prescriptionColor: result.dominantColor || prev.prescriptionColor,
           prescriptionCustomHtml: result.customHtmlTemplate || prev.prescriptionCustomHtml,
+          prescriptionHeaderData: {
+            clinicName: result.detectedText?.clinicName || prev.prescriptionHeaderData?.clinicName || "",
+            doctorName: result.detectedText?.doctorName || prev.prescriptionHeaderData?.doctorName || "",
+            specialty: result.detectedText?.specialty || prev.prescriptionHeaderData?.specialty || "",
+            professionalLicense: result.detectedText?.professionalLicense || prev.prescriptionHeaderData?.professionalLicense || "",
+            address: result.detectedText?.address || prev.prescriptionHeaderData?.address || "",
+            phone: result.detectedText?.phone || prev.prescriptionHeaderData?.phone || "",
+          }
         }));
         toast.success("Receta escaneada exitosamente");
       }
@@ -174,6 +198,17 @@ export const PrescriptionSettings = () => {
     } finally {
       e.target.value = "";
     }
+  };
+
+  const handleHeaderChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev: any) => ({
+      ...prev,
+      prescriptionHeaderData: {
+        ...prev.prescriptionHeaderData,
+        [name]: value
+      }
+    }));
   };
 
   const handleChange = (
@@ -558,6 +593,84 @@ export const PrescriptionSettings = () => {
           </div>
         </div>
 
+        {/* Datos de la Receta (Manual) */}
+        <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800/80">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-indigo-500 shrink-0" strokeWidth={2} />
+            <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              Datos de la Receta
+            </Label>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Nombre de la Clínica / Institución</Label>
+              <Input
+                name="clinicName"
+                value={formData.prescriptionHeaderData?.clinicName || ""}
+                onChange={handleHeaderChange}
+                placeholder="Ej. Clínica San José"
+                className="h-10 text-xs rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800"
+              />
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Nombre del Médico</Label>
+              <Input
+                name="doctorName"
+                value={formData.prescriptionHeaderData?.doctorName || ""}
+                onChange={handleHeaderChange}
+                placeholder="Ej. Dr. Juan Pérez"
+                className="h-10 text-xs rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Especialidad</Label>
+              <Input
+                name="specialty"
+                value={formData.prescriptionHeaderData?.specialty || ""}
+                onChange={handleHeaderChange}
+                placeholder="Ej. Pediatría"
+                className="h-10 text-xs rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Cédula Profesional</Label>
+              <Input
+                name="professionalLicense"
+                value={formData.prescriptionHeaderData?.professionalLicense || ""}
+                onChange={handleHeaderChange}
+                placeholder="Ej. CED123456"
+                className="h-10 text-xs rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800"
+              />
+            </div>
+
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Dirección</Label>
+              <Input
+                name="address"
+                value={formData.prescriptionHeaderData?.address || ""}
+                onChange={handleHeaderChange}
+                placeholder="Ej. Av. Reforma 123, CDMX"
+                className="h-10 text-xs rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800"
+              />
+            </div>
+
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Teléfono</Label>
+              <Input
+                name="phone"
+                value={formData.prescriptionHeaderData?.phone || ""}
+                onChange={handleHeaderChange}
+                placeholder="Ej. 55 1234 5678"
+                className="h-10 text-xs rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Nota al Pie */}
         <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800/80">
           <div className="flex items-center gap-2">
@@ -706,20 +819,22 @@ export const PrescriptionSettings = () => {
             <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">Diseño Generado por IA</h3>
             <iframe 
               srcDoc={formData.prescriptionCustomHtml
-                .replace(/{{PHONE}}/g, scanResult?.detectedText?.phone || "55 1234 5678")
-                .replace(/{{EMAIL}}/g, "dr@ejemplo.com")
-                .replace(/{{WEBSITE}}/g, "www.ejemplo.com")
-                .replace(/{{ADDRESS}}/g, scanResult?.detectedText?.address || "Consultorio 123, Ciudad")
-                .replace(/{{SPECIALTY}}/g, scanResult?.detectedText?.specialty || "Especialidad Médica")
-                .replace(/{{PROFESSIONAL_LICENSE}}/g, scanResult?.detectedText?.professionalLicense || "CED123456")
-                .replace(/{{INSTITUTION_NAME}}/g, scanResult?.detectedText?.clinicName || "Universidad de Ejemplo")
-                .replace(/{{PATIENT_NAME}}/g, "Nombre del Paciente")
-                .replace(/{{PATIENT_AGE}}/g, "30")
-                .replace(/{{DATE}}/g, new Date().toLocaleDateString())
-                .replace(/{{PRESCRIPTION_CONTENT}}/g, "1. Paracetamol 500mg cada 8 horas por 3 días.<br/>2. Reposo relativo.")
-                .replace(/{{DOCTOR_NAME}}/g, scanResult?.detectedText?.doctorName || "Dr. Nombre Apellido")
-                .replace(/{{SIGNATURE}}/g, formData.signatureUrl ? `<img src="${formData.signatureUrl}" style="max-height: 60px;" />` : "Firma Digital")
-                .replace(/{{LOGO}}/g, formData.prescriptionLogoUrl ? `<img src="${formData.prescriptionLogoUrl}" style="max-height: 60px;" />` : "Logotipo")
+                .replace(/{{PHONE}}/g, formData.prescriptionHeaderData?.phone || "")
+                .replace(/{{EMAIL}}/g, "")
+                .replace(/{{WEBSITE}}/g, "")
+                .replace(/{{ADDRESS}}/g, formData.prescriptionHeaderData?.address || "")
+                .replace(/{{SPECIALTY}}/g, formData.prescriptionHeaderData?.specialty || "")
+                .replace(/{{PROFESSIONAL_LICENSE}}/g, formData.prescriptionHeaderData?.professionalLicense || "")
+                .replace(/{{CLINIC_NAME}}/g, formData.prescriptionHeaderData?.clinicName || "")
+                .replace(/{{INSTITUTION_NAME}}/g, formData.prescriptionHeaderData?.clinicName || "")
+                .replace(/{{FOOTER_NOTE}}/g, formData.prescriptionFooterNote || "")
+                .replace(/{{PATIENT_NAME}}/g, "")
+                .replace(/{{PATIENT_AGE}}/g, "")
+                .replace(/{{DATE}}/g, "")
+                .replace(/{{PRESCRIPTION_CONTENT}}/g, "")
+                .replace(/{{DOCTOR_NAME}}/g, formData.prescriptionHeaderData?.doctorName || "")
+                .replace(/{{SIGNATURE}}/g, formData.signatureUrl ? `<img src="${formData.signatureUrl}" style="max-height: 60px;" />` : "")
+                .replace(/{{LOGO}}/g, formData.prescriptionLogoUrl ? `<img src="${formData.prescriptionLogoUrl}" style="max-height: 60px;" />` : "")
                 .replace(/{{PRIMARY_COLOR}}/g, formData.prescriptionColor || "#059669")
               }
               title="Vista previa del diseño IA"

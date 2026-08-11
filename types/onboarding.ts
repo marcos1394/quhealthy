@@ -46,6 +46,9 @@ export interface OnboardingStatusResponse {
   signatureUrl?: string;
   prescriptionFooterNote?: string;
   prescriptionCustomHtml?: string;
+  prescriptionTemplate?: string;
+  defaultDiagnoses?: string[];
+  prescriptionHeaderData?: Record<string, string>;
   professionalLicenses?: ProfessionalLicenseDto[];
 }
 
@@ -67,6 +70,9 @@ export interface UpdatePrescriptionPreferencesRequest {
   signatureUrl?: string;
   prescriptionFooterNote?: string;
   prescriptionCustomHtml?: string;
+  prescriptionTemplate?: string;
+  defaultDiagnoses?: string[];
+  prescriptionHeaderData?: Record<string, string>;
 }
 
 export interface PrescriptionScanResponse {
