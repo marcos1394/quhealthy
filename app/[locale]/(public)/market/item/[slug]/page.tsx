@@ -8,6 +8,7 @@ import { AddToCartButton } from './AddToCartButton';
 import { ProviderTrustCard } from './ProviderTrustCard';
 import { MoreFromProvider } from './MoreFromProvider';
 import { SmartFavoriteButton } from './SmartFavoriteButton';
+import { ItemShareButton } from './ItemShareButton';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -290,7 +291,8 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                     providerSlug={providerProfile?.slug} 
                   />
                 </div>
-                <div className="shrink-0">
+                <div className="shrink-0 flex gap-4">
+                  <ItemShareButton itemName={item.name} />
                   <SmartFavoriteButton 
                     entityType={item.type as any} 
                     entityId={item.id || 0}
