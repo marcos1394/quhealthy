@@ -7,6 +7,7 @@ export interface CartItem extends StorefrontItem {
   providerSlug?: string;
   providerName?: string;
   providerColor?: string;
+  providerId?: number;
 }
 
 interface BookingState {
