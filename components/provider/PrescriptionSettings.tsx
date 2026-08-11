@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { onboardingService } from "@/services/onboarding.service";
+import { usePrescriptionScanner } from "@/hooks/usePrescriptionScanner";
 import { cn } from "@/lib/utils";
 
 interface State {
@@ -37,6 +38,7 @@ interface State {
     prescriptionLogoUrl: string;
     signatureUrl: string;
     prescriptionFooterNote: string;
+    prescriptionCustomHtml: string;
   };
   isLoading: boolean;
   isSaving: boolean;
@@ -98,6 +100,7 @@ export const PrescriptionSettings = () => {
         prescriptionLogoUrl: "",
         signatureUrl: "",
         prescriptionFooterNote: "",
+        prescriptionCustomHtml: "",
       },
       isLoading: true,
       isSaving: false,
@@ -138,6 +141,7 @@ export const PrescriptionSettings = () => {
           prescriptionLogoUrl: data.prescriptionLogoUrl || "",
           signatureUrl: data.signatureUrl || "",
           prescriptionFooterNote: data.prescriptionFooterNote || "",
+          prescriptionCustomHtml: data.prescriptionCustomHtml || "",
         });
       } catch (error) {
         console.error("Error al obtener preferencias:", error);
@@ -148,6 +152,29 @@ export const PrescriptionSettings = () => {
     };
     loadPreferences();
   }, [t]);
+
+  const { isScanning, scanPrescriptionFile } = usePrescriptionScanner();
+
+  const handleScanPrescription = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const result = await scanPrescriptionFile(file);
+      if (result) {
+        setFormData((prev: any) => ({
+          ...prev,
+          prescriptionColor: result.dominantColor || prev.prescriptionColor,
+          prescriptionCustomHtml: result.customHtmlTemplate || prev.prescriptionCustomHtml,
+        }));
+        toast.success("Receta escaneada exitosamente");
+      }
+    } catch (error) {
+      toast.error("Ocurrió un error al escanear la receta");
+    } finally {
+      e.target.value = "";
+    }
+  };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -340,6 +367,32 @@ export const PrescriptionSettings = () => {
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
               {t("description")}
             </p>
+          </div>
+        </div>
+
+        {/* AI Scanner */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" strokeWidth={2} />
+            <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              Escáner de Receta con IA
+            </Label>
+          </div>
+
+          <div className="space-y-2">
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleScanPrescription}
+              disabled={isScanning}
+              className="cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-purple-700 dark:file:bg-purple-950/30 dark:file:text-purple-400 hover:file:bg-purple-100 dark:hover:file:bg-purple-950/50 transition-all text-xs font-medium text-gray-500 dark:text-gray-400 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11"
+            />
+            {isScanning && (
+              <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                <QhSpinner size="sm" className="text-purple-600 dark:text-purple-400" />
+                <span>Analizando diseño con Gemini Vision...</span>
+              </p>
+            )}
           </div>
         </div>
 
@@ -647,6 +700,16 @@ export const PrescriptionSettings = () => {
             )}
           </div>
         </div>
+
+        {formData.prescriptionCustomHtml && (
+          <div className="w-full mt-6">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">Diseño Generado por IA</h3>
+            <div 
+              className="bg-white dark:bg-[#0a0a0a] shadow-xl rounded-2xl p-6 border border-gray-100 dark:border-gray-800 overflow-hidden"
+              dangerouslySetInnerHTML={{ __html: formData.prescriptionCustomHtml }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

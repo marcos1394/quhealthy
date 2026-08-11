@@ -45,6 +45,7 @@ export interface OnboardingStatusResponse {
   prescriptionLogoUrl?: string;
   signatureUrl?: string;
   prescriptionFooterNote?: string;
+  prescriptionCustomHtml?: string;
   professionalLicenses?: ProfessionalLicenseDto[];
 }
 
@@ -65,6 +66,25 @@ export interface UpdatePrescriptionPreferencesRequest {
   prescriptionLogoUrl?: string;
   signatureUrl?: string;
   prescriptionFooterNote?: string;
+  prescriptionCustomHtml?: string;
+}
+
+export interface PrescriptionScanResponse {
+  dominantColor: string;
+  secondaryColor: string;
+  logoDetected: boolean;
+  logoDescription: string;
+  detectedText: {
+    doctorName: string;
+    specialty: string;
+    clinicName: string;
+    address: string;
+    phone: string;
+    professionalLicense: string;
+    footerNote: string;
+  };
+  customHtmlTemplate: string;
+  confidenceScore: number;
 }
 
 export interface ProfileResponse {

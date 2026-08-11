@@ -12,6 +12,7 @@ import {
   FiscalDataRequest,
   FiscalDataResponse,
   UpdatePrescriptionPreferencesRequest,
+  PrescriptionScanResponse,
 } from '@/types/onboarding';
 
 export const onboardingService = {
@@ -71,6 +72,22 @@ export const onboardingService = {
       }
     );
     return response.data; // El backend nos devuelve { url: "https://..." }
+  },
+
+  // 🚀 NUEVA FUNCIÓN: Escanea receta con IA (Gemini Vision)
+  async scanPrescription(file: File): Promise<PrescriptionScanResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axiosInstance.post(
+      '/api/onboarding/prescription/scan',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 120000, // 2 mins timeout for AI
+      }
+    );
+    return response.data;
   },
 
   // =================================================================
