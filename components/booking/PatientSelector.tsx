@@ -20,7 +20,7 @@ export function PatientSelector() {
   const router = useRouter();
   const { user } = useSessionStore();
   const { family, isLoading } = useFamily();
-  const { dependentId, setDependentId } = useBookingStore();
+  const { dependentId, setDependentId, cart } = useBookingStore();
 
   // Por defecto, seleccionar al titular (null) si no se ha definido
   useEffect(() => {
@@ -38,7 +38,7 @@ export function PatientSelector() {
     );
   }
 
-  const safeColor = providerColor || "#059669";
+  const safeColor = cart[0]?.providerColor || "#059669";
 
   const renderRelationshipText = (relationship: string) => {
     switch (relationship) {
