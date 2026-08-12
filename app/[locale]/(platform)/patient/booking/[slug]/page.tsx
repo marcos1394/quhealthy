@@ -213,7 +213,7 @@ export default function BookingPage({
           store.displayName,
           store.primaryColor || "#059669"
         );
-        addToCart(serviceToBook, slug);
+        addToCart(serviceToBook, slug, store.displayName, store.primaryColor || "#059669");
       }
     }
   }, [

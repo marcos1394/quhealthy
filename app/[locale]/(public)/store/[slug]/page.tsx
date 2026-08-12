@@ -144,7 +144,7 @@ export default function PublicStorePage() {
           store.displayName,
           store.primaryColor || "#000000",
         );
-        addToCart(serviceToBook, slug);
+        addToCart(serviceToBook, slug, store.displayName, store.primaryColor || "#000000");
         router.replace(`/${locale}/patient/booking/${slug}`);
       }
     }
@@ -160,7 +160,7 @@ export default function PublicStorePage() {
   ]);
 
   const handleAddToCart = (item: StorefrontItem) => {
-    addToCart(item, slug);
+    addToCart(item, slug, store?.displayName, store?.primaryColor || "#000000");
   };
 
   if (isLoading) {

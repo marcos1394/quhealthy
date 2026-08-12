@@ -85,7 +85,7 @@ export const DiscoverItemCard = ({
       requiresEvaluation: item.requiresEvaluation,
     };
 
-    addToCart(cartItem, item.providerSlug);
+    addToCart(cartItem, item.providerSlug, item.providerName, item.providerColor || "#000000");
 
     if (item.type === "SERVICE") {
       router.push(`/patient/booking/${item.providerSlug}?serviceId=${item.id}`);
