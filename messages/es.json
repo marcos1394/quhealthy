@@ -5629,7 +5629,9 @@
     "selection_label": "Tu Selección",
     "items_count": "{count, plural, =1 {1 ítem} other {{count} ítems}}",
     "btn_book": "Agendar Cita",
-    "btn_book_short": "Agendar"
+    "btn_book_short": "Agendar",
+    "btn_checkout": "Continuar con el pago",
+    "btn_checkout_short": "Pagar"
   },
 
   "QuScoreModal": {
@@ -8333,6 +8335,7 @@
     "switch_to_patient": "Cambiar a Paciente",
     "profile_switched_successfully": "Perfil cambiado exitosamente.",
     "profile_not_found_redirecting": "No tienes este perfil aún. Redirigiendo al registro...",
+    "diabetes": "Diabetes",
     "switch_profile_error": "Ocurrió un error al cambiar de perfil.",
     "logout_success": "Sesión cerrada correctamente.",
     "support": "Ayuda y Soporte",

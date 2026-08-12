@@ -6019,7 +6019,9 @@
     "selection_label": "Your Selection",
     "items_count": "{count, plural, =1 {1 item} other {{count} items}}",
     "btn_book": "Book Appointment",
-    "btn_book_short": "Book"
+    "btn_book_short": "Book",
+    "btn_checkout": "Proceed to Checkout",
+    "btn_checkout_short": "Checkout"
   },
 
   "QuScoreModal": {
@@ -8238,6 +8240,7 @@
     "switching": "Switching...",
     "switch_to_provider": "Switch to Provider",
     "switch_to_patient": "Switch to Patient",
+    "diabetes": "Diabetes",
     "profile_switched_successfully": "Profile switched successfully.",
     "profile_not_found_redirecting": "Profile not found. Redirecting to registration...",
     "switch_profile_error": "An error occurred while switching profiles.",
