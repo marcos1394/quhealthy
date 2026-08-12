@@ -35,7 +35,7 @@ export const StickyBookingBar: React.FC<StickyBookingBarProps> = ({
     );
   }, [cart]);
 
-  const hasServices = useMemo(() => cart.some((item) => item.itemType === "SERVICE"), [cart]);
+  const hasServices = useMemo(() => cart.some((item) => item.type === "SERVICE"), [cart]);
 
   const buttonText = hasServices
     ? t("btn_book", { defaultValue: "Agendar cita" })
