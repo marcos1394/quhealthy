@@ -32,7 +32,7 @@ import { BookingSummary } from "@/components/booking/BookingSummary";
 import { PatientSelector } from "@/components/booking/PatientSelector";
 import { ProfessionalSelector } from "@/components/booking/ProfessionalSelector";
 import { LocationSelector } from "@/components/booking/LocationSelector";
-import { CheckoutModal } from "@/components/store/CheckoutModal";
+import { ServiceCheckoutModal } from "@/components/booking/ServiceCheckoutModal";
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 import { PackageMultiScheduler } from "@/components/booking/PackageMultiScheduler";
 import { useStorefront } from "@/hooks/useStorefront";
@@ -785,40 +785,29 @@ export default function BookingPage({
         />
       </div>
 
-      <CheckoutModal
+      <ServiceCheckoutModal
         isOpen={showCheckoutModal}
         onClose={() => setShowCheckoutModal(false)}
-        cart={cart}
-        isProcessing={isProcessing}
-        themeColor={safeColor}
-        onConfirm={(
-          shippingAddress,
-          prescriptionUrls,
-          pickupTime,
-          destinationState,
-          paymentMethod
-        ) => {
-          setShowCheckoutModal(false);
+        totalAmount={getTotalPrice()}
+        onProcessCheckout={async (payload) => {
           if (providerId) {
-            processCheckout({
-              providerId: providerId,
+            await processCheckout({
+              providerId,
+              scheduleNow: true,
+              selectedDate: selectedDate?.toISOString() || null,
+              selectedTime,
               locationId: selectedLocationId || undefined,
               staffId: selectedStaffId || undefined,
-              selectedDate: requiresScheduling ? selectedDate : null,
-              selectedTime: requiresScheduling ? selectedTime : null,
-              cart,
-              dependentId: requiresScheduling ? dependentId : undefined,
-              consumerSymptoms: pendingSymptoms,
-              shippingAddress,
-              prescriptionUrls,
-              pickupTime,
-              destinationState,
-              scheduleNow: requiresScheduling ? scheduleNow : true,
-              shareVaultAccess: true,
-              paymentMethod,
+              dependentId: dependentId || undefined,
+              shareVaultAccess,
+              allowedDocumentIds,
+              consumerSymptoms: payload.consumerSymptoms,
+              paymentMethod: payload.paymentMethod,
             });
           }
+          setShowCheckoutModal(false);
         }}
+        isProcessing={isProcessing}
       />
     </div>
   );
