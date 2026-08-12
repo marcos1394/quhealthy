@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { loadStripe } from "@stripe/stripe-js";
 import { paymentService } from "@/services/payment.service";
+import { toast } from "react-toastify";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
@@ -84,13 +85,13 @@ export default function GlobalCheckoutPage() {
     if (hasPhysical) {
       if (shippingMethod === "DELIVERY") {
         if (!address.street || !address.city || !address.state || !address.zip) {
-          alert("Por favor completa los datos obligatorios de la dirección de envío.");
+          toast.error("Por favor completa los datos obligatorios de la dirección de envío.");
           setIsProcessing(false);
           return;
         }
       } else {
         if (!pickupDate || !pickupTimeStr) {
-          alert("Por favor selecciona fecha y hora de recolección.");
+          toast.error("Por favor selecciona fecha y hora de recolección.");
           setIsProcessing(false);
           return;
         }
@@ -131,7 +132,7 @@ export default function GlobalCheckoutPage() {
       }
     } catch (error) {
       console.error(error);
-      alert("Hubo un error al procesar tu pago. Intenta de nuevo.");
+      toast.error("Hubo un error al procesar tu pago. Intenta de nuevo.");
       setIsProcessing(false);
     }
   };
