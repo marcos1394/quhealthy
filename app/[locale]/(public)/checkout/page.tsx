@@ -12,6 +12,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { AnimatePresence, motion } from "framer-motion";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { loadStripe } from "@stripe/stripe-js";
+import { paymentService } from "@/services/payment.service";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
@@ -97,17 +98,24 @@ export default function GlobalCheckoutPage() {
     }
 
     try {
-      // AQUÍ IRÍA LA LLAMADA A TU BACKEND MULTI-PROVEEDOR
-      // const response = await axios.post("/api/payments/checkout/cart", { cart, shippingMethod, address, ... });
-      // const stripe = await stripePromise;
-      // await stripe.redirectToCheckout({ sessionId: response.data.sessionId });
+      const payload = {
+        cart,
+        shippingMethod,
+        shippingAddress: hasPhysical && shippingMethod === "DELIVERY" ? address : undefined,
+        pickupDate: hasPhysical && shippingMethod === "PICKUP" ? pickupDate?.toISOString() : undefined,
+        pickupTime: hasPhysical && shippingMethod === "PICKUP" ? pickupTimeStr : undefined,
+      };
+
+      const { url } = await paymentService.createGlobalCartCheckout(payload);
       
-      setTimeout(() => {
-        setIsProcessing(false);
-        alert("Pago simulado con éxito. (Falta integrar endpoint de backend que devuelva Session ID de Stripe).");
-      }, 1500);
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("No se pudo obtener la URL de Stripe.");
+      }
     } catch (error) {
       console.error(error);
+      alert("Hubo un error al procesar tu pago. Intenta de nuevo.");
       setIsProcessing(false);
     }
   };

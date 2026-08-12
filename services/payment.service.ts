@@ -36,6 +36,15 @@ export const paymentService = {
     return response.data.checkoutUrl;
   },
 
+  // 🚀 NUEVO: Método para el Global Checkout (Multi-Provider)
+  createGlobalCartCheckout: async (payload: any): Promise<{ sessionId: string, url: string }> => {
+    const response = await axiosInstance.post<{ sessionId: string, url: string }>(
+      `${BASE_URL}/checkout/cart`, 
+      payload
+    );
+    return response.data;
+  },
+
   processCashCheckout: async (data: { 
     appointmentId: number; 
     totalAmount: number; 
