@@ -430,7 +430,14 @@ export default function PatientOrdersPage() {
                                   <span>{t("delivery_address")}</span>
                                 </h4>
                                 <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white leading-relaxed">
-                                  {order.shippingAddress}
+                                  {(() => {
+                                    try {
+                                      const parsed = JSON.parse(order.shippingAddress);
+                                      return `${parsed.street}, ${parsed.colony}, ${parsed.city}, ${parsed.state} ${parsed.zip}`;
+                                    } catch (e) {
+                                      return order.shippingAddress;
+                                    }
+                                  })()}
                                 </p>
                               </div>
                             )

@@ -5226,7 +5226,7 @@
     "appointment": "Cita: {date}",
     "pickup_pin": "PIN de Recolección",
     "pickup_pin_hint": "Proporciona este código al proveedor al recolectar tu orden.",
-    "delivery_address": "Coordenadas de Entrega",
+    "delivery_address": "Dirección de Envío",
     "no_address_warning": "Sin domicilio registrado. Adquisición digital o in-situ.",
     "transit_authorized": "Tránsito Autorizado",
     "carrier": "Proveedor: {carrier}",

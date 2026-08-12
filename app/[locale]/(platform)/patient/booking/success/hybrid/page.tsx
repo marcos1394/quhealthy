@@ -244,7 +244,7 @@ export default function HybridSuccessPage() {
 
             <div className="p-6 sm:p-8 space-y-8">
               {/* Dirección de envío (Si aplica) */}
-              {receipt.shippingAddress && (
+              {receipt.shippingAddress && receipt.shippingAddress !== "PICKUP" && (
                 <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]/30 p-5 space-y-2">
                   <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                     <Truck className="w-4 h-4" strokeWidth={2} />
@@ -253,7 +253,14 @@ export default function HybridSuccessPage() {
                     </h3>
                   </div>
                   <p className="text-xs font-medium text-gray-800 dark:text-gray-200 leading-relaxed">
-                    {receipt.shippingAddress}
+                    {(() => {
+                      try {
+                        const parsed = JSON.parse(receipt.shippingAddress);
+                        return `${parsed.street}, ${parsed.colony}, ${parsed.city}, ${parsed.state} ${parsed.zip}`;
+                      } catch (e) {
+                        return receipt.shippingAddress;
+                      }
+                    })()}
                   </p>
                 </div>
               )}
