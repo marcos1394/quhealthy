@@ -70,9 +70,6 @@ export function MobileNavbar() {
 
         {/* Marca / Logotipo */}
         <Link href={homeLink} className="flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 rounded-xl bg-emerald-600 dark:bg-emerald-500 flex items-center justify-center text-white shadow-2xs">
-            <Sparkles className="w-4 h-4" strokeWidth={2} />
-          </div>
           <span className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
             {t("brand_name")}
           </span>
