@@ -98,12 +98,19 @@ export default function GlobalCheckoutPage() {
     }
 
     try {
+      let combinedPickupTime: string | undefined = undefined;
+      if (hasPhysical && shippingMethod === "PICKUP" && pickupDate && pickupTimeStr) {
+        const [hours, minutes] = pickupTimeStr.split(':');
+        const startDateTime = new Date(pickupDate);
+        startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        combinedPickupTime = startDateTime.toISOString().replace('Z', ''); // Local ISO
+      }
+
       const payload = {
-        cart,
-        shippingMethod,
-        shippingAddress: hasPhysical && shippingMethod === "DELIVERY" ? address : undefined,
-        pickupDate: hasPhysical && shippingMethod === "PICKUP" ? pickupDate?.toISOString() : undefined,
-        pickupTime: hasPhysical && shippingMethod === "PICKUP" ? pickupTimeStr : undefined,
+        items: cart,
+        currency: "MXN",
+        shippingAddress: hasPhysical && shippingMethod === "DELIVERY" ? JSON.stringify(address) : undefined,
+        pickupTime: combinedPickupTime,
       };
 
       const { url } = await paymentService.createGlobalCartCheckout(payload);
