@@ -16,6 +16,7 @@ export default function GlobalCheckoutPage() {
   const router = useRouter();
   const { cart, getTotalPrice, removeFromCart, updateQuantity } = useBookingStore();
   const [mounted, setMounted] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   // Logística state
   const [shippingMethod, setShippingMethod] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
   const [address, setAddress] = useState({
