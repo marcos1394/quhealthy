@@ -41,7 +41,7 @@ import { CourseCurriculumView } from "@/components/store/CourseCurriculumView";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { CheckoutModal } from "@/components/store/CheckoutModal";
+
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { useSessionStore } from "@/stores/SessionStore";
