@@ -21,7 +21,7 @@ export default function GlobalCheckoutPage() {
   const { cart, getTotalPrice, removeFromCart, updateQuantity } = useBookingStore();
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const themeColor = cart[0]?.providerThemeColor || "#059669";
+  const themeColor = cart[0]?.providerColor || "#059669";
   // Logística state
   const [shippingMethod, setShippingMethod] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
   const [address, setAddress] = useState({
