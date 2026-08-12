@@ -106,8 +106,17 @@ export default function GlobalCheckoutPage() {
         combinedPickupTime = startDateTime.toISOString().replace('Z', ''); // Local ISO
       }
 
+      const mappedItems = cart.map(item => ({
+        providerId: item.providerId,
+        productId: item.id.toString(),
+        productName: item.name,
+        quantity: item.cartQuantity || 1,
+        price: item.price,
+        type: item.type
+      }));
+
       const payload = {
-        items: cart,
+        items: mappedItems,
         currency: "MXN",
         shippingAddress: hasPhysical && shippingMethod === "DELIVERY" ? JSON.stringify(address) : undefined,
         pickupTime: combinedPickupTime,
