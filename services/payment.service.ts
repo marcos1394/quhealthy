@@ -37,8 +37,8 @@ export const paymentService = {
   },
 
   // 🚀 NUEVO: Método para el Global Checkout (Multi-Provider)
-  createGlobalCartCheckout: async (payload: any): Promise<{ sessionId: string, url: string }> => {
-    const response = await axiosInstance.post<{ sessionId: string, url: string }>(
+  createGlobalCartCheckout: async (payload: any): Promise<{ sessionId: string, checkoutUrl: string }> => {
+    const response = await axiosInstance.post<{ sessionId: string, checkoutUrl: string }>(
       `${BASE_URL}/checkout/cart`, 
       payload
     );

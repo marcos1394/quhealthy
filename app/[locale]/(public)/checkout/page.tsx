@@ -123,10 +123,10 @@ export default function GlobalCheckoutPage() {
         pickupTime: combinedPickupTime,
       };
 
-      const { url } = await paymentService.createGlobalCartCheckout(payload);
+      const { checkoutUrl } = await paymentService.createGlobalCartCheckout(payload);
       
-      if (url) {
-        window.location.href = url;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
       } else {
         throw new Error("No se pudo obtener la URL de Stripe.");
       }
