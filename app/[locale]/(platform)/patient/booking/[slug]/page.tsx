@@ -794,7 +794,7 @@ export default function BookingPage({
             await processCheckout({
               providerId,
               scheduleNow: true,
-              selectedDate: selectedDate?.toISOString() || null,
+              selectedDate: selectedDate,
               selectedTime,
               locationId: selectedLocationId || undefined,
               staffId: selectedStaffId || undefined,
