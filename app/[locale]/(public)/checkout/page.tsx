@@ -152,7 +152,7 @@ export default function GlobalCheckoutPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <ShoppingBag className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            <ShoppingBag className="w-6 h-6" style={{ color: themeColor }} />
             Finalizar Compra
           </h1>
         </div>
@@ -163,7 +163,10 @@ export default function GlobalCheckoutPage() {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Tu carrito está vacío</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">No has agregado ningún servicio o producto.</p>
             <Link href="/discover">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-12 px-6 font-bold">
+              <Button 
+                style={{ backgroundColor: themeColor }}
+                className="text-white rounded-xl h-12 px-6 font-bold hover:opacity-90 transition-opacity"
+              >
                 Explorar Servicios
               </Button>
             </Link>
@@ -192,7 +195,7 @@ export default function GlobalCheckoutPage() {
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <h3 className="font-bold text-gray-900 dark:text-white">{item.name}</h3>
-                          <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-1">
+                          <p className="text-xs font-medium mt-1" style={{ color: item.providerColor || themeColor }}>
                             Proveedor: {item.providerName || "QuHealthy"}
                           </p>
                         </div>
@@ -338,12 +341,15 @@ export default function GlobalCheckoutPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-800/50 space-y-4">
+                    <div 
+                      className="p-4 rounded-xl border space-y-4"
+                      style={{ borderColor: themeColor, backgroundColor: `${themeColor}10` }}
+                    >
                       <div className="flex gap-3">
-                        <MapPin className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <MapPin className="w-5 h-5 shrink-0 mt-0.5" style={{ color: themeColor }} />
                         <div>
-                          <p className="text-sm font-bold text-emerald-900 dark:text-emerald-300">Recolección en sucursal del proveedor</p>
-                          <p className="text-xs text-emerald-700 dark:text-emerald-400/80 mt-1">El proveedor te confirmará la dirección exacta al finalizar tu compra.</p>
+                          <p className="text-sm font-bold" style={{ color: themeColor }}>Recolección en sucursal del proveedor</p>
+                          <p className="text-xs mt-1" style={{ color: themeColor, opacity: 0.8 }}>El proveedor te confirmará la dirección exacta al finalizar tu compra.</p>
                         </div>
                       </div>
                       
@@ -399,8 +405,8 @@ export default function GlobalCheckoutPage() {
                   </div>
                   <div className="border-t border-gray-100 dark:border-gray-800 pt-3 flex justify-between">
                     <span className="font-bold text-gray-900 dark:text-white">Total</span>
-                    <span className="font-black text-xl text-emerald-600 dark:text-emerald-400">
-                      ${getTotalPrice().toLocaleString()} <span className="text-sm font-medium">MXN</span>
+                    <span className="font-black text-xl" style={{ color: themeColor }}>
+                      ${getTotalPrice().toLocaleString()} <span className="text-sm font-medium text-gray-500 dark:text-gray-400">MXN</span>
                     </span>
                   </div>
                 </div>
@@ -408,7 +414,8 @@ export default function GlobalCheckoutPage() {
                 <Button
                   onClick={handleSimulatePayment}
                   disabled={isProcessing}
-                  className="w-full h-14 bg-black hover:bg-gray-900 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl font-bold text-base shadow-xl shadow-black/10 dark:shadow-emerald-900/20 mb-4"
+                  style={{ backgroundColor: themeColor, borderColor: themeColor }}
+                  className="w-full h-14 text-white rounded-xl font-bold text-base shadow-xl shadow-black/10 dark:shadow-black/40 mb-4 transition-opacity hover:opacity-90"
                 >
                   {isProcessing ? (
                     <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -421,7 +428,7 @@ export default function GlobalCheckoutPage() {
                 </Button>
                 
                 <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  <ShieldCheck className="w-4 h-4" style={{ color: themeColor }} />
                   <span>Pago seguro procesado por Stripe</span>
                 </div>
               </div>
