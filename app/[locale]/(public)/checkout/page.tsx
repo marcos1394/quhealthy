@@ -1,31 +1,75 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { ShoppingBag, ArrowLeft, Loader2, ShieldCheck, CreditCard } from "lucide-react";
+import { ShoppingBag, ArrowLeft, Loader2, ShieldCheck, CreditCard, Truck, MapPin, Store, Package } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { useBookingStore } from "@/hooks/useBookingStore";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
 export default function GlobalCheckoutPage() {
   const t = useTranslations("Checkout");
   const router = useRouter();
   const { cart, getTotalPrice, removeFromCart, updateQuantity } = useBookingStore();
   const [mounted, setMounted] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  // Logística state
+  const [shippingMethod, setShippingMethod] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
+  const [address, setAddress] = useState({
+    street: "",
+    colony: "",
+    city: "",
+    state: "",
+    zip: "",
+  });
+  const [pickupDate, setPickupDate] = useState<string>("");
+  const [pickupTimeStr, setPickupTimeStr] = useState<string>("");
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const hasPhysical = useMemo(() => cart.some((i) => i.type === "PRODUCT" && i.isDigital !== true), [cart]);
 
-  if (!mounted) return null;
+  const PICKUP_TIMES = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+    "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+  ];
 
-  const handleSimulatePayment = () => {
+  const handleSimulatePayment = async () => {
     setIsProcessing(true);
-    setTimeout(() => {
+    
+    // Validación básica de logística
+    if (hasPhysical) {
+      if (shippingMethod === "DELIVERY") {
+        if (!address.street || !address.city || !address.state || !address.zip) {
+          alert("Por favor completa los datos obligatorios de la dirección de envío.");
+          setIsProcessing(false);
+          return;
+        }
+      } else {
+        if (!pickupDate || !pickupTimeStr) {
+          alert("Por favor selecciona fecha y hora de recolección.");
+          setIsProcessing(false);
+          return;
+        }
+      }
+    }
+
+    try {
+      // AQUÍ IRÍA LA LLAMADA A TU BACKEND MULTI-PROVEEDOR
+      // const response = await axios.post("/api/payments/checkout/cart", { cart, shippingMethod, address, ... });
+      // const stripe = await stripePromise;
+      // await stripe.redirectToCheckout({ sessionId: response.data.sessionId });
+      
+      setTimeout(() => {
+        setIsProcessing(false);
+        alert("Pago simulado con éxito. (Falta integrar endpoint de backend que devuelva Session ID de Stripe).");
+      }, 1500);
+    } catch (error) {
+      console.error(error);
       setIsProcessing(false);
-      alert("Pago simulado con éxito (Multi-proveedor no implementado en backend aún).");
-    }, 1500);
+    }
   };
 
   return (
@@ -101,6 +145,128 @@ export default function GlobalCheckoutPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Sección de Logística (Opcional, solo si hay físicos) */}
+              {hasPhysical && (
+                <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm mt-4">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Información de Entrega</h2>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <button
+                      onClick={() => setShippingMethod("DELIVERY")}
+                      className={`h-16 flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 transition-all ${
+                        shippingMethod === "DELIVERY"
+                          ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400"
+                          : "border-gray-100 dark:border-gray-800 text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
+                      }`}
+                    >
+                      <Truck className="w-5 h-5" />
+                      <span className="text-xs font-bold">Envío a Domicilio</span>
+                    </button>
+
+                    <button
+                      onClick={() => setShippingMethod("PICKUP")}
+                      className={`h-16 flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 transition-all ${
+                        shippingMethod === "PICKUP"
+                          ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400"
+                          : "border-gray-100 dark:border-gray-800 text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
+                      }`}
+                    >
+                      <Store className="w-5 h-5" />
+                      <span className="text-xs font-bold">Recoger (Pickup)</span>
+                    </button>
+                  </div>
+
+                  {shippingMethod === "DELIVERY" ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1 md:col-span-2">
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Calle y Número *</label>
+                          <input 
+                            type="text" 
+                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                            value={address.street}
+                            onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                            placeholder="Ej. Av. Insurgentes Sur 123"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Colonia</label>
+                          <input 
+                            type="text" 
+                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                            value={address.colony}
+                            onChange={(e) => setAddress({ ...address, colony: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Código Postal *</label>
+                          <input 
+                            type="text" 
+                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                            value={address.zip}
+                            onChange={(e) => setAddress({ ...address, zip: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Ciudad *</label>
+                          <input 
+                            type="text" 
+                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                            value={address.city}
+                            onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Estado *</label>
+                          <input 
+                            type="text" 
+                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                            value={address.state}
+                            onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-800/50 space-y-4">
+                      <div className="flex gap-3">
+                        <MapPin className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-bold text-emerald-900 dark:text-emerald-300">Recolección en sucursal del proveedor</p>
+                          <p className="text-xs text-emerald-700 dark:text-emerald-400/80 mt-1">El proveedor te confirmará la dirección exacta al finalizar tu compra.</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 mt-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Fecha de Recolección</label>
+                          <input 
+                            type="date" 
+                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-sm"
+                            value={pickupDate}
+                            min={new Date().toISOString().split("T")[0]}
+                            onChange={(e) => setPickupDate(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Hora Aproximada</label>
+                          <Select value={pickupTimeStr} onValueChange={setPickupTimeStr}>
+                            <SelectTrigger className="w-full h-10 bg-white dark:bg-[#0a0a0a]">
+                              <SelectValue placeholder="Selecciona" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PICKUP_TIMES.map((time) => (
+                                <SelectItem key={time} value={time}>{time}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Total y Pago */}

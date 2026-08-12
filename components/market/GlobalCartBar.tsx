@@ -13,7 +13,6 @@ import { QhSpinner } from "@/components/ui/QhSpinner";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { useSessionStore } from "@/stores/SessionStore";
-import { CheckoutModal } from "@/components/store/CheckoutModal";
 
 export function GlobalCartBar() {
   const t = useTranslations("StorePublic.GlobalCartBar");
@@ -33,7 +32,6 @@ export function GlobalCartBar() {
   const providerColor = cart[0]?.providerColor;
 
   const { processCheckout, isProcessing } = useBookingCheckout();
-  const [showCheckout, setShowCheckout] = useState(false);
 
   const safePrimaryColor = providerColor || "#059669";
 
@@ -89,7 +87,7 @@ export function GlobalCartBar() {
                   if (requiresScheduling) {
                     router.push(`/patient/booking/${providerSlug}`);
                   } else {
-                    setShowCheckout(true);
+                    router.push('/checkout');
                   }
                 }}
                 disabled={isProcessing || !providerId}
@@ -112,36 +110,6 @@ export function GlobalCartBar() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <CheckoutModal
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-        cart={cart}
-        isProcessing={isProcessing}
-        themeColor={safePrimaryColor}
-        onConfirm={(
-          shippingAddress,
-          prescriptionUrls,
-          pickupTime,
-          destinationState,
-          paymentMethod
-        ) => {
-          setShowCheckout(false);
-          processCheckout({
-            providerId: providerId!,
-            consumerId: userId ?? undefined,
-            dependentId: null,
-            selectedDate: null,
-            selectedTime: null,
-            cart,
-            shippingAddress,
-            prescriptionUrls,
-            pickupTime,
-            destinationState,
-            paymentMethod,
-          });
-        }}
-      />
     </>
   );
 }
