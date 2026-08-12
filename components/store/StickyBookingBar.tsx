@@ -35,6 +35,24 @@ export const StickyBookingBar: React.FC<StickyBookingBarProps> = ({
     );
   }, [cart]);
 
+  const hasServices = useMemo(() => cart.some((item) => item.itemType === "SERVICE"), [cart]);
+
+  const buttonText = hasServices
+    ? t("btn_book", { defaultValue: "Agendar cita" })
+    : t("btn_checkout", { defaultValue: "Continuar con el pago" });
+
+  const buttonShortText = hasServices
+    ? t("btn_book_short", { defaultValue: "Agendar" })
+    : t("btn_checkout_short", { defaultValue: "Pagar" });
+
+  const handleAction = () => {
+    if (hasServices) {
+      router.push(`/${locale}/patient/booking/${providerSlug}`);
+    } else {
+      router.push(`/${locale}/checkout`);
+    }
+  };
+
   if (cart.length === 0) return null;
 
   return (
@@ -71,16 +89,14 @@ export const StickyBookingBar: React.FC<StickyBookingBarProps> = ({
 
         <Button
           type="button"
-          onClick={() =>
-            router.push(`/${locale}/patient/booking/${providerSlug}`)
-          }
+          onClick={handleAction}
           className="rounded-xl h-10 px-5 sm:px-7 text-xs font-bold border-0 text-white transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center gap-2"
           style={{
             backgroundColor: brandColor !== "#ffffff" ? brandColor : "#059669",
           }}
         >
-          <span className="hidden sm:inline">{t("btn_book")}</span>
-          <span className="inline sm:hidden">{t("btn_book_short")}</span>
+          <span className="hidden sm:inline">{buttonText}</span>
+          <span className="inline sm:hidden">{buttonShortText}</span>
           <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
         </Button>
       </div>
