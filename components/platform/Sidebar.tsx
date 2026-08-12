@@ -318,9 +318,6 @@ export const Sidebar = ({
             href={homeLink}
             className="flex-1 items-center gap-2 flex overflow-hidden min-w-0"
           >
-            <div className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs">
-              <Sparkles className="w-4 h-4" strokeWidth={2} />
-            </div>
             <span className="text-xs font-bold text-gray-900 dark:text-white tracking-wider truncate uppercase">
               {t("brand_name")}
             </span>
@@ -335,18 +332,20 @@ export const Sidebar = ({
         >
           {!isCollapsed && <ThemeToggle />}
           
-          <button
-            type="button"
-            onClick={openCart}
-            className="relative w-8 h-8 rounded-xl border border-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all flex items-center justify-center shrink-0 cursor-pointer"
-          >
-            <ShoppingBag className="w-4 h-4" strokeWidth={2} />
-            {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-3.5 w-3.5 rounded-full flex items-center justify-center">
-                {cart.length}
-              </span>
-            )}
-          </button>
+          {!isCollapsed && (
+            <button
+              type="button"
+              onClick={openCart}
+              className="relative w-8 h-8 rounded-xl border border-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all flex items-center justify-center shrink-0 cursor-pointer"
+            >
+              <ShoppingBag className="w-4 h-4" strokeWidth={2} />
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-3.5 w-3.5 rounded-full flex items-center justify-center">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+          )}
 
           {!isCollapsed && <NotificationBell isCollapsed={isCollapsed} />}
 
