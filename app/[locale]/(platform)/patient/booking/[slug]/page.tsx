@@ -799,6 +799,7 @@ export default function BookingPage({
               locationId: selectedLocationId || undefined,
               staffId: selectedStaffId || undefined,
               dependentId: dependentId || undefined,
+              cart,
               shareVaultAccess,
               allowedDocumentIds,
               consumerSymptoms: payload.consumerSymptoms,
