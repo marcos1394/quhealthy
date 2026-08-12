@@ -800,8 +800,8 @@ export default function BookingPage({
               staffId: selectedStaffId || undefined,
               dependentId: dependentId || undefined,
               cart,
-              shareVaultAccess,
-              allowedDocumentIds,
+              shareVaultAccess: payload.shareVaultAccess,
+              allowedDocumentIds: undefined, // Or pass it if you add it back to modal
               consumerSymptoms: payload.consumerSymptoms,
               paymentMethod: payload.paymentMethod,
             });

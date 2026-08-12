@@ -11,7 +11,7 @@ import { QhSpinner } from "@/components/ui/QhSpinner";
 interface ServiceCheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onProcessCheckout: (payload: { paymentMethod: string; consumerSymptoms?: string }) => void;
+  onProcessCheckout: (payload: { paymentMethod: string; consumerSymptoms?: string; shareVaultAccess: boolean }) => void;
   isProcessing: boolean;
   totalAmount: number;
 }
@@ -26,11 +26,13 @@ export function ServiceCheckoutModal({
   const t = useTranslations("Checkout");
   const [paymentMethod, setPaymentMethod] = useState("CREDIT_CARD");
   const [symptoms, setSymptoms] = useState("");
+  const [shareVaultAccess, setShareVaultAccess] = useState(false);
 
   const handleConfirm = () => {
     onProcessCheckout({
       paymentMethod,
       consumerSymptoms: symptoms,
+      shareVaultAccess,
     });
   };
 
@@ -70,6 +72,22 @@ export function ServiceCheckoutModal({
               onChange={(e) => setSymptoms(e.target.value)}
               className="resize-none h-24"
             />
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="font-semibold text-sm">Privacidad y Expediente</h4>
+            <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+              <input
+                type="checkbox"
+                checked={shareVaultAccess}
+                onChange={(e) => setShareVaultAccess(e.target.checked)}
+                className="mt-1 w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-600"
+              />
+              <div>
+                <div className="font-medium text-sm">Compartir mi expediente clínico</div>
+                <div className="text-xs text-gray-500 mt-0.5">Permite al médico acceder a tu historial médico para darte una mejor atención.</div>
+              </div>
+            </label>
           </div>
 
           <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
