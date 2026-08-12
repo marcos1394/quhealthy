@@ -32,6 +32,7 @@ import {
   History,
   BadgeX,
   PackageCheck,
+  ShoppingBag,
   Calculator,
   BookOpen,
   X,
@@ -47,6 +48,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useModuleStore } from "@/stores/useModuleStore";
+import { useBookingStore } from "@/hooks/useBookingStore";
 import { useActiveModules } from "@/hooks/useActiveModules";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -220,6 +222,7 @@ export const Sidebar = ({
 
   const { logout } = useAuth();
   const { role, user } = useSessionStore();
+  const { cart, openCart } = useBookingStore();
   const { isModuleActive } = useModuleStore();
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
   const [isSwitchingProfile, setIsSwitchingProfile] = useState(false);
@@ -331,6 +334,20 @@ export const Sidebar = ({
           )}
         >
           {!isCollapsed && <ThemeToggle />}
+          
+          <button
+            type="button"
+            onClick={openCart}
+            className="relative w-8 h-8 rounded-xl border border-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all flex items-center justify-center shrink-0 cursor-pointer"
+          >
+            <ShoppingBag className="w-4 h-4" strokeWidth={2} />
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-3.5 w-3.5 rounded-full flex items-center justify-center">
+                {cart.length}
+              </span>
+            )}
+          </button>
+
           {!isCollapsed && <NotificationBell isCollapsed={isCollapsed} />}
 
           {isMobile ? (

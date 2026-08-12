@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Menu, Sparkles } from "lucide-react";
+import { Menu, Sparkles, ShoppingBag } from "lucide-react";
 
 import {
   Sheet,
@@ -19,12 +19,14 @@ import { NotificationBell } from "@/components/ui/NotificationBell";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Sidebar } from "@/components/platform/Sidebar";
 import { useSessionStore } from "@/stores/SessionStore";
+import { useBookingStore } from "@/hooks/useBookingStore";
 
 export function MobileNavbar() {
   const t = useTranslations("PlatformMobileNavbar");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { role } = useSessionStore();
+  const { cart, openCart } = useBookingStore();
 
   const isConsumer = role === "ROLE_CONSUMER";
   const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
@@ -79,6 +81,19 @@ export function MobileNavbar() {
 
       {/* ── ACCIONES RÁPIDAS (TEMA Y NOTIFICACIONES) ──────────────────── */}
       <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={openCart}
+          className="relative rounded-xl text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+        >
+          <ShoppingBag size={18} />
+          {cart.length > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+              {cart.length}
+            </span>
+          )}
+        </Button>
         <ThemeToggle />
         <NotificationBell isCollapsed={false} />
       </div>

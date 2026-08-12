@@ -8,7 +8,7 @@ import { useSessionStore } from "@/stores/SessionStore";
 import { Sidebar } from "@/components/platform/Sidebar";
 import { MobileNavbar } from "@/components/platform/MobileNavbar";
 import AuthProvider from "@/components/providers/AuthProvider";
-import { GlobalCartBar } from "@/components/market/GlobalCartBar";
+import { GlobalCartDrawer } from "@/components/store/GlobalCartDrawer";
 
 export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -41,7 +41,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
           >
             {children}
           </main>
-          <GlobalCartBar />
+          <GlobalCartDrawer />
         </div>
       </AuthProvider>
     );
@@ -61,7 +61,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
         <main className="flex-1 relative z-0 overflow-hidden pt-20 md:pt-24">
           {children}
         </main>
-        <GlobalCartBar />
+        <GlobalCartDrawer />
       </div>
     );
   }
@@ -70,7 +70,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col min-h-screen w-full bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/40 font-sans transition-colors duration-300">
       <Navbar />
       <main className="flex-grow relative z-0">{children}</main>
-      <GlobalCartBar />
+      <GlobalCartDrawer />
       <Footer />
     </div>
   );
