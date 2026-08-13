@@ -209,7 +209,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
       }
       
       if (attachedTemplates.length > 0) {
-        combinedSchema.attached_templates = attachedTemplates.map(tpl => ({
+        combinedSchema.attached_templates = attachedTemplates.map((tpl: any) => ({
           id: tpl.id,
           name: tpl.name,
           fields: tpl.schema?.fields || []
@@ -311,7 +311,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {linkedTemplate.schema.fields.map((field) => (
+                {linkedTemplate.schema.fields.map((field: any) => (
                   <div
                     key={field.id}
                     className="border border-gray-100 dark:border-gray-800 p-4 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xs space-y-2"
@@ -366,7 +366,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         {/* ── PLANTILLAS ADICIONALES ANEXADAS ───────────────────────────── */}
         {attachedTemplates.length > 0 && (
           <div className="flex flex-col border-b border-gray-100 dark:border-gray-800">
-            {attachedTemplates.map((template) => (
+            {attachedTemplates.map((template: any) => (
               <div key={template.id} className="p-5 sm:p-6 border-t border-gray-100 dark:border-gray-800 first:border-t-0 bg-blue-50/20 dark:bg-blue-950/10 space-y-4 relative group">
                 <button
                   type="button"
@@ -393,7 +393,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
 
                 {template.schema?.fields && template.schema.fields.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {template.schema.fields.map((field) => (
+                    {template.schema.fields.map((field: any) => (
                       <div
                         key={field.id}
                         className="border border-gray-100 dark:border-gray-800 p-4 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xs space-y-2"
@@ -422,7 +422,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
                               <SelectValue placeholder={t("select_placeholder")} />
                             </SelectTrigger>
                             <SelectContent className="rounded-2xl font-sans">
-                              {field.options?.map((opt) => (
+                              {field.options?.map((opt: any) => (
                                 <SelectItem key={opt} value={opt}>
                                   {opt}
                                 </SelectItem>
