@@ -72,6 +72,7 @@ export function BookingSummary({
       selectedCurrency,
       isLoadingRates,
       selectedPaymentMethod,
+      canAccessWomensHealth,
     },
     dispatch,
   ] = React.useReducer(
