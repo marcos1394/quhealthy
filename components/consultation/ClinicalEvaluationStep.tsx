@@ -344,7 +344,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
                           <SelectValue placeholder={t("select_placeholder")} />
                         </SelectTrigger>
                         <SelectContent className="rounded-2xl font-sans">
-                          {field.options?.map((opt) => (
+                          {field.options?.map((opt: any) => (
                             <SelectItem key={opt} value={opt}>
                               {opt}
                             </SelectItem>
