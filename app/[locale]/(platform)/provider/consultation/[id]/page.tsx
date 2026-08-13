@@ -304,7 +304,7 @@ export default function ConsultationRoomPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  const handleToggleRecording = async () => {
+  const handleToggleRecording = async (templateSchema?: string) => {
     if (isRecording) {
       setIsRecording(false);
       setIsTranscribing(true);
@@ -346,7 +346,7 @@ export default function ConsultationRoomPage() {
             const base64Data = base64AudioString.split(",")[1];
 
             try {
-              await processAudioWithAi(base64Data);
+              await processAudioWithAi(base64Data, templateSchema);
               setIsTranscribing(false);
               toast.success(t("ai_scribe_success"));
             } catch (error) {

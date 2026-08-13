@@ -230,50 +230,92 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     }
   };
 
-  const processAudioWithAi = async (audioBase64: string) => {
+  const processAudioWithAi = async (audioBase64: string, templateSchema?: string) => {
     try {
-      const generatedSoap = await aiService.generateSoapNotes(appointmentId, audioBase64);
+      const generatedSoap = await aiService.generateSoapNotes(appointmentId, audioBase64, templateSchema);
       
       // Actualizamos el estado con lo que devolvió Gemini
       // Mantenemos lo que el doctor ya hubiera escrito manualmente (si es que había algo)
+      const soap = generatedSoap.soap || generatedSoap;
+
       setSoapNotes(prevNotes => ({
-        subjective: generatedSoap.subjective || prevNotes.subjective,
-        objective: generatedSoap.objective || prevNotes.objective,
-        assessment: generatedSoap.assessment || prevNotes.assessment,
-        plan: generatedSoap.plan || prevNotes.plan
+        subjective: soap.subjective || prevNotes.subjective,
+        objective: soap.objective || prevNotes.objective,
+        assessment: soap.assessment || prevNotes.assessment,
+        plan: soap.plan || prevNotes.plan
       }));
       
-      return true;
+      // Update vital signs if returned synchronously
+      if (generatedSoap.vital_signs && Object.keys(generatedSoap.vital_signs).length > 0) {
+        const vs = generatedSoap.vital_signs;
+        const newVitalSign: VitalSignRequest = {
+           id: uuidv4(),
+           heartRate: vs.heart_rate,
+           bloodPressureSystolic: vs.blood_pressure_systolic,
+           bloodPressureDiastolic: vs.blood_pressure_diastolic,
+           temperature: vs.temperature_celsius,
+           respiratoryRate: vs.respiratory_rate,
+           oxygenSaturation: vs.oxygen_saturation,
+           weight: vs.weight_kg,
+           height: vs.height_cm
+        };
+        setVitalSigns(prev => [...prev, newVitalSign]);
+      }
+
+      return generatedSoap;
     } catch (error) {
       console.error("Error al generar notas con IA:", error);
       throw error;
     }
   };
 
-  const syncAiSoapNote = async (): Promise<boolean> => {
+  const syncAiSoapNote = async (): Promise<any> => {
     try {
       const response = await aiService.getStagingSoapNote(appointmentId);
       if (response && response.soapJson) {
-        let generatedSoap: SoapNotes;
+        let parsedData: any;
         try {
-          generatedSoap = JSON.parse(response.soapJson);
+          parsedData = JSON.parse(response.soapJson);
         } catch (e) {
           console.error("El JSON de staging no es válido", e);
-          return false;
+          return null;
         }
 
+        // Support both old flat structure and new nested structure
+        const generatedSoap = parsedData.soap || parsedData;
+        
         setSoapNotes(prevNotes => ({
           subjective: prevNotes.subjective || generatedSoap.subjective || '',
           objective: prevNotes.objective || generatedSoap.objective || '',
           assessment: prevNotes.assessment || generatedSoap.assessment || '',
           plan: prevNotes.plan || generatedSoap.plan || ''
         }));
-        return true;
+        
+        if (parsedData.vital_signs) {
+          const vs = parsedData.vital_signs;
+          // Only add if there are any vital signs extracted
+          if (Object.keys(vs).length > 0) {
+             const newVitalSign: VitalSignRequest = {
+                id: uuidv4(),
+                heartRate: vs.heart_rate,
+                bloodPressureSystolic: vs.blood_pressure_systolic,
+                bloodPressureDiastolic: vs.blood_pressure_diastolic,
+                temperature: vs.temperature_celsius,
+                respiratoryRate: vs.respiratory_rate,
+                oxygenSaturation: vs.oxygen_saturation,
+                weight: vs.weight_kg,
+                height: vs.height_cm
+             };
+             setVitalSigns(prev => [...prev, newVitalSign]);
+          }
+        }
+
+        return parsedData;
       }
-      return false;
+      return null;
     } catch (error) {
       // 404 significa que aún no hay nota generada en staging
-      return false;
+      return null;
     }
   };
 

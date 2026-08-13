@@ -49,7 +49,7 @@ interface ClinicalEvaluationStepProps {
   removeVitalSign: (index: number) => void;
   isRecording: boolean;
   isTranscribing: boolean;
-  handleToggleRecording: () => void;
+  handleToggleRecording: (templateSchema?: string) => void;
   appointmentType: string;
   onBack: () => void;
   onNext: () => void;
@@ -113,12 +113,19 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (syncAiSoapNote && appointmentType === "ONLINE") {
-      syncAiSoapNote().then((success) => {
-        if (!success) {
+      syncAiSoapNote().then((parsedData) => {
+        if (!parsedData) {
           interval = setInterval(async () => {
-            const found = await syncAiSoapNote();
-            if (found) clearInterval(interval);
+            const data = await syncAiSoapNote();
+            if (data) {
+              if (data.template_data) {
+                setTemplateData((prev) => ({ ...prev, ...data.template_data }));
+              }
+              clearInterval(interval);
+            }
           }, 5000);
+        } else if (parsedData.template_data) {
+          setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
         }
       });
     }
@@ -128,18 +135,19 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   const handleSyncAi = async () => {
     if (!syncAiSoapNote) return;
     setIsSyncingAi(true);
-    await syncAiSoapNote();
+    const parsedData = await syncAiSoapNote();
+    if (parsedData && parsedData.template_data) {
+      setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
+    }
     setTimeout(() => setIsSyncingAi(false), 1000);
   };
 
-  const handleTemplateSelect = (content: string) => {
-    if (targetField) {
-      const currentContent = soapNotes[targetField] || "";
-      updateSoapNote(
-        targetField,
-        currentContent ? `${currentContent}\n\n${content}` : content
-      );
-    }
+  const handleTemplateSelect = (content: string, field: "subjective" | "objective" | "assessment" | "plan") => {
+    const currentContent = soapNotes[field] || "";
+    updateSoapNote(
+      field,
+      currentContent ? `${currentContent}\n\n${content}` : content
+    );
   };
 
   return (
@@ -432,7 +440,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
 
             <button
               type="button"
-              onClick={handleToggleRecording}
+              onClick={() => handleToggleRecording(linkedTemplate && linkedTemplate.schema ? JSON.stringify(linkedTemplate.schema) : undefined)}
               disabled={isTranscribing}
               className={cn(
                 "w-full sm:w-auto flex items-center justify-center gap-2 px-5 h-10 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs border-0",
