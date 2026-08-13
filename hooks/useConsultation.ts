@@ -265,7 +265,6 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       if (generatedSoap.vital_signs && Object.keys(generatedSoap.vital_signs).length > 0) {
         const vs = generatedSoap.vital_signs;
         const newVitalSign: VitalSignRequest = {
-           id: uuidv4(),
            heartRate: vs.heart_rate,
            bloodPressureSystolic: vs.blood_pressure_systolic,
            bloodPressureDiastolic: vs.blood_pressure_diastolic,
@@ -312,7 +311,6 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
           // Only add if there are any vital signs extracted
           if (Object.keys(vs).length > 0) {
              const newVitalSign: VitalSignRequest = {
-                id: uuidv4(),
                 heartRate: vs.heart_rate,
                 bloodPressureSystolic: vs.blood_pressure_systolic,
                 bloodPressureDiastolic: vs.blood_pressure_diastolic,
