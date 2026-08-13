@@ -29,7 +29,14 @@ import { appointmentService } from "@/services/appointment.service";
 import { useHealthVault } from "@/hooks/useHealthVault";
 import { usePackages } from "@/hooks/usePackages";
 import { consumerWalletService } from "@/services/consumer-wallet.service";
+import { useModuleStore } from "@/stores/useModuleStore";
 import { cn } from "@/lib/utils";
+
+const MODULE_METADATA: Record<string, { title: string, desc: string, color: string }> = {
+  "womens_health": { title: "Módulo de Salud Femenina", desc: "Permite al médico visualizar tu historial de ciclo menstrual y predicciones.", color: "data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500" },
+  "diabetes": { title: "Módulo de Diabetes", desc: "Permite al médico monitorear tus registros de glucosa, A1C y plan de tratamiento.", color: "data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500" },
+  "oncology": { title: "Módulo de Oncología", desc: "Permite al médico acceder a tu historial oncológico y marcadores.", color: "data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500" }
+};
 
 interface BookingSummaryProps {
   cart: StorefrontItem[];
@@ -45,7 +52,7 @@ interface BookingSummaryProps {
     shareVaultAccess?: boolean,
     allowedDocumentIds?: string[],
     paymentMethod?: string,
-    canAccessWomensHealth?: boolean
+    grantedModules?: string[]
   ) => void;
 }
 
@@ -60,6 +67,7 @@ export function BookingSummary({
   onCheckout,
 }: BookingSummaryProps) {
   const t = useTranslations("PatientBooking");
+  const { activeModules } = useModuleStore();
 
   // ── ESTADOS LOCALES REDUCER ──────────────────────────────────────────────
   const [
@@ -72,7 +80,7 @@ export function BookingSummary({
       selectedCurrency,
       isLoadingRates,
       selectedPaymentMethod,
-      canAccessWomensHealth,
+      grantedModules,
     },
     dispatch,
   ] = React.useReducer(
@@ -94,8 +102,8 @@ export function BookingSummary({
           return { ...state, isLoadingRates: action.payload };
         case "SET_SELECTEDPAYMENTMETHOD":
           return { ...state, selectedPaymentMethod: action.payload };
-        case "SET_CANACCESSWOMENSHEALTH":
-          return { ...state, canAccessWomensHealth: action.payload };
+        case "SET_GRANTEDMODULES":
+          return { ...state, grantedModules: action.payload };
         default:
           return state;
       }
@@ -109,7 +117,7 @@ export function BookingSummary({
       selectedCurrency: "MXN",
       isLoadingRates: true,
       selectedPaymentMethod: "CREDIT_CARD",
-      canAccessWomensHealth: false,
+      grantedModules: [],
     }
   );
 
@@ -128,8 +136,8 @@ export function BookingSummary({
     dispatch({ type: "SET_ISLOADINGRATES", payload: val });
   const setSelectedPaymentMethod = (val: any) =>
     dispatch({ type: "SET_SELECTEDPAYMENTMETHOD", payload: val });
-  const setCanAccessWomensHealth = (val: any) =>
-    dispatch({ type: "SET_CANACCESSWOMENSHEALTH", payload: val });
+  const setGrantedModules = (val: any) =>
+    dispatch({ type: "SET_GRANTEDMODULES", payload: val });
 
   // Saldo de Billetera
   const [walletBalance, setWalletBalance] = useState(0);
@@ -264,7 +272,7 @@ export function BookingSummary({
         shareVaultAccess,
         shareVaultMode === "GRANULAR" ? selectedDocumentIds : undefined,
         isUsingPackage ? "PACKAGE_BALANCE" : selectedPaymentMethod,
-        canAccessWomensHealth
+        grantedModules
       );
     }
   };
@@ -488,19 +496,31 @@ export function BookingSummary({
 
                         {shareVaultMode === "GRANULAR" && (
                           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 max-h-48 overflow-y-auto space-y-3 custom-scrollbar">
-                            <div className="flex items-start gap-2.5 pb-2 border-b border-gray-100 dark:border-gray-800">
-                                <Checkbox
-                                    id="womensHealthPerm"
-                                    checked={canAccessWomensHealth}
-                                    onCheckedChange={(checked) => setCanAccessWomensHealth(checked === true)}
-                                    disabled={isProcessing}
-                                    className="mt-0.5 rounded-md border-gray-300 dark:border-gray-700 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500 w-4 h-4"
-                                />
-                                <label htmlFor="womensHealthPerm" className="text-xs font-semibold text-gray-800 dark:text-gray-200 cursor-pointer">
-                                    <p>Módulo de Salud Femenina</p>
-                                    <p className="text-[10px] text-gray-500 font-normal">Permite al médico visualizar tu historial de ciclo menstrual y predicciones.</p>
-                                </label>
-                            </div>
+                            {activeModules.map((modKey) => {
+                               const meta = MODULE_METADATA[modKey];
+                               if (!meta) return null;
+                               return (
+                                 <div key={modKey} className="flex items-start gap-2.5 pb-2 border-b border-gray-100 dark:border-gray-800">
+                                     <Checkbox
+                                         id={`modPerm-${modKey}`}
+                                         checked={(grantedModules || []).includes(modKey)}
+                                         onCheckedChange={(checked) => {
+                                            if (checked) {
+                                                setGrantedModules([...(grantedModules || []), modKey]);
+                                            } else {
+                                                setGrantedModules((grantedModules || []).filter((m: string) => m !== modKey));
+                                            }
+                                         }}
+                                         disabled={isProcessing}
+                                         className={cn("mt-0.5 rounded-md border-gray-300 dark:border-gray-700 w-4 h-4", meta.color)}
+                                     />
+                                     <label htmlFor={`modPerm-${modKey}`} className="text-xs font-semibold text-gray-800 dark:text-gray-200 cursor-pointer">
+                                         <p>{meta.title}</p>
+                                         <p className="text-[10px] text-gray-500 font-normal">{meta.desc}</p>
+                                     </label>
+                                 </div>
+                               );
+                            })}
                             {isLoadingDocs ? (
                               <div className="flex justify-center py-3">
                                 <QhSpinner size="sm" className="text-store-600" />

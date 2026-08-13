@@ -30,9 +30,10 @@ export const useBookingCheckout = () => {
     scheduledPackageServices,
     shareVaultAccess = false,
     allowedDocumentIds,
-    canAccessWomensHealth = false,
-    paymentMethod
-  }: CheckoutParams & { canAccessWomensHealth?: boolean }) => {
+    paymentMethod = 'STRIPE',
+    symptoms = '',
+    grantedModules = [],
+  }: CheckoutParams & { grantedModules?: string[] }) => {
     setIsProcessing(true);
 
     try {
@@ -83,7 +84,7 @@ export const useBookingCheckout = () => {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
             const payload: any = allowedDocumentIds && allowedDocumentIds.length > 0 ? { allowedDocumentIds } : {};
-            if (canAccessWomensHealth) payload.canAccessWomensHealth = true;
+            if (grantedModules && grantedModules.length > 0) payload.grantedModules = grantedModules;
             await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`, payload);
             console.log("Permisos del expediente otorgados exitosamente al proveedor", providerId);
           } catch (e) {
@@ -197,7 +198,7 @@ export const useBookingCheckout = () => {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
             const payload: any = allowedDocumentIds && allowedDocumentIds.length > 0 ? { allowedDocumentIds } : {};
-            if (canAccessWomensHealth) payload.canAccessWomensHealth = true;
+            if (grantedModules && grantedModules.length > 0) payload.grantedModules = grantedModules;
             await axiosInstance.post(`/api/onboarding/consumer/vault/permissions/grant/${providerId}`, payload);
             console.log("Permisos del expediente otorgados exitosamente al proveedor", providerId);
           } catch (e) {

@@ -102,6 +102,8 @@ export default function BookingPage({
   // --- ESTADOS DE E-COMMERCE ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [pendingSymptoms, setPendingSymptoms] = useState("");
+  const [pendingGrantedModules, setPendingGrantedModules] = useState<string[]>([]);
+  const [pendingAllowedDocumentIds, setPendingAllowedDocumentIds] = useState<string[]>([]);
   const [scheduleNow, setScheduleNow] = useState(true);
 
   // 🧠 LÓGICA DEL CHECKOUT HÍBRIDO
@@ -250,7 +252,7 @@ export default function BookingPage({
     shareVaultAccess?: boolean,
     allowedDocumentIds?: string[],
     paymentMethod?: string,
-    canAccessWomensHealth?: boolean
+    grantedModules?: string[]
   ) => {
     // Validar si requiere cita simple
     if (
@@ -264,6 +266,8 @@ export default function BookingPage({
 
     if (requiresShipping || needsPrescription) {
       setPendingSymptoms(symptomsText);
+      setPendingGrantedModules(grantedModules || []);
+      setPendingAllowedDocumentIds(allowedDocumentIds || []);
       setShowCheckoutModal(true);
     } else {
       if (providerId) {
@@ -288,7 +292,7 @@ export default function BookingPage({
           shareVaultAccess,
           allowedDocumentIds,
           paymentMethod,
-          canAccessWomensHealth,
+          grantedModules,
         });
       }
     }
@@ -803,9 +807,10 @@ export default function BookingPage({
               dependentId: dependentId || undefined,
               cart,
               shareVaultAccess: payload.shareVaultAccess,
-              allowedDocumentIds: undefined, // Or pass it if you add it back to modal
+              allowedDocumentIds: pendingAllowedDocumentIds,
               consumerSymptoms: payload.consumerSymptoms,
               paymentMethod: payload.paymentMethod,
+              grantedModules: pendingGrantedModules
             });
           }
           setShowCheckoutModal(false);
