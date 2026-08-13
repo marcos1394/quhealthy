@@ -8,6 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Camera, AlertTriangle, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useModuleStore } from "@/stores/useModuleStore";
+import { Button } from "@/components/ui/button";
 
 export default function TreatmentsPage() {
   const { activeModules } = useModuleStore();
