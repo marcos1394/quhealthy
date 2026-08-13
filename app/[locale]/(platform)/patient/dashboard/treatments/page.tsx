@@ -123,9 +123,9 @@ export default function TreatmentsPage() {
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-6 w-full max-w-lg border border-gray-100 dark:border-gray-800">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar border border-gray-100 dark:border-gray-800">
             <h3 className="text-xl font-bold mb-4">Añadir Tratamiento Manual</h3>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <p className="text-sm text-gray-500">Ingresa los detalles del medicamento.</p>
               <div>
                 <input type="file" id="ai-scan-cam" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
@@ -143,7 +143,7 @@ export default function TreatmentsPage() {
               </div>
             </div>
             
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Nombre del Medicamento / Terapia</label>
                 <input 
@@ -164,7 +164,7 @@ export default function TreatmentsPage() {
                   onChange={e => setFormData({ ...formData, reason: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Dosis</label>
                   <input 
@@ -190,7 +190,7 @@ export default function TreatmentsPage() {
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Periodicidad (Frecuencia)</label>
                   <input 
