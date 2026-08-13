@@ -31,7 +31,6 @@ export const useBookingCheckout = () => {
     shareVaultAccess = false,
     allowedDocumentIds,
     paymentMethod = 'STRIPE',
-    symptoms = '',
     grantedModules = [],
   }: CheckoutParams & { grantedModules?: string[] }) => {
     setIsProcessing(true);
