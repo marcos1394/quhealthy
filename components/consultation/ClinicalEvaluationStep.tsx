@@ -158,7 +158,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
                 setTemplateData((prev) => ({ ...prev, ...data.template_data }));
               }
               if (data.attached_templates_data) {
-                setAttachedTemplatesData((prev) => ({ ...prev, ...data.attached_templates_data }));
+                setAttachedTemplatesData((prev: any) => ({ ...prev, ...data.attached_templates_data }));
               }
               clearInterval(interval);
             }
@@ -168,7 +168,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
             setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
           }
           if (parsedData.attached_templates_data) {
-            setAttachedTemplatesData((prev) => ({ ...prev, ...parsedData.attached_templates_data }));
+            setAttachedTemplatesData((prev: any) => ({ ...prev, ...parsedData.attached_templates_data }));
           }
         }
       });
@@ -185,7 +185,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
       }
       if (parsedData.attached_templates_data) {
-        setAttachedTemplatesData((prev) => ({ ...prev, ...parsedData.attached_templates_data }));
+        setAttachedTemplatesData((prev: any) => ({ ...prev, ...parsedData.attached_templates_data }));
       }
     }
     setTimeout(() => setIsSyncingAi(false), 1000);
@@ -193,8 +193,8 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
 
   const handleTemplateSelect = (template: ClinicalTemplateResponse) => {
     if (!attachedTemplates.find(t => t.id === template.id)) {
-      setAttachedTemplates(prev => [...prev, template]);
-      setAttachedTemplatesData(prev => ({ ...prev, [template.id]: {} }));
+      setAttachedTemplates((prev: any[]) => [...prev, template]);
+      setAttachedTemplatesData((prev: any) => ({ ...prev, [template.id]: {} }));
     }
   };
 
