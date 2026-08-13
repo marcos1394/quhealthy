@@ -89,6 +89,10 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   
   // Estado local para los campos dinámicos de la plantilla estructurada
   const [templateData, setTemplateData] = useState<Record<string, any>>({});
+
+  const updateTemplateData = (fieldId: string, value: any) => {
+    setTemplateData((prev) => ({ ...prev, [fieldId]: value }));
+  };
   
   // Estado para las plantillas de texto genéricas
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
