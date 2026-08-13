@@ -62,6 +62,7 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
   } | null>(null);
   const [selectedNote, setSelectedNote] = useState<VaultDocument | null>(null);
   const [isRequestingAccess, setIsRequestingAccess] = useState(false);
+  const [showVaultList, setShowVaultList] = useState(false);
 
   const handleRequestAccess = async () => {
     if (!consumerId) return;
@@ -362,6 +363,28 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                   )}
                 </button>
               </div>
+            ) : !showVaultList ? (
+              <div className="p-8 text-center flex-1 flex flex-col items-center justify-center rounded-3xl bg-gray-50/50 dark:bg-[#050505] border border-dashed border-gray-200 dark:border-gray-800 space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
+                  <History className="w-6 h-6" strokeWidth={2} />
+                </div>
+                <div className="space-y-1 max-w-sm">
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                    {t("vault_title")}
+                  </h4>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {t("vault_hidden_desc", { fallback: "El historial clínico está disponible. Haz clic abajo para visualizarlo." })}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowVaultList(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-6 text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer border-0 mt-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>{t("btn_view_history", { fallback: "Ver Historial" })}</span>
+                </button>
+              </div>
             ) : vaultDocuments.length === 0 ? (
               <div className="p-8 text-center flex-1 flex flex-col items-center justify-center rounded-3xl bg-gray-50/50 dark:bg-[#050505] border border-dashed border-gray-200 dark:border-gray-800 space-y-2">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
@@ -377,9 +400,25 @@ export const PatientProfileStep: React.FC<PatientProfileStepProps> = ({
                       : t("vault_empty")}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowVaultList(false)}
+                  className="mt-4 px-4 h-9 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  {t("btn_hide_history", { fallback: "Ocultar Historial" })}
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-2.5">
+                <div className="flex justify-end mb-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowVaultList(false)}
+                    className="px-4 h-9 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  >
+                    {t("btn_hide_history", { fallback: "Ocultar Historial" })}
+                  </button>
+                </div>
                 {vaultDocuments.map((doc) => (
                   <div
                     key={doc.id}

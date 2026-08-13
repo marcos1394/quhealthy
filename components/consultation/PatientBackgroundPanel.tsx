@@ -22,6 +22,7 @@ import { consumerProfileService } from "@/services/consumerProfile.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PatientBackgroundRequest } from "@/types/ehr";
 
 interface Props {
@@ -173,9 +174,11 @@ export function PatientBackgroundPanel({
     data: Record<string, string>,
     setData: React.Dispatch<React.SetStateAction<Record<string, string>>>,
     placeholderKey: string,
-    placeholderVal: string
+    placeholderVal: string,
+    accordionValue: string
   ) => {
-    const handleAdd = () => {
+    const handleAdd = (e: React.MouseEvent) => {
+      e.stopPropagation();
       setData({ ...data, "": "" });
     };
 
@@ -200,71 +203,75 @@ export function PatientBackgroundPanel({
     const entries = Object.entries(data);
 
     return (
-      <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs space-y-4 transition-colors">
-        <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-              {icon}
+      <AccordionItem value={accordionValue} className="rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs px-5 overflow-hidden transition-colors">
+        <div className="flex justify-between items-center border-b border-transparent data-[state=open]:border-gray-100 dark:data-[state=open]:border-gray-800 transition-colors">
+          <AccordionTrigger className="hover:no-underline py-5 flex-1 pr-4">
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                {icon}
+              </div>
+              <h4 className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">
+                {title}
+              </h4>
             </div>
-            <h4 className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">
-              {title}
-            </h4>
-          </div>
+          </AccordionTrigger>
 
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={handleAdd}
-            className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-9 px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+            className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-9 px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer z-10 shrink-0"
           >
             <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
-            <span>{t("btn_add_entry")}</span>
+            <span className="hidden sm:inline">{t("btn_add_entry")}</span>
           </Button>
         </div>
 
-        {entries.length === 0 ? (
-          <div className="py-6 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]">
-            <p className="text-xs font-medium text-gray-400">
-              {t("no_data_added")}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-2.5">
-            {entries.map(([key, value], index) => (
-              <div key={index} className="flex gap-2.5 items-center">
-                <div className="w-1/3 min-w-[120px]">
-                  <Input
-                    type="text"
-                    value={key}
-                    placeholder={placeholderKey}
-                    onChange={(e) => handleKeyChange(key, e.target.value)}
-                    className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
-                  />
-                </div>
+        <AccordionContent className="pb-5 pt-4">
+          {entries.length === 0 ? (
+            <div className="py-6 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]">
+              <p className="text-xs font-medium text-gray-400">
+                {t("no_data_added")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {entries.map(([key, value], index) => (
+                <div key={index} className="flex gap-2.5 items-center">
+                  <div className="w-1/3 min-w-[120px]">
+                    <Input
+                      type="text"
+                      value={key}
+                      placeholder={placeholderKey}
+                      onChange={(e) => handleKeyChange(key, e.target.value)}
+                      className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
+                    />
+                  </div>
 
-                <div className="flex-1">
-                  <Input
-                    type="text"
-                    value={value}
-                    placeholder={placeholderVal}
-                    onChange={(e) => handleValChange(key, e.target.value)}
-                    className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
-                  />
-                </div>
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      value={value}
+                      placeholder={placeholderVal}
+                      onChange={(e) => handleValChange(key, e.target.value)}
+                      className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
+                    />
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleRemove(key)}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors shrink-0 cursor-pointer border border-gray-100 dark:border-gray-800"
-                >
-                  <X className="w-4 h-4" strokeWidth={2} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(key)}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors shrink-0 cursor-pointer border border-gray-100 dark:border-gray-800"
+                  >
+                    <X className="w-4 h-4" strokeWidth={2} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </AccordionContent>
+      </AccordionItem>
     );
   };
 
@@ -318,32 +325,37 @@ export function PatientBackgroundPanel({
         </div>
 
         {/* ── SECCIONES DE ANTECEDENTES ───────────────────────────────── */}
-        {renderMapEditor(
-          t("family_background"),
-          <Users className="w-4 h-4" strokeWidth={2} />,
-          familyBackground,
-          setFamilyBackground,
-          t("family_bg_key_placeholder"),
-          t("family_bg_val_placeholder")
-        )}
+        <Accordion type="multiple" className="space-y-4 font-sans transition-colors">
+          {renderMapEditor(
+            t("family_background"),
+            <Users className="w-4 h-4" strokeWidth={2} />,
+            familyBackground,
+            setFamilyBackground,
+            t("family_bg_key_placeholder"),
+            t("family_bg_val_placeholder"),
+            "family"
+          )}
 
-        {renderMapEditor(
-          t("personal_background"),
-          <Activity className="w-4 h-4" strokeWidth={2} />,
-          personalBackground,
-          setPersonalBackground,
-          t("personal_bg_key_placeholder"),
-          t("personal_bg_val_placeholder")
-        )}
+          {renderMapEditor(
+            t("personal_background"),
+            <Activity className="w-4 h-4" strokeWidth={2} />,
+            personalBackground,
+            setPersonalBackground,
+            t("personal_bg_key_placeholder"),
+            t("personal_bg_val_placeholder"),
+            "personal"
+          )}
 
-        {renderMapEditor(
-          t("social_background"),
-          <HeartHandshake className="w-4 h-4" strokeWidth={2} />,
-          socialBackground,
-          setSocialBackground,
-          t("social_bg_key_placeholder"),
-          t("social_bg_val_placeholder")
-        )}
+          {renderMapEditor(
+            t("social_background"),
+            <HeartHandshake className="w-4 h-4" strokeWidth={2} />,
+            socialBackground,
+            setSocialBackground,
+            t("social_bg_key_placeholder"),
+            t("social_bg_val_placeholder"),
+            "social"
+          )}
+        </Accordion>
       </div>
     </div>
   );

@@ -44,7 +44,8 @@ interface BookingSummaryProps {
     shippingAddress?: string,
     shareVaultAccess?: boolean,
     allowedDocumentIds?: string[],
-    paymentMethod?: string
+    paymentMethod?: string,
+    canAccessWomensHealth?: boolean
   ) => void;
 }
 
@@ -92,6 +93,8 @@ export function BookingSummary({
           return { ...state, isLoadingRates: action.payload };
         case "SET_SELECTEDPAYMENTMETHOD":
           return { ...state, selectedPaymentMethod: action.payload };
+        case "SET_CANACCESSWOMENSHEALTH":
+          return { ...state, canAccessWomensHealth: action.payload };
         default:
           return state;
       }
@@ -105,6 +108,7 @@ export function BookingSummary({
       selectedCurrency: "MXN",
       isLoadingRates: true,
       selectedPaymentMethod: "CREDIT_CARD",
+      canAccessWomensHealth: false,
     }
   );
 
@@ -123,6 +127,8 @@ export function BookingSummary({
     dispatch({ type: "SET_ISLOADINGRATES", payload: val });
   const setSelectedPaymentMethod = (val: any) =>
     dispatch({ type: "SET_SELECTEDPAYMENTMETHOD", payload: val });
+  const setCanAccessWomensHealth = (val: any) =>
+    dispatch({ type: "SET_CANACCESSWOMENSHEALTH", payload: val });
 
   // Saldo de Billetera
   const [walletBalance, setWalletBalance] = useState(0);
@@ -256,7 +262,8 @@ export function BookingSummary({
         undefined,
         shareVaultAccess,
         shareVaultMode === "GRANULAR" ? selectedDocumentIds : undefined,
-        isUsingPackage ? "PACKAGE_BALANCE" : selectedPaymentMethod
+        isUsingPackage ? "PACKAGE_BALANCE" : selectedPaymentMethod,
+        canAccessWomensHealth
       );
     }
   };
@@ -479,7 +486,20 @@ export function BookingSummary({
                         </div>
 
                         {shareVaultMode === "GRANULAR" && (
-                          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 max-h-40 overflow-y-auto space-y-2">
+                          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 max-h-48 overflow-y-auto space-y-3 custom-scrollbar">
+                            <div className="flex items-start gap-2.5 pb-2 border-b border-gray-100 dark:border-gray-800">
+                                <Checkbox
+                                    id="womensHealthPerm"
+                                    checked={canAccessWomensHealth}
+                                    onCheckedChange={(checked) => setCanAccessWomensHealth(checked === true)}
+                                    disabled={isProcessing}
+                                    className="mt-0.5 rounded-md border-gray-300 dark:border-gray-700 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500 w-4 h-4"
+                                />
+                                <label htmlFor="womensHealthPerm" className="text-xs font-semibold text-gray-800 dark:text-gray-200 cursor-pointer">
+                                    <p>Módulo de Salud Femenina</p>
+                                    <p className="text-[10px] text-gray-500 font-normal">Permite al médico visualizar tu historial de ciclo menstrual y predicciones.</p>
+                                </label>
+                            </div>
                             {isLoadingDocs ? (
                               <div className="flex justify-center py-3">
                                 <QhSpinner size="sm" className="text-store-600" />

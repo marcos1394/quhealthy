@@ -60,8 +60,10 @@ export default function ConsumerAppointmentsPage() {
       total: appointments.length,
       upcoming: appointments.filter(
         (a) =>
-          new Date(a.startTime) >= now &&
-          (a.status === "SCHEDULED" || a.status === "PENDING_PAYMENT")
+          a.status === "SCHEDULED" ||
+          a.status === "PENDING_PAYMENT" ||
+          a.status === "IN_PROGRESS" ||
+          (new Date(a.endTime || a.startTime) >= now && a.status !== "COMPLETED" && a.status !== "CANCELED_BY_CONSUMER" && a.status !== "CANCELED_BY_PROVIDER" && a.status !== "NO_SHOW")
       ).length,
       completed: appointments.filter((a) => a.status === "COMPLETED").length,
       cancelled: appointments.filter(
@@ -82,18 +84,19 @@ export default function ConsumerAppointmentsPage() {
     if (activeTab === "upcoming") {
       filtered = filtered.filter(
         (a) =>
-          new Date(a.startTime) >= now &&
-          (a.status === "SCHEDULED" ||
-            a.status === "PENDING_PAYMENT" ||
-            a.status === "IN_PROGRESS")
+          a.status === "SCHEDULED" ||
+          a.status === "PENDING_PAYMENT" ||
+          a.status === "IN_PROGRESS" ||
+          (new Date(a.endTime || a.startTime) >= now && a.status !== "COMPLETED" && a.status !== "CANCELED_BY_CONSUMER" && a.status !== "CANCELED_BY_PROVIDER" && a.status !== "NO_SHOW")
       );
     } else if (activeTab === "past") {
       filtered = filtered.filter(
         (a) =>
           a.status === "COMPLETED" ||
-          (new Date(a.endTime) < now &&
+          (new Date(a.endTime || a.startTime) < now &&
             a.status !== "CANCELED_BY_CONSUMER" &&
-            a.status !== "CANCELED_BY_PROVIDER")
+            a.status !== "CANCELED_BY_PROVIDER" &&
+            a.status !== "NO_SHOW")
       );
     } else if (activeTab === "cancelled") {
       filtered = filtered.filter(

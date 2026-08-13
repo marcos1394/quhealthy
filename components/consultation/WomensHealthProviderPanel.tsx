@@ -13,6 +13,8 @@ interface Props {
 
 export function WomensHealthProviderPanel({ consumerId }: Props) {
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
   const [loading, setLoading] = useState(true);
   
   const [prediction, setPrediction] = useState<CyclePredictionDto | null>(null);
@@ -31,7 +33,6 @@ export function WomensHealthProviderPanel({ consumerId }: Props) {
             womensHealthService.getPrediction(consumerId),
             womensHealthService.getCycleLogs(consumerId),
             womensHealthService.getAiInsights(consumerId),
-            // Obtener síntomas de los últimos 30 días para no sobrecargar
             womensHealthService.getSymptomLogs(
               consumerId, 
               new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -43,8 +44,12 @@ export function WomensHealthProviderPanel({ consumerId }: Props) {
           setInsights(aiData);
           setSymptoms(symptomLogs);
         }
-      } catch (error) {
-        console.error("Error fetching womens health for provider:", error);
+      } catch (error: any) {
+        if (error.response && error.response.status === 403) {
+          setAccessDenied(true);
+        } else {
+          console.error("Error fetching womens health for provider:", error);
+        }
       } finally {
         setLoading(false);
       }
@@ -52,8 +57,37 @@ export function WomensHealthProviderPanel({ consumerId }: Props) {
     fetchProviderData();
   }, [consumerId]);
 
+  const handleRequestAccess = async () => {
+    try {
+      const axiosInstance = (await import('@/lib/axios')).default;
+      await axiosInstance.post(`/api/onboarding/provider/vault/permissions/request/${consumerId}`);
+      setRequestSent(true);
+    } catch (e) {
+      console.error("No se pudo solicitar acceso", e);
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center p-6"><QhSpinner /></div>;
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-xl p-6 text-center">
+        <ShieldAlert className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+        <h4 className="text-gray-900 dark:text-white font-medium mb-1">Acceso Restringido</h4>
+        <p className="text-sm text-gray-500 mb-4">
+          La paciente no ha otorgado el permiso para compartir su información de salud femenina contigo.
+        </p>
+        <button
+          onClick={handleRequestAccess}
+          disabled={requestSent}
+          className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white text-xs font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {requestSent ? "Solicitud Enviada" : "Solicitar Permiso"}
+        </button>
+      </div>
+    );
   }
 
   if (hasConsent === false) {

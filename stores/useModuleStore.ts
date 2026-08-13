@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface ModuleStore {
   activeModules: string[];
@@ -9,15 +10,22 @@ interface ModuleStore {
   reset: () => void;
 }
 
-export const useModuleStore = create<ModuleStore>((set, get) => ({
-  activeModules: [],
-  selfReported: false,
-  isLoaded: false,
+export const useModuleStore = create<ModuleStore>()(
+  persist(
+    (set, get) => ({
+      activeModules: [],
+      selfReported: false,
+      isLoaded: false,
 
-  setModules: (modules, selfReported) =>
-    set({ activeModules: modules, selfReported, isLoaded: true }),
+      setModules: (modules, selfReported) =>
+        set({ activeModules: modules, selfReported, isLoaded: true }),
 
-  isModuleActive: (key) => get().activeModules.includes(key),
+      isModuleActive: (key) => get().activeModules.includes(key),
 
-  reset: () => set({ activeModules: [], selfReported: false, isLoaded: false }),
-}));
+      reset: () => set({ activeModules: [], selfReported: false, isLoaded: false }),
+    }),
+    {
+      name: 'qu-module-store',
+    }
+  )
+);

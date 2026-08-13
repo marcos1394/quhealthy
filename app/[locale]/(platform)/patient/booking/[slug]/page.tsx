@@ -249,7 +249,8 @@ export default function BookingPage({
     shippingAddress?: string,
     shareVaultAccess?: boolean,
     allowedDocumentIds?: string[],
-    paymentMethod?: string
+    paymentMethod?: string,
+    canAccessWomensHealth?: boolean
   ) => {
     // Validar si requiere cita simple
     if (
@@ -287,6 +288,7 @@ export default function BookingPage({
           shareVaultAccess,
           allowedDocumentIds,
           paymentMethod,
+          canAccessWomensHealth,
         });
       }
     }

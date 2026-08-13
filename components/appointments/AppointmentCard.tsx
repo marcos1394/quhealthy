@@ -217,7 +217,7 @@ export function AppointmentCard({
         </div>
 
         {/* ── COLUMNA 3: ACCIONES ───────────────────────────────────────── */}
-        <div className="p-6 lg:w-64 flex flex-col justify-center gap-2.5 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 shrink-0">
+        <div className="p-6 lg:w-72 flex flex-col justify-center gap-2.5 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 min-w-[200px]">
           {canJoinVideo && (
             <Button
               onClick={() =>
@@ -226,7 +226,7 @@ export function AppointmentCard({
                   : router.push(`/patient/video-call/${appt.id}`)
               }
               className={cn(
-                "w-full min-h-[2.5rem] h-auto py-2 rounded-xl border-0 text-xs font-bold flex items-center justify-start pl-3.5 transition-all shadow-sm",
+                "w-full min-h-11 h-auto py-2 rounded-xl border-0 text-xs font-bold flex items-center justify-start pl-3.5 transition-all shadow-sm",
                 isLateTolerance
                   ? "bg-amber-500 hover:bg-amber-600 text-white"
                   : "bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -234,7 +234,7 @@ export function AppointmentCard({
               title={isLateTolerance ? t("late_tooltip") : ""}
             >
               <Video className="w-4 h-4 mr-2 shrink-0" strokeWidth={2} />
-              <span className="text-left break-words whitespace-normal leading-tight">
+              <span className="text-left break-words whitespace-normal leading-tight flex-1">
                 {isLateTolerance ? t("btn_join_late") : t("btn_join_video")}
               </span>
             </Button>
@@ -243,10 +243,10 @@ export function AppointmentCard({
           <Button
             variant="outline"
             onClick={() => router.push(`/patient/appointments/${appt.id}`)}
-            className="w-full min-h-[2.5rem] h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-sm transition-all"
+            className="w-full min-h-11 h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-sm transition-all"
           >
             <Eye className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
-            <span className="text-left break-words whitespace-normal leading-tight">{t("btn_view_details")}</span>
+            <span className="text-left break-words whitespace-normal leading-tight flex-1">{t("btn_view_details")}</span>
           </Button>
 
           {(appt.status === "SCHEDULED" || appt.status === "PENDING_PAYMENT") &&
@@ -256,10 +256,10 @@ export function AppointmentCard({
                 onClick={() =>
                   toast.success(t("toast_calendar_added"))
                 }
-                className="w-full min-h-[2.5rem] h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-sm transition-all"
+                className="w-full min-h-11 h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-sm transition-all"
               >
                 <CalendarPlus className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
-                <span className="text-left break-words whitespace-normal leading-tight">{t("btn_add_calendar")}</span>
+                <span className="text-left break-words whitespace-normal leading-tight flex-1">{t("btn_add_calendar")}</span>
               </Button>
             )}
 
@@ -268,10 +268,10 @@ export function AppointmentCard({
               <Button
                 variant="outline"
                 onClick={() => onRequestCancel(appt)}
-                className="w-full min-h-[2.5rem] h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-red-50/50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/50 transition-all shadow-sm"
+                className="w-full min-h-11 h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-red-50/50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/50 transition-all shadow-sm"
               >
                 <XCircle className="w-4 h-4 mr-2 text-red-500 shrink-0" strokeWidth={2} />
-                <span className="text-left break-words whitespace-normal leading-tight">{t("btn_cancel")}</span>
+                <span className="text-left break-words whitespace-normal leading-tight flex-1">{t("btn_cancel")}</span>
               </Button>
             )}
 
@@ -285,10 +285,10 @@ export function AppointmentCard({
                   )}`
                 )
               }
-              className="w-full min-h-[2.5rem] h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-sm transition-all"
+              className="w-full min-h-11 h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 shadow-sm transition-all"
             >
               <RefreshCw className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
-              <span className="text-left break-words whitespace-normal leading-tight">{t("btn_rebook")}</span>
+              <span className="text-left break-words whitespace-normal leading-tight flex-1">{t("btn_rebook")}</span>
             </Button>
           )}
 
@@ -296,10 +296,10 @@ export function AppointmentCard({
             <Button
               variant="ghost"
               onClick={() => toast.info(t("toast_receipt"))}
-              className="w-full min-h-[2.5rem] h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              className="w-full min-h-11 h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
             >
               <Download className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
-              <span className="text-left break-words whitespace-normal leading-tight">{t("btn_receipt")}</span>
+              <span className="text-left break-words whitespace-normal leading-tight flex-1">{t("btn_receipt")}</span>
             </Button>
           )}
         </div>
