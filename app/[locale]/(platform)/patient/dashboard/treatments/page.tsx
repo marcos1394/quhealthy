@@ -5,9 +5,10 @@ import { useTranslations } from "next-intl";
 import { TreatmentManager, TreatmentDto } from "@/components/patient/health-record/TreatmentManager";
 import { treatmentService } from "@/services/treatment.service";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Camera, AlertTriangle, Sparkles } from "lucide-react";
+import { Camera, AlertTriangle, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useModuleStore } from "@/stores/useModuleStore";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 
 export default function TreatmentsPage() {
@@ -35,6 +36,26 @@ export default function TreatmentsPage() {
     }
     load();
   }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsScanning(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await fetch("/api/appointments/treatments/ai/analyze-image", { method: "POST", body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        setFormData(prev => ({ ...prev, name: data.name || prev.name, dosage: data.dosage || prev.dosage, route: data.route || prev.route, reason: data.reason || prev.reason }));
+        toast.success("Información extraída con éxito");
+      }
+    } catch (err) {
+      toast.error("Error al analizar la imagen");
+    } finally {
+      setIsScanning(false);
+    }
+  };
 
   const handleAddManual = async () => {
     if (!formData.name || !formData.dosage) return;
@@ -107,29 +128,18 @@ export default function TreatmentsPage() {
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-gray-500">Ingresa los detalles del medicamento.</p>
               <div>
-                <input type="file" id="ai-scan" accept="image/*" className="hidden" onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  setIsScanning(true);
-                  try {
-                    const fd = new FormData();
-                    fd.append("image", file);
-                    const res = await fetch("/api/appointments/treatments/ai/analyze-image", { method: "POST", body: fd });
-                    if (res.ok) {
-                      const data = await res.json();
-                      setFormData(prev => ({ ...prev, name: data.name || prev.name, dosage: data.dosage || prev.dosage, route: data.route || prev.route, reason: data.reason || prev.reason }));
-                      toast.success("Información extraída con éxito");
-                    }
-                  } catch (err) {
-                    toast.error("Error al analizar la imagen");
-                  } finally {
-                    setIsScanning(false);
-                  }
-                }} />
-                <label htmlFor="ai-scan" className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold hover:bg-purple-200 transition-colors">
-                  {isScanning ? <Sparkles className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                  {isScanning ? "Escaneando..." : "Escanear con IA"}
-                </label>
+                <input type="file" id="ai-scan-cam" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+                <input type="file" id="ai-scan-file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <div className="flex gap-2">
+                  <label htmlFor="ai-scan-cam" className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold hover:bg-purple-200 transition-colors">
+                    {isScanning ? <Sparkles className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                    {isScanning ? "..." : "Cámara"}
+                  </label>
+                  <label htmlFor="ai-scan-file" className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold hover:bg-gray-200 transition-colors">
+                    <Upload className="w-4 h-4" />
+                    Archivo
+                  </label>
+                </div>
               </div>
             </div>
             
@@ -193,11 +203,10 @@ export default function TreatmentsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Fecha de Término</label>
-                  <input 
-                    type="date" 
-                    className="w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-3" 
-                    value={formData.endDate}
-                    onChange={e => setFormData({ ...formData, endDate: e.target.value })}
+                  <DatePicker 
+                    value={formData.endDate ? new Date(formData.endDate + "T00:00:00") : undefined} 
+                    onChange={date => setFormData({ ...formData, endDate: date ? date.toISOString().split('T')[0] : "" })} 
+                    placeholder="Seleccionar fecha"
                   />
                 </div>
               </div>
