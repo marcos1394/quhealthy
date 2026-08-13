@@ -53,8 +53,12 @@ interface ClinicalEvaluationStepProps {
   appointmentType: string;
   onBack: () => void;
   onNext: () => void;
-  syncAiSoapNote?: () => Promise<boolean>;
+  syncAiSoapNote?: () => Promise<any>;
   serviceId?: number | null;
+  attachedTemplates: any[];
+  setAttachedTemplates: (val: any) => void;
+  attachedTemplatesData: Record<string, Record<string, any>>;
+  setAttachedTemplatesData: (val: any) => void;
 }
 
 export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
@@ -74,24 +78,54 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   onNext,
   syncAiSoapNote,
   serviceId,
+  attachedTemplates,
+  setAttachedTemplates,
+  attachedTemplatesData,
+  setAttachedTemplatesData,
 }) => {
   const t = useTranslations("EHR");
 
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  
+  // Estado local para los campos dinámicos de la plantilla estructurada
+  const [templateData, setTemplateData] = useState<Record<string, any>>({});
+  
+  // Estado para las plantillas de texto genéricas
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
-  const [isSyncingAi, setIsSyncingAi] = useState(false);
   const [targetField, setTargetField] = useState<
     "subjective" | "objective" | "assessment" | "plan" | null
   >(null);
+  
+  const [isSyncingAi, setIsSyncingAi] = useState(false);
 
   const [linkedTemplate, setLinkedTemplate] =
-    useState<ClinicalTemplateResponse | null>(null);
-  const [templateData, setTemplateData] = useState<Record<string, any>>({});
+    useState<any>(null);
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
+
+  const updateAttachedTemplateData = (templateId: string, fieldId: string, value: any) => {
+    setAttachedTemplatesData((prev: any) => ({
+      ...prev,
+      [templateId]: {
+        ...(prev[templateId] || {}),
+        [fieldId]: value,
+      },
+    }));
+  };
+
+  const removeAttachedTemplate = (templateId: string) => {
+    setAttachedTemplates((prev: any[]) => prev.filter(t => t.id !== Number(templateId)));
+    setAttachedTemplatesData((prev: any) => {
+      const newData = { ...prev };
+      delete newData[templateId];
+      return newData;
+    });
+  };
 
   useEffect(() => {
     const fetchLinkedTemplate = async () => {
       if (!serviceId) return;
       try {
+        setLoadingTemplate(true);
         const item = await catalogService.getItemDetail(serviceId);
         if (item.metadata?.clinicalTemplateId) {
           const tmpl = await clinicalTemplateService.getTemplate(
@@ -101,19 +135,21 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         }
       } catch (err) {
         console.error("Error fetching linked template:", err);
+      } finally {
+        setLoadingTemplate(false);
       }
     };
     fetchLinkedTemplate();
   }, [serviceId]);
 
-  const updateTemplateData = (fieldId: string, value: any) => {
+  const handleTemplateDataChange = (fieldId: string, value: any) => {
     setTemplateData((prev) => ({ ...prev, [fieldId]: value }));
   };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (syncAiSoapNote && appointmentType === "ONLINE") {
-      syncAiSoapNote().then((parsedData) => {
+      syncAiSoapNote().then((parsedData: any) => {
         if (!parsedData) {
           interval = setInterval(async () => {
             const data = await syncAiSoapNote();
@@ -121,11 +157,19 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
               if (data.template_data) {
                 setTemplateData((prev) => ({ ...prev, ...data.template_data }));
               }
+              if (data.attached_templates_data) {
+                setAttachedTemplatesData((prev) => ({ ...prev, ...data.attached_templates_data }));
+              }
               clearInterval(interval);
             }
           }, 5000);
-        } else if (parsedData.template_data) {
-          setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
+        } else {
+          if (parsedData.template_data) {
+            setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
+          }
+          if (parsedData.attached_templates_data) {
+            setAttachedTemplatesData((prev) => ({ ...prev, ...parsedData.attached_templates_data }));
+          }
         }
       });
     }
@@ -136,18 +180,44 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
     if (!syncAiSoapNote) return;
     setIsSyncingAi(true);
     const parsedData = await syncAiSoapNote();
-    if (parsedData && parsedData.template_data) {
-      setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
+    if (parsedData) {
+      if (parsedData.template_data) {
+        setTemplateData((prev) => ({ ...prev, ...parsedData.template_data }));
+      }
+      if (parsedData.attached_templates_data) {
+        setAttachedTemplatesData((prev) => ({ ...prev, ...parsedData.attached_templates_data }));
+      }
     }
     setTimeout(() => setIsSyncingAi(false), 1000);
   };
 
-  const handleTemplateSelect = (content: string, field: "subjective" | "objective" | "assessment" | "plan") => {
-    const currentContent = soapNotes[field] || "";
-    updateSoapNote(
-      field,
-      currentContent ? `${currentContent}\n\n${content}` : content
-    );
+  const handleTemplateSelect = (template: ClinicalTemplateResponse) => {
+    if (!attachedTemplates.find(t => t.id === template.id)) {
+      setAttachedTemplates(prev => [...prev, template]);
+      setAttachedTemplatesData(prev => ({ ...prev, [template.id]: {} }));
+    }
+  };
+
+  const handleToggleRecordingClick = () => {
+    let combinedSchema: any = null;
+    
+    if ((linkedTemplate && linkedTemplate.schema) || attachedTemplates.length > 0) {
+      combinedSchema = {};
+      
+      if (linkedTemplate?.schema) {
+        combinedSchema = { ...linkedTemplate.schema };
+      }
+      
+      if (attachedTemplates.length > 0) {
+        combinedSchema.attached_templates = attachedTemplates.map(tpl => ({
+          id: tpl.id,
+          name: tpl.name,
+          fields: tpl.schema?.fields || []
+        }));
+      }
+    }
+    
+    handleToggleRecording(combinedSchema ? JSON.stringify(combinedSchema) : undefined);
   };
 
   return (
@@ -171,10 +241,33 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            {/* Copiloto AI Button */}
+            {/* Copiloto IA Button */}
             <button
               type="button"
               onClick={() => setIsCopilotOpen(!isCopilotOpen)}
+              className={cn(
+                "flex-1 sm:flex-none h-10 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer",
+                isCopilotOpen || isRecording || isTranscribing
+                  ? "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400"
+                  : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111]"
+              )}
+            >
+              <Sparkles
+                className={cn(
+                  "w-4 h-4",
+                  isCopilotOpen || isRecording || isTranscribing
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-gray-400"
+                )}
+                strokeWidth={2}
+              />
+              <span className="hidden sm:inline">Copiloto IA</span>
+            </button>
+            
+            {/* AI Scribe Button */}
+            <button
+              type="button"
+              onClick={handleToggleRecordingClick}
               className={cn(
                 "flex-1 sm:flex-none h-10 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer",
                 isCopilotOpen || isRecording || isTranscribing
@@ -269,6 +362,91 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
               </div>
             </div>
           )}
+
+        {/* ── PLANTILLAS ADICIONALES ANEXADAS ───────────────────────────── */}
+        {attachedTemplates.length > 0 && (
+          <div className="flex flex-col border-b border-gray-100 dark:border-gray-800">
+            {attachedTemplates.map((template) => (
+              <div key={template.id} className="p-5 sm:p-6 border-t border-gray-100 dark:border-gray-800 first:border-t-0 bg-blue-50/20 dark:bg-blue-950/10 space-y-4 relative group">
+                <button
+                  type="button"
+                  onClick={() => removeAttachedTemplate(template.id.toString())}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors opacity-0 group-hover:opacity-100"
+                  title="Eliminar plantilla"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                    <FileText className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                      Anexo Clínico
+                    </h4>
+                    <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                      {t("template_prefix", { name: template.name })}
+                    </p>
+                  </div>
+                </div>
+
+                {template.schema?.fields && template.schema.fields.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {template.schema.fields.map((field) => (
+                      <div
+                        key={field.id}
+                        className="border border-gray-100 dark:border-gray-800 p-4 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xs space-y-2"
+                      >
+                        <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                          {field.label}{" "}
+                          {field.required && (
+                            <span className="text-red-500">*</span>
+                          )}
+                        </label>
+
+                        {field.type === "textarea" ? (
+                          <Textarea
+                            value={(attachedTemplatesData[template.id] || {})[field.id] || ""}
+                            onChange={(e) =>
+                              updateAttachedTemplateData(template.id.toString(), field.id, e.target.value)
+                            }
+                            className="w-full min-h-[60px] bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 p-3 text-xs rounded-xl focus-visible:ring-emerald-500/20"
+                          />
+                        ) : field.type === "select" ? (
+                          <Select
+                            value={(attachedTemplatesData[template.id] || {})[field.id]}
+                            onValueChange={(v) => updateAttachedTemplateData(template.id.toString(), field.id, v)}
+                          >
+                            <SelectTrigger className="rounded-xl h-10 text-xs bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 focus:ring-emerald-500/20">
+                              <SelectValue placeholder={t("select_placeholder")} />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl font-sans">
+                              {field.options?.map((opt) => (
+                                <SelectItem key={opt} value={opt}>
+                                  {opt}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            type={field.type}
+                            value={(attachedTemplatesData[template.id] || {})[field.id] || ""}
+                            onChange={(e) =>
+                              updateAttachedTemplateData(template.id.toString(), field.id, e.target.value)
+                            }
+                            className="rounded-xl h-10 text-xs bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 focus-visible:ring-emerald-500/20"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* ── GRID S.O.A.P. ESTRUCTURADO ─────────────────────────────────── */}
         <div className="p-5 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-[#0a0a0a]">

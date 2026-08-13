@@ -299,6 +299,10 @@ export default function ConsultationRoomPage() {
     completeConsultation,
     processAudioWithAi,
     syncAiSoapNote,
+    attachedTemplates,
+    setAttachedTemplates,
+    attachedTemplatesData,
+    setAttachedTemplatesData,
   } = useConsultation(appointmentId, consumerId || 0);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -769,6 +773,10 @@ export default function ConsultationRoomPage() {
                 syncAiSoapNote={syncAiSoapNote}
                 appointmentType={appointmentType}
                 serviceId={serviceId}
+                attachedTemplates={attachedTemplates}
+                setAttachedTemplates={setAttachedTemplates}
+                attachedTemplatesData={attachedTemplatesData}
+                setAttachedTemplatesData={setAttachedTemplatesData}
                 onBack={() => setCurrentStep("background")}
                 onNext={() => setCurrentStep("treatment")}
               />

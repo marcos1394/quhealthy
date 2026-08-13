@@ -35,6 +35,10 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
   const [vitalSigns, setVitalSigns] = useState<VitalSignRequest[]>([]);
   const [prescription, setPrescription] = useState<PrescriptionItem[]>([]);
 
+  // Estado para las plantillas independientes (anexos)
+  const [attachedTemplates, setAttachedTemplates] = useState<any[]>([]);
+  const [attachedTemplatesData, setAttachedTemplatesData] = useState<Record<string, Record<string, any>>>({});
+
   // 🚀 PLUS FU-003: RECUPERAR RESPALDO LOCAL AL MONTAR (Opcional pero recomendado)
   useEffect(() => {
     const draft = localStorage.getItem(`draft_consultation_${appointmentId}`);
@@ -193,7 +197,6 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
         return cleaned;
       });
 
-      // 🚀 HU-11: Mapear diagnósticos eliminando el ID temporal
       const cleanedDiagnoses = diagnoses.map(diag => ({
         cie10Code: diag.cie10Code,
         cie10Description: diag.cie10Description,
@@ -201,11 +204,24 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
         notes: diag.notes
       }));
 
+      // Formatear plantillas anexadas para el backend
+      const formattedAttachedTemplates = attachedTemplates.map(tpl => ({
+        templateId: String(tpl.id),
+        templateName: tpl.name,
+        templateData: attachedTemplatesData[tpl.id] || {},
+        schemaFields: tpl.schema?.fields ? tpl.schema.fields.map((f: any) => ({
+          id: f.id,
+          label: f.label,
+          type: f.type
+        })) : []
+      }));
+
       const payload = {
         clinicalNotes: soapNotes,
         prescriptionItems: cleanedPrescriptionItems,
         diagnoses: cleanedDiagnoses,
         vitalSigns: vitalSigns,
+        attachedTemplates: formattedAttachedTemplates,
         sendPrescriptionToVault: true // 🚀 ESTO ES CLAVE PARA QUE JAVA GENERE EL PDF
       };
 
@@ -340,6 +356,10 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     removePrescriptionItem,
     completeConsultation,
     processAudioWithAi,
-    syncAiSoapNote
+    syncAiSoapNote,
+    attachedTemplates,
+    setAttachedTemplates,
+    attachedTemplatesData,
+    setAttachedTemplatesData
   };
 };
