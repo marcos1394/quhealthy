@@ -223,7 +223,7 @@ export const Sidebar = ({
   const { logout } = useAuth();
   const { role, user } = useSessionStore();
   const { cart, openCart } = useBookingStore();
-  const { isModuleActive } = useModuleStore();
+  const { activeModules, isModuleActive } = useModuleStore();
   const [subscription, setSubscription] = useState<CurrentSubscription | null>(null);
   const [isSwitchingProfile, setIsSwitchingProfile] = useState(false);
 
@@ -251,7 +251,7 @@ export const Sidebar = ({
       );
     }
     return links;
-  }, [isConsumer, isStaff, user?.permissions, isModuleActive]);
+  }, [isConsumer, isStaff, user?.permissions, activeModules, isModuleActive]);
 
   const currentSettingsLinks = isConsumer
     ? patientSettingsLinks
