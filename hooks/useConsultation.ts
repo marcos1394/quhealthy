@@ -264,17 +264,20 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       // Update vital signs if returned synchronously
       if (generatedSoap.vital_signs && Object.keys(generatedSoap.vital_signs).length > 0) {
         const vs = generatedSoap.vital_signs;
-        const newVitalSign: VitalSignRequest = {
-           heartRate: vs.heart_rate,
-           bloodPressureSystolic: vs.blood_pressure_systolic,
-           bloodPressureDiastolic: vs.blood_pressure_diastolic,
-           temperature: vs.temperature_celsius,
-           respiratoryRate: vs.respiratory_rate,
-           oxygenSaturation: vs.oxygen_saturation,
-           weight: vs.weight_kg,
-           height: vs.height_cm
-        };
-        setVitalSigns(prev => [...prev, newVitalSign]);
+        const newVitals: VitalSignRequest[] = [];
+        const nowStr = new Date().toISOString();
+        
+        if (vs.heart_rate) newVitals.push({ type: 'HEART_RATE', value: vs.heart_rate, unit: 'bpm', measuredAt: nowStr, source: 'ai' });
+        if (vs.blood_pressure_systolic && vs.blood_pressure_diastolic) newVitals.push({ type: 'BLOOD_PRESSURE', value: vs.blood_pressure_systolic, secondaryValue: vs.blood_pressure_diastolic, unit: 'mmHg', measuredAt: nowStr, source: 'ai' });
+        if (vs.temperature_celsius) newVitals.push({ type: 'BODY_TEMPERATURE', value: vs.temperature_celsius, unit: '°C', measuredAt: nowStr, source: 'ai' });
+        if (vs.respiratory_rate) newVitals.push({ type: 'RESPIRATORY_RATE', value: vs.respiratory_rate, unit: 'rpm', measuredAt: nowStr, source: 'ai' });
+        if (vs.oxygen_saturation) newVitals.push({ type: 'BLOOD_OXYGEN', value: vs.oxygen_saturation, unit: '%', measuredAt: nowStr, source: 'ai' });
+        if (vs.weight_kg) newVitals.push({ type: 'WEIGHT', value: vs.weight_kg, unit: 'kg', measuredAt: nowStr, source: 'ai' });
+        if (vs.height_cm) newVitals.push({ type: 'HEIGHT', value: vs.height_cm, unit: 'cm', measuredAt: nowStr, source: 'ai' });
+
+        if (newVitals.length > 0) {
+          setVitalSigns(prev => [...prev, ...newVitals]);
+        }
       }
 
       return generatedSoap;
@@ -308,19 +311,21 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
         
         if (parsedData.vital_signs) {
           const vs = parsedData.vital_signs;
-          // Only add if there are any vital signs extracted
           if (Object.keys(vs).length > 0) {
-             const newVitalSign: VitalSignRequest = {
-                heartRate: vs.heart_rate,
-                bloodPressureSystolic: vs.blood_pressure_systolic,
-                bloodPressureDiastolic: vs.blood_pressure_diastolic,
-                temperature: vs.temperature_celsius,
-                respiratoryRate: vs.respiratory_rate,
-                oxygenSaturation: vs.oxygen_saturation,
-                weight: vs.weight_kg,
-                height: vs.height_cm
-             };
-             setVitalSigns(prev => [...prev, newVitalSign]);
+            const newVitals: VitalSignRequest[] = [];
+            const nowStr = new Date().toISOString();
+            
+            if (vs.heart_rate) newVitals.push({ type: 'HEART_RATE', value: vs.heart_rate, unit: 'bpm', measuredAt: nowStr, source: 'ai' });
+            if (vs.blood_pressure_systolic && vs.blood_pressure_diastolic) newVitals.push({ type: 'BLOOD_PRESSURE', value: vs.blood_pressure_systolic, secondaryValue: vs.blood_pressure_diastolic, unit: 'mmHg', measuredAt: nowStr, source: 'ai' });
+            if (vs.temperature_celsius) newVitals.push({ type: 'BODY_TEMPERATURE', value: vs.temperature_celsius, unit: '°C', measuredAt: nowStr, source: 'ai' });
+            if (vs.respiratory_rate) newVitals.push({ type: 'RESPIRATORY_RATE', value: vs.respiratory_rate, unit: 'rpm', measuredAt: nowStr, source: 'ai' });
+            if (vs.oxygen_saturation) newVitals.push({ type: 'BLOOD_OXYGEN', value: vs.oxygen_saturation, unit: '%', measuredAt: nowStr, source: 'ai' });
+            if (vs.weight_kg) newVitals.push({ type: 'WEIGHT', value: vs.weight_kg, unit: 'kg', measuredAt: nowStr, source: 'ai' });
+            if (vs.height_cm) newVitals.push({ type: 'HEIGHT', value: vs.height_cm, unit: 'cm', measuredAt: nowStr, source: 'ai' });
+    
+            if (newVitals.length > 0) {
+              setVitalSigns(prev => [...prev, ...newVitals]);
+            }
           }
         }
 
