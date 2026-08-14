@@ -80,7 +80,7 @@ export default function TreatmentsPage() {
         endDate: formData.endDate || undefined,
         reason: formData.reason || undefined,
         startDate: formData.startDate,
-        patientActiveProblemId: formData.patientActiveProblemId ? parseInt(formData.patientActiveProblemId) : undefined
+        patientActiveProblemId: formData.patientActiveProblemId && formData.patientActiveProblemId !== "none" ? parseInt(formData.patientActiveProblemId) : undefined
       });
       setTreatments(prev => [...prev, newTreatment]);
       setShowAddModal(false);
@@ -348,7 +348,7 @@ export default function TreatmentsPage() {
                       <SelectValue placeholder="Opcional..." />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
-                      <SelectItem value="">Sin especificar</SelectItem>
+                      <SelectItem value="none">Sin especificar</SelectItem>
                       {diagnoses.map(d => (
                         <SelectItem key={d.id} value={d.id.toString()}>{d.diagnosis}</SelectItem>
                       ))}
