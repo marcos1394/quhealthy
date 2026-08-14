@@ -13,6 +13,11 @@ export interface TreatmentDto {
   prescriber?: string;
   status?: "ACTIVE" | "COMPLETED" | "DISCONTINUED" | string;
   nextDoseTime?: string;
+  patientActiveProblemId?: number;
+  diagnosisName?: string;
+  cie10Code?: string;
+  totalDoses?: number;
+  dosesTaken?: number;
 }
 
 export const treatmentService = {

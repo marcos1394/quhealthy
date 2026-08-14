@@ -40,7 +40,7 @@ export function TreatmentManager({ treatments, onAddManual }: { treatments: Trea
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${t.category === 'ONCOLOGY' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-600'}`}>
                   {t.route.toLowerCase().includes('intravenosa') ? <Syringe className="w-6 h-6" /> : <Pill className="w-6 h-6" />}
                 </div>
-                <div>
+                <div className="flex-1">
                   <h4 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     {t.name}
                     {t.category === 'ONCOLOGY' && (
@@ -50,10 +50,29 @@ export function TreatmentManager({ treatments, onAddManual }: { treatments: Trea
                     )}
                   </h4>
                   <p className="text-sm text-gray-500 mt-0.5">{t.dosage} • {t.frequency}</p>
-                  <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                  
+                  {t.diagnosisName && (
+                     <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1.5 font-medium bg-indigo-50 dark:bg-indigo-900/30 inline-block px-2 py-0.5 rounded-md">
+                       Para: {t.diagnosisName} {t.cie10Code && `(${t.cie10Code})`}
+                     </p>
+                  )}
+
+                  <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    Recetado por: {t.prescriber || 'Manual'}
+                    Inicio: {t.startDate} {t.prescriber ? `• Dr. ${t.prescriber}` : '• Manual'}
                   </p>
+                  
+                  {t.totalDoses && t.totalDoses > 0 ? (
+                     <div className="mt-3 max-w-[200px]">
+                        <div className="flex justify-between text-[10px] text-gray-500 mb-1 font-bold uppercase tracking-wider">
+                           <span>Progreso</span>
+                           <span>{t.dosesTaken || 0} / {t.totalDoses} dosis</span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                           <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${Math.min(100, ((t.dosesTaken || 0) / t.totalDoses) * 100)}%` }}></div>
+                        </div>
+                     </div>
+                  ) : null}
                 </div>
               </div>
               <div className="text-right">

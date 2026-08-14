@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { TreatmentManager, TreatmentDto } from "@/components/patient/health-record/TreatmentManager";
 import { treatmentService } from "@/services/treatment.service";
+import { diagnosisService, PatientDiagnosisDto } from "@/services/diagnosis.service";
 import axiosInstance from '@/lib/axios';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Camera, AlertTriangle, Sparkles, Upload } from "lucide-react";
@@ -16,20 +17,26 @@ export default function TreatmentsPage() {
   const { activeModules } = useModuleStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState({ 
-    name: "", dosage: "", category: "GENERAL", frequency: "", endDate: "", route: "Oral", reason: "" 
+    name: "", dosage: "", category: "GENERAL", frequency: "", endDate: "", route: "Oral", reason: "",
+    startDate: new Date().toISOString().split('T')[0], patientActiveProblemId: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [warningData, setWarningData] = useState<string | null>(null);
 
   const [treatments, setTreatments] = useState<TreatmentDto[]>([]);
+  const [diagnoses, setDiagnoses] = useState<PatientDiagnosisDto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await treatmentService.getMyTreatments();
-        setTreatments(data);
+        const [treatmentsData, diagnosesData] = await Promise.all([
+          treatmentService.getMyTreatments(),
+          diagnosisService.getMyDiagnoses()
+        ]);
+        setTreatments(treatmentsData);
+        setDiagnoses(diagnosesData);
       } catch (err) {
         console.error("Failed to fetch treatments:", err);
       } finally {
@@ -72,12 +79,13 @@ export default function TreatmentsPage() {
         route: formData.route || "Oral",
         endDate: formData.endDate || undefined,
         reason: formData.reason || undefined,
-        startDate: new Date().toISOString().split('T')[0],
+        startDate: formData.startDate,
+        patientActiveProblemId: formData.patientActiveProblemId ? parseInt(formData.patientActiveProblemId) : undefined
       });
       setTreatments(prev => [...prev, newTreatment]);
       setShowAddModal(false);
       setWarningData(null);
-      setFormData({ name: "", dosage: "", category: "GENERAL", frequency: "", endDate: "", route: "Oral", reason: "" });
+      setFormData({ name: "", dosage: "", category: "GENERAL", frequency: "", endDate: "", route: "Oral", reason: "", startDate: new Date().toISOString().split('T')[0], patientActiveProblemId: "" });
       toast.success("Tratamiento guardado exitosamente");
     } catch (error) {
       console.error("Error adding treatment", error);
@@ -115,19 +123,143 @@ export default function TreatmentsPage() {
     }
   };
 
+  const [activeTab, setActiveTab] = useState<"treatments" | "diagnoses">("treatments");
+  const [icdQuery, setIcdQuery] = useState("");
+  const [icdResults, setIcdResults] = useState<any[]>([]);
+  const [isSearchingIcd, setIsSearchingIcd] = useState(false);
+  const [isAddingDiagnosis, setIsAddingDiagnosis] = useState(false);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (icdQuery.trim().length > 2) {
+        setIsSearchingIcd(true);
+        try {
+          const { consumerProfileService } = await import("@/services/consumerProfile.service");
+          const data = await consumerProfileService.searchIcd10(icdQuery, 10);
+          setIcdResults(data.content || data || []);
+        } catch (error) {
+          console.error("Error fetching ICD10", error);
+        } finally {
+          setIsSearchingIcd(false);
+        }
+      } else {
+        setIcdResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [icdQuery]);
+
+  const handleAddDiagnosis = async (cie10Code: string, description: string) => {
+    setIsAddingDiagnosis(true);
+    try {
+      const newDiag = await diagnosisService.addManualDiagnosis({ cie10Code, diagnosis: description });
+      setDiagnoses(prev => [...prev, newDiag]);
+      setIcdQuery("");
+      setIcdResults([]);
+      toast.success("Diagnóstico agregado exitosamente");
+    } catch (e) {
+      toast.error("Error al agregar diagnóstico");
+    } finally {
+      setIsAddingDiagnosis(false);
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 pb-20">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestor de Tratamientos</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Mi Salud Integral</h1>
         <p className="text-gray-500 mt-2">
-          Control centralizado de todos tus medicamentos, dosis y terapias (incluyendo tratamientos oncológicos o especializados).
+          Control centralizado de tus diagnósticos y medicamentos.
         </p>
       </div>
 
-      <TreatmentManager 
-        treatments={treatments} 
-        onAddManual={() => setShowAddModal(true)} 
-      />
+      <div className="flex gap-4 border-b border-gray-200 dark:border-gray-800">
+        <button 
+          onClick={() => setActiveTab("treatments")}
+          className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors ${activeTab === "treatments" ? "border-emerald-600 text-emerald-600" : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"}`}
+        >
+          Tratamientos y Dosis
+        </button>
+        <button 
+          onClick={() => setActiveTab("diagnoses")}
+          className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors ${activeTab === "diagnoses" ? "border-emerald-600 text-emerald-600" : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"}`}
+        >
+          Mis Diagnósticos
+        </button>
+      </div>
+
+      {activeTab === "treatments" && (
+        <TreatmentManager 
+          treatments={treatments} 
+          onAddManual={() => setShowAddModal(true)} 
+        />
+      )}
+
+      {activeTab === "diagnoses" && (
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6 text-indigo-500" />
+                Diagnósticos Activos
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">Enfermedades y condiciones detectadas o agregadas</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {diagnoses.length === 0 ? (
+              <p className="text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl text-center">No tienes diagnósticos registrados.</p>
+            ) : (
+              diagnoses.map(d => (
+                <div key={d.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                  <div>
+                    <h4 className="font-bold text-gray-900 dark:text-white">{d.diagnosis}</h4>
+                    <p className="text-xs text-gray-500 mt-1">CIE-10: {d.cie10Code || "N/A"}</p>
+                  </div>
+                  <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    {d.status || 'ACTIVO'}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
+            <h3 className="text-sm font-bold mb-3">Añadir Diagnóstico Manual</h3>
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Buscar por nombre o código CIE-10..." 
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+                value={icdQuery}
+                onChange={e => setIcdQuery(e.target.value)}
+              />
+              {isSearchingIcd && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <span className="w-4 h-4 block border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></span>
+                </div>
+              )}
+              {icdResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl max-h-60 overflow-y-auto z-50">
+                  {icdResults.map((r, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => handleAddDiagnosis(r.code, r.name || r.description)}
+                      disabled={isAddingDiagnosis}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700/50 last:border-0"
+                    >
+                      <p className="text-sm font-medium">{r.name || r.description}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{r.code}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -207,6 +339,30 @@ export default function TreatmentsPage() {
                     placeholder="Ej. Cada 8 horas" 
                     value={formData.frequency}
                     onChange={e => setFormData({ ...formData, frequency: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Diagnóstico Asociado</label>
+                  <Select value={formData.patientActiveProblemId} onValueChange={(val) => setFormData({ ...formData, patientActiveProblemId: val })}>
+                    <SelectTrigger className="w-full h-[50px] rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                      <SelectValue placeholder="Opcional..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="">Sin especificar</SelectItem>
+                      {diagnoses.map(d => (
+                        <SelectItem key={d.id} value={d.id.toString()}>{d.diagnosis}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Fecha de Inicio</label>
+                  <DatePicker 
+                    value={formData.startDate ? new Date(formData.startDate + "T00:00:00") : undefined} 
+                    onChange={date => setFormData({ ...formData, startDate: date ? date.toISOString().split('T')[0] : "" })} 
+                    placeholder="Seleccionar fecha"
                   />
                 </div>
                 <div>
