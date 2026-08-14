@@ -1,5 +1,6 @@
 // Ubicación: src/hooks/useBookingCheckout.ts
 import { useState } from 'react';
+import { useBookingStore } from '@/hooks/useBookingStore';
 import { useRouter } from 'next/navigation'; 
 import { appointmentService } from '@/services/appointment.service';
 import { paymentService } from '@/services/payment.service';
@@ -207,6 +208,7 @@ export const useBookingCheckout = () => {
         }
 
         if (preparedOrder.totalAmount === 0 || paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
+           useBookingStore.getState().clearCart();
            toast.success(preparedOrder.totalAmount === 0 ? "¡Orden procesada exitosamente!" : "¡Orden procesada exitosamente usando tu crédito/saldo!");
            router.push('/patient/dashboard/appointments');
            return;

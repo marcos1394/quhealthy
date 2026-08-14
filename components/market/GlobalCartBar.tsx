@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ShoppingBag, Trash2 } from "lucide-react";
+import { ShoppingBag, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -24,6 +24,7 @@ export function GlobalCartBar() {
     cart,
     clearCart,
     getTotalPrice,
+    removeFromCart
   } = useBookingStore();
   const totalCart = getTotalPrice();
 
@@ -56,10 +57,7 @@ export function GlobalCartBar() {
                   <ShoppingBag className="w-5 h-5" strokeWidth={2} />
                 </div>
 
-                <div className="flex flex-col space-y-0.5">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    {t("cart_summary")}
-                  </span>
+                <div className="flex flex-col space-y-1.5 justify-center">
                   <div className="flex items-center gap-3">
                     <span className="font-mono font-bold text-base sm:text-lg text-gray-900 dark:text-white leading-none tracking-tight">
                       {t("items_count", { count: cart.length })} • ${totalCart.toLocaleString()} MXN
@@ -72,6 +70,16 @@ export function GlobalCartBar() {
                       <Trash2 className="w-3.5 h-3.5" strokeWidth={2} />
                       <span>{t("clear_cart")}</span>
                     </button>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                    {cart.map(item => (
+                       <div key={item.id} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 shadow-sm max-w-[200px]">
+                          <span className="truncate">{item.title}</span>
+                          <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-rose-500 transition-colors cursor-pointer shrink-0 ml-1">
+                             <X className="w-3.5 h-3.5" />
+                          </button>
+                       </div>
+                    ))}
                   </div>
                 </div>
               </div>
