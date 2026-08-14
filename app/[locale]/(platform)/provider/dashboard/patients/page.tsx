@@ -190,6 +190,12 @@ export default function ProviderPatientsPage() {
                       NOM-024
                     </TableHead>
                     <TableHead className="h-12 text-center text-gray-400 font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                      Adherencia
+                    </TableHead>
+                    <TableHead className="h-12 text-center text-gray-400 font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
+                      Resueltos
+                    </TableHead>
+                    <TableHead className="h-12 text-center text-gray-400 font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
                       {t("col_appointments")}
                     </TableHead>
                     <TableHead className="h-12 text-gray-400 font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">
@@ -287,6 +293,41 @@ export default function ProviderPatientsPage() {
                             %
                           </span>
                         </div>
+                      </TableCell>
+
+                      <TableCell className="text-center py-4">
+                        {client.consumer.treatmentAdherencePercentage !== undefined ? (
+                          <div className="flex flex-col items-center justify-center gap-1">
+                            <div className="w-16 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden relative">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full transition-all duration-500",
+                                  client.consumer.treatmentAdherencePercentage >= 80
+                                    ? "bg-emerald-500"
+                                    : client.consumer.treatmentAdherencePercentage >= 50
+                                    ? "bg-amber-500"
+                                    : "bg-rose-500"
+                                )}
+                                style={{ width: `${client.consumer.treatmentAdherencePercentage}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-mono font-bold text-gray-400">
+                              {client.consumer.treatmentAdherencePercentage}%
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 font-medium">-</span>
+                        )}
+                      </TableCell>
+
+                      <TableCell className="text-center py-4">
+                        {client.consumer.resolvedDiagnosesCount !== undefined && client.consumer.resolvedDiagnosesCount > 0 ? (
+                          <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-indigo-700 dark:text-indigo-400 font-mono font-bold text-xs shadow-sm">
+                            {client.consumer.resolvedDiagnosesCount}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400 font-medium">-</span>
+                        )}
                       </TableCell>
 
                       <TableCell className="text-center py-4">

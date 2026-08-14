@@ -47,4 +47,6 @@ export interface ProviderDashboardResponse {
   analytics: DashboardAnalytics;
   metricsByLocation?: LocationMetricDto[];
   upcomingAppointments: UpcomingAppointmentDto[];
+  globalAdherencePercentage?: number;
+  totalResolvedDiagnoses?: number;
 }

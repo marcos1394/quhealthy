@@ -42,6 +42,7 @@ import { AllergiesTable } from "@/components/provider/health-profile/AllergiesTa
 import { MedicationsTable } from "@/components/provider/health-profile/MedicationsTable";
 import { ClinicalSummaryTab } from "@/components/provider/health-profile/ClinicalSummaryTab";
 import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgroundPanel";
+import { ProviderInternalNotesTab } from "@/components/provider/health-profile/ProviderInternalNotesTab";
 
 // Hooks & Services
 import { usePatientDetail } from "@/hooks/usePatientDetail";
@@ -341,6 +342,14 @@ export default function PatientDetailPage() {
                       <span>{t("tabs.growth")}</span>
                     </TabsTrigger>
                   )}
+
+                  <TabsTrigger
+                    value="notes"
+                    className="flex-1 rounded-xl data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 data-[state=active]:shadow-sm dark:data-[state=active]:bg-indigo-950/30 dark:data-[state=active]:text-indigo-400 bg-transparent text-gray-500 dark:text-gray-400 py-2.5 text-xs font-bold transition-all flex items-center justify-center gap-2 min-w-[120px]"
+                  >
+                    <FileText className="w-4 h-4" strokeWidth={2} />
+                    <span>Notas Internas</span>
+                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -638,6 +647,14 @@ export default function PatientDetailPage() {
                   />
                 </TabsContent>
               )}
+
+              {/* ── TAB: NOTAS INTERNAS DEL MÉDICO ─────────────────────────── */}
+              <TabsContent
+                value="notes"
+                className="m-0 p-0 border-0 outline-none focus-visible:ring-0"
+              >
+                <ProviderInternalNotesTab patientDirectoryId={patientDirectoryId} />
+              </TabsContent>
             </Tabs>
           </div>
 

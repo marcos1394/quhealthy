@@ -164,6 +164,39 @@ export default function TreatmentsPage() {
     }
   };
 
+  const handleDeleteTreatment = async (id: number) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este tratamiento?")) return;
+    try {
+      await treatmentService.deleteManualTreatment(id);
+      setTreatments(prev => prev.filter(t => t.id !== id));
+      toast.success("Tratamiento eliminado");
+    } catch (e) {
+      toast.error("Error al eliminar tratamiento");
+    }
+  };
+
+  const handleResolveDiagnosis = async (id: number) => {
+    if (!window.confirm("¿Marcar este diagnóstico como resuelto y enviarlo al historial?")) return;
+    try {
+      await diagnosisService.updateDiagnosisStatus(id, "RESUELTO");
+      setDiagnoses(prev => prev.map(d => d.id === id ? { ...d, status: "RESUELTO" } : d));
+      toast.success("Diagnóstico marcado como resuelto");
+    } catch (e) {
+      toast.error("Error al actualizar diagnóstico");
+    }
+  };
+
+  const handleDeleteDiagnosis = async (id: number) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este registro (por error de captura)?")) return;
+    try {
+      await diagnosisService.deleteDiagnosis(id);
+      setDiagnoses(prev => prev.filter(d => d.id !== id));
+      toast.success("Registro eliminado exitosamente");
+    } catch (e) {
+      toast.error("Error al eliminar diagnóstico");
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20">
       <div>
@@ -189,10 +222,32 @@ export default function TreatmentsPage() {
       </div>
 
       {activeTab === "treatments" && (
-        <TreatmentManager 
-          treatments={treatments} 
-          onAddManual={() => setShowAddModal(true)} 
-        />
+        <div className="space-y-6">
+          {treatments.filter(t => t.status === 'ACTIVE' || !t.status).length > 0 && (
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Adherencia General</h2>
+                <p className="text-sm text-gray-500 mt-1">Tu nivel de cumplimiento actual en todos tus tratamientos.</p>
+              </div>
+              <div className="relative w-24 h-24 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path className="text-gray-100 dark:text-gray-800" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path className="text-emerald-500" strokeDasharray={`${Math.max(1, Math.min(100, Math.round((treatments.reduce((acc, t) => acc + (t.dosesTaken || 0), 0) / Math.max(1, treatments.reduce((acc, t) => acc + (t.totalDoses || 1), 0))) * 100)))}, 100`} strokeWidth="3" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div className="absolute flex flex-col items-center justify-center text-center">
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">
+                    {Math.max(0, Math.min(100, Math.round((treatments.reduce((acc, t) => acc + (t.dosesTaken || 0), 0) / Math.max(1, treatments.reduce((acc, t) => acc + (t.totalDoses || 1), 0))) * 100)))}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          <TreatmentManager 
+            treatments={treatments} 
+            onAddManual={() => setShowAddModal(true)} 
+            onDelete={handleDeleteTreatment}
+          />
+        </div>
       )}
 
       {activeTab === "diagnoses" && (
@@ -208,21 +263,50 @@ export default function TreatmentsPage() {
           </div>
 
           <div className="space-y-3">
-            {diagnoses.length === 0 ? (
-              <p className="text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl text-center">No tienes diagnósticos registrados.</p>
+            {diagnoses.filter(d => d.status !== 'RESUELTO').length === 0 ? (
+              <p className="text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl text-center">No tienes diagnósticos activos registrados.</p>
             ) : (
-              diagnoses.map(d => (
-                <div key={d.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 flex justify-between items-center">
+              diagnoses.filter(d => d.status !== 'RESUELTO').map(d => (
+                <div key={d.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <h4 className="font-bold text-gray-900 dark:text-white">{d.diagnosis}</h4>
                     <p className="text-xs text-gray-500 mt-1">CIE-10: {d.cie10Code || "N/A"}</p>
                   </div>
-                  <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                    {d.status || 'ACTIVO'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                      {d.status || 'ACTIVO'}
+                    </span>
+                    <button onClick={() => handleResolveDiagnosis(d.id)} className="text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1 rounded-full font-medium transition-colors">
+                      Marcar Resuelto
+                    </button>
+                    <button onClick={() => handleDeleteDiagnosis(d.id)} className="text-gray-400 hover:text-rose-500 p-1.5 rounded-lg transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Historial Médico (Resueltos)</h3>
+             <div className="space-y-3 opacity-60">
+                {diagnoses.filter(d => d.status === 'RESUELTO').length === 0 ? (
+                  <p className="text-sm text-gray-500">No hay padecimientos en el historial.</p>
+                ) : (
+                  diagnoses.filter(d => d.status === 'RESUELTO').map(d => (
+                    <div key={d.id} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                      <div>
+                        <h4 className="font-bold line-through text-gray-700 dark:text-gray-300">{d.diagnosis}</h4>
+                        <p className="text-xs text-gray-500 mt-1">CIE-10: {d.cie10Code || "N/A"}</p>
+                      </div>
+                      <span className="bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                        RESUELTO
+                      </span>
+                    </div>
+                  ))
+                )}
+             </div>
           </div>
 
           <div className="pt-6 border-t border-gray-100 dark:border-gray-800">

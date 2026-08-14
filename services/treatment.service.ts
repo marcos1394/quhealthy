@@ -29,5 +29,9 @@ export const treatmentService = {
   addManualTreatment: async (data: Partial<TreatmentDto>): Promise<TreatmentDto> => {
     const response = await axiosInstance.post<TreatmentDto>('/api/appointments/treatments/manual', data);
     return response.data;
+  },
+
+  deleteManualTreatment: async (id: number): Promise<void> => {
+    await axiosInstance.delete(`/api/appointments/treatments/manual/${id}`);
   }
 };

@@ -641,7 +641,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── MÉTRICAS Y TIEMPOS DE ATENCIÓN ────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
         {/* KPI Ingresos */}
         <div className="col-span-2">
           {(() => {
@@ -721,6 +721,24 @@ export default function DashboardPage() {
               value: Math.abs(analytics.clientsGrowth || 0),
               isPositive: (analytics.clientsGrowth || 0) >= 0,
             }}
+          />
+        </div>
+
+        {/* KPI Adherencia Global */}
+        <div className="col-span-1">
+          <SummaryCard
+            title="Adherencia Clínica"
+            value={data.globalAdherencePercentage !== undefined ? `${data.globalAdherencePercentage}%` : "0%"}
+            icon={Activity}
+          />
+        </div>
+
+        {/* KPI Casos Resueltos */}
+        <div className="col-span-1">
+          <SummaryCard
+            title="Casos Resueltos"
+            value={data.totalResolvedDiagnoses !== undefined ? data.totalResolvedDiagnoses.toString() : "0"}
+            icon={CheckCircle}
           />
         </div>
 

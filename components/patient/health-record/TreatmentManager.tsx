@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import { Pill, Syringe, Activity, Clock, Plus, CheckCircle2 } from "lucide-react";
+import { Pill, Syringe, Activity, Clock, Plus, CheckCircle2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { TreatmentDto } from "@/services/treatment.service";
 export type { TreatmentDto };
 
-export function TreatmentManager({ treatments, onAddManual }: { treatments: TreatmentDto[], onAddManual: () => void }) {
-  const activeTreatments = treatments.filter(t => t.status === 'ACTIVE');
+export function TreatmentManager({ treatments, onAddManual, onDelete }: { treatments: TreatmentDto[], onAddManual: () => void, onDelete?: (id: number) => void }) {
+  const activeTreatments = treatments.filter(t => t.status === 'ACTIVE' || !t.status);
 
   return (
     <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
@@ -87,6 +87,18 @@ export function TreatmentManager({ treatments, onAddManual }: { treatments: Trea
                   </>
                 ) : (
                   <span className="text-xs bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg border border-emerald-100 font-medium">Al día</span>
+                )}
+                
+                {onDelete && (
+                  <div className="mt-4 flex justify-end">
+                    <button 
+                      onClick={() => t.id && onDelete(t.id)}
+                      className="text-gray-400 hover:text-rose-500 transition-colors p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                      title="Eliminar tratamiento"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

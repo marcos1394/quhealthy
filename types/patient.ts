@@ -6,6 +6,8 @@ export interface ConsumerInfo {
   profileImageUrl: string | null;
   // --- NOM-024 ---
   nom024CompliancePercentage?: number;
+  treatmentAdherencePercentage?: number;
+  resolvedDiagnosesCount?: number;
   curp?: string;
   ethnicGroup?: string;
   healthInsurance?: string;
