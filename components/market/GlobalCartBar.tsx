@@ -74,7 +74,7 @@ export function GlobalCartBar() {
                   <div className="hidden sm:flex items-center gap-2 flex-wrap">
                     {cart.map(item => (
                        <div key={item.id} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 shadow-sm max-w-[200px]">
-                          <span className="truncate">{item.title}</span>
+                          <span className="truncate">{item.name}</span>
                           <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-rose-500 transition-colors cursor-pointer shrink-0 ml-1">
                              <X className="w-3.5 h-3.5" />
                           </button>
