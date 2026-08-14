@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useModuleStore } from "@/stores/useModuleStore";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
 export default function TreatmentsPage() {
   const { activeModules } = useModuleStore();
@@ -27,6 +28,13 @@ export default function TreatmentsPage() {
   const [treatments, setTreatments] = useState<TreatmentDto[]>([]);
   const [diagnoses, setDiagnoses] = useState<PatientDiagnosisDto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
   useEffect(() => {
     async function load() {
@@ -164,37 +172,61 @@ export default function TreatmentsPage() {
     }
   };
 
-  const handleDeleteTreatment = async (id: number) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este tratamiento?")) return;
-    try {
-      await treatmentService.deleteManualTreatment(id);
-      setTreatments(prev => prev.filter(t => t.id !== id));
-      toast.success("Tratamiento eliminado");
-    } catch (e) {
-      toast.error("Error al eliminar tratamiento");
-    }
+  const handleDeleteTreatment = (id: number) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Eliminar Tratamiento",
+      message: "¿Seguro que deseas eliminar este tratamiento?",
+      onConfirm: async () => {
+        try {
+          await treatmentService.deleteManualTreatment(id);
+          setTreatments(prev => prev.filter(t => t.id !== id));
+          toast.success("Tratamiento eliminado");
+        } catch (e) {
+          toast.error("Error al eliminar tratamiento");
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }
+      }
+    });
   };
 
-  const handleResolveDiagnosis = async (id: number) => {
-    if (!window.confirm("¿Marcar este diagnóstico como resuelto y enviarlo al historial?")) return;
-    try {
-      await diagnosisService.updateDiagnosisStatus(id, "RESUELTO");
-      setDiagnoses(prev => prev.map(d => d.id === id ? { ...d, status: "RESUELTO" } : d));
-      toast.success("Diagnóstico marcado como resuelto");
-    } catch (e) {
-      toast.error("Error al actualizar diagnóstico");
-    }
+  const handleResolveDiagnosis = (id: number) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Resolver Diagnóstico",
+      message: "¿Marcar este diagnóstico como resuelto y enviarlo al historial?",
+      onConfirm: async () => {
+        try {
+          await diagnosisService.updateDiagnosisStatus(id, "RESUELTO");
+          setDiagnoses(prev => prev.map(d => d.id === id ? { ...d, status: "RESUELTO" } : d));
+          toast.success("Diagnóstico marcado como resuelto");
+        } catch (e) {
+          toast.error("Error al actualizar diagnóstico");
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }
+      }
+    });
   };
 
-  const handleDeleteDiagnosis = async (id: number) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este registro (por error de captura)?")) return;
-    try {
-      await diagnosisService.deleteDiagnosis(id);
-      setDiagnoses(prev => prev.filter(d => d.id !== id));
-      toast.success("Registro eliminado exitosamente");
-    } catch (e) {
-      toast.error("Error al eliminar diagnóstico");
-    }
+  const handleDeleteDiagnosis = (id: number) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Eliminar Diagnóstico",
+      message: "¿Seguro que deseas eliminar este registro (por error de captura)?",
+      onConfirm: async () => {
+        try {
+          await diagnosisService.deleteDiagnosis(id);
+          setDiagnoses(prev => prev.filter(d => d.id !== id));
+          toast.success("Registro eliminado exitosamente");
+        } catch (e) {
+          toast.error("Error al eliminar diagnóstico");
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }
+      }
+    });
   };
 
   return (
@@ -499,6 +531,14 @@ export default function TreatmentsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+      />
     </div>
   );
 }
