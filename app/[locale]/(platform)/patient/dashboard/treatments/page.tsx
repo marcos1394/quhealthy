@@ -7,7 +7,7 @@ import { treatmentService } from "@/services/treatment.service";
 import { diagnosisService, PatientDiagnosisDto } from "@/services/diagnosis.service";
 import axiosInstance from '@/lib/axios';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Camera, AlertTriangle, Sparkles, Upload, Search } from "lucide-react";
+import { Camera, AlertTriangle, Sparkles, Upload, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useModuleStore } from "@/stores/useModuleStore";
 import { DatePicker } from "@/components/ui/date-picker";
