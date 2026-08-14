@@ -20,6 +20,7 @@ export default function TreatmentsPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [warningData, setWarningData] = useState<string | null>(null);
 
   const [treatments, setTreatments] = useState<TreatmentDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,31 +61,9 @@ export default function TreatmentsPage() {
     }
   };
 
-  const handleAddManual = async () => {
-    if (!formData.name || !formData.dosage) return;
+  const saveTreatment = async () => {
     setIsSubmitting(true);
     try {
-      // Validar contraindicaciones con IA
-      try {
-        const contraindicationRes = await axiosInstance.post("/api/appointments/treatments/ai/check-contraindications", {
-          newMedication: formData.name,
-          currentMedications: treatments.map(t => t.name),
-          activeConditions: activeModules
-        });
-        if (contraindicationRes.data) {
-          const warningData = contraindicationRes.data;
-          if (warningData.hasRisk) {
-            const proceed = window.confirm(`⚠️ Riesgo Detectado por IA:\n\n${warningData.warningMessage}\n\n¿Estás seguro que deseas guardar este medicamento?`);
-            if (!proceed) {
-              setIsSubmitting(false);
-              return;
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Error checking contraindications", e);
-      }
-
       const newTreatment = await treatmentService.addManualTreatment({
         name: formData.name,
         dosage: formData.dosage,
@@ -97,12 +76,42 @@ export default function TreatmentsPage() {
       });
       setTreatments(prev => [...prev, newTreatment]);
       setShowAddModal(false);
+      setWarningData(null);
       setFormData({ name: "", dosage: "", category: "GENERAL", frequency: "", endDate: "", route: "Oral", reason: "" });
       toast.success("Tratamiento guardado exitosamente");
     } catch (error) {
       console.error("Error adding treatment", error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAddManual = async () => {
+    if (!formData.name || !formData.dosage) return;
+    setIsSubmitting(true);
+    try {
+      // Validar contraindicaciones con IA
+      try {
+        const contraindicationRes = await axiosInstance.post("/api/appointments/treatments/ai/check-contraindications", {
+          newMedication: formData.name,
+          currentMedications: treatments.map(t => t.name),
+          activeConditions: activeModules
+        });
+        if (contraindicationRes.data) {
+          const warning = contraindicationRes.data;
+          if (warning.hasRisk) {
+            setWarningData(warning.warningMessage);
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Error checking contraindications", e);
+      }
+
+      await saveTreatment();
+    } catch (error) {
+      console.error("Error", error);
     }
   };
 
@@ -215,6 +224,36 @@ export default function TreatmentsPage() {
               <Button variant="ghost" onClick={() => setShowAddModal(false)} disabled={isSubmitting}>Cancelar</Button>
               <Button onClick={handleAddManual} disabled={isSubmitting || !formData.name || !formData.dosage} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                 {isSubmitting ? "Guardando..." : "Guardar Tratamiento"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {warningData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-6 w-full max-w-md border border-rose-100 dark:border-rose-900/30 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center gap-4 mb-4 text-rose-600 dark:text-rose-500">
+              <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6" strokeWidth={2} />
+              </div>
+              <h3 className="text-xl font-bold">Riesgo Detectado</h3>
+            </div>
+            
+            <div className="bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-200 p-4 rounded-2xl text-sm leading-relaxed mb-6">
+              {warningData}
+            </div>
+            
+            <p className="text-gray-500 text-sm mb-6 text-center">
+              ¿Estás seguro que deseas guardar este medicamento a pesar de la advertencia?
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button variant="ghost" className="w-full h-11 rounded-xl" onClick={() => setWarningData(null)} disabled={isSubmitting}>
+                Cancelar
+              </Button>
+              <Button className="w-full h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white" onClick={saveTreatment} disabled={isSubmitting}>
+                {isSubmitting ? "Guardando..." : "Bajo mi riesgo"}
               </Button>
             </div>
           </div>
