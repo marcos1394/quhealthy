@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { TreatmentManager, TreatmentDto } from "@/components/patient/health-record/TreatmentManager";
 import { treatmentService } from "@/services/treatment.service";
+import axiosInstance from '@/lib/axios';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Camera, AlertTriangle, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -44,9 +45,11 @@ export default function TreatmentsPage() {
     try {
       const fd = new FormData();
       fd.append("image", file);
-      const res = await fetch("/api/appointments/treatments/ai/analyze-image", { method: "POST", body: fd });
-      if (res.ok) {
-        const data = await res.json();
+      const res = await axiosInstance.post("/api/appointments/treatments/ai/analyze-image", fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data) {
+        const data = res.data;
         setFormData(prev => ({ ...prev, name: data.name || prev.name, dosage: data.dosage || prev.dosage, route: data.route || prev.route, reason: data.reason || prev.reason }));
         toast.success("Información extraída con éxito");
       }
@@ -63,17 +66,13 @@ export default function TreatmentsPage() {
     try {
       // Validar contraindicaciones con IA
       try {
-        const contraindicationRes = await fetch("/api/appointments/treatments/ai/check-contraindications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            newMedication: formData.name,
-            currentMedications: treatments.map(t => t.name),
-            activeConditions: activeModules
-          })
+        const contraindicationRes = await axiosInstance.post("/api/appointments/treatments/ai/check-contraindications", {
+          newMedication: formData.name,
+          currentMedications: treatments.map(t => t.name),
+          activeConditions: activeModules
         });
-        if (contraindicationRes.ok) {
-          const warningData = await contraindicationRes.json();
+        if (contraindicationRes.data) {
+          const warningData = contraindicationRes.data;
           if (warningData.hasRisk) {
             const proceed = window.confirm(`⚠️ Riesgo Detectado por IA:\n\n${warningData.warningMessage}\n\n¿Estás seguro que deseas guardar este medicamento?`);
             if (!proceed) {
