@@ -145,13 +145,13 @@ export function AppointmentCard({
         </div>
 
         {/* ── COLUMNA 2: DETALLES DEL ESPECIALISTA Y SERVICIO ────────────── */}
-        <div className="p-6 flex-1 flex flex-col justify-center space-y-5">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+        <div className="p-6 flex-1 min-w-0 flex flex-col justify-center space-y-5">
+          <div className="space-y-1 min-w-0">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight break-words line-clamp-2">
               {appt.serviceName}
             </h3>
             <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500">
-              <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
               <span>
                 {format(new Date(appt.startTime), "HH:mm", { locale: es })}
                 {" — "}
@@ -160,7 +160,7 @@ export function AppointmentCard({
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-11 h-11 rounded-2xl border border-gray-200 dark:border-gray-800 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 overflow-hidden shadow-sm font-bold">
               {appt.providerImageUrl ? (
                 <img
@@ -179,12 +179,12 @@ export function AppointmentCard({
               <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
                 {appt.providerNameSnapshot}
               </p>
-              <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex items-center gap-2 mt-0.5 min-w-0">
                 <p className="text-xs font-semibold text-gray-400 truncate">
                   {appt.providerSpecialty || t("specialist_fallback")}
                 </p>
                 {appt.providerRating && (
-                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/40">
+                  <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/40 shrink-0">
                     <Star className="w-3 h-3 fill-current" />
                     <span className="text-[10px] font-bold font-mono">
                       {appt.providerRating}
@@ -195,20 +195,20 @@ export function AppointmentCard({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800 min-w-0">
             {appt.locationAddress && !isVideo && (
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 truncate">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 min-w-0 flex-1" title={appt.locationAddress}>
                 <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
                 <span className="truncate">{appt.locationAddress}</span>
               </div>
             )}
 
             {appt.price != null && (
-              <div className="flex flex-col sm:items-end w-full sm:w-auto ml-auto">
+              <div className="flex flex-col sm:items-end w-full sm:w-auto shrink-0 sm:ml-auto">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                   {t("label_total")}
                 </span>
-                <span className="text-base font-bold font-mono text-gray-900 dark:text-white">
+                <span className="text-base font-bold font-mono text-gray-900 dark:text-white whitespace-nowrap">
                   ${appt.price} {appt.currency}
                 </span>
               </div>
@@ -217,7 +217,7 @@ export function AppointmentCard({
         </div>
 
         {/* ── COLUMNA 3: ACCIONES ───────────────────────────────────────── */}
-        <div className="p-6 lg:w-72 flex flex-col justify-center gap-2.5 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 min-w-[200px]">
+        <div className="p-6 lg:w-64 xl:w-72 shrink-0 flex flex-col justify-center gap-2.5 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800">
           {canJoinVideo && (
             <Button
               onClick={() =>
