@@ -19,13 +19,15 @@ import {
   Zap, 
   Navigation,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Stethoscope
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogoCarousel } from "@/components/sections/LogoCarousel";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: string }) => {
   const [index, setIndex] = useState(0);
