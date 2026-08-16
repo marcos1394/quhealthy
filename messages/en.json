@@ -9386,5 +9386,202 @@
     "new_patient": "New patient",
     "upload_document": "Upload document",
     "settings": "Settings"
+  },
+  "AiCapabilities": {
+    "badge": "Medical Artificial Intelligence",
+    "title_start": "Clinical superpowers powered by ",
+    "title_highlight": "artificial intelligence",
+    "description": "Next-generation tools that automate clinical documentation, eliminate language barriers, and ensure safe, precise prescribing.",
+    "tabs": {
+      "scribe": {
+        "title": "AI Scribe & SOAP Notes",
+        "badge": "Voice to EHR"
+      },
+      "translation": {
+        "title": "Live HD Translation",
+        "badge": "Real-time"
+      },
+      "prescription": {
+        "title": "Smart Digital Prescription",
+        "badge": "COFEPRIS QR"
+      }
+    },
+    "scribe": {
+      "tag": "Clinical Voice Copilot",
+      "headline": "Save over 2 hours of daily administrative typing",
+      "paragraph": "While you talk naturally with your patient, our medical AI listens, transcribes, and structures the clinical encounter note in S.O.A.P. format with real-time ICD-10 suggestions.",
+      "bullet1": "Automatic structuring in Subjective, Objective, Assessment, and Plan",
+      "bullet2": "Real-time ICD-10 and ICD-11 diagnostic code detection and suggestions",
+      "bullet3": "Medical-grade privacy: ephemeral voice processing compliant with NOM-024 / HIPAA",
+      "cta": "Explore EHR with AI Copilot",
+      "mockup": {
+        "live_recording": "Recording consultation...",
+        "status_structuring": "Structuring S.O.A.P.",
+        "audio_stream": "Consultation Audio",
+        "sample_dialogue": "Patient reports 3-day history of frontal headache and blood pressure of 135/85 mmHg...",
+        "soap_s": "Frontal headache of 3 days duration, moderate intensity.",
+        "soap_o": "BP: 135/85 mmHg, HR: 78 bpm, Temperature: 36.6°C.",
+        "soap_a": "G44.2 Tension headache / Prehypertension.",
+        "soap_p": "Paracetamol 500mg q8h for 3 days, BP monitoring."
+      }
+    },
+    "translation": {
+      "tag": "Global Telemedicine",
+      "headline": "Cross-border consultations without language barriers",
+      "paragraph": "Deliver care to patients anywhere in the world with live subtitles and two-way real-time translation with latency under 250 milliseconds.",
+      "bullet1": "Simultaneous translation in Spanish, English, French, and over 12 languages",
+      "bullet2": "Accurate medical subtitles and synchronized anatomical terminology",
+      "bullet3": "HD video calls with end-to-end encryption",
+      "cta": "Try Global Telemedicine"
+    },
+    "prescription": {
+      "tag": "Safe Prescribing",
+      "headline": "Certified digital prescriptions with AI checks and QR code",
+      "paragraph": "Issue legally certified electronic prescriptions in seconds. The copilot automatically verifies drug interactions, allergies, and adjusts pediatric or geriatric dosages.",
+      "bullet1": "Real-time preventive alerts for contraindications and allergies",
+      "bullet2": "Dynamic QR code for verification and dispensing at any pharmacy",
+      "bullet3": "Advanced digital signature and verified medical license displayed",
+      "cta": "Discover Prescription Module"
+    }
+  },
+  "SpecializedJourneys": {
+    "badge": "Precision Clinical Journeys",
+    "title_start": "Specialized care for every ",
+    "title_highlight": "stage of your life",
+    "description": "From reproductive health and pregnancy to chronic condition management like diabetes and oncology, with continuous real-time monitoring.",
+    "journeys": {
+      "womens": {
+        "tab": "Women's Health & Pregnancy",
+        "tag": "Gynecology & Obstetrics",
+        "headline": "Menstrual cycle, fertility, and week-by-week pregnancy",
+        "description": "Predict your fertile window with AI, track deterministic symptoms, monitor fetal vitals, and receive 24/7 early obstetric alerts.",
+        "feature1": "Deterministic cycle and ovulation prediction",
+        "feature2": "Gestational log and fetal movement tracker",
+        "feature3": "Immediate red obstetric emergency alerts",
+        "feature4": "Postpartum transition and newborn baby record",
+        "cta": "Explore Women's Health"
+      },
+      "diabetes": {
+        "tab": "Diabetes & Metabolism",
+        "tag": "Endocrinology & Nutrition",
+        "headline": "Smart glycemic control and estimated HbA1c",
+        "description": "Log fasting and postprandial glucose levels, analyze trend curves, automatically calculate carbs, and avoid insulin spikes.",
+        "feature1": "Estimated Glycated Hemoglobin (HbA1c) curve",
+        "feature2": "Glycemic traffic light & hypo/hyperglycemia alerts",
+        "feature3": "Glucometer and wearable sync",
+        "feature4": "Nutritional coaching & carb counting",
+        "cta": "View Diabetes Care"
+      },
+      "oncology": {
+        "tab": "Oncology & Chronic Care",
+        "tag": "High Specialty Care",
+        "headline": "Comprehensive oncology companion and treatment tracking",
+        "description": "Rigorous TNM staging, chemotherapy/immunotherapy cycle schedules, side-effect tracking, and pharmacological adherence.",
+        "feature1": "TNM clinical staging record (T, N, M)",
+        "feature2": "Treatment lines & chemotherapy calendar",
+        "feature3": "Adherence and secondary toxicity monitoring",
+        "feature4": "Specialist network and second medical opinions",
+        "cta": "Learn About Oncology Care"
+      },
+      "nutrition": {
+        "tab": "AI Nutrition",
+        "tag": "Computer Vision",
+        "headline": "Food Analyzer: Scan your meals with a single photo",
+        "description": "Snap a photo of your meal and our AI instantly calculates calories, macronutrients (proteins, carbs, fats), and glycemic index rating.",
+        "feature1": "Instant food recognition in seconds",
+        "feature2": "Caloric breakdown and macronutrient grams",
+        "feature3": "Personalized meal plans designed by nutritionists",
+        "feature4": "Nutritional history integrated with your health vault",
+        "cta": "Try AI Food Analyzer"
+      },
+      "family": {
+        "tab": "Family & Children",
+        "tag": "Pediatrics & Geriatrics",
+        "headline": "Digital vaccination card and family health care",
+        "description": "Manage your children's records, pediatric growth percentiles, and senior family members' treatments in one unified account.",
+        "feature1": "Digitalized national vaccination record",
+        "feature2": "WHO weight and height growth percentiles",
+        "feature3": "Dependents management and authorized caregivers",
+        "feature4": "Annual check-up and vaccine reminders",
+        "cta": "Manage Family Health"
+      },
+      "wearables": {
+        "tab": "Wearables & Smartwatches",
+        "tag": "Digital Health",
+        "headline": "Seamless sync with Apple Health and Google Fit",
+        "description": "Connect your Apple Watch or fitness tracker to sync daily steps, resting heart rate, sleep stages, and active calories without manual entry.",
+        "feature1": "Automatic resting and active heart rate (bpm)",
+        "feature2": "Daily steps and active calorie expenditure",
+        "feature3": "Sleep quality and sleep stage analysis",
+        "feature4": "Live biometrics available for your doctor during visits",
+        "cta": "View Compatible Devices"
+      }
+    }
+  },
+  "SecurityTrust": {
+    "badge": "Trust & Compliance",
+    "title_start": "Medical-grade security and ",
+    "title_highlight": "regulatory compliance",
+    "description": "Your health information is safeguarded under the highest Mexican and international legal standards, ensuring maximum confidentiality and official validity.",
+    "pillars": {
+      "nom": {
+        "title": "Official Health Records",
+        "subtitle": "NOM-004-SSA3 / NOM-024-SSA3",
+        "desc": "Strict compliance with Mexican official standards for electronic health records, data confidentiality, and interoperability."
+      },
+      "cofepris": {
+        "title": "Certified Prescriptions",
+        "subtitle": "COFEPRIS Guidelines",
+        "desc": "Digital prescriptions with verifiable QR code, advanced digital signature, and instant validation across certified pharmacies."
+      },
+      "sep": {
+        "title": "Verified Medical Licenses",
+        "subtitle": "Ministry of Public Education",
+        "desc": "Every healthcare professional undergoes thorough verification of their Professional License and specialty credentials with authorities."
+      },
+      "encryption": {
+        "title": "End-to-End Encryption",
+        "subtitle": "AES-256 bits & HIPAA Ready",
+        "desc": "Your health data travels and rests encrypted with banking-grade security. No unauthorized third parties can access your records."
+      }
+    },
+    "privacy_banner": {
+      "title": "Personal Data Protection Guarantee (LFPDPPP)",
+      "desc": "QuHealthy never sells, shares, or monetizes your clinical data with advertisers or insurance companies. You are the sole owner of your medical records."
+    }
+  },
+  "FAQ": {
+    "badge": "Frequently Asked Questions",
+    "title_start": "Everything you need to know about ",
+    "title_highlight": "QuHealthy",
+    "description": "We answer the most common questions from patients and healthcare professionals about using the platform, security, and appointments.",
+    "switch_patient": "For Patients",
+    "switch_provider": "For Doctors & Clinics",
+    "more_questions": "Have more questions?",
+    "contact_us": "Contact us here",
+    "patient": {
+      "q1": "How do I know if a doctor is certified on QuHealthy?",
+      "a1": "Every healthcare professional on QuHealthy undergoes a strict verification process where we validate their Medical License with the Ministry of Public Education (SEP) and verify their specialty credentials before activating their profile.",
+      "q2": "Are digital prescriptions valid at any pharmacy?",
+      "a2": "Yes. Prescriptions issued on QuHealthy comply with all COFEPRIS guidelines, feature a digital signature, and include a unique QR code that pharmacists can scan to verify authenticity when dispensing medications.",
+      "q3": "Who has access to my Health Vault medical records?",
+      "a3": "Only you and the healthcare professionals you explicitly authorize during a consultation. Your information is encrypted end-to-end with AES-256 bit encryption in compliance with NOM-024-SSA3 and data privacy laws.",
+      "q4": "How does the Apple Health and wearable sync work?",
+      "a4": "From the mobile app, you can authorize sync with Apple Health or Google Fit. Your steps, heart rate, and sleep data are securely synced so your doctor can review them during your next appointment.",
+      "q5": "What payment methods are accepted?",
+      "a5": "We accept debit and credit cards (Visa, Mastercard, American Express), bank transfers, cash payments at convenience stores, and your QuHealthy Digital Wallet balance."
+    },
+    "provider": {
+      "q1": "Does the Electronic Health Record (EHR) comply with NOM-004-SSA3?",
+      "a1": "Yes, 100%. Our EHR is designed in strict compliance with NOM-004-SSA3-2012 and NOM-024-SSA3-2012, including structured S.O.A.P. notes, complete background history, digital informed consent, and an auditable activity log.",
+      "q2": "How does the AI Scribe help in my daily consultations?",
+      "a2": "AI Scribe listens to the clinical dialogue (with explicit patient consent), transcribes the conversation, and automatically drafts the clinical encounter note in S.O.A.P. format while suggesting ICD-10/11 codes, saving you over 2 hours daily.",
+      "q3": "Can I issue electronic tax invoices (CFDI 4.0)?",
+      "a3": "Yes. QuHealthy includes a Point of Sale (POS) and automated CFDI 4.0 invoicing system that stamps tax receipts instantly with healthcare addenda and emails XML and PDF files directly to your patients.",
+      "q4": "How does live translation work in teleconsultations?",
+      "a4": "During an HD video consultation, the platform provides two-way voice translation and live subtitles in over 12 languages with latency under 250ms, ideal for treating international patients and medical tourism.",
+      "q5": "Can I sell my own products or care packages?",
+      "a5": "Absolutely. You have a Medical Store and QuMarket module where you can sell skincare products, clinical supplements, consultation packages, and manage inventory with low-stock alerts."
+    }
   }
 }

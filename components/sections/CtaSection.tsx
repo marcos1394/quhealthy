@@ -68,19 +68,19 @@ const CtaSection: React.FC = () => {
           {/* Botones de Acción / CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto relative z-10 pt-4">
             <Link
-              href={isAuthenticated ? (role === 'ROLE_PROVIDER' ? '/dashboard' : '/appointments') : '/provider/register'}
-              className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 group w-full sm:w-auto"
+              href={isAuthenticated ? (role === 'ROLE_PROVIDER' ? '/provider/dashboard' : '/patient/dashboard') : '/discover'}
+              className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 group w-full sm:w-auto cursor-pointer"
             >
-              <span>{isAuthenticated ? "Ir a mi Panel" : t('button_primary')}</span>
+              <span>{isAuthenticated ? (role === 'ROLE_PROVIDER' ? "Ir a Panel Médico" : "Ir a Mi Salud") : "Buscar Médicos y Agendar Cita"}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
             </Link>
 
             {!isAuthenticated && (
               <Link
-                href="/contact"
-                className="h-12 px-8 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/10 transition-all flex items-center justify-center w-full sm:w-auto"
+                href="/provider/signup"
+                className="h-12 px-8 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/15 transition-all flex items-center justify-center w-full sm:w-auto cursor-pointer"
               >
-                {t('button_secondary')}
+                <span>Registrarme como Médico / Clínica</span>
               </Link>
             )}
           </div>

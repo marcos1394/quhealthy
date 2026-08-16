@@ -9424,5 +9424,202 @@
     "new_patient": "Nuevo paciente",
     "upload_document": "Subir documento",
     "settings": "Configuración"
+  },
+  "AiCapabilities": {
+    "badge": "Inteligencia Artificial Médica",
+    "title_start": "Superpoderes clínicos impulsados por ",
+    "title_highlight": "inteligencia artificial",
+    "description": "Herramientas de última generación que automatizan la documentación clínica, eliminan barreras de idioma y garantizan una prescripción segura y precisa.",
+    "tabs": {
+      "scribe": {
+        "title": "AI Scribe & Notas SOAP",
+        "badge": "Voz a ECE"
+      },
+      "translation": {
+        "title": "Traducción Simultánea HD",
+        "badge": "En Vivo"
+      },
+      "prescription": {
+        "title": "Receta Médica Inteligente",
+        "badge": "QR COFEPRIS"
+      }
+    },
+    "scribe": {
+      "tag": "Copiloto Clínico de Voz",
+      "headline": "Ahorra más de 2 horas diarias de captura administrativa",
+      "paragraph": "Mientras conversas de forma natural con tu paciente, nuestra IA médica escucha, transcribe y estructura la nota médica en formato S.O.A.P. con códigos CIE-10 sugeridos al instante.",
+      "bullet1": "Estructuración automática en Subjetivo, Objetivo, Análisis y Plan",
+      "bullet2": "Detección y sugerencia de códigos diagnósticos CIE-10 y CIE-11",
+      "bullet3": "Privacidad de grado médico: procesamiento efímero bajo NOM-024 / HIPAA",
+      "cta": "Explorar el ECE con Copiloto IA",
+      "mockup": {
+        "live_recording": "Grabando consulta...",
+        "status_structuring": "Estructurando S.O.A.P.",
+        "audio_stream": "Audio de Consulta",
+        "sample_dialogue": "El paciente refiere cefalea frontal de 3 días de evolución y presión de 135/85 mmHg...",
+        "soap_s": "Cefalea frontal de 3 días de evolución, intensidad moderada.",
+        "soap_o": "TA: 135/85 mmHg, FC: 78 bpm, Temperatura: 36.6°C.",
+        "soap_a": "G44.2 Cefalea tensional / Prehipertensión arterial.",
+        "soap_p": "Paracetamol 500mg c/8h por 3 días, monitorización de TA."
+      }
+    },
+    "translation": {
+      "tag": "Telemedicina Global",
+      "headline": "Consultas internacionales sin barreras de idioma",
+      "paragraph": "Ofrece atención médica a pacientes de cualquier parte del mundo con subtítulos en vivo y traducción bidireccional en tiempo real con latencia menor a 250 milisegundos.",
+      "bullet1": "Traducción simultánea en español, inglés, francés y más de 12 idiomas",
+      "bullet2": "Subtítulos médicos precisos y glosario anatómico sincronizado",
+      "bullet3": "Videollamadas HD con cifrado de extremo a extremo",
+      "cta": "Probar Telemedicina Internacional"
+    },
+    "prescription": {
+      "tag": "Prescripción Segura",
+      "headline": "Recetas digitales oficiales con validación por IA y QR",
+      "paragraph": "Emite recetas válidas ante COFEPRIS en segundos. El copiloto verifica automáticamente interacciones medicamentosas, alergias y ajusta dosis pediátricas o geriátricas.",
+      "bullet1": "Alerta preventiva de contraindicaciones y alergias en tiempo real",
+      "bullet2": "Código QR dinámico para surtido y verificación en cualquier farmacia",
+      "bullet3": "Firma electrónica avanzada (e.firma) y Cédula Profesional SEP visible",
+      "cta": "Conocer el Módulo de Recetas"
+    }
+  },
+  "SpecializedJourneys": {
+    "badge": "Rutas Clínicas de Precisión",
+    "title_start": "Acompañamiento especializado para cada ",
+    "title_highlight": "etapa de tu vida",
+    "description": "Desde la salud reproductiva y el embarazo hasta el manejo de padecimientos crónicos como diabetes y oncología, con monitorización continua en tiempo real.",
+    "journeys": {
+      "womens": {
+        "tab": "Salud Mujer & Embarazo",
+        "tag": "Ginecología & Obstetricia",
+        "headline": "Ciclo menstrual, fertilidad y embarazo semana a semana",
+        "description": "Calcula tu ventana fértil con algoritmos de IA, registra síntomas deterministas, monitorea los signos vitales del bebé y recibe alertas obstétricas tempranas 24/7.",
+        "feature1": "Predicción determinista de ovulación y ciclo",
+        "feature2": "Bitácora gestacional y movimientos fetales",
+        "feature3": "Alerta obstétrica roja de urgencia inmediata",
+        "feature4": "Transición guiada a puerperio y cartilla del bebé",
+        "cta": "Explorar Módulo de Salud Femenina"
+      },
+      "diabetes": {
+        "tab": "Diabetes & Metabolismo",
+        "tag": "Endocrinología & Nutrición",
+        "headline": "Control glucémico inteligente y estimación de HbA1c",
+        "description": "Registra tus niveles de glucosa en ayuno y postprandiales, analiza curvas de tendencia, calcula carbohidratos automáticamente y evita picos de insulina.",
+        "feature1": "Curva estimada de Hemoglobina Glucosilada (HbA1c)",
+        "feature2": "Semáforo glucémico y alertas hipo/hiperglucemia",
+        "feature3": "Sincronización con glucómetros y wearables",
+        "feature4": "Acompañamiento nutricional y conteo de carbohidratos",
+        "cta": "Ver Control de Diabetes"
+      },
+      "oncology": {
+        "tab": "Oncología & Crónicos",
+        "tag": "Alta Especialidad",
+        "headline": "Acompañamiento integral en tratamientos oncológicos",
+        "description": "Seguimiento riguroso de estadiaje TNM, calendario de ciclos de quimioterapia o inmunoterapia, control de efectos secundarios y adherencia farmacológica.",
+        "feature1": "Registro clínico de Estadiaje TNM (T, N, M)",
+        "feature2": "Líneas de tratamiento y calendario de quimioterapia",
+        "feature3": "Monitoreo de adherencia y toxicidad secundaria",
+        "feature4": "Red de especialistas y segunda opinión médica",
+        "cta": "Conocer Acompañamiento Oncológico"
+      },
+      "nutrition": {
+        "tab": "Nutrición IA",
+        "tag": "Visión por Computadora",
+        "headline": "Food Analyzer: Escanea tu comida con una fotografía",
+        "description": "Toma una foto de tu platillo y nuestra IA desglosa al instante calorías, macronutrientes (proteínas, carbohidratos, grasas) y semáforo de índice glucémico.",
+        "feature1": "Reconocimiento fotográfico de alimentos en segundos",
+        "feature2": "Desglose calórico y gramos de macronutrientes",
+        "feature3": "Planes alimenticios personalizados por nutriólogos",
+        "feature4": "Historial de consumo integrado a tu expediente",
+        "cta": "Probar Food Analyzer IA"
+      },
+      "family": {
+        "tab": "Familia & Niños",
+        "tag": "Pediatría & Geriatría",
+        "headline": "Cartilla digital de vacunación y cuidado familiar",
+        "description": "Administra los expedientes de tus hijos, percentiles de crecimiento pediátrico y los tratamientos de adultos mayores en una sola cuenta compartida.",
+        "feature1": "Cartilla nacional de vacunación digitalizada",
+        "feature2": "Percentiles de peso y talla según la OMS",
+        "feature3": "Gestión de dependientes y cuidadores autorizados",
+        "feature4": "Recordatorios de chequeos anuales y vacunas",
+        "cta": "Gestionar Salud Familiar"
+      },
+      "wearables": {
+        "tab": "Wearables & Relojes",
+        "tag": "Salud Digital",
+        "headline": "Sincronización continua con Apple Health y Google Fit",
+        "description": "Conecta tu Apple Watch o smartband para registrar pasos diarios, pulsaciones cardíacas, fases de sueño y calorías sin tener que ingresar datos a mano.",
+        "feature1": "Lectura automática de frecuencia cardíaca (bpm)",
+        "feature2": "Pasos y gasto calórico activo diario",
+        "feature3": "Análisis de horas y calidad de sueño",
+        "feature4": "Datos disponibles para tu médico en consulta",
+        "cta": "Ver Dispositivos Compatibles"
+      }
+    }
+  },
+  "SecurityTrust": {
+    "badge": "Confianza & Cumplimiento",
+    "title_start": "Seguridad de grado médico y ",
+    "title_highlight": "cumplimiento regulatorio",
+    "description": "Tu información de salud está protegida bajo los más altos estándares legales de México e internacionales, garantizando máxima confidencialidad y validez oficial.",
+    "pillars": {
+      "nom": {
+        "title": "Expediente Clínico Oficial",
+        "subtitle": "NOM-004-SSA3 / NOM-024-SSA3",
+        "desc": "Cumplimiento estricto con las normas oficiales mexicanas para el registro electrónico, confidencialidad e interoperabilidad de expedientes médicos."
+      },
+      "cofepris": {
+        "title": "Prescripción Autorizada",
+        "subtitle": "Lineamientos COFEPRIS",
+        "desc": "Recetas médicas digitales con código QR verificable, firma electrónica avanzada y validación directa en farmacias autorizadas del país."
+      },
+      "sep": {
+        "title": "Cédulas Verificadas",
+        "subtitle": "Secretaría de Educación Pública",
+        "desc": "Cada médico en la plataforma pasa por un riguroso proceso de validación de Cédula Profesional y especialidad ante la Dirección General de Profesiones."
+      },
+      "encryption": {
+        "title": "Cifrado de Extremo a Extremo",
+        "subtitle": "AES-256 bits & HIPAA Ready",
+        "desc": "Tus datos viajan y se almacenan cifrados con tecnología de nivel bancario. Ni intermediarios ni terceros pueden acceder a tu historial médico."
+      }
+    },
+    "privacy_banner": {
+      "title": "Garantía de Protección de Datos Personales (LFPDPPP)",
+      "desc": "QuHealthy nunca vende, comparte ni comercializa tu información médica con anunciantes ni aseguradoras. Tú eres el único dueño de tu expediente clínico."
+    }
+  },
+  "FAQ": {
+    "badge": "Preguntas Frecuentes",
+    "title_start": "Todo lo que necesitas saber sobre ",
+    "title_highlight": "QuHealthy",
+    "description": "Resolvemos las dudas más comunes de pacientes y profesionales de la salud sobre el uso de la plataforma, seguridad y consultas.",
+    "switch_patient": "Para Pacientes",
+    "switch_provider": "Para Médicos",
+    "more_questions": "¿Tienes más preguntas?",
+    "contact_us": "Contáctanos aquí",
+    "patient": {
+      "q1": "¿Cómo sé si un médico está certificado en QuHealthy?",
+      "a1": "Todos los profesionales de la salud en QuHealthy pasan por un filtro de verificación estricto donde validamos su Cédula Profesional ante la Secretaría de Educación Pública (SEP) y sus credenciales de especialidad médica antes de habilitar su perfil.",
+      "q2": "¿Mis recetas digitales son válidas en cualquier farmacia?",
+      "a2": "Sí. Las recetas emitidas en QuHealthy cumplen con todas las normativas de COFEPRIS, cuentan con firma digital y un código QR único que los farmacéuticos pueden escanear para verificar la autenticidad al momento de surtir el medicamento.",
+      "q3": "¿Quién tiene acceso a mi expediente médico (Health Vault)?",
+      "a3": "Únicamente tú y los profesionales de la salud a quienes autorices explícitamente durante una consulta. Tu información está cifrada de extremo a extremo con algoritmos AES-256 bits conforme a la NOM-024-SSA3 y la LFPDPPP.",
+      "q4": "¿Cómo funciona la conexión con Apple Health y wearables?",
+      "a4": "Desde la app móvil puedes autorizar la sincronización de Apple Health o Google Fit. De esta forma, tus pasos, ritmo cardíaco y calidad de sueño se envían de forma segura para que tu médico los consulte en tu próxima cita médica.",
+      "q5": "¿Qué métodos de pago puedo utilizar?",
+      "a5": "Aceptamos tarjetas de débito y crédito (Visa, Mastercard, American Express), transferencias SPEI, efectivo en tiendas de conveniencia y saldo de tu Billetera Digital QuHealthy."
+    },
+    "provider": {
+      "q1": "¿El Expediente Clínico Electrónico (ECE) cumple con la NOM-004-SSA3?",
+      "a1": "Sí, 100%. Nuestro ECE está diseñado conforme a la NOM-004-SSA3-2012 y NOM-024-SSA3-2012, incluyendo notas estructuradas S.O.A.P., antecedentes completos, consentimiento informado digital y trazabilidad auditable de todas las intervenciones.",
+      "q2": "¿Cómo me ayuda el Copiloto IA (AI Scribe) en mi consulta?",
+      "a2": "AI Scribe escucha el diálogo de la consulta médica (con previo consentimiento del paciente), transcribe la conversación y redacta automáticamente la nota de evolución en formato S.O.A.P., sugiriendo códigos diagnósticos CIE-10/CIE-11 y ahorrándote más de 2 horas diarias de captura.",
+      "q3": "¿Puedo emitir facturas electrónicas del SAT (CFDI 4.0)?",
+      "a3": "Sí. QuHealthy cuenta con un módulo de Punto de Venta (POS) y facturación automática CFDI 4.0 que genera y timbra facturas al instante con complementos médicos, enviando el XML y PDF directamente al correo del paciente.",
+      "q4": "¿Cómo funciona la traducción simultánea en teleconsultas?",
+      "a4": "Durante una videoconsulta HD, la plataforma puede traducir la voz y mostrar subtítulos en vivo en más de 12 idiomas con latencia menor a 250ms, ideal para médicos que atienden pacientes internacionales o en zonas de turismo médico.",
+      "q5": "¿Puedo vender mis propios productos o paquetes de tratamientos?",
+      "a5": "Por supuesto. Cuentas con un módulo de Tienda Médica y QuMarket donde puedes listar tus productos de dermocosmética, suplementos, paquetes de consultas y controlar inventario con alertas de stock bajo."
+    }
   }
 }

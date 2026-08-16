@@ -33,14 +33,21 @@ import {
   Vault,
   ArrowRight,
   Layers,
-  Sparkles
+  Sparkles,
+  Flower2,
+  Activity,
+  Heart,
+  Utensils,
+  Video,
+  AlertTriangle,
+  Pill
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 type RoleType = "provider" | "patient";
 
-const PlatformModulesSection = () => {
+export const PlatformModulesSection: React.FC = () => {
   const t = useTranslations('PlatformModules');
   const [activeRole, setActiveRole] = useState<RoleType>("patient");
   
@@ -59,8 +66,10 @@ const PlatformModulesSection = () => {
       modules: [
         { title: t('categories.provider_clinic.modules.calendar.title'), icon: CalendarDays, description: t('categories.provider_clinic.modules.calendar.description') },
         { title: t('categories.provider_clinic.modules.history.title'), icon: FileText, description: t('categories.provider_clinic.modules.history.description') },
-        { title: t('categories.provider_clinic.modules.messages.title'), icon: MessageCircle, description: t('categories.provider_clinic.modules.messages.description') },
-        { title: t('categories.provider_clinic.modules.patients.title'), icon: Users, description: t('categories.provider_clinic.modules.patients.description') }
+        { title: t('categories.provider_clinic.modules.teleconsultation.title', { defaultValue: "Teleconsulta HD & Traducción" }), icon: Video, description: t('categories.provider_clinic.modules.teleconsultation.description', { defaultValue: "Videoconsultas cifradas con transcripción simultánea y subtítulos en vivo." }) },
+        { title: t('categories.provider_clinic.modules.prescription.title', { defaultValue: "Receta Digital con QR" }), icon: Pill, description: t('categories.provider_clinic.modules.prescription.description', { defaultValue: "Emisión de recetas conformes a COFEPRIS con firma y código de verificación." }) },
+        { title: t('categories.provider_clinic.modules.patients.title'), icon: Users, description: t('categories.provider_clinic.modules.patients.description') },
+        { title: t('categories.provider_clinic.modules.emergencies.title', { defaultValue: "Consola de Urgencias" }), icon: AlertTriangle, description: t('categories.provider_clinic.modules.emergencies.description', { defaultValue: "Monitor de triaje y alertas de pacientes en estado crítico." }) }
       ]
     },
     {
@@ -71,7 +80,8 @@ const PlatformModulesSection = () => {
       modules: [
         { title: t('categories.provider_commerce.modules.store.title'), icon: ShoppingBag, description: t('categories.provider_commerce.modules.store.description') },
         { title: t('categories.provider_commerce.modules.orders.title'), icon: Package, description: t('categories.provider_commerce.modules.orders.description') },
-        { title: t('categories.provider_commerce.modules.inventory.title'), icon: PackageCheck, description: t('categories.provider_commerce.modules.inventory.description') }
+        { title: t('categories.provider_commerce.modules.inventory.title'), icon: PackageCheck, description: t('categories.provider_commerce.modules.inventory.description') },
+        { title: t('categories.provider_commerce.modules.packages.title', { defaultValue: "Paquetes Clínicos" }), icon: Sparkles, description: t('categories.provider_commerce.modules.packages.description', { defaultValue: "Venta de membresías anuales, check-ups y tratamientos integrales." }) }
       ]
     },
     {
@@ -107,6 +117,7 @@ const PlatformModulesSection = () => {
       modules: [
         { title: t('categories.patient_health.modules.discover.title'), icon: Search, description: t('categories.patient_health.modules.discover.description') },
         { title: t('categories.patient_health.modules.appointments.title'), icon: CalendarDays, description: t('categories.patient_health.modules.appointments.description') },
+        { title: t('categories.patient_health.modules.telemedicine.title', { defaultValue: "Telemedicina HD" }), icon: Video, description: t('categories.patient_health.modules.telemedicine.description', { defaultValue: "Consultas virtuales sin salir de casa con especialistas certificados." }) },
         { title: t('categories.patient_health.modules.reviews.title'), icon: Star, description: t('categories.patient_health.modules.reviews.description') }
       ]
     },
@@ -118,7 +129,20 @@ const PlatformModulesSection = () => {
       modules: [
         { title: t('categories.patient_records.modules.vault.title'), icon: Vault, description: t('categories.patient_records.modules.vault.description') },
         { title: t('categories.patient_records.modules.dependents.title'), icon: Users, description: t('categories.patient_records.modules.dependents.description') },
-        { title: t('categories.patient_records.modules.messages.title'), icon: MessageCircle, description: t('categories.patient_records.modules.messages.description') }
+        { title: t('categories.patient_records.modules.messages.title'), icon: MessageCircle, description: t('categories.patient_records.modules.messages.description') },
+        { title: t('categories.patient_records.modules.treatments.title', { defaultValue: "Pastillero Inteligente" }), icon: Pill, description: t('categories.patient_records.modules.treatments.description', { defaultValue: "Recordatorios de dosis, horarios y adherencia a tus recetas médicas." }) }
+      ]
+    },
+    {
+      id: "patient_specialized",
+      title: t('categories.patient_specialized.title', { defaultValue: "Salud Especializada" }),
+      icon: Heart,
+      description: t('categories.patient_specialized.description', { defaultValue: "Monitoreo continuo para cada etapa y condición de tu vida." }),
+      modules: [
+        { title: t('categories.patient_specialized.modules.womens.title', { defaultValue: "Salud Mujer & Embarazo" }), icon: Flower2, description: t('categories.patient_specialized.modules.womens.description', { defaultValue: "Ciclo menstrual, ovulación con IA, seguimiento de embarazo y postparto." }) },
+        { title: t('categories.patient_specialized.modules.diabetes.title', { defaultValue: "Diabetes & Metabolismo" }), icon: Activity, description: t('categories.patient_specialized.modules.diabetes.description', { defaultValue: "Control de glucosa, HbA1c y semáforo nutricional." }) },
+        { title: t('categories.patient_specialized.modules.oncology.title', { defaultValue: "Oncología & Crónicos" }), icon: Heart, description: t('categories.patient_specialized.modules.oncology.description', { defaultValue: "Estadiaje TNM, seguimiento de ciclos y acompañamiento integral." }) },
+        { title: t('categories.patient_specialized.modules.nutrition.title', { defaultValue: "Nutrición IA" }), icon: Utensils, description: t('categories.patient_specialized.modules.nutrition.description', { defaultValue: "Análisis instantáneo de alimentos por fotografía y conteo de macros." }) }
       ]
     },
     {
@@ -129,16 +153,8 @@ const PlatformModulesSection = () => {
       modules: [
         { title: t('categories.patient_commerce.modules.store.title'), icon: ShoppingBag, description: t('categories.patient_commerce.modules.store.description') },
         { title: t('categories.patient_commerce.modules.wallet.title'), icon: Wallet, description: t('categories.patient_commerce.modules.wallet.description') },
-        { title: t('categories.patient_commerce.modules.packages.title'), icon: Package, description: t('categories.patient_commerce.modules.packages.description') }
-      ]
-    },
-    {
-      id: "patient_education",
-      title: t('categories.patient_education.title'),
-      icon: BookOpen,
-      description: t('categories.patient_education.description'),
-      modules: [
-        { title: t('categories.patient_education.modules.courses.title'), icon: BookOpen, description: t('categories.patient_education.modules.courses.description') }
+        { title: t('categories.patient_commerce.modules.packages.title'), icon: Package, description: t('categories.patient_commerce.modules.packages.description') },
+        { title: t('categories.patient_commerce.modules.courses.title', { defaultValue: "QuBlocks Academy" }), icon: BookOpen, description: t('categories.patient_commerce.modules.courses.description', { defaultValue: "Masterclasses y cursos de salud preventiva impartidos por médicos." }) }
       ]
     }
   ];
@@ -155,10 +171,10 @@ const PlatformModulesSection = () => {
 
   const currentData = currentCategories.find((c) => c.id === activeCategoryId) || currentCategories[0];
 
-  const customTransition = { duration: 0.4, ease: "easeOut" };
+  const customTransition = { duration: 0.35, ease: "easeOut" };
 
   return (
-    <section id="platform-modules" className="py-20 md:py-28 bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 border-t border-gray-100 dark:border-gray-800 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
+    <section id="platform-modules" className="py-20 md:py-28 bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 border-t border-b border-gray-100 dark:border-gray-800 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
       
       <div className="container mx-auto px-6 md:px-12 xl:px-20 max-w-7xl">
         
@@ -169,7 +185,7 @@ const PlatformModulesSection = () => {
               type="button"
               onClick={() => setActiveRole("patient")}
               className={cn(
-                "px-6 py-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-2",
+                "px-6 py-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer",
                 activeRole === "patient"
                   ? "bg-emerald-600 text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -182,7 +198,7 @@ const PlatformModulesSection = () => {
               type="button"
               onClick={() => setActiveRole("provider")}
               className={cn(
-                "px-6 py-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-2",
+                "px-6 py-2.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer",
                 activeRole === "provider"
                   ? "bg-emerald-600 text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -255,7 +271,7 @@ const PlatformModulesSection = () => {
                       type="button"
                       onClick={() => setActiveCat(category.id)}
                       className={cn(
-                        "w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl transition-all text-left group shadow-sm",
+                        "w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl transition-all text-left group shadow-sm cursor-pointer",
                         isActive
                           ? "bg-emerald-50/80 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/40"
                           : "bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 hover:bg-gray-50 dark:hover:bg-[#111]"
@@ -349,18 +365,21 @@ const PlatformModulesSection = () => {
               </motion.div>
             </AnimatePresence>
 
-            {/* Acción Inferior / Footer */}
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <p className="text-xs font-semibold text-gray-400">
-                {t('explore_all', { defaultValue: "¿Deseas implementar estas herramientas en tu consultorio?" })}
-              </p>
+            {/* Footer Informativo */}
+            <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {t('explore_all')}
+                </span>
+              </div>
 
               <Link
-                href="#pricing"
-                className="h-11 px-6 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 group shrink-0"
+                href={activeRole === "provider" ? "/provider/signup" : "/discover"}
+                className="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 group"
               >
-                <span>{t('view_plans', { defaultValue: "Ver Planes y Membresías" })}</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+                <span>{activeRole === "provider" ? "Comenzar como Profesional" : "Explorar Directorio Médico"}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 

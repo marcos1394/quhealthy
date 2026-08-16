@@ -201,6 +201,27 @@ const HeroSection: React.FC = () => {
               </div>
             </div>
 
+            {/* Acceso Rápido Dual */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <Link
+                href="/discover"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all shadow-xs group"
+              >
+                <Heart className="w-3.5 h-3.5 text-pink-500" />
+                <span>{t("quick_patient", { defaultValue: "Para Pacientes: Buscar Médicos & Agendar" })}</span>
+                <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              <Link
+                href="/provider/signup"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all shadow-xs group"
+              >
+                <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{t("quick_provider", { defaultValue: "Para Médicos: Digitalizar Consultorio & ECE" })}</span>
+                <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+            </div>
+
             {/* Micro-Métricas Pill */}
             <div className="flex flex-wrap items-center gap-4 pt-2 relative z-20">
               {metrics.map((metric, idx) => {
