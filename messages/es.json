@@ -12,6 +12,8 @@
     "search_placeholder": "Busca por especialidad, síntoma o nombre del doctor",
     "location_placeholder": "Tu ubicación",
     "search_button": "Empezar",
+    "quick_patient": "Para Pacientes: Buscar Médicos & Agendar",
+    "quick_provider": "Para Médicos: Digitalizar Consultorio & ECE",
     "dynamic_words": [
       "Salud",
       "Bienestar",
@@ -8882,13 +8884,25 @@
             "title": "Expediente Electrónico",
             "description": "Historial clínico completo, seguro y siempre accesible. Cumple con las normativas más estrictas de privacidad de datos."
           },
-          "messages": {
-            "title": "Mensajería Privada",
-            "description": "Comunícate de forma segura con tus pacientes desde la plataforma, manteniendo separada tu vida profesional de la personal."
+          "teleconsultation": {
+            "title": "Teleconsulta HD & Traducción",
+            "description": "Videoconsultas cifradas con transcripción simultánea y subtítulos en vivo."
+          },
+          "prescription": {
+            "title": "Receta Digital con QR",
+            "description": "Emisión de recetas conformes a COFEPRIS con firma y código de verificación."
           },
           "patients": {
             "title": "Gestión de Pacientes",
             "description": "Base de datos centralizada con perfiles detallados, notas de evolución y seguimiento a largo plazo."
+          },
+          "emergencies": {
+            "title": "Consola de Urgencias",
+            "description": "Monitor de triaje y alertas de pacientes en estado crítico."
+          },
+          "messages": {
+            "title": "Mensajería Privada",
+            "description": "Comunícate de forma segura con tus pacientes desde la plataforma, manteniendo separada tu vida profesional de la personal."
           }
         }
       },
@@ -8907,6 +8921,10 @@
           "inventory": {
             "title": "Inventario Inteligente",
             "description": "Mantén el control exacto de tus existencias, recibe alertas de stock bajo y administra a tus proveedores fácilmente."
+          },
+          "packages": {
+            "title": "Paquetes Clínicos",
+            "description": "Venta de membresías anuales, check-ups y tratamientos integrales."
           }
         }
       },
@@ -8958,6 +8976,10 @@
             "title": "Gestión de Citas",
             "description": "Reserva, reagenda o cancela tus citas 24/7 sin llamadas telefónicas ni tiempos de espera."
           },
+          "telemedicine": {
+            "title": "Telemedicina HD",
+            "description": "Consultas virtuales sin salir de casa con especialistas certificados."
+          },
           "reviews": {
             "title": "Reseñas Verificadas",
             "description": "Lee experiencias de otros pacientes reales antes de tomar decisiones sobre tu salud."
@@ -8979,6 +9001,32 @@
           "messages": {
             "title": "Contacto Directo",
             "description": "Comunícate con tus especialistas para dar seguimiento a tus tratamientos de manera ágil y segura."
+          },
+          "treatments": {
+            "title": "Pastillero Inteligente",
+            "description": "Recordatorios de dosis, horarios y adherencia a tus recetas médicas."
+          }
+        }
+      },
+      "patient_specialized": {
+        "title": "Salud Especializada",
+        "description": "Monitoreo continuo para cada etapa y condición de tu vida.",
+        "modules": {
+          "womens": {
+            "title": "Salud Mujer & Embarazo",
+            "description": "Ciclo menstrual, ovulación con IA, seguimiento de embarazo y postparto."
+          },
+          "diabetes": {
+            "title": "Diabetes & Metabolismo",
+            "description": "Control de glucosa, HbA1c y semáforo nutricional."
+          },
+          "oncology": {
+            "title": "Oncología & Crónicos",
+            "description": "Estadiaje TNM, seguimiento de ciclos y acompañamiento integral."
+          },
+          "nutrition": {
+            "title": "Nutrición IA",
+            "description": "Análisis instantáneo de alimentos por fotografía y conteo de macros."
           }
         }
       },
@@ -8997,6 +9045,10 @@
           "packages": {
             "title": "Planes y Suscripciones",
             "description": "Adquiere membresías anuales o paquetes de tratamiento con descuentos exclusivos."
+          },
+          "courses": {
+            "title": "QuBlocks Academy",
+            "description": "Masterclasses y cursos de salud preventiva impartidos por médicos."
           }
         }
       },

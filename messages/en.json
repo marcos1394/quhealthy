@@ -12,6 +12,8 @@
     "search_placeholder": "Search by specialty, symptom, or doctor's name",
     "location_placeholder": "Your location",
     "search_button": "Get Started",
+    "quick_patient": "For Patients: Find Doctors & Book",
+    "quick_provider": "For Doctors: Digitize Clinic & EHR",
     "dynamic_words": [
       "Health",
       "Wellness",
@@ -8843,13 +8845,25 @@
             "title": "Electronic Health Record",
             "description": "Complete, secure, and always accessible clinical history. Complies with the strictest data privacy regulations."
           },
-          "messages": {
-            "title": "Private Messaging",
-            "description": "Communicate safely with your patients directly from the platform, keeping your professional and personal life separate."
+          "teleconsultation": {
+            "title": "HD Teleconsultation & Live Translation",
+            "description": "Encrypted video consultations with real-time transcription and live medical subtitles."
+          },
+          "prescription": {
+            "title": "Smart QR Prescription",
+            "description": "Issuance of certified digital prescriptions with electronic signature and verification QR code."
           },
           "patients": {
             "title": "Patient Management",
             "description": "Centralized database with detailed profiles, clinical notes, and long-term follow-ups."
+          },
+          "emergencies": {
+            "title": "Emergency Console",
+            "description": "Triage monitor and urgent alerts for critical condition patients."
+          },
+          "messages": {
+            "title": "Private Messaging",
+            "description": "Communicate safely with your patients directly from the platform, keeping your professional and personal life separate."
           }
         }
       },
@@ -8868,6 +8882,10 @@
           "inventory": {
             "title": "Smart Inventory",
             "description": "Keep exact control of your stock, receive low-stock alerts, and easily manage your suppliers."
+          },
+          "packages": {
+            "title": "Clinical Packages",
+            "description": "Sell annual memberships, comprehensive check-ups, and specialized treatment packages."
           }
         }
       },
@@ -8919,6 +8937,10 @@
             "title": "Appointment Management",
             "description": "Book, reschedule, or cancel your appointments 24/7 without phone calls or waiting times."
           },
+          "telemedicine": {
+            "title": "HD Telemedicine",
+            "description": "Virtual consultations from home with certified healthcare specialists."
+          },
           "reviews": {
             "title": "Verified Reviews",
             "description": "Read experiences from other real patients before making decisions about your health."
@@ -8940,6 +8962,32 @@
           "messages": {
             "title": "Direct Contact",
             "description": "Communicate with your specialists to follow up on your treatments quickly and safely."
+          },
+          "treatments": {
+            "title": "Smart Pillbox & Treatments",
+            "description": "Reminders for dosage, schedules, and adherence to your doctor's prescriptions."
+          }
+        }
+      },
+      "patient_specialized": {
+        "title": "Specialized Care",
+        "description": "Continuous monitoring for every stage and condition of your life.",
+        "modules": {
+          "womens": {
+            "title": "Women's Health & Pregnancy",
+            "description": "Menstrual cycle, AI ovulation predictions, pregnancy tracking, and postpartum care."
+          },
+          "diabetes": {
+            "title": "Diabetes & Metabolism",
+            "description": "Blood glucose tracking, HbA1c curves, and nutritional traffic light."
+          },
+          "oncology": {
+            "title": "Oncology & Chronic Care",
+            "description": "TNM staging, cycle tracking, and comprehensive care companion."
+          },
+          "nutrition": {
+            "title": "AI Nutrition",
+            "description": "Instant food analysis via photo and macronutrient tracking."
           }
         }
       },
@@ -8958,6 +9006,10 @@
           "packages": {
             "title": "Plans & Subscriptions",
             "description": "Acquire annual memberships or treatment packages with exclusive discounts."
+          },
+          "courses": {
+            "title": "QuBlocks Academy",
+            "description": "Masterclasses and preventive wellness courses taught by doctors."
           }
         }
       },
