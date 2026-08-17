@@ -22,6 +22,7 @@ import {
   Paperclip,
   Baby,
   ActivitySquare,
+  CalendarPlus,
 } from "lucide-react";
 import { format } from "date-fns";
 import { enUS, es } from "date-fns/locale";
@@ -36,6 +37,7 @@ import { Button } from "@/components/ui/button";
 // Modales y Contenedores
 import { EditPatientModal } from "@/components/dashboard/EditPatientModal";
 import { EditHealthProfileModal } from "@/components/dashboard/EditHealthProfileModal";
+import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal";
 import { MedicalGrowthContainer } from "@/components/growth/MedicalGrowthContainer";
 import { ActiveProblemsTable } from "@/components/provider/health-profile/ActiveProblemsTable";
 import { AllergiesTable } from "@/components/provider/health-profile/AllergiesTable";
@@ -95,6 +97,7 @@ export default function PatientDetailPage() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditHealthModalOpen, setIsEditHealthModalOpen] = useState(false);
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] = useState(false);
   const [downloadingAppointmentId, setDownloadingAppointmentId] = useState<
     number | null
   >(null);
@@ -186,7 +189,7 @@ export default function PatientDetailPage() {
         className="space-y-8 max-w-7xl mx-auto"
       >
         {/* ── BARRA DE COMANDOS SUPERIOR ────────────────────────────────────── */}
-        <div className="flex items-center justify-between pb-6 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between pb-6 border-b border-gray-100 dark:border-gray-800 gap-4 flex-wrap">
           <Button
             variant="outline"
             onClick={() => router.back()}
@@ -195,9 +198,19 @@ export default function PatientDetailPage() {
             <ArrowLeft className="w-4 h-4 mr-1.5" strokeWidth={2} />
             <span>{t("back_to_list")}</span>
           </Button>
-          <span className="text-xs font-mono font-semibold text-gray-400 hidden sm:inline-block">
-            ID: #{profile.id}
-          </span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono font-semibold text-gray-400 hidden sm:inline-block">
+              ID: #{profile.id}
+            </span>
+            <Button
+              onClick={() => setIsNewAppointmentModalOpen(true)}
+              className="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 cursor-pointer border-0"
+            >
+              <CalendarPlus className="w-4 h-4" strokeWidth={2} />
+              <span>{t("start_consultation")}</span>
+            </Button>
+          </div>
         </div>
 
         {/* ── GRID PRINCIPAL ────────────────────────────────────────────────── */}
@@ -289,12 +302,20 @@ export default function PatientDetailPage() {
                 </span>
               </div>
 
-              <div className="p-6 bg-gray-50/50 dark:bg-[#050505]">
+              <div className="p-6 bg-gray-50/50 dark:bg-[#050505] space-y-2.5">
+                <Button
+                  onClick={() => setIsNewAppointmentModalOpen(true)}
+                  className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-2 cursor-pointer border-0"
+                >
+                  <CalendarPlus className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("start_consultation")}</span>
+                </Button>
+
                 <Button
                   variant="outline"
                   onClick={() => setIsEditModalOpen(true)}
                   disabled={profile.isPlatformUser}
-                  className="w-full h-11 rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold shadow-sm"
+                  className="w-full h-11 rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold shadow-sm cursor-pointer"
                 >
                   {t("edit_profile")}
                 </Button>
@@ -675,6 +696,13 @@ export default function PatientDetailPage() {
         initialData={healthProfile}
         isSubmitting={isUpdating}
         onSave={updateHealthProfile}
+      />
+
+      <NewAppointmentModal
+        isOpen={isNewAppointmentModalOpen}
+        onClose={() => setIsNewAppointmentModalOpen(false)}
+        initialPatient={profile}
+        onSuccess={refetch}
       />
     </div>
   );

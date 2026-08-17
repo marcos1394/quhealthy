@@ -64,13 +64,16 @@ import { UI_Service } from "@/types/catalog";
 import { NewPatientModal } from "@/components/dashboard/NewPatientModal";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
+import { useProviderLocations } from "@/hooks/useProviderLocations";
+
 interface NewAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated?: () => void;
   onSuccess?: () => void;
   initialDate?: Date | null;
-  locationId: number;
+  initialPatient?: PatientDirectorySearchResult | PatientClient | any | null;
+  locationId?: number;
 }
 
 const modalityOptions = {
@@ -85,12 +88,22 @@ export function NewAppointmentModal({
   onCreated,
   onSuccess,
   initialDate,
+  initialPatient,
   locationId,
 }: NewAppointmentModalProps) {
   const { user } = useSessionStore();
+  const { locations, fetchLocations } = useProviderLocations();
   const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
   const { clients, fetchClients, searchPatients } = usePatientDirectory();
   const t = useTranslations("DashboardAppointments");
+
+  const effectiveLocationId = locationId || locations[0]?.id || user?.defaultLocationId || 1;
+
+  useEffect(() => {
+    if (isOpen && !locationId && locations.length === 0) {
+      fetchLocations();
+    }
+  }, [isOpen, locationId, locations.length, fetchLocations]);
 
   const [
     {
@@ -222,6 +235,13 @@ export function NewAppointmentModal({
     }));
   }, [initialDate, isOpen]);
 
+  useEffect(() => {
+    if (isOpen && initialPatient) {
+      setSelectedPatient(initialPatient);
+      setPatientQuery(getPatientDisplayName(initialPatient));
+    }
+  }, [initialPatient, isOpen]);
+
   const selectedService = useMemo(
     () =>
       services.find((service) => String(service.id) === formData.serviceId) ||
@@ -303,7 +323,7 @@ export function NewAppointmentModal({
         appointmentType: formData.appointmentType,
         paymentMethod: formData.paymentMethod,
         consumerSymptoms: formData.notes || undefined,
-        locationId: locationId,
+        locationId: effectiveLocationId,
       };
 
       await appointmentService.createProviderAppointment(payload);

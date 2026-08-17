@@ -3686,6 +3686,7 @@
     "appointment_history": "Appointment history",
     "view_full_record": "View full chart",
     "edit_contact": "Edit profile",
+    "start_consultation": "Book / Start consultation",
     "empty_title": "No patients registered yet",
     "empty_list": "Your patients will appear here as soon as they book their first appointment or when you add them manually.",
     "empty_search": "No patients matched your search criteria.",
@@ -3702,6 +3703,8 @@
 
   "DashboardPatientDetail": {
     "back_to_list": "Back to directory",
+    "start_consultation": "Start / Book consultation",
+    "new_appointment": "New appointment",
     "loading": "Loading medical record...",
     "error_loading": "Could not load patient profile.",
     "error_download_pdf": "Could not download prescription PDF.",

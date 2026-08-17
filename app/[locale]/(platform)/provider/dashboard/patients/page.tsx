@@ -16,6 +16,7 @@ import {
   Filter,
   MoreHorizontal,
   Edit,
+  CalendarPlus,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -48,6 +49,7 @@ import { cn } from "@/lib/utils";
 
 import { NewPatientModal } from "@/components/dashboard/NewPatientModal";
 import { EditPatientModal } from "@/components/dashboard/EditPatientModal";
+import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal";
 
 import { usePatientDirectory } from "@/hooks/usePatientDirectory";
 import { PatientClient } from "@/types/patient";
@@ -66,6 +68,9 @@ export default function ProviderPatientsPage() {
   const [isNewPatientModalOpen, setIsNewPatientModalOpen] = useState(false);
   const [patientToEdit, setPatientToEdit] =
     useState<PatientDirectoryProfile | null>(null);
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] = useState(false);
+  const [patientForAppointment, setPatientForAppointment] =
+    useState<PatientClient | null>(null);
 
   useEffect(() => {
     fetchClients();
@@ -93,6 +98,15 @@ export default function ProviderPatientsPage() {
         isPlatformUser: client.consumer.id !== null,
         createdAt: client.lastAppointmentDate,
       });
+    },
+    []
+  );
+
+  const handleStartConsultation = useCallback(
+    (e: React.MouseEvent, client: PatientClient) => {
+      e.stopPropagation();
+      setPatientForAppointment(client);
+      setIsNewAppointmentModalOpen(true);
     },
     []
   );
@@ -373,6 +387,17 @@ export default function ProviderPatientsPage() {
                             className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl w-48 p-1"
                           >
                             <DropdownMenuItem
+                              onClick={(e) => handleStartConsultation(e, client)}
+                              className="text-xs font-bold focus:bg-emerald-50 dark:focus:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 cursor-pointer rounded-xl py-2.5"
+                            >
+                              <CalendarPlus
+                                className="w-3.5 h-3.5 mr-2"
+                                strokeWidth={2}
+                              />
+                              <span>{t("start_consultation")}</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(
@@ -382,7 +407,7 @@ export default function ProviderPatientsPage() {
                               className="text-xs font-bold focus:bg-gray-50 dark:focus:bg-[#111] cursor-pointer rounded-xl py-2.5"
                             >
                               <Activity
-                                className="w-3.5 h-3.5 mr-2 text-emerald-600 dark:text-emerald-400"
+                                className="w-3.5 h-3.5 mr-2 text-gray-500 dark:text-gray-400"
                                 strokeWidth={2}
                               />
                               <span>{t("view_full_record")}</span>
@@ -543,14 +568,23 @@ export default function ProviderPatientsPage() {
               </div>
 
               {/* Footer Drawer */}
-              <div className="p-6 md:p-8 bg-gray-50/50 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 shrink-0">
+              <div className="p-6 md:p-8 bg-gray-50/50 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 shrink-0 space-y-2.5">
                 <Button
+                  onClick={(e) => handleStartConsultation(e, selectedPatient)}
+                  className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white flex items-center justify-center gap-2 text-xs font-bold transition-all rounded-xl shadow-sm border-0 cursor-pointer"
+                >
+                  <CalendarPlus className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("start_consultation")}</span>
+                </Button>
+
+                <Button
+                  variant="outline"
                   onClick={() =>
                     router.push(
                       `/provider/dashboard/patients/${selectedPatient.id}`
                     )
                   }
-                  className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white flex items-center justify-center gap-2 text-xs font-bold transition-all rounded-xl shadow-sm border-0"
+                  className="w-full h-11 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#111] flex items-center justify-center gap-2 text-xs font-bold transition-all rounded-xl shadow-sm cursor-pointer"
                 >
                   <span>{t("view_medical_record")}</span>
                   <ArrowRight className="w-4 h-4" strokeWidth={2} />
@@ -561,7 +595,7 @@ export default function ProviderPatientsPage() {
         </SheetContent>
       </Sheet>
 
-      {/* ── MODALES DE CREACIÓN Y EDICIÓN ───────────────────────────────── */}
+      {/* ── MODALES DE CREACIÓN, EDICIÓN Y CONSULTA ─────────────────────── */}
       <NewPatientModal
         isOpen={isNewPatientModalOpen}
         onClose={() => setIsNewPatientModalOpen(false)}
@@ -577,6 +611,18 @@ export default function ProviderPatientsPage() {
         onUpdated={async () => {
           await fetchClients();
           setPatientToEdit(null);
+        }}
+      />
+
+      <NewAppointmentModal
+        isOpen={isNewAppointmentModalOpen}
+        onClose={() => {
+          setIsNewAppointmentModalOpen(false);
+          setPatientForAppointment(null);
+        }}
+        initialPatient={patientForAppointment}
+        onSuccess={async () => {
+          await fetchClients();
         }}
       />
     </div>
