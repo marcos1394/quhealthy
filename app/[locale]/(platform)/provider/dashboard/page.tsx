@@ -36,6 +36,7 @@ import {
   MessageSquare,
   ShoppingBag,
   Wallet,
+  CalendarPlus,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -47,6 +48,7 @@ import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ProviderReputationCard } from "@/components/dashboard/ProviderReputationCard";
 import { RetentionWidget } from "@/components/dashboard/RetentionWidget";
+import { NewAppointmentModal } from "@/components/dashboard/NewAppointmentModal";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { cn } from "@/lib/utils";
@@ -67,7 +69,8 @@ export default function DashboardPage() {
   const { isStaff, roleLabel } = useProviderRole();
   const { user } = useSessionStore();
 
-  // Estado: ¿Necesita configurar su receta? (solo aplica a PROVIDER)
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] =
+    useState(false);
   const [needsPrescriptionSetup, setNeedsPrescriptionSetup] = useState(false);
 
   // Verificar si ya tiene logo o color — omitir para STAFF
@@ -523,65 +526,78 @@ export default function DashboardPage() {
       {/* ── HEADER Y TARJETA DE PLAN ────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-gray-100 dark:border-gray-800">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1 leading-tight">
-            {t("welcome")}
-          </h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+              {t("welcome")}
+            </h1>
+          </div>
           <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
             {t("welcome_desc")}
           </p>
         </div>
 
-        {/* Banner de Suscripción */}
-        <div
-          className={cn(
-            "flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-5 border bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm transition-all",
-            plan.status === "EXPIRED"
-              ? "border-rose-200 dark:border-rose-900/40"
-              : "border-gray-100 dark:border-gray-800"
-          )}
-        >
-          <div className="flex items-center gap-4">
-            <div
-              className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border",
-                plan.status === "EXPIRED"
-                  ? "border-rose-100 bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:border-rose-900/40 dark:text-rose-400"
-                  : "border-emerald-100 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400"
-              )}
-            >
-              <Crown className="w-6 h-6" strokeWidth={2} />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">
-                Plan: <span className="text-gray-900 dark:text-white font-bold">{plan.name}</span>
-              </p>
-              <div className="flex items-center gap-1.5 text-xs font-medium">
-                <Clock className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} />
-                <span
-                  className={cn(
-                    plan.status === "EXPIRED" || plan.daysLeft <= 0
-                      ? "text-amber-600 dark:text-amber-400 font-bold"
-                      : plan.daysLeft <= 3
-                      ? "text-rose-500 font-bold"
-                      : "text-gray-500 dark:text-gray-400"
-                  )}
-                >
-                  {plan.status === "EXPIRED" || plan.daysLeft <= 0
-                    ? t("status_free_tier", { defaultValue: "Vencido • Plan Gratuito" })
-                    : `${plan.daysLeft} ${t("days_remaining")}`}
-                </span>
+        {/* Acciones y Banner de Suscripción */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <Button
+            onClick={() => setIsNewAppointmentModalOpen(true)}
+            className="h-11 px-5 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-2xl text-xs font-bold shadow-sm flex items-center justify-center gap-2 cursor-pointer border-0 transition-all"
+          >
+            <CalendarPlus className="w-4 h-4" strokeWidth={2} />
+            <span>Agendar Consulta</span>
+          </Button>
+
+          <div
+            className={cn(
+              "flex items-center justify-between gap-4 p-3.5 sm:p-4 border bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-sm transition-all",
+              plan.status === "EXPIRED"
+                ? "border-rose-200 dark:border-rose-900/40"
+                : "border-gray-100 dark:border-gray-800"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
+                  plan.status === "EXPIRED"
+                    ? "border-rose-100 bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:border-rose-900/40 dark:text-rose-400"
+                    : "border-emerald-100 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400"
+                )}
+              >
+                <Crown className="w-5 h-5" strokeWidth={2} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">
+                  {plan.name}
+                </p>
+                <div className="flex items-center gap-1 text-[11px] font-medium mt-0.5">
+                  <Clock className="w-3 h-3 text-gray-400" strokeWidth={2} />
+                  <span
+                    className={cn(
+                      plan.status === "EXPIRED" || plan.daysLeft <= 0
+                        ? "text-amber-600 dark:text-amber-400 font-bold"
+                        : plan.daysLeft <= 3
+                        ? "text-rose-500 font-bold"
+                        : "text-gray-500 dark:text-gray-400"
+                    )}
+                  >
+                    {plan.status === "EXPIRED" || plan.daysLeft <= 0
+                      ? t("status_free_tier", { defaultValue: "Vencido • Plan Gratuito" })
+                      : `${plan.daysLeft} ${t("days_remaining")}`}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <Button
-            onClick={() =>
-              router.push(`/${locale}/provider/dashboard/settings#subscription`)
-            }
-            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white h-11 px-6 text-xs font-bold border-0 transition-all w-full sm:w-auto shadow-sm"
-          >
-            {t("upgrade_plan")}
-          </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                router.push(`/${locale}/provider/dashboard/settings#subscription`)
+              }
+              className="rounded-xl border-gray-200 dark:border-gray-800 h-9 px-3.5 text-xs font-bold transition-all shadow-2xs"
+            >
+              {t("upgrade_plan")}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -654,10 +670,16 @@ export default function DashboardPage() {
         </AnimatePresence>
       </div>
 
-      {/* ── MÉTRICAS Y TIEMPOS DE ATENCIÓN ────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-        {/* KPI Ingresos */}
-        <div className="col-span-2">
+      {/* ── SECCIÓN 1: KPIS CLAVE DE RENDIMIENTO Y PACIENTES (4 COLUMNAS) ───── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            Rendimiento Clínico y Pacientes
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* 1. KPI Ingresos */}
           {(() => {
             const totalRev = analytics.monthlyRevenue || 0;
             const formatCurrency = (val: number) =>
@@ -701,6 +723,7 @@ export default function DashboardPage() {
                 title={t("revenue_title")}
                 value={formatCurrency(totalRev)}
                 icon={BarChart2}
+                colorVariant="emerald"
                 trend={{
                   value: Math.abs(analytics.revenueGrowth || 0),
                   isPositive: (analytics.revenueGrowth || 0) >= 0,
@@ -710,67 +733,102 @@ export default function DashboardPage() {
               />
             );
           })()}
-        </div>
 
-        {/* KPI Citas Completadas */}
-        <div className="col-span-1">
+          {/* 2. KPI Citas Completadas */}
           <SummaryCard
             title={t("completed_appointments")}
             value={analytics.completedAppointments.toString()}
+            unit="consultas"
+            subtitle="Concluidas en el periodo"
             icon={CheckCircle}
+            colorVariant="sky"
             trend={{
               value: Math.abs(analytics.appointmentsGrowth || 0),
               isPositive: (analytics.appointmentsGrowth || 0) >= 0,
+              period: t("previous_month"),
             }}
           />
-        </div>
 
-        {/* KPI Pacientes Nuevos */}
-        <div className="col-span-1">
+          {/* 3. KPI Pacientes Nuevos */}
           <SummaryCard
             title={t("new_patients")}
             value={analytics.newClients.toString()}
+            unit="pacientes"
+            subtitle="Nuevos registros en cartera"
             icon={Users}
+            colorVariant="indigo"
             trend={{
               value: Math.abs(analytics.clientsGrowth || 0),
               isPositive: (analytics.clientsGrowth || 0) >= 0,
+              period: t("previous_month"),
             }}
           />
-        </div>
 
-        {/* KPI Adherencia Global */}
-        <div className="col-span-1">
+          {/* 4. KPI Adherencia Global */}
           <SummaryCard
             title="Adherencia Clínica"
             value={data.globalAdherencePercentage !== undefined ? `${data.globalAdherencePercentage}%` : "0%"}
+            subtitle={`${data.totalResolvedDiagnoses || 0} casos resueltos`}
             icon={Activity}
+            colorVariant="violet"
+            progress={{
+              value: data.globalAdherencePercentage || 0,
+              max: 100,
+              color: "bg-violet-500",
+            }}
           />
         </div>
+      </div>
 
-        {/* KPI Casos Resueltos */}
-        <div className="col-span-1">
+      {/* ── SECCIÓN 2: EFICIENCIA OPERATIVA Y TIEMPOS EN SALA (3 COLUMNAS) ──── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            Eficiencia y Tiempos de Atención en Sala
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {/* 1. Tiempo Promedio de Espera */}
+          <SummaryCard
+            title={t("wait_time_title")}
+            value={avgWaitTime}
+            unit="MIN"
+            subtitle={avgWaitTime <= 15 ? "Tiempo de espera óptimo en sala" : "Tiempo de espera moderado"}
+            icon={Timer}
+            colorVariant={avgWaitTime <= 15 ? "emerald" : "amber"}
+            statusTag={{
+              label: avgWaitTime <= 15 ? "Óptimo" : "En seguimiento",
+              variant: avgWaitTime <= 15 ? "success" : "warning",
+            }}
+          />
+
+          {/* 2. Tiempo Promedio de Consulta */}
+          <SummaryCard
+            title={t("consultation_time_title")}
+            value={avgConsultationTime}
+            unit="MIN"
+            subtitle="Duración promedio por paciente"
+            icon={PlayCircle}
+            colorVariant="sky"
+            statusTag={{
+              label: "En promedio",
+              variant: "neutral",
+            }}
+          />
+
+          {/* 3. Casos Clínicos Resueltos */}
           <SummaryCard
             title="Casos Resueltos"
             value={data.totalResolvedDiagnoses !== undefined ? data.totalResolvedDiagnoses.toString() : "0"}
-            icon={CheckCircle}
-          />
-        </div>
-
-        {/* KPI Tiempo Promedio de Espera */}
-        <div className="col-span-1">
-          <SummaryCard
-            title={t("wait_time_title")}
-            value={`${avgWaitTime} MIN`}
-            icon={Timer}
-          />
-        </div>
-
-        {/* KPI Tiempo Promedio de Consulta */}
-        <div className="col-span-1">
-          <SummaryCard
-            title={t("consultation_time_title")}
-            value={`${avgConsultationTime} MIN`}
-            icon={PlayCircle}
+            unit="casos"
+            subtitle="Tratamientos concluidos con éxito"
+            icon={Check}
+            colorVariant="emerald"
+            statusTag={{
+              label: "Completados",
+              variant: "success",
+            }}
           />
         </div>
       </div>
@@ -946,10 +1004,37 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    <div className="shrink-0 sm:self-center">
-                      <div className="w-10 h-10 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/30 group-hover:border-emerald-200 dark:group-hover:border-emerald-900/40 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors shadow-sm">
-                        <ArrowRight className="w-4 h-4" strokeWidth={2} />
-                      </div>
+                    <div className="shrink-0 sm:self-center flex items-center gap-2">
+                      <Button
+                        variant={appt.status === "IN_PROGRESS" ? "default" : "outline"}
+                        size="sm"
+                        className={cn(
+                          "rounded-xl text-xs font-bold h-9 px-4 shadow-2xs border transition-all flex items-center gap-1.5",
+                          appt.status === "IN_PROGRESS"
+                            ? "bg-emerald-600 hover:bg-emerald-700 text-white border-0 animate-pulse"
+                            : "border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#151515]"
+                        )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (appt.status === "IN_PROGRESS") {
+                            router.push(`/provider/consultation/${appt.id}`);
+                          } else {
+                            router.push("/provider/dashboard/appointments");
+                          }
+                        }}
+                      >
+                        {appt.status === "IN_PROGRESS" ? (
+                          <>
+                            <Activity className="w-3.5 h-3.5" />
+                            <span>Continuar</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Ver Detalles</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                 );
@@ -1054,6 +1139,13 @@ export default function DashboardPage() {
 
       {/* Flotador de Acciones Rápida */}
       <QuickActions />
+
+      {/* Modal de Creación de Consulta Directa */}
+      <NewAppointmentModal
+        isOpen={isNewAppointmentModalOpen}
+        onClose={() => setIsNewAppointmentModalOpen(false)}
+        onSuccess={refetch}
+      />
     </div>
   );
 }
