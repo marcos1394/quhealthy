@@ -4280,7 +4280,9 @@
       "per_month": "/ month",
       "no_contracts": "No contracts, cancel anytime.",
       "contact_sales": "Contact Sales",
-      "switch_plan": "Switch plan",
+      "switch_plan": "Switch to {name}",
+      "activate_plan": "Activate {name}",
+      "unavailable": "Unavailable",
       "trust_indicator": "No credit card required • Cancel anytime"
     },
     "ConfirmationModal": {
@@ -8006,6 +8008,25 @@
   },
 
   "DashboardProviderHome": {
+    "ExpiredPlanNotice": {
+      "badge_free_tier": "Free Plan Active",
+      "plan_expired_notice": "Your previous subscription has expired",
+      "headline": "Your account is currently running on the Free Plan",
+      "body_text": "Your access to appointments, medical calendar, and patient records remains fully active so your practice never stops. Note that some advanced AI features and storage limits apply.",
+      "see_free_limitations": "View Free Plan considerations & limits",
+      "reactivate_plan_btn": "View Plans & Reactivate",
+      "dismiss": "Hide notice for this session",
+      "modal_title": "Free Plan Considerations",
+      "modal_subtitle": "Your medical practice continues operating under the following conditions:",
+      "limit_ai_scribe": "Limited monthly quotas for AI Copilot (AI Scribe SOAP notes)",
+      "limit_storage": "Standard cloud storage for patient records and lab attachments",
+      "limit_marketing": "Essential marketing tools and product catalog",
+      "limit_telemedicine": "Standard HD teleconsultation without advanced live translation",
+      "allowed_title": "What you ALWAYS keep active at zero cost:",
+      "allowed_desc": "Schedule management, creating & querying electronic health records (EHR / NOM-004), appointment checkout, and official digital prescriptions.",
+      "close": "Got it",
+      "upgrade_btn_modal": "Explore Paid Plans"
+    },
     "loading_title": "Loading your dashboard",
     "loading_subtitle": "Syncing information...",
     "loading_system": "Preparing your workspace...",
@@ -8015,6 +8036,7 @@
     "welcome": "Welcome back 👋",
     "welcome_desc": "An overview of your appointments, patients, and monthly results.",
     "days_remaining": "days remaining",
+    "status_free_tier": "Expired • Free Plan",
     "upgrade_plan": "Upgrade my plan",
     "setup_prescription_title": "Personalize your digital prescription",
     "setup_prescription_desc": "Upload your logo, add your signature, and pick your brand colors to issue flawless prescriptions for your patients.",

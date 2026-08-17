@@ -3866,7 +3866,9 @@
       "per_month": "/ mes",
       "no_contracts": "Sin contratos, cancela cuando quieras.",
       "contact_sales": "Contactar Ventas",
-      "switch_plan": "Cambiar de plan",
+      "switch_plan": "Cambiar a {name}",
+      "activate_plan": "Activar {name}",
+      "unavailable": "No disponible",
       "trust_indicator": "Sin tarjeta de crédito • Cancela cuando quieras"
     },
     "ConfirmationModal": {
@@ -8099,6 +8101,25 @@
   },
 
  "DashboardProviderHome": {
+    "ExpiredPlanNotice": {
+      "badge_free_tier": "Plan Gratuito Activo",
+      "plan_expired_notice": "Tu suscripción previa ha concluido",
+      "headline": "Tu cuenta está operando con las funcionalidades del Plan Gratuito",
+      "body_text": "Tu acceso a consultas, agenda médica y expedientes sigue activo para no interrumpir tu atención médica. Considera que algunas capacidades avanzadas de IA y almacenamiento tienen límites mensuales.",
+      "see_free_limitations": "Conocer las limitaciones del Plan Gratuito",
+      "reactivate_plan_btn": "Ver Planes y Reactivar",
+      "dismiss": "Ocultar aviso por esta sesión",
+      "modal_title": "Consideraciones del Plan Gratuito",
+      "modal_subtitle": "Tu servicio médico continúa operando con las siguientes condiciones:",
+      "limit_ai_scribe": "Cuotas mensuales limitadas de Copiloto IA (AI Scribe SOAP)",
+      "limit_storage": "Almacenamiento estándar para expedientes y estudios clínicos",
+      "limit_marketing": "Herramientas de marketing y catálogo de productos esenciales",
+      "limit_telemedicine": "Teleconsulta HD estándar sin traducción simultánea avanzada",
+      "allowed_title": "Lo que SIEMPRE tendrás activo sin costo:",
+      "allowed_desc": "Gestión de agenda, creación y consulta de expedientes clínicos electrónicos (NOM-004), cobro de citas y emisión de recetas médicas oficiales.",
+      "close": "Entendido",
+      "upgrade_btn_modal": "Explorar Planes de Paga"
+    },
     "loading_title": "Cargando tu panel",
     "loading_subtitle": "Sincronizando información...",
     "loading_system": "Preparando tu espacio de trabajo...",
@@ -8108,6 +8129,7 @@
     "welcome": "Hola de nuevo 👋",
     "welcome_desc": "Un vistazo general a tus citas, pacientes y resultados del mes.",
     "days_remaining": "días restantes",
+    "status_free_tier": "Vencido • Plan Gratuito",
     "upgrade_plan": "Mejorar mi plan",
     "setup_prescription_title": "Personaliza tu receta digital",
     "setup_prescription_desc": "Sube tu logotipo, añade tu firma y elige los colores de tu marca para emitir recetas impecables a tus pacientes.",

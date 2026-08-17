@@ -195,7 +195,6 @@ export default function LoginPage() {
 
     try {
       const response = await verifyMfaLogin({ mfaChallengeToken: mfaToken, code: mfaCode });
-      toast.success(t("login_success"), { theme: "colored" });
       await handleAuthNavigation(response);
     } catch (err: any) {
       console.error(err);

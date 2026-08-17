@@ -52,6 +52,7 @@ import { useProviderAppointments } from "@/hooks/useProviderAppointments";
 import { cn } from "@/lib/utils";
 import { useProviderRole } from "@/hooks/useProviderRole";
 import { useSessionStore } from "@/stores/SessionStore";
+import { ExpiredPlanNoticeBanner } from "@/components/provider/dashboard/ExpiredPlanNoticeBanner";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -516,6 +517,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 pb-24 font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
       
+      {/* ── BANNER DESTACADO DE PLAN VENCIDO / PLAN GRATUITO ────────── */}
+      <ExpiredPlanNoticeBanner plan={plan} />
+
       {/* ── HEADER Y TARJETA DE PLAN ────────────────────────────────────────── */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-gray-100 dark:border-gray-800">
         <div>
@@ -553,8 +557,18 @@ export default function DashboardPage() {
               </p>
               <div className="flex items-center gap-1.5 text-xs font-medium">
                 <Clock className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} />
-                <span className={cn(plan.daysLeft <= 3 ? "text-rose-500 font-bold" : "text-gray-500 dark:text-gray-400")}>
-                  {plan.daysLeft} {t("days_remaining")}
+                <span
+                  className={cn(
+                    plan.status === "EXPIRED" || plan.daysLeft <= 0
+                      ? "text-amber-600 dark:text-amber-400 font-bold"
+                      : plan.daysLeft <= 3
+                      ? "text-rose-500 font-bold"
+                      : "text-gray-500 dark:text-gray-400"
+                  )}
+                >
+                  {plan.status === "EXPIRED" || plan.daysLeft <= 0
+                    ? t("status_free_tier", { defaultValue: "Vencido • Plan Gratuito" })
+                    : `${plan.daysLeft} ${t("days_remaining")}`}
                 </span>
               </div>
             </div>

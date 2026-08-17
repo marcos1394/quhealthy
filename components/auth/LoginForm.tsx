@@ -106,7 +106,9 @@ export default function LoginForm({ userType, onSuccess }: LoginFormProps) {
         role: userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER",
       });
 
-      toast.success(t("login_success"));
+      if (!response.mfaRequired) {
+        toast.success(t("login_success"));
+      }
       onSuccess(response);
     } catch (err: any) {
       console.error(err);
