@@ -96,8 +96,7 @@ export function NewAppointmentModal({
   const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
   const { clients, fetchClients, searchPatients } = usePatientDirectory();
   const t = useTranslations("DashboardAppointments");
-
-  const effectiveLocationId = locationId || locations[0]?.id || user?.defaultLocationId || 1;
+  const effectiveLocationId = locationId || locations[0]?.id || 1;
 
   useEffect(() => {
     if (isOpen && !locationId && locations.length === 0) {
