@@ -2057,7 +2057,10 @@
       "notes_placeholder": "Motivo de consulta, observaciones o síntomas iniciales",
       "cancel": "Cancelar",
       "create": "Crear cita",
-      "creating": "Creando..."
+      "creating": "Creando...",
+      "schedule_and_start": "Agendar e Iniciar Consulta",
+      "schedule_only": "Solo Agendar",
+      "go_to_consultation": "Ir a la consulta ahora"
     },
     "view_mode": {
       "list": "Lista",

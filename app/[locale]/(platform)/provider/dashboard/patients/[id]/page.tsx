@@ -23,6 +23,7 @@ import {
   Baby,
   ActivitySquare,
   CalendarPlus,
+  ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
 import { enUS, es } from "date-fns/locale";
@@ -439,9 +440,29 @@ export default function PatientDetailPage() {
                                   locale: dateLocale,
                                 })}
                               </div>
-                              <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400 px-3 py-0.5 text-[10px] font-bold shadow-sm">
-                                {t("status_completed")}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400 px-3 py-0.5 text-[10px] font-bold shadow-sm">
+                                  {t("status_completed")}
+                                </span>
+                                {(item.data.appointmentId || item.data.id) && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() =>
+                                      router.push(
+                                        `/provider/consultation/${
+                                          item.data.appointmentId ||
+                                          item.data.id
+                                        }`
+                                      )
+                                    }
+                                    className="h-7 px-2.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    <span>{t("view_consultation", { defaultValue: "Ver Consulta" })}</span>
+                                  </Button>
+                                )}
+                              </div>
                             </div>
 
                             {/* Cuerpo del Registro */}

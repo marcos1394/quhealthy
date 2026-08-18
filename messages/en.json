@@ -1832,7 +1832,10 @@
       "notes_placeholder": "Consultation reason, observations, or initial symptoms",
       "cancel": "Cancel",
       "create": "Create appointment",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "schedule_and_start": "Schedule & Start Consultation",
+      "schedule_only": "Schedule Only",
+      "go_to_consultation": "Go to consultation now"
     },
     "view_mode": {
       "list": "List",

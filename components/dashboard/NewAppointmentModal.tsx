@@ -6,13 +6,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CalendarPlus,
   Check,
   ChevronsUpDown,
   PlusCircle,
+  PlayCircle,
   UserPlus,
   Search,
+  ArrowRight,
   X,
 } from "lucide-react";
 import { toast } from "react-toastify";
@@ -69,8 +72,8 @@ import { useProviderLocations } from "@/hooks/useProviderLocations";
 interface NewAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated?: () => void;
-  onSuccess?: () => void;
+  onCreated?: (appointment?: any) => void;
+  onSuccess?: (appointment?: any) => void;
   initialDate?: Date | null;
   initialPatient?: PatientDirectorySearchResult | PatientClient | any | null;
   locationId?: number;
@@ -91,6 +94,7 @@ export function NewAppointmentModal({
   initialPatient,
   locationId,
 }: NewAppointmentModalProps) {
+  const router = useRouter();
   const { user } = useSessionStore();
   const { locations, fetchLocations } = useProviderLocations();
   const { services, fetchInventory, isLoading: isLoadingCatalog } = useCatalog();
@@ -238,6 +242,24 @@ export function NewAppointmentModal({
     if (isOpen && initialPatient) {
       setSelectedPatient(initialPatient);
       setPatientQuery(getPatientDisplayName(initialPatient));
+
+      // Autocompletar con fecha y hora actual si están vacías para agilizar el inicio de consulta
+      setFormData((current) => {
+        if (!current.appointmentDate || !current.appointmentTime) {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = `${now.getMonth() + 1}`.padStart(2, "0");
+          const day = `${now.getDate()}`.padStart(2, "0");
+          const hours = `${now.getHours()}`.padStart(2, "0");
+          const minutes = `${now.getMinutes()}`.padStart(2, "0");
+          return {
+            ...current,
+            appointmentDate: current.appointmentDate || `${year}-${month}-${day}`,
+            appointmentTime: current.appointmentTime || `${hours}:${minutes}`,
+          };
+        }
+        return current;
+      });
     }
   }, [initialPatient, isOpen]);
 
@@ -308,8 +330,11 @@ export function NewAppointmentModal({
     setPatientPickerOpen(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (
+    e?: React.FormEvent,
+    startImmediately: boolean = false
+  ) => {
+    if (e) e.preventDefault();
     if (!user?.id || !selectedPatient || !selectedService) return;
 
     setIsSubmitting(true);
@@ -325,11 +350,40 @@ export function NewAppointmentModal({
         locationId: effectiveLocationId,
       };
 
-      await appointmentService.createProviderAppointment(payload);
-      toast.success(t("toast_appointment_created"));
-      onCreated?.();
-      onSuccess?.();
+      const createdAppointment =
+        await appointmentService.createProviderAppointment(payload);
+
+      onCreated?.(createdAppointment);
+      onSuccess?.(createdAppointment);
       handleClose();
+
+      if (startImmediately && createdAppointment?.id) {
+        toast.success(t("toast_appointment_created"));
+        router.push(`/provider/consultation/${createdAppointment.id}`);
+      } else {
+        toast.success(
+          <div className="flex flex-col gap-2">
+            <span className="font-semibold">{t("toast_appointment_created")}</span>
+            {createdAppointment?.id && (
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(`/provider/consultation/${createdAppointment.id}`)
+                }
+                className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg w-fit transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5 mt-0.5"
+              >
+                <PlayCircle className="w-3.5 h-3.5" />
+                <span>
+                  {t("new_appointment_modal.go_to_consultation", {
+                    defaultValue: "Ir a la consulta ahora",
+                  })}
+                </span>
+              </button>
+            )}
+          </div>,
+          { autoClose: 7000 }
+        );
+      }
     } catch (error) {
       handleApiError(error, t("toast_appointment_failed"));
     } finally {
@@ -763,17 +817,19 @@ export function NewAppointmentModal({
           </form>
 
           {/* ── FOOTER DE COMANDOS ────────────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 p-5 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 p-5 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 shrink-0">
             <button
               type="button"
               onClick={handleClose}
-              className="w-full sm:w-auto h-11 px-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 text-xs font-bold hover:bg-gray-50 dark:hover:bg-[#111] transition-all rounded-xl shadow-2xs cursor-pointer"
+              className="w-full sm:w-auto h-11 px-5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 text-xs font-bold hover:bg-gray-50 dark:hover:bg-[#111] transition-all rounded-xl shadow-2xs cursor-pointer"
             >
               {t("new_appointment_modal.cancel")}
             </button>
+
+            {/* Opción 1: Solo Agendar */}
             <button
-              type="submit"
-              onClick={handleSubmit}
+              type="button"
+              onClick={(e) => handleSubmit(e, false)}
               disabled={
                 isSubmitting ||
                 !selectedPatient ||
@@ -781,17 +837,40 @@ export function NewAppointmentModal({
                 !formData.appointmentDate ||
                 !formData.appointmentTime
               }
-              className="w-full sm:w-auto h-11 px-8 bg-emerald-600 text-white border-0 text-xs font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 rounded-xl shadow-xs cursor-pointer disabled:cursor-not-allowed"
+              className="w-full sm:w-auto h-11 px-5 border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all flex items-center justify-center gap-2 disabled:opacity-50 rounded-xl shadow-2xs cursor-pointer disabled:cursor-not-allowed"
+            >
+              <CalendarPlus className="w-4 h-4" strokeWidth={2} />
+              <span>
+                {t("new_appointment_modal.schedule_only", {
+                  defaultValue: "Solo Agendar",
+                })}
+              </span>
+            </button>
+
+            {/* Opción 2: Agendar e Iniciar Consulta (Atajo principal) */}
+            <button
+              type="button"
+              onClick={(e) => handleSubmit(e, true)}
+              disabled={
+                isSubmitting ||
+                !selectedPatient ||
+                !formData.serviceId ||
+                !formData.appointmentDate ||
+                !formData.appointmentTime
+              }
+              className="w-full sm:w-auto h-11 px-6 bg-emerald-600 text-white border-0 text-xs font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 rounded-xl shadow-xs cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <QhSpinner size="sm" className="text-white" />
               ) : (
-                <PlusCircle className="w-4 h-4" strokeWidth={2} />
+                <PlayCircle className="w-4 h-4" strokeWidth={2} />
               )}
               <span>
                 {isSubmitting
                   ? t("new_appointment_modal.creating")
-                  : t("new_appointment_modal.submit")}
+                  : t("new_appointment_modal.schedule_and_start", {
+                      defaultValue: "Agendar e Iniciar Consulta",
+                    })}
               </span>
             </button>
           </div>
