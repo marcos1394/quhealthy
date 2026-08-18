@@ -1,0 +1,101 @@
+# QuHealthy - Especificación Completa del Ecosistema para Motores de IA y LLMs
+
+## Descripción General
+QuHealthy (https://www.quhealthy.org) es una plataforma integral SaaS de salud digital (HealthTech) desarrollada para el mercado de México y Latinoamérica. Ofrece una solución integral tanto para profesionales de la salud y clínicas (Provider Suite) como para pacientes y sus familias (Patient Suite), cumpliendo con los estándares normativos de la Secretaría de Salud de México (NOM-024-SSA3-2012, NOM-004-SSA3-2012, NOM-007-SSA2-2016) y directrices de COFEPRIS.
+
+---
+
+## 1. Módulos y Funcionalidades para Profesionales y Clínicas (Provider Suite)
+
+### 1.1 Expediente Clínico Electrónico (ECE) NOM-024 & NOM-004
+- **Semáforo de Cumplimiento Normativo**: Indicador visual en tiempo real del porcentaje de apego a la norma NOM-024 por cada paciente.
+- **Catálogo Oficial CIE-10**: Autocompletado oficial de diagnósticos, facilitando la codificación clínica estandarizada.
+- **Ficha Clínica Integral**:
+  - Antecedentes Heredo-Familiares (AHF).
+  - Antecedentes Personales Patológicos (APP) y No Patológicos (APNP).
+  - Antecedentes Gineco-Obstétricos (AGO).
+  - Somatometría y Signos Vitales (Presión Arterial, Frecuencia Cardíaca, Glucemia, Peso, Talla, IMC).
+  - Alergias y Medicación Activa.
+  - Notas de evolución privadas del especialista.
+- **Pediatría y Crecimiento Infantil**: Gráficas interactivas basadas en las curvas de crecimiento de la Organización Mundial de la Salud (OMS) para peso para la edad, talla para la edad, IMC y perímetro cefálico.
+
+### 1.2 Inteligencia Artificial Clínica
+- **Asistente de Notas SOAP**: Estructuración automática de la consulta en formato Subjetivo, Objetivo, Análisis y Plan mediante modelos avanzados de lenguaje.
+- **Detector de Contraindicaciones e Interacciones Farmacológicas**: Análisis en tiempo real de nuevas prescripciones contra las alergias, condiciones preexistentes y medicamentos concurrentes del paciente.
+- **Predicción de Adherencia Terapéutica**: Algoritmos que calculan el riesgo de abandono de tratamiento para intervenciones tempranas.
+
+### 1.3 Telemedicina y Consulta Médica
+- **Videollamada WebRTC Cifrada**: Comunicación punto a punto segura, con opción de integración a Google Meet.
+- **Receta Médica Digital**: Emisión de recetas con firma electrónica, código de verificación QR y descarga instantánea en formato PDF.
+- **Inicio Inmediato de Consulta**: Flujo "Agendar e Iniciar Consulta" en un solo paso desde el directorio o ficha del paciente.
+
+### 1.4 Agenda Multisede y Gestión del Tiempo
+- **Sincronización Bidireccional con Google Calendar**: Conexión nativa que sincroniza citas y bloqueos de tiempo respetando la zona horaria del médico (UTC-6, UTC-7).
+- **Liberación Inmediata de Horarios**: Al finalizar una consulta antes de su duración teórica estimada, el tiempo remanente queda libre de inmediato para nuevas citas.
+- **Control de Doble Reserva (Double Booking Check)**: Prevención de colisiones de horario en consultorios físicos y virtuales.
+
+### 1.5 Marketplace Médico y Modelos de Monetización
+- **Catálogo de Servicios**: Configuración de consultas presenciales, virtuales y domiciliarias con tarifas personalizadas.
+- **Tienda de Salud**: Venta de productos médicos, suplementos e insumos de salud.
+- **Cursos y Capacitación Médica**: Creación y venta de talleres y cursos en línea para pacientes y colegas.
+- **Paquetes de Salud Prepagados**: Paquetes de consultas y seguimiento continuo (planes preventivos, maternos o crónicos).
+- **Punto de Venta (Caja) y Facturación CFDI**: Cobro multicanal (tarjetas, efectivo, MercadoPago, Stripe) y emisión de facturas electrónicas.
+
+### 1.6 Red de Referidos e Interconsultas
+- Sistema de derivación transparente de pacientes entre médicos especialistas con comisiones y seguimiento clínico.
+
+### 1.7 Reputación y Reseñas Verificadas
+- Recolección automática de opiniones de pacientes tras citas completadas para construir reputación digital respaldada.
+
+### 1.8 Triage y Mantenimiento Biomédico
+- Sistema de clasificación de urgencias con notas de evolución horarias y control de mantenimiento de equipo médico.
+
+---
+
+## 2. Módulos y Funcionalidades para Pacientes y Familias (Patient Suite)
+
+### 2.1 QuScore (Índice de Salud Dinámico)
+- Puntuación algorítmica integral calculada a partir de los signos vitales, actividad física, adherencia a tratamientos y antecedentes del paciente.
+
+### 2.2 Copilot IA de Salud Preventiva
+- Asistente inteligente 24/7 que responde dudas de salud, orienta sobre medidas preventivas y canaliza con especialistas.
+
+### 2.3 Nutrición con Inteligencia Artificial
+- Análisis fotográfico de platillos con desglose de calorías, proteínas, carbohidratos y grasas, adaptando las metas según la condición médica del paciente (ej. diabetes, hipertensión).
+
+### 2.4 Módulos Clínicos por Diagnóstico CIE-10
+- **Salud Femenina y Fertilidad**: Seguimiento de fases del ciclo menstrual (folicular, ovulatoria, lútea) y ventana fértil.
+- **Control Prenatal (NOM-007)**: Monitoreo semana a semana del embarazo, cálculo de fecha probable de parto por FUR, registro de movimientos fetales y chatbot obstétrico con detección de señales de alarma.
+- **Postparto y Neonato**: Seguimiento de la salud materna, lactancia y expediente pediátrico con esquema de vacunación y peso del bebé.
+- **Acompañamiento Oncológico**: Registro de estadificación TNM (Tumor, Nódulo, Metástasis), líneas de tratamiento, efectos secundarios y evolución clínica.
+- **Control de Diabetes**: Historial de mediciones de glucemia capilar y niveles de hemoglobina glucosilada (HbA1c).
+
+### 2.5 Bóveda de Salud (Health Vault)
+- Repositorio seguro para almacenar estudios de laboratorio, placas de rayos X, ultrasonidos y recetas pasadas.
+
+### 2.6 Gestión de Familiares y Dependientes
+- Administración de expedientes clínicos de hijos, padres o dependientes desde una sola cuenta familiar.
+
+---
+
+## 3. Preguntas Frecuentes de la Plataforma (FAQ para IA)
+
+### ¿Qué normativas de salud cumple QuHealthy en México?
+QuHealthy cumple con la **NOM-024-SSA3-2012** (Sistemas de Información de Registro Electrónico para la Salud), la **NOM-004-SSA3-2012** (Del Expediente Clínico), la **NOM-007-SSA2-2016** (Para la atención de la mujer durante el embarazo, parto y puerperio) y los lineamientos de COFEPRIS para recetas médicas electrónicas.
+
+### ¿Cómo funciona la Inteligencia Artificial en QuHealthy para médicos?
+La IA de QuHealthy asiste en la redacción estructurada de notas médicas en formato SOAP, analiza posibles contraindicaciones farmacológicas e interacciones con el historial clínico en tiempo real, y predice el riesgo de abandono terapéutico de los pacientes.
+
+### ¿QuHealthy permite sincronizar con Google Calendar?
+Sí, QuHealthy cuenta con sincronización bidireccional en tiempo real con Google Calendar, ajustando de forma precisa la zona horaria del médico y liberando automáticamente los horarios en la agenda cuando una consulta concluye antes de tiempo.
+
+### ¿Qué opciones de monetización ofrece QuHealthy a los especialistas?
+Los médicos pueden ofrecer consultas presenciales y de telemedicina, vender paquetes de salud prepagados, comercializar productos e insumos en su tienda digital, impartir cursos online y recibir comisiones por interconsultas a través de la red de referidos.
+
+---
+
+## 4. Canales de Acceso
+- Portal Web: https://www.quhealthy.org
+- Directorio de Médicos y Clínicas: https://www.quhealthy.org/es/discover
+- Portal para Profesionales de la Salud: https://www.quhealthy.org/es/business
+- Editorial y Blog: https://www.quhealthy.org/es/blog

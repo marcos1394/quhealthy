@@ -123,30 +123,114 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   const wordCount = post.content.split(/\s+/).length;
   const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
-  // Datos estructurados JSON-LD
-  const jsonLd = {
+  const url = `https://www.quhealthy.org/${locale}/blog/${post.slug}`;
+
+  // Extracción inteligente de FAQs para el Schema FAQPage
+  const extractFaqsFromContent = (content: string) => {
+    const faqs: Array<{ question: string; answer: string }> = [];
+    const faqMatch = content.match(/##\s+(?:Preguntas Frecuentes|FAQ|Preguntas Frecuentes \(FAQ\))([\s\S]*?)(?:##|$)/i);
+    const targetText = faqMatch ? faqMatch[1] : content;
+    const qaRegex = /###\s+([¿?a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s,.:\-–—()¿?]+)\n+([\s\S]*?)(?=(?:###|$))/g;
+    let match;
+    while ((match = qaRegex.exec(targetText)) !== null) {
+      const question = match[1].trim();
+      const answer = match[2].trim().replace(/\n+/g, " ");
+      if (question && answer) {
+        faqs.push({ question, answer });
+      }
+    }
+    return faqs;
+  };
+
+  const faqs = extractFaqsFromContent(post.content);
+
+  // Datos estructurados JSON-LD multi-entidad (MedicalWebPage + FAQPage + SoftwareApplication + Breadcrumbs)
+  const jsonLdGraph = {
     "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    headline: post.title,
-    image: [post.imageUrl],
-    datePublished: post.createdAt,
-    dateModified: post.createdAt,
-    author: [
+    "@graph": [
       {
-        "@type": "Organization",
-        name: "QuHealthy AI Editorial",
-        url: "https://www.quhealthy.org",
+        "@type": "MedicalWebPage",
+        "@id": `${url}#webpage`,
+        url: url,
+        name: post.title,
+        headline: post.title,
+        description: post.metaDescription || post.excerpt,
+        datePublished: post.createdAt,
+        dateModified: post.createdAt,
+        image: [post.imageUrl],
+        inLanguage: locale === "en" ? "en-US" : "es-MX",
+        author: {
+          "@type": "Organization",
+          name: "QuHealthy Medical & AI Editorial",
+          url: "https://www.quhealthy.org",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "QuHealthy",
+          url: "https://www.quhealthy.org",
+          logo: {
+            "@type": "ImageObject",
+            url: "https://www.quhealthy.org/logo.png",
+          },
+        },
+        about: [
+          {
+            "@type": "SoftwareApplication",
+            name: "QuHealthy",
+            applicationCategory: "HealthApplication",
+            operatingSystem: "Web, iOS, Android",
+            description:
+              "Plataforma integral de salud digital, expediente clínico electrónico NOM-024, telemedicina con IA, marketplace de servicios y gestión de consultorios en México y Latinoamérica.",
+            url: "https://www.quhealthy.org",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "MXN",
+            },
+          },
+        ],
+      },
+      ...(faqs.length > 0
+        ? [
+            {
+              "@type": "FAQPage",
+              "@id": `${url}#faq`,
+              mainEntity: faqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: faq.answer,
+                },
+              })),
+            },
+          ]
+        : []),
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Inicio",
+            item: `https://www.quhealthy.org/${locale}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Editorial",
+            item: `https://www.quhealthy.org/${locale}/blog`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: post.title,
+            item: url,
+          },
+        ],
       },
     ],
-    publisher: {
-      "@type": "Organization",
-      name: "QuHealthy",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.quhealthy.org/logo.png",
-      },
-    },
-    description: post.metaDescription,
   };
 
   const backText =
@@ -157,7 +241,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(jsonLdGraph).replace(/</g, "\\u003c"),
         }}
       />
 
@@ -241,7 +325,11 @@ export default async function BlogPostPage({ params }: { params: Params }) {
               prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:font-normal prose-p:leading-relaxed 
               prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-a:font-bold prose-a:no-underline hover:prose-a:underline
               prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
-              prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:bg-emerald-50/40 dark:prose-blockquote:bg-emerald-950/20 prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:rounded-r-2xl prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:font-medium
+              prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:bg-emerald-50/40 dark:prose-blockquote:bg-emerald-950/20 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-2xl prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic prose-blockquote:font-medium prose-blockquote:my-6
+              prose-table:w-full prose-table:my-8 prose-table:border-collapse prose-table:rounded-2xl prose-table:overflow-hidden prose-table:border prose-table:border-gray-200 dark:prose-table:border-gray-800
+              prose-thead:bg-gray-100/80 dark:prose-thead:bg-gray-900/80
+              prose-th:p-3.5 prose-th:text-xs prose-th:font-bold prose-th:text-gray-900 dark:prose-th:text-white prose-th:border-b prose-th:border-gray-200 dark:prose-th:border-gray-800
+              prose-td:p-3.5 prose-td:text-xs md:prose-td:text-sm prose-td:border-b prose-td:border-gray-100 dark:prose-td:border-gray-800/60
               prose-img:rounded-3xl prose-img:border prose-img:border-gray-100 dark:prose-img:border-gray-800 prose-img:shadow-sm
               prose-ul:text-gray-600 dark:prose-ul:text-gray-300 prose-li:marker:text-emerald-600 dark:prose-li:marker:text-emerald-400"
           >
