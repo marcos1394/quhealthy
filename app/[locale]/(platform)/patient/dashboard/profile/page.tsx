@@ -181,13 +181,13 @@ export default function PatientProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-32">
-      <div className="max-w-4xl mx-auto px-6 py-10 sm:py-12 space-y-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
         
         {/* ── HEADER ────────────────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white dark:bg-[#0a0a0a] p-6 sm:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 bg-white dark:bg-[#0a0a0a] p-5 sm:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6">
             <div
-              className="relative group cursor-pointer w-24 h-24 rounded-full border-4 border-emerald-50 dark:border-emerald-950/30 bg-gray-50 dark:bg-[#111] flex items-center justify-center shrink-0 overflow-hidden shadow-sm"
+              className="relative group cursor-pointer w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-emerald-50 dark:border-emerald-950/30 bg-gray-50 dark:bg-[#111] flex items-center justify-center shrink-0 overflow-hidden shadow-sm"
               onClick={() => fileInputRef.current?.click()}
             >
               <input
@@ -198,7 +198,7 @@ export default function PatientProfilePage() {
                 onChange={handlePictureUpload}
               />
               {isUploadingPicture ? (
-                <Loader2 className="w-8 h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
+                <Loader2 className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
               ) : profile?.profilePictureUrl ? (
                 <img
                   src={profile.profilePictureUrl}
@@ -207,7 +207,7 @@ export default function PatientProfilePage() {
                 />
               ) : (
                 <User
-                  className="w-10 h-10 text-gray-400 group-hover:scale-105 transition-transform duration-300"
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 group-hover:scale-105 transition-transform duration-300"
                   strokeWidth={1.5}
                 />
               )}
@@ -215,15 +215,15 @@ export default function PatientProfilePage() {
               {!isUploadingPicture && (
                 <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm text-white gap-1">
                   <Camera className="w-4 h-4" />
-                  <span className="text-[10px] font-bold text-center px-2">
+                  <span className="text-[9px] sm:text-[10px] font-bold text-center px-2">
                     {t("change_photo")}
                   </span>
                 </div>
               )}
             </div>
 
-            <div className="mt-1">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">
+            <div className="mt-0.5 sm:mt-1">
+              <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">
                 {t("title")}
               </h1>
               <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -235,20 +235,20 @@ export default function PatientProfilePage() {
 
         {/* ── FORMULARIOS ───────────────────────────────────────────────── */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
             
             {/* Sección 1: Datos Personales */}
             <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm overflow-hidden">
-              <div className="bg-gray-50/50 dark:bg-[#111]/30 p-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+              <div className="bg-gray-50/50 dark:bg-[#111]/30 p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/30 border border-teal-100 dark:border-teal-900/40 flex items-center justify-center shrink-0 text-teal-600 dark:text-teal-400">
                   <User className="w-4.5 h-4.5" strokeWidth={2} />
                 </div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
                   {t("personal_info_title")}
                 </h2>
               </div>
 
-              <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-4 sm:p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <FormField
                   control={form.control}
                   name="fullName"
@@ -332,17 +332,17 @@ export default function PatientProfilePage() {
 
             {/* Sección 2: Perfil Médico Básico */}
             <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm overflow-hidden">
-              <div className="bg-gray-50/50 dark:bg-[#111]/30 p-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+              <div className="bg-gray-50/50 dark:bg-[#111]/30 p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400">
                   <HeartPulse className="w-4.5 h-4.5" strokeWidth={2} />
                 </div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
                   {t("medical_info_title")}
                 </h2>
               </div>
 
-              <div className="p-6 sm:p-8 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <FormField
                     control={form.control}
                     name="bloodType"
@@ -457,7 +457,7 @@ export default function PatientProfilePage() {
                         <Textarea
                           {...field}
                           placeholder={t("placeholder_allergies")}
-                          className="min-h-[100px] resize-none rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-amber-500/20 focus-visible:border-amber-500 transition-all shadow-sm"
+                          className="min-h-[90px] sm:min-h-[100px] resize-none rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-amber-500/20 focus-visible:border-amber-500 transition-all shadow-sm"
                         />
                       </FormControl>
                       <FormMessage className="text-xs font-medium text-rose-500" />
@@ -484,7 +484,7 @@ export default function PatientProfilePage() {
                         <Textarea
                           {...field}
                           placeholder={t("placeholder_current_medications")}
-                          className="min-h-[100px] resize-none rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-sm"
+                          className="min-h-[90px] sm:min-h-[100px] resize-none rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-sm"
                         />
                       </FormControl>
                       <FormMessage className="text-xs font-medium text-rose-500" />
@@ -502,29 +502,29 @@ export default function PatientProfilePage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: "100%" }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  className="fixed bottom-6 left-0 right-0 z-50 px-4 md:px-0"
+                  className="fixed bottom-4 sm:bottom-6 left-3 right-3 sm:left-4 sm:right-4 z-50 pointer-events-none"
                 >
-                  <div className="max-w-4xl mx-auto bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800 p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/40">
-                        <AlertTriangle className="w-5 h-5" />
+                  <div className="max-w-4xl mx-auto bg-white dark:bg-[#0a0a0a] rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 dark:border-gray-800 p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pointer-events-auto">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/40">
+                        <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
-                      <div>
-                        <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate">
                           {t("unsaved_title")}
                         </p>
-                        <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                        <p className="text-[10px] sm:text-[11px] font-medium text-gray-500 dark:text-gray-400 line-clamp-1">
                           {t("unsaved_desc")}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                    <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
                       <Button
                         type="button"
                         variant="outline"
                         disabled={isSaving}
-                        className="rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] h-11 px-5 text-xs font-bold transition-all flex-1 sm:flex-none shadow-sm flex items-center gap-2"
+                        className="rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] h-10 sm:h-11 px-4 sm:px-5 text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         onClick={() => form.reset()}
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
@@ -534,7 +534,7 @@ export default function PatientProfilePage() {
                       <Button
                         type="submit"
                         disabled={isSaving}
-                        className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 h-11 px-6 text-xs font-bold transition-all border-0 flex-1 sm:flex-none shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 h-10 sm:h-11 px-4 sm:px-6 text-xs font-bold transition-all border-0 shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         {isSaving ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -561,13 +561,13 @@ export default function PatientProfilePage() {
         {/* ── SECCIÓN DE FICHAS CLÍNICAS (PLANTILLAS) ───────────────────── */}
         {user?.id && (
           <div className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-sm overflow-hidden">
-            <div className="bg-gray-50/50 dark:bg-[#111]/30 p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <div className="bg-gray-50/50 dark:bg-[#111]/30 p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
                   <Activity className="w-4.5 h-4.5" strokeWidth={2} />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
                     {t("clinical_forms_title")}
                   </h2>
                   <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">
@@ -576,7 +576,7 @@ export default function PatientProfilePage() {
                 </div>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <ClinicalFormsHistory patientId={user.id} />
             </div>
           </div>

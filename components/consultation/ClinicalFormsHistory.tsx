@@ -129,12 +129,12 @@ export function ClinicalFormsHistory({ patientId }: ClinicalFormsHistoryProps) {
           return (
             <div
               key={sub.id}
-              className="rounded-3xl border border-gray-100 dark:border-gray-800 p-6 bg-white dark:bg-[#0a0a0a] flex flex-col justify-between hover:border-emerald-500/30 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/10 transition-all shadow-xs space-y-4"
+              className="rounded-3xl border border-gray-100 dark:border-gray-800 p-4 sm:p-6 bg-white dark:bg-[#0a0a0a] flex flex-col justify-between hover:border-emerald-500/30 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/10 transition-all shadow-xs space-y-4"
             >
               <div className="space-y-3">
                 {/* Header de la Tarjeta */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-xs">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 shadow-xs">
                     {category}
                   </span>
 
@@ -145,7 +145,7 @@ export function ClinicalFormsHistory({ patientId }: ClinicalFormsHistoryProps) {
                 </div>
 
                 {/* Título de la Ficha */}
-                <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
                   {formName}
                 </h3>
 
@@ -164,7 +164,7 @@ export function ClinicalFormsHistory({ patientId }: ClinicalFormsHistoryProps) {
                   onClick={() => downloadPdf(sub.id, formName)}
                   disabled={isDownloadingThis}
                   variant="outline"
-                  className="rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold transition-all h-10 px-4 shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full sm:w-auto justify-center rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold transition-all h-10 px-4 shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isDownloadingThis ? (
                     <>

@@ -221,14 +221,14 @@ export function PatientBackgroundPanel({
     const entries = Object.entries(data);
 
     return (
-      <AccordionItem value={accordionValue} className="rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs px-5 overflow-hidden transition-colors">
+      <AccordionItem value={accordionValue} className="rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs px-4 sm:px-5 overflow-hidden transition-colors">
         <div className="flex justify-between items-center border-b border-transparent data-[state=open]:border-gray-100 dark:data-[state=open]:border-gray-800 transition-colors">
-          <AccordionTrigger className="hover:no-underline py-5 flex-1 pr-4">
-            <div className="flex items-center gap-3 text-left">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+          <AccordionTrigger className="hover:no-underline py-4 sm:py-5 flex-1 pr-3 sm:pr-4">
+            <div className="flex items-center gap-2.5 sm:gap-3 text-left min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                 {icon}
               </div>
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">
+              <h4 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white tracking-tight truncate">
                 {title}
               </h4>
             </div>
@@ -239,51 +239,67 @@ export function PatientBackgroundPanel({
             variant="outline"
             size="sm"
             onClick={handleAdd}
-            className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-9 px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer z-10 shrink-0"
+            className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-8 sm:h-9 px-2.5 sm:px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer z-10 shrink-0"
           >
-            <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
-            <span className="hidden sm:inline">{t("btn_add_entry")}</span>
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+            <span>{t("btn_add_entry")}</span>
           </Button>
         </div>
 
-        <AccordionContent className="pb-5 pt-4">
+        <AccordionContent className="pb-5 pt-3 sm:pt-4">
           {entries.length === 0 ? (
-            <div className="py-6 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]">
+            <div className="py-6 text-center rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] p-4">
               <p className="text-xs font-medium text-gray-400">
                 {t("no_data_added")}
               </p>
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-3 sm:space-y-2.5">
               {entries.map(([key, value], index) => (
-                <div key={index} className="flex gap-2.5 items-center">
-                  <div className="w-1/3 min-w-[120px]">
+                <div
+                  key={index}
+                  className="flex flex-col sm:flex-row gap-2.5 sm:gap-2.5 p-3 sm:p-0 rounded-2xl bg-gray-50/70 dark:bg-[#050505] sm:bg-transparent border sm:border-0 border-gray-100 dark:border-gray-800/80 items-stretch sm:items-center transition-colors"
+                >
+                  {/* Campo Clave / Nombre del Antecedente */}
+                  <div className="w-full sm:w-1/3 sm:min-w-[140px]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1 sm:hidden">
+                      {placeholderKey || "Concepto / Padecimiento"}
+                    </span>
                     <Input
                       type="text"
                       value={key}
                       placeholder={placeholderKey}
                       onChange={(e) => handleKeyChange(key, e.target.value)}
-                      className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
+                      className="h-10 rounded-xl bg-white dark:bg-[#0a0a0a] sm:bg-gray-50/50 sm:dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs w-full"
                     />
                   </div>
 
+                  {/* Campo Valor / Descripción */}
                   <div className="flex-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1 sm:hidden">
+                      {placeholderVal || "Detalles / Parentesco"}
+                    </span>
                     <Input
                       type="text"
                       value={value}
                       placeholder={placeholderVal}
                       onChange={(e) => handleValChange(key, e.target.value)}
-                      className="h-10 rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs"
+                      className="h-10 rounded-xl bg-white dark:bg-[#0a0a0a] sm:bg-gray-50/50 sm:dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs w-full"
                     />
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(key)}
-                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-50 dark:bg-[#111] hover:bg-red-50 dark:hover:bg-red-950/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors shrink-0 cursor-pointer border border-gray-100 dark:border-gray-800"
-                  >
-                    <X className="w-4 h-4" strokeWidth={2} />
-                  </button>
+                  {/* Botón Eliminar */}
+                  <div className="flex justify-end sm:block pt-0.5 sm:pt-0">
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(key)}
+                      aria-label="Eliminar entrada"
+                      className="w-full sm:w-10 h-9 sm:h-10 rounded-xl flex items-center justify-center gap-1.5 bg-red-50/60 dark:bg-red-950/20 hover:bg-red-100 text-red-600 dark:text-red-400 transition-colors shrink-0 cursor-pointer border border-red-100 dark:border-red-900/30 text-xs font-bold sm:font-normal"
+                    >
+                      <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2} />
+                      <span className="sm:hidden text-xs">Eliminar</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -295,7 +311,7 @@ export function PatientBackgroundPanel({
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 space-y-3 font-sans shadow-xs">
+      <div className="flex flex-col items-center justify-center p-8 sm:p-12 bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 space-y-3 font-sans shadow-xs">
         <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
         <p className="text-xs font-semibold text-gray-400">{t("nom004_title")}</p>
       </div>
@@ -305,24 +321,24 @@ export function PatientBackgroundPanel({
   return (
     <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm font-sans transition-colors">
       {/* ── CABECERA ─────────────────────────────────────────────────── */}
-      <div className="p-5 sm:p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
+      <div className="p-4 sm:p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row gap-3.5 sm:gap-4 sm:justify-between sm:items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
             <ShieldCheck className="w-5 h-5" strokeWidth={2} />
           </div>
-          <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
+          <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white tracking-tight">
             {t("nom004_title")}
           </h3>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <Button
             type="button"
             variant="outline"
             onClick={handleSetAllNegative}
-            className="rounded-xl border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/60 text-xs font-bold h-10 px-4 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+            className="w-full sm:w-auto justify-center rounded-xl border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/60 text-xs font-bold h-10 px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>Negar Todos (Sin Patologías)</span>
           </Button>
 
@@ -330,7 +346,7 @@ export function PatientBackgroundPanel({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50"
+            className="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 text-xs font-bold shadow-sm transition-all flex items-center gap-2 border-0 cursor-pointer disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -348,14 +364,14 @@ export function PatientBackgroundPanel({
       </div>
 
       {/* ── NOTICIA DE NORMATIVA ──────────────────────────────────────── */}
-      <div className="p-5 sm:p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
-        <div className="flex items-start gap-3 p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 text-emerald-800 dark:text-emerald-300 text-xs font-medium leading-relaxed">
-          <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto custom-scrollbar flex-1">
+        <div className="flex items-start gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 text-emerald-800 dark:text-emerald-300 text-xs font-medium leading-relaxed">
+          <FileText className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
           <span>{t("nom004_notice")}</span>
         </div>
 
         {/* ── SECCIONES DE ANTECEDENTES ───────────────────────────────── */}
-        <Accordion type="multiple" className="space-y-4 font-sans transition-colors">
+        <Accordion type="multiple" className="space-y-3 sm:space-y-4 font-sans transition-colors">
           {renderMapEditor(
             t("family_background"),
             <Users className="w-4 h-4" strokeWidth={2} />,
