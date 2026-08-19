@@ -696,7 +696,12 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             <p className="text-[11px] text-gray-500 dark:text-gray-400">
               Desglose completo de conceptos que se cobrarán por esta atención médica.
             </p>
-          </            {/* Fila Cita Base */}
+          </div>
+        </div>
+
+        <div className="p-5 sm:p-6 space-y-4">
+          <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/40 dark:bg-[#050505] p-4 sm:p-5 space-y-3">
+            {/* Fila Cita Base */}
             <div className="flex justify-between items-center text-xs pb-2 border-b border-gray-200 dark:border-gray-800/60">
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${isPrepaid ? "bg-emerald-500" : "bg-amber-500"}`} />
