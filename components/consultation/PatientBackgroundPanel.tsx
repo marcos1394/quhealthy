@@ -14,6 +14,8 @@ import {
   Activity,
   HeartHandshake,
   FileText,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -168,6 +170,22 @@ export function PatientBackgroundPanel({
     }
   };
 
+  const handleSetAllNegative = () => {
+    setFamilyBackground((prev) => ({
+      ...prev,
+      "Heredofamiliares Generales": "Sin antecedentes patológicos hereditarios relevantes referidos",
+    }));
+    setPersonalBackground((prev) => ({
+      ...prev,
+      "Personales Patológicos": "Interrogados y negados al momento de la consulta",
+    }));
+    setSocialBackground((prev) => ({
+      ...prev,
+      "Estilo de vida & Hábitos": "Hábitos higiénico-dietéticos adecuados referidos",
+    }));
+    toast.info("Antecedentes completados como 'Interrogados y Negados'. Recuerda guardar los cambios.");
+  };
+
   const renderMapEditor = (
     title: string,
     icon: React.ReactNode,
@@ -297,24 +315,36 @@ export function PatientBackgroundPanel({
           </h3>
         </div>
 
-        <Button
-          type="button"
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50"
-        >
-          {saving ? (
-            <>
-              <QhSpinner size="sm" className="text-white" />
-              <span>{t("btn_saving_changes")}</span>
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" strokeWidth={2} />
-              <span>{t("btn_save_changes")}</span>
-            </>
-          )}
-        </Button>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSetAllNegative}
+            className="rounded-xl border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/60 text-xs font-bold h-10 px-4 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Negar Todos (Sin Patologías)</span>
+          </Button>
+
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50"
+          >
+            {saving ? (
+              <>
+                <QhSpinner size="sm" className="text-white" />
+                <span>{t("btn_saving_changes")}</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" strokeWidth={2} />
+                <span>{t("btn_save_changes")}</span>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* ── NOTICIA DE NORMATIVA ──────────────────────────────────────── */}

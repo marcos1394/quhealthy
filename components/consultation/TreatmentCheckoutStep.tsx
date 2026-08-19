@@ -66,6 +66,7 @@ interface TreatmentCheckoutStepProps {
 
   // 🚀 NUEVOS PROPS: Finanzas y Coordinación de Cobro
   basePrice: number;
+  paymentStatus?: string;
   paymentHandlingMode: "COLLECT_NOW" | "DELEGATE_TO_STAFF";
   setPaymentHandlingMode: (mode: "COLLECT_NOW" | "DELEGATE_TO_STAFF") => void;
 
@@ -83,6 +84,7 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
   removeInConsultationService,
   updateInConsultationServiceQty,
   basePrice = 0,
+  paymentStatus = "",
   paymentHandlingMode = "COLLECT_NOW",
   setPaymentHandlingMode,
   onBack,
@@ -193,7 +195,10 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
     return sum + price * qty;
   }, 0);
 
+  const additionalChargesTotal = proceduresTotal + pharmacyTotal;
+  const isPrepaid = paymentStatus === "SETTLED" || paymentStatus === "COMPLETED";
   const grandTotal = (basePrice || 0) + proceduresTotal + pharmacyTotal;
+  const pendingToCollect = isPrepaid ? additionalChargesTotal : grandTotal;
 
   const FREQUENCY_OPTIONS = [
     { value: "EVERY_4_HOURS", label: "Cada 4 horas", readable: "cada 4 horas" },
@@ -691,25 +696,27 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             <p className="text-[11px] text-gray-500 dark:text-gray-400">
               Desglose completo de conceptos que se cobrarán por esta atención médica.
             </p>
-          </div>
-        </div>
-
-        <div className="p-5 sm:p-6 space-y-4">
-          <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/40 dark:bg-[#050505] p-4 sm:p-5 space-y-3">
-            {/* Fila Cita Base */}
+          </            {/* Fila Cita Base */}
             <div className="flex justify-between items-center text-xs pb-2 border-b border-gray-200 dark:border-gray-800/60">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className={`w-2 h-2 rounded-full ${isPrepaid ? "bg-emerald-500" : "bg-amber-500"}`} />
                 <span className="font-semibold text-gray-800 dark:text-gray-200">Honorarios de Consulta Base</span>
+                {isPrepaid && (
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-900/40">
+                    ✅ Pagado en Línea
+                  </span>
+                )}
               </div>
-              <span className="font-mono font-bold text-gray-900 dark:text-white">${basePrice} MXN</span>
+              <span className="font-mono font-bold text-gray-900 dark:text-white">
+                ${basePrice} MXN {isPrepaid && <span className="text-[10px] text-emerald-600 font-semibold">(Saldado)</span>}
+              </span>
             </div>
 
             {/* Procedimientos Adicionales */}
             {inConsultationServices.map((svc) => (
               <div key={svc.id} className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 pl-4">
-                <span>• {svc.name} (×{svc.quantity})</span>
-                <span className="font-mono font-semibold">${svc.price * svc.quantity} MXN</span>
+                <span>• Procedimiento: {svc.name} (×{svc.quantity})</span>
+                <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">+${svc.price * svc.quantity} MXN</span>
               </div>
             ))}
 
@@ -717,21 +724,27 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
             {prescription.filter((item: any) => item.catalogItemId).map((item: any) => (
               <div key={item.id} className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 pl-4">
                 <span>• Farmacia: {item.medicationName} (×{item.quantity || 1})</span>
-                <span className="font-mono font-semibold">${(item.price || 0) * (item.quantity || 1)} MXN</span>
+                <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">+${(Number((item as any).price) || 0) * (item.quantity || 1)} MXN</span>
               </div>
             ))}
 
-            {/* Gran Total */}
+            {/* Gran Total / Saldo Pendiente */}
             <div className="pt-3 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center">
               <div>
                 <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wide">
-                  Gran Total a Liquidar
+                  {isPrepaid ? "Saldo Pendiente por Cobrar" : "Gran Total a Liquidar"}
                 </p>
-                <p className="text-[10px] text-gray-400 font-medium">Incluye cita, procedimientos y farmacia</p>
+                <p className="text-[10px] text-gray-400 font-medium">
+                  {isPrepaid
+                    ? additionalChargesTotal > 0
+                      ? "Cita base liquidada. Saldo por procedimientos/farmacia agregados."
+                      : "La consulta ya fue pagada en línea al 100%."
+                    : "Incluye cita, procedimientos y farmacia"}
+                </p>
               </div>
               <div className="text-right">
                 <span className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
-                  ${grandTotal} <span className="text-sm font-semibold text-gray-400">MXN</span>
+                  ${pendingToCollect} <span className="text-sm font-semibold text-gray-400">MXN</span>
                 </span>
               </div>
             </div>
@@ -740,87 +753,116 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
       </div>
 
       {/* ── SECCIÓN 4: COORDINACIÓN DE COBRO (MÉDICO VS RECEPCIÓN) ───── */}
-      <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
-        <div className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505] p-5 sm:p-6 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
-            <Users className="w-4 h-4" strokeWidth={2} />
+      {isPrepaid && additionalChargesTotal === 0 ? (
+        <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 shadow-2xs">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div className="space-y-0.5">
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                Consulta Pagada en Línea (Sin Saldo Pendiente)
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xl">
+                Esta consulta fue liquidada con anticipación vía pasarela de pagos. No se agregaron conceptos ni procedimientos adicionales, por lo que la cuenta está 100% saldada.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xs font-bold text-gray-900 dark:text-white tracking-tight">
-              4. Modalidad de Cobro & Coordinación de Equipo
-            </h3>
-            <p className="text-[11px] text-gray-500 dark:text-gray-400">
-              Define si cobrarás directamente en consultorio o enviarás la cuenta a la recepción de la clínica.
-            </p>
-          </div>
+          <span className="px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold shrink-0 border border-emerald-200 dark:border-emerald-800">
+            Saldo Pendiente: $0.00 MXN
+          </span>
         </div>
+      ) : (
+        <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
+          <div className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505] p-5 sm:p-6 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
+              <Users className="w-4 h-4" strokeWidth={2} />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white tracking-tight">
+                {isPrepaid
+                  ? `4. Modalidad de Cobro para Cargos Adicionales ($${additionalChargesTotal} MXN)`
+                  : "4. Modalidad de Cobro & Coordinación de Equipo"}
+              </h3>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                {isPrepaid
+                  ? `Define si cobrarás en consultorio los $${additionalChargesTotal} MXN de adicionales o enviarás el saldo a recepción.`
+                  : "Define si cobrarás directamente en consultorio o enviarás la cuenta a la recepción de la clínica."}
+              </p>
+            </div>
+          </div>
 
-        <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Opción A: Cobrar yo mismo */}
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => setPaymentHandlingMode("COLLECT_NOW")}
-            onKeyDown={(e) => e.key === "Enter" && setPaymentHandlingMode("COLLECT_NOW")}
-            className={`p-5 rounded-2xl border-2 transition-all cursor-pointer select-none ${
-              paymentHandlingMode === "COLLECT_NOW"
-                ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-sm"
-                : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-[#0a0a0a]"
-            }`}
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
-                <CreditCard className="w-5 h-5" />
-              </div>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+          <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Opción A: Cobrar yo mismo */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setPaymentHandlingMode("COLLECT_NOW")}
+              onKeyDown={(e) => e.key === "Enter" && setPaymentHandlingMode("COLLECT_NOW")}
+              className={`p-5 rounded-2xl border-2 transition-all cursor-pointer select-none ${
                 paymentHandlingMode === "COLLECT_NOW"
-                  ? "border-emerald-600 bg-emerald-600 text-white"
-                  : "border-gray-300 dark:border-gray-700"
-              }`}>
-                {paymentHandlingMode === "COLLECT_NOW" && <div className="w-2 h-2 rounded-full bg-white" />}
+                  ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-sm"
+                  : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-[#0a0a0a]"
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  paymentHandlingMode === "COLLECT_NOW"
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-gray-300 dark:border-gray-700"
+                }`}>
+                  {paymentHandlingMode === "COLLECT_NOW" && <div className="w-2 h-2 rounded-full bg-white" />}
+                </div>
               </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                {isPrepaid ? "Cobrar adicionales en consultorio" : "Cobrar yo mismo ahora en consultorio"}
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                {isPrepaid
+                  ? `Se abrirá la pasarela al finalizar para cobrar los $${additionalChargesTotal} MXN (efectivo, tarjeta física o link de pago).`
+                  : "Ideal si trabajas como médico independiente. Al finalizar se abrirá la pasarela para registrar efectivo con cálculo de cambio, tarjeta física POS o link de pago."}
+              </p>
             </div>
-            <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-              Cobrar yo mismo ahora en consultorio
-            </h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-              Ideal si trabajas como médico independiente. Al finalizar se abrirá la pasarela para registrar efectivo con cálculo de cambio, tarjeta física POS o link de pago.
-            </p>
-          </div>
 
-          {/* Opción B: Delegar a Recepción / Staff */}
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => setPaymentHandlingMode("DELEGATE_TO_STAFF")}
-            onKeyDown={(e) => e.key === "Enter" && setPaymentHandlingMode("DELEGATE_TO_STAFF")}
-            className={`p-5 rounded-2xl border-2 transition-all cursor-pointer select-none ${
-              paymentHandlingMode === "DELEGATE_TO_STAFF"
-                ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-sm"
-                : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-[#0a0a0a]"
-            }`}
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+            {/* Opción B: Delegar a Recepción / Staff */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setPaymentHandlingMode("DELEGATE_TO_STAFF")}
+              onKeyDown={(e) => e.key === "Enter" && setPaymentHandlingMode("DELEGATE_TO_STAFF")}
+              className={`p-5 rounded-2xl border-2 transition-all cursor-pointer select-none ${
                 paymentHandlingMode === "DELEGATE_TO_STAFF"
-                  ? "border-emerald-600 bg-emerald-600 text-white"
-                  : "border-gray-300 dark:border-gray-700"
-              }`}>
-                {paymentHandlingMode === "DELEGATE_TO_STAFF" && <div className="w-2 h-2 rounded-full bg-white" />}
+                  ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-sm"
+                  : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-[#0a0a0a]"
+              }`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  paymentHandlingMode === "DELEGATE_TO_STAFF"
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-gray-300 dark:border-gray-700"
+                }`}>
+                  {paymentHandlingMode === "DELEGATE_TO_STAFF" && <div className="w-2 h-2 rounded-full bg-white" />}
+                </div>
               </div>
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                {isPrepaid ? "Enviar adicionales a Recepción" : "Enviar a Recepción / Staff para Cobro"}
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                {isPrepaid
+                  ? `La consulta se finaliza y el ticket por los $${additionalChargesTotal} MXN adicionales pasa al staff de recepción.`
+                  : "La consulta se sella clínicamente de inmediato y el ticket consolidado pasa al mostrador de recepción para que el asistente cobre al paciente al salir."}
+              </p>
             </div>
-            <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
-              Enviar a Recepción / Staff para Cobro
-            </h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-              La consulta se sella clínicamente de inmediato y el ticket consolidado pasa al mostrador de recepción para que el asistente cobre al paciente al salir.
-            </p>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ── FOOTER DE NAVEGACIÓN ──────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 pt-4">

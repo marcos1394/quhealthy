@@ -33,6 +33,7 @@ import { TreatmentCheckoutStep } from "@/components/consultation/TreatmentChecko
 import { ConsultationSuccessStep } from "@/components/consultation/ConsultationSuccessStep";
 import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgroundPanel";
 import { WomensHealthProviderPanel } from "@/components/consultation/WomensHealthProviderPanel";
+import { activeModulesService } from "@/services/active-modules.service";
 
 // Modal de Caja
 import { CashCheckoutModal } from "@/components/consultation/CashCheckoutModal";
@@ -40,6 +41,49 @@ import { cashRegisterService } from "@/services/cash-register.service";
 
 // Widget de Teleconsulta
 import { ProviderVideoWidget } from "@/components/teleconsultation/ProviderVideoWidget";
+
+const ACTIVE_MODULE_METADATA: Record<string, { label: string; icon: string; badgeColor: string }> = {
+  diabetes: {
+    label: "Diabetes Mellitus (Control Glucémico)",
+    icon: "🩸",
+    badgeColor: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border-blue-200 dark:border-blue-900/40",
+  },
+  oncology: {
+    label: "Seguimiento Oncológico",
+    icon: "🎗️",
+    badgeColor: "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border-purple-200 dark:border-purple-900/40",
+  },
+  cardiology: {
+    label: "Salud Cardiovascular & Hipertensión",
+    icon: "❤️",
+    badgeColor: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 border-rose-200 dark:border-rose-900/40",
+  },
+  mental_health: {
+    label: "Salud Mental & Apoyo Psicosocial",
+    icon: "🧠",
+    badgeColor: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-900/40",
+  },
+  nephrology: {
+    label: "Nefrología & Salud Renal",
+    icon: "🫘",
+    badgeColor: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40",
+  },
+  pulmonology: {
+    label: "Salud Respiratoria / Neumología",
+    icon: "🫁",
+    badgeColor: "bg-sky-50 text-sky-700 dark:bg-sky-950/30 dark:text-sky-400 border-sky-200 dark:border-sky-900/40",
+  },
+  sports_medicine: {
+    label: "Medicina Deportiva & Musculoesquelética",
+    icon: "🏃",
+    badgeColor: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/40",
+  },
+  womens_health: {
+    label: "Salud Femenina & Reproductiva",
+    icon: "🌸",
+    badgeColor: "bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-400 border-pink-200 dark:border-pink-900/40",
+  },
+};
 
 export default function ConsultationRoomPage() {
   const t = useTranslations("EHR");
@@ -279,6 +323,7 @@ export default function ConsultationRoomPage() {
     dispatch({ type: "SET_SERVICEID", payload: val });
 
   const [paymentHandlingMode, setPaymentHandlingMode] = React.useState<"COLLECT_NOW" | "DELEGATE_TO_STAFF">("COLLECT_NOW");
+  const [activeModules, setActiveModules] = React.useState<string[]>([]);
 
   const {
     patientProfile,
@@ -527,6 +572,34 @@ export default function ConsultationRoomPage() {
     );
   }
 
+  useEffect(() => {
+    if (consumerId) {
+      activeModulesService
+        .getActiveModules(consumerId)
+        .then((res) => {
+          setActiveModules(res?.activeModules || []);
+        })
+        .catch((err) => {
+          console.warn("[ConsultationRoomPage] No se pudieron cargar los módulos activos:", err);
+          setActiveModules([]);
+        });
+    } else {
+      setActiveModules([]);
+    }
+  }, [consumerId]);
+
+  const patientGenderRaw = (patientProfile?.gender || "").toUpperCase().trim();
+  const isFemalePatient =
+    patientGenderRaw === "FEMALE" ||
+    patientGenderRaw === "MUJER" ||
+    patientGenderRaw === "FEMENINO" ||
+    patientGenderRaw === "F";
+  const isMalePatient =
+    patientGenderRaw === "MALE" ||
+    patientGenderRaw === "HOMBRE" ||
+    patientGenderRaw === "MASCULINO" ||
+    patientGenderRaw === "M";
+
   const displayFullName = isOfflinePatient
     ? patientName
     : patientProfile?.fullName || patientName || t("patient_placeholder");
@@ -751,18 +824,54 @@ export default function ConsultationRoomPage() {
             )}
 
             {currentStep === "background" && (
-              <div className="h-[75vh]">
+              <div className="h-[75vh] overflow-y-auto space-y-6 pr-2">
                 <PatientBackgroundPanel
                   patientDirectoryId={patientDirectoryId}
                   consumerId={consumerId}
                   mode="PROVIDER"
                 />
+
+                {/* 🏷️ Módulos Especializados Activos por Diagnósticos Previos */}
+                {activeModules.length > 0 && (
+                  <div className="p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs space-y-3 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                        Módulos Clínicos Especializados Activos (Por Diagnósticos)
+                      </h4>
+                    </div>
+                    <div className="flex flex-wrap gap-2.5">
+                      {activeModules
+                        .filter((m) => !(isMalePatient && m === "womens_health"))
+                        .map((modKey) => {
+                          const meta = ACTIVE_MODULE_METADATA[modKey] || {
+                            label: modKey,
+                            icon: "🩺",
+                            badgeColor: "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-800",
+                          };
+                          return (
+                            <span
+                              key={modKey}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border shadow-2xs ${meta.badgeColor}`}
+                            >
+                              <span>{meta.icon}</span>
+                              <span>{meta.label}</span>
+                            </span>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
                 
-                {consumerId && (
+                {/* 🌸 Salud Femenina: Solo si NO es hombre y es mujer o tiene el módulo activo */}
+                {consumerId && !isMalePatient && (isFemalePatient || activeModules.includes("womens_health")) && (
                   <div className="mt-8 border-t border-gray-100 dark:border-gray-800 pt-8">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
-                      Salud Femenina y Reproductiva
-                    </h3>
+                    <div className="flex items-center gap-2 mb-6">
+                      <span className="text-xl">🌸</span>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                        Salud Femenina y Reproductiva
+                      </h3>
+                    </div>
                     <WomensHealthProviderPanel consumerId={consumerId} />
                   </div>
                 )}
@@ -806,6 +915,7 @@ export default function ConsultationRoomPage() {
                 removeInConsultationService={removeInConsultationService}
                 updateInConsultationServiceQty={updateInConsultationServiceQty}
                 basePrice={totalPrice}
+                paymentStatus={paymentStatus}
                 paymentHandlingMode={paymentHandlingMode}
                 setPaymentHandlingMode={setPaymentHandlingMode}
                 onBack={() => setCurrentStep("evaluation")}
