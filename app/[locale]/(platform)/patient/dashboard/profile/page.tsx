@@ -50,6 +50,8 @@ import { handleApiError } from "@/lib/handleApiError";
 
 import { ClinicalFormsHistory } from "@/components/consultation/ClinicalFormsHistory";
 import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgroundPanel";
+import { LanguageSettingsCard } from "@/components/settings/LanguageSettingsCard";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
 
 export default function PatientProfilePage() {
   const t = useTranslations("PatientProfile");
@@ -230,6 +232,10 @@ export default function PatientProfilePage() {
                 {t("subtitle")}
               </p>
             </div>
+          </div>
+
+          <div className="flex items-center justify-center sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800">
+            <LanguageToggle showText />
           </div>
         </div>
 
@@ -581,6 +587,11 @@ export default function PatientProfilePage() {
             </div>
           </div>
         )}
+
+        {/* ── SECCIÓN DE IDIOMA Y PREFERENCIAS ─────────────────────────── */}
+        <div>
+          <LanguageSettingsCard />
+        </div>
 
       </div>
     </div>

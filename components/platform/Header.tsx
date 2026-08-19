@@ -33,6 +33,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 export const Header = () => {
@@ -189,7 +191,7 @@ export const Header = () => {
       </div>
 
       {/* ── SECCIÓN DERECHA: NOTIFICACIONES Y PERFIL DE USUARIO ────────── */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {/* Botón de Búsqueda Móvil */}
         <div className="md:hidden">
           <Button
@@ -202,6 +204,10 @@ export const Header = () => {
             <Search className="w-4 h-4" strokeWidth={2} />
           </Button>
         </div>
+
+        {/* Selector de Idioma y Tema */}
+        <LanguageToggle />
+        <ThemeToggle />
 
         {/* Notificaciones */}
         <DropdownMenu

@@ -9,6 +9,7 @@ import {
   Database,
   Watch,
   Settings as SettingsIcon,
+  Globe,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -16,6 +17,7 @@ import { PatientSecuritySettings } from "@/components/patient/settings/PatientSe
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
 import { PrivacySettings } from "@/components/settings/PrivacySettings";
 import { WearablesSettings } from "@/components/settings/WearablesSettings";
+import { LanguageSettingsCard } from "@/components/settings/LanguageSettingsCard";
 import { consumerProfileService } from "@/services/consumerProfile.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
@@ -140,6 +142,18 @@ export default function SettingsPage() {
               <Watch className="w-4 h-4" strokeWidth={2} />
               <span>{t("tab_wearables")}</span>
             </TabsTrigger>
+
+            <TabsTrigger
+              value="language"
+              className={cn(
+                "px-5 h-11 text-xs font-bold transition-all whitespace-nowrap rounded-xl border flex items-center gap-2",
+                "data-[state=active]:border-emerald-500/40 data-[state=active]:bg-emerald-50 dark:data-[state=active]:bg-emerald-950/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm",
+                "border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-white dark:hover:bg-[#0a0a0a]"
+              )}
+            >
+              <Globe className="w-4 h-4" strokeWidth={2} />
+              <span>Idioma / Language</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent
@@ -173,6 +187,13 @@ export default function SettingsPage() {
             className="mt-0 focus-visible:ring-0 outline-none"
           >
             <WearablesSettings />
+          </TabsContent>
+
+          <TabsContent
+            value="language"
+            className="mt-0 focus-visible:ring-0 outline-none"
+          >
+            <LanguageSettingsCard />
           </TabsContent>
         </Tabs>
 

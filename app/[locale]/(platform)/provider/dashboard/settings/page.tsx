@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, CreditCard, Plug, Users, Settings, MapPin } from "lucide-react";
+import { Shield, CreditCard, Plug, Users, Settings, MapPin, Globe } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ProviderSecuritySettings } from "@/components/provider/settings/ProviderSecuritySettings";
@@ -10,6 +10,7 @@ import { ProviderSubscriptionSettings } from "@/components/provider/settings/Pro
 import { ProviderConnectionsSettings } from "@/components/provider/settings/ProviderConnectionsSettings";
 import { ProviderLocationsSettings } from "@/components/provider/settings/ProviderLocationsSettings";
 import { ProviderTeamSettings } from "@/components/provider/settings/ProviderTeamSettings";
+import { LanguageSettingsCard } from "@/components/settings/LanguageSettingsCard";
 
 export default function ProviderSettingsPage() {
   const t = useTranslations("ProviderSettings");
@@ -18,7 +19,7 @@ export default function ProviderSettingsPage() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
-      if (["security", "subscription", "connections", "locations", "team"].includes(hash)) {
+      if (["security", "subscription", "connections", "locations", "team", "language"].includes(hash)) {
         setActiveTab(hash);
       }
     };
@@ -102,6 +103,14 @@ export default function ProviderSettingsPage() {
                 <Users className="w-4 h-4 shrink-0" strokeWidth={2} />
                 <span>{t("tab_team")}</span>
               </TabsTrigger>
+
+              <TabsTrigger
+                value="language"
+                className="h-10 px-5 rounded-xl border border-transparent data-[state=active]:border-gray-200 dark:data-[state=active]:border-gray-800 data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0"
+              >
+                <Globe className="w-4 h-4 shrink-0" strokeWidth={2} />
+                <span>Idioma / Language</span>
+              </TabsTrigger>
             </TabsList>
 
             {/* Contenido de Pestañas */}
@@ -139,6 +148,13 @@ export default function ProviderSettingsPage() {
                 className="m-0 focus-visible:ring-0 outline-none"
               >
                 <ProviderTeamSettings />
+              </TabsContent>
+
+              <TabsContent
+                value="language"
+                className="m-0 focus-visible:ring-0 outline-none"
+              >
+                <LanguageSettingsCard />
               </TabsContent>
             </div>
           </Tabs>
