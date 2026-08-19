@@ -278,6 +278,8 @@ export default function ConsultationRoomPage() {
   const setServiceId = (val: any) =>
     dispatch({ type: "SET_SERVICEID", payload: val });
 
+  const [paymentHandlingMode, setPaymentHandlingMode] = React.useState<"COLLECT_NOW" | "DELEGATE_TO_STAFF">("COLLECT_NOW");
+
   const {
     patientProfile,
     vaultDocuments,
@@ -286,6 +288,10 @@ export default function ConsultationRoomPage() {
     isSubmitting,
     soapNotes,
     prescription,
+    inConsultationServices,
+    addInConsultationService,
+    removeInConsultationService,
+    updateInConsultationServiceQty,
     loadPatientRecord,
     updateSoapNote,
     addDiagnosis,
@@ -473,17 +479,22 @@ export default function ConsultationRoomPage() {
   ]);
 
   const getGrandTotal = () => {
+    const proceduresTotal = inConsultationServices.reduce(
+      (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
+      0
+    );
     const productsTotal = prescription.reduce((sum, item) => {
       const price = Number((item as any).price) || 0;
       const qty = item.quantity || 1;
       return sum + price * qty;
     }, 0);
-    return totalPrice + productsTotal;
+    return totalPrice + proceduresTotal + productsTotal;
   };
 
   const handleCompleteClick = () => {
     const finalAmount = getGrandTotal();
     if (
+      paymentHandlingMode === "COLLECT_NOW" &&
       finalAmount > 0 &&
       paymentMethod === "CASH" &&
       paymentStatus !== "SETTLED"
@@ -497,7 +508,8 @@ export default function ConsultationRoomPage() {
   const executeClinicalCompletion = async () => {
     const success = await completeConsultation(
       t("toast_success"),
-      t("toast_error")
+      t("toast_error"),
+      paymentHandlingMode
     );
     if (success) {
       setCurrentStep("success");
@@ -789,6 +801,13 @@ export default function ConsultationRoomPage() {
                 setNewRx={setNewRx}
                 handleAddRx={handleAddRx}
                 removePrescriptionItem={removePrescriptionItem}
+                inConsultationServices={inConsultationServices}
+                addInConsultationService={addInConsultationService}
+                removeInConsultationService={removeInConsultationService}
+                updateInConsultationServiceQty={updateInConsultationServiceQty}
+                basePrice={totalPrice}
+                paymentHandlingMode={paymentHandlingMode}
+                setPaymentHandlingMode={setPaymentHandlingMode}
                 onBack={() => setCurrentStep("evaluation")}
               />
             )}

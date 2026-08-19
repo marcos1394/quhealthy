@@ -12,7 +12,8 @@ import {
   SoapNotes, 
   PrescriptionItem,
   AppointmentDiagnosis,
-  VitalSignRequest
+  VitalSignRequest,
+  InConsultationItem
 } from '@/types/ehr';
 import { v4 as uuidv4 } from 'uuid'; 
 
@@ -34,6 +35,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
   const [diagnoses, setDiagnoses] = useState<AppointmentDiagnosis[]>([]);
   const [vitalSigns, setVitalSigns] = useState<VitalSignRequest[]>([]);
   const [prescription, setPrescription] = useState<PrescriptionItem[]>([]);
+  const [inConsultationServices, setInConsultationServices] = useState<InConsultationItem[]>([]);
 
   // Estado para las plantillas independientes (anexos)
   const [attachedTemplates, setAttachedTemplates] = useState<any[]>([]);
@@ -161,7 +163,26 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     setSoapNotes(prev => ({ ...prev, [field]: value }));
   };
 
-  const completeConsultation = async (successMsg: string, errorMsg: string): Promise<boolean> => {
+  const addInConsultationService = (service: Omit<InConsultationItem, 'id'>) => {
+    const newItem: InConsultationItem = { ...service, id: uuidv4() };
+    setInConsultationServices(prev => [...prev, newItem]);
+  };
+
+  const removeInConsultationService = (id: string) => {
+    setInConsultationServices(prev => prev.filter(item => item.id !== id));
+  };
+
+  const updateInConsultationServiceQty = (id: string, qty: number) => {
+    setInConsultationServices(prev =>
+      prev.map(item => (item.id === id ? { ...item, quantity: Math.max(1, qty) } : item))
+    );
+  };
+
+  const completeConsultation = async (
+    successMsg: string, 
+    errorMsg: string, 
+    paymentHandlingMode: 'COLLECT_NOW' | 'DELEGATE_TO_STAFF' = 'COLLECT_NOW'
+  ): Promise<boolean> => {
     try {
       setIsSubmitting(true);
       
@@ -197,6 +218,15 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
         return cleaned;
       });
 
+      const cleanedInConsultationServices = inConsultationServices.map(svc => ({
+        catalogItemId: svc.catalogItemId,
+        name: svc.name,
+        price: svc.price,
+        quantity: svc.quantity,
+        serviceType: svc.serviceType,
+        notes: svc.notes
+      }));
+
       const cleanedDiagnoses = diagnoses.map(diag => ({
         cie10Code: diag.cie10Code,
         cie10Description: diag.cie10Description,
@@ -219,6 +249,8 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
       const payload = {
         clinicalNotes: soapNotes,
         prescriptionItems: cleanedPrescriptionItems,
+        inConsultationServices: cleanedInConsultationServices,
+        paymentHandlingMode: paymentHandlingMode,
         diagnoses: cleanedDiagnoses,
         vitalSigns: vitalSigns,
         attachedTemplates: formattedAttachedTemplates,
@@ -348,6 +380,11 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     diagnoses,
     vitalSigns,
     prescription,
+    inConsultationServices,
+    setInConsultationServices,
+    addInConsultationService,
+    removeInConsultationService,
+    updateInConsultationServiceQty,
     setSoapNotes,
     loadPatientRecord,
     updateSoapNote,

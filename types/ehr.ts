@@ -91,7 +91,30 @@ export interface VitalSignRequest {
 }
 
 // ==========================================================
-// 3. PAYLOAD GLOBAL DE FINALIZACIÓN (CONTRACT)
+// 3. PROCEDIMIENTOS E INSUMOS EN CONSULTORIO
+// ==========================================================
+
+export interface InConsultationItem {
+  id: string; // UUID temporal en React
+  name: string;
+  price: number;
+  quantity: number;
+  serviceType: 'PROCEDURE' | 'STUDY' | 'SUPPLY' | 'CUSTOM';
+  catalogItemId?: number;
+  notes?: string;
+}
+
+export interface InConsultationServiceDto {
+  catalogItemId?: number;
+  name: string;
+  price: number;
+  quantity: number;
+  serviceType?: string;
+  notes?: string;
+}
+
+// ==========================================================
+// 4. PAYLOAD GLOBAL DE FINALIZACIÓN (CONTRACT)
 // ==========================================================
 
 /**
@@ -101,8 +124,12 @@ export interface VitalSignRequest {
 export interface CompleteConsultationPayload {
   clinicalNotes: ClinicalNotesDto;
   prescriptionItems: PrescriptionItemDto[];
+  inConsultationServices?: InConsultationServiceDto[];
+  paymentHandlingMode?: 'COLLECT_NOW' | 'DELEGATE_TO_STAFF';
+  additionalServicesTotal?: number;
   diagnoses?: AppointmentDiagnosisDto[];
   vitalSigns?: VitalSignRequest[];
+  attachedTemplates?: any[];
   sendPrescriptionToVault: boolean;
 }
 
