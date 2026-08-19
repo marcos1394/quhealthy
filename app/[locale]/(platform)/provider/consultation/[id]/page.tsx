@@ -523,6 +523,34 @@ export default function ConsultationRoomPage() {
     t,
   ]);
 
+  useEffect(() => {
+    if (consumerId) {
+      activeModulesService
+        .getActiveModules(consumerId)
+        .then((res) => {
+          setActiveModules(res?.activeModules || []);
+        })
+        .catch((err) => {
+          console.warn("[ConsultationRoomPage] No se pudieron cargar los módulos activos:", err);
+          setActiveModules([]);
+        });
+    } else {
+      setActiveModules([]);
+    }
+  }, [consumerId]);
+
+  const patientGenderRaw = (patientProfile?.gender || "").toUpperCase().trim();
+  const isFemalePatient =
+    patientGenderRaw === "FEMALE" ||
+    patientGenderRaw === "MUJER" ||
+    patientGenderRaw === "FEMENINO" ||
+    patientGenderRaw === "F";
+  const isMalePatient =
+    patientGenderRaw === "MALE" ||
+    patientGenderRaw === "HOMBRE" ||
+    patientGenderRaw === "MASCULINO" ||
+    patientGenderRaw === "M";
+
   const getGrandTotal = () => {
     const proceduresTotal = inConsultationServices.reduce(
       (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
@@ -571,34 +599,6 @@ export default function ConsultationRoomPage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (consumerId) {
-      activeModulesService
-        .getActiveModules(consumerId)
-        .then((res) => {
-          setActiveModules(res?.activeModules || []);
-        })
-        .catch((err) => {
-          console.warn("[ConsultationRoomPage] No se pudieron cargar los módulos activos:", err);
-          setActiveModules([]);
-        });
-    } else {
-      setActiveModules([]);
-    }
-  }, [consumerId]);
-
-  const patientGenderRaw = (patientProfile?.gender || "").toUpperCase().trim();
-  const isFemalePatient =
-    patientGenderRaw === "FEMALE" ||
-    patientGenderRaw === "MUJER" ||
-    patientGenderRaw === "FEMENINO" ||
-    patientGenderRaw === "F";
-  const isMalePatient =
-    patientGenderRaw === "MALE" ||
-    patientGenderRaw === "HOMBRE" ||
-    patientGenderRaw === "MASCULINO" ||
-    patientGenderRaw === "M";
 
   const displayFullName = isOfflinePatient
     ? patientName
