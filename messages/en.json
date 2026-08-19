@@ -1933,6 +1933,10 @@
     "csv_exporting": "Generating CSV report...",
     "pdf_exporting": "Generating PDF report...",
     "loading": "Loading payment history...",
+    "empty": {
+      "title": "No transactions found",
+      "description": "No payments or charges have been recorded on your account yet."
+    },
     "empty_title": "No transactions found",
     "empty_desc": "No payments or charges have been recorded on your account yet.",
     "type_appointment": "Medical consultation",

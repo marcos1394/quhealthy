@@ -2159,6 +2159,10 @@
     "csv_exporting": "Generando reporte CSV...",
     "pdf_exporting": "Generando reporte PDF...",
     "loading": "Cargando tu historial de pagos...",
+    "empty": {
+      "title": "Sin transacciones registradas",
+      "description": "Aún no se han registrado cobros ni pagos en tu cuenta."
+    },
     "empty_title": "Sin transacciones registradas",
     "empty_desc": "Aún no se han registrado cobros ni pagos en tu cuenta.",
     "type_appointment": "Consulta médica",
