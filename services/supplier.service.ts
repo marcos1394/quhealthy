@@ -27,6 +27,13 @@ import {
   SaveSupplierQuotePayload,
   SupplierPurchaseOrder,
   UpdatePurchaseOrderStatusPayload,
+  BiomedicalAsset,
+  SaveBiomedicalAssetPayload,
+  EquipmentRentalContract,
+  SaveRentalContractPayload,
+  ReturnRentalDepositPayload,
+  BiomedicalMaintenance,
+  SaveBiomedicalMaintenancePayload,
 } from "@/types/supplier";
 
 export const supplierService = {
@@ -323,6 +330,82 @@ export const supplierService = {
   ): Promise<SupplierPurchaseOrder> => {
     const response = await axiosInstance.patch<SupplierPurchaseOrder>(
       `/api/onboarding/supplier/orders/${orderId}/status`,
+      payload
+    );
+    return response.data;
+  },
+
+  // --- EQUIPOS BIOMÉDICOS & ACTIVOS POR NÚMERO DE SERIE (FASE 4) ---
+
+  getAssets: async (): Promise<BiomedicalAsset[]> => {
+    const response = await axiosInstance.get<BiomedicalAsset[]>("/api/onboarding/supplier/assets");
+    return response.data;
+  },
+
+  getAsset: async (assetId: number): Promise<BiomedicalAsset> => {
+    const response = await axiosInstance.get<BiomedicalAsset>(`/api/onboarding/supplier/assets/${assetId}`);
+    return response.data;
+  },
+
+  createAsset: async (payload: SaveBiomedicalAssetPayload): Promise<BiomedicalAsset> => {
+    const response = await axiosInstance.post<BiomedicalAsset>("/api/onboarding/supplier/assets", payload);
+    return response.data;
+  },
+
+  updateAsset: async (assetId: number, payload: SaveBiomedicalAssetPayload): Promise<BiomedicalAsset> => {
+    const response = await axiosInstance.put<BiomedicalAsset>(`/api/onboarding/supplier/assets/${assetId}`, payload);
+    return response.data;
+  },
+
+  deleteAsset: async (assetId: number): Promise<void> => {
+    await axiosInstance.delete(`/api/onboarding/supplier/assets/${assetId}`);
+  },
+
+  // --- CONTRATOS DE RENTA DE EQUIPO BIOMÉDICO (FASE 4) ---
+
+  getRentalContracts: async (): Promise<EquipmentRentalContract[]> => {
+    const response = await axiosInstance.get<EquipmentRentalContract[]>("/api/onboarding/supplier/rentals");
+    return response.data;
+  },
+
+  getRentalContract: async (contractId: number): Promise<EquipmentRentalContract> => {
+    const response = await axiosInstance.get<EquipmentRentalContract>(`/api/onboarding/supplier/rentals/${contractId}`);
+    return response.data;
+  },
+
+  createRentalContract: async (payload: SaveRentalContractPayload): Promise<EquipmentRentalContract> => {
+    const response = await axiosInstance.post<EquipmentRentalContract>("/api/onboarding/supplier/rentals", payload);
+    return response.data;
+  },
+
+  returnRentalDeposit: async (
+    contractId: number,
+    payload: ReturnRentalDepositPayload
+  ): Promise<EquipmentRentalContract> => {
+    const response = await axiosInstance.post<EquipmentRentalContract>(
+      `/api/onboarding/supplier/rentals/${contractId}/return-deposit`,
+      payload
+    );
+    return response.data;
+  },
+
+  // --- MANTENIMIENTOS TÉCNICOS & CALIBRACIONES (FASE 4) ---
+
+  getMaintenances: async (): Promise<BiomedicalMaintenance[]> => {
+    const response = await axiosInstance.get<BiomedicalMaintenance[]>("/api/onboarding/supplier/maintenances");
+    return response.data;
+  },
+
+  getMaintenancesByAsset: async (assetId: number): Promise<BiomedicalMaintenance[]> => {
+    const response = await axiosInstance.get<BiomedicalMaintenance[]>(
+      `/api/onboarding/supplier/maintenances/asset/${assetId}`
+    );
+    return response.data;
+  },
+
+  createMaintenance: async (payload: SaveBiomedicalMaintenancePayload): Promise<BiomedicalMaintenance> => {
+    const response = await axiosInstance.post<BiomedicalMaintenance>(
+      "/api/onboarding/supplier/maintenances",
       payload
     );
     return response.data;

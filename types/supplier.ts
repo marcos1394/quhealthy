@@ -544,4 +544,157 @@ export interface UpdatePurchaseOrderStatusPayload {
   notes?: string;
 }
 
+export type AssetCondition =
+  | "EXCELLENT"
+  | "GOOD"
+  | "REQUIRES_MAINTENANCE"
+  | "OUT_OF_SERVICE";
+
+export type AssetStatus =
+  | "AVAILABLE"
+  | "RENTED"
+  | "IN_MAINTENANCE"
+  | "RETIRED";
+
+export type RentalContractStatus =
+  | "DRAFT"
+  | "ACTIVE"
+  | "EXTENDED"
+  | "RETURN_IN_PROGRESS"
+  | "COMPLETED"
+  | "DEFAULTED"
+  | "CANCELLED";
+
+export type MaintenanceType =
+  | "PREVENTIVE"
+  | "CORRECTIVE"
+  | "CALIBRATION"
+  | "CERTIFICATION";
+
+export interface BiomedicalAsset {
+  id: number;
+  organizationId: number;
+  productId: number;
+  productName?: string;
+  warehouseId: number;
+  warehouseName?: string;
+  serialNumber: string;
+  assetTag?: string;
+  brand?: string;
+  model?: string;
+  manufactureYear?: number;
+  installationDate?: string;
+  lastCalibrationDate?: string;
+  nextCalibrationDate?: string;
+  conditionStatus: AssetCondition;
+  status: AssetStatus;
+  dailyRentalRate?: number;
+  monthlyRentalRate?: number;
+  depositRequired?: number;
+  qrCodeUrl?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface EquipmentRentalContract {
+  id: number;
+  organizationId: number;
+  assetId: number;
+  assetSerialNumber?: string;
+  assetBrand?: string;
+  assetModel?: string;
+  productName?: string;
+  contractNumber: string;
+  renterUserId?: number;
+  renterOrganizationName: string;
+  renterRfc?: string;
+  renterContactEmail?: string;
+  renterContactPhone?: string;
+  deliveryAddress?: string;
+  startDate: string;
+  endDate: string;
+  monthlyRate: number;
+  depositAmount: number;
+  isDepositReturned: boolean;
+  depositReturnDate?: string;
+  depositDeductionAmount?: number;
+  depositDeductionReason?: string;
+  status: RentalContractStatus;
+  contractPdfUrl?: string;
+  deliveryActaUrl?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface BiomedicalMaintenance {
+  id: number;
+  organizationId: number;
+  assetId: number;
+  assetSerialNumber?: string;
+  maintenanceType: MaintenanceType;
+  maintenanceDate: string;
+  performedBy?: string;
+  technicianName?: string;
+  cost?: number;
+  certificateUrl?: string;
+  findings?: string;
+  actionsTaken?: string;
+  nextScheduledDate?: string;
+  createdAt: string;
+}
+
+export interface SaveBiomedicalAssetPayload {
+  productId: number;
+  warehouseId: number;
+  serialNumber: string;
+  assetTag?: string;
+  brand?: string;
+  model?: string;
+  manufactureYear?: number;
+  installationDate?: string;
+  lastCalibrationDate?: string;
+  nextCalibrationDate?: string;
+  conditionStatus?: AssetCondition;
+  status?: AssetStatus;
+  dailyRentalRate?: number;
+  monthlyRentalRate?: number;
+  depositRequired?: number;
+  notes?: string;
+}
+
+export interface SaveRentalContractPayload {
+  assetId: number;
+  renterUserId?: number;
+  renterOrganizationName: string;
+  renterRfc?: string;
+  renterContactEmail?: string;
+  renterContactPhone?: string;
+  deliveryAddress?: string;
+  startDate: string;
+  endDate: string;
+  monthlyRate: number;
+  depositAmount: number;
+  notes?: string;
+}
+
+export interface ReturnRentalDepositPayload {
+  returnDate?: string;
+  deductionAmount?: number;
+  deductionReason?: string;
+}
+
+export interface SaveBiomedicalMaintenancePayload {
+  assetId: number;
+  maintenanceType: MaintenanceType;
+  maintenanceDate: string;
+  performedBy?: string;
+  technicianName?: string;
+  cost?: number;
+  certificateUrl?: string;
+  findings?: string;
+  actionsTaken?: string;
+  nextScheduledDate?: string;
+}
+
+
 
