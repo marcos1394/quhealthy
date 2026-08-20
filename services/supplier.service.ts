@@ -34,6 +34,12 @@ import {
   ReturnRentalDepositPayload,
   BiomedicalMaintenance,
   SaveBiomedicalMaintenancePayload,
+  ThermalShipment,
+  SaveThermalShipmentPayload,
+  TemperatureLog,
+  RecordTemperatureTelemetryPayload,
+  ThermalExcursionEvent,
+  ResolveExcursionPayload,
 } from "@/types/supplier";
 
 export const supplierService = {
@@ -406,6 +412,75 @@ export const supplierService = {
   createMaintenance: async (payload: SaveBiomedicalMaintenancePayload): Promise<BiomedicalMaintenance> => {
     const response = await axiosInstance.post<BiomedicalMaintenance>(
       "/api/onboarding/supplier/maintenances",
+      payload
+    );
+    return response.data;
+  },
+
+  // --- CADENA DE FRÍO & TELEMETRÍA IOT (FASE 5) ---
+
+  getThermalShipments: async (): Promise<ThermalShipment[]> => {
+    const response = await axiosInstance.get<ThermalShipment[]>("/api/onboarding/supplier/thermal-shipments");
+    return response.data;
+  },
+
+  getThermalShipment: async (shipmentId: number): Promise<ThermalShipment> => {
+    const response = await axiosInstance.get<ThermalShipment>(
+      `/api/onboarding/supplier/thermal-shipments/${shipmentId}`
+    );
+    return response.data;
+  },
+
+  createThermalShipment: async (payload: SaveThermalShipmentPayload): Promise<ThermalShipment> => {
+    const response = await axiosInstance.post<ThermalShipment>(
+      "/api/onboarding/supplier/thermal-shipments",
+      payload
+    );
+    return response.data;
+  },
+
+  startThermalShipmentTransit: async (shipmentId: number): Promise<ThermalShipment> => {
+    const response = await axiosInstance.post<ThermalShipment>(
+      `/api/onboarding/supplier/thermal-shipments/${shipmentId}/in-transit`
+    );
+    return response.data;
+  },
+
+  confirmThermalShipmentDelivery: async (shipmentId: number): Promise<ThermalShipment> => {
+    const response = await axiosInstance.post<ThermalShipment>(
+      `/api/onboarding/supplier/thermal-shipments/${shipmentId}/confirm-delivery`
+    );
+    return response.data;
+  },
+
+  getShipmentTelemetry: async (shipmentId: number): Promise<TemperatureLog[]> => {
+    const response = await axiosInstance.get<TemperatureLog[]>(
+      `/api/onboarding/supplier/telemetry/shipment/${shipmentId}`
+    );
+    return response.data;
+  },
+
+  recordTelemetry: async (payload: RecordTemperatureTelemetryPayload): Promise<TemperatureLog> => {
+    const response = await axiosInstance.post<TemperatureLog>(
+      "/api/onboarding/supplier/telemetry/record",
+      payload
+    );
+    return response.data;
+  },
+
+  getThermalExcursions: async (): Promise<ThermalExcursionEvent[]> => {
+    const response = await axiosInstance.get<ThermalExcursionEvent[]>(
+      "/api/onboarding/supplier/thermal-excursions"
+    );
+    return response.data;
+  },
+
+  resolveExcursion: async (
+    excursionId: number,
+    payload: ResolveExcursionPayload
+  ): Promise<ThermalExcursionEvent> => {
+    const response = await axiosInstance.post<ThermalExcursionEvent>(
+      `/api/onboarding/supplier/thermal-excursions/${excursionId}/resolve`,
       payload
     );
     return response.data;

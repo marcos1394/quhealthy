@@ -696,5 +696,114 @@ export interface SaveBiomedicalMaintenancePayload {
   nextScheduledDate?: string;
 }
 
+export type ThermalPackagingType =
+  | "GEL_PACK_INSULATED"
+  | "DRY_ICE"
+  | "ACTIVE_REFRIGERATION_VEHICLE"
+  | "PHASE_CHANGE_MATERIAL";
+
+export type ThermalShipmentStatus =
+  | "PREPARING"
+  | "IN_TRANSIT"
+  | "DELIVERED_COMPLIANT"
+  | "DELIVERED_EXCURSION"
+  | "REJECTED_THERMAL_EXCURSION";
+
+export type ExcursionSeverity =
+  | "MILD"
+  | "MODERATE"
+  | "CRITICAL";
+
+export type ExcursionResolution =
+  | "PENDING_REVIEW"
+  | "APPROVED_BY_QA"
+  | "QUARANTINED"
+  | "DISCARDED_DESTROYED";
+
+export interface ThermalShipment {
+  id: number;
+  organizationId: number;
+  orderId?: number;
+  sourceWarehouseId: number;
+  sourceWarehouseName?: string;
+  shipmentNumber: string;
+  packagingType: ThermalPackagingType;
+  targetMinTemp: number;
+  targetMaxTemp: number;
+  dataLoggerId?: string;
+  carrierName?: string;
+  trackingNumber?: string;
+  status: ThermalShipmentStatus;
+  currentTemperature?: number;
+  isCurrentlyExcursion: boolean;
+  shippedAt?: string;
+  deliveredAt?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface TemperatureLog {
+  id: number;
+  shipmentId?: number;
+  warehouseId?: number;
+  dataLoggerId?: string;
+  recordedAt: string;
+  temperatureCelsius: number;
+  humidityPercentage?: number;
+  batteryLevel?: number;
+  isExcursion: boolean;
+  latitude?: number;
+  longitude?: number;
+  createdAt: string;
+}
+
+export interface ThermalExcursionEvent {
+  id: number;
+  organizationId: number;
+  shipmentId?: number;
+  warehouseId?: number;
+  severity: ExcursionSeverity;
+  startAt: string;
+  endAt?: string;
+  durationMinutes?: number;
+  peakTemperature: number;
+  resolution: ExcursionResolution;
+  qaInspectorName?: string;
+  qaNotes?: string;
+  resolvedAt?: string;
+  createdAt: string;
+}
+
+export interface SaveThermalShipmentPayload {
+  orderId?: number;
+  sourceWarehouseId: number;
+  packagingType: ThermalPackagingType;
+  targetMinTemp: number;
+  targetMaxTemp: number;
+  dataLoggerId?: string;
+  carrierName?: string;
+  trackingNumber?: string;
+  notes?: string;
+}
+
+export interface RecordTemperatureTelemetryPayload {
+  shipmentId?: number;
+  warehouseId?: number;
+  dataLoggerId?: string;
+  recordedAt?: string;
+  temperatureCelsius: number;
+  humidityPercentage?: number;
+  batteryLevel?: number;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface ResolveExcursionPayload {
+  resolution: ExcursionResolution;
+  qaInspectorName?: string;
+  qaNotes?: string;
+}
+
+
 
 
