@@ -143,7 +143,7 @@ export const foundationService = {
     return response.data;
   },
 
-  // --- BANDEJA DE VALIDACIÓN DOCUMENTAL ---
+  // --- BANDEJA DE VALIDACIÓN DOCUMENTAL (BENEFICIARIOS) ---
 
   getDocuments: async (
     status: string = "ALL",
@@ -151,26 +151,26 @@ export const foundationService = {
     size: number = 20
   ): Promise<{ content: BeneficiaryDocument[]; totalElements: number }> => {
     const response = await axiosInstance.get<{ content: BeneficiaryDocument[]; totalElements: number }>(
-      `/api/onboarding/foundation/documents?status=${status}&page=${page}&size=${size}`
+      `/api/onboarding/foundation/beneficiary-documents?status=${status}&page=${page}&size=${size}`
     );
     return response.data;
   },
 
   getDocumentsByBeneficiary: async (beneficiaryId: number): Promise<BeneficiaryDocument[]> => {
     const response = await axiosInstance.get<BeneficiaryDocument[]>(
-      `/api/onboarding/foundation/documents/beneficiary/${beneficiaryId}`
+      `/api/onboarding/foundation/beneficiary-documents/beneficiary/${beneficiaryId}`
     );
     return response.data;
   },
 
   requestDocument: async (payload: RequestDocumentPayload): Promise<BeneficiaryDocument> => {
-    const response = await axiosInstance.post<BeneficiaryDocument>("/api/onboarding/foundation/documents/request", payload);
+    const response = await axiosInstance.post<BeneficiaryDocument>("/api/onboarding/foundation/beneficiary-documents/request", payload);
     return response.data;
   },
 
   reviewDocument: async (documentId: number, payload: ReviewDocumentPayload): Promise<BeneficiaryDocument> => {
     const response = await axiosInstance.put<BeneficiaryDocument>(
-      `/api/onboarding/foundation/documents/${documentId}/review`,
+      `/api/onboarding/foundation/beneficiary-documents/${documentId}/review`,
       payload
     );
     return response.data;
