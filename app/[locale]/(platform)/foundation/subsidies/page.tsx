@@ -188,8 +188,8 @@ export default function FoundationSubsidiesPage() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const totalAuth = stats?.totalAuthorizedAmount || 342000;
-  const totalRed = stats?.totalRedeemedAmount || 228500;
+  const totalAuth = stats?.totalAuthorizedAmount || 0;
+  const totalRed = stats?.totalRedeemedAmount || 0;
   const redemptionRate = totalAuth > 0 ? Math.round((totalRed / totalAuth) * 100) : 0;
 
   return (
@@ -228,7 +228,7 @@ export default function FoundationSubsidiesPage() {
             {formatCurrency(totalAuth)}
           </h3>
           <span className="text-xs text-slate-400 mt-1 block">
-            {stats?.totalVouchers || 84} autorizaciones emitidas
+            {stats?.totalVouchers || 0} autorizaciones emitidas
           </span>
         </div>
 
@@ -255,7 +255,7 @@ export default function FoundationSubsidiesPage() {
             </div>
           </div>
           <h3 className="text-2xl font-extrabold text-amber-600 mt-2">
-            {formatCurrency(stats?.activeRemainingAmount || 113500)}
+            {formatCurrency(stats?.activeRemainingAmount || 0)}
           </h3>
           <span className="text-xs text-slate-400 mt-1 block">
             En vouchers activos vigentes
@@ -270,7 +270,7 @@ export default function FoundationSubsidiesPage() {
             </div>
           </div>
           <h3 className="text-2xl font-extrabold text-slate-900 mt-2">
-            {stats?.activeVouchers || 28}
+            {stats?.activeVouchers || 0}
           </h3>
           <span className="text-xs text-indigo-600 font-semibold mt-1 block">
             Listos para aplicar en citas

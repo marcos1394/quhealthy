@@ -310,5 +310,31 @@ export const adminService = {
       { name: 'Review Service', serviceKey: 'review-service', port: 8092, status: 'UP', latencyMs: 26, version: '1.1.0', uptime: '14d 6h', lastChecked: new Date().toISOString() },
       { name: 'Social Service', serviceKey: 'social-service', port: 8093, status: 'UP', latencyMs: 29, version: '1.0.2', uptime: '14d 6h', lastChecked: new Date().toISOString() },
     ];
-  }
+  },
+
+  // --- SUPERVISIÓN INSTITUCIONAL DE FUNDACIONES ---
+
+  getFoundations: async (
+    status: string = 'ALL',
+    page: number = 0,
+    size: number = 20
+  ): Promise<{ content: any[]; totalElements: number }> => {
+    const response = await axiosInstance.get<{ content: any[]; totalElements: number }>(
+      `/api/onboarding/admin/foundations?status=${status}&page=${page}&size=${size}`
+    );
+    return response.data;
+  },
+
+  getFoundationById: async (id: number): Promise<any> => {
+    const response = await axiosInstance.get(`/api/onboarding/admin/foundations/${id}`);
+    return response.data;
+  },
+
+  updateFoundationVerification: async (
+    id: number,
+    payload: { verificationStatus: string; rejectionReason?: string; adminNotes?: string }
+  ): Promise<any> => {
+    const response = await axiosInstance.put(`/api/onboarding/admin/foundations/${id}/verification`, payload);
+    return response.data;
+  },
 };

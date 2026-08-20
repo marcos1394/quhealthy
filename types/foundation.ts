@@ -80,6 +80,7 @@ export interface FoundationProfile {
   legalRepCurp?: string;
 
   verificationStatus: "PENDING" | "PROCESSING" | "APPROVED" | "REJECTED" | "MANUAL_REVIEW_NEEDED";
+  rejectionReason?: string;
   currentStep: number;
   isCompleted: boolean;
   createdAt?: string;
@@ -242,7 +243,7 @@ export interface HealthDataSharing {
   patientUserId?: number;
   programId?: number;
   programName?: string;
-  authorizedScopes: string[]; // ["LAB_RESULTS", "PRESCRIPTIONS", "CONSULTATION_SUMMARIES", "VITAL_SIGNS"]
+  authorizedScopes: string[];
   purpose?: string;
   validFrom: string;
   validTo: string;
@@ -312,6 +313,58 @@ export interface CampaignStats {
   completedCampaigns: number;
   totalScreenedAttendees: number;
   totalTargetAttendees: number;
+}
+
+export interface SocialBiMetrics {
+  totalLivesImpacted: number;
+  totalSubsidiesDisbursed: number;
+  avgSubsidyPerBeneficiary: number;
+  redemptionRatePercentage: number;
+  avgDocumentTurnaroundHours: number;
+  socialRoiIndex: number;
+  vulnerabilityDistribution: Record<string, number>;
+  socioEconomicDistribution: Record<string, number>;
+  causeDistribution: Record<string, number>;
+  supportTypeBudgetDistribution: Record<string, number>;
+  cityDistribution: Record<string, number>;
+  monthlyTrendLivesImpacted: Record<string, number>;
+}
+
+export interface TransparencyReport {
+  foundationId: number;
+  legalName: string;
+  brandName?: string;
+  rfc?: string;
+  cluniNumber?: string;
+  isAuthorizedDonatary?: boolean;
+  period: string;
+  generatedAt: string;
+  totalAuthorizedFunds: number;
+  totalDisbursedFunds: number;
+  totalVouchersReconciled: number;
+  totalBeneficiariesServed: number;
+  reconciledVouchers: FoundationVoucher[];
+  fiscalDisclaimer: string;
+}
+
+export interface FoundationAdminSummary {
+  id: number;
+  userId?: number;
+  legalName: string;
+  brandName?: string;
+  organizationType: string;
+  rfc?: string;
+  cluniNumber?: string;
+  isAuthorizedDonatary?: boolean;
+  contactEmail?: string;
+  contactPhone?: string;
+  verificationStatus: "PENDING" | "PROCESSING" | "APPROVED" | "REJECTED" | "MANUAL_REVIEW_NEEDED";
+  rejectionReason?: string;
+  activeProgramsCount: number;
+  totalBeneficiariesCount: number;
+  totalDisbursedBudget: number;
+  isCompleted: boolean;
+  createdAt?: string;
 }
 
 export interface FoundationStatsSummary {
@@ -430,6 +483,12 @@ export interface CreateScreeningRecordPayload {
   observations?: string;
   referredToProgramId?: number;
   screenedByStaffName?: string;
+}
+
+export interface UpdateFoundationVerificationPayload {
+  verificationStatus: string;
+  rejectionReason?: string;
+  adminNotes?: string;
 }
 
 // Payloads específicos para el Onboarding Wizard

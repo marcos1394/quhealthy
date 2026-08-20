@@ -63,12 +63,15 @@ export default function FoundationDashboardPage() {
       maximumFractionDigits: 0,
     }).format(val);
 
-  const budgetTrendData = [
-    { mes: "Mar", asignado: 450000, ejercido: 210000 },
-    { mes: "Abr", asignado: 550000, ejercido: 290000 },
-    { mes: "May", asignado: 620000, ejercido: 345000 },
-    { mes: "Jun", asignado: 750000, ejercido: 447400 },
-  ];
+  const allocated = stats?.totalAllocatedBudget || 0;
+  const disbursed = stats?.totalDisbursedBudget || 0;
+  const progressPercent = allocated > 0 ? Math.round((disbursed / allocated) * 100) : 0;
+
+  const budgetTrendData = programs.map((p) => ({
+    name: p.name.length > 15 ? p.name.substring(0, 15) + "..." : p.name,
+    asignado: p.allocatedBudget || 0,
+    ejercido: p.disbursedBudget || 0,
+  }));
 
   if (isLoading) {
     return (
@@ -78,10 +81,6 @@ export default function FoundationDashboardPage() {
       </div>
     );
   }
-
-  const allocated = stats?.totalAllocatedBudget || 750000;
-  const disbursed = stats?.totalDisbursedBudget || 447400;
-  const progressPercent = allocated > 0 ? Math.round((disbursed / allocated) * 100) : 0;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

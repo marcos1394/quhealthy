@@ -18,6 +18,7 @@ export type AdminTab =
   | "economics"
   | "analytics"
   | "operations"
+  | "foundations"
   | "health";
 
 interface AdminSidebarProps {
@@ -70,6 +71,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       icon: Stethoscope,
       badge: pendingKycCount > 0 ? `${pendingKycCount} KYC` : null,
       badgeColor: "bg-amber-100 text-amber-800",
+    },
+    {
+      id: "foundations" as AdminTab,
+      label: "Fundaciones & Subsidios",
+      description: "Supervisión KYB & Programas",
+      icon: FileCheck,
+      badge: "Institucional",
+      badgeColor: "bg-rose-100 text-rose-800",
     },
     {
       id: "health" as AdminTab,

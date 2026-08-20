@@ -22,6 +22,7 @@ import { TabFinances } from "./tabs/TabFinances";
 import { TabUnitEconomics } from "./tabs/TabUnitEconomics";
 import { TabProductAnalytics } from "./tabs/TabProductAnalytics";
 import { TabMedicalOperations } from "./tabs/TabMedicalOperations";
+import { TabFoundations } from "./tabs/TabFoundations";
 import { TabSystemHealth } from "./tabs/TabSystemHealth";
 
 export default function AdminDashboardPage() {
@@ -215,6 +216,10 @@ export default function AdminDashboardPage() {
               providers={providers}
               onRefreshProviders={loadAllData}
             />
+          )}
+
+          {activeTab === "foundations" && (
+            <TabFoundations />
           )}
 
           {activeTab === "health" && (

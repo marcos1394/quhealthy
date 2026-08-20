@@ -271,7 +271,7 @@ export default function FoundationCampaignsPage() {
             </div>
           </div>
           <h3 className="text-2xl font-extrabold text-slate-900 mt-2">
-            {stats?.totalCampaigns || 5}
+            {stats?.totalCampaigns || 0}
           </h3>
           <span className="text-xs text-slate-400 mt-1 block">Jornadas programadas</span>
         </div>
@@ -284,7 +284,7 @@ export default function FoundationCampaignsPage() {
             </div>
           </div>
           <h3 className="text-2xl font-extrabold text-indigo-600 mt-2">
-            {stats?.activeCampaigns || 2}
+            {stats?.activeCampaigns || 0}
           </h3>
           <span className="text-xs text-indigo-700 font-semibold mt-1 block">Sedes activas</span>
         </div>
@@ -297,7 +297,7 @@ export default function FoundationCampaignsPage() {
             </div>
           </div>
           <h3 className="text-2xl font-extrabold text-emerald-600 mt-2">
-            {stats?.totalScreenedAttendees || 240}
+            {stats?.totalScreenedAttendees || 0}
           </h3>
           <span className="text-xs text-slate-400 mt-1 block">Atenciones registradas</span>
         </div>
@@ -310,7 +310,7 @@ export default function FoundationCampaignsPage() {
             </div>
           </div>
           <h3 className="text-2xl font-extrabold text-slate-900 mt-2">
-            {stats?.totalTargetAttendees || 450}
+            {stats?.totalTargetAttendees || 0}
           </h3>
           <span className="text-xs text-amber-700 font-semibold mt-1 block">Capacidad programada</span>
         </div>
