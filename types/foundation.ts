@@ -548,3 +548,54 @@ export interface FoundationOnboardingStatusResponse {
   isCompleted: boolean;
   verificationStatus: string;
 }
+
+// 🌐 TIENDA INSTITUCIONAL PÚBLICA PARA PACIENTES (DISCOVER & PERFIL PÚBLICO)
+export interface FoundationPublicStorefront {
+  id: number;
+  legalName: string;
+  brandName?: string;
+  organizationType: string;
+  mission?: string;
+  vision?: string;
+  description?: string;
+  logoUrl?: string;
+  websiteUrl?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  addressCity?: string;
+  addressState?: string;
+  primaryCauses: string[];
+  isAuthorizedDonatary?: boolean;
+  cluniNumber?: string;
+  verificationStatus: string;
+  programs: FoundationProgram[];
+  campaigns: FoundationCampaign[];
+  totalBeneficiariesCount: number;
+  totalActiveProgramsCount: number;
+}
+
+export interface PublicProgramApplicationPayload {
+  programId: number;
+  curp: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone: string;
+  birthDate?: string;
+  gender?: string;
+  city?: string;
+  state?: string;
+  vulnerabilityLevel?: string;
+  socioEconomicLevel?: string;
+  caseSummary: string;
+  notes?: string;
+}
+
+export interface PublicCampaignPreregisterPayload {
+  campaignId: number;
+  attendeeName: string;
+  attendeeCurp?: string;
+  attendeePhone: string;
+  screeningTypeInterest?: string;
+  notes?: string;
+}

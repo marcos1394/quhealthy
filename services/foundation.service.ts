@@ -14,6 +14,9 @@ import {
   CampaignStats,
   SocialBiMetrics,
   TransparencyReport,
+  FoundationPublicStorefront,
+  PublicProgramApplicationPayload,
+  PublicCampaignPreregisterPayload,
   CreateBeneficiaryPayload,
   CreateProgramPayload,
   CreateVoucherPayload,
@@ -280,6 +283,44 @@ export const foundationService = {
 
   getStatsSummary: async (): Promise<FoundationStatsSummary> => {
     const response = await axiosInstance.get<FoundationStatsSummary>("/api/onboarding/foundation/beneficiaries/stats/summary");
+    return response.data;
+  },
+
+  // --- 🌐 TIENDA INSTITUCIONAL PÚBLICA & AUTO-POSTULACIÓN DE PACIENTES ---
+
+  getPublicStorefront: async (foundationId: number): Promise<FoundationPublicStorefront> => {
+    const response = await axiosInstance.get<FoundationPublicStorefront>(
+      `/api/onboarding/foundation/public/${foundationId}`
+    );
+    return response.data;
+  },
+
+  getPublicFoundationsList: async (): Promise<FoundationPublicStorefront[]> => {
+    const response = await axiosInstance.get<FoundationPublicStorefront[]>(
+      "/api/onboarding/foundation/public/list"
+    );
+    return response.data;
+  },
+
+  applyToProgramPublic: async (
+    foundationId: number,
+    payload: PublicProgramApplicationPayload
+  ): Promise<FoundationBeneficiary> => {
+    const response = await axiosInstance.post<FoundationBeneficiary>(
+      `/api/onboarding/foundation/public/${foundationId}/apply`,
+      payload
+    );
+    return response.data;
+  },
+
+  preregisterToCampaignPublic: async (
+    campaignId: number,
+    payload: PublicCampaignPreregisterPayload
+  ): Promise<CampaignScreeningRecord> => {
+    const response = await axiosInstance.post<CampaignScreeningRecord>(
+      `/api/onboarding/foundation/public/campaigns/${campaignId}/preregister`,
+      payload
+    );
     return response.data;
   },
 };
