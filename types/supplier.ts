@@ -178,3 +178,370 @@ export interface AdditiveMigrationPayload {
   defaultWarehouseCity?: string;
   defaultWarehouseState?: string;
 }
+
+export type RiskClass =
+  | "CLASS_I"
+  | "CLASS_II"
+  | "CLASS_III"
+  | "NON_REGULATED";
+
+export type ProductComplianceStatus =
+  | "PENDING_REVIEW"
+  | "VERIFIED"
+  | "REJECTED"
+  | "EXPIRED"
+  | "SUSPENDED";
+
+export type BatchStatus =
+  | "ACTIVE"
+  | "QUARANTINE"
+  | "EXPIRED"
+  | "EXHAUSTED";
+
+export type MovementType =
+  | "PURCHASE"
+  | "RECEIPT"
+  | "SALE"
+  | "RESERVATION"
+  | "RELEASE"
+  | "TRANSFER"
+  | "ADJUSTMENT"
+  | "RETURN"
+  | "EXPIRATION"
+  | "QUARANTINE";
+
+export type TransferStatus =
+  | "REQUESTED"
+  | "APPROVED"
+  | "IN_TRANSIT"
+  | "RECEIVED"
+  | "CANCELLED";
+
+export interface StorageRequirement {
+  id?: number;
+  productId?: number;
+  requiresColdChain: boolean;
+  minTemperature?: number;
+  maxTemperature?: number;
+  lightSensitive: boolean;
+  humidityControlled: boolean;
+  minHumidityPercentage?: number;
+  maxHumidityPercentage?: number;
+  specialHandlingInstructions?: string;
+  unNumber?: string;
+}
+
+export interface ProductBatch {
+  id: number;
+  organizationId: number;
+  productId: number;
+  productName?: string;
+  warehouseId: number;
+  warehouseName?: string;
+  lotNumber: string;
+  expirationDate?: string;
+  manufactureDate?: string;
+  quantity: number;
+  reservedQuantity: number;
+  availableQuantity: number;
+  status: BatchStatus;
+  unitCost?: number;
+  receivedAt?: string;
+  createdAt: string;
+}
+
+export interface MedicalProduct {
+  id: number;
+  organizationId: number;
+  sku?: string;
+  barcodeEan?: string;
+  satProdServKey?: string;
+  name: string;
+  genericName?: string;
+  brand?: string;
+  manufacturer?: string;
+  category?: string;
+  description?: string;
+  riskClass: RiskClass;
+  cofeprisRegisterNumber?: string;
+  cofeprisRegisterExpiry?: string;
+  technicalSheetUrl?: string;
+  imageUrl?: string;
+  complianceStatus: ProductComplianceStatus;
+  basePriceB2c?: number;
+  currency: string;
+  isB2cEnabled: boolean;
+  isB2bEnabled: boolean;
+  isRentalEnabled: boolean;
+  rentalDailyRate?: number;
+  rentalMonthlyRate?: number;
+  isActive: boolean;
+  totalStock?: number;
+  storageRequirement?: StorageRequirement;
+  batches?: ProductBatch[];
+  createdAt: string;
+}
+
+export interface InventoryMovement {
+  id: number;
+  organizationId: number;
+  productId: number;
+  productName?: string;
+  batchId?: number;
+  lotNumber?: string;
+  warehouseId: number;
+  warehouseName?: string;
+  quantity: number;
+  movementType: MovementType;
+  referenceType?: string;
+  referenceId?: number;
+  balanceAfter: number;
+  notes?: string;
+  createdBy?: number;
+  createdAt: string;
+}
+
+export interface InventoryTransfer {
+  id: number;
+  organizationId: number;
+  transferNumber: string;
+  sourceWarehouseId: number;
+  sourceWarehouseName?: string;
+  targetWarehouseId: number;
+  targetWarehouseName?: string;
+  productId: number;
+  productName?: string;
+  batchId?: number;
+  lotNumber?: string;
+  quantity: number;
+  status: TransferStatus;
+  notes?: string;
+  requestedBy?: number;
+  approvedBy?: number;
+  shippedAt?: string;
+  receivedAt?: string;
+  createdAt: string;
+}
+
+export interface SaveMedicalProductPayload {
+  sku?: string;
+  barcodeEan?: string;
+  satProdServKey?: string;
+  name: string;
+  genericName?: string;
+  brand?: string;
+  manufacturer?: string;
+  category?: string;
+  description?: string;
+  riskClass?: RiskClass;
+  cofeprisRegisterNumber?: string;
+  cofeprisRegisterExpiry?: string;
+  technicalSheetUrl?: string;
+  imageUrl?: string;
+  basePriceB2c?: number;
+  currency?: string;
+  isB2cEnabled?: boolean;
+  isB2bEnabled?: boolean;
+  isRentalEnabled?: boolean;
+  rentalDailyRate?: number;
+  rentalMonthlyRate?: number;
+  requiresColdChain?: boolean;
+  minTemperature?: number;
+  maxTemperature?: number;
+  lightSensitive?: boolean;
+  humidityControlled?: boolean;
+  specialHandlingInstructions?: string;
+}
+
+export interface SaveProductBatchPayload {
+  productId: number;
+  warehouseId: number;
+  lotNumber: string;
+  expirationDate?: string;
+  manufactureDate?: string;
+  quantity: number;
+  status?: BatchStatus;
+  unitCost?: number;
+}
+
+export interface InventoryAdjustmentPayload {
+  batchId: number;
+  quantity: number;
+  movementType: MovementType;
+  notes?: string;
+}
+
+export interface CreateInventoryTransferPayload {
+  sourceWarehouseId: number;
+  targetWarehouseId: number;
+  productId: number;
+  batchId: number;
+  quantity: number;
+  notes?: string;
+}
+
+export interface BulkImportResult {
+  totalRowsProcessed: number;
+  successfulImports: number;
+  failedImports: number;
+  errors: string[];
+  importedProducts: MedicalProduct[];
+}
+
+export type QuoteStatus =
+  | "DRAFT"
+  | "SENT"
+  | "ACCEPTED"
+  | "REJECTED"
+  | "EXPIRED"
+  | "CONVERTED_TO_PO";
+
+export type PurchaseOrderStatus =
+  | "ISSUED"
+  | "CONFIRMED"
+  | "IN_PREPARATION"
+  | "DISPATCHED"
+  | "DELIVERED"
+  | "CANCELLED";
+
+export type PaymentTerm =
+  | "IMMEDIATE"
+  | "NET_15"
+  | "NET_30"
+  | "NET_60"
+  | "FIFTY_FIFTY"
+  | "ON_DELIVERY";
+
+export interface ProductPriceTier {
+  id: number;
+  organizationId: number;
+  productId: number;
+  minQuantity: number;
+  maxQuantity?: number;
+  unitPrice: number;
+  discountPercentage?: number;
+  currency: string;
+}
+
+export interface SupplierQuoteItem {
+  id: number;
+  quoteId: number;
+  productId: number;
+  productName: string;
+  sku?: string;
+  quantity: number;
+  unitPrice: number;
+  discountPercentage?: number;
+  taxRate: number;
+  totalPrice: number;
+  notes?: string;
+}
+
+export interface SupplierQuote {
+  id: number;
+  organizationId: number;
+  organizationName?: string;
+  organizationRfc?: string;
+  quoteNumber: string;
+  buyerUserId?: number;
+  buyerOrganizationName?: string;
+  buyerContactEmail?: string;
+  buyerContactPhone?: string;
+  buyerRfc?: string;
+  status: QuoteStatus;
+  subtotal: number;
+  taxAmount: number;
+  shippingAmount: number;
+  total: number;
+  currency: string;
+  validUntil?: string;
+  paymentTerms: PaymentTerm;
+  deliveryLeadTimeDays?: number;
+  notes?: string;
+  items: SupplierQuoteItem[];
+  createdBy?: number;
+  createdAt: string;
+}
+
+export interface SupplierPurchaseOrderItem {
+  id: number;
+  purchaseOrderId: number;
+  productId: number;
+  batchId?: number;
+  productName: string;
+  sku?: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface SupplierPurchaseOrder {
+  id: number;
+  organizationId: number;
+  quoteId?: number;
+  poNumber: string;
+  buyerUserId?: number;
+  buyerOrganizationName?: string;
+  buyerRfc?: string;
+  shippingAddress?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingPostalCode?: string;
+  status: PurchaseOrderStatus;
+  paymentTerms?: PaymentTerm;
+  subtotal: number;
+  taxAmount: number;
+  shippingAmount: number;
+  total: number;
+  currency: string;
+  trackingNumber?: string;
+  carrierName?: string;
+  estimatedDeliveryDate?: string;
+  actualDeliveryDate?: string;
+  notes?: string;
+  items: SupplierPurchaseOrderItem[];
+  createdAt: string;
+}
+
+export interface SavePriceTierPayload {
+  productId: number;
+  minQuantity: number;
+  maxQuantity?: number;
+  unitPrice: number;
+  discountPercentage?: number;
+  currency?: string;
+}
+
+export interface SaveSupplierQuoteItemPayload {
+  productId: number;
+  quantity: number;
+  unitPrice: number;
+  discountPercentage?: number;
+  taxRate?: number;
+  notes?: string;
+}
+
+export interface SaveSupplierQuotePayload {
+  buyerUserId?: number;
+  buyerOrganizationName?: string;
+  buyerContactEmail?: string;
+  buyerContactPhone?: string;
+  buyerRfc?: string;
+  validUntil?: string;
+  paymentTerms?: PaymentTerm;
+  deliveryLeadTimeDays?: number;
+  shippingAmount?: number;
+  currency?: string;
+  notes?: string;
+  items: SaveSupplierQuoteItemPayload[];
+}
+
+export interface UpdatePurchaseOrderStatusPayload {
+  status: PurchaseOrderStatus;
+  trackingNumber?: string;
+  carrierName?: string;
+  estimatedDeliveryDate?: string;
+  notes?: string;
+}
+
+
