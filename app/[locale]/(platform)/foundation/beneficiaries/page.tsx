@@ -22,9 +22,16 @@ import {
   FolderOpen,
   FileCheck2,
   FilePlus,
+  PlusCircle,
   Check,
   Ban,
   AlertTriangle,
+  Lock,
+  Unlock,
+  Key,
+  ShieldCheck,
+  HeartPulse,
+  UserCheck,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { foundationService } from "@/services/foundation.service";
@@ -32,9 +39,13 @@ import {
   FoundationBeneficiary,
   FoundationProgram,
   BeneficiaryDocument,
+  HealthDataSharing,
+  CaregiverLink,
   CreateBeneficiaryPayload,
   RequestDocumentPayload,
   ReviewDocumentPayload,
+  CreateDataSharingPayload,
+  CreateCaregiverLinkPayload,
 } from "@/types/foundation";
 
 export default function FoundationBeneficiariesPage() {
@@ -42,8 +53,13 @@ export default function FoundationBeneficiariesPage() {
   const [beneficiaries, setBeneficiaries] = useState<FoundationBeneficiary[]>([]);
   const [programs, setPrograms] = useState<FoundationProgram[]>([]);
   const [beneficiaryDocs, setBeneficiaryDocs] = useState<BeneficiaryDocument[]>([]);
+  const [dataSharingList, setDataSharingList] = useState<HealthDataSharing[]>([]);
+  const [caregiversList, setCaregiversList] = useState<CaregiverLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingDocs, setIsLoadingDocs] = useState(false);
+
+  // Active Tab inside Expediente Modal
+  const [expedienteTab, setExpedienteTab] = useState<"DOCS" | "DATA_SHARING" | "CAREGIVERS">("DOCS");
 
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,6 +72,8 @@ export default function FoundationBeneficiariesPage() {
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [isRequestDocModalOpen, setIsRequestDocModalOpen] = useState(false);
   const [selectedDocToReview, setSelectedDocToReview] = useState<BeneficiaryDocument | null>(null);
+  const [isCreateDataSharingModalOpen, setIsCreateDataSharingModalOpen] = useState(false);
+  const [isCreateCaregiverModalOpen, setIsCreateCaregiverModalOpen] = useState(false);
 
   // Form State (Create Beneficiary)
   const [curp, setCurp] = useState("");
@@ -88,6 +106,18 @@ export default function FoundationBeneficiariesPage() {
   const [reviewNotes, setReviewNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
 
+  // Data Sharing Form State
+  const [authScopes, setAuthScopes] = useState<string[]>(["LAB_RESULTS", "PRESCRIPTIONS"]);
+  const [authPurpose, setAuthPurpose] = useState("Monitoreo de adherencia farmacológica en programa asistencial");
+  const [authDurationDays, setAuthDurationDays] = useState<number>(90);
+
+  // Caregiver Form State
+  const [cgName, setCgName] = useState("");
+  const [cgPhone, setCgPhone] = useState("");
+  const [cgEmail, setCgEmail] = useState("");
+  const [cgRelationship, setCgRelationship] = useState("CONYUGE");
+  const [cgRole, setCgRole] = useState("AUTHORIZED_CAREGIVER");
+
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -114,13 +144,19 @@ export default function FoundationBeneficiariesPage() {
     }
   }, [searchParams]);
 
-  const loadBeneficiaryDocs = async (beneficiaryId: number) => {
+  const loadBeneficiaryDetails = async (beneficiaryId: number) => {
     try {
       setIsLoadingDocs(true);
-      const docs = await foundationService.getDocumentsByBeneficiary(beneficiaryId);
+      const [docs, dataSharings, caregivers] = await Promise.all([
+        foundationService.getDocumentsByBeneficiary(beneficiaryId),
+        foundationService.getDataSharingByBeneficiary(beneficiaryId),
+        foundationService.getCaregiversByBeneficiary(beneficiaryId),
+      ]);
       setBeneficiaryDocs(docs);
+      setDataSharingList(dataSharings);
+      setCaregiversList(caregivers);
     } catch {
-      toast.error("Error al cargar expediente documental.");
+      toast.error("Error al cargar detalles del expediente.");
     } finally {
       setIsLoadingDocs(false);
     }
@@ -128,7 +164,8 @@ export default function FoundationBeneficiariesPage() {
 
   const handleOpenExpediente = (b: FoundationBeneficiary) => {
     setSelectedBeneficiary(b);
-    loadBeneficiaryDocs(b.id);
+    setExpedienteTab("DOCS");
+    loadBeneficiaryDetails(b.id);
   };
 
   const handleCreateBeneficiary = async (e: React.FormEvent) => {
@@ -217,7 +254,7 @@ export default function FoundationBeneficiariesPage() {
       await foundationService.requestDocument(payload);
       toast.success("Requerimiento documental solicitado con éxito.");
       setIsRequestDocModalOpen(false);
-      loadBeneficiaryDocs(selectedBeneficiary.id);
+      loadBeneficiaryDetails(selectedBeneficiary.id);
     } catch {
       toast.error("No se pudo solicitar el documento.");
     } finally {
@@ -239,9 +276,71 @@ export default function FoundationBeneficiariesPage() {
       await foundationService.reviewDocument(selectedDocToReview.id, payload);
       toast.success(`Dictamen emitido: ${reviewStatus}`);
       setSelectedDocToReview(null);
-      loadBeneficiaryDocs(selectedBeneficiary.id);
+      loadBeneficiaryDetails(selectedBeneficiary.id);
     } catch {
       toast.error("Error al emitir dictamen documental.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateDataSharing = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBeneficiary) return;
+
+    try {
+      setIsSubmitting(true);
+      const payload: CreateDataSharingPayload = {
+        beneficiaryId: selectedBeneficiary.id,
+        authorizedScopes: authScopes,
+        purpose: authPurpose.trim(),
+        durationDays: authDurationDays,
+      };
+      await foundationService.createDataSharing(payload);
+      toast.success("Autorización de Health Data Sharing registrada.");
+      setIsCreateDataSharingModalOpen(false);
+      loadBeneficiaryDetails(selectedBeneficiary.id);
+    } catch {
+      toast.error("Error al registrar autorización.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRevokeDataSharing = async (authId: number) => {
+    if (!confirm("¿Deseas revocar inmediatamente este acceso a información clínica?")) return;
+    try {
+      await foundationService.revokeDataSharing(authId);
+      toast.info("Acceso clínico revocado.");
+      if (selectedBeneficiary) loadBeneficiaryDetails(selectedBeneficiary.id);
+    } catch {
+      toast.error("No se pudo revocar la autorización.");
+    }
+  };
+
+  const handleCreateCaregiver = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBeneficiary || !cgName.trim()) return;
+
+    try {
+      setIsSubmitting(true);
+      const payload: CreateCaregiverLinkPayload = {
+        beneficiaryId: selectedBeneficiary.id,
+        caregiverName: cgName.trim(),
+        caregiverPhone: cgPhone.trim(),
+        caregiverEmail: cgEmail.trim(),
+        relationship: cgRelationship,
+        caregiverRole: cgRole,
+      };
+      await foundationService.createCaregiverLink(payload);
+      toast.success("Cuidador vinculado correctamente.");
+      setIsCreateCaregiverModalOpen(false);
+      setCgName("");
+      setCgPhone("");
+      setCgEmail("");
+      loadBeneficiaryDetails(selectedBeneficiary.id);
+    } catch {
+      toast.error("Error al vincular cuidador.");
     } finally {
       setIsSubmitting(false);
     }
@@ -250,6 +349,12 @@ export default function FoundationBeneficiariesPage() {
   const toggleProgramSelection = (pId: number) => {
     setSelectedProgramIds((prev) =>
       prev.includes(pId) ? prev.filter((id) => id !== pId) : [...prev, pId]
+    );
+  };
+
+  const toggleAuthScope = (scope: string) => {
+    setAuthScopes((prev) =>
+      prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope]
     );
   };
 
@@ -276,7 +381,7 @@ export default function FoundationBeneficiariesPage() {
             Padrón de Beneficiarios & Expedientes
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Registro, evaluación socioeconómica y validación documental (Trabajo Social & Dirección Médica).
+            Registro, evaluación socioeconómica, Health Data Sharing y red de cuidadores autorizados.
           </p>
         </div>
 
@@ -419,7 +524,7 @@ export default function FoundationBeneficiariesPage() {
                       <button
                         onClick={() => handleOpenExpediente(b)}
                         className="p-1.5 text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all font-semibold"
-                        title="Ver Expediente y Documentos"
+                        title="Ver Expediente Integral"
                       >
                         <FolderOpen className="w-3.5 h-3.5 inline mr-1 text-indigo-600" />
                         Expediente
@@ -676,15 +781,15 @@ export default function FoundationBeneficiariesPage() {
         </div>
       )}
 
-      {/* 📋 Modal: Expediente Integral & Bandeja Documental del Beneficiario */}
-      {selectedBeneficiary && !isEnrollModalOpen && !isRequestDocModalOpen && !selectedDocToReview && (
+      {/* 📋 Modal: Expediente Integral (Documentos, Health Data Sharing y Cuidadores) */}
+      {selectedBeneficiary && !isEnrollModalOpen && !isRequestDocModalOpen && !selectedDocToReview && !isCreateDataSharingModalOpen && !isCreateCaregiverModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 lg:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+          <div className="bg-white rounded-3xl max-w-3xl w-full p-6 lg:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
                   <FolderOpen className="w-5 h-5 text-indigo-600" />
-                  Expediente de Asistencia Social & Validación
+                  Expediente de Asistencia Social & Soberanía Clínica
                 </h3>
                 <span className="text-xs font-mono text-slate-400">
                   {selectedBeneficiary.fullName} • {selectedBeneficiary.curp}
@@ -712,26 +817,60 @@ export default function FoundationBeneficiariesPage() {
               </div>
             </div>
 
-            {/* Document Validation Section */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between">
-                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <FileCheck2 className="w-4 h-4 text-emerald-600" />
-                  Bandeja Documental Requerida
-                </h4>
-                <button
-                  onClick={() => setIsRequestDocModalOpen(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200"
-                >
-                  <FilePlus className="w-3.5 h-3.5" />
-                  Solicitar Documento
-                </button>
-              </div>
+            {/* Navigation Tabs */}
+            <div className="flex border-b border-slate-200 text-xs">
+              <button
+                onClick={() => setExpedienteTab("DOCS")}
+                className={`py-2 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 ${
+                  expedienteTab === "DOCS"
+                    ? "border-rose-600 text-rose-600"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <FileCheck2 className="w-4 h-4" />
+                Bandeja Documental ({beneficiaryDocs.length})
+              </button>
 
-              {isLoadingDocs ? (
-                <div className="py-6 text-center text-slate-400 text-xs">Cargando expediente documental...</div>
-              ) : (
-                <div className="space-y-2">
+              <button
+                onClick={() => setExpedienteTab("DATA_SHARING")}
+                className={`py-2 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 ${
+                  expedienteTab === "DATA_SHARING"
+                    ? "border-indigo-600 text-indigo-600"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Health Data Sharing ({dataSharingList.length})
+              </button>
+
+              <button
+                onClick={() => setExpedienteTab("CAREGIVERS")}
+                className={`py-2 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 ${
+                  expedienteTab === "CAREGIVERS"
+                    ? "border-emerald-600 text-emerald-600"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <UserCheck className="w-4 h-4" />
+                Red de Cuidadores ({caregiversList.length})
+              </button>
+            </div>
+
+            {/* Tab 1: Document Validation */}
+            {expedienteTab === "DOCS" && (
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700">Requerimientos Socioeconómicos & Dictámenes</span>
+                  <button
+                    onClick={() => setIsRequestDocModalOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200"
+                  >
+                    <FilePlus className="w-3.5 h-3.5" />
+                    Solicitar Documento
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto">
                   {beneficiaryDocs.map((doc) => (
                     <div
                       key={doc.id}
@@ -780,12 +919,135 @@ export default function FoundationBeneficiariesPage() {
 
                   {beneficiaryDocs.length === 0 && (
                     <div className="p-4 bg-slate-50 rounded-xl text-center text-slate-400 text-xs">
-                      No hay requerimientos documentales asignados a este beneficiario.
+                      No hay requerimientos documentales asignados.
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* Tab 2: Health Data Sharing */}
+            {expedienteTab === "DATA_SHARING" && (
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700">Autorizaciones Temporales Emitidas por el Paciente</span>
+                  <button
+                    onClick={() => setIsCreateDataSharingModalOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    Registrar Autorización
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {dataSharingList.map((ds) => (
+                    <div
+                      key={ds.id}
+                      className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 block truncate">{ds.purpose || "Seguimiento asistencial"}</span>
+                          <span
+                            className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                              ds.status === "ACTIVE"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : ds.status === "REVOKED"
+                                ? "bg-rose-100 text-rose-800"
+                                : "bg-slate-200 text-slate-700"
+                            }`}
+                          >
+                            {ds.status}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {ds.authorizedScopes.map((scope) => (
+                            <span key={scope} className="text-[9px] font-semibold bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded border border-indigo-200">
+                              {scope}
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-[10px] text-slate-400 block">
+                          Vigente hasta: {ds.validTo ? ds.validTo.substring(0, 10) : "Sin fecha"}
+                        </span>
+                      </div>
+
+                      {ds.status === "ACTIVE" && (
+                        <button
+                          onClick={() => handleRevokeDataSharing(ds.id)}
+                          className="text-[10px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200"
+                        >
+                          Revocar
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  {dataSharingList.length === 0 && (
+                    <div className="p-4 bg-slate-50 rounded-xl text-center text-slate-400 text-xs">
+                      El beneficiario no ha emitido autorizaciones de compartición clínica para este programa.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Tab 3: Caregivers & Family */}
+            {expedienteTab === "CAREGIVERS" && (
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700">Red de Apoyo Familiar & Tutores Designados</span>
+                  <button
+                    onClick={() => setIsCreateCaregiverModalOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    Vincular Cuidador
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {caregiversList.map((cg) => (
+                    <div
+                      key={cg.id}
+                      className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <span className="font-bold text-slate-900 block truncate">{cg.caregiverName}</span>
+                        <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                          <span className="font-semibold text-slate-700">{cg.relationship}</span>
+                          <span>•</span>
+                          <span>{cg.caregiverPhone || "Sin teléfono"}</span>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                          cg.caregiverRole === "LEGAL_GUARDIAN"
+                            ? "bg-purple-100 text-purple-800"
+                            : cg.caregiverRole === "AUTHORIZED_CAREGIVER"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {cg.caregiverRole === "LEGAL_GUARDIAN"
+                          ? "Tutor Legal"
+                          : cg.caregiverRole === "AUTHORIZED_CAREGIVER"
+                          ? "Cuidador Autorizado"
+                          : "Contacto Informativo"}
+                      </span>
+                    </div>
+                  ))}
+
+                  {caregiversList.length === 0 && (
+                    <div className="p-4 bg-slate-50 rounded-xl text-center text-slate-400 text-xs">
+                      No hay cuidadores registrados para este beneficiario.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
               <button
@@ -799,7 +1061,7 @@ export default function FoundationBeneficiariesPage() {
         </div>
       )}
 
-      {/* 🚀 Modal: Solicitar Documento al Beneficiario */}
+      {/* 🚀 Modal: Solicitar Documento */}
       {isRequestDocModalOpen && selectedBeneficiary && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
@@ -872,7 +1134,7 @@ export default function FoundationBeneficiariesPage() {
         </div>
       )}
 
-      {/* 🚀 Modal: Dictamen Documental (Aprobar / Observar / Rechazar) */}
+      {/* 🚀 Modal: Dictamen Documental */}
       {selectedDocToReview && selectedBeneficiary && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
@@ -954,6 +1216,190 @@ export default function FoundationBeneficiariesPage() {
                   className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-sm disabled:opacity-50"
                 >
                   {isSubmitting ? "Guardando..." : "Guardar Dictamen"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 Modal: Registrar Health Data Sharing */}
+      {isCreateDataSharingModalOpen && selectedBeneficiary && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base flex items-center gap-1.5">
+                  <ShieldCheck className="w-5 h-5 text-indigo-600" />
+                  Autorizar Compartición Clínica
+                </h3>
+                <p className="text-xs text-slate-500">{selectedBeneficiary.fullName}</p>
+              </div>
+              <button
+                onClick={() => setIsCreateDataSharingModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateDataSharing} className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Alcances de Datos Autorizados *</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "LAB_RESULTS", label: "Resultados Laboratorio" },
+                    { id: "PRESCRIPTIONS", label: "Recetas Médicas" },
+                    { id: "CONSULTATION_SUMMARIES", label: "Resúmenes de Consulta" },
+                    { id: "VITAL_SIGNS", label: "Signos Vitales" },
+                  ].map((scope) => (
+                    <button
+                      type="button"
+                      key={scope.id}
+                      onClick={() => toggleAuthScope(scope.id)}
+                      className={`p-2 rounded-xl border text-left transition-all ${
+                        authScopes.includes(scope.id)
+                          ? "bg-indigo-50 border-indigo-300 text-indigo-900 font-bold"
+                          : "bg-slate-50 border-slate-200 text-slate-600"
+                      }`}
+                    >
+                      {scope.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Finalidad de la Consulta</label>
+                <input
+                  type="text"
+                  value={authPurpose}
+                  onChange={(e) => setAuthPurpose(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Duración de la Autorización</label>
+                <select
+                  value={authDurationDays}
+                  onChange={(e) => setAuthDurationDays(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white"
+                >
+                  <option value={30}>30 Días</option>
+                  <option value={60}>60 Días</option>
+                  <option value={90}>90 Días (Recomendado)</option>
+                  <option value={180}>180 Días</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateDataSharingModalOpen(false)}
+                  className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-sm disabled:opacity-50"
+                >
+                  {isSubmitting ? "Registrando..." : "Confirmar Autorización"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 Modal: Vincular Cuidador */}
+      {isCreateCaregiverModalOpen && selectedBeneficiary && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Vincular Cuidador / Tutor</h3>
+                <p className="text-xs text-slate-500">{selectedBeneficiary.fullName}</p>
+              </div>
+              <button
+                onClick={() => setIsCreateCaregiverModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCaregiver} className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Nombre Completo *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. María Ramos"
+                  value={cgName}
+                  onChange={(e) => setCgName(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Teléfono</label>
+                  <input
+                    type="tel"
+                    placeholder="+52 668 000 0000"
+                    value={cgPhone}
+                    onChange={(e) => setCgPhone(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Parentesco *</label>
+                  <select
+                    value={cgRelationship}
+                    onChange={(e) => setCgRelationship(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white"
+                  >
+                    <option value="CONYUGE">Cónyuge / Pareja</option>
+                    <option value="PADRE/MADRE">Padre / Madre</option>
+                    <option value="HIJO(A)">Hijo(a)</option>
+                    <option value="HERMANO(A)">Hermano(a)</option>
+                    <option value="TUTOR_LEGAL">Tutor Legal</option>
+                    <option value="OTRO">Otro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Nivel de Acceso del Cuidador *</label>
+                <select
+                  value={cgRole}
+                  onChange={(e) => setCgRole(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white font-bold"
+                >
+                  <option value="INFORMATIONAL_CONTACT">Contacto Informativo (Solo Avisos)</option>
+                  <option value="AUTHORIZED_CAREGIVER">Cuidador Autorizado (Medicamentos & Citas)</option>
+                  <option value="LEGAL_GUARDIAN">Tutor Legal (Facultad Legal Completa)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateCaregiverModalOpen(false)}
+                  className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm disabled:opacity-50"
+                >
+                  {isSubmitting ? "Vinculando..." : "Confirmar Vínculo"}
                 </button>
               </div>
             </form>

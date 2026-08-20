@@ -233,6 +233,87 @@ export interface BeneficiaryDocument {
   createdAt?: string;
 }
 
+export interface HealthDataSharing {
+  id: number;
+  foundationId: number;
+  beneficiaryId: number;
+  beneficiaryName?: string;
+  beneficiaryCurp?: string;
+  patientUserId?: number;
+  programId?: number;
+  programName?: string;
+  authorizedScopes: string[]; // ["LAB_RESULTS", "PRESCRIPTIONS", "CONSULTATION_SUMMARIES", "VITAL_SIGNS"]
+  purpose?: string;
+  validFrom: string;
+  validTo: string;
+  isRevoked: boolean;
+  revokedAt?: string;
+  status: "ACTIVE" | "EXPIRED" | "REVOKED";
+  createdAt?: string;
+}
+
+export interface CaregiverLink {
+  id: number;
+  beneficiaryId: number;
+  patientUserId?: number;
+  caregiverUserId?: number;
+  caregiverName: string;
+  caregiverPhone?: string;
+  caregiverEmail?: string;
+  relationship: string;
+  caregiverRole: "INFORMATIONAL_CONTACT" | "AUTHORIZED_CAREGIVER" | "LEGAL_GUARDIAN";
+  permissions: string[];
+  isVerified: boolean;
+  createdAt?: string;
+}
+
+export interface FoundationCampaign {
+  id: number;
+  foundationId: number;
+  programId?: number;
+  programName?: string;
+  name: string;
+  cause: string;
+  description?: string;
+  targetAttendees: number;
+  screenedAttendees: number;
+  startDate: string;
+  endDate: string;
+  locationCity?: string;
+  locationAddress?: string;
+  status: "UPCOMING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CampaignScreeningRecord {
+  id: number;
+  campaignId: number;
+  campaignName?: string;
+  foundationId: number;
+  beneficiaryId?: number;
+  attendeeName: string;
+  attendeeCurp?: string;
+  attendeePhone?: string;
+  screeningType: string;
+  measurements?: Record<string, any>;
+  riskLevel: "NORMAL" | "MODERATE_RISK" | "HIGH_RISK";
+  observations?: string;
+  aiSummary?: string;
+  referredToProgramId?: number;
+  screenedByStaffName?: string;
+  screenedAt?: string;
+  createdAt?: string;
+}
+
+export interface CampaignStats {
+  totalCampaigns: number;
+  activeCampaigns: number;
+  completedCampaigns: number;
+  totalScreenedAttendees: number;
+  totalTargetAttendees: number;
+}
+
 export interface FoundationStatsSummary {
   totalPrograms: number;
   activePrograms: number;
@@ -244,6 +325,7 @@ export interface FoundationStatsSummary {
   availableBudget: number;
 }
 
+// Request Payloads
 export interface CreateBeneficiaryPayload {
   curp: string;
   firstName: string;
@@ -303,6 +385,51 @@ export interface ReviewDocumentPayload {
   verificationStatus: "APPROVED" | "OBSERVED" | "REJECTED";
   rejectionReason?: string;
   reviewNotes?: string;
+}
+
+export interface CreateDataSharingPayload {
+  beneficiaryId: number;
+  programId?: number;
+  authorizedScopes: string[];
+  purpose?: string;
+  durationDays: number;
+}
+
+export interface CreateCaregiverLinkPayload {
+  beneficiaryId: number;
+  caregiverName: string;
+  caregiverPhone?: string;
+  caregiverEmail?: string;
+  relationship: string;
+  caregiverRole: string;
+  permissions?: string[];
+}
+
+export interface CreateCampaignPayload {
+  programId?: number;
+  name: string;
+  cause: string;
+  description?: string;
+  targetAttendees: number;
+  startDate: string;
+  endDate: string;
+  locationCity?: string;
+  locationAddress?: string;
+  status?: string;
+}
+
+export interface CreateScreeningRecordPayload {
+  campaignId: number;
+  beneficiaryId?: number;
+  attendeeName: string;
+  attendeeCurp?: string;
+  attendeePhone?: string;
+  screeningType: string;
+  measurements?: Record<string, any>;
+  riskLevel: string;
+  observations?: string;
+  referredToProgramId?: number;
+  screenedByStaffName?: string;
 }
 
 // Payloads específicos para el Onboarding Wizard

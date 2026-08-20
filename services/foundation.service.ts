@@ -7,12 +7,21 @@ import {
   FoundationVoucher,
   VoucherStats,
   BeneficiaryDocument,
+  HealthDataSharing,
+  CaregiverLink,
+  FoundationCampaign,
+  CampaignScreeningRecord,
+  CampaignStats,
   CreateBeneficiaryPayload,
   CreateProgramPayload,
   CreateVoucherPayload,
   RedeemVoucherPayload,
   RequestDocumentPayload,
   ReviewDocumentPayload,
+  CreateDataSharingPayload,
+  CreateCaregiverLinkPayload,
+  CreateCampaignPayload,
+  CreateScreeningRecordPayload,
 } from "@/types/foundation";
 
 export const foundationService = {
@@ -284,30 +293,8 @@ export const foundationService = {
             expiresAt: "2026-06-10T23:59:59Z",
             createdAt: "2026-03-10T11:00:00Z",
           },
-          {
-            id: 3,
-            voucherCode: "VCH-2026-1C4E8A",
-            foundationId: 10,
-            programId: 3,
-            programName: "Asistencia Oncológica Pediátrica",
-            beneficiaryId: 103,
-            beneficiaryName: "Emiliano Rosas Beltrán",
-            beneficiaryCurp: "ROSE150820HDFLNS03",
-            supportType: "CONSULTATION",
-            authorizedAmount: 1200,
-            redeemedAmount: 1200,
-            remainingAmount: 0,
-            subsidyPercentage: 100,
-            status: "REDEEMED",
-            prescriptionFolio: "CITA-PED-841",
-            notes: "Consulta de alta especialidad con Oncólogo Pediatra.",
-            issuedAt: "2026-03-12T16:00:00Z",
-            redeemedAt: "2026-03-14T10:00:00Z",
-            expiresAt: "2026-06-12T23:59:59Z",
-            createdAt: "2026-03-12T16:00:00Z",
-          },
         ],
-        totalElements: 3,
+        totalElements: 2,
       };
     }
   },
@@ -371,47 +358,12 @@ export const foundationService = {
             contentType: "application/pdf",
             fileSizeBytes: 1450000,
             verificationStatus: "APPROVED",
-            reviewNotes: "Familia de 4 integrantes, ingreso familiar menor a 2 salarios mínimos. Vulnerabilidad Alta confirmada.",
+            reviewNotes: "Familia de 4 integrantes, ingreso familiar menor a 2 salarios mínimos.",
             uploadedAt: "2026-01-16T14:20:00Z",
             reviewedAt: "2026-01-17T09:15:00Z",
           },
-          {
-            id: 2,
-            foundationId: 10,
-            beneficiaryId: 102,
-            beneficiaryName: "Esperanza López Vega",
-            beneficiaryCurp: "LOPE721104MDFNLR09",
-            programId: 2,
-            documentType: "MEDICAL_SUMMARY",
-            title: "Dictamen Oftalmológico de Catarata Senil",
-            fileName: "dictamen_oftalmologico_lopez.pdf",
-            fileUrl: "/api/storage/dictamen_oftalmologico_lopez.pdf",
-            contentType: "application/pdf",
-            fileSizeBytes: 890000,
-            verificationStatus: "APPROVED",
-            reviewNotes: "Candidata óptima para colocación de lente intraocular monofocal.",
-            uploadedAt: "2026-02-12T10:00:00Z",
-            reviewedAt: "2026-02-13T16:30:00Z",
-          },
-          {
-            id: 3,
-            foundationId: 10,
-            beneficiaryId: 103,
-            beneficiaryName: "Emiliano Rosas Beltrán",
-            beneficiaryCurp: "ROSE150820HDFLNS03",
-            programId: 3,
-            documentType: "INCOME_PROOF",
-            title: "Comprobante de Ingresos Familiares",
-            fileName: "comprobante_ingresos_rosas.jpg",
-            fileUrl: "/api/storage/comprobante_ingresos_rosas.jpg",
-            contentType: "image/jpeg",
-            fileSizeBytes: 420000,
-            verificationStatus: "PENDING",
-            reviewNotes: "Pendiente de cotejo por Trabajo Social.",
-            uploadedAt: "2026-03-09T11:45:00Z",
-          },
         ],
-        totalElements: 3,
+        totalElements: 1,
       };
     }
   },
@@ -439,6 +391,234 @@ export const foundationService = {
       payload
     );
     return response.data;
+  },
+
+  // --- HEALTH DATA SHARING & CAREGIVERS ---
+
+  getDataSharingByBeneficiary: async (beneficiaryId: number): Promise<HealthDataSharing[]> => {
+    try {
+      const response = await axiosInstance.get<HealthDataSharing[]>(
+        `/api/foundation/data-sharing/beneficiary/${beneficiaryId}`
+      );
+      return response.data;
+    } catch {
+      return [
+        {
+          id: 1,
+          foundationId: 10,
+          beneficiaryId: 101,
+          beneficiaryName: "Manuel García Ramos",
+          beneficiaryCurp: "GARM880415HDFRRL01",
+          programId: 1,
+          programName: "Programa de Apoyo a Pacientes Trasplantados",
+          authorizedScopes: ["LAB_RESULTS", "PRESCRIPTIONS"],
+          purpose: "Monitoreo de niveles séricos de Tacrolimus y función renal post-trasplante",
+          validFrom: "2026-01-15T00:00:00Z",
+          validTo: "2026-04-15T23:59:59Z",
+          isRevoked: false,
+          status: "ACTIVE",
+          createdAt: "2026-01-15T11:00:00Z",
+        },
+      ];
+    }
+  },
+
+  createDataSharing: async (payload: CreateDataSharingPayload): Promise<HealthDataSharing> => {
+    const response = await axiosInstance.post<HealthDataSharing>("/api/foundation/data-sharing", payload);
+    return response.data;
+  },
+
+  revokeDataSharing: async (id: number): Promise<void> => {
+    await axiosInstance.delete(`/api/foundation/data-sharing/${id}`);
+  },
+
+  getCaregiversByBeneficiary: async (beneficiaryId: number): Promise<CaregiverLink[]> => {
+    try {
+      const response = await axiosInstance.get<CaregiverLink[]>(
+        `/api/foundation/caregivers/beneficiary/${beneficiaryId}`
+      );
+      return response.data;
+    } catch {
+      return [
+        {
+          id: 1,
+          beneficiaryId: 101,
+          caregiverName: "María Ramos de García",
+          caregiverPhone: "+52 668 555 4321",
+          caregiverEmail: "m.ramos@gmail.com",
+          relationship: "CONYUGE",
+          caregiverRole: "AUTHORIZED_CAREGIVER",
+          permissions: ["RECEIVE_ALERTS", "LOG_MEDICATIONS", "MANAGE_APPOINTMENTS"],
+          isVerified: true,
+          createdAt: "2026-01-15T11:30:00Z",
+        },
+      ];
+    }
+  },
+
+  createCaregiverLink: async (payload: CreateCaregiverLinkPayload): Promise<CaregiverLink> => {
+    const response = await axiosInstance.post<CaregiverLink>("/api/foundation/caregivers", payload);
+    return response.data;
+  },
+
+  deleteCaregiverLink: async (id: number): Promise<void> => {
+    await axiosInstance.delete(`/api/foundation/caregivers/${id}`);
+  },
+
+  // --- CAMPAÑAS & JORNADAS DE SALUD ---
+
+  getCampaigns: async (
+    status: string = "ALL",
+    page: number = 0,
+    size: number = 20
+  ): Promise<{ content: FoundationCampaign[]; totalElements: number }> => {
+    try {
+      const response = await axiosInstance.get<{ content: FoundationCampaign[]; totalElements: number }>(
+        `/api/foundation/campaigns?status=${status}&page=${page}&size=${size}`
+      );
+      return response.data;
+    } catch {
+      return {
+        content: [
+          {
+            id: 1,
+            foundationId: 10,
+            programId: 2,
+            programName: "Campaña de Salud Visual & Cirugía de Cataratas",
+            name: "Jornada Comunitaria de Salud Visual Los Mochis 2026",
+            cause: "VISUAL",
+            description: "Exámenes de agudeza visual, detección de cataratas, retinopatía diabética y glaucoma.",
+            targetAttendees: 200,
+            screenedAttendees: 142,
+            startDate: "2026-03-01",
+            endDate: "2026-03-31",
+            locationCity: "Los Mochis",
+            locationAddress: "Centro Comunitario Siglo XXI, Calle Degollado #450",
+            status: "IN_PROGRESS",
+            createdAt: "2026-02-15T10:00:00Z",
+          },
+          {
+            id: 2,
+            foundationId: 10,
+            programId: 1,
+            programName: "Programa de Apoyo a Pacientes Trasplantados",
+            name: "Campaña de Detección Temprana de Enfermedad Renal & Diabetes",
+            cause: "RENAL",
+            description: "Tamizaje de microalbuminuria, glucosa capilar y toma de presión arterial en población vulnerable.",
+            targetAttendees: 150,
+            screenedAttendees: 98,
+            startDate: "2026-03-10",
+            endDate: "2026-04-10",
+            locationCity: "Guasave",
+            locationAddress: "Plaza Central Cívica, Av. Madero s/n",
+            status: "IN_PROGRESS",
+            createdAt: "2026-02-20T14:30:00Z",
+          },
+          {
+            id: 3,
+            foundationId: 10,
+            name: "Jornada Rosa: Mastografía y Detección de Cáncer de Mama",
+            cause: "ONCOLOGY",
+            description: "Estudios de mastografía digital y ultrasonido mamario con canalización a oncología.",
+            targetAttendees: 100,
+            screenedAttendees: 0,
+            startDate: "2026-04-01",
+            endDate: "2026-04-15",
+            locationCity: "Culiacán",
+            locationAddress: "Hospital General de Culiacán, Módulo Asistencial",
+            status: "UPCOMING",
+            createdAt: "2026-03-01T09:00:00Z",
+          },
+        ],
+        totalElements: 3,
+      };
+    }
+  },
+
+  createCampaign: async (payload: CreateCampaignPayload): Promise<FoundationCampaign> => {
+    const response = await axiosInstance.post<FoundationCampaign>("/api/foundation/campaigns", payload);
+    return response.data;
+  },
+
+  getScreeningsByCampaign: async (
+    campaignId: number,
+    page: number = 0,
+    size: number = 50
+  ): Promise<{ content: CampaignScreeningRecord[]; totalElements: number }> => {
+    try {
+      const response = await axiosInstance.get<{ content: CampaignScreeningRecord[]; totalElements: number }>(
+        `/api/foundation/campaigns/${campaignId}/screenings?page=${page}&size=${size}`
+      );
+      return response.data;
+    } catch {
+      return {
+        content: [
+          {
+            id: 1,
+            campaignId: 1,
+            campaignName: "Jornada Comunitaria de Salud Visual Los Mochis 2026",
+            foundationId: 10,
+            beneficiaryId: 102,
+            attendeeName: "Esperanza López Vega",
+            attendeeCurp: "LOPE721104MDFNLR09",
+            attendeePhone: "+52 667 987 6543",
+            screeningType: "VISUAL_ACUITY",
+            measurements: { visual_od: "20/200", visual_oi: "20/70", intraocular_pressure_mmhg: 16 },
+            riskLevel: "HIGH_RISK",
+            observations: "Opacidad significativa del cristalino en ojo derecho, compatible con catarata madura.",
+            aiSummary: "📋 Síntesis de Tamizaje (IA de Acompañamiento):\n• Agudeza visual OD 20/200 y OI 20/70. Presión intraocular normal (16 mmHg).\n• Canalizada al Programa de Salud Visual para facoemulsificación con subsidio del 70%.\n• Nota: Resumen para orientación médica.",
+            referredToProgramId: 2,
+            screenedByStaffName: "Opt. David Valenzuela",
+            screenedAt: "2026-03-05T11:30:00Z",
+          },
+        ],
+        totalElements: 1,
+      };
+    }
+  },
+
+  createScreeningRecord: async (payload: CreateScreeningRecordPayload): Promise<CampaignScreeningRecord> => {
+    const response = await axiosInstance.post<CampaignScreeningRecord>(
+      "/api/foundation/campaigns/screenings",
+      payload
+    );
+    return response.data;
+  },
+
+  generateAiScreeningSummary: async (
+    screeningType: string,
+    measurements: Record<string, any>,
+    observations?: string,
+    attendeeName?: string
+  ): Promise<string> => {
+    try {
+      const response = await axiosInstance.post<{ summary: string }>("/api/foundation/campaigns/ai-summary", {
+        screeningType,
+        measurements,
+        observations,
+        attendeeName,
+      });
+      return response.data.summary;
+    } catch {
+      return `📋 Síntesis de Tamizaje (IA de Acompañamiento):\n• Tipo de Tamizaje: ${screeningType}\n• Parámetros Registrados: ${JSON.stringify(
+        measurements
+      )}\n• Observaciones: ${observations || "Sin observaciones adicionales."}\n• Nota: Este resumen no constituye un diagnóstico clínico.`;
+    }
+  },
+
+  getCampaignStats: async (): Promise<CampaignStats> => {
+    try {
+      const response = await axiosInstance.get<CampaignStats>("/api/foundation/campaigns/stats/summary");
+      return response.data;
+    } catch {
+      return {
+        totalCampaigns: 5,
+        activeCampaigns: 2,
+        completedCampaigns: 2,
+        totalScreenedAttendees: 240,
+        totalTargetAttendees: 450,
+      };
+    }
   },
 
   // --- STATS & RESUMEN EJECUTIVO ---
