@@ -210,11 +210,13 @@
       "platform": {
         "title": "Platform",
         "links": {
-          "discover": "Find Specialists",
-          "market": "QuMarket (Store)",
-          "academy": "QuBlocks (Academy)",
-          "doctors": "For Doctors",
-          "intelligence": "Intelligence",
+          "discover": "Find Specialists & Clinics",
+          "market": "QuMarket (Health Store)",
+          "academy": "QuBlocks (Medical Academy)",
+          "doctors": "For Doctors & Clinics",
+          "foundations": "For Foundations & NGOs",
+          "suppliers": "For Medical Suppliers",
+          "intelligence": "Artificial Intelligence",
           "quscore": "How QuScore works"
         }
       },
@@ -263,15 +265,19 @@
   "Navbar": {
     "links": {
       "guest": {
-        "discover": "Discover",
-        "business": "For Doctors",
-        "pricing": "Pricing",
         "suite": "Ecosystem",
         "modules": "Modules",
-        "testimonials": "Testimonials"
+        "pricing": "Pricing",
+        "foundations": "For Foundations",
+        "suppliers": "Medical Suppliers",
+        "testimonials": "Testimonials",
+        "discover": "Find Services",
+        "business": "For Doctors"
       },
       "consumer": {
-        "discover": "Find Doctors",
+        "discover": "Find Doctors & Services",
+        "foundations": "Foundations",
+        "suppliers": "Medical Supplies",
         "appointments": "My Appointments",
         "favorites": "Favorites"
       },
@@ -9676,7 +9682,7 @@
       "title_end": ".",
       "description": "The end-to-end platform to manage assistance programs, vulnerable beneficiary rosters, medical subsidies, and community health screening campaigns with full transparency, traceability, and SAT fiscal compliance.",
       "cta_onboarding": "Register My Foundation",
-      "cta_explore": "Explore in Discover",
+      "cta_explore": "Find Support Programs",
       "badges": {
         "donatary": "SAT Authorized Donatary",
         "cluni": "Federal CLUNI Registry",
@@ -9704,8 +9710,8 @@
       "c4_desc": "Time-limited and granular access to patient Health Vault records (labs, prescriptions) strictly adhering to privacy and medical confidentiality laws.",
       "c5_title": "Social BI, SROI & Transparency Reports",
       "c5_desc": "Aggregated anonymized dashboards, SROI social return index, and automated accountability reports ready for donors and tax authorities.",
-      "c6_title": "Institutional Storefront in Marketplace",
-      "c6_desc": "Public profile in Discover allowing thousands of patients to discover your programs, understand your cause, and apply for support directly online."
+      "c6_title": "Institutional Storefront in Directory",
+      "c6_desc": "Public profile in our directory allowing thousands of patients to discover your programs, understand your cause, and apply for support directly online."
     },
     "ecosystem": {
       "badge": "Connected Healthcare Ecosystem",
@@ -9748,6 +9754,88 @@
       "subtitle": "Join the QuHealthy institutional network and digitize your assistance programs with complete transparency.",
       "button_onboarding": "Start Foundation Registration",
       "button_contact": "Talk to an Institutional Specialist"
+    }
+  },
+  "PublicSuppliers": {
+    "hero": {
+      "badge": "Vertical for Medical Suppliers & Distributors",
+      "title_start": "Distribute medical supplies, pharmaceuticals, and biomedical equipment to ",
+      "title_highlight": "hospitals and doctors",
+      "title_end": " nationwide.",
+      "description": "The most comprehensive B2B and B2C healthcare commerce platform. Manage multi-warehouse inventory, lot tracking with expiry dates, formal quotes (RFQ), volume tiered pricing, equipment leasing, and real-time cold chain monitoring.",
+      "cta_onboarding": "Register Supplier Company",
+      "cta_explore": "Browse Medical Catalog",
+      "badges": {
+        "cofepris": "COFEPRIS Verification & Sanity Registries",
+        "coldchain": "IoT Cold Chain 2°C - 8°C",
+        "b2b": "Tiered Volume Pricing & RFQ",
+        "rentals": "Biomedical Equipment Leasing & Warranty Deposits"
+      }
+    },
+    "stats": {
+      "hospitals": "Buying Clinics & Hospitals",
+      "products": "Cataloged Supplies & Machines",
+      "compliance": "Cold Chain Telemetry Accuracy",
+      "quotes": "Average Quote Turnaround"
+    },
+    "capabilities": {
+      "badge": "Enterprise Platform Capabilities",
+      "title": "Enterprise-grade tools to power the healthcare supply chain",
+      "subtitle": "Designed for manufacturers, pharmaceutical wholesalers, supply distributors, and biomedical technology firms.",
+      "c1_title": "Regulatory Catalog & Lot Control",
+      "c1_desc": "Batch/Lot tracking, expiration alert traffic lights, COFEPRIS risk classification, and health registration compliance per product.",
+      "c2_title": "Tiered Volume B2B Pricing",
+      "c2_desc": "Define automatic volume discount tiers (e.g. 1-9 units, 10-49 units, 50+ units) for doctors and hospital networks buying at wholesale.",
+      "c3_title": "Formal Quotations & Purchase Orders (PO)",
+      "c3_desc": "Generate branded PDF quotes with VAT (16%), freight costs, and credit terms (Net 30, Net 15) that convert into POs in one click.",
+      "c4_title": "Biomedical Equipment Leasing",
+      "c4_desc": "Manage rental contracts by physical serial number, security deposit collection and return, and preventive calibration logs.",
+      "c5_title": "Cold Chain & IoT Telemetry",
+      "c5_desc": "Real-time en-route temperature monitoring for biologics with IoT sensors and pharmaceutical QA excursion resolution workflows.",
+      "c6_title": "Multi-Warehouse & Auditable Kardex",
+      "c6_desc": "Track multi-facility inventory, approve inter-branch stock transfers, and audit every movement with immutable balance accounting."
+    },
+    "ecosystem": {
+      "badge": "Connected Commercial Workflow",
+      "title": "How do you trade with Clinics, Doctors, and Patients?",
+      "step1_title": "1. Corporate Onboarding",
+      "step1_desc": "Register your enterprise, warehouses, and staff roles (sales, inventory, logistics) with tax ID and license verification.",
+      "step2_title": "2. Catalog Publishing",
+      "step2_desc": "Upload medical items with spec sheets, batches, temperature requirements, and volume price tiers.",
+      "step3_title": "3. Orders & RFQ Reception",
+      "step3_desc": "Doctors and clinics purchase directly or request institutional quotes with custom payment and credit terms.",
+      "step4_title": "4. Fulfillment & Certified Delivery",
+      "step4_desc": "Batch-verified picking, courier tracking, and thermal telemetries all the way to clinical delivery sign-off."
+    },
+    "compliance": {
+      "badge": "Quality & Regulatory Compliance",
+      "title": "Backed by official healthcare standards",
+      "cofepris_title": "Sanitary Verification",
+      "cofepris_desc": "Strict classification between items requiring sanitary registration and over-the-counter wellness supplies.",
+      "nom072_title": "Good Storage & Distribution Practices",
+      "nom072_desc": "Complete batch traceability, warehouse zoning, and compliant distribution protocols for medical devices.",
+      "cold_title": "Official Cold Chain Standards",
+      "cold_desc": "Temperature stability verification for biologics and thermolabile pharmaceuticals with QA inspector sign-offs."
+    },
+    "faq": {
+      "badge": "Frequently Asked Questions",
+      "title": "Everything you need to know as a medical supplier",
+      "q1": "Can I sell to both healthcare professionals and individual patients?",
+      "a1": "Yes. Your catalog can offer public OTC items to patients (wound care, wellness, braces) and restrict specialized items exclusively to verified doctors and clinics.",
+      "q2": "How do volume pricing tiers work for wholesale orders?",
+      "a2": "You can configure quantity brackets for any item. When a clinic or doctor adds wholesale quantities, the discounted unit price is applied automatically.",
+      "q3": "Can I generate formal PDF quotes for hospital bids or private tenders?",
+      "a3": "Yes. You have a built-in quote generator with your corporate letterhead, tax ID, VAT calculation, shipping fee, and credit terms. It converts into a Purchase Order upon customer acceptance.",
+      "q4": "How are biomedical equipment rentals and security deposits handled?",
+      "a4": "You track each physical unit by serial number, issue rental contracts with monthly rates and deposit amounts, and process deductions or full returns upon machine return.",
+      "q5": "What is required to monitor refrigerated cold chain shipments?",
+      "a5": "You assign an IoT data logger ID to the shipment. The platform receives live temperature pings, plots thermal curves, and alerts QA teams if excursions occur."
+    },
+    "cta": {
+      "title": "Ready to scale your medical distribution network?",
+      "subtitle": "Join the leading healthcare platform and supply thousands of verified clinics and doctors nationwide.",
+      "button_onboarding": "Register my Supplier Company",
+      "button_contact": "Talk to a Commercial Advisor"
     }
   }
 }

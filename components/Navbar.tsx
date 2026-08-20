@@ -23,6 +23,9 @@ import {
   Sparkles,
   ShieldCheck,
   ShoppingBag,
+  HeartHandshake,
+  Truck,
+  Building2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations, useLocale } from "next-intl";
@@ -62,10 +65,13 @@ const LINKS: Record<string, NavItem[]> = {
     { name: "links.guest.suite", href: "/#suite" },
     { name: "links.guest.modules", href: "/#platform-modules" },
     { name: "links.guest.pricing", href: "/#pricing" },
-    { name: "links.guest.testimonials", href: "/#testimonials" },
+    { name: "links.guest.foundations", href: "/foundations", icon: HeartHandshake },
+    { name: "links.guest.suppliers", href: "/suppliers", icon: Truck },
   ],
   CONSUMER: [
     { name: "links.consumer.discover", href: "/discover", icon: Search },
+    { name: "links.consumer.foundations", href: "/foundations", icon: HeartHandshake },
+    { name: "links.consumer.suppliers", href: "/suppliers", icon: Truck },
     {
       name: "links.consumer.appointments",
       href: "/patient/dashboard/appointments",
@@ -487,22 +493,22 @@ export const Navbar: React.FC = () => {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-60 bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl p-1.5 font-sans space-y-1"
+                  className="w-64 bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl p-1.5 font-sans space-y-1"
                 >
                   <DropdownMenuItem
                     asChild
-                    className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-3"
+                    className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5"
                   >
                     <Link href="/provider/register" className="flex items-center gap-3 w-full">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
-                        <Store size={16} strokeWidth={2} />
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+                        <Store size={15} strokeWidth={2} />
                       </div>
                       <div className="flex flex-col space-y-0.5">
                         <span className="font-bold text-xs text-gray-900 dark:text-white">
                           Profesional / Clínica
                         </span>
                         <span className="text-[10px] font-medium text-gray-400">
-                          Ofrece tus servicios médicos
+                          Consultorio, agenda y recetas
                         </span>
                       </div>
                     </Link>
@@ -510,18 +516,56 @@ export const Navbar: React.FC = () => {
 
                   <DropdownMenuItem
                     asChild
-                    className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-3"
+                    className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5"
                   >
                     <Link href="/register?clear_session=true" className="flex items-center gap-3 w-full">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
-                        <UserIcon size={16} strokeWidth={2} />
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+                        <UserIcon size={15} strokeWidth={2} />
                       </div>
                       <div className="flex flex-col space-y-0.5">
                         <span className="font-bold text-xs text-gray-900 dark:text-white">
                           Paciente
                         </span>
                         <span className="text-[10px] font-medium text-gray-400">
-                          Agenda y gestiona tus citas
+                          Agenda citas y cuida tu salud
+                        </span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    asChild
+                    className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5"
+                  >
+                    <Link href="/onboarding/foundation" className="flex items-center gap-3 w-full">
+                      <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-2xs">
+                        <HeartHandshake size={15} strokeWidth={2} />
+                      </div>
+                      <div className="flex flex-col space-y-0.5">
+                        <span className="font-bold text-xs text-gray-900 dark:text-white">
+                          Fundación / ONG
+                        </span>
+                        <span className="text-[10px] font-medium text-gray-400">
+                          Programas de asistencia social
+                        </span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    asChild
+                    className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5"
+                  >
+                    <Link href="/onboarding/supplier" className="flex items-center gap-3 w-full">
+                      <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0 shadow-2xs">
+                        <Truck size={15} strokeWidth={2} />
+                      </div>
+                      <div className="flex flex-col space-y-0.5">
+                        <span className="font-bold text-xs text-gray-900 dark:text-white">
+                          Proveedor de Insumos
+                        </span>
+                        <span className="text-[10px] font-medium text-gray-400">
+                          Venta B2B, almacenes y equipo
                         </span>
                       </div>
                     </Link>
@@ -718,6 +762,26 @@ export const Navbar: React.FC = () => {
                         <Button className="w-full h-12 rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-bold text-xs flex-col gap-0.5">
                           <UserIcon size={14} />
                           <span className="text-[10px]">Paciente</span>
+                        </Button>
+                      </Link>
+
+                      <Link
+                        href="/onboarding/foundation"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Button className="w-full h-12 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex-col gap-0.5">
+                          <HeartHandshake size={14} />
+                          <span className="text-[10px]">Fundación</span>
+                        </Button>
+                      </Link>
+
+                      <Link
+                        href="/onboarding/supplier"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex-col gap-0.5">
+                          <Truck size={14} />
+                          <span className="text-[10px]">Proveedor</span>
                         </Button>
                       </Link>
                     </div>

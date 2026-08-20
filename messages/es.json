@@ -205,11 +205,13 @@
       "platform": {
         "title": "Plataforma",
         "links": {
-          "discover": "Buscar Especialistas",
-          "market": "QuMarket (Tienda)",
-          "academy": "QuBlocks (Academia)",
-          "doctors": "Para Doctores",
-          "intelligence": "Inteligencia",
+          "discover": "Buscar Especialistas y Clínicas",
+          "market": "QuMarket (Tienda de Salud)",
+          "academy": "QuBlocks (Academia Médica)",
+          "doctors": "Para Doctores & Clínicas",
+          "foundations": "Para Fundaciones & ONGs",
+          "suppliers": "Para Proveedores de Insumos",
+          "intelligence": "Inteligencia Artificial",
           "quscore": "¿Cómo funciona el QuScore?"
         }
       },
@@ -258,15 +260,19 @@
   "Navbar": {
     "links": {
       "guest": {
-        "discover": "Descubrir",
-        "business": "Para Doctores",
-        "pricing": "Precios",
         "suite": "Ecosistema",
         "modules": "Módulos",
-        "testimonials": "Testimonios"
+        "pricing": "Precios",
+        "foundations": "Para Fundaciones",
+        "suppliers": "Proveedores de Insumos",
+        "testimonials": "Testimonios",
+        "discover": "Buscar Servicios",
+        "business": "Para Doctores"
       },
       "consumer": {
-        "discover": "Buscar Doctores",
+        "discover": "Buscar Médicos & Servicios",
+        "foundations": "Fundaciones",
+        "suppliers": "Insumos Médicos",
         "appointments": "Mis Citas",
         "favorites": "Favoritos"
       },
@@ -9714,7 +9720,7 @@
       "title_end": " de clase mundial.",
       "description": "La plataforma integral para administrar programas asistenciales, padrón de beneficiarios vulnerables, subsidios médicos y jornadas comunitarias de salud con total transparencia, trazabilidad y cumplimiento fiscal ante el SAT.",
       "cta_onboarding": "Registrar mi Fundación",
-      "cta_explore": "Explorar en Discover",
+      "cta_explore": "Buscar Programas de Apoyo",
       "badges": {
         "donatary": "Donatarias Autorizadas SAT",
         "cluni": "Registro Federal CLUNI",
@@ -9743,7 +9749,7 @@
       "c5_title": "Social BI, SROI & Transparencia SAT",
       "c5_desc": "Tableros de analítica agregada y anonimizada, índice SROI de retorno social y generador de reportes de rendición de cuentas listos para donantes y auditoría fiscal.",
       "c6_title": "Tienda Institucional en Marketplace",
-      "c6_desc": "Presencia pública en Discover para que miles de pacientes encuentren tus programas, conozcan tu causa y soliciten apoyo social directamente en línea."
+      "c6_desc": "Presencia pública en nuestro directorio para que miles de pacientes encuentren tus programas, conozcan tu causa y soliciten apoyo social directamente en línea."
     },
     "ecosystem": {
       "badge": "Ecosistema Conectado",
@@ -9786,6 +9792,88 @@
       "subtitle": "Únete a la red institucional de QuHealthy y digitaliza tus programas asistenciales con total transparencia.",
       "button_onboarding": "Comenzar Registro Institucional",
       "button_contact": "Hablar con un Especialista"
+    }
+  },
+  "PublicSuppliers": {
+    "hero": {
+      "badge": "Vertical para Proveedores & Distribuidores Médicos",
+      "title_start": "Distribuye insumos, medicamentos y equipo biomédico a ",
+      "title_highlight": "hospitales y médicos",
+      "title_end": " en todo el país.",
+      "description": "La plataforma B2B y B2C más completa del sector salud. Administra múltiples almacenes, control de lotes con caducidad, cotizaciones formales, precios de mayoreo, renta de equipo y monitoreo de cadena de frío en tiempo real.",
+      "cta_onboarding": "Registrar Empresa Proveedora",
+      "cta_explore": "Ver Catálogo de Insumos",
+      "badges": {
+        "cofepris": "Verificación COFEPRIS y Registros",
+        "coldchain": "Cadena de Frío IoT 2°C - 8°C",
+        "b2b": "Precios por Escala de Volumen & RFQ",
+        "rentals": "Renta de Equipo con Depósito en Garantía"
+      }
+    },
+    "stats": {
+      "hospitals": "Clínicas & Hospitales Compradores",
+      "products": "Insumos & Equipos Catalogados",
+      "compliance": "Precisión en Cadena de Frío",
+      "quotes": "Tiempo Promedio de Cotización"
+    },
+    "capabilities": {
+      "badge": "Capacidades de la Plataforma",
+      "title": "Herramientas de nivel empresarial para abastecer la cadena de salud",
+      "subtitle": "Diseñado para fabricantes, droguerías, comercializadoras de insumos y empresas de tecnología biomédica.",
+      "c1_title": "Catálogo Sanitario & Control de Lotes",
+      "c1_desc": "Control por número de lote, fecha de caducidad con semáforo preventivo, clasificación de riesgo COFEPRIS y registro sanitario para cada insumo.",
+      "c2_title": "Precios Escalonados por Volumen B2B",
+      "c2_desc": "Define descuentos automáticos por escala (ej. 1-9 pzas, 10-49 pzas, 50+ pzas) para médicos y hospitales que compran al mayoreo.",
+      "c3_title": "Cotizaciones Formales & Órdenes de Compra (PO)",
+      "c3_desc": "Emite cotizaciones membretadas con cálculo de IVA (16%), fletes y términos de crédito (Net 30, Net 15) que se convierten en órdenes en un solo clic.",
+      "c4_title": "Arrendamiento de Equipo Biomédico",
+      "c4_desc": "Gestiona contratos de renta por número de serie físico, cobro y devolución de depósitos en garantía, y bitácora técnica de calibraciones preventivas.",
+      "c5_title": "Cadena de Frío & Monitoreo IoT",
+      "c5_desc": "Supervisa la temperatura en ruta para medicamentos y biológicos en tiempo real con sensores IoT y dictámenes de calidad ante excursiones térmicas.",
+      "c6_title": "Multi-Almacén & Kardex Auditable",
+      "c6_desc": "Gestiona inventario en múltiples bodegas, aprueba transferencias inter-sucursales y audita cada entrada/salida con balance matemático inmutable."
+    },
+    "ecosystem": {
+      "badge": "Flujo Comercial Conectado",
+      "title": "¿Cómo comercializas con Clínicas, Médicos y Pacientes?",
+      "step1_title": "1. Registro y Verificación",
+      "step1_desc": "Da de alta tu empresa, almacenes y equipo de trabajo (ventas, almacén, logística) con validación fiscal de RFC y permisos aplicables.",
+      "step2_title": "2. Publicación de Catálogo",
+      "step2_desc": "Carga tus insumos con fichas técnicas, lotes, condiciones de temperatura y escalas de precios para mayoreo y menudeo.",
+      "step3_title": "3. Recepción de Pedidos y Cotizaciones",
+      "step3_desc": "Médicos y clínicas compran directo o solicitan cotizaciones institucionales con condiciones de pago personalizadas.",
+      "step4_title": "4. Despacho y Entrega Certificada",
+      "step4_desc": "Surtido con validación de lote, guía de rastreo y, en biológicos, monitoreo térmico en ruta hasta la entrega final."
+    },
+    "compliance": {
+      "badge": "Cumplimiento y Calidad",
+      "title": "Respaldado por las normas regulatorias de salud",
+      "cofepris_title": "Validación COFEPRIS",
+      "cofepris_desc": "Diferenciación entre productos que requieren registro sanitario y los de libre venta conforme a la Ley General de Salud.",
+      "nom072_title": "NOM-072-SSA1 & NOM-059-SSA1",
+      "nom072_desc": "Trazabilidad de lote, buenas prácticas de almacenamiento y distribución de medicamentos y dispositivos médicos.",
+      "cold_title": "Norma Oficial de Cadena de Frío",
+      "cold_desc": "Control riguroso de temperatura para biológicos y fármacos termolábiles con dictamen técnico de calidad."
+    },
+    "faq": {
+      "badge": "Preguntas Frecuentes",
+      "title": "Todo lo que necesitas saber como proveedor de insumos",
+      "q1": "¿Puedo vender tanto a médicos y clínicas como a pacientes particulares?",
+      "a1": "Sí. Tu catálogo puede configurarse para venta abierta a pacientes (material de curación, suplementos, ortopedia) o exclusiva para profesionales y clínicas (instrumental quirúrgico, medicamentos controlados o insumos hospitalarios).",
+      "q2": "¿Cómo funcionan las escalas de precios por volumen para compras de mayoreo?",
+      "a2": "Puedes configurar rangos de cantidad para cada producto. Cuando un médico o clínica agrega una cantidad mayor a su pedido, la plataforma aplica el precio con descuento automáticamente.",
+      "q3": "¿Puedo emitir cotizaciones formales para licitaciones o compras hospitalarias?",
+      "a3": "Sí. Cuentas con un generador de cotizaciones formales membretadas con tu logotipo y RFC, desglose de IVA, costo de flete y términos de crédito. Al ser aceptada por el cliente, se convierte automáticamente en una Orden de Compra (PO).",
+      "q4": "¿Cómo se controla la renta de equipo biomédico y los depósitos en garantía?",
+      "a4": "Registras cada equipo por su número de serie físico, emites el contrato de arrendamiento con la tarifa mensual y el depósito en garantía. Al concluir la renta, puedes registrar deducciones por desgaste o devolver la garantía íntegra.",
+      "q5": "¿Qué necesito para monitorear envíos refrigerados en cadena de frío?",
+      "a5": "Puedes asignar un sensor o data logger IoT al despacho. El sistema registra las lecturas de temperatura en vivo, muestra la curva térmica y genera alertas preventivas si la temperatura sale del rango permitido."
+    },
+    "cta": {
+      "title": "¿Listo para expandir tu red de distribución médica?",
+      "subtitle": "Únete a la plataforma de salud líder y abastece a miles de profesionales y clínicas en todo el país.",
+      "button_onboarding": "Registrar mi Empresa Proveedora",
+      "button_contact": "Hablar con un Asesor Comercial"
     }
   }
 }
