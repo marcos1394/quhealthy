@@ -9667,5 +9667,87 @@
       "q5": "Can I sell my own products or care packages?",
       "a5": "Absolutely. You have a Medical Store and QuMarket module where you can sell skincare products, clinical supplements, consultation packages, and manage inventory with low-stock alerts."
     }
+  },
+  "PublicFoundations": {
+    "hero": {
+      "badge": "Social Health Institutional Vertical",
+      "title_start": "Multiply your foundation's impact with ",
+      "title_highlight": "world-class healthcare technology",
+      "title_end": ".",
+      "description": "The end-to-end platform to manage assistance programs, vulnerable beneficiary rosters, medical subsidies, and community health screening campaigns with full transparency, traceability, and SAT fiscal compliance.",
+      "cta_onboarding": "Register My Foundation",
+      "cta_explore": "Explore in Discover",
+      "badges": {
+        "donatary": "SAT Authorized Donatary",
+        "cluni": "Federal CLUNI Registry",
+        "nom004": "NOM-004 & LFPDPPP Sovereign EHR",
+        "sroi": "Social BI & SROI Analytics"
+      }
+    },
+    "stats": {
+      "lives": "Lives Impacted in Network",
+      "programs": "Assistance Programs",
+      "coverage": "Social Coverage Rate",
+      "sroi": "Social Return on Investment"
+    },
+    "capabilities": {
+      "badge": "Institutional Capabilities",
+      "title": "Everything your foundation needs to operate and report impact",
+      "subtitle": "Tailor-made for Non-profits, Civil Associations, Foundations, and Social Health Institutions.",
+      "c1_title": "Beneficiary Roster & Social Work Review",
+      "c1_desc": "Official 18-digit CURP validation, socioeconomic classification (NSE), and vulnerability scoring with a dedicated digital desk for social work case decisions.",
+      "c2_title": "Administrative Subsidy Engine",
+      "c2_desc": "Issuance and redemption of FoundationVouchers for consultations, medications, surgeries, and labs with full auditability and zero third-party fund custody.",
+      "c3_title": "Field Health Campaigns & AI Screening",
+      "c3_desc": "Run community health days, manage high-volume attendance, clinical risk stratification, and AI-assisted screening summaries for early detection.",
+      "c4_title": "Clinical Sovereignty & Health Data Sharing",
+      "c4_desc": "Time-limited and granular access to patient Health Vault records (labs, prescriptions) strictly adhering to privacy and medical confidentiality laws.",
+      "c5_title": "Social BI, SROI & Transparency Reports",
+      "c5_desc": "Aggregated anonymized dashboards, SROI social return index, and automated accountability reports ready for donors and tax authorities.",
+      "c6_title": "Institutional Storefront in Marketplace",
+      "c6_desc": "Public profile in Discover allowing thousands of patients to discover your programs, understand your cause, and apply for support directly online."
+    },
+    "ecosystem": {
+      "badge": "Connected Healthcare Ecosystem",
+      "title": "How do the Foundation, Patient, and Doctors collaborate?",
+      "step1_title": "1. Program Publication",
+      "step1_desc": "The foundation verifies its institutional credentials and publishes active health causes and calls in its public storefront.",
+      "step2_title": "2. Beneficiary Application",
+      "step2_desc": "The patient applies online via the storefront or gets screened during community field campaigns.",
+      "step3_title": "3. Evaluation & Voucher Issuance",
+      "step3_desc": "Social Work reviews the dossier and issues a trackable administrative subsidy voucher with a unique code.",
+      "step4_title": "4. Medical Delivery & Proof",
+      "step4_desc": "The beneficiary receives care from network doctors; the official prescription folio confirms voucher redemption."
+    },
+    "compliance": {
+      "badge": "Security & Regulatory Compliance",
+      "title": "Institutional trust and legal compliance for donors",
+      "sat_title": "SAT Fiscal Alignment",
+      "sat_desc": "Documentary proof and voucher reconciliation supporting the allocation of tax-deductible donations.",
+      "nom_title": "NOM-004-SSA3 & NOM-024-SSA3",
+      "nom_desc": "Strict clinical record keeping, structured SOAP notes, and electronic medical privacy standards.",
+      "lfpdppp_title": "Personal Data Protection (LFPDPPP)",
+      "lfpdppp_desc": "Digital informed consent, ARCO rights, and explicit authorization for sensitive health data."
+    },
+    "faq": {
+      "badge": "Frequently Asked Questions",
+      "title": "Everything you need to know about our foundation vertical",
+      "q1": "Does QuHealthy hold or custody donation funds?",
+      "a1": "No. QuHealthy operates strictly without third-party fund custody. The platform provides software, validation, and administrative voucher workflows while financial management remains 100% with the foundation.",
+      "q2": "What types of organizations can register?",
+      "a2": "Legally incorporated Private Assistance Institutions (I.A.P.), Civil Associations (A.C.), NGOs, and healthcare charities.",
+      "q3": "How do QuHealthy doctors connect with the foundation?",
+      "a3": "Doctors and clinics receive beneficiaries with active vouchers, deliver the clinical service, and link the medical prescription folio as operational proof.",
+      "q4": "How is patient medical privacy protected?",
+      "a4": "Through our Health Data Sharing protocol, patients grant temporary, granular access to specific vault files with the Foundation Medical Director and can revoke it at any time.",
+      "q5": "What reports are generated by the Social BI module?",
+      "a5": "Social Return on Investment (SROI) metrics, total lives impacted, socioeconomic distribution, and audit-ready fiscal reconciliation reports."
+    },
+    "cta": {
+      "title": "Ready to scale your foundation's healthcare impact?",
+      "subtitle": "Join the QuHealthy institutional network and digitize your assistance programs with complete transparency.",
+      "button_onboarding": "Start Foundation Registration",
+      "button_contact": "Talk to an Institutional Specialist"
+    }
   }
 }

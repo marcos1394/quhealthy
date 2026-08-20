@@ -28,6 +28,7 @@ const Footer: React.FC = () => {
         { name: t('columns.platform.links.market'), href: "/market" },
         { name: t('columns.platform.links.academy'), href: "/academy" },
         { name: t('columns.platform.links.doctors'), href: "/business" },
+        { name: t('columns.platform.links.foundations', { defaultValue: "Para Fundaciones & ONGs" }), href: "/foundations" },
         { name: t('columns.platform.links.intelligence'), href: "/intelligence" },
         { name: t('columns.platform.links.quscore'), href: "/como-funciona-el-quscore" }
       ]

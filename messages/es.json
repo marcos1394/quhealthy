@@ -9705,5 +9705,87 @@
       "q5": "¿Puedo vender mis propios productos o paquetes de tratamientos?",
       "a5": "Por supuesto. Cuentas con un módulo de Tienda Médica y QuMarket donde puedes listar tus productos de dermocosmética, suplementos, paquetes de consultas y controlar inventario con alertas de stock bajo."
     }
+  },
+  "PublicFoundations": {
+    "hero": {
+      "badge": "Vertical Institucional de Asistencia Social",
+      "title_start": "Multiplica el impacto de tu fundación con ",
+      "title_highlight": "tecnología de salud",
+      "title_end": " de clase mundial.",
+      "description": "La plataforma integral para administrar programas asistenciales, padrón de beneficiarios vulnerables, subsidios médicos y jornadas comunitarias de salud con total transparencia, trazabilidad y cumplimiento fiscal ante el SAT.",
+      "cta_onboarding": "Registrar mi Fundación",
+      "cta_explore": "Explorar en Discover",
+      "badges": {
+        "donatary": "Donatarias Autorizadas SAT",
+        "cluni": "Registro Federal CLUNI",
+        "nom004": "Soberanía NOM-004 & LFPDPPP",
+        "sroi": "Social BI & Medición SROI"
+      }
+    },
+    "stats": {
+      "lives": "Vidas Impactadas en Red",
+      "programs": "Programas Asistenciales",
+      "coverage": "Tasa de Cobertura Social",
+      "sroi": "Retorno Social de Inversión"
+    },
+    "capabilities": {
+      "badge": "Capacidades Institucionales",
+      "title": "Todo lo que tu fundación necesita para operar y rendir cuentas",
+      "subtitle": "Diseñado específicamente para IAPs, Asociaciones Civiles (A.C.), ONGs y organismos asistenciales de salud en México.",
+      "c1_title": "Padrón de Beneficiarios & Dictamen Social",
+      "c1_desc": "Registro validado con CURP a 18 dígitos, clasificación por nivel socioeconómico (NSE) y vulnerabilidad, junto a una bandeja digital para que Trabajo Social dictamine expedientes.",
+      "c2_title": "Motor de Subsidios Administrativos",
+      "c2_desc": "Emisión y redención de FoundationVouchers para consultas, medicamentos, cirugías y laboratorios con trazabilidad absoluta y bajo estricta no custodia de fondos de terceros.",
+      "c3_title": "Jornadas de Salud & Tamizajes con IA",
+      "c3_desc": "Administra campañas en campo, control de aforo masivo, clasificación de riesgo clínico y síntesis de acompañamiento asistida por IA para detección oportuna de patologías.",
+      "c4_title": "Soberanía Clínica & Health Data Sharing",
+      "c4_desc": "Acceso temporal y granular a recetas y estudios del Health Vault del paciente, garantizando confidencialidad médica conforme a la NOM-004-SSA3 y LFPDPPP.",
+      "c5_title": "Social BI, SROI & Transparencia SAT",
+      "c5_desc": "Tableros de analítica agregada y anonimizada, índice SROI de retorno social y generador de reportes de rendición de cuentas listos para donantes y auditoría fiscal.",
+      "c6_title": "Tienda Institucional en Marketplace",
+      "c6_desc": "Presencia pública en Discover para que miles de pacientes encuentren tus programas, conozcan tu causa y soliciten apoyo social directamente en línea."
+    },
+    "ecosystem": {
+      "badge": "Ecosistema Conectado",
+      "title": "¿Cómo colaboran la Fundación, el Paciente y los Médicos?",
+      "step1_title": "1. Publicación de Programas",
+      "step1_desc": "La fundación acredita su estatus legal y publica sus causas y convocatorias en su tienda institucional.",
+      "step2_title": "2. Postulación del Beneficiario",
+      "step2_desc": "El paciente solicita apoyo en línea o es registrado en jornadas comunitarias de tamizaje en campo.",
+      "step3_title": "3. Evaluación & Asignación de Voucher",
+      "step3_desc": "Trabajo Social dictamina el expediente y emite una orden de subsidio administrativo con código único.",
+      "step4_title": "4. Atención con Médicos de la Red",
+      "step4_desc": "El beneficiario acude a consulta o cirugía con médicos de QuHealthy; el folio médico valida la redención."
+    },
+    "compliance": {
+      "badge": "Seguridad & Marco Jurídico",
+      "title": "Cumplimiento normativo y confianza para tus donantes",
+      "sat_title": "Alineación Fiscal con el SAT",
+      "sat_desc": "Evidencia documental y conciliación de vouchers para sustentar el destino de donativos deducibles de impuestos.",
+      "nom_title": "NOM-004-SSA3 & NOM-024-SSA3",
+      "nom_desc": "Cumplimiento estricto en el manejo de notas médicas, expedientes electrónicos y confidencialidad clínica.",
+      "lfpdppp_title": "Protección de Datos Personales (LFPDPPP)",
+      "lfpdppp_desc": "Consentimiento informado digital, derechos ARCO y autorización expresa para datos sensibles de salud."
+    },
+    "faq": {
+      "badge": "Preguntas Frecuentes",
+      "title": "Resolvemos tus dudas sobre la vertical institucional",
+      "q1": "¿QuHealthy retiene o custodia los donativos de la fundación?",
+      "a1": "No. QuHealthy opera bajo el principio de NO custodia de fondos de terceros. La plataforma proporciona la infraestructura tecnológica, validación de beneficiarios y emisión de vouchers administrativos, pero los flujos financieros son administrados directamente por la fundación.",
+      "q2": "¿Qué tipo de instituciones pueden registrarse?",
+      "a2": "Pueden registrarse Instituciones de Asistencia Privada (I.A.P.), Asociaciones Civiles (A.C.), Organizaciones de la Sociedad Civil (OSC) y Fundaciones Asistenciales legalmente constituidas en México.",
+      "q3": "¿Cómo se vinculan los médicos de QuHealthy con la fundación?",
+      "a3": "Los médicos y clínicas de la red QuHealthy reciben a los beneficiarios que presentan un FoundationVoucher. Al realizar la consulta o procedimiento, el médico registra el folio oficial de la receta o cita médica, sirviendo como comprobante operativo para la fundación.",
+      "q4": "¿Cómo se garantiza la privacidad del expediente clínico del paciente?",
+      "a4": "Mediante el protocolo de Soberanía Clínica (Health Data Sharing), el paciente otorga consentimiento temporal y granular para compartir únicamente los estudios o recetas relevantes con el Director Médico de la fundación, con capacidad de revocar el acceso en cualquier momento.",
+      "q5": "¿Qué reportes genera el módulo de Social BI?",
+      "a5": "Genera reportes de impacto social con índice SROI (Retorno Social de Inversión), desglose de vidas impactadas, distribución por vulnerabilidad socioeconómica y conciliación de apoyos canalizados con deslinde fiscal SAT."
+    },
+    "cta": {
+      "title": "¿Listo para llevar el impacto de tu fundación al siguiente nivel?",
+      "subtitle": "Únete a la red institucional de QuHealthy y digitaliza tus programas asistenciales con total transparencia.",
+      "button_onboarding": "Comenzar Registro Institucional",
+      "button_contact": "Hablar con un Especialista"
+    }
   }
 }
