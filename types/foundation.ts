@@ -16,6 +16,37 @@ export type FoundationRole =
   | "AUDITOR"
   | "VOLUNTEER";
 
+export type FoundationCause =
+  | "ONCOLOGY"
+  | "RENAL"
+  | "VISUAL"
+  | "DIABETES"
+  | "PEDIATRIC"
+  | "CARDIOVASCULAR"
+  | "DISABILITY"
+  | "MENTAL_HEALTH"
+  | "MATERNAL_INFANT"
+  | "RESPIRATORY"
+  | "RARE_DISEASES"
+  | "GENERAL_HEALTH"
+  | "OTHER";
+
+export type SupportType =
+  | "CONSULTATION"
+  | "MEDICATION"
+  | "LABS"
+  | "SURGERY"
+  | "NUTRITION"
+  | "PSYCHOLOGY"
+  | "REHABILITATION"
+  | "FINANCIAL"
+  | "SHELTER"
+  | "TRANSPORT";
+
+export type VulnerabilityLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export type SocioEconomicLevel = "A_B" | "C_PLUS" | "C" | "D_PLUS" | "D" | "E";
+
 export interface FoundationProfile {
   id?: number;
   userId?: number;
@@ -87,18 +118,104 @@ export interface FoundationStaffMember {
 }
 
 export interface FoundationProgram {
-  id?: number;
-  foundationId?: number;
+  id: number;
+  foundationId: number;
   name: string;
   description?: string;
   cause: string;
   supportTypes: string[];
   requiredDocuments: string[];
   targetBeneficiariesCount?: number;
+  activeBeneficiariesCount?: number;
   allocatedBudget?: number;
+  disbursedBudget?: number;
+  status: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "CANCELLED";
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FoundationBeneficiary {
+  id: number;
+  foundationId: number;
+  linkedPatientId?: number;
+  curp: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  gender?: "MALE" | "FEMALE" | "OTHER";
+  birthDate?: string;
+  email?: string;
+  phone?: string;
+  vulnerabilityLevel: VulnerabilityLevel;
+  socioEconomicLevel?: SocioEconomicLevel;
+  city?: string;
+  state?: string;
+  diagnosisSummary?: string;
+  status: "ACTIVE" | "PENDING_REVIEW" | "SUSPENDED" | "GRADUATED";
+  origin: "FOUNDATION_MANUAL" | "PATIENT_SELF";
+  notes?: string;
+  enrolledProgramIds?: number[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FoundationProgramEnrollment {
+  id: number;
+  foundationId: number;
+  programId: number;
+  beneficiaryId: number;
+  enrollmentStatus: "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "ACTIVE" | "COMPLETED" | "CANCELLED";
+  approvedSubsidyCap?: number;
+  disbursedAmount?: number;
+  rejectionReason?: string;
+  enrolledAt?: string;
+  approvedAt?: string;
+  approvedByStaffId?: number;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FoundationStatsSummary {
+  totalPrograms: number;
+  activePrograms: number;
+  totalBeneficiaries: number;
+  activeBeneficiaries: number;
+  pendingReviewBeneficiaries: number;
+  totalAllocatedBudget: number;
+  totalDisbursedBudget: number;
+  availableBudget: number;
+}
+
+export interface CreateBeneficiaryPayload {
+  curp: string;
+  firstName: string;
+  lastName: string;
+  gender?: string;
+  birthDate?: string;
+  email?: string;
+  phone?: string;
+  vulnerabilityLevel?: string;
+  socioEconomicLevel?: string;
+  city?: string;
+  state?: string;
+  diagnosisSummary?: string;
+  notes?: string;
+  programIdsToEnroll?: number[];
+}
+
+export interface CreateProgramPayload {
+  name: string;
+  description?: string;
+  cause: string;
+  supportTypes: string[];
+  requiredDocuments?: string[];
+  targetBeneficiariesCount?: number;
+  allocatedBudget: number;
   status?: string;
 }
 
+// Payloads específicos para el Onboarding Wizard
 export interface FoundationIdentityPayload {
   legalName: string;
   brandName?: string;
