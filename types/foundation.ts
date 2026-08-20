@@ -176,6 +176,63 @@ export interface FoundationProgramEnrollment {
   updatedAt?: string;
 }
 
+export interface FoundationVoucher {
+  id: number;
+  voucherCode: string;
+  foundationId: number;
+  programId: number;
+  programName?: string;
+  beneficiaryId: number;
+  beneficiaryName?: string;
+  beneficiaryCurp?: string;
+  supportType: string;
+  authorizedAmount: number;
+  redeemedAmount: number;
+  remainingAmount: number;
+  subsidyPercentage: number;
+  status: "ACTIVE" | "REDEEMED" | "EXPIRED" | "CANCELLED";
+  providerId?: number;
+  appointmentId?: number;
+  prescriptionFolio?: string;
+  evidenceUrl?: string;
+  notes?: string;
+  issuedAt?: string;
+  redeemedAt?: string;
+  expiresAt?: string;
+  createdAt?: string;
+}
+
+export interface VoucherStats {
+  totalVouchers: number;
+  activeVouchers: number;
+  redeemedVouchers: number;
+  totalAuthorizedAmount: number;
+  totalRedeemedAmount: number;
+  activeRemainingAmount: number;
+}
+
+export interface BeneficiaryDocument {
+  id: number;
+  foundationId: number;
+  beneficiaryId: number;
+  beneficiaryName?: string;
+  beneficiaryCurp?: string;
+  programId?: number;
+  documentType: string;
+  title: string;
+  fileName?: string;
+  fileUrl?: string;
+  contentType?: string;
+  fileSizeBytes?: number;
+  verificationStatus: "PENDING" | "APPROVED" | "OBSERVED" | "REJECTED";
+  rejectionReason?: string;
+  reviewNotes?: string;
+  reviewedByStaffId?: number;
+  uploadedAt?: string;
+  reviewedAt?: string;
+  createdAt?: string;
+}
+
 export interface FoundationStatsSummary {
   totalPrograms: number;
   activePrograms: number;
@@ -213,6 +270,39 @@ export interface CreateProgramPayload {
   targetBeneficiariesCount?: number;
   allocatedBudget: number;
   status?: string;
+}
+
+export interface CreateVoucherPayload {
+  beneficiaryId: number;
+  programId: number;
+  supportType: string;
+  authorizedAmount: number;
+  subsidyPercentage?: number;
+  providerId?: number;
+  expiresAt?: string;
+  notes?: string;
+}
+
+export interface RedeemVoucherPayload {
+  amountToRedeem: number;
+  providerId?: number;
+  appointmentId?: number;
+  prescriptionFolio?: string;
+  evidenceUrl?: string;
+  notes?: string;
+}
+
+export interface RequestDocumentPayload {
+  beneficiaryId: number;
+  programId?: number;
+  documentType: string;
+  title: string;
+}
+
+export interface ReviewDocumentPayload {
+  verificationStatus: "APPROVED" | "OBSERVED" | "REJECTED";
+  rejectionReason?: string;
+  reviewNotes?: string;
 }
 
 // Payloads específicos para el Onboarding Wizard

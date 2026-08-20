@@ -19,20 +19,33 @@ import {
   Phone,
   Mail,
   MapPin,
+  FolderOpen,
+  FileCheck2,
+  FilePlus,
+  Check,
+  Ban,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { foundationService } from "@/services/foundation.service";
 import {
   FoundationBeneficiary,
   FoundationProgram,
+  BeneficiaryDocument,
   CreateBeneficiaryPayload,
+  RequestDocumentPayload,
+  ReviewDocumentPayload,
 } from "@/types/foundation";
 
 export default function FoundationBeneficiariesPage() {
   const searchParams = useSearchParams();
   const [beneficiaries, setBeneficiaries] = useState<FoundationBeneficiary[]>([]);
   const [programs, setPrograms] = useState<FoundationProgram[]>([]);
+  const [beneficiaryDocs, setBeneficiaryDocs] = useState<BeneficiaryDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingDocs, setIsLoadingDocs] = useState(false);
+
+  // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("ALL");
   const [selectedVulnerability, setSelectedVulnerability] = useState("ALL");
@@ -41,8 +54,10 @@ export default function FoundationBeneficiariesPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<FoundationBeneficiary | null>(null);
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [isRequestDocModalOpen, setIsRequestDocModalOpen] = useState(false);
+  const [selectedDocToReview, setSelectedDocToReview] = useState<BeneficiaryDocument | null>(null);
 
-  // Form State
+  // Form State (Create Beneficiary)
   const [curp, setCurp] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -63,6 +78,15 @@ export default function FoundationBeneficiariesPage() {
   const [enrollProgramId, setEnrollProgramId] = useState<number | null>(null);
   const [enrollSubsidyCap, setEnrollSubsidyCap] = useState<number>(5000);
   const [enrollNotes, setEnrollNotes] = useState("");
+
+  // Request Document Form State
+  const [docTypeToRequest, setDocTypeToRequest] = useState("SOCIOECONOMIC_STUDY");
+  const [docTitleToRequest, setDocTitleToRequest] = useState("Estudio Socioeconómico 2026");
+
+  // Review Document Form State
+  const [reviewStatus, setReviewStatus] = useState<"APPROVED" | "OBSERVED" | "REJECTED">("APPROVED");
+  const [reviewNotes, setReviewNotes] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const loadData = async () => {
     try {
@@ -89,6 +113,23 @@ export default function FoundationBeneficiariesPage() {
       setIsCreateModalOpen(true);
     }
   }, [searchParams]);
+
+  const loadBeneficiaryDocs = async (beneficiaryId: number) => {
+    try {
+      setIsLoadingDocs(true);
+      const docs = await foundationService.getDocumentsByBeneficiary(beneficiaryId);
+      setBeneficiaryDocs(docs);
+    } catch {
+      toast.error("Error al cargar expediente documental.");
+    } finally {
+      setIsLoadingDocs(false);
+    }
+  };
+
+  const handleOpenExpediente = (b: FoundationBeneficiary) => {
+    setSelectedBeneficiary(b);
+    loadBeneficiaryDocs(b.id);
+  };
 
   const handleCreateBeneficiary = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,6 +203,50 @@ export default function FoundationBeneficiariesPage() {
     }
   };
 
+  const handleRequestDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedBeneficiary) return;
+
+    try {
+      setIsSubmitting(true);
+      const payload: RequestDocumentPayload = {
+        beneficiaryId: selectedBeneficiary.id,
+        documentType: docTypeToRequest,
+        title: docTitleToRequest.trim(),
+      };
+      await foundationService.requestDocument(payload);
+      toast.success("Requerimiento documental solicitado con éxito.");
+      setIsRequestDocModalOpen(false);
+      loadBeneficiaryDocs(selectedBeneficiary.id);
+    } catch {
+      toast.error("No se pudo solicitar el documento.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReviewDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDocToReview || !selectedBeneficiary) return;
+
+    try {
+      setIsSubmitting(true);
+      const payload: ReviewDocumentPayload = {
+        verificationStatus: reviewStatus,
+        rejectionReason: rejectionReason.trim() || undefined,
+        reviewNotes: reviewNotes.trim() || undefined,
+      };
+      await foundationService.reviewDocument(selectedDocToReview.id, payload);
+      toast.success(`Dictamen emitido: ${reviewStatus}`);
+      setSelectedDocToReview(null);
+      loadBeneficiaryDocs(selectedBeneficiary.id);
+    } catch {
+      toast.error("Error al emitir dictamen documental.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const toggleProgramSelection = (pId: number) => {
     setSelectedProgramIds((prev) =>
       prev.includes(pId) ? prev.filter((id) => id !== pId) : [...prev, pId]
@@ -188,10 +273,10 @@ export default function FoundationBeneficiariesPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
             <Users className="w-6 h-6 text-indigo-600" />
-            Padrón de Beneficiarios
+            Padrón de Beneficiarios & Expedientes
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Registro, evaluación socioeconómica y asignación a programas asistenciales (independiente de cuenta previa).
+            Registro, evaluación socioeconómica y validación documental (Trabajo Social & Dirección Médica).
           </p>
         </div>
 
@@ -332,11 +417,11 @@ export default function FoundationBeneficiariesPage() {
 
                     <td className="px-4 py-3.5 text-right space-x-1.5 whitespace-nowrap">
                       <button
-                        onClick={() => setSelectedBeneficiary(b)}
-                        className="p-1.5 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all"
-                        title="Ver Expediente"
+                        onClick={() => handleOpenExpediente(b)}
+                        className="p-1.5 text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all font-semibold"
+                        title="Ver Expediente y Documentos"
                       >
-                        <Eye className="w-3.5 h-3.5 inline mr-1" />
+                        <FolderOpen className="w-3.5 h-3.5 inline mr-1 text-indigo-600" />
                         Expediente
                       </button>
                       <button
@@ -392,7 +477,6 @@ export default function FoundationBeneficiariesPage() {
             </div>
 
             <form onSubmit={handleCreateBeneficiary} className="space-y-4 text-xs">
-              {/* CURP, First & Last Name */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">CURP (18 Dígitos) *</label>
@@ -432,7 +516,6 @@ export default function FoundationBeneficiariesPage() {
                 </div>
               </div>
 
-              {/* Gender, BirthDate, Phone, Email */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Género</label>
@@ -480,7 +563,6 @@ export default function FoundationBeneficiariesPage() {
                 </div>
               </div>
 
-              {/* Vulnerability, NSE, City, State */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Nivel Vulnerabilidad</label>
@@ -533,7 +615,6 @@ export default function FoundationBeneficiariesPage() {
                 </div>
               </div>
 
-              {/* Diagnosis Summary */}
               <div>
                 <label className="font-semibold text-slate-700 block mb-1">
                   Diagnóstico Médico o Motivo de Asistencia Social
@@ -547,7 +628,6 @@ export default function FoundationBeneficiariesPage() {
                 />
               </div>
 
-              {/* Program Enrollment Selection */}
               <div>
                 <label className="font-semibold text-slate-700 block mb-1.5">
                   Inscribir de inmediato a Programas Asistenciales:
@@ -575,7 +655,6 @@ export default function FoundationBeneficiariesPage() {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
@@ -597,17 +676,18 @@ export default function FoundationBeneficiariesPage() {
         </div>
       )}
 
-      {/* 📋 Modal: Expediente del Beneficiario */}
-      {selectedBeneficiary && !isEnrollModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+      {/* 📋 Modal: Expediente Integral & Bandeja Documental del Beneficiario */}
+      {selectedBeneficiary && !isEnrollModalOpen && !isRequestDocModalOpen && !selectedDocToReview && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 lg:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="font-bold text-slate-900 text-base">
-                  Expediente de Asistencia Social
+                <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5 text-indigo-600" />
+                  Expediente de Asistencia Social & Validación
                 </h3>
                 <span className="text-xs font-mono text-slate-400">
-                  {selectedBeneficiary.curp}
+                  {selectedBeneficiary.fullName} • {selectedBeneficiary.curp}
                 </span>
               </div>
               <button
@@ -618,45 +698,93 @@ export default function FoundationBeneficiariesPage() {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            {/* General Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="p-3 bg-slate-50 rounded-xl space-y-1">
-                <span className="font-bold text-slate-900 text-sm block">
-                  {selectedBeneficiary.fullName}
-                </span>
-                <p className="text-slate-500">
-                  {selectedBeneficiary.city}, {selectedBeneficiary.state} • Género: {selectedBeneficiary.gender}
-                </p>
-                <div className="flex items-center gap-3 pt-1 text-slate-600 font-mono">
-                  {selectedBeneficiary.phone && (
-                    <span className="flex items-center gap-1">
-                      <Phone className="w-3 h-3" /> {selectedBeneficiary.phone}
-                    </span>
-                  )}
-                  {selectedBeneficiary.email && (
-                    <span className="flex items-center gap-1">
-                      <Mail className="w-3 h-3" /> {selectedBeneficiary.email}
-                    </span>
-                  )}
-                </div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">Ubicación & Contacto</span>
+                <span className="font-bold text-slate-900 block">{selectedBeneficiary.city}, {selectedBeneficiary.state}</span>
+                <span className="text-slate-600 font-mono block">{selectedBeneficiary.phone || "Sin teléfono"}</span>
               </div>
-
               <div className="p-3 bg-rose-50/50 border border-rose-100 rounded-xl space-y-1">
-                <span className="font-semibold text-rose-900 block">Diagnóstico / Motivo de Apoyo:</span>
-                <p className="text-slate-700 leading-relaxed">
-                  {selectedBeneficiary.diagnosisSummary || "Sin diagnóstico registrado."}
-                </p>
+                <span className="text-rose-700 block text-[10px] uppercase font-bold">Vulnerabilidad & Diagnóstico</span>
+                <span className="font-bold text-slate-900 block">Nivel: {selectedBeneficiary.vulnerabilityLevel} (NSE: {selectedBeneficiary.socioEconomicLevel || "D"})</span>
+                <p className="text-slate-600 line-clamp-1">{selectedBeneficiary.diagnosisSummary || "Sin diagnóstico."}</p>
+              </div>
+            </div>
+
+            {/* Document Validation Section */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <FileCheck2 className="w-4 h-4 text-emerald-600" />
+                  Bandeja Documental Requerida
+                </h4>
+                <button
+                  onClick={() => setIsRequestDocModalOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200"
+                >
+                  <FilePlus className="w-3.5 h-3.5" />
+                  Solicitar Documento
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Vulnerabilidad</span>
-                  <span className="font-bold text-slate-800 text-xs mt-0.5 block">{selectedBeneficiary.vulnerabilityLevel}</span>
+              {isLoadingDocs ? (
+                <div className="py-6 text-center text-slate-400 text-xs">Cargando expediente documental...</div>
+              ) : (
+                <div className="space-y-2">
+                  {beneficiaryDocs.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <span className="font-bold text-slate-900 block truncate">{doc.title}</span>
+                        <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                          <span className="font-semibold text-slate-600">{doc.documentType}</span>
+                          <span>•</span>
+                          <span>{doc.fileName ? doc.fileName : "Pendiente de carga"}</span>
+                        </div>
+                        {doc.reviewNotes && (
+                          <p className="text-[11px] text-slate-600 italic">Notas: {doc.reviewNotes}</p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            doc.verificationStatus === "APPROVED"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : doc.verificationStatus === "OBSERVED"
+                              ? "bg-amber-100 text-amber-800"
+                              : doc.verificationStatus === "REJECTED"
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-slate-200 text-slate-700"
+                          }`}
+                        >
+                          {doc.verificationStatus}
+                        </span>
+
+                        <button
+                          onClick={() => {
+                            setSelectedDocToReview(doc);
+                            setReviewStatus("APPROVED");
+                            setReviewNotes(doc.reviewNotes || "");
+                          }}
+                          className="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all"
+                        >
+                          Dictaminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {beneficiaryDocs.length === 0 && (
+                    <div className="p-4 bg-slate-50 rounded-xl text-center text-slate-400 text-xs">
+                      No hay requerimientos documentales asignados a este beneficiario.
+                    </div>
+                  )}
                 </div>
-                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Nivel Socioeconómico</span>
-                  <span className="font-bold text-slate-800 text-xs mt-0.5 block">{selectedBeneficiary.socioEconomicLevel || "D"}</span>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
@@ -664,9 +792,171 @@ export default function FoundationBeneficiariesPage() {
                 onClick={() => setSelectedBeneficiary(null)}
                 className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold text-xs"
               >
-                Cerrar
+                Cerrar Expediente
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 Modal: Solicitar Documento al Beneficiario */}
+      {isRequestDocModalOpen && selectedBeneficiary && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Solicitar Requerimiento Documental</h3>
+                <p className="text-xs text-slate-500">{selectedBeneficiary.fullName}</p>
+              </div>
+              <button
+                onClick={() => setIsRequestDocModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRequestDocument} className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Tipo de Documento *</label>
+                <select
+                  value={docTypeToRequest}
+                  onChange={(e) => {
+                    setDocTypeToRequest(e.target.value);
+                    if (e.target.value === "SOCIOECONOMIC_STUDY") setDocTitleToRequest("Estudio Socioeconómico 2026");
+                    if (e.target.value === "INCOME_PROOF") setDocTitleToRequest("Comprobante de Ingresos Familiares");
+                    if (e.target.value === "MEDICAL_SUMMARY") setDocTitleToRequest("Dictamen / Resumen Médico Oficial");
+                    if (e.target.value === "ID_OFFICIAL") setDocTitleToRequest("Identificación Oficial (INE / Pasaporte)");
+                    if (e.target.value === "PRESCRIPTION") setDocTitleToRequest("Receta Médica Electrónica Vigente");
+                  }}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white"
+                >
+                  <option value="SOCIOECONOMIC_STUDY">Estudio Socioeconómico</option>
+                  <option value="INCOME_PROOF">Comprobante de Ingresos</option>
+                  <option value="MEDICAL_SUMMARY">Dictamen / Resumen Médico</option>
+                  <option value="ID_OFFICIAL">Identificación Oficial</option>
+                  <option value="PRESCRIPTION">Receta Médica</option>
+                  <option value="OTHER">Otro Documento</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Título del Requerimiento *</label>
+                <input
+                  type="text"
+                  required
+                  value={docTitleToRequest}
+                  onChange={(e) => setDocTitleToRequest(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsRequestDocModalOpen(false)}
+                  className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-sm disabled:opacity-50"
+                >
+                  {isSubmitting ? "Solicitando..." : "Confirmar Solicitud"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 Modal: Dictamen Documental (Aprobar / Observar / Rechazar) */}
+      {selectedDocToReview && selectedBeneficiary && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Dictaminar Documento</h3>
+                <p className="text-xs text-slate-500">{selectedDocToReview.title}</p>
+              </div>
+              <button
+                onClick={() => setSelectedDocToReview(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleReviewDocument} className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Dictamen de Trabajo Social *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setReviewStatus("APPROVED")}
+                    className={`p-2 rounded-xl border font-bold text-center transition-all ${
+                      reviewStatus === "APPROVED"
+                        ? "bg-emerald-50 border-emerald-400 text-emerald-800"
+                        : "bg-slate-50 border-slate-200 text-slate-600"
+                    }`}
+                  >
+                    Aprobado
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReviewStatus("OBSERVED")}
+                    className={`p-2 rounded-xl border font-bold text-center transition-all ${
+                      reviewStatus === "OBSERVED"
+                        ? "bg-amber-50 border-amber-400 text-amber-800"
+                        : "bg-slate-50 border-slate-200 text-slate-600"
+                    }`}
+                  >
+                    Observado
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReviewStatus("REJECTED")}
+                    className={`p-2 rounded-xl border font-bold text-center transition-all ${
+                      reviewStatus === "REJECTED"
+                        ? "bg-rose-50 border-rose-400 text-rose-800"
+                        : "bg-slate-50 border-slate-200 text-slate-600"
+                    }`}
+                  >
+                    Rechazado
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Notas de Revisión / Observaciones</label>
+                <textarea
+                  rows={2}
+                  placeholder="Comentarios de validación para el expediente..."
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setSelectedDocToReview(null)}
+                  className="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-sm disabled:opacity-50"
+                >
+                  {isSubmitting ? "Guardando..." : "Guardar Dictamen"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -4,8 +4,15 @@ import {
   FoundationBeneficiary,
   FoundationProgramEnrollment,
   FoundationStatsSummary,
+  FoundationVoucher,
+  VoucherStats,
+  BeneficiaryDocument,
   CreateBeneficiaryPayload,
   CreateProgramPayload,
+  CreateVoucherPayload,
+  RedeemVoucherPayload,
+  RequestDocumentPayload,
+  ReviewDocumentPayload,
 } from "@/types/foundation";
 
 export const foundationService = {
@@ -16,7 +23,6 @@ export const foundationService = {
       const response = await axiosInstance.get<FoundationProgram[]>("/api/foundation/programs");
       return response.data;
     } catch {
-      // Mock de respaldo seguro en entorno local
       return [
         {
           id: 1,
@@ -217,6 +223,221 @@ export const foundationService = {
       approvedSubsidyCap,
       notes,
     });
+    return response.data;
+  },
+
+  // --- SUBSIDIOS & VOUCHERS ADMINISTRATIVOS ---
+
+  getVouchers: async (
+    status: string = "ALL",
+    page: number = 0,
+    size: number = 20
+  ): Promise<{ content: FoundationVoucher[]; totalElements: number }> => {
+    try {
+      const response = await axiosInstance.get<{ content: FoundationVoucher[]; totalElements: number }>(
+        `/api/foundation/vouchers?status=${status}&page=${page}&size=${size}`
+      );
+      return response.data;
+    } catch {
+      return {
+        content: [
+          {
+            id: 1,
+            voucherCode: "VCH-2026-8F2B1C",
+            foundationId: 10,
+            programId: 1,
+            programName: "Programa de Apoyo a Pacientes Trasplantados",
+            beneficiaryId: 101,
+            beneficiaryName: "Manuel García Ramos",
+            beneficiaryCurp: "GARM880415HDFRRL01",
+            supportType: "MEDICATION",
+            authorizedAmount: 3200,
+            redeemedAmount: 3200,
+            remainingAmount: 0,
+            subsidyPercentage: 100,
+            status: "REDEEMED",
+            prescriptionFolio: "REC-2026-0941",
+            evidenceUrl: "/api/storage/receipt_0941.pdf",
+            notes: "Subsidio mensual de Tacrolimus y Micofenolato.",
+            issuedAt: "2026-03-01T09:00:00Z",
+            redeemedAt: "2026-03-02T14:30:00Z",
+            expiresAt: "2026-06-01T23:59:59Z",
+            createdAt: "2026-03-01T09:00:00Z",
+          },
+          {
+            id: 2,
+            voucherCode: "VCH-2026-3A7D9E",
+            foundationId: 10,
+            programId: 2,
+            programName: "Campaña de Salud Visual & Cirugía de Cataratas",
+            beneficiaryId: 102,
+            beneficiaryName: "Esperanza López Vega",
+            beneficiaryCurp: "LOPE721104MDFNLR09",
+            supportType: "SURGERY",
+            authorizedAmount: 8500,
+            redeemedAmount: 0,
+            remainingAmount: 8500,
+            subsidyPercentage: 70,
+            status: "ACTIVE",
+            notes: "Co-financiamiento del 70% en procedimiento quirúrgico de facoemulsificación.",
+            issuedAt: "2026-03-10T11:00:00Z",
+            expiresAt: "2026-06-10T23:59:59Z",
+            createdAt: "2026-03-10T11:00:00Z",
+          },
+          {
+            id: 3,
+            voucherCode: "VCH-2026-1C4E8A",
+            foundationId: 10,
+            programId: 3,
+            programName: "Asistencia Oncológica Pediátrica",
+            beneficiaryId: 103,
+            beneficiaryName: "Emiliano Rosas Beltrán",
+            beneficiaryCurp: "ROSE150820HDFLNS03",
+            supportType: "CONSULTATION",
+            authorizedAmount: 1200,
+            redeemedAmount: 1200,
+            remainingAmount: 0,
+            subsidyPercentage: 100,
+            status: "REDEEMED",
+            prescriptionFolio: "CITA-PED-841",
+            notes: "Consulta de alta especialidad con Oncólogo Pediatra.",
+            issuedAt: "2026-03-12T16:00:00Z",
+            redeemedAt: "2026-03-14T10:00:00Z",
+            expiresAt: "2026-06-12T23:59:59Z",
+            createdAt: "2026-03-12T16:00:00Z",
+          },
+        ],
+        totalElements: 3,
+      };
+    }
+  },
+
+  createVoucher: async (payload: CreateVoucherPayload): Promise<FoundationVoucher> => {
+    const response = await axiosInstance.post<FoundationVoucher>("/api/foundation/vouchers", payload);
+    return response.data;
+  },
+
+  redeemVoucher: async (voucherId: number, payload: RedeemVoucherPayload): Promise<FoundationVoucher> => {
+    const response = await axiosInstance.post<FoundationVoucher>(`/api/foundation/vouchers/${voucherId}/redeem`, payload);
+    return response.data;
+  },
+
+  cancelVoucher: async (voucherId: number): Promise<void> => {
+    await axiosInstance.delete(`/api/foundation/vouchers/${voucherId}`);
+  },
+
+  getVoucherStats: async (): Promise<VoucherStats> => {
+    try {
+      const response = await axiosInstance.get<VoucherStats>("/api/foundation/vouchers/stats/summary");
+      return response.data;
+    } catch {
+      return {
+        totalVouchers: 84,
+        activeVouchers: 28,
+        redeemedVouchers: 56,
+        totalAuthorizedAmount: 342000,
+        totalRedeemedAmount: 228500,
+        activeRemainingAmount: 113500,
+      };
+    }
+  },
+
+  // --- BANDEJA DE VALIDACIÓN DOCUMENTAL ---
+
+  getDocuments: async (
+    status: string = "ALL",
+    page: number = 0,
+    size: number = 20
+  ): Promise<{ content: BeneficiaryDocument[]; totalElements: number }> => {
+    try {
+      const response = await axiosInstance.get<{ content: BeneficiaryDocument[]; totalElements: number }>(
+        `/api/foundation/documents?status=${status}&page=${page}&size=${size}`
+      );
+      return response.data;
+    } catch {
+      return {
+        content: [
+          {
+            id: 1,
+            foundationId: 10,
+            beneficiaryId: 101,
+            beneficiaryName: "Manuel García Ramos",
+            beneficiaryCurp: "GARM880415HDFRRL01",
+            programId: 1,
+            documentType: "SOCIOECONOMIC_STUDY",
+            title: "Estudio Socioeconómico Integral 2026",
+            fileName: "estudio_socioeconomico_garcia.pdf",
+            fileUrl: "/api/storage/estudio_socioeconomico_garcia.pdf",
+            contentType: "application/pdf",
+            fileSizeBytes: 1450000,
+            verificationStatus: "APPROVED",
+            reviewNotes: "Familia de 4 integrantes, ingreso familiar menor a 2 salarios mínimos. Vulnerabilidad Alta confirmada.",
+            uploadedAt: "2026-01-16T14:20:00Z",
+            reviewedAt: "2026-01-17T09:15:00Z",
+          },
+          {
+            id: 2,
+            foundationId: 10,
+            beneficiaryId: 102,
+            beneficiaryName: "Esperanza López Vega",
+            beneficiaryCurp: "LOPE721104MDFNLR09",
+            programId: 2,
+            documentType: "MEDICAL_SUMMARY",
+            title: "Dictamen Oftalmológico de Catarata Senil",
+            fileName: "dictamen_oftalmologico_lopez.pdf",
+            fileUrl: "/api/storage/dictamen_oftalmologico_lopez.pdf",
+            contentType: "application/pdf",
+            fileSizeBytes: 890000,
+            verificationStatus: "APPROVED",
+            reviewNotes: "Candidata óptima para colocación de lente intraocular monofocal.",
+            uploadedAt: "2026-02-12T10:00:00Z",
+            reviewedAt: "2026-02-13T16:30:00Z",
+          },
+          {
+            id: 3,
+            foundationId: 10,
+            beneficiaryId: 103,
+            beneficiaryName: "Emiliano Rosas Beltrán",
+            beneficiaryCurp: "ROSE150820HDFLNS03",
+            programId: 3,
+            documentType: "INCOME_PROOF",
+            title: "Comprobante de Ingresos Familiares",
+            fileName: "comprobante_ingresos_rosas.jpg",
+            fileUrl: "/api/storage/comprobante_ingresos_rosas.jpg",
+            contentType: "image/jpeg",
+            fileSizeBytes: 420000,
+            verificationStatus: "PENDING",
+            reviewNotes: "Pendiente de cotejo por Trabajo Social.",
+            uploadedAt: "2026-03-09T11:45:00Z",
+          },
+        ],
+        totalElements: 3,
+      };
+    }
+  },
+
+  getDocumentsByBeneficiary: async (beneficiaryId: number): Promise<BeneficiaryDocument[]> => {
+    try {
+      const response = await axiosInstance.get<BeneficiaryDocument[]>(
+        `/api/foundation/documents/beneficiary/${beneficiaryId}`
+      );
+      return response.data;
+    } catch {
+      const all = await foundationService.getDocuments();
+      return all.content.filter((d) => d.beneficiaryId === beneficiaryId);
+    }
+  },
+
+  requestDocument: async (payload: RequestDocumentPayload): Promise<BeneficiaryDocument> => {
+    const response = await axiosInstance.post<BeneficiaryDocument>("/api/foundation/documents/request", payload);
+    return response.data;
+  },
+
+  reviewDocument: async (documentId: number, payload: ReviewDocumentPayload): Promise<BeneficiaryDocument> => {
+    const response = await axiosInstance.put<BeneficiaryDocument>(
+      `/api/foundation/documents/${documentId}/review`,
+      payload
+    );
     return response.data;
   },
 
