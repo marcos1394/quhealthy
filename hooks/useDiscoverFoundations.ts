@@ -17,8 +17,8 @@ export const useDiscoverFoundations = (q?: string, enabled: boolean = true) => {
       }
     },
     {
-      revalidateOnFocus: false,
-      dedupingInterval: 30000,
+      revalidateOnFocus: true,
+      dedupingInterval: 3000,
     }
   );
 

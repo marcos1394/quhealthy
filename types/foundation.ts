@@ -57,6 +57,13 @@ export interface FoundationProfile {
   vision?: string;
   description?: string;
   logoUrl?: string;
+  bannerUrl?: string;
+  videoUrl?: string;
+  primaryColor?: string;
+  latitude?: number;
+  longitude?: number;
+  slug?: string;
+  tradeName?: string;
   websiteUrl?: string;
   contactEmail?: string;
   contactPhone?: string;
@@ -500,6 +507,12 @@ export interface FoundationIdentityPayload {
   vision?: string;
   description?: string;
   logoUrl?: string;
+  bannerUrl?: string;
+  videoUrl?: string;
+  primaryColor?: string;
+  latitude?: number;
+  longitude?: number;
+  slug?: string;
   websiteUrl?: string;
   contactEmail?: string;
   contactPhone?: string;

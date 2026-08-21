@@ -206,7 +206,7 @@ export default function FoundationIdentitySetupPage() {
 
     setIsSaving(true);
     try {
-      // 1. Guardar en Store Service (Marketplace público)
+      // 1. Guardar en Store Service (Marketplace de Tienda en Catalog Service)
       await storeService.updateMyStore({
         displayName: settings.storeName,
         slug: settings.storeSlug,
@@ -220,19 +220,44 @@ export default function FoundationIdentitySetupPage() {
         city: settings.city,
         latitude: settings.latitude ?? undefined,
         longitude: settings.longitude ?? undefined,
-      }).catch(() => null);
+      }).catch((e) => console.error("Error guardando storeService:", e));
 
-      // 2. Guardar en Foundation Service (Entidad Institucional)
+      // 2. Guardar en Foundation Onboarding Identity (onboarding_service)
+      await foundationOnboardingService.saveIdentity({
+        legalName: settings.storeName,
+        brandName: settings.storeName,
+        organizationType: (settings.organizationType as any) || "IAP",
+        mission: settings.description,
+        description: settings.description,
+        logoUrl: settings.storeLogoUrl,
+        bannerUrl: settings.bannerImageUrl,
+        videoUrl: settings.videoUrl,
+        primaryColor: settings.primaryColor,
+        latitude: settings.latitude ?? undefined,
+        longitude: settings.longitude ?? undefined,
+        slug: settings.storeSlug,
+        addressStreet: settings.address,
+        addressCity: settings.city,
+        primaryCauses: settings.category ? settings.category.split(",").map((s) => s.trim()) : [],
+      }).catch((e) => console.error("Error guardando foundationOnboardingService:", e));
+
+      // 3. Guardar en Foundation Profile (onboarding_service /profile)
       await foundationService.updateProfile({
+        legalName: settings.storeName,
+        brandName: settings.storeName,
         tradeName: settings.storeName,
         slug: settings.storeSlug,
+        organizationType: settings.organizationType || "I.A.P.",
         primaryColor: settings.primaryColor,
         logoUrl: settings.storeLogoUrl,
         bannerUrl: settings.bannerImageUrl,
         mission: settings.description,
+        description: settings.description,
         videoUrl: settings.videoUrl,
-        address: settings.address,
-        city: settings.city,
+        addressStreet: settings.address,
+        addressCity: settings.city,
+        latitude: settings.latitude,
+        longitude: settings.longitude,
         primaryCauses: settings.category ? settings.category.split(",").map((s) => s.trim()) : [],
       }).catch(() => null);
 
