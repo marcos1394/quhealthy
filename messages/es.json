@@ -350,9 +350,13 @@
     "hero_img_alt": "Autenticación segura en QuHealthy",
     "consumer_tab": "Paciente",
     "provider_tab": "Profesional",
+    "foundation_tab": "Fundación",
+    "supplier_tab": "Proveedor",
     "email_label": "Correo Electrónico",
     "email_placeholder_consumer": "tu@email.com",
     "email_placeholder_provider": "contacto@clinica.com",
+    "email_placeholder_foundation": "contacto@fundacion.org",
+    "email_placeholder_supplier": "ventas@distribuidora.com",
     "password_label": "Contraseña",
     "password_placeholder": "••••••••",
     "forgot_password": "¿Olvidaste tu contraseña?",
@@ -373,6 +377,8 @@
     "secure_desc": "Tus datos están protegidos con SSL",
     "consumer_area": "Área de Pacientes",
     "provider_area": "Área Profesional",
+    "foundation_area": "Área de Fundaciones & OSC",
+    "supplier_area": "Área de Proveedores de Insumos",
     "consumer_benefits": [
       "Agenda citas rápidamente",
       "Revisa tu historial médico",
@@ -382,6 +388,16 @@
       "Administra tu agenda",
       "Gestiona tus pacientes",
       "Revisa tus ingresos"
+    ],
+    "foundation_benefits": [
+      "Gestión de programas asistenciales",
+      "Padrón de beneficiarios y vouchers",
+      "Reportes de impacto social y transparencia"
+    ],
+    "supplier_benefits": [
+      "Catálogo de insumos y equipos médicos",
+      "Cotizaciones B2B y órdenes de compra",
+      "Monitoreo de cadena de frío y lotes"
     ],
     "session_expired_title": "Tu sesión ha expirado",
     "session_expired_desc": "Por tu seguridad, inicia sesión nuevamente.",

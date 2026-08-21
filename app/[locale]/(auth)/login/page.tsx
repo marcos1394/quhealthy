@@ -14,6 +14,8 @@ import {
   EyeOff,
   User,
   Stethoscope,
+  HeartHandshake,
+  Building2,
   ArrowRight,
   Shield,
   Check,
@@ -37,6 +39,10 @@ import { AuthResponse } from "@/types/auth";
 import { handleApiError } from "@/lib/handleApiError";
 import { nukeCookies } from "@/stores/SessionStore";
 import { consumerProfileService } from "@/services/consumerProfile.service";
+import { foundationOnboardingService } from "@/services/foundation-onboarding.service";
+import { supplierService } from "@/services/supplier.service";
+
+type AuthUserType = "consumer" | "provider" | "foundation" | "supplier";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,7 +64,7 @@ export default function LoginPage() {
   const turnstileRef = useRef<any>(null);
   const isIntentionalSubmitRef = useRef(false);
 
-  const [userType, setUserType] = useState<"consumer" | "provider">("consumer");
+  const [userType, setUserType] = useState<AuthUserType>("consumer");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -78,13 +84,15 @@ export default function LoginPage() {
 
     const redirect = searchParams.get("redirect");
     const roleParam = searchParams.get("role");
-    if (
-      roleParam === "provider" ||
-      redirect?.includes("supplier") ||
-      redirect?.includes("foundation") ||
-      redirect?.includes("provider")
-    ) {
+
+    if (roleParam === "foundation" || redirect?.includes("foundation")) {
+      setUserType("foundation");
+    } else if (roleParam === "supplier" || redirect?.includes("supplier")) {
+      setUserType("supplier");
+    } else if (roleParam === "provider" || redirect?.includes("provider")) {
       setUserType("provider");
+    } else if (roleParam === "consumer" || redirect?.includes("patient")) {
+      setUserType("consumer");
     }
   }, [searchParams]);
 
@@ -99,7 +107,7 @@ export default function LoginPage() {
   };
 
   const handleTabChange = (value: string) => {
-    setUserType(value as "consumer" | "provider");
+    setUserType(value as AuthUserType);
     setError("");
   };
 
@@ -129,15 +137,81 @@ export default function LoginPage() {
     if (role === "ROLE_ADMIN") {
       toast.success(t("login_success"), { theme: "colored" });
       router.push("/admin/dashboard");
-    } else if (role === "ROLE_PROVIDER" || role === "ROLE_STAFF") {
+      return;
+    }
+
+    // 🤝 1. RUTA PARA FUNDACIONES
+    if (userType === "foundation" || (role as string) === "ROLE_FOUNDATION" || (role as string) === "FOUNDATION") {
       toast.success(t("login_success"), { theme: "colored" });
+      try {
+        const fStatus = await foundationOnboardingService.getStatus();
+        if (fStatus.isCompleted || (fStatus.currentStep && fStatus.currentStep >= 5)) {
+          router.push("/foundation/dashboard");
+        } else {
+          router.push("/onboarding/foundation");
+        }
+      } catch {
+        router.push("/foundation/dashboard");
+      }
+      return;
+    }
+
+    // 📦 2. RUTA PARA PROVEEDORES DE INSUMOS
+    if (userType === "supplier" || (role as string) === "ROLE_SUPPLIER" || (role as string) === "SUPPLIER") {
+      toast.success(t("login_success"), { theme: "colored" });
+      try {
+        const sStatus = await supplierService.getOnboardingStatus();
+        if (sStatus.currentStep >= 5) {
+          router.push("/supplier/dashboard");
+        } else {
+          router.push("/onboarding/supplier");
+        }
+      } catch {
+        router.push("/supplier/dashboard");
+      }
+      return;
+    }
+
+    // 🩺 3. RUTA PARA PROFESIONALES DE LA SALUD
+    if (role === "ROLE_PROVIDER" || role === "ROLE_STAFF") {
+      toast.success(t("login_success"), { theme: "colored" });
+      
+      // Auto-detección: si la cuenta es de fundación o proveedor
+      try {
+        const fStatus = await foundationOnboardingService.getStatus();
+        if (fStatus.profile && fStatus.profile.legalName) {
+          if (fStatus.isCompleted || (fStatus.currentStep && fStatus.currentStep >= 5)) {
+            router.push("/foundation/dashboard");
+          } else {
+            router.push("/onboarding/foundation");
+          }
+          return;
+        }
+      } catch {}
+
+      try {
+        const sStatus = await supplierService.getOnboardingStatus();
+        if (sStatus.organizationId || sStatus.legalName) {
+          if (sStatus.currentStep >= 5) {
+            router.push("/supplier/dashboard");
+          } else {
+            router.push("/onboarding/supplier");
+          }
+          return;
+        }
+      } catch {}
+
       const isOnboardingComplete = response.status?.onboardingComplete;
       if (isOnboardingComplete) {
         router.push("/provider/dashboard");
       } else {
         router.push("/onboarding");
       }
-    } else if (role === "ROLE_CONSUMER") {
+      return;
+    }
+
+    // 👤 4. RUTA PARA PACIENTES / CONSUMIDORES
+    if (role === "ROLE_CONSUMER") {
       toast.success(t("login_success"), { theme: "colored" });
       try {
         const profile: any = await consumerProfileService.getProfile();
@@ -152,19 +226,21 @@ export default function LoginPage() {
       } catch (err) {
         router.push("/onboarding/patient");
       }
-    } else {
-      toast.success(t("login_success"), { theme: "colored" });
-      router.push("/discover");
+      return;
     }
+
+    toast.success(t("login_success"), { theme: "colored" });
+    router.push("/discover");
   };
 
   const processLogin = async (token: string) => {
     try {
+      const roleToSend = userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER";
       const response = await login({
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         captchaToken: token,
-        role: userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER",
+        role: roleToSend,
       });
 
       await handleAuthNavigation(response);
@@ -222,10 +298,72 @@ export default function LoginPage() {
     }
   };
 
-  // Carga dinámica del arreglo según el tipo de usuario mediante t.raw()
-  const benefits: string[] = t.raw(
-    userType === "consumer" ? "consumer_benefits" : "provider_benefits"
-  );
+  const getBenefitsKey = () => {
+    switch (userType) {
+      case "foundation":
+        return "foundation_benefits";
+      case "supplier":
+        return "supplier_benefits";
+      case "provider":
+        return "provider_benefits";
+      default:
+        return "consumer_benefits";
+    }
+  };
+
+  const getAreaTitleKey = () => {
+    switch (userType) {
+      case "foundation":
+        return "foundation_area";
+      case "supplier":
+        return "supplier_area";
+      case "provider":
+        return "provider_area";
+      default:
+        return "consumer_area";
+    }
+  };
+
+  const getHeroImage = () => {
+    switch (userType) {
+      case "foundation":
+        return "/hero_foundation_lifestyle.jpg";
+      case "supplier":
+        return "/hero_supplier_warehouse.jpg";
+      case "provider":
+        return "/hero_medical_lifestyle.png";
+      default:
+        return "/suite_patient_app.png";
+    }
+  };
+
+  const getEmailPlaceholder = () => {
+    switch (userType) {
+      case "foundation":
+        return t("email_placeholder_foundation");
+      case "supplier":
+        return t("email_placeholder_supplier");
+      case "provider":
+        return t("email_placeholder_provider");
+      default:
+        return t("email_placeholder_consumer");
+    }
+  };
+
+  const getSignupLink = () => {
+    switch (userType) {
+      case "foundation":
+        return "/foundation/register";
+      case "supplier":
+        return "/supplier/register";
+      case "provider":
+        return "/provider/register";
+      default:
+        return "/register";
+    }
+  };
+
+  const benefits: string[] = t.raw(getBenefitsKey());
 
   return (
     <GoogleOAuthProvider
@@ -240,11 +378,7 @@ export default function LoginPage() {
             initial={{ opacity: 0.4, scale: 1.05 }}
             animate={{ opacity: 0.7, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            src={
-              userType === "consumer"
-                ? "/suite_patient_app.png"
-                : "/hero_medical_lifestyle.png"
-            }
+            src={getHeroImage()}
             alt={t("hero_img_alt")}
             className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-50"
           />
@@ -267,8 +401,8 @@ export default function LoginPage() {
           {/* Área de Beneficios Dinámica */}
           <div className="relative z-10 space-y-8 max-w-lg">
             <div className="space-y-4">
-              <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-[1.15]">
-                {t(userType === "consumer" ? "consumer_area" : "provider_area")}
+              <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight leading-[1.15]">
+                {t(getAreaTitleKey())}
               </h2>
 
               <div className="space-y-3 pt-2">
@@ -303,6 +437,11 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
+          
+          {/* Footer Card */}
+          <div className="relative z-10 text-[11px] text-gray-400 font-medium">
+            © {new Date().getFullYear()} QuHealthy Inc. Plataforma Integral de Salud y Asistencia Social.
+          </div>
         </div>
 
         {/* ── PANEL DERECHO (FORMULARIO) ─────────────────────────────────── */}
@@ -334,28 +473,44 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Selector de Rol en Pestaña Pill */}
+            {/* Selector de Rol en 4 Pestañas */}
             <Tabs
               defaultValue="consumer"
               value={userType}
               onValueChange={handleTabChange}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800/50 h-12 p-1 rounded-2xl">
+              <TabsList className="grid w-full grid-cols-4 bg-gray-100 dark:bg-gray-800/50 h-12 p-1 rounded-2xl gap-1">
                 <TabsTrigger
                   value="consumer"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 px-1 truncate"
                 >
-                  <User className="w-4 h-4 shrink-0" strokeWidth={2} />
-                  <span>{t("consumer_tab")}</span>
+                  <User className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{t("consumer_tab")}</span>
                 </TabsTrigger>
 
                 <TabsTrigger
                   value="provider"
-                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 px-1 truncate"
                 >
-                  <Stethoscope className="w-4 h-4 shrink-0" strokeWidth={2} />
-                  <span>{t("provider_tab")}</span>
+                  <Stethoscope className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{t("provider_tab")}</span>
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="foundation"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-rose-600 dark:data-[state=active]:text-rose-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 px-1 truncate"
+                >
+                  <HeartHandshake className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{t("foundation_tab")}</span>
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="supplier"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 px-1 truncate"
+                >
+                  <Building2 className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{t("supplier_tab")}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -444,28 +599,24 @@ export default function LoginPage() {
                       id="email"
                       name="email"
                       type="email"
-                      placeholder={
-                        userType === "consumer"
-                          ? t("email_placeholder_consumer")
-                          : t("email_placeholder_provider")
-                      }
+                      placeholder={getEmailPlaceholder()}
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full h-12 pl-10 pr-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
                       required
+                      className="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Password Field */}
                 <div className="space-y-1.5">
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <label htmlFor="password" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                       {t("password_label")}
                     </label>
                     <Link
                       href="/forgot-password"
-                      className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                      className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
                     >
                       {t("forgot_password")}
                     </Link>
@@ -479,19 +630,18 @@ export default function LoginPage() {
                       placeholder={t("password_placeholder")}
                       value={formData.password}
                       onChange={handleInputChange}
-                      className="w-full h-12 pl-10 pr-10 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm"
                       required
+                      className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                     />
                     <button
                       type="button"
-                      aria-label={showPassword ? t("hide_password") : t("show_password")}
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                     >
                       {showPassword ? (
-                        <EyeOff size={16} strokeWidth={2} />
+                        <EyeOff className="w-4 h-4" />
                       ) : (
-                        <Eye size={16} strokeWidth={2} />
+                        <Eye className="w-4 h-4" />
                       )}
                     </button>
                   </div>
@@ -541,7 +691,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={!isFormValid() || loading}
-                  className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
+                  className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 mt-4 cursor-pointer border-0"
                 >
                   {loading ? (
                     <>
@@ -566,9 +716,7 @@ export default function LoginPage() {
               </p>
 
               <Link
-                href={
-                  userType === "consumer" ? "/register" : "/provider/register"
-                }
+                href={getSignupLink()}
                 className="inline-flex items-center justify-center w-full h-11 text-xs font-bold rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all shadow-sm"
               >
                 {t("create_account")}

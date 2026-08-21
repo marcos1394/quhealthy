@@ -355,9 +355,13 @@
     "hero_img_alt": "QuHealthy secure authentication",
     "consumer_tab": "Patient",
     "provider_tab": "Professional",
+    "foundation_tab": "Foundation",
+    "supplier_tab": "Supplier",
     "email_label": "Email Address",
     "email_placeholder_consumer": "you@email.com",
     "email_placeholder_provider": "contact@clinic.com",
+    "email_placeholder_foundation": "contact@foundation.org",
+    "email_placeholder_supplier": "sales@distributor.com",
     "password_label": "Password",
     "password_placeholder": "••••••••",
     "forgot_password": "Forgot your password?",
@@ -378,6 +382,8 @@
     "secure_desc": "Your data is protected with SSL",
     "consumer_area": "Patient Area",
     "provider_area": "Professional Area",
+    "foundation_area": "Foundations & Nonprofits Area",
+    "supplier_area": "Medical Suppliers Area",
     "consumer_benefits": [
       "Book appointments quickly",
       "Review your medical history",
@@ -387,6 +393,16 @@
       "Manage your schedule",
       "Manage your patients",
       "Review your earnings"
+    ],
+    "foundation_benefits": [
+      "Manage assistance programs",
+      "Beneficiaries registry and vouchers",
+      "Social impact reports and transparency"
+    ],
+    "supplier_benefits": [
+      "Medical equipment & supplies catalog",
+      "B2B quotes and purchase orders",
+      "Cold-chain monitoring and batch tracking"
     ],
     "session_expired_title": "Your session has expired",
     "session_expired_desc": "For your security, please sign in again.",
