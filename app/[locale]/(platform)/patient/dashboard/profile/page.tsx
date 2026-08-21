@@ -24,7 +24,6 @@ import {
   RotateCcw,
   Activity,
   Camera,
-  Printer,
   FileText,
   Building2,
   ShieldCheck,
@@ -319,10 +318,6 @@ export default function PatientProfilePage() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] p-3 sm:p-6 md:p-8 pb-32">
       <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
@@ -379,7 +374,7 @@ export default function PatientProfilePage() {
             </div>
           </div>
 
-          {/* Botones de Vista (Expediente CV / Edición / Descargar PDF / Imprimir) */}
+          {/* Botones de Vista (Expediente CV / Edición / Descargar PDF) */}
           <div className="flex flex-wrap items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100 dark:border-gray-800">
             {/* Toggle de Modo de Vista */}
             <div className="bg-gray-100 dark:bg-[#151515] p-1 rounded-2xl flex items-center gap-1 border border-gray-200 dark:border-gray-800 shadow-2xs">
@@ -426,17 +421,6 @@ export default function PatientProfilePage() {
               )}
               <span className="hidden sm:inline">{isDownloadingPdf ? t("btn_generating_pdf") : t("btn_download_pdf")}</span>
             </Button>
-
-            {/* Botón Imprimir / Vista Previa */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handlePrint}
-              className="h-10 px-3 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#151515] transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
-            >
-              <Printer className="w-3.5 h-3.5 text-gray-500" />
-              <span className="hidden sm:inline">{t("btn_print")}</span>
-            </Button>
           </div>
         </div>
 
@@ -454,7 +438,6 @@ export default function PatientProfilePage() {
               onEditClick={() => setViewMode("EDIT")}
               onPhotoClick={() => setIsSelfieModalOpen(true)}
               onDownloadPdf={handleDownloadPdf}
-              onPrint={handlePrint}
               isDownloadingPdf={isDownloadingPdf}
             />
           </motion.div>

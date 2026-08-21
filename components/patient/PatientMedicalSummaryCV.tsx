@@ -19,7 +19,6 @@ import {
   Award,
   Camera,
   Download,
-  Printer,
   Edit3,
   Stethoscope,
   Pill,
@@ -35,7 +34,6 @@ interface PatientMedicalSummaryCVProps {
   onEditClick?: () => void;
   onPhotoClick?: () => void;
   onDownloadPdf?: () => void;
-  onPrint?: () => void;
   isDownloadingPdf?: boolean;
 }
 
@@ -45,7 +43,6 @@ export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = (
   onEditClick,
   onPhotoClick,
   onDownloadPdf,
-  onPrint,
   isDownloadingPdf = false,
 }) => {
   const t = useTranslations("PatientProfile");
@@ -241,8 +238,8 @@ export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = (
         </div>
       </div>
 
-      {/* ── BARRA DE ACCIONES RÁPIDAS (DESCARGAR PDF / IMPRIMIR / EDITAR) ── */}
-      {(onDownloadPdf || onPrint || onEditClick) && (
+      {/* ── BARRA DE ACCIONES RÁPIDAS (DESCARGAR PDF / EDITAR) ── */}
+      {(onDownloadPdf || onEditClick) && (
         <div className="bg-gray-50/80 dark:bg-[#0f0f0f] border-b border-gray-100 dark:border-gray-800 px-6 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3 no-print">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
@@ -267,18 +264,6 @@ export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = (
                   <Download className="w-3.5 h-3.5" />
                 )}
                 <span>{isDownloadingPdf ? t("btn_generating_pdf") : t("btn_download_pdf")}</span>
-              </button>
-            )}
-
-            {onPrint && (
-              <button
-                type="button"
-                onClick={onPrint}
-                className="h-9 px-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex items-center gap-1.5 cursor-pointer"
-                title={t("btn_print")}
-              >
-                <Printer className="w-3.5 h-3.5 text-gray-500" />
-                <span className="hidden sm:inline">{t("btn_print")}</span>
               </button>
             )}
 
