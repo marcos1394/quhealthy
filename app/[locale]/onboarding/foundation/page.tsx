@@ -152,7 +152,7 @@ export default function FoundationOnboardingPage() {
   };
 
   const handleFinish = () => {
-    router.push("/provider/dashboard"); // o ruta principal
+    router.push("/foundation/dashboard");
   };
 
   if (isLoading) {

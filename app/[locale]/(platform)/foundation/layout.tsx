@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/navigation";
 import { usePathname, useRouter } from "next/navigation";
 import {
   HeartHandshake,
