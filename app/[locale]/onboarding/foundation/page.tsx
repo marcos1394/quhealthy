@@ -51,7 +51,10 @@ export default function FoundationOnboardingPage() {
         setDocuments(data.documents || []);
         setTeamMembers(data.teamMembers || []);
         setPrograms(data.programs || []);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.response?.status === 401) {
+          router.push("/foundation/register");
+        }
         console.error("Error al cargar estado de onboarding institucional:", error);
       } finally {
         setIsLoading(false);
@@ -59,7 +62,7 @@ export default function FoundationOnboardingPage() {
     };
 
     fetchStatus();
-  }, []);
+  }, [router]);
 
   const handleSaveIdentity = async (data: FoundationIdentityPayload) => {
     try {

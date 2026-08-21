@@ -537,7 +537,7 @@ export const Navbar: React.FC = () => {
                     asChild
                     className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5"
                   >
-                    <Link href="/onboarding/foundation" className="flex items-center gap-3 w-full">
+                    <Link href="/foundation/register" className="flex items-center gap-3 w-full">
                       <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-2xs">
                         <HeartHandshake size={15} strokeWidth={2} />
                       </div>
@@ -556,7 +556,7 @@ export const Navbar: React.FC = () => {
                     asChild
                     className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5"
                   >
-                    <Link href="/onboarding/supplier" className="flex items-center gap-3 w-full">
+                    <Link href="/supplier/register" className="flex items-center gap-3 w-full">
                       <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0 shadow-2xs">
                         <Truck size={15} strokeWidth={2} />
                       </div>
@@ -766,7 +766,7 @@ export const Navbar: React.FC = () => {
                       </Link>
 
                       <Link
-                        href="/onboarding/foundation"
+                        href="/foundation/register"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Button className="w-full h-12 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex-col gap-0.5">
@@ -776,7 +776,7 @@ export const Navbar: React.FC = () => {
                       </Link>
 
                       <Link
-                        href="/onboarding/supplier"
+                        href="/supplier/register"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex-col gap-0.5">

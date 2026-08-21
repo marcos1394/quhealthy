@@ -135,7 +135,10 @@ export default function SupplierOnboardingPage() {
         setHasColdChainCapacity(profile.hasColdChainCapacity ?? false);
         setRfc(profile.rfc || "");
       }
-    } catch {
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        router.push("/supplier/register");
+      }
       // Usuario nuevo, inicia en paso 1
     } finally {
       setIsLoading(false);

@@ -75,6 +75,17 @@ export default function LoginPage() {
       url.searchParams.delete("expired");
       window.history.replaceState({}, "", url.pathname);
     }
+
+    const redirect = searchParams.get("redirect");
+    const roleParam = searchParams.get("role");
+    if (
+      roleParam === "provider" ||
+      redirect?.includes("supplier") ||
+      redirect?.includes("foundation") ||
+      redirect?.includes("provider")
+    ) {
+      setUserType("provider");
+    }
   }, [searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,6 +114,13 @@ export default function LoginPage() {
       setMfaToken(response.mfaChallengeToken || "");
       toast.info(response.message || "Se requiere MFA", { theme: "colored" });
       setLoading(false);
+      return;
+    }
+
+    const redirectParam = searchParams.get("redirect");
+    if (redirectParam && redirectParam.startsWith("/")) {
+      toast.success(t("login_success"), { theme: "colored" });
+      router.push(redirectParam);
       return;
     }
 

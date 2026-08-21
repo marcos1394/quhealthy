@@ -174,7 +174,7 @@ export default function SuppliersLandingPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
             >
-              <Link href="/onboarding/supplier">
+              <Link href="/supplier/register">
                 <Button
                   size="lg"
                   className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-8 py-6 rounded-2xl shadow-lg shadow-blue-600/25 flex items-center gap-2 group cursor-pointer"
@@ -465,7 +465,7 @@ export default function SuppliersLandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link href="/onboarding/supplier">
+            <Link href="/supplier/register">
               <Button
                 size="lg"
                 className="w-full sm:w-auto bg-white text-blue-900 hover:bg-slate-100 font-extrabold text-sm px-8 py-6 rounded-2xl shadow-xl flex items-center gap-2 cursor-pointer"
