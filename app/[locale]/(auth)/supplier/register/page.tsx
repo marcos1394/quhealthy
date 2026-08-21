@@ -188,11 +188,11 @@ export default function SupplierSignupPage() {
         {/* ── PANEL IZQUIERDO (HERO VISUAL B2B) ─────────────────────────── */}
         <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-slate-800 shadow-2xl">
           <img
-            src="/hero_medical_lifestyle.png"
+            src="/hero_supplier_warehouse.jpg"
             alt={t("hero_img_alt")}
-            className="absolute inset-0 w-full h-full object-cover opacity-35 filter saturate-125 brightness-90 mix-blend-overlay"
+            className="absolute inset-0 w-full h-full object-cover opacity-45 filter saturate-110 brightness-95"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-blue-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-blue-950/40" />
 
           {/* Header Marca */}
           <div className="relative z-10 flex items-center justify-between">
