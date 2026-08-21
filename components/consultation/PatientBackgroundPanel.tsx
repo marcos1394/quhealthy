@@ -16,6 +16,7 @@ import {
   FileText,
   Sparkles,
   CheckCircle2,
+  Check,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -24,7 +25,12 @@ import { consumerProfileService } from "@/services/consumerProfile.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { PatientBackgroundRequest } from "@/types/ehr";
 
 interface Props {
@@ -32,6 +38,75 @@ interface Props {
   consumerId?: number | null;
   healthProfileId?: number | null;
   mode?: "PROVIDER" | "CONSUMER";
+}
+
+interface BackgroundEntry {
+  id: string;
+  key: string;
+  value: string;
+}
+
+const SYSTEM_KEYS = new Set([
+  "curp",
+  "rfc",
+  "ethnicGroup",
+  "healthInsurance",
+  "insuranceType",
+  "insuranceProvider",
+  "insurancePolicyNumber",
+  "insurancePlanName",
+  "maritalStatus",
+  "occupation",
+  "nationality",
+  "organDonor",
+  "addressStreet",
+  "addressCity",
+  "addressState",
+  "addressPostalCode",
+  "emergencyContactRelationship",
+  "emergencyContactPhoneAlt",
+  "emergencyContactName",
+  "emergencyContactPhone",
+  "chronicDiseases",
+  "surgeries",
+  "implantsDevices",
+  "vaccinations",
+  "primaryPhysician",
+]);
+
+let entryCounter = 0;
+function createEntry(key = "", value = ""): BackgroundEntry {
+  entryCounter++;
+  return {
+    id: `bg-entry-${Date.now()}-${entryCounter}-${Math.random().toString(36).substring(2, 7)}`,
+    key,
+    value,
+  };
+}
+
+function recordToEntries(rec?: Record<string, any> | null): BackgroundEntry[] {
+  if (!rec) return [];
+  const entries: BackgroundEntry[] = [];
+  for (const [k, v] of Object.entries(rec)) {
+    if (!SYSTEM_KEYS.has(k) && v !== undefined && v !== null) {
+      entries.push(
+        createEntry(k, typeof v === "string" ? v : JSON.stringify(v))
+      );
+    }
+  }
+  return entries;
+}
+
+function entriesToRecord(entries: BackgroundEntry[]): Record<string, string> {
+  const rec: Record<string, string> = {};
+  for (const item of entries) {
+    const k = item.key.trim();
+    if (k || item.value.trim()) {
+      rec[k || `Antecedente_${Math.random().toString(36).substring(2, 6)}`] =
+        item.value;
+    }
+  }
+  return rec;
 }
 
 export function PatientBackgroundPanel({
@@ -47,93 +122,73 @@ export function PatientBackgroundPanel({
     healthProfileId || null
   );
 
-  // Estados para antecedentes dinámicos
-  const [familyBackground, setFamilyBackground] = useState<
-    Record<string, string>
-  >({});
-  const [personalBackground, setPersonalBackground] = useState<
-    Record<string, string>
-  >({});
-  const [socialBackground, setSocialBackground] = useState<
-    Record<string, string>
-  >({});
+  // Estados estructurados con IDs estables para evitar pérdida de cursor y bugs de edición
+  const [familyEntries, setFamilyEntries] = useState<BackgroundEntry[]>([]);
+  const [personalEntries, setPersonalEntries] = useState<BackgroundEntry[]>([]);
+  const [socialEntries, setSocialEntries] = useState<BackgroundEntry[]>([]);
 
   const fetchProfile = useCallback(async () => {
-    console.log("🏥 [PatientBackgroundPanel] fetchProfile iniciado", { mode, patientDirectoryId, consumerId });
     setLoading(true);
     try {
       if (mode === "PROVIDER") {
         if (patientDirectoryId) {
-          console.log("🏥 [PatientBackgroundPanel] Llamando a getDirectoryPatientHealthProfile con ID:", patientDirectoryId);
-          const profile = await ehrService.getDirectoryPatientHealthProfile(patientDirectoryId);
-          console.log("🏥 [PatientBackgroundPanel] Respuesta de getDirectoryPatientHealthProfile:", profile);
-          if (profile) {
-            if (profile.id) {
-              console.log("🏥 [PatientBackgroundPanel] ID de perfil interno establecido:", profile.id);
-              setInternalProfileId(profile.id);
-            } else {
-               console.warn("⚠️ [PatientBackgroundPanel] El perfil regresó pero sin ID");
-            }
-            setFamilyBackground(profile.familyBackground || {});
-            setPersonalBackground(profile.personalBackground || {});
-            setSocialBackground(profile.socialBackground || {});
-          }
-        } else {
-          console.error("🚨 [PatientBackgroundPanel] PatientDirectoryId es nulo o indefinido en modo PROVIDER. No se hará la llamada al backend.");
-        }
-      } else {
-        // Modo CONSUMER original (o fallback)
-        if (patientDirectoryId) {
-          console.log("🏥 [PatientBackgroundPanel] CONSUMER mode - Llamando getDirectoryPatientHealthProfile", patientDirectoryId);
-          const profile = await ehrService.getDirectoryPatientHealthProfile(
-            patientDirectoryId
-          );
+          const profile =
+            await ehrService.getDirectoryPatientHealthProfile(patientDirectoryId);
           if (profile) {
             if (profile.id) setInternalProfileId(profile.id);
-            setFamilyBackground(profile.familyBackground || {});
-            setPersonalBackground(profile.personalBackground || {});
-            setSocialBackground(profile.socialBackground || {});
+            setFamilyEntries(recordToEntries(profile.familyBackground));
+            setPersonalEntries(recordToEntries(profile.personalBackground));
+            setSocialEntries(recordToEntries(profile.socialBackground));
+          }
+        }
+      } else {
+        if (patientDirectoryId) {
+          const profile =
+            await ehrService.getDirectoryPatientHealthProfile(patientDirectoryId);
+          if (profile) {
+            if (profile.id) setInternalProfileId(profile.id);
+            setFamilyEntries(recordToEntries(profile.familyBackground));
+            setPersonalEntries(recordToEntries(profile.personalBackground));
+            setSocialEntries(recordToEntries(profile.socialBackground));
           }
         } else if (consumerId) {
-          console.log("🏥 [PatientBackgroundPanel] CONSUMER mode - Llamando consumerProfileService.getProfile", consumerId);
           const profile = await consumerProfileService.getProfile();
           if (profile) {
-            setFamilyBackground(profile.familyBackground || {});
-            setPersonalBackground(profile.personalBackground || {});
-            setSocialBackground(profile.socialBackground || {});
+            setFamilyEntries(recordToEntries(profile.familyBackground));
+            setPersonalEntries(recordToEntries(profile.personalBackground));
+            setSocialEntries(recordToEntries(profile.socialBackground));
           }
         }
       }
     } catch (error) {
-      console.error("❌ [PatientBackgroundPanel] Error fetching health profile:", error);
+      console.error("Error fetching health profile backgrounds:", error);
     } finally {
       setLoading(false);
     }
   }, [patientDirectoryId, consumerId, mode]);
 
   useEffect(() => {
-    console.log("🔄 [PatientBackgroundPanel] useEffect evaluando dependencias:", { patientDirectoryId, consumerId, mode });
     if (patientDirectoryId || (consumerId && mode !== "PROVIDER")) {
-      console.log("🔄 [PatientBackgroundPanel] Condición cumplida. Llamando fetchProfile()");
       fetchProfile();
     } else {
-      console.warn("⚠️ [PatientBackgroundPanel] Condición NO cumplida. Cancelando llamada al backend. patientDirectoryId está vacío en modo PROVIDER.");
       setLoading(false);
     }
   }, [patientDirectoryId, consumerId, fetchProfile, mode]);
 
   const handleSave = async () => {
-    console.log("💾 [PatientBackgroundPanel] Intentando guardar...", { internalProfileId, healthProfileId, consumerId, mode });
     const activeId = internalProfileId || healthProfileId;
-    
+
     if (!activeId && (!consumerId || mode === "PROVIDER")) {
-      console.error("🚫 [PatientBackgroundPanel] Bloqueado al guardar. No hay activeId y estamos en modo PROVIDER.");
       toast.error(t("health_profile_missing"));
       return;
     }
 
     setSaving(true);
     try {
+      const familyBackground = entriesToRecord(familyEntries);
+      const personalBackground = entriesToRecord(personalEntries);
+      const socialBackground = entriesToRecord(socialEntries);
+
       const payload: PatientBackgroundRequest = {
         healthProfileId: activeId || 0,
         familyBackground,
@@ -141,10 +196,7 @@ export function PatientBackgroundPanel({
         socialBackground,
       };
 
-      console.log("💾 [PatientBackgroundPanel] Payload a enviar:", payload);
-
       if (mode === "PROVIDER") {
-        console.log("💾 [PatientBackgroundPanel] Ejecutando updateProviderPatientBackground");
         await ehrService.updateProviderPatientBackground(payload);
       } else {
         if (patientDirectoryId) {
@@ -160,70 +212,77 @@ export function PatientBackgroundPanel({
         }
       }
 
-      toast.success(t("background_updated_success"));
+      toast.success(t("background_updated_success") || "Antecedentes guardados con éxito.");
       await fetchProfile();
     } catch (error) {
-      console.error("❌ [PatientBackgroundPanel] Error saving backgrounds:", error);
-      toast.error(t("background_update_failed"));
+      console.error("Error saving backgrounds:", error);
+      toast.error(t("background_update_failed") || "No se pudieron guardar los antecedentes.");
     } finally {
       setSaving(false);
     }
   };
 
   const handleSetAllNegative = () => {
-    setFamilyBackground((prev) => ({
-      ...prev,
-      "Heredofamiliares Generales": "Sin antecedentes patológicos hereditarios relevantes referidos",
-    }));
-    setPersonalBackground((prev) => ({
-      ...prev,
-      "Personales Patológicos": "Interrogados y negados al momento de la consulta",
-    }));
-    setSocialBackground((prev) => ({
-      ...prev,
-      "Estilo de vida & Hábitos": "Hábitos higiénico-dietéticos adecuados referidos",
-    }));
-    toast.info("Antecedentes completados como 'Interrogados y Negados'. Recuerda guardar los cambios.");
+    setFamilyEntries([
+      createEntry(
+        "Heredofamiliares Generales",
+        "Sin antecedentes patológicos hereditarios relevantes referidos"
+      ),
+    ]);
+    setPersonalEntries([
+      createEntry(
+        "Personales Patológicos",
+        "Interrogados y negados al momento de la consulta"
+      ),
+    ]);
+    setSocialEntries([
+      createEntry(
+        "Estilo de vida & Hábitos",
+        "Hábitos higiénico-dietéticos adecuados referidos"
+      ),
+    ]);
+    toast.info(
+      "Antecedentes completados como 'Interrogados y Negados'. Recuerda guardar los cambios."
+    );
   };
 
   const renderMapEditor = (
     title: string,
     icon: React.ReactNode,
-    data: Record<string, string>,
-    setData: React.Dispatch<React.SetStateAction<Record<string, string>>>,
+    entries: BackgroundEntry[],
+    setEntries: React.Dispatch<React.SetStateAction<BackgroundEntry[]>>,
     placeholderKey: string,
     placeholderVal: string,
     accordionValue: string
   ) => {
     const handleAdd = (e: React.MouseEvent) => {
       e.stopPropagation();
-      setData({ ...data, "": "" });
+      setEntries((prev) => [...prev, createEntry("", "")]);
     };
 
-    const handleKeyChange = (oldKey: string, newKey: string) => {
-      const newData = { ...data };
-      const val = newData[oldKey];
-      delete newData[oldKey];
-      newData[newKey] = val;
-      setData(newData);
+    const handleKeyChange = (id: string, newKey: string) => {
+      setEntries((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, key: newKey } : item))
+      );
     };
 
-    const handleValChange = (key: string, val: string) => {
-      setData({ ...data, [key]: val });
+    const handleValChange = (id: string, newVal: string) => {
+      setEntries((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, value: newVal } : item))
+      );
     };
 
-    const handleRemove = (key: string) => {
-      const newData = { ...data };
-      delete newData[key];
-      setData(newData);
+    const handleRemove = (id: string) => {
+      setEntries((prev) => prev.filter((item) => item.id !== id));
     };
-
-    const entries = Object.entries(data);
 
     return (
-      <AccordionItem value={accordionValue} className="rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs px-4 sm:px-5 overflow-hidden transition-colors">
+      <AccordionItem
+        value={accordionValue}
+        className="rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs px-4 sm:px-5 overflow-hidden transition-colors"
+      >
         <div className="flex justify-between items-center border-b border-transparent data-[state=open]:border-gray-100 dark:data-[state=open]:border-gray-800 transition-colors">
-          <AccordionTrigger className="hover:no-underline py-4 sm:py-5 flex-1 pr-3 sm:pr-4">
+          <AccordionTrigger className="hover:no-underline py-4 sm:py-5 flex-1 pr-3 sm:pr-4 cursor-pointer">
             <div className="flex items-center gap-2.5 sm:gap-3 text-left min-w-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                 {icon}
@@ -241,7 +300,10 @@ export function PatientBackgroundPanel({
             onClick={handleAdd}
             className="rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-8 sm:h-9 px-2.5 sm:px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer z-10 shrink-0"
           >
-            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+            <Plus
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400"
+              strokeWidth={2.5}
+            />
             <span>{t("btn_add_entry")}</span>
           </Button>
         </div>
@@ -255,9 +317,9 @@ export function PatientBackgroundPanel({
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-2.5">
-              {entries.map(([key, value], index) => (
+              {entries.map((item) => (
                 <div
-                  key={index}
+                  key={item.id}
                   className="flex flex-col sm:flex-row gap-2.5 sm:gap-2.5 p-3 sm:p-0 rounded-2xl bg-gray-50/70 dark:bg-[#050505] sm:bg-transparent border sm:border-0 border-gray-100 dark:border-gray-800/80 items-stretch sm:items-center transition-colors"
                 >
                   {/* Campo Clave / Nombre del Antecedente */}
@@ -267,9 +329,9 @@ export function PatientBackgroundPanel({
                     </span>
                     <Input
                       type="text"
-                      value={key}
+                      value={item.key}
                       placeholder={placeholderKey}
-                      onChange={(e) => handleKeyChange(key, e.target.value)}
+                      onChange={(e) => handleKeyChange(item.id, e.target.value)}
                       className="h-10 rounded-xl bg-white dark:bg-[#0a0a0a] sm:bg-gray-50/50 sm:dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs w-full"
                     />
                   </div>
@@ -281,9 +343,9 @@ export function PatientBackgroundPanel({
                     </span>
                     <Input
                       type="text"
-                      value={value}
+                      value={item.value}
                       placeholder={placeholderVal}
-                      onChange={(e) => handleValChange(key, e.target.value)}
+                      onChange={(e) => handleValChange(item.id, e.target.value)}
                       className="h-10 rounded-xl bg-white dark:bg-[#0a0a0a] sm:bg-gray-50/50 sm:dark:bg-[#050505] border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-900 dark:text-white focus-visible:ring-emerald-500/20 shadow-xs w-full"
                     />
                   </div>
@@ -292,7 +354,7 @@ export function PatientBackgroundPanel({
                   <div className="flex justify-end sm:block pt-0.5 sm:pt-0">
                     <button
                       type="button"
-                      onClick={() => handleRemove(key)}
+                      onClick={() => handleRemove(item.id)}
                       aria-label="Eliminar entrada"
                       className="w-full sm:w-10 h-9 sm:h-10 rounded-xl flex items-center justify-center gap-1.5 bg-red-50/60 dark:bg-red-950/20 hover:bg-red-100 text-red-600 dark:text-red-400 transition-colors shrink-0 cursor-pointer border border-red-100 dark:border-red-900/30 text-xs font-bold sm:font-normal"
                     >
@@ -311,98 +373,104 @@ export function PatientBackgroundPanel({
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 sm:p-12 bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 space-y-3 font-sans shadow-xs">
-        <QhSpinner size="md" className="text-emerald-600 dark:text-emerald-400" />
-        <p className="text-xs font-semibold text-gray-400">{t("nom004_title")}</p>
+      <div className="p-8 flex flex-col justify-center items-center rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-xs">
+        <QhSpinner size="md" />
+        <span className="text-xs font-semibold text-gray-400 mt-3 animate-pulse">
+          {t("loading_backgrounds")}
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm font-sans transition-colors">
-      {/* ── CABECERA ─────────────────────────────────────────────────── */}
-      <div className="p-4 sm:p-6 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row gap-3.5 sm:gap-4 sm:justify-between sm:items-center">
+    <div className="space-y-4">
+      {/* ── HEADER DEL PANEL ────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
-            <ShieldCheck className="w-5 h-5" strokeWidth={2} />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
           </div>
-          <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white tracking-tight">
-            {t("nom004_title")}
-          </h3>
+          <div>
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <span>{t("title_clinical_backgrounds")}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40">
+                NOM-004
+              </span>
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium line-clamp-1">
+              {t("subtitle_clinical_backgrounds")}
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={handleSetAllNegative}
-            className="w-full sm:w-auto justify-center rounded-xl border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/60 text-xs font-bold h-10 px-3.5 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+            disabled={saving}
+            className="flex-1 sm:flex-none rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-9 px-3 shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            title="Completa todos los antecedentes como interrogados y negados"
           >
-            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Negar Todos (Sin Patologías)</span>
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="hidden md:inline">{t("btn_all_negative")}</span>
+            <span className="md:hidden">Negar Todo</span>
           </Button>
 
           <Button
             type="button"
+            size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 text-xs font-bold shadow-sm transition-all flex items-center gap-2 border-0 cursor-pointer disabled:opacity-50"
+            className="flex-1 sm:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-9 px-4 shadow-xs transition-all flex items-center justify-center gap-1.5 border-0 cursor-pointer disabled:opacity-50"
           >
             {saving ? (
-              <>
-                <QhSpinner size="sm" className="text-white" />
-                <span>{t("btn_saving_changes")}</span>
-              </>
+              <QhSpinner size="sm" />
             ) : (
-              <>
-                <Save className="w-4 h-4" strokeWidth={2} />
-                <span>{t("btn_save_changes")}</span>
-              </>
+              <Save className="w-3.5 h-3.5" strokeWidth={2} />
             )}
+            <span>{saving ? t("btn_saving") : t("btn_save_backgrounds")}</span>
           </Button>
         </div>
       </div>
 
-      {/* ── NOTICIA DE NORMATIVA ──────────────────────────────────────── */}
-      <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto custom-scrollbar flex-1">
-        <div className="flex items-start gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 text-emerald-800 dark:text-emerald-300 text-xs font-medium leading-relaxed">
-          <FileText className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
-          <span>{t("nom004_notice")}</span>
-        </div>
+      {/* ── ACORDEÓN DE ANTECEDENTES NOM-004 ───────────────────────────── */}
+      <Accordion
+        type="multiple"
+        defaultValue={["family", "personal", "social"]}
+        className="space-y-3"
+      >
+        {renderMapEditor(
+          t("category_family_background"),
+          <Users className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={2} />,
+          familyEntries,
+          setFamilyEntries,
+          t("placeholder_family_key"),
+          t("placeholder_family_val"),
+          "family"
+        )}
 
-        {/* ── SECCIONES DE ANTECEDENTES ───────────────────────────────── */}
-        <Accordion type="multiple" className="space-y-3 sm:space-y-4 font-sans transition-colors">
-          {renderMapEditor(
-            t("family_background"),
-            <Users className="w-4 h-4" strokeWidth={2} />,
-            familyBackground,
-            setFamilyBackground,
-            t("family_bg_key_placeholder"),
-            t("family_bg_val_placeholder"),
-            "family"
-          )}
+        {renderMapEditor(
+          t("category_personal_pathological"),
+          <Activity className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={2} />,
+          personalEntries,
+          setPersonalEntries,
+          t("placeholder_personal_key"),
+          t("placeholder_personal_val"),
+          "personal"
+        )}
 
-          {renderMapEditor(
-            t("personal_background"),
-            <Activity className="w-4 h-4" strokeWidth={2} />,
-            personalBackground,
-            setPersonalBackground,
-            t("personal_bg_key_placeholder"),
-            t("personal_bg_val_placeholder"),
-            "personal"
-          )}
-
-          {renderMapEditor(
-            t("social_background"),
-            <HeartHandshake className="w-4 h-4" strokeWidth={2} />,
-            socialBackground,
-            setSocialBackground,
-            t("social_bg_key_placeholder"),
-            t("social_bg_val_placeholder"),
-            "social"
-          )}
-        </Accordion>
-      </div>
+        {renderMapEditor(
+          t("category_social_lifestyle"),
+          <HeartHandshake className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={2} />,
+          socialEntries,
+          setSocialEntries,
+          t("placeholder_social_key"),
+          t("placeholder_social_val"),
+          "social"
+        )}
+      </Accordion>
     </div>
   );
 }

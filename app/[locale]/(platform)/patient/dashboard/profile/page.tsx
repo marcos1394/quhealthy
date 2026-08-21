@@ -39,10 +39,12 @@ import {
   CheckCircle2,
   Edit3,
   Layers,
+  Download,
 } from "lucide-react";
 
 import { useSessionStore } from "@/stores/SessionStore";
 import { useConsumerProfile } from "@/hooks/useConsumerProfile";
+import { generatePatientProfilePdf } from "@/lib/pdf/patientProfilePdf";
 import { consumerProfileService } from "@/services/consumerProfile.service";
 
 import { Button } from "@/components/ui/button";
@@ -81,6 +83,7 @@ export default function PatientProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const [isSelfieModalOpen, setIsSelfieModalOpen] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hooks de Backend y Sesión
@@ -311,6 +314,19 @@ export default function PatientProfilePage() {
     window.print();
   };
 
+  const handleDownloadPdf = async () => {
+    setIsDownloadingPdf(true);
+    try {
+      await generatePatientProfilePdf(profile, user?.email);
+      toast.success("¡Expediente descargado en formato PDF con éxito!");
+    } catch (err) {
+      console.error("Error al generar PDF:", err);
+      toast.error("Hubo un problema al generar el archivo PDF. Puedes utilizar el botón de Imprimir.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-32 print:bg-white print:p-0 print:pb-0">
       
@@ -387,7 +403,7 @@ export default function PatientProfilePage() {
             </div>
           </div>
 
-          {/* Botones de Vista (Expediente CV / Edición / Imprimir) */}
+          {/* Botones de Vista (Expediente CV / Edición / Descargar PDF / Imprimir) */}
           <div className="flex flex-wrap items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100 dark:border-gray-800">
             {/* Toggle de Modo de Vista */}
             <div className="bg-gray-100 dark:bg-[#151515] p-1 rounded-2xl flex items-center gap-1 border border-gray-200 dark:border-gray-800 shadow-2xs">
@@ -420,15 +436,31 @@ export default function PatientProfilePage() {
               </button>
             </div>
 
-            {/* Botón Imprimir / Exportar a PDF */}
+            {/* Botón Descargar PDF Directo */}
+            <Button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+              className="h-10 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs cursor-pointer flex items-center gap-1.5 border-0 disabled:opacity-50"
+            >
+              {isDownloadingPdf ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden sm:inline">{isDownloadingPdf ? "Generando..." : "Descargar PDF"}</span>
+            </Button>
+
+            {/* Botón Imprimir / Vista Previa */}
             <Button
               type="button"
               variant="outline"
               onClick={handlePrint}
-              className="h-10 px-3.5 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#151515] transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
+              className="h-10 px-3 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#151515] transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
+              title="Imprimir o guardar como PDF mediante el navegador"
             >
-              <Printer className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="hidden sm:inline">Imprimir / PDF</span>
+              <Printer className="w-3.5 h-3.5 text-gray-500" />
+              <span className="hidden sm:inline">Imprimir</span>
             </Button>
           </div>
         </div>
@@ -446,6 +478,9 @@ export default function PatientProfilePage() {
               userEmail={user?.email}
               onEditClick={() => setViewMode("EDIT")}
               onPhotoClick={() => setIsSelfieModalOpen(true)}
+              onDownloadPdf={handleDownloadPdf}
+              onPrint={handlePrint}
+              isDownloadingPdf={isDownloadingPdf}
             />
           </motion.div>
         )}

@@ -25,15 +25,22 @@ import {
   CheckCircle2,
   Award,
   Camera,
+  Download,
+  Printer,
+  Edit3,
 } from "lucide-react";
 import { ConsumerProfile } from "@/types/consumerProfile";
 import { cn } from "@/lib/utils";
+import { QhSpinner } from "@/components/ui/QhSpinner";
 
 interface PatientMedicalSummaryCVProps {
   profile: ConsumerProfile;
   userEmail?: string;
   onEditClick?: () => void;
   onPhotoClick?: () => void;
+  onDownloadPdf?: () => void;
+  onPrint?: () => void;
+  isDownloadingPdf?: boolean;
 }
 
 export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = ({
@@ -41,6 +48,9 @@ export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = (
   userEmail,
   onEditClick,
   onPhotoClick,
+  onDownloadPdf,
+  onPrint,
+  isDownloadingPdf = false,
 }) => {
   // Cálculo dinámico de edad
   const calculateAge = (birthDateString?: string) => {
@@ -214,6 +224,61 @@ export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = (
           </div>
         </div>
       </div>
+
+      {/* ── BARRA DE ACCIONES RÁPIDAS (DESCARGAR PDF / IMPRIMIR / EDITAR) ── */}
+      {(onDownloadPdf || onPrint || onEditClick) && (
+        <div className="bg-gray-50/80 dark:bg-[#0f0f0f] border-b border-gray-100 dark:border-gray-800 px-6 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3 no-print">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+              Resumen Clínico Oficial:
+            </span>
+            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-900/40">
+              Listo para consulta o trámite
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onDownloadPdf && (
+              <button
+                type="button"
+                onClick={onDownloadPdf}
+                disabled={isDownloadingPdf}
+                className="h-9 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 border-0"
+              >
+                {isDownloadingPdf ? (
+                  <QhSpinner size="sm" />
+                ) : (
+                  <Download className="w-3.5 h-3.5" />
+                )}
+                <span>{isDownloadingPdf ? "Generando..." : "Descargar PDF"}</span>
+              </button>
+            )}
+
+            {onPrint && (
+              <button
+                type="button"
+                onClick={onPrint}
+                className="h-9 px-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Imprimir o guardar como PDF en navegador"
+              >
+                <Printer className="w-3.5 h-3.5 text-gray-500" />
+                <span className="hidden sm:inline">Imprimir</span>
+              </button>
+            )}
+
+            {onEditClick && (
+              <button
+                type="button"
+                onClick={onEditClick}
+                className="h-9 px-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#151515] text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Editar Datos</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── CUERPO DEL CV CLÍNICO (GRID DE 2 COLUMNAS) ────────────────── */}
       <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 print:p-4 print:gap-6">

@@ -5,6 +5,45 @@ import { ConsumerProfile, defaultConsumerProfile } from '@/types/consumerProfile
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 
+const SYSTEM_KEYS = new Set([
+  "curp",
+  "rfc",
+  "ethnicGroup",
+  "healthInsurance",
+  "insuranceType",
+  "insuranceProvider",
+  "insurancePolicyNumber",
+  "insurancePlanName",
+  "maritalStatus",
+  "occupation",
+  "nationality",
+  "organDonor",
+  "addressStreet",
+  "addressCity",
+  "addressState",
+  "addressPostalCode",
+  "emergencyContactRelationship",
+  "emergencyContactPhoneAlt",
+  "emergencyContactName",
+  "emergencyContactPhone",
+  "chronicDiseases",
+  "surgeries",
+  "implantsDevices",
+  "vaccinations",
+  "primaryPhysician",
+]);
+
+function cleanSystemKeys(map?: Record<string, any> | null): Record<string, string> {
+  if (!map) return {};
+  const cleaned: Record<string, string> = {};
+  for (const [k, v] of Object.entries(map)) {
+    if (!SYSTEM_KEYS.has(k) && v !== undefined && v !== null) {
+      cleaned[k] = typeof v === "string" ? v : JSON.stringify(v);
+    }
+  }
+  return cleaned;
+}
+
 export const useConsumerProfile = () => {
   const [profile, setProfile] = useState<ConsumerProfile>(defaultConsumerProfile);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -20,33 +59,32 @@ export const useConsumerProfile = () => {
       const pb = (data?.personalBackground as Record<string, string>) || {};
 
       // Combinamos el perfil por defecto con la data que llega del backend.
-      // Esto asegura que si el backend manda nulls, se usan los defaults.
       const safeData: ConsumerProfile = {
         ...defaultConsumerProfile,
         ...data,
         curp: data.curp || pb.curp || "",
-        rfc: pb.rfc || "",
+        rfc: data.rfc || pb.rfc || "",
         ethnicGroup: data.ethnicGroup || pb.ethnicGroup || "",
         healthInsurance: data.healthInsurance || pb.healthInsurance || "",
-        insuranceType: pb.insuranceType || (data.healthInsurance ? "PUBLIC" : "NONE"),
-        insuranceProvider: pb.insuranceProvider || data.healthInsurance || "",
-        insurancePolicyNumber: pb.insurancePolicyNumber || "",
-        insurancePlanName: pb.insurancePlanName || "",
-        maritalStatus: pb.maritalStatus || "",
-        occupation: pb.occupation || "",
-        nationality: pb.nationality || "Mexicana",
-        organDonor: pb.organDonor || "FAMILY_DECIDES",
-        addressStreet: pb.addressStreet || "",
-        addressCity: pb.addressCity || data.location || "",
-        addressState: pb.addressState || "",
-        addressPostalCode: pb.addressPostalCode || "",
-        emergencyContactRelationship: pb.emergencyContactRelationship || "",
-        emergencyContactPhoneAlt: pb.emergencyContactPhoneAlt || "",
-        chronicDiseases: pb.chronicDiseases || "",
-        surgeries: pb.surgeries || "",
-        implantsDevices: pb.implantsDevices || "",
-        vaccinations: pb.vaccinations || "",
-        primaryPhysician: pb.primaryPhysician || "",
+        insuranceType: data.insuranceType || pb.insuranceType || (data.healthInsurance ? "PUBLIC" : "NONE"),
+        insuranceProvider: data.insuranceProvider || pb.insuranceProvider || data.healthInsurance || "",
+        insurancePolicyNumber: data.insurancePolicyNumber || pb.insurancePolicyNumber || "",
+        insurancePlanName: data.insurancePlanName || pb.insurancePlanName || "",
+        maritalStatus: data.maritalStatus || pb.maritalStatus || "",
+        occupation: data.occupation || pb.occupation || "",
+        nationality: data.nationality || pb.nationality || "Mexicana",
+        organDonor: data.organDonor || pb.organDonor || "FAMILY_DECIDES",
+        addressStreet: data.addressStreet || pb.addressStreet || "",
+        addressCity: data.addressCity || data.location || pb.addressCity || "",
+        addressState: data.addressState || pb.addressState || "",
+        addressPostalCode: data.addressPostalCode || pb.addressPostalCode || "",
+        emergencyContactRelationship: data.emergencyContactRelationship || pb.emergencyContactRelationship || "",
+        emergencyContactPhoneAlt: data.emergencyContactPhoneAlt || pb.emergencyContactPhoneAlt || "",
+        chronicDiseases: data.chronicDiseases || pb.chronicDiseases || "",
+        surgeries: data.surgeries || pb.surgeries || "",
+        implantsDevices: data.implantsDevices || pb.implantsDevices || "",
+        vaccinations: data.vaccinations || pb.vaccinations || "",
+        primaryPhysician: data.primaryPhysician || pb.primaryPhysician || "",
         // Nos aseguramos de que los arrays nunca sean null
         medicalConditions: data.medicalConditions ?? [],
         allergies: data.allergies ?? [],
@@ -56,6 +94,10 @@ export const useConsumerProfile = () => {
         bloodType: data.bloodType ?? "",
         emergencyContactName: data.emergencyContactName ?? "",
         emergencyContactPhone: data.emergencyContactPhone ?? "",
+        // Limpiamos personalBackground para que no contenga llaves del sistema
+        personalBackground: cleanSystemKeys(data.personalBackground),
+        familyBackground: cleanSystemKeys(data.familyBackground),
+        socialBackground: cleanSystemKeys(data.socialBackground),
       };
 
       setProfile(safeData);
@@ -72,9 +114,8 @@ export const useConsumerProfile = () => {
   const updateProfile = async (data: ConsumerProfile): Promise<boolean> => {
     setIsSaving(true);
     try {
-      // Sincronizamos los campos extendidos dentro de personalBackground para persistencia JSONB
-      const personalBackground = {
-        ...((data.personalBackground as Record<string, string>) || {}),
+      const payload: ConsumerProfile = {
+        ...data,
         curp: data.curp || "",
         rfc: data.rfc || "",
         ethnicGroup: data.ethnicGroup || "",
@@ -93,6 +134,7 @@ export const useConsumerProfile = () => {
         addressCity: data.addressCity || data.location || "",
         addressState: data.addressState || "",
         addressPostalCode: data.addressPostalCode || "",
+        location: data.addressCity || data.location || "",
         emergencyContactRelationship: data.emergencyContactRelationship || "",
         emergencyContactPhoneAlt: data.emergencyContactPhoneAlt || "",
         chronicDiseases: data.chronicDiseases || "",
@@ -100,14 +142,9 @@ export const useConsumerProfile = () => {
         implantsDevices: data.implantsDevices || "",
         vaccinations: data.vaccinations || "",
         primaryPhysician: data.primaryPhysician || "",
-      };
-
-      const payload: ConsumerProfile = {
-        ...data,
-        curp: data.curp,
-        healthInsurance: personalBackground.healthInsurance,
-        location: data.addressCity || data.location,
-        personalBackground,
+        personalBackground: cleanSystemKeys(data.personalBackground),
+        familyBackground: cleanSystemKeys(data.familyBackground),
+        socialBackground: cleanSystemKeys(data.socialBackground),
       };
 
       const updatedProfile = await consumerProfileService.updateProfile(payload);
@@ -116,7 +153,9 @@ export const useConsumerProfile = () => {
         ...defaultConsumerProfile,
         ...data,
         ...updatedProfile,
-        personalBackground,
+        personalBackground: cleanSystemKeys(updatedProfile.personalBackground || data.personalBackground),
+        familyBackground: cleanSystemKeys(updatedProfile.familyBackground || data.familyBackground),
+        socialBackground: cleanSystemKeys(updatedProfile.socialBackground || data.socialBackground),
       });
 
       return true;
