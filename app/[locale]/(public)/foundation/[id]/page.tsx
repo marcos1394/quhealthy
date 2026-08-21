@@ -2,10 +2,12 @@
 
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable @next/next/no-img-element */
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
   HeartHandshake,
@@ -27,13 +29,19 @@ import {
   Filter,
   Search,
   AlertCircle,
-  HelpCircle,
   Clock,
   X,
   ExternalLink,
+  MessageCircle,
+  ChevronLeft,
+  Share,
 } from "lucide-react";
 import { toast } from "react-toastify";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { foundationService } from "@/services/foundation.service";
 import {
   FoundationPublicStorefront,
@@ -42,6 +50,11 @@ import {
   PublicProgramApplicationPayload,
   PublicCampaignPreregisterPayload,
 } from "@/types/foundation";
+import { FoundationStorefrontHero } from "@/components/foundation/FoundationStorefrontHero";
+import { FoundationStickyActionCard } from "@/components/foundation/FoundationStickyActionCard";
+import { cn } from "@/lib/utils";
+
+type FoundationTabType = "programs" | "campaigns" | "transparency" | "location";
 
 export default function FoundationPublicStorefrontPage() {
   const params = useParams();
@@ -50,7 +63,7 @@ export default function FoundationPublicStorefrontPage() {
 
   const [storefront, setStorefront] = useState<FoundationPublicStorefront | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"programs" | "campaigns" | "transparency">("programs");
+  const [activeTab, setActiveTab] = useState<FoundationTabType>("programs");
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState("");
@@ -87,6 +100,8 @@ export default function FoundationPublicStorefrontPage() {
   const [screeningInterest, setScreeningInterest] = useState("GENERAL_CHECKUP");
   const [attendeeNotes, setAttendeeNotes] = useState("");
 
+  const { favoriteIds: favoriteFoundationIds } = useMyFavorites("FOUNDATION");
+
   useEffect(() => {
     if (!foundationId || isNaN(foundationId)) {
       setIsLoading(false);
@@ -104,8 +119,10 @@ export default function FoundationPublicStorefrontPage() {
       .finally(() => setIsLoading(false));
   }, [foundationId]);
 
-  const handleOpenApplyModal = (program: FoundationProgram) => {
-    setSelectedProgram(program);
+  const handleOpenApplyModal = (program?: FoundationProgram | null) => {
+    const targetProgram =
+      program || (storefront?.programs && storefront.programs.length > 0 ? storefront.programs[0] : null);
+    setSelectedProgram(targetProgram);
     setApplicationSuccess(false);
     setApplyModalOpen(true);
   };
@@ -200,10 +217,10 @@ export default function FoundationPublicStorefrontPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" className="text-rose-600" />
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mt-4 animate-pulse">
-          Cargando Tienda Institucional...
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-4 animate-pulse">
+          Cargando Portal Institucional...
         </p>
       </div>
     );
@@ -211,21 +228,29 @@ export default function FoundationPublicStorefrontPage() {
 
   if (!storefront) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-slate-50">
-        <Building2 className="w-16 h-16 text-slate-300 mb-4" />
-        <h2 className="text-xl font-bold text-slate-800">Institución no encontrada</h2>
-        <p className="text-xs text-slate-500 max-w-md mt-1 mb-6">
-          La fundación que buscas no existe o aún no ha completado su proceso de acreditación pública.
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center px-6 text-center transition-colors duration-300">
+        <div className="w-16 h-16 border border-rose-500 bg-rose-50 dark:bg-rose-900/10 flex items-center justify-center rounded-2xl mb-6">
+          <AlertCircle className="w-6 h-6 text-rose-500" strokeWidth={1.5} />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight uppercase text-black dark:text-white mb-2">
+          Institución No Encontrada
+        </h1>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 max-w-md mx-auto mb-8">
+          LA FUNDACIÓN SOLICITADA NO EXISTE O SE ENCUENTRA EN PROCESO DE ACREDITACIÓN PÚBLICA.
         </p>
-        <button
-          onClick={() => router.push("/discover")}
-          className="bg-slate-900 text-white text-xs font-bold px-5 py-2.5 rounded-2xl hover:bg-slate-800 transition-all shadow-sm"
+        <Button
+          variant="outline"
+          onClick={() => router.push("/discover?type=FOUNDATION")}
+          className="rounded-xl border border-black dark:border-white bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors cursor-pointer"
         >
-          Explorar Discover & Marketplace
-        </button>
+          Retornar a Búsqueda
+        </Button>
       </div>
     );
   }
+
+  const primaryColor = storefront.primaryColor || "#e11d48";
+  const title = storefront.brandName || storefront.legalName;
 
   const filteredPrograms = (storefront.programs || []).filter((p) => {
     const matchesSearch =
@@ -236,454 +261,535 @@ export default function FoundationPublicStorefrontPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50/60 pb-20 font-sans">
-      {/* 🚀 Header Breadcrumb */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-xs text-slate-500">
-          <Link href="/discover" className="hover:text-rose-600 font-medium transition-colors">
-            Discover
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-400">Fundaciones & Apoyo Social</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-bold truncate">{storefront.brandName || storefront.legalName}</span>
-        </div>
-      </div>
-
-      {/* 🏛️ Institutional Hero Storefront */}
-      <div className="bg-gradient-to-b from-white to-slate-100/70 border-b border-slate-200 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-start gap-4 sm:gap-6">
-              {/* Logo / Badge Avatar */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-rose-600 to-rose-800 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg shadow-rose-600/20 shrink-0 border-2 border-white">
-                {storefront.logoUrl ? (
-                  <img
-                    src={storefront.logoUrl}
-                    alt={storefront.brandName || storefront.legalName}
-                    className="w-full h-full object-cover rounded-3xl"
-                  />
-                ) : (
-                  (storefront.brandName || storefront.legalName).substring(0, 2).toUpperCase()
-                )}
-              </div>
-
-              {/* Title & Badges */}
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-900 text-white tracking-wide uppercase">
-                    {storefront.organizationType || "OSC"}
-                  </span>
-
-                  {storefront.isAuthorizedDonatary && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                      Donataria Autorizada SAT
-                    </span>
-                  )}
-
-                  {storefront.cluniNumber && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">
-                      CLUNI: {storefront.cluniNumber}
-                    </span>
-                  )}
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-                  {storefront.brandName || storefront.legalName}
-                </h1>
-
-                {storefront.legalName && storefront.brandName && (
-                  <p className="text-xs text-slate-500 font-medium">{storefront.legalName}</p>
-                )}
-
-                {/* Location & Contact Meta */}
-                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 pt-1">
-                  {storefront.addressCity && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      {storefront.addressCity}, {storefront.addressState || "México"}
-                    </span>
-                  )}
-
-                  {storefront.contactEmail && (
-                    <span className="flex items-center gap-1">
-                      <Mail className="w-3.5 h-3.5 text-slate-400" />
-                      {storefront.contactEmail}
-                    </span>
-                  )}
-
-                  {storefront.contactPhone && (
-                    <span className="flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5 text-slate-400" />
-                      {storefront.contactPhone}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Stats Badges */}
-            <div className="flex items-center gap-3 w-full md:w-auto bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs self-stretch md:self-auto justify-around sm:justify-start">
-              <div className="text-center px-3 border-r border-slate-100">
-                <span className="text-xl font-extrabold text-slate-900 block">
-                  {storefront.totalActiveProgramsCount || storefront.programs.length || 0}
-                </span>
-                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                  Programas
-                </span>
-              </div>
-
-              <div className="text-center px-3 border-r border-slate-100">
-                <span className="text-xl font-extrabold text-rose-600 block">
-                  {storefront.campaigns?.length || 0}
-                </span>
-                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                  Jornadas
-                </span>
-              </div>
-
-              <div className="text-center px-3">
-                <span className="text-xl font-extrabold text-emerald-600 block">
-                  {storefront.totalBeneficiariesCount || 0}+
-                </span>
-                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                  Vidas Apoyadas
-                </span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+      {/* ── BREADCRUMBS Y NAVEGACIÓN SUPERIOR ────────────────────────── */}
+      <div className="border-b border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between text-xs text-gray-500 font-medium">
+          <div className="flex items-center gap-2 truncate">
+            <Link
+              href="/discover?type=FOUNDATION"
+              className="hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-1 transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Discover</span>
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-gray-700 shrink-0" />
+            <span className="text-gray-400">Fundaciones & Apoyo Social</span>
+            <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-gray-700 shrink-0" />
+            <span className="text-gray-900 dark:text-white font-bold truncate">
+              {title}
+            </span>
           </div>
 
-          {/* Mission & Vision */}
-          {storefront.mission && (
-            <div className="mt-6 pt-6 border-t border-slate-200/80 max-w-4xl">
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
-                <span className="font-bold text-slate-900">Misión Institucional: </span>
-                {storefront.mission}
-              </p>
-            </div>
-          )}
+          <Badge className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 rounded-full text-[10px] font-bold px-2.5 py-0.5 hidden sm:inline-flex">
+            Portal Oficial Verificado
+          </Badge>
         </div>
       </div>
 
-      {/* 🧭 Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="flex border-b border-slate-200 gap-6">
-          <button
-            onClick={() => setActiveTab("programs")}
-            className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-              activeTab === "programs"
-                ? "border-rose-600 text-rose-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Stethoscope className="w-4 h-4" />
-            Programas Asistenciales ({storefront.programs?.length || 0})
-          </button>
+      {/* ── HERO SECTION HOMOLOGADO ─────────────────────────────────── */}
+      <FoundationStorefrontHero
+        storefront={storefront}
+        isFavorited={favoriteFoundationIds.has(storefront.id)}
+      />
 
-          <button
-            onClick={() => setActiveTab("campaigns")}
-            className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-              activeTab === "campaigns"
-                ? "border-rose-600 text-rose-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Activity className="w-4 h-4" />
-            Campañas & Jornadas Comunitarias ({storefront.campaigns?.length || 0})
-          </button>
+      {/* ── NAVEGACIÓN TABULAR ARQUITECTÓNICA STICKY ──────────────────── */}
+      <div className="sticky top-0 z-40 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex w-full overflow-x-auto custom-scrollbar gap-1 sm:gap-2">
+            <button
+              onClick={() => setActiveTab("programs")}
+              className={cn(
+                "h-14 px-4 sm:px-6 text-[11px] font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-2.5 whitespace-nowrap cursor-pointer",
+                activeTab === "programs"
+                  ? "border-rose-600 text-rose-600 dark:border-rose-500 dark:text-rose-400"
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )}
+            >
+              <Stethoscope className="w-4 h-4" />
+              <span>Programas Asistenciales</span>
+              <span className="border border-current px-1.5 py-0.2 rounded-md text-[9px] font-mono">
+                {storefront.programs?.length || 0}
+              </span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab("transparency")}
-            className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-              activeTab === "transparency"
-                ? "border-rose-600 text-rose-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Award className="w-4 h-4" />
-            Transparencia & Marco Legal
-          </button>
+            <button
+              onClick={() => setActiveTab("campaigns")}
+              className={cn(
+                "h-14 px-4 sm:px-6 text-[11px] font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-2.5 whitespace-nowrap cursor-pointer",
+                activeTab === "campaigns"
+                  ? "border-rose-600 text-rose-600 dark:border-rose-500 dark:text-rose-400"
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )}
+            >
+              <Activity className="w-4 h-4" />
+              <span>Jornadas & Campañas</span>
+              <span className="border border-current px-1.5 py-0.2 rounded-md text-[9px] font-mono">
+                {storefront.campaigns?.length || 0}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("transparency")}
+              className={cn(
+                "h-14 px-4 sm:px-6 text-[11px] font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-2.5 whitespace-nowrap cursor-pointer",
+                activeTab === "transparency"
+                  ? "border-rose-600 text-rose-600 dark:border-rose-500 dark:text-rose-400"
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )}
+            >
+              <Award className="w-4 h-4" />
+              <span>Impacto & Transparencia Legal</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("location")}
+              className={cn(
+                "h-14 px-4 sm:px-6 text-[11px] font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-2.5 whitespace-nowrap cursor-pointer",
+                activeTab === "location"
+                  ? "border-rose-600 text-rose-600 dark:border-rose-500 dark:text-rose-400"
+                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent"
+              )}
+            >
+              <MapPin className="w-4 h-4" />
+              <span>Sede & Contacto</span>
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* 📋 TAB 1: PROGRAMAS ASISTENCIALES */}
-        {activeTab === "programs" && (
-          <div className="mt-6 space-y-6 animate-in fade-in duration-300">
-            {/* Filter Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs">
-              <div className="relative flex-1 w-full">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Buscar programa por causa médica o tipo de apoyo..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <Filter className="w-4 h-4 text-slate-400" />
-                <select
-                  value={selectedCause}
-                  onChange={(e) => setSelectedCause(e.target.value)}
-                  className="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-slate-700 font-medium focus:outline-none"
+      {/* ── CONTENIDO PRINCIPAL: GRID DE 2 COLUMNAS ───────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-10">
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* COLUMNA IZQUIERDA (CATÁLOGO & CONTENIDO) */}
+          <div className="flex-1 min-w-0">
+            <AnimatePresence mode="wait">
+              {/* ── TAB 1: PROGRAMAS ASISTENCIALES ── */}
+              {activeTab === "programs" && (
+                <motion.div
+                  key="programs"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-6"
                 >
-                  <option value="ALL">Todas las Causas</option>
-                  <option value="VISUAL">Salud Visual / Cataratas</option>
-                  <option value="ONCOLOGY">Oncología</option>
-                  <option value="RENAL">Salud Renal</option>
-                  <option value="DIABETES">Diabetes & Metabolismo</option>
-                  <option value="PEDIATRIC">Pediatría</option>
-                  <option value="CARDIOVASCULAR">Cardiovascular</option>
-                  <option value="GENERAL_HEALTH">Salud Integral</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Programs Grid */}
-            {filteredPrograms.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 text-slate-400">
-                <Stethoscope className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm font-semibold text-slate-700">No se encontraron programas activos</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Intenta ajustar tu término de búsqueda o filtro de causa médica.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPrograms.map((prog) => (
-                  <div
-                    key={prog.id}
-                    className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
-                          {prog.cause || "SALUD GENERAL"}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Activo
-                        </span>
-                      </div>
-
-                      <h3 className="text-lg font-bold text-slate-900 leading-snug">{prog.name}</h3>
-
-                      <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
-                        {prog.description || "Programa asistencial enfocado en brindar subsidios y atención médica especializada a pacientes vulnerables."}
-                      </p>
-
-                      {/* Support Types Pills */}
-                      {prog.supportTypes && prog.supportTypes.length > 0 && (
-                        <div className="space-y-1.5 pt-2">
-                          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block">
-                            Tipos de Apoyo Incluidos:
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {prog.supportTypes.map((st, i) => (
-                              <span
-                                key={i}
-                                className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-700"
-                              >
-                                {st === "MEDICATION"
-                                  ? "💊 Fármacos"
-                                  : st === "CONSULTATION"
-                                  ? "🩺 Consultas"
-                                  : st === "SURGERY"
-                                  ? "🏥 Cirugías"
-                                  : st === "LABS"
-                                  ? "🧪 Laboratorios"
-                                  : st}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Required Documents Pills */}
-                      {prog.requiredDocuments && prog.requiredDocuments.length > 0 && (
-                        <div className="space-y-1.5 pt-1">
-                          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block">
-                            Requisitos Base:
-                          </span>
-                          <div className="flex flex-wrap gap-1">
-                            {prog.requiredDocuments.map((doc, i) => (
-                              <span
-                                key={i}
-                                className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-50 text-slate-600 border border-slate-100"
-                              >
-                                {doc === "CURP"
-                                  ? "CURP"
-                                  : doc === "SOCIOECONOMIC_STUDY"
-                                  ? "Estudio Socioeconómico"
-                                  : doc === "MEDICAL_SUMMARY"
-                                  ? "Dictamen Médico"
-                                  : doc === "INCOME_PROOF"
-                                  ? "Comprobante de Ingresos"
-                                  : doc}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                  {/* Barra de Filtro y Buscador */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-50/70 dark:bg-[#050505] p-3 sm:p-4 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xs">
+                    <div className="relative flex-1 w-full">
+                      <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Buscar programa por causa médica o tipo de apoyo..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 text-xs border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400"
+                      />
                     </div>
 
-                    {/* Action Button */}
-                    <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <div className="text-[11px] text-slate-500 font-medium">
-                        <span className="font-bold text-slate-800">{prog.activeBeneficiariesCount || 0}</span> inscritos
-                      </div>
-
-                      <button
-                        onClick={() => handleOpenApplyModal(prog)}
-                        className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                    <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                      <Filter className="w-4 h-4 text-gray-400 shrink-0" />
+                      <select
+                        value={selectedCause}
+                        onChange={(e) => setSelectedCause(e.target.value)}
+                        className="text-xs border border-gray-200 dark:border-gray-800 rounded-2xl px-3 py-2 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 font-medium focus:outline-none cursor-pointer w-full sm:w-auto"
                       >
-                        Solicitar Apoyo
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                        <option value="ALL">Todas las Causas</option>
+                        <option value="VISUAL">Salud Visual / Cataratas</option>
+                        <option value="ONCOLOGY">Oncología & Quimioterapia</option>
+                        <option value="RENAL">Salud Renal & Hemodiálisis</option>
+                        <option value="DIABETES">Diabetes & Metabolismo</option>
+                        <option value="PEDIATRIC">Pediatría & Nutrición</option>
+                        <option value="CARDIOVASCULAR">Cardiovascular</option>
+                        <option value="GENERAL_HEALTH">Salud Integral Asistencial</option>
+                      </select>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* 💉 TAB 2: CAMPAÑAS & JORNADAS COMUNITARIAS */}
-        {activeTab === "campaigns" && (
-          <div className="mt-6 space-y-6 animate-in fade-in duration-300">
-            {storefront.campaigns?.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 text-slate-400">
-                <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm font-semibold text-slate-700">No hay jornadas programadas en este momento</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  La fundación publicará nuevas fechas y sedes de atención comunitaria próximamente.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {storefront.campaigns.map((camp) => (
-                  <div
-                    key={camp.id}
-                    className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                          {camp.cause || "JORNADA DE SALUD"}
-                        </span>
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                            camp.status === "IN_PROGRESS"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-blue-100 text-blue-800"
-                          }`}
+                  {/* Listado de Tarjetas de Programas */}
+                  {filteredPrograms.length === 0 ? (
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-12 text-center border border-dashed border-gray-200 dark:border-gray-800">
+                      <Stethoscope className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-700" />
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                        Sin Programas Encontrados
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                        No hay programas que coincidan con los filtros aplicados. Intenta cambiar el término de búsqueda.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      {filteredPrograms.map((prog) => (
+                        <div
+                          key={prog.id}
+                          className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 md:p-8 rounded-3xl shadow-2xs hover:shadow-lg transition-all group relative space-y-5"
                         >
-                          {camp.status === "IN_PROGRESS" ? "● En Curso en Campo" : "Próxima"}
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <div className="space-y-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge className="bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
+                                  {prog.cause || "SALUD ASISTENCIAL"}
+                                </Badge>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
+                                  Convocatoria Abierta
+                                </span>
+                              </div>
+
+                              <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-snug">
+                                {prog.name}
+                              </h3>
+
+                              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl">
+                                {prog.description || "Programa asistencial enfocado en brindar subsidios y atención médica especializada a pacientes vulnerables."}
+                              </p>
+                            </div>
+
+                            <div className="shrink-0 flex sm:flex-col items-end justify-between sm:justify-start gap-2">
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-900/40">
+                                100% Subsidio
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Tipos de Apoyo Incluidos */}
+                          {prog.supportTypes && prog.supportTypes.length > 0 && (
+                            <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-800">
+                              <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block">
+                                Apoyos y Servicios Cubiertos:
+                              </span>
+                              <div className="flex flex-wrap gap-2">
+                                {prog.supportTypes.map((st, i) => (
+                                  <span
+                                    key={i}
+                                    className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300"
+                                  >
+                                    {st === "MEDICATION"
+                                      ? "💊 Medicamentos de Patente"
+                                      : st === "CONSULTATION"
+                                      ? "🩺 Consultas con Especialistas"
+                                      : st === "SURGERY"
+                                      ? "🏥 Cirugías & Procedimientos"
+                                      : st === "LABS"
+                                      ? "🧪 Estudios de Laboratorio"
+                                      : st === "REHABILITATION"
+                                      ? "♿ Fisioterapia & Terapia"
+                                      : st === "PSYCHOLOGY"
+                                      ? "🧠 Acompañamiento Psicológico"
+                                      : st}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Documentación Requerida */}
+                          {prog.requiredDocuments && prog.requiredDocuments.length > 0 && (
+                            <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400 pt-1">
+                              <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block">
+                                Requisitos Básicos:
+                              </span>
+                              <p className="line-clamp-1">
+                                {prog.requiredDocuments.join(" • ")}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Botón de Postulación */}
+                          <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <span className="text-xs text-gray-500">
+                              Evaluación socioeconómica confidencial y acompañamiento directo.
+                            </span>
+
+                            <Button
+                              onClick={() => handleOpenApplyModal(prog)}
+                              className="rounded-2xl h-11 px-6 text-xs font-bold text-white shadow-md hover:brightness-105 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 w-full sm:w-auto"
+                              style={{ backgroundColor: primaryColor }}
+                            >
+                              <Stethoscope className="w-4 h-4" />
+                              <span>Solicitar Apoyo a este Programa</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* ── TAB 2: JORNADAS & CAMPAÑAS COMUNITARIAS ── */}
+              {activeTab === "campaigns" && (
+                <motion.div
+                  key="campaigns"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-6"
+                >
+                  {(!storefront.campaigns || storefront.campaigns.length === 0) ? (
+                    <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-12 text-center border border-dashed border-gray-200 dark:border-gray-800">
+                      <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-700" />
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                        Sin Jornadas Programadas Actualmente
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                        La institución publicará próximas fechas de ferias comunitarias y jornadas médicas preventivas en este apartado.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {storefront.campaigns.map((camp) => (
+                        <div
+                          key={camp.id}
+                          className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 rounded-3xl shadow-2xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Badge className="bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5">
+                                {camp.cause || "JORNADA PREVENTIVA"}
+                              </Badge>
+                              <span className="text-[10px] font-bold uppercase text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
+                                {camp.status || "CONFIRMADA"}
+                              </span>
+                            </div>
+
+                            <h3 className="font-bold text-base text-gray-900 dark:text-white">
+                              {camp.name}
+                            </h3>
+
+                            {camp.description && (
+                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed">
+                                {camp.description}
+                              </p>
+                            )}
+
+                            <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-600 dark:text-gray-400">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-3.5 h-3.5 text-rose-600" />
+                                <span>{camp.startDate} {camp.endDate ? `al ${camp.endDate}` : ""}</span>
+                              </div>
+                              {camp.locationAddress && (
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="w-3.5 h-3.5 text-rose-600" />
+                                  <span className="truncate">{camp.locationAddress}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <Button
+                            onClick={() => handleOpenPreregisterModal(camp)}
+                            className="w-full h-10 rounded-2xl text-xs font-bold text-white shadow-xs cursor-pointer border-0 mt-2"
+                            style={{ backgroundColor: primaryColor }}
+                          >
+                            Pre-registrarse a Jornada
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* ── TAB 3: IMPACTO & TRANSPARENCIA LEGAL ── */}
+              {activeTab === "transparency" && (
+                <motion.div
+                  key="transparency"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-6"
+                >
+                  {/* Misión y Visión */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 rounded-3xl space-y-3">
+                      <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+                        <HeartHandshake className="w-5 h-5" />
+                        <h4 className="font-bold text-sm uppercase tracking-wider text-gray-900 dark:text-white">
+                          Misión Institucional
+                        </h4>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {storefront.mission || "Brindar atención médica, subsidios y acompañamiento integral a personas en situación de vulnerabilidad para transformar su calidad de vida y salud."}
+                      </p>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 rounded-3xl space-y-3">
+                      <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+                        <Sparkles className="w-5 h-5" />
+                        <h4 className="font-bold text-sm uppercase tracking-wider text-gray-900 dark:text-white">
+                          Visión de Futuro
+                        </h4>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {storefront.vision || "Ser un referente de transparencia, impacto y equidad en salud, asegurando que ningún paciente vulnerable quede sin tratamiento médico oportuno."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Marco Legal & Acreditaciones */}
+                  <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 md:p-8 rounded-3xl space-y-6">
+                    <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                      <h4 className="font-bold text-base">
+                        Marco Jurídico, Fiscal y Transparencia
+                      </h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
+                        <span className="text-[10px] font-bold uppercase text-gray-400 block">
+                          Régimen Institucional
+                        </span>
+                        <span className="font-bold text-xs text-gray-900 dark:text-white">
+                          {storefront.organizationType || "Organización de la Sociedad Civil"}
                         </span>
                       </div>
 
-                      <h3 className="text-lg font-bold text-slate-900">{camp.name}</h3>
+                      <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
+                        <span className="text-[10px] font-bold uppercase text-gray-400 block">
+                          Estatus SAT
+                        </span>
+                        <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Donataria Autorizada
+                        </span>
+                      </div>
 
-                      <p className="text-xs text-slate-600 leading-relaxed">
-                        {camp.description || "Jornada comunitaria de tamizaje, detección oportuna y canalización médica especializada."}
+                      <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
+                        <span className="text-[10px] font-bold uppercase text-gray-400 block">
+                          Registro Federal CLUNI
+                        </span>
+                        <span className="font-bold text-xs font-mono text-gray-900 dark:text-white">
+                          {storefront.cluniNumber || "En Trámite / Acreditado"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-rose-50/40 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 text-xs text-gray-700 dark:text-gray-300 leading-relaxed space-y-2">
+                      <p className="font-bold text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
+                        <Award className="w-4 h-4" />
+                        Compromiso de Rendición de Cuentas y Ética Médica
                       </p>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        Esta institución opera bajo supervisión de su Patronato y reporta periódicamente al Servicio de Administración Tributaria (SAT). El 100% de las donaciones y subsidios recibidos son canalizados a programas asistenciales, consultas, medicamentos y cirugías para pacientes vulnerables.
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
-                      <div className="space-y-1.5 text-xs text-slate-600 pt-2">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                          <span>
-                            {camp.startDate} al {camp.endDate}
+              {/* ── TAB 4: SEDE & CONTACTO ── */}
+              {activeTab === "location" && (
+                <motion.div
+                  key="location"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-6"
+                >
+                  <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 md:p-8 rounded-3xl space-y-6">
+                    <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+                      <MapPin className="w-5 h-5 text-rose-600" />
+                      <h4 className="font-bold text-base">
+                        Sede de Atención y Canales Directos
+                      </h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-4 text-xs">
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block">
+                            Ubicación Geográfica
                           </span>
+                          <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                            {storefront.addressCity ? `${storefront.addressCity}, ${storefront.addressState || "México"}` : "Sede Central"}
+                          </p>
                         </div>
 
-                        {camp.locationCity && (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                            <span>
-                              {camp.locationCity} {camp.locationAddress ? `— ${camp.locationAddress}` : ""}
+                        {storefront.contactPhone && (
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block">
+                              Teléfono de Atención Ciudadana
                             </span>
+                            <a
+                              href={`tel:${storefront.contactPhone}`}
+                              className="font-mono font-bold text-rose-600 hover:underline flex items-center gap-1.5"
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                              {storefront.contactPhone}
+                            </a>
+                          </div>
+                        )}
+
+                        {storefront.contactEmail && (
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block">
+                              Correo de Trabajo Social
+                            </span>
+                            <a
+                              href={`mailto:${storefront.contactEmail}`}
+                              className="font-medium text-rose-600 hover:underline flex items-center gap-1.5"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                              {storefront.contactEmail}
+                            </a>
                           </div>
                         )}
                       </div>
-                    </div>
 
-                    <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-500">
-                        Capacidad: <span className="font-bold text-slate-800">{camp.targetAttendees || 100} personas</span>
-                      </span>
-
-                      <button
-                        onClick={() => handleOpenPreregisterModal(camp)}
-                        className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
-                      >
-                        Pre-registrarse
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="p-5 rounded-2xl bg-gray-50/80 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-3">
+                        <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block">
+                          Recepción de Expedientes y Vales
+                        </span>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                          Puedes acudir directamente a la sede o iniciar tu postulación digital en este portal para recibir un folio de atención previo.
+                        </p>
+                        <Button
+                          onClick={() => handleOpenApplyModal()}
+                          className="w-full rounded-xl text-xs font-bold text-white shadow-xs cursor-pointer border-0"
+                          style={{ backgroundColor: primaryColor }}
+                        >
+                          Iniciar Postulación Digital
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        )}
 
-        {/* ⚖️ TAB 3: TRANSPARENCIA & MARCO LEGAL */}
-        {activeTab === "transparency" && (
-          <div className="mt-6 space-y-6 animate-in fade-in duration-300">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                <ShieldCheck className="w-8 h-8 text-emerald-600" />
-                <h4 className="font-bold text-slate-900 text-sm">Donataria Autorizada SAT</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {storefront.isAuthorizedDonatary
-                    ? "Esta institución cuenta con autorización oficial emitida por el Servicio de Administración Tributaria (SAT) para recibir donativos deducibles de impuestos."
-                    : "Institución en proceso de certificación fiscal o registro asistencial acreditado."}
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                <Award className="w-8 h-8 text-indigo-600" />
-                <h4 className="font-bold text-slate-900 text-sm">Registro Federal CLUNI</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {storefront.cluniNumber ? (
-                    <>
-                      Inscrita en el Registro Federal de las Organizaciones de la Sociedad Civil con folio oficial{" "}
-                      <span className="font-mono font-bold text-indigo-700">{storefront.cluniNumber}</span>.
-                    </>
-                  ) : (
-                    "Registro institucional verificado bajo el marco jurídico mexicano correspondiente a su figura legal."
-                  )}
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                <HeartHandshake className="w-8 h-8 text-rose-600" />
-                <h4 className="font-bold text-slate-900 text-sm">No Custodia de Fondos</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  QuHealthy actúa exclusivamente como plataforma tecnológica de validación, trazabilidad y dictamen socioeconómico. No custodia ni intermedia recursos financieros de terceros.
-                </p>
-              </div>
-            </div>
+          {/* COLUMNA DERECHA (SIDEBAR STICKY INSTITUCIONAL) */}
+          <div className="w-full lg:w-80 shrink-0">
+            <FoundationStickyActionCard
+              storefront={storefront}
+              onApplyClick={() => handleOpenApplyModal()}
+              primaryProgram={storefront.programs?.[0]}
+            />
           </div>
-        )}
+        </div>
       </div>
 
-      {/* 🚀 MODAL: AUTO-POSTULACIÓN A PROGRAMA */}
-      {applyModalOpen && selectedProgram && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      {/* ── MODAL: POSTULACIÓN A PROGRAMA ASISTENCIAL ────────────────── */}
+      {applyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 dark:border-gray-800 space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
               <div className="space-y-0.5">
                 <span className="text-[10px] font-extrabold uppercase text-rose-600 tracking-wider">
-                  Auto-postulación de Paciente
+                  Postulación de Paciente
                 </span>
-                <h3 className="text-lg font-bold text-slate-900">Solicitud de Apoyo</h3>
-                <p className="text-xs text-slate-500 font-medium truncate">{selectedProgram.name}</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  Solicitud de Apoyo Médico
+                </h3>
+                {selectedProgram && (
+                  <p className="text-xs text-gray-500 font-medium truncate">
+                    Programa: {selectedProgram.name}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => setApplyModalOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -691,53 +797,61 @@ export default function FoundationPublicStorefrontPage() {
 
             {applicationSuccess ? (
               <div className="py-8 text-center space-y-4">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10">
+                <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900">¡Solicitud Recibida con Éxito!</h4>
-                <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                  Tu expediente ha sido creado y canalizado al área de <b>Trabajo Social</b> de la fundación. Un coordinador se pondrá en contacto contigo a través del teléfono o correo proporcionado.
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white">
+                  ¡Solicitud Registrada con Éxito!
+                </h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                  Tu postulación ha sido enviada al equipo de trabajo social de <b>{title}</b>. Te contactaremos vía WhatsApp o telefónica para validar documentación y programar tu atención médica.
                 </p>
                 <div className="pt-4">
-                  <button
+                  <Button
                     onClick={() => setApplyModalOpen(false)}
-                    className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-6 py-2.5 rounded-2xl shadow-sm"
+                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold px-6 py-2.5 rounded-2xl shadow-sm cursor-pointer"
                   >
                     Entendido
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleSubmitApplication} className="space-y-4 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Nombre(s) *</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      Nombre(s) *
+                    </label>
                     <input
                       type="text"
                       required
                       placeholder="Ej. María Elena"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Apellidos *</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      Apellidos *
+                    </label>
                     <input
                       type="text"
                       required
                       placeholder="Ej. López Pérez"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">CURP (18 dígitos) *</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      CURP (18 caracteres) *
+                    </label>
                     <input
                       type="text"
                       required
@@ -745,76 +859,84 @@ export default function FoundationPublicStorefrontPage() {
                       placeholder="ABCD900101HDFRRN01"
                       value={curp}
                       onChange={(e) => setCurp(e.target.value.toUpperCase())}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 font-mono"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 font-mono uppercase"
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Teléfono Móvil / WhatsApp *</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      Teléfono Móvil / WhatsApp *
+                    </label>
                     <input
                       type="tel"
                       required
                       placeholder="Ej. 668 123 4567"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Correo Electrónico</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      Correo Electrónico
+                    </label>
                     <input
                       type="email"
                       placeholder="ejemplo@correo.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Ciudad / Municipio</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      Ciudad / Municipio
+                    </label>
                     <input
                       type="text"
                       placeholder="Ej. Los Mochis"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">
+                  <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
                     Exposición de Caso / Motivo de Solicitud *
                   </label>
                   <textarea
                     rows={3}
                     required
-                    placeholder="Describe tu situación médica actual, diagnóstico y por qué requieres el apoyo de este programa..."
+                    placeholder="Describe tu situación médica actual, diagnóstico y por qué requieres el apoyo asistencial..."
                     value={caseSummary}
                     onChange={(e) => setCaseSummary(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 leading-relaxed"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                  <button
+                <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-2">
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => setApplyModalOpen(false)}
-                    className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50"
+                    className="rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold"
                   >
                     Cancelar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={isApplying}
-                    className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-2 rounded-xl transition-all shadow-md shadow-rose-600/20"
+                    className="rounded-xl text-xs font-bold text-white shadow-md transition-all cursor-pointer border-0"
+                    style={{ backgroundColor: primaryColor }}
                   >
-                    {isApplying ? "Enviando..." : "Enviar Postulación"}
-                  </button>
+                    {isApplying ? "Enviando Solicitud..." : "Enviar Solicitud de Apoyo"}
+                  </Button>
                 </div>
               </form>
             )}
@@ -822,21 +944,23 @@ export default function FoundationPublicStorefrontPage() {
         </div>
       )}
 
-      {/* 🚀 MODAL: PRE-REGISTRO A CAMPAÑA */}
+      {/* ── MODAL: PRE-REGISTRO A CAMPAÑA ────────────────────────────── */}
       {preregisterModalOpen && selectedCampaign && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 dark:border-gray-800 space-y-5">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
               <div className="space-y-0.5">
-                <span className="text-[10px] font-extrabold uppercase text-indigo-600 tracking-wider">
-                  Jornada de Salud Comunitaria
+                <span className="text-[10px] font-extrabold uppercase text-rose-600 tracking-wider">
+                  Jornada de Salud Preventiva
                 </span>
-                <h3 className="text-lg font-bold text-slate-900">Pre-registro de Asistencia</h3>
-                <p className="text-xs text-slate-500 font-medium truncate">{selectedCampaign.name}</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  Pre-registro de Asistencia
+                </h3>
+                <p className="text-xs text-gray-500 font-medium truncate">{selectedCampaign.name}</p>
               </div>
               <button
                 onClick={() => setPreregisterModalOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -844,68 +968,76 @@ export default function FoundationPublicStorefrontPage() {
 
             {preregisterSuccess ? (
               <div className="py-8 text-center space-y-4">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10">
+                <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md shadow-emerald-600/10">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900">¡Pre-registro Exitoso!</h4>
-                <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                  Has quedado registrado para la jornada <b>{selectedCampaign.name}</b>. Presenta tu identificación en el módulo de recepción al llegar a la sede.
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white">¡Pre-registro Exitoso!</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                  Has quedado registrado para la jornada <b>{selectedCampaign.name}</b>. Presenta tu identificación oficial al módulo de recepción de la sede.
                 </p>
                 <div className="pt-4">
-                  <button
+                  <Button
                     onClick={() => setPreregisterModalOpen(false)}
-                    className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-6 py-2.5 rounded-2xl shadow-sm"
+                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold px-6 py-2.5 rounded-2xl shadow-sm cursor-pointer"
                   >
                     Cerrar
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleSubmitPreregister} className="space-y-4 text-xs">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Nombre Completo del Asistente *</label>
+                  <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                    Nombre Completo del Asistente *
+                  </label>
                   <input
                     type="text"
                     required
                     placeholder="Ej. Juan Manuel Castro"
                     value={attendeeName}
                     onChange={(e) => setAttendeeName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">CURP (Opcional)</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      CURP (Opcional)
+                    </label>
                     <input
                       type="text"
                       maxLength={18}
                       placeholder="18 caracteres"
                       value={attendeeCurp}
                       onChange={(e) => setAttendeeCurp(e.target.value.toUpperCase())}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-mono"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 font-mono uppercase"
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold text-slate-700 block mb-1">Teléfono de Contacto *</label>
+                    <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                      Teléfono de Contacto *
+                    </label>
                     <input
                       type="tel"
                       required
                       placeholder="Ej. 668 987 6543"
                       value={attendeePhone}
                       onChange={(e) => setAttendeePhone(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Tipo de Tamizaje de Interés</label>
+                  <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                    Tipo de Tamizaje de Interés
+                  </label>
                   <select
                     value={screeningInterest}
                     onChange={(e) => setScreeningInterest(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 cursor-pointer"
                   >
                     <option value="GENERAL_CHECKUP">Chequeo General de Signos</option>
                     <option value="VISUAL_ACUITY">Tamizaje Visual & Agudeza Ocular</option>
@@ -915,31 +1047,35 @@ export default function FoundationPublicStorefrontPage() {
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Observaciones o Requerimientos Especiales</label>
+                  <label className="font-bold text-gray-700 dark:text-gray-300 block mb-1">
+                    Observaciones o Requerimientos Especiales
+                  </label>
                   <input
                     type="text"
-                    placeholder="Ej. Requiere asistencia para traslado / silla de ruedas"
+                    placeholder="Ej. Requiere asistencia para traslado o silla de ruedas"
                     value={attendeeNotes}
                     onChange={(e) => setAttendeeNotes(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                  <button
+                <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-2">
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => setPreregisterModalOpen(false)}
-                    className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50"
+                    className="rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold"
                   >
                     Cancelar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={isPreregistering}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl transition-all shadow-md shadow-indigo-600/20"
+                    className="rounded-xl text-xs font-bold text-white shadow-md transition-all cursor-pointer border-0"
+                    style={{ backgroundColor: primaryColor }}
                   >
                     {isPreregistering ? "Registrando..." : "Confirmar Pre-registro"}
-                  </button>
+                  </Button>
                 </div>
               </form>
             )}
