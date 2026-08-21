@@ -57,7 +57,7 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputFallbackRef = useRef<HTMLInputElement>(null);
 
-  // Determinar título y descripción por defecto según el modo
+  // Título y descripción dinámicos
   const computedTitle =
     title ||
     (mode === "selfie"
@@ -78,14 +78,15 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
       ? "Centra el producto en el visor para análisis de IA"
       : "Apunta la cámara y presiona el obturador");
 
-  // Iniciar la cámara
+  // Iniciar el stream de la cámara con fallback de constraints para móviles
   const startCamera = useCallback(async () => {
     setIsInitializing(true);
     setCameraError(null);
 
-    // Detener stream anterior si existe
+    // Detener stream previo
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
     }
 
     try {
@@ -93,41 +94,107 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
         throw new Error("Tu navegador no soporta acceso directo a la cámara.");
       }
 
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter((device) => device.kind === "videoinput");
-      setHasMultipleCameras(videoDevices.length > 1);
-
-      const constraints: MediaStreamConstraints = {
-        video: {
-          facingMode: { ideal: facingMode },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-        audio: false,
-      };
-
-      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-      setStream(mediaStream);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play();
+      // Detectar si existen múltiples cámaras
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(
+          (device) => device.kind === "videoinput"
+        );
+        setHasMultipleCameras(videoDevices.length > 1);
+      } catch (e) {
+        // En algunos navegadores móviles enumerateDevices falla antes de pedir permisos
+        setHasMultipleCameras(true);
       }
+
+      let mediaStream: MediaStream;
+
+      // Intentar primero con facingMode específico y resolución ideal
+      try {
+        const constraints: MediaStreamConstraints = {
+          video: {
+            facingMode:
+              facingMode === "user" ? "user" : { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        };
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (firstErr) {
+        console.warn("Fallo constraints con resolución, intentando constraints básicos:", firstErr);
+        // Fallback para cámaras de teléfonos que rechazan resoluciones fijas
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: facingMode === "user" ? "user" : "environment",
+          },
+          audio: false,
+        });
+      }
+
+      setStream(mediaStream);
     } catch (err: any) {
       console.error("Error al acceder a la cámara:", err);
       let errorMsg = "No se pudo acceder a la cámara.";
-      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-        errorMsg = "Permiso de cámara denegado. Por favor autoriza el acceso en tu navegador.";
-      } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+      if (
+        err.name === "NotAllowedError" ||
+        err.name === "PermissionDeniedError"
+      ) {
+        errorMsg =
+          "Permiso de cámara denegado. Por favor autoriza el acceso a la cámara en los ajustes de tu navegador o celular.";
+      } else if (
+        err.name === "NotFoundError" ||
+        err.name === "DevicesNotFoundError"
+      ) {
         errorMsg = "No se encontró ningún dispositivo de cámara conectado.";
-      } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+      } else if (
+        err.name === "NotReadableError" ||
+        err.name === "TrackStartError"
+      ) {
         errorMsg = "La cámara está siendo utilizada por otra aplicación.";
+      } else if (err.name === "OverconstrainedError") {
+        errorMsg = "La cámara no soporta los parámetros solicitados.";
       }
       setCameraError(errorMsg);
-    } finally {
       setIsInitializing(false);
     }
   }, [facingMode]);
+
+  // Conectar el stream al elemento de video y reproducir en iOS Safari / Android
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !stream) return;
+
+    video.srcObject = stream;
+    video.setAttribute("playsinline", "true");
+    video.setAttribute("webkit-playsinline", "true");
+    video.muted = true;
+
+    const handleLoadedMetadata = async () => {
+      try {
+        await video.play();
+        setIsInitializing(false);
+      } catch (err) {
+        console.warn("Error en video.play():", err);
+        setIsInitializing(false);
+      }
+    };
+
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+    // Intentar reproducción inmediata
+    video
+      .play()
+      .then(() => {
+        setIsInitializing(false);
+      })
+      .catch((e) => {
+        // En iOS Safari se resolverá con loadedmetadata
+      });
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+    };
+  }, [stream]);
 
   // Detener la cámara al cerrar
   const stopCamera = useCallback(() => {
@@ -135,7 +202,11 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
       stream.getTracks().forEach((track) => track.stop());
       setStream(null);
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
     setCapturedImage(null);
+    setIsInitializing(true);
   }, [stream]);
 
   useEffect(() => {
@@ -162,8 +233,11 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const width = video.videoWidth || video.clientWidth || 640;
+    const height = video.videoHeight || video.clientHeight || 480;
+
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext("2d");
 
     if (ctx) {
@@ -208,6 +282,7 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
 
   // Alternar cámara frontal / trasera
   const handleToggleCamera = () => {
+    setIsInitializing(true);
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   };
 
@@ -267,7 +342,7 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
         {/* Visor de Cámara / Preview */}
         <div
           className={cn(
-            "relative w-full bg-black rounded-3xl overflow-hidden shadow-inner flex items-center justify-center",
+            "relative w-full bg-black rounded-3xl overflow-hidden shadow-inner flex items-center justify-center min-h-[280px]",
             mode === "selfie" ? "aspect-square" : "aspect-[4/3]"
           )}
         >
@@ -279,24 +354,47 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
           {/* Canvas oculto para renderizado */}
           <canvas ref={canvasRef} className="hidden" />
 
+          {/* Video siempre montado para iOS Safari y Android WebRTC */}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={cn(
+              "w-full h-full object-cover",
+              facingMode === "user" && "scale-x-[-1]",
+              capturedImage || cameraError ? "hidden" : "block"
+            )}
+          />
+
+          {/* Loader mientras se inicializa el stream */}
+          {isInitializing && !cameraError && !capturedImage && (
+            <div className="absolute inset-0 bg-black flex flex-col items-center justify-center gap-3 text-white z-20">
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+              <span className="text-xs font-bold text-gray-400 animate-pulse">
+                Iniciando cámara...
+              </span>
+            </div>
+          )}
+
           {/* Error de Cámara */}
-          {cameraError ? (
-            <div className="p-6 text-center space-y-4 text-white max-w-xs">
+          {cameraError && (
+            <div className="absolute inset-0 bg-black p-6 flex flex-col items-center justify-center text-center space-y-4 text-white z-30">
               <div className="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto">
                 <AlertCircle className="w-6 h-6" />
               </div>
-              <p className="text-xs font-medium text-gray-300 leading-relaxed">
+              <p className="text-xs font-medium text-gray-300 leading-relaxed max-w-xs">
                 {cameraError}
               </p>
               {allowGalleryUpload && (
-                <div className="pt-2 space-y-2">
+                <div className="pt-2 space-y-2 w-full max-w-xs">
                   <Button
                     type="button"
                     onClick={() => fileInputFallbackRef.current?.click()}
-                    className="w-full h-10 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer flex items-center justify-center gap-2 border-0"
+                    className="w-full h-11 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer flex items-center justify-center gap-2 border-0"
                   >
                     <Upload className="w-4 h-4" />
-                    <span>Usar Cámara Nativa / Archivo</span>
+                    <span>Usar Cámara del Celular / Galería</span>
                   </Button>
                   <input
                     type="file"
@@ -309,37 +407,23 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
                 </div>
               )}
             </div>
-          ) : isInitializing ? (
-            <div className="flex flex-col items-center justify-center gap-3 text-white">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-              <span className="text-xs font-bold text-gray-400 animate-pulse">
-                Iniciando cámara...
-              </span>
-            </div>
-          ) : capturedImage ? (
-            /* Vista previa de foto capturada */
+          )}
+
+          {/* Vista previa de foto capturada */}
+          {capturedImage && (
             <img
               src={capturedImage}
               alt="Captura"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover absolute inset-0 z-20"
             />
-          ) : (
-            /* Feed de Video en Vivo */
-            <>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className={cn(
-                  "w-full h-full object-cover",
-                  facingMode === "user" && "scale-x-[-1]"
-                )}
-              />
+          )}
 
+          {/* Guías Visuales sobre el Video Activo */}
+          {!capturedImage && !cameraError && !isInitializing && (
+            <>
               {/* Guía Facial Circular / Oval (Modo Selfie) */}
               {mode === "selfie" && (
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
                   <div className="w-56 h-72 border-2 border-dashed border-white/60 rounded-[50%] shadow-[0_0_0_9999px_rgba(0,0,0,0.35)] flex flex-col items-center justify-between py-4">
                     <span className="text-[9px] font-bold uppercase tracking-wider text-white/90 bg-black/50 px-2.5 py-0.5 rounded-full backdrop-blur-xs">
                       Centra tu rostro
@@ -351,7 +435,7 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
 
               {/* Guía Documental con Esquineros (Modo Documento) */}
               {mode === "document" && (
-                <div className="absolute inset-0 pointer-events-none p-6 flex flex-col justify-between">
+                <div className="absolute inset-0 pointer-events-none p-6 flex flex-col justify-between z-10">
                   <div className="w-full flex justify-between">
                     <div className="w-6 h-6 border-t-3 border-l-3 border-emerald-400 rounded-tl-lg shadow-sm" />
                     <div className="w-6 h-6 border-t-3 border-r-3 border-emerald-400 rounded-tr-lg shadow-sm" />
@@ -370,7 +454,7 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
 
               {/* Guía de Producto (Modo Producto / General) */}
               {mode === "product" && (
-                <div className="absolute inset-0 pointer-events-none p-8 flex flex-col justify-between items-center">
+                <div className="absolute inset-0 pointer-events-none p-8 flex flex-col justify-between items-center z-10">
                   <div className="w-full h-full border border-dashed border-white/40 rounded-2xl flex flex-col justify-between p-3">
                     <span className="text-[9px] font-bold uppercase tracking-wider text-white/90 bg-black/60 px-2.5 py-0.5 rounded-full self-center backdrop-blur-xs">
                       Enfoque de Producto
@@ -427,7 +511,7 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
                     type="button"
                     onClick={() => fileInputFallbackRef.current?.click()}
                     className="p-3 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
-                    title="Subir archivo existente"
+                    title="Subir archivo existente o tomar con cámara del sistema"
                   >
                     <Upload className="w-4 h-4" />
                     <span className="hidden sm:inline">Galería / Archivo</span>
@@ -435,6 +519,7 @@ export const UniversalCameraModal: React.FC<UniversalCameraModalProps> = ({
                   <input
                     type="file"
                     accept="image/*"
+                    capture={isSelfieMode ? "user" : "environment"}
                     ref={fileInputFallbackRef}
                     onChange={handleFallbackFileChange}
                     className="hidden"
