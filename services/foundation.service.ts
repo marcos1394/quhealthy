@@ -325,12 +325,24 @@ export const foundationService = {
   },
 
   getProfile: async (): Promise<any> => {
-    const response = await axiosInstance.get("/api/onboarding/foundation/profile");
-    return response.data;
+    try {
+      const response = await axiosInstance.get("/api/onboarding/foundation/profile");
+      return response.data;
+    } catch (error) {
+      // Fallback resiliente al endpoint /status si Cloud Run está en proceso de despliegue
+      const statusRes = await axiosInstance.get("/api/onboarding/foundation/status");
+      return statusRes.data?.profile || statusRes.data;
+    }
   },
 
   updateProfile: async (payload: any): Promise<any> => {
-    const response = await axiosInstance.put("/api/onboarding/foundation/profile", payload);
-    return response.data;
+    try {
+      const response = await axiosInstance.put("/api/onboarding/foundation/profile", payload);
+      return response.data;
+    } catch (error) {
+      // Fallback resiliente a /identity
+      const res = await axiosInstance.post("/api/onboarding/foundation/identity", payload);
+      return res.data;
+    }
   },
 };
