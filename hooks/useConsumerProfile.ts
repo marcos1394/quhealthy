@@ -17,12 +17,36 @@ export const useConsumerProfile = () => {
     setIsLoading(true);
     try {
       const data = await consumerProfileService.getProfile();
+      const pb = (data?.personalBackground as Record<string, string>) || {};
 
       // Combinamos el perfil por defecto con la data que llega del backend.
       // Esto asegura que si el backend manda nulls, se usan los defaults.
       const safeData: ConsumerProfile = {
         ...defaultConsumerProfile,
         ...data,
+        curp: data.curp || pb.curp || "",
+        rfc: pb.rfc || "",
+        ethnicGroup: data.ethnicGroup || pb.ethnicGroup || "",
+        healthInsurance: data.healthInsurance || pb.healthInsurance || "",
+        insuranceType: pb.insuranceType || (data.healthInsurance ? "PUBLIC" : "NONE"),
+        insuranceProvider: pb.insuranceProvider || data.healthInsurance || "",
+        insurancePolicyNumber: pb.insurancePolicyNumber || "",
+        insurancePlanName: pb.insurancePlanName || "",
+        maritalStatus: pb.maritalStatus || "",
+        occupation: pb.occupation || "",
+        nationality: pb.nationality || "Mexicana",
+        organDonor: pb.organDonor || "FAMILY_DECIDES",
+        addressStreet: pb.addressStreet || "",
+        addressCity: pb.addressCity || data.location || "",
+        addressState: pb.addressState || "",
+        addressPostalCode: pb.addressPostalCode || "",
+        emergencyContactRelationship: pb.emergencyContactRelationship || "",
+        emergencyContactPhoneAlt: pb.emergencyContactPhoneAlt || "",
+        chronicDiseases: pb.chronicDiseases || "",
+        surgeries: pb.surgeries || "",
+        implantsDevices: pb.implantsDevices || "",
+        vaccinations: pb.vaccinations || "",
+        primaryPhysician: pb.primaryPhysician || "",
         // Nos aseguramos de que los arrays nunca sean null
         medicalConditions: data.medicalConditions ?? [],
         allergies: data.allergies ?? [],
@@ -48,11 +72,51 @@ export const useConsumerProfile = () => {
   const updateProfile = async (data: ConsumerProfile): Promise<boolean> => {
     setIsSaving(true);
     try {
-      const updatedProfile = await consumerProfileService.updateProfile(data);
+      // Sincronizamos los campos extendidos dentro de personalBackground para persistencia JSONB
+      const personalBackground = {
+        ...((data.personalBackground as Record<string, string>) || {}),
+        curp: data.curp || "",
+        rfc: data.rfc || "",
+        ethnicGroup: data.ethnicGroup || "",
+        healthInsurance: data.insuranceProvider
+          ? `${data.insuranceProvider}${data.insurancePolicyNumber ? ` - ${data.insurancePolicyNumber}` : ""}`
+          : data.healthInsurance || "",
+        insuranceType: data.insuranceType || "NONE",
+        insuranceProvider: data.insuranceProvider || "",
+        insurancePolicyNumber: data.insurancePolicyNumber || "",
+        insurancePlanName: data.insurancePlanName || "",
+        maritalStatus: data.maritalStatus || "",
+        occupation: data.occupation || "",
+        nationality: data.nationality || "Mexicana",
+        organDonor: data.organDonor || "FAMILY_DECIDES",
+        addressStreet: data.addressStreet || "",
+        addressCity: data.addressCity || data.location || "",
+        addressState: data.addressState || "",
+        addressPostalCode: data.addressPostalCode || "",
+        emergencyContactRelationship: data.emergencyContactRelationship || "",
+        emergencyContactPhoneAlt: data.emergencyContactPhoneAlt || "",
+        chronicDiseases: data.chronicDiseases || "",
+        surgeries: data.surgeries || "",
+        implantsDevices: data.implantsDevices || "",
+        vaccinations: data.vaccinations || "",
+        primaryPhysician: data.primaryPhysician || "",
+      };
+
+      const payload: ConsumerProfile = {
+        ...data,
+        curp: data.curp,
+        healthInsurance: personalBackground.healthInsurance,
+        location: data.addressCity || data.location,
+        personalBackground,
+      };
+
+      const updatedProfile = await consumerProfileService.updateProfile(payload);
 
       setProfile({
         ...defaultConsumerProfile,
-        ...updatedProfile
+        ...data,
+        ...updatedProfile,
+        personalBackground,
       });
 
       return true;

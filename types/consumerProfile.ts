@@ -21,9 +21,40 @@ export interface ConsumerProfile {
   bloodType?: string;
   biologicalSex?: string;
   dietaryPreference?: string;
+  curp?: string;
+  rfc?: string;
+  ethnicGroup?: string;
+  healthInsurance?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   profilePictureUrl?: string;
+
+  // Seguro Médico & Póliza
+  insuranceType?: string; // "PUBLIC" | "PRIVATE" | "NONE"
+  insuranceProvider?: string; // "IMSS", "ISSSTE", "GNP", "AXA", etc.
+  insurancePolicyNumber?: string; // NSS o No. Póliza
+  insurancePlanName?: string; // Plan / Cobertura
+  
+  // Datos Personales & Identidad
+  maritalStatus?: string;
+  occupation?: string;
+  nationality?: string;
+  organDonor?: string; // "YES" | "NO" | "FAMILY_DECIDES"
+  addressStreet?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressPostalCode?: string;
+
+  // Contacto de Emergencia Extendido
+  emergencyContactRelationship?: string;
+  emergencyContactPhoneAlt?: string;
+
+  // Expediente & Antecedentes Clínicos
+  chronicDiseases?: string;
+  surgeries?: string;
+  implantsDevices?: string;
+  vaccinations?: string;
+  primaryPhysician?: string;
 
   // Antecedentes (Nuevo formato centralizado de health vault)
   familyBackground?: Record<string, string>;
@@ -45,8 +76,33 @@ export const defaultConsumerProfile: ConsumerProfile = {
   healthGoals: [],
   preferredModality: "",
   bloodType: "",
+  biologicalSex: "",
+  dietaryPreference: "",
+  curp: "",
+  rfc: "",
+  ethnicGroup: "",
+  healthInsurance: "",
   emergencyContactName: "",
   emergencyContactPhone: "",
+  emergencyContactRelationship: "",
+  emergencyContactPhoneAlt: "",
+  insuranceType: "NONE",
+  insuranceProvider: "",
+  insurancePolicyNumber: "",
+  insurancePlanName: "",
+  maritalStatus: "",
+  occupation: "",
+  nationality: "Mexicana",
+  organDonor: "FAMILY_DECIDES",
+  addressStreet: "",
+  addressCity: "",
+  addressState: "",
+  addressPostalCode: "",
+  chronicDiseases: "",
+  surgeries: "",
+  implantsDevices: "",
+  vaccinations: "",
+  primaryPhysician: "",
   profilePictureUrl: "",
   familyBackground: {},
   personalBackground: {},
