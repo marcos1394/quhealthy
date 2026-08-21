@@ -130,7 +130,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const parseAddressComponents = (components: any[]) => {
+  const parseAddressComponents = (components: any[], formattedAddress?: string) => {
     let streetNumber = "";
     let route = "";
     let neighborhood = "";
@@ -138,36 +138,60 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
     let state = "";
     let postalCode = "";
 
-    if (!Array.isArray(components)) return { streetNumber, route, neighborhood, city, state, postalCode };
-
-    for (const c of components) {
-      const types: string[] = c.types || [];
-      if (types.includes("street_number")) {
-        streetNumber = c.long_name || "";
-      } else if (types.includes("route")) {
-        route = c.long_name || "";
-      } else if (
-        types.includes("sublocality_level_1") || 
-        types.includes("sublocality") || 
-        types.includes("neighborhood")
-      ) {
-        if (!neighborhood) neighborhood = c.long_name || "";
-      } else if (types.includes("locality")) {
-        city = c.long_name || "";
-      } else if (types.includes("administrative_area_level_2") && !city) {
-        city = c.long_name || "";
-      } else if (types.includes("administrative_area_level_1")) {
-        state = c.long_name || "";
-      } else if (types.includes("postal_code")) {
-        postalCode = c.long_name || "";
+    if (Array.isArray(components) && components.length > 0) {
+      for (const c of components) {
+        const types: string[] = c.types || [];
+        if (types.includes("street_number")) {
+          streetNumber = c.long_name || "";
+        } else if (types.includes("route")) {
+          route = c.long_name || "";
+        } else if (
+          types.includes("sublocality_level_1") || 
+          types.includes("sublocality") || 
+          types.includes("neighborhood")
+        ) {
+          if (!neighborhood) neighborhood = c.long_name || "";
+        } else if (types.includes("locality")) {
+          city = c.long_name || "";
+        } else if (types.includes("administrative_area_level_2") && !city) {
+          city = c.long_name || "";
+        } else if (types.includes("administrative_area_level_1")) {
+          state = c.long_name || "";
+        } else if (types.includes("postal_code")) {
+          postalCode = c.long_name || "";
+        }
       }
+    }
+
+    // Fallback de respaldo si algún campo viene vacío a partir de la dirección formateada
+    if (formattedAddress && (!route || !city)) {
+      const parts = formattedAddress.split(",").map((p) => p.trim());
+      if (!route && parts.length > 0) route = parts[0];
+      if (!neighborhood && parts.length > 1) neighborhood = parts[1];
+      if (!city && parts.length > 2) city = parts[2];
+      if (!state && parts.length > 3) state = parts[3];
     }
 
     return { streetNumber, route, neighborhood, city, state, postalCode };
   };
 
   const handleSelectPlace = async (placeId?: string, description?: string) => {
-    if (!placeId) return;
+    if (!placeId) {
+      if (description) {
+        setSelectedPlaceFormatted(description);
+        setSearchQuery(description);
+        const parts = description.split(",").map((p) => p.trim());
+        setFormData((prev) => ({
+          ...prev,
+          addressStreet: parts[0] || prev.addressStreet,
+          addressNeighborhood: parts[1] || prev.addressNeighborhood,
+          addressCity: parts[2] || prev.addressCity,
+        }));
+      }
+      setShowSuggestions(false);
+      return;
+    }
+
     setIsSearchingPlaces(true);
     setShowSuggestions(false);
     try {
@@ -175,7 +199,8 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
       const data = typeof response === "string" ? JSON.parse(response) : response;
       const result = data.result || data;
       const components = result.address_components || [];
-      const parsed = parseAddressComponents(components);
+      const formattedAddress = result.formatted_address || description || "";
+      const parsed = parseAddressComponents(components, formattedAddress);
 
       setFormData((prev) => ({
         ...prev,
@@ -187,10 +212,21 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
         addressPostalCode: parsed.postalCode || prev.addressPostalCode,
       }));
 
-      setSelectedPlaceFormatted(result.formatted_address || description || null);
-      setSearchQuery(result.formatted_address || description || "");
+      setSelectedPlaceFormatted(formattedAddress || null);
+      setSearchQuery(formattedAddress);
     } catch (error) {
-      console.error("Error al obtener detalles del lugar de Google:", error);
+      console.error("Error al obtener detalles del lugar:", error);
+      if (description) {
+        const parts = description.split(",").map((p) => p.trim());
+        setFormData((prev) => ({
+          ...prev,
+          addressStreet: parts[0] || prev.addressStreet,
+          addressNeighborhood: parts[1] || prev.addressNeighborhood,
+          addressCity: parts[2] || prev.addressCity,
+        }));
+        setSelectedPlaceFormatted(description);
+        setSearchQuery(description);
+      }
     } finally {
       setIsSearchingPlaces(false);
     }
@@ -364,7 +400,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
               <h2 className="text-base font-bold text-gray-900 dark:text-white">
                 3. Sede Operativa & Contacto
               </h2>
-              <p className="text-xs text-gray-500">Búsqueda inteligente con Google Places y desglose automático de dirección.</p>
+              <p className="text-xs text-gray-500">Busca la ubicación para completar y desglosar los campos de dirección de forma automática.</p>
             </div>
           </div>
 
@@ -374,14 +410,14 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors cursor-pointer"
           >
             <MapIcon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>{showMap ? "Ocultar Mapa" : "Ver en Mapa Interactivo"}</span>
+            <span>{showMap ? "Ocultar Mapa" : "Ver en Mapa"}</span>
           </button>
         </div>
 
         <div ref={searchContainerRef} className="relative space-y-2">
           <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-            <Navigation className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Buscar Dirección en Google Places (Autocompletado Rápido)</span>
+            <Search className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Buscar dirección o sede</span>
           </label>
 
           <div className="relative flex items-center">
@@ -391,7 +427,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
 
             <Input
               type="text"
-              placeholder="Escribe la calle, colonia, ciudad o nombre de la sede..."
+              placeholder="Escribe la calle, colonia, ciudad o nombre del establecimiento..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -441,7 +477,6 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
                       <p className="font-bold text-gray-900 dark:text-white truncate">
                         {item.description}
                       </p>
-                      <p className="text-[11px] text-gray-400 font-medium">Google Places API</p>
                     </div>
                   </button>
                 );
@@ -452,7 +487,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
           {selectedPlaceFormatted && (
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold text-emerald-800 dark:text-emerald-300">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Dirección desglosada y verificada con Google Places</span>
+              <span>Dirección seleccionada</span>
             </div>
           )}
         </div>
