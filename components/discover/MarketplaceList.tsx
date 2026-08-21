@@ -64,6 +64,8 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
   const currentEntityForFavs =
     searchType === "STORE"
       ? "PROVIDER"
+      : searchType === "FOUNDATION"
+      ? "FOUNDATION"
       : (searchType as "PACKAGE" | "COURSE" | "PRODUCT" | "SERVICE");
 
   const { favoriteIds } = useMyFavorites(currentEntityForFavs);
@@ -80,7 +82,17 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
     setSelectedId(provider.id);
     if (map && provider.lat && provider.lng) {
       map.panTo({ lat: provider.lat, lng: provider.lng });
-      map.setZoom(14);
+      map.setZoom(15);
+    }
+  };
+
+  const handleSelectFoundation = (foundation: any) => {
+    setSelectedId(foundation.id);
+    const fLat = foundation.lat || foundation.latitude;
+    const fLng = foundation.lng || foundation.longitude;
+    if (map && fLat && fLng) {
+      map.panTo({ lat: fLat, lng: fLng });
+      map.setZoom(15);
     }
   };
 
@@ -104,6 +116,24 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
       return { ...p, distanceKm: distance };
     });
   }, [providers, coordinates, calculateDistance]);
+
+  const enrichedFoundations = useMemo(() => {
+    if (!foundations) return [];
+    return foundations.map((f: any) => {
+      let distance = undefined;
+      const fLat = f.lat || f.latitude;
+      const fLng = f.lng || f.longitude;
+      if (coordinates && fLat && fLng) {
+        distance = calculateDistance(
+          coordinates.lat,
+          coordinates.lng,
+          fLat,
+          fLng
+        );
+      }
+      return { ...f, distanceKm: distance, lat: fLat, lng: fLng };
+    });
+  }, [foundations, coordinates, calculateDistance]);
 
   // ── ESTADO CARGANDO (SKELETON) ───────────────────────────────────────
   if (isLoading) {
@@ -199,23 +229,18 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
           >
             <>
               {searchType === "FOUNDATION"
-                ? (foundations || []).map((foundation: any) => (
+                ? enrichedFoundations.map((foundation: any) => (
                     <FoundationCard
                       key={`foundation-card-${foundation.id}`}
                       foundation={foundation}
                       isSelected={selectedId === foundation.id}
+                      isFavorited={favoriteIds.has(foundation.id)}
+                      canUseFavorites={canUseFavorites}
                       isGrid={viewMode === "GRID"}
-                      onClick={() => {
-                        setSelectedId(foundation.id);
-                        const fLat = foundation.lat || foundation.latitude;
-                        const fLng = foundation.lng || foundation.longitude;
-                        if (map && fLat && fLng) {
-                          map.panTo({ lat: fLat, lng: fLng });
-                          map.setZoom(14);
-                        }
-                      }}
+                      onClick={() => handleSelectFoundation(foundation)}
                       onHover={() => setHoveredId(foundation.id)}
                       onLeave={() => setHoveredId(null)}
+                      onAuthRequired={() => handleAuthRequired("favorite")}
                     />
                   ))
                 : searchType === "STORE"

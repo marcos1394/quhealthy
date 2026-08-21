@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axios';
 import { useSessionStore } from '@/stores/SessionStore';
 
-export const useMyFavorites = (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE') => {
+export const useMyFavorites = (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE' | 'FOUNDATION') => {
     const { token, user } = useSessionStore();
     const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
     const [isLoading, setIsLoading] = useState(false);
