@@ -34,6 +34,7 @@ import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import apiClient from "@/lib/axios";
+import { UniversalCameraModal } from "@/components/ui/UniversalCameraModal";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -224,69 +225,11 @@ export default function VaccinationsPage() {
     dispatch({ type: "SET_SELECTEDDATE", payload: val });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // -- ESTADO Y REFERENCIAS PARA WEBRTC CAMERA --
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
 
-  const openCameraModal = async () => {
+  const openCameraModal = () => {
     setIsCameraModalOpen(true);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      streamRef.current = stream;
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      toast.error(
-        "No se pudo acceder a la cámara. Revisa los permisos de tu navegador.",
-      );
-      setIsCameraModalOpen(false);
-    }
   };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-  };
-
-  const capturePhotoAndProcess = () => {
-    if (!videoRef.current) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          const file = new File([blob], "captura-vacunas.jpg", {
-            type: "image/jpeg",
-          });
-          setIsCameraModalOpen(false);
-          stopCamera();
-          processFile(file);
-        }
-      },
-      "image/jpeg",
-      0.9,
-    );
-  };
-
-  // Cerrar cámara si el modal se desmonta
-  useEffect(() => {
-    if (!isCameraModalOpen) {
-      stopCamera();
-    }
-  }, [isCameraModalOpen]);
 
   const loadVaccines = useCallback(async (dependentId: number) => {
     setIsLoadingVaccines(true);
@@ -798,53 +741,18 @@ export default function VaccinationsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* --- MODAL PARA LA CAMARA WEBRTC --- */}
-      <Dialog
-        open={isCameraModalOpen}
-        onOpenChange={(open) => {
-          setIsCameraModalOpen(open);
-          if (!open) stopCamera();
+      {/* --- MODAL UNIVERSAL DE CÁMARA PARA CARTILLA DE VACUNACIÓN --- */}
+      <UniversalCameraModal
+        isOpen={isCameraModalOpen}
+        onClose={() => setIsCameraModalOpen(false)}
+        mode="document"
+        title="Capturar Cartilla de Vacunación"
+        description="Alinea la cartilla de vacunación dentro de las guías de encuadre"
+        onCapture={(file) => {
+          setIsCameraModalOpen(false);
+          processFile(file);
         }}
-      >
-        <DialogContent className="sm:max-w-md rounded-none bg-black border border-white p-0 gap-0 shadow-2xl overflow-hidden">
-          <DialogHeader className="p-4 bg-black border-b border-gray-800">
-            <DialogTitle className="text-white text-sm font-bold uppercase tracking-widest flex items-center">
-              <Camera className="w-4 h-4 mr-2" />
-              Capturar Cartilla
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="relative w-full aspect-[3/4] bg-black flex items-center justify-center">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="w-full h-full object-cover"
-            />
-            {/* Guías visuales para la cartilla */}
-            <div className="absolute inset-0 border-2 border-white/30 m-8 rounded-xl pointer-events-none flex flex-col justify-between p-4">
-              <div className="w-full flex justify-between">
-                <div className="w-4 h-4 border-t-2 border-l-2 border-white"></div>
-                <div className="w-4 h-4 border-t-2 border-r-2 border-white"></div>
-              </div>
-              <div className="w-full flex justify-between">
-                <div className="w-4 h-4 border-b-2 border-l-2 border-white"></div>
-                <div className="w-4 h-4 border-b-2 border-r-2 border-white"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 bg-black flex justify-center border-t border-gray-800">
-            <Button
-              onClick={capturePhotoAndProcess}
-              className="rounded-full w-16 h-16 bg-white hover:bg-gray-200 border-4 border-gray-300 dark:border-gray-800 p-0 flex items-center justify-center transition-transform hover:scale-105"
-            >
-              <span className="sr-only">Tomar Foto</span>
-              <div className="w-14 h-14 rounded-full border-2 border-black"></div>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      />
     </div>
   );
 }

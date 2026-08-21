@@ -24,6 +24,7 @@ import {
   HeartHandshake,
   CheckCircle2,
   Award,
+  Camera,
 } from "lucide-react";
 import { ConsumerProfile } from "@/types/consumerProfile";
 import { cn } from "@/lib/utils";
@@ -32,12 +33,14 @@ interface PatientMedicalSummaryCVProps {
   profile: ConsumerProfile;
   userEmail?: string;
   onEditClick?: () => void;
+  onPhotoClick?: () => void;
 }
 
 export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = ({
   profile,
   userEmail,
   onEditClick,
+  onPhotoClick,
 }) => {
   // Cálculo dinámico de edad
   const calculateAge = (birthDateString?: string) => {
@@ -122,17 +125,30 @@ export const PatientMedicalSummaryCV: React.FC<PatientMedicalSummaryCVProps> = (
         <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 relative z-10">
           <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5">
             {/* Foto de Perfil / Avatar */}
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 border-white/20 bg-white/10 p-1 shrink-0 shadow-lg overflow-hidden flex items-center justify-center relative backdrop-blur-md">
+            <div
+              onClick={onPhotoClick}
+              className={cn(
+                "w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 border-white/20 bg-white/10 p-1 shrink-0 shadow-lg overflow-hidden flex items-center justify-center relative backdrop-blur-md",
+                onPhotoClick && "cursor-pointer group hover:border-emerald-400/50 transition-all"
+              )}
+              title={onPhotoClick ? "Tomar selfie o cambiar foto de perfil" : undefined}
+            >
               {profile.profilePictureUrl ? (
                 <img
                   src={profile.profilePictureUrl}
                   alt={fullName}
-                  className="w-full h-full object-cover rounded-xl"
+                  className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
                 />
               ) : (
-                <User className="w-12 h-12 text-white/60" />
+                <User className="w-12 h-12 text-white/60 group-hover:scale-105 transition-transform duration-300" />
               )}
-              <div className="absolute bottom-1 right-1 bg-emerald-500 rounded-full p-1 border-2 border-slate-900">
+              {onPhotoClick ? (
+                <div className="absolute inset-0 bg-black/50 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white gap-1 backdrop-blur-xs no-print">
+                  <Camera className="w-5 h-5 text-emerald-400" />
+                  <span className="text-[9px] font-bold text-center px-1">Selfie / Foto</span>
+                </div>
+              ) : null}
+              <div className="absolute bottom-1 right-1 bg-emerald-500 rounded-full p-1 border-2 border-slate-900 z-10">
                 <ShieldCheck className="w-3.5 h-3.5 text-white" />
               </div>
             </div>

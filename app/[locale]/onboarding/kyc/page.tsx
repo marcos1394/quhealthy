@@ -27,8 +27,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useKycOnboarding } from "@/hooks/useKycOnboarding";
 import { KycDocumentType, KycVerificationStatus } from "@/types/onboarding";
-import { handleApiError } from "@/lib/handleApiError";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { UniversalCameraModal } from "@/components/ui/UniversalCameraModal";
 
 type UiDocType = "ine" | "passport" | "acta";
 
@@ -49,71 +49,15 @@ export default function KycPage() {
   const [activeCaptureType, setActiveCaptureType] =
     useState<KycDocumentType | null>(null);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const ineFrontInput = useRef<HTMLInputElement>(null);
   const ineBackInput = useRef<HTMLInputElement>(null);
   const passportInput = useRef<HTMLInputElement>(null);
   const selfieInput = useRef<HTMLInputElement>(null);
   const actaInput = useRef<HTMLInputElement>(null);
 
-  const startCamera = async (docType: KycDocumentType) => {
+  const startCamera = (docType: KycDocumentType) => {
     setActiveCaptureType(docType);
     setIsCameraOpen(true);
-    try {
-      const isSelfie = docType === "SELFIE";
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: isSelfie ? "user" : "environment",
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-      });
-      streamRef.current = mediaStream;
-      if (videoRef.current) videoRef.current.srcObject = mediaStream;
-    } catch (e) {
-      handleApiError(e);
-      setIsCameraOpen(false);
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((trk) => trk.stop());
-      streamRef.current = null;
-    }
-    setIsCameraOpen(false);
-    setActiveCaptureType(null);
-  };
-
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current || !activeCaptureType) return;
-    const v = videoRef.current;
-    const c = canvasRef.current;
-    c.width = v.videoWidth;
-    c.height = v.videoHeight;
-    const ctx = c.getContext("2d");
-    if (ctx) {
-      if (activeCaptureType === "SELFIE") {
-        ctx.translate(c.width, 0);
-        ctx.scale(-1, 1);
-      }
-      ctx.drawImage(v, 0, 0, c.width, c.height);
-      c.toBlob(
-        (blob) => {
-          if (blob) {
-            const f = new File([blob], `${activeCaptureType}_capture.jpg`, {
-              type: "image/jpeg",
-            });
-            handleUpload(f, activeCaptureType);
-            stopCamera();
-          }
-        },
-        "image/jpeg",
-        0.9
-      );
-    }
   };
 
   const handleFileChange = (
@@ -350,79 +294,38 @@ export default function KycPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pt-28 pb-20 px-6 md:px-12 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 font-sans">
-      {/* ── MODAL DE CÁMARA ──────────────────────────────────────────────── */}
-      <AnimatePresence>
-        {isCameraOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-12"
-          >
-            <div className="relative w-full max-w-4xl aspect-video bg-black rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-              />
-              <canvas ref={canvasRef} className="hidden" />
-
-              {/* Guía Visual / Overlay */}
-              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
-                <div
-                  className="absolute inset-0 opacity-15"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-                    backgroundSize: "40px 40px",
-                  }}
-                />
-
-                <motion.div
-                  animate={{ scale: [1, 1.01, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className={cn(
-                    "border-2 border-emerald-400 rounded-3xl relative shadow-2xl bg-emerald-500/5",
-                    activeCaptureType === "SELFIE"
-                      ? "w-64 h-80 rounded-full"
-                      : "w-[380px] h-[240px]"
-                  )}
-                />
-
-                <div className="mt-6 bg-black/80 backdrop-blur-md border border-gray-800 px-4 py-2 rounded-full shadow-lg">
-                  <p className="text-white text-xs font-bold flex items-center gap-2">
-                    <ScanFace className="w-4 h-4 text-emerald-400" />
-                    {activeCaptureType === "SELFIE"
-                      ? t("camera_selfie_hint")
-                      : t("camera_doc_hint")}
-                  </p>
-                </div>
-              </div>
-
-              {/* Controles Inferiores */}
-              <div className="absolute bottom-6 inset-x-0 flex justify-center items-center gap-6 z-10">
-                <button
-                  type="button"
-                  onClick={stopCamera}
-                  className="h-11 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors text-xs font-bold shadow-sm"
-                >
-                  Cancelar
-                </button>
-
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={capturePhoto}
-                  className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 transition-colors flex items-center justify-center text-white shadow-lg"
-                >
-                  <Camera className="w-6 h-6" />
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── MODAL UNIVERSAL DE CÁMARA & KYC ───────────────────────────────── */}
+      <UniversalCameraModal
+        isOpen={isCameraOpen}
+        onClose={() => {
+          setIsCameraOpen(false);
+          setActiveCaptureType(null);
+        }}
+        mode={activeCaptureType === "SELFIE" ? "selfie" : "document"}
+        title={
+          activeCaptureType === "SELFIE"
+            ? t("selfie_title")
+            : activeCaptureType === "INE_FRONT"
+            ? "Capturar INE (Frente)"
+            : activeCaptureType === "INE_BACK"
+            ? "Capturar INE (Reverso)"
+            : activeCaptureType === "PASSPORT"
+            ? "Capturar Pasaporte"
+            : "Capturar Documento"
+        }
+        description={
+          activeCaptureType === "SELFIE"
+            ? t("camera_selfie_hint")
+            : t("camera_doc_hint")
+        }
+        onCapture={(file) => {
+          if (activeCaptureType) {
+            handleUpload(file, activeCaptureType);
+            setIsCameraOpen(false);
+            setActiveCaptureType(null);
+          }
+        }}
+      />
 
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Header de Navegación */}

@@ -70,6 +70,7 @@ import { PatientBackgroundPanel } from "@/components/consultation/PatientBackgro
 import { LanguageSettingsCard } from "@/components/settings/LanguageSettingsCard";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { PatientMedicalSummaryCV } from "@/components/patient/PatientMedicalSummaryCV";
+import { SelfieCameraModal } from "@/components/ui/SelfieCameraModal";
 import { cn } from "@/lib/utils";
 
 type ProfileViewMode = "CV" | "EDIT";
@@ -79,6 +80,7 @@ export default function PatientProfilePage() {
   const [viewMode, setViewMode] = useState<ProfileViewMode>("CV");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
+  const [isSelfieModalOpen, setIsSelfieModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hooks de Backend y Sesión
@@ -286,20 +288,23 @@ export default function PatientProfilePage() {
     }
   };
 
-  const handlePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleCapturePhoto = async (file: File) => {
     setIsUploadingPicture(true);
     try {
       await consumerProfileService.uploadProfilePicture(file);
-      toast.success(t("photo_updated_toast"));
+      toast.success(t("photo_updated_toast") || "¡Foto de perfil actualizada con éxito!");
       await fetchProfile();
     } catch (error) {
       handleApiError(error);
     } finally {
       setIsUploadingPicture(false);
     }
+  };
+
+  const handlePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await handleCapturePhoto(file);
   };
 
   const handlePrint = () => {
@@ -333,18 +338,12 @@ export default function PatientProfilePage() {
         {/* ── HEADER PRINCIPAL Y ACCIONES ──────────────────────────────── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 bg-white dark:bg-[#0a0a0a] p-5 sm:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm no-print">
           <div className="flex items-center gap-4 sm:gap-6">
-            {/* Foto de perfil con botón rápido de cambio */}
+            {/* Foto de perfil con botón rápido de cambio / selfie */}
             <div
               className="relative group cursor-pointer w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-emerald-50 dark:border-emerald-950/30 bg-gray-50 dark:bg-[#111] flex items-center justify-center shrink-0 overflow-hidden shadow-sm"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => setIsSelfieModalOpen(true)}
+              title="Tomar selfie o cambiar foto"
             >
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handlePictureUpload}
-              />
               {isUploadingPicture ? (
                 <Loader2 className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
               ) : profile?.profilePictureUrl ? (
@@ -361,10 +360,10 @@ export default function PatientProfilePage() {
               )}
 
               {!isUploadingPicture && (
-                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm text-white gap-1">
-                  <Camera className="w-4 h-4" />
+                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs text-white gap-1">
+                  <Camera className="w-4 h-4 text-emerald-400" />
                   <span className="text-[9px] sm:text-[10px] font-bold text-center px-2">
-                    {t("change_photo")}
+                    Selfie / Foto
                   </span>
                 </div>
               )}
@@ -446,6 +445,7 @@ export default function PatientProfilePage() {
               profile={profile}
               userEmail={user?.email}
               onEditClick={() => setViewMode("EDIT")}
+              onPhotoClick={() => setIsSelfieModalOpen(true)}
             />
           </motion.div>
         )}
@@ -1303,6 +1303,13 @@ export default function PatientProfilePage() {
         <div className="no-print">
           <LanguageSettingsCard />
         </div>
+
+        {/* ── MODAL DE CÁMARA & SELFIE EN VIVO ─────────────────────────── */}
+        <SelfieCameraModal
+          isOpen={isSelfieModalOpen}
+          onClose={() => setIsSelfieModalOpen(false)}
+          onCapture={handleCapturePhoto}
+        />
 
       </div>
     </div>

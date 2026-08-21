@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { useLicenseOnboarding } from "@/hooks/useLicenseOnboarding";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { UniversalCameraModal } from "@/components/ui/UniversalCameraModal";
 
 export default function LicensePage() {
   const router = useRouter();
@@ -47,62 +48,10 @@ export default function LicensePage() {
 
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
 
-  const startCamera = async () => {
+  const startCamera = () => {
     setIsCameraOpen(true);
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "environment",
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-      });
-      streamRef.current = mediaStream;
-      if (videoRef.current) videoRef.current.srcObject = mediaStream;
-    } catch (e) {
-      console.error(e);
-      setIsCameraOpen(false);
-      toast.error(t("toasts.camera_error"));
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((trk) => trk.stop());
-      streamRef.current = null;
-    }
-    setIsCameraOpen(false);
-  };
-
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    const v = videoRef.current;
-    const c = canvasRef.current;
-    c.width = v.videoWidth;
-    c.height = v.videoHeight;
-    const ctx = c.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(v, 0, 0, c.width, c.height);
-      c.toBlob(
-        (blob) => {
-          if (blob) {
-            const f = new File([blob], `license_capture.jpg`, {
-              type: "image/jpeg",
-            });
-            processFile(f);
-            stopCamera();
-          }
-        },
-        "image/jpeg",
-        0.9
-      );
-    }
   };
 
   const config = {
@@ -218,66 +167,18 @@ export default function LicensePage() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center pt-28 pb-20 px-6 md:pt-36 md:px-12 transition-colors duration-500 selection:bg-emerald-100 dark:selection:bg-emerald-950/30 font-sans">
       {/* ── MODAL DE CÁMARA ──────────────────────────────────────────────── */}
-      <AnimatePresence>
-        {isCameraOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-12"
-          >
-            <div className="relative w-full max-w-4xl aspect-video bg-black rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-              />
-              <canvas ref={canvasRef} className="hidden" />
-
-              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
-                <div
-                  className="absolute inset-0 opacity-15"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-                    backgroundSize: "40px 40px",
-                  }}
-                />
-                <motion.div
-                  animate={{ scale: [1, 1.01, 1] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="w-[380px] h-[240px] border-2 border-emerald-400 rounded-2xl relative shadow-2xl bg-emerald-500/5"
-                />
-                <div className="mt-6 bg-black/80 backdrop-blur-md border border-gray-800 px-4 py-2 rounded-full shadow-lg">
-                  <p className="text-white text-xs font-bold flex items-center gap-2">
-                    <Camera className="w-4 h-4 text-emerald-400" />
-                    {t("ai_assistant.camera_modal_hint")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="absolute bottom-6 inset-x-0 flex justify-center items-center gap-6 z-10">
-                <button
-                  type="button"
-                  onClick={stopCamera}
-                  className="h-11 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors text-xs font-bold shadow-sm"
-                >
-                  Cancelar
-                </button>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={capturePhoto}
-                  className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 transition-colors flex items-center justify-center text-white shadow-lg"
-                >
-                  <Camera className="w-6 h-6" />
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── MODAL UNIVERSAL DE CÁMARA & CÉDULAS ──────────────────────────── */}
+      <UniversalCameraModal
+        isOpen={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        mode="document"
+        title="Capturar Cédula Profesional"
+        description="Alinea la cédula o título dentro de las esquinas guía"
+        onCapture={(file) => {
+          processFile(file);
+          setIsCameraOpen(false);
+        }}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
