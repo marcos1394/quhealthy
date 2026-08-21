@@ -93,12 +93,12 @@ export default function PatientProfilePage() {
   // Esquema de Validación Completo
   const patientProfileSchema = useMemo(() => {
     return z.object({
-      fullName: z.string().min(3, "El nombre completo es requerido"),
-      email: z.string().email("Correo electrónico inválido"),
-      phone: z.string().min(10, "Ingresa un número telefónico válido a 10 dígitos"),
+      fullName: z.string().min(3, t("err_full_name")),
+      email: z.string().email(t("err_email")),
+      phone: z.string().min(10, t("err_phone")),
       birthDate: z.string().optional().or(z.literal("")),
-      curp: z.string().max(18, "La CURP debe tener máximo 18 caracteres").optional().or(z.literal("")),
-      rfc: z.string().max(13, "El RFC debe tener máximo 13 caracteres").optional().or(z.literal("")),
+      curp: z.string().max(18).optional().or(z.literal("")),
+      rfc: z.string().max(13).optional().or(z.literal("")),
       biologicalSex: z.string().optional(),
       gender: z.string().optional(),
       bloodType: z.string().optional(),
@@ -130,7 +130,7 @@ export default function PatientProfilePage() {
       vaccinations: z.string().optional(),
       primaryPhysician: z.string().optional(),
     });
-  }, []);
+  }, [t]);
 
   type PatientProfileValues = z.infer<typeof patientProfileSchema>;
 
@@ -280,7 +280,7 @@ export default function PatientProfilePage() {
       });
 
       if (success) {
-        toast.success("¡Perfil médico y personal actualizado con éxito!");
+        toast.success(t("profile_updated_success"));
         form.reset(data);
         setViewMode("CV"); // Regresar a la vista ejecutiva para previsualizar
       }
@@ -295,70 +295,46 @@ export default function PatientProfilePage() {
     setIsUploadingPicture(true);
     try {
       await consumerProfileService.uploadProfilePicture(file);
-      toast.success(t("photo_updated_toast") || "¡Foto de perfil actualizada con éxito!");
+      toast.success(t("photo_updated_toast"));
       await fetchProfile();
     } catch (error) {
       handleApiError(error);
     } finally {
       setIsUploadingPicture(false);
+      setIsSelfieModalOpen(false);
     }
   };
 
-  const handlePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await handleCapturePhoto(file);
+  const handleDownloadPdf = async () => {
+    if (!profile) return;
+    setIsDownloadingPdf(true);
+    try {
+      await generatePatientProfilePdf(profile, user?.email);
+      toast.success(t("pdf_download_success"));
+    } catch (err) {
+      console.error("Error al generar PDF:", err);
+      toast.error(t("pdf_download_error"));
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleDownloadPdf = async () => {
-    setIsDownloadingPdf(true);
-    try {
-      await generatePatientProfilePdf(profile, user?.email);
-      toast.success("¡Expediente descargado en formato PDF con éxito!");
-    } catch (err) {
-      console.error("Error al generar PDF:", err);
-      toast.error("Hubo un problema al generar el archivo PDF. Puedes utilizar el botón de Imprimir.");
-    } finally {
-      setIsDownloadingPdf(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-32 print:bg-white print:p-0 print:pb-0">
-      
-      {/* ── ESTILOS CSS DEDICADOS PARA IMPRESIÓN Y PDF ────────────────── */}
-      <style jsx global>{`
-        @media print {
-          nav, header, footer, .no-print, [role="navigation"] {
-            display: none !important;
-          }
-          body {
-            background: white !important;
-            color: black !important;
-            font-size: 11pt !important;
-          }
-          .print-full-width {
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-        }
-      `}</style>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8 print:max-w-full print:p-0 print:m-0">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] p-3 sm:p-6 md:p-8 pb-32">
+      <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
         
-        {/* ── HEADER PRINCIPAL Y ACCIONES ──────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 bg-white dark:bg-[#0a0a0a] p-5 sm:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm no-print">
-          <div className="flex items-center gap-4 sm:gap-6">
-            {/* Foto de perfil con botón rápido de cambio / selfie */}
+        {/* ── HEADER PRINCIPAL CON ACCIONES RÁPIDAS ─────────────────────── */}
+        <div className="no-print bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-4 sm:p-6 md:p-8 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-6">
+          <div className="flex items-center gap-4 sm:gap-5">
+            {/* Avatar Interactivo con Acceso a Selfie */}
             <div
-              className="relative group cursor-pointer w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-emerald-50 dark:border-emerald-950/30 bg-gray-50 dark:bg-[#111] flex items-center justify-center shrink-0 overflow-hidden shadow-sm"
+              className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gray-100 dark:bg-[#111] border-2 border-emerald-500/20 dark:border-emerald-500/30 flex items-center justify-center shrink-0 group cursor-pointer shadow-inner"
               onClick={() => setIsSelfieModalOpen(true)}
-              title="Tomar selfie o cambiar foto"
+              title={t("change_photo")}
             >
               {isUploadingPicture ? (
                 <Loader2 className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-emerald-600 dark:text-emerald-400" />
@@ -379,7 +355,7 @@ export default function PatientProfilePage() {
                 <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs text-white gap-1">
                   <Camera className="w-4 h-4 text-emerald-400" />
                   <span className="text-[9px] sm:text-[10px] font-bold text-center px-2">
-                    Selfie / Foto
+                    {t("selfie_button_tooltip")}
                   </span>
                 </div>
               )}
@@ -388,17 +364,17 @@ export default function PatientProfilePage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-900/40">
-                  Expediente Digital
+                  {t("digital_record_badge")}
                 </span>
                 <span className="text-[10px] font-bold text-gray-400 font-mono">
-                  NOM-004-SSA3
+                  {t("norm_badge")}
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mt-1">
-                {profile?.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ""}` : "Mi Perfil Médico")}
+                {profile?.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ""}` : t("title"))}
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Resumen clínico, seguro médico, datos personales y antecedentes de salud.
+                {t("subtitle")}
               </p>
             </div>
           </div>
@@ -418,7 +394,7 @@ export default function PatientProfilePage() {
                 )}
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>Expediente CV</span>
+                <span>{t("tab_medical_cv")}</span>
               </button>
 
               <button
@@ -432,7 +408,7 @@ export default function PatientProfilePage() {
                 )}
               >
                 <Edit3 className="w-3.5 h-3.5" />
-                <span>Editar Datos</span>
+                <span>{t("tab_edit_data")}</span>
               </button>
             </div>
 
@@ -448,7 +424,7 @@ export default function PatientProfilePage() {
               ) : (
                 <Download className="w-3.5 h-3.5" />
               )}
-              <span className="hidden sm:inline">{isDownloadingPdf ? "Generando..." : "Descargar PDF"}</span>
+              <span className="hidden sm:inline">{isDownloadingPdf ? t("btn_generating_pdf") : t("btn_download_pdf")}</span>
             </Button>
 
             {/* Botón Imprimir / Vista Previa */}
@@ -457,10 +433,9 @@ export default function PatientProfilePage() {
               variant="outline"
               onClick={handlePrint}
               className="h-10 px-3 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#151515] transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
-              title="Imprimir o guardar como PDF mediante el navegador"
             >
               <Printer className="w-3.5 h-3.5 text-gray-500" />
-              <span className="hidden sm:inline">Imprimir</span>
+              <span className="hidden sm:inline">{t("btn_print")}</span>
             </Button>
           </div>
         </div>
@@ -504,10 +479,10 @@ export default function PatientProfilePage() {
                     </div>
                     <div>
                       <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
-                        Datos Personales & Identidad Oficial
+                        {t("section_identity_title")}
                       </h2>
                       <p className="text-[11px] text-gray-500 font-medium">
-                        Identificación civil requerida para expedientes clínicos y recetas médicas electrónicas.
+                        {t("section_identity_desc")}
                       </p>
                     </div>
                   </div>
@@ -519,12 +494,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem className="sm:col-span-2">
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Nombre(s) y Apellidos Completos *
+                            {t("label_full_name_required")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. María Elena López Castro"
+                              placeholder={t("placeholder_full_name_detailed")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -539,7 +514,7 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Fecha de Nacimiento
+                            {t("label_birth_date")}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -559,13 +534,13 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            CURP (18 caracteres)
+                            {t("label_curp")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               maxLength={18}
-                              placeholder="ABCD900101HDFRRN01"
+                              placeholder={t("placeholder_curp")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-mono uppercase focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                               onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                             />
@@ -581,13 +556,13 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            RFC (Con Homoclave)
+                            {t("label_rfc")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               maxLength={13}
-                              placeholder="ABCD900101XXX"
+                              placeholder={t("placeholder_rfc")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-mono uppercase focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                               onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                             />
@@ -603,17 +578,17 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Sexo Biológico
+                            {t("label_biological_sex_field")}
                           </FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium">
-                                <SelectValue placeholder="Selecciona sexo biológico" />
+                                <SelectValue placeholder={t("placeholder_select_sex")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg">
-                              <SelectItem value="MALE" className="text-xs font-medium">Masculino</SelectItem>
-                              <SelectItem value="FEMALE" className="text-xs font-medium">Femenino</SelectItem>
+                              <SelectItem value="MALE" className="text-xs font-medium">{t("sex_male_option")}</SelectItem>
+                              <SelectItem value="FEMALE" className="text-xs font-medium">{t("sex_female_option")}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage className="text-xs text-rose-500" />
@@ -627,20 +602,20 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Estado Civil
+                            {t("label_marital_status")}
                           </FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium">
-                                <SelectValue placeholder="Selecciona estado civil" />
+                                <SelectValue placeholder={t("placeholder_select_marital")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg">
-                              <SelectItem value="Soltero(a)" className="text-xs font-medium">Soltero(a)</SelectItem>
-                              <SelectItem value="Casado(a)" className="text-xs font-medium">Casado(a)</SelectItem>
-                              <SelectItem value="Unión Libre" className="text-xs font-medium">Unión Libre</SelectItem>
-                              <SelectItem value="Divorciado(a)" className="text-xs font-medium">Divorciado(a)</SelectItem>
-                              <SelectItem value="Viudo(a)" className="text-xs font-medium">Viudo(a)</SelectItem>
+                              <SelectItem value="Soltero(a)" className="text-xs font-medium">{t("marital_single")}</SelectItem>
+                              <SelectItem value="Casado(a)" className="text-xs font-medium">{t("marital_married")}</SelectItem>
+                              <SelectItem value="Unión Libre" className="text-xs font-medium">{t("marital_cohabitation")}</SelectItem>
+                              <SelectItem value="Divorciado(a)" className="text-xs font-medium">{t("marital_divorced")}</SelectItem>
+                              <SelectItem value="Viudo(a)" className="text-xs font-medium">{t("marital_widowed")}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage className="text-xs text-rose-500" />
@@ -654,12 +629,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Ocupación / Profesión
+                            {t("label_occupation")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. Docente, Ingeniero, Estudiante"
+                              placeholder={t("placeholder_occupation")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -674,18 +649,18 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Donador de Órganos y Tejidos
+                            {t("label_organ_donor")}
                           </FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium">
-                                <SelectValue placeholder="Voluntad de donación" />
+                                <SelectValue placeholder={t("label_organ_donor")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg">
-                              <SelectItem value="YES" className="text-xs font-medium">Sí, Donador Expreso</SelectItem>
-                              <SelectItem value="NO" className="text-xs font-medium">No</SelectItem>
-                              <SelectItem value="FAMILY_DECIDES" className="text-xs font-medium">Decisión de mis Familiares</SelectItem>
+                              <SelectItem value="YES" className="text-xs font-medium">{t("donor_yes")}</SelectItem>
+                              <SelectItem value="NO" className="text-xs font-medium">{t("donor_no")}</SelectItem>
+                              <SelectItem value="FAMILY_DECIDES" className="text-xs font-medium">{t("donor_family_decides")}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage className="text-xs text-rose-500" />
@@ -703,10 +678,10 @@ export default function PatientProfilePage() {
                     </div>
                     <div>
                       <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
-                        Seguridad Social & Pólizas de Seguro Médico
+                        {t("section_insurance_title")}
                       </h2>
                       <p className="text-[11px] text-gray-500 font-medium">
-                        Información de tu seguro público (IMSS, ISSSTE) o póliza de Gastos Médicos Mayores (GNP, AXA, MetLife, etc.).
+                        {t("section_insurance_desc")}
                       </p>
                     </div>
                   </div>
@@ -718,18 +693,18 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Tipo de Cobertura Médica
+                            {t("label_insurance_type")}
                           </FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium">
-                                <SelectValue placeholder="Selecciona tipo de seguro" />
+                                <SelectValue placeholder={t("label_insurance_type")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg">
-                              <SelectItem value="PUBLIC" className="text-xs font-medium">Seguridad Social Pública (IMSS, ISSSTE)</SelectItem>
-                              <SelectItem value="PRIVATE" className="text-xs font-medium">Seguro de Gastos Médicos Privado (SGMM)</SelectItem>
-                              <SelectItem value="NONE" className="text-xs font-medium">Particular / Sin Seguro</SelectItem>
+                              <SelectItem value="PUBLIC" className="text-xs font-medium">{t("insurance_type_public")}</SelectItem>
+                              <SelectItem value="PRIVATE" className="text-xs font-medium">{t("insurance_type_private")}</SelectItem>
+                              <SelectItem value="NONE" className="text-xs font-medium">{t("insurance_type_none")}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage className="text-xs text-rose-500" />
@@ -743,12 +718,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Institución o Aseguradora
+                            {t("label_insurance_provider")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. IMSS, ISSSTE, GNP, MetLife, AXA, Seguros Monterrey"
+                              placeholder={t("placeholder_insurance_provider")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -763,12 +738,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            NSS o Número de Póliza
+                            {t("label_policy_number")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. 1234567890 o POL-987654"
+                              placeholder={t("placeholder_policy_number")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-mono focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -783,12 +758,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem className="sm:col-span-2">
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Nombre del Plan / Nivel de Cobertura (Opcional)
+                            {t("label_plan_name")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. Cobertura Amplia Hospitalaria, Deducible $15,000, Coaseguro 10%"
+                              placeholder={t("placeholder_plan_name")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -807,10 +782,10 @@ export default function PatientProfilePage() {
                     </div>
                     <div>
                       <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
-                        Canales de Contacto & Domicilio
+                        {t("section_address_title")}
                       </h2>
                       <p className="text-[11px] text-gray-500 font-medium">
-                        Dirección y medios para notificaciones de citas y resultados de estudios.
+                        {t("section_address_desc")}
                       </p>
                     </div>
                   </div>
@@ -822,12 +797,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Teléfono Móvil / WhatsApp *
+                            {t("label_phone_primary")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. 668 123 4567"
+                              placeholder={t("placeholder_phone_primary")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -842,14 +817,15 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem className="sm:col-span-2">
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Correo Electrónico *
+                            {t("label_email_read")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               type="email"
                               {...field}
-                              placeholder="correo@ejemplo.com"
-                              className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
+                              disabled
+                              placeholder={t("placeholder_email")}
+                              className="h-11 rounded-xl bg-gray-50 dark:bg-[#111] border-gray-200 dark:border-gray-800 text-xs font-medium opacity-80"
                             />
                           </FormControl>
                           <FormMessage className="text-xs text-rose-500" />
@@ -863,12 +839,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem className="sm:col-span-2">
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Calle y Número Exterior / Interior
+                            {t("label_address_street")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. Av. Insurgentes Sur 1234, Int. 5B"
+                              placeholder={t("placeholder_address_street")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -883,13 +859,13 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Código Postal
+                            {t("label_postal_code")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               maxLength={5}
-                              placeholder="Ej. 81200"
+                              placeholder={t("placeholder_postal_code")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-mono focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -904,12 +880,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Ciudad / Municipio
+                            {t("label_address_city")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. Los Mochis"
+                              placeholder={t("placeholder_address_city")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -924,12 +900,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Estado / Entidad Federativa
+                            {t("label_address_state")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. Sinaloa"
+                              placeholder={t("placeholder_address_state")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -948,10 +924,10 @@ export default function PatientProfilePage() {
                     </div>
                     <div>
                       <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
-                        Contacto en Caso de Emergencia
+                        {t("section_emergency_title")}
                       </h2>
                       <p className="text-[11px] text-gray-500 font-medium">
-                        Persona a contactar de inmediato en situaciones de urgencia médica o quirúrgica.
+                        {t("section_emergency_desc")}
                       </p>
                     </div>
                   </div>
@@ -963,12 +939,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Nombre del Contacto
+                            {t("label_emergency_name_field")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. Roberto Castro Gómez"
+                              placeholder={t("placeholder_emergency_name_field")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -983,24 +959,15 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Parentesco / Relación
+                            {t("label_emergency_relationship")}
                           </FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium">
-                                <SelectValue placeholder="Selecciona parentesco" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg">
-                              <SelectItem value="Cónyuge / Pareja" className="text-xs font-medium">Cónyuge / Pareja</SelectItem>
-                              <SelectItem value="Madre / Padre" className="text-xs font-medium">Madre / Padre</SelectItem>
-                              <SelectItem value="Hijo(a)" className="text-xs font-medium">Hijo(a)</SelectItem>
-                              <SelectItem value="Hermano(a)" className="text-xs font-medium">Hermano(a)</SelectItem>
-                              <SelectItem value="Familiar" className="text-xs font-medium">Familiar</SelectItem>
-                              <SelectItem value="Tutor Legal" className="text-xs font-medium">Tutor Legal</SelectItem>
-                              <SelectItem value="Amigo(a)" className="text-xs font-medium">Amigo(a)</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder={t("placeholder_emergency_relationship")}
+                              className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
+                            />
+                          </FormControl>
                           <FormMessage className="text-xs text-rose-500" />
                         </FormItem>
                       )}
@@ -1012,12 +979,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Teléfono de Emergencia Principal
+                            {t("label_emergency_phone_primary")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. 668 987 6543"
+                              placeholder={t("placeholder_emergency_phone_primary")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -1032,12 +999,12 @@ export default function PatientProfilePage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            Teléfono Alternativo (Opcional)
+                            {t("label_emergency_phone_alt")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. 668 555 4321"
+                              placeholder={t("placeholder_emergency_phone_alt")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -1056,10 +1023,10 @@ export default function PatientProfilePage() {
                     </div>
                     <div>
                       <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
-                        Expediente & Antecedentes Clínicos (NOM-004)
+                        {t("section_clinical_title")}
                       </h2>
                       <p className="text-[11px] text-gray-500 font-medium">
-                        Historial de alergias, enfermedades crónicas, medicamentos habituales y cirugías.
+                        {t("section_clinical_desc")}
                       </p>
                     </div>
                   </div>
@@ -1072,12 +1039,12 @@ export default function PatientProfilePage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                              Grupo Sanguíneo y Factor Rh
+                              {t("label_blood_type_field")}
                             </FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium">
-                                  <SelectValue placeholder="Selecciona tipo de sangre" />
+                                  <SelectValue placeholder={t("placeholder_select_blood")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] shadow-lg">
@@ -1099,12 +1066,12 @@ export default function PatientProfilePage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                              Médico de Cabecera o Clínica Habitual
+                              {t("label_primary_physician")}
                             </FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder="Ej. Dr. Alejandro Mendoza / Hospital Ángeles"
+                                placeholder={t("placeholder_primary_physician")}
                                 className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                               />
                             </FormControl>
@@ -1121,12 +1088,12 @@ export default function PatientProfilePage() {
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-amber-600 dark:text-amber-500 flex items-center gap-1.5">
                             <AlertTriangle className="w-3.5 h-3.5" />
-                            <span>Alergias Medicamentosas, Alimentarias o Ambientales (Separadas por comas)</span>
+                            <span>{t("label_allergies_field")}</span>
                           </FormLabel>
                           <FormControl>
                             <Textarea
                               {...field}
-                              placeholder="Ej. Penicilina (Severa), Ibuprofeno, Mariscos, Polvo/Ácaros"
+                              placeholder={t("placeholder_allergies_field")}
                               className="min-h-[80px] resize-none rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-amber-500/20 focus-visible:border-amber-500 shadow-sm"
                             />
                           </FormControl>
@@ -1142,12 +1109,12 @@ export default function PatientProfilePage() {
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                             <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Diagnósticos Actuales & Enfermedades Crónicas</span>
+                            <span>{t("label_chronic_diseases")}</span>
                           </FormLabel>
                           <FormControl>
                             <Textarea
                               {...field}
-                              placeholder="Ej. Hipertensión arterial sistémica (dx 2019), Diabetes Mellitus Tipo 2, Hipotiroidismo"
+                              placeholder={t("placeholder_chronic_diseases")}
                               className="min-h-[80px] resize-none rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -1163,12 +1130,12 @@ export default function PatientProfilePage() {
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                             <Pill className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Medicación Continua & Dosis Habituales (Separadas por comas)</span>
+                            <span>{t("label_medications_field")}</span>
                           </FormLabel>
                           <FormControl>
                             <Textarea
                               {...field}
-                              placeholder="Ej. Losartán 50mg cada 24 hrs, Metformina 850mg con alimentos, Levotiroxina 100mcg en ayuno"
+                              placeholder={t("placeholder_medications_field")}
                               className="min-h-[80px] resize-none rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -1185,12 +1152,12 @@ export default function PatientProfilePage() {
                           <FormItem>
                             <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                               <Scissors className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Cirugías & Hospitalizaciones Previas</span>
+                              <span>{t("label_surgeries")}</span>
                             </FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder="Ej. Apendicectomía (2015), Colecistectomía (2020)"
+                                placeholder={t("placeholder_surgeries")}
                                 className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                               />
                             </FormControl>
@@ -1206,12 +1173,12 @@ export default function PatientProfilePage() {
                           <FormItem>
                             <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                               <HeartHandshake className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Prótesis, Implantes o Dispositivos</span>
+                              <span>{t("label_implants")}</span>
                             </FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder="Ej. Marcapasos bicameral, Prótesis de rodilla derecha"
+                                placeholder={t("placeholder_implants")}
                                 className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                               />
                             </FormControl>
@@ -1228,12 +1195,12 @@ export default function PatientProfilePage() {
                         <FormItem>
                           <FormLabel className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Esquema de Vacunación Relevante</span>
+                            <span>{t("label_vaccinations")}</span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Ej. COVID-19 (3 dosis), Influenza (2025), Tétanos (2022)"
+                              placeholder={t("placeholder_vaccinations")}
                               className="h-11 rounded-xl bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-xs font-medium focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-sm"
                             />
                           </FormControl>
@@ -1261,10 +1228,10 @@ export default function PatientProfilePage() {
                           </div>
                           <div className="min-w-0">
                             <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate">
-                              Tienes modificaciones sin guardar
+                              {t("unsaved_title")}
                             </p>
                             <p className="text-[10px] sm:text-[11px] font-medium text-gray-500 dark:text-gray-400 line-clamp-1">
-                              Guarda los cambios para actualizar tu expediente digital y pasaporte médico.
+                              {t("unsaved_desc")}
                             </p>
                           </div>
                         </div>
@@ -1278,7 +1245,7 @@ export default function PatientProfilePage() {
                             onClick={() => form.reset()}
                           >
                             <RotateCcw className="w-3.5 h-3.5" />
-                            <span>Descartar</span>
+                            <span>{t("btn_revert")}</span>
                           </Button>
 
                           <Button
@@ -1291,7 +1258,7 @@ export default function PatientProfilePage() {
                             ) : (
                               <Save className="w-4 h-4" strokeWidth={2} />
                             )}
-                            <span>{isSaving ? "Guardando..." : "Guardar Expediente"}</span>
+                            <span>{isSaving ? t("btn_saving") : t("btn_save")}</span>
                           </Button>
                         </div>
                       </div>
