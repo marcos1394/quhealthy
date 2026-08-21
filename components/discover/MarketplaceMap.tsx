@@ -14,7 +14,7 @@ import {
 } from "@react-google-maps/api";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { Star, MapPin, LayoutGrid, User } from "lucide-react";
+import { Star, MapPin, LayoutGrid, User, Award, HeartHandshake } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useDiscoverContext } from "./context/DiscoverContext";
@@ -193,344 +193,365 @@ export const MarketplaceMap = () => {
             }}
             zIndex={100}
           />
-        )}
-        {/* Marcadores de Tiendas / Proveedores */}
-        {searchType === "STORE"
-          ? enrichedProviders.flatMap((provider) => {
-              const isSelected = selectedId === provider.id;
-              const isHovered = hoveredId === provider.id;
+        )}        {/* ── MARCADORES DE TIENDAS / PROVEEDORES ─────────────────────────── */}
+        {(enrichedProviders || []).flatMap((provider) => {
+          const isSelected = selectedId === provider.id;
+          const isHovered = hoveredId === provider.id;
 
-              if (!provider.lat || !provider.lng) return [];
+          if (!provider.lat || !provider.lng) return [];
 
-              const locations = [
-                { lat: provider.lat, lng: provider.lng, key: `store-${provider.id}-main` },
-                ...(provider.additionalLocations || []).map((loc: { lat: number; lng: number }, idx: number) => ({
-                  lat: loc.lat,
-                  lng: loc.lng,
-                  key: `store-${provider.id}-add-${idx}`,
-                })),
-              ];
+          const locations = [
+            { lat: provider.lat, lng: provider.lng, key: `store-${provider.id}-main` },
+            ...(provider.additionalLocations || []).map((loc: { lat: number; lng: number }, idx: number) => ({
+              lat: loc.lat,
+              lng: loc.lng,
+              key: `store-${provider.id}-add-${idx}`,
+            })),
+          ];
 
-              return locations.map((loc) => {
-                const isPinActive = activePinKey === loc.key || (isSelected && activePinKey === null);
-                
-                return (
-                  <MarkerF
-                    key={loc.key}
+          return locations.map((loc) => {
+            const isPinActive = activePinKey === loc.key || (isSelected && (activePinKey === null || activePinKey.startsWith('store-')));
+            
+            return (
+              <MarkerF
+                key={loc.key}
+                position={{ lat: loc.lat, lng: loc.lng }}
+                onClick={(e) => {
+                  if (e.domEvent) {
+                    e.domEvent.stopPropagation();
+                  }
+                  setSelectedId(provider.id);
+                  setActivePinKey(loc.key);
+                  if (map) {
+                    map.panTo({ lat: loc.lat, lng: loc.lng });
+                    map.setZoom(14);
+                  }
+                }}
+                onMouseOver={() => setHoveredId(provider.id)}
+                onMouseOut={() => setHoveredId(null)}
+                icon={{
+                  path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                  fillColor: provider.color || "#059669",
+                  fillOpacity: isSelected || isHovered ? 1 : 0.85,
+                  strokeWeight: isSelected ? 3 : 2,
+                  strokeColor: "#ffffff",
+                  scale: isSelected ? 1.6 : 1.3,
+                  anchor: new google.maps.Point(12, 24),
+                }}
+                zIndex={isSelected ? 50 : 10}
+              >
+                {isPinActive && (
+                  <InfoWindowF
                     position={{ lat: loc.lat, lng: loc.lng }}
-                    onClick={(e) => {
-                      if (e.domEvent) {
-                        e.domEvent.stopPropagation();
-                      }
-                      setSelectedId(provider.id);
-                      setActivePinKey(loc.key);
-                      if (map) {
-                        map.panTo({ lat: loc.lat, lng: loc.lng });
-                        map.setZoom(14);
-                      }
+                    onCloseClick={() => {
+                      setSelectedId(null);
+                      setActivePinKey(null);
                     }}
-                    onMouseOver={() => setHoveredId(provider.id)}
-                    onMouseOut={() => setHoveredId(null)}
-                    icon={{
-                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                      fillColor: provider.color || "#059669",
-                      fillOpacity: isSelected || isHovered ? 1 : 0.85,
-                      strokeWeight: isSelected ? 3 : 2,
-                      strokeColor: "#ffffff",
-                      scale: isSelected ? 1.6 : 1.3,
-                      anchor: new google.maps.Point(12, 24),
-                    }}
-                    zIndex={isSelected ? 50 : 10}
+                    options={{ pixelOffset: new google.maps.Size(0, -45) }}
                   >
-                    {isPinActive && (
-                      <InfoWindowF
-                        position={{ lat: loc.lat, lng: loc.lng }}
-                        onCloseClick={() => {
-                          setSelectedId(null);
-                          setActivePinKey(null);
-                        }}
-                        options={{ pixelOffset: new google.maps.Size(0, -45) }}
-                      >
-                        <div className="min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800">
-                          <div className="w-full h-24 relative bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                            {provider.imageUrl || provider.logoUrl ? (
+                    <div className="p-0 min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800">
+                      <div className="relative h-24 w-full bg-gray-50 dark:bg-[#050505] overflow-hidden">
+                        {provider.imageUrl ? (
+                          <img
+                            src={provider.imageUrl}
+                            alt={provider.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <User className="w-8 h-8 opacity-40" />
+                          </div>
+                        )}
+                        {provider.isPromoted && (
+                          <div className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-bold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                            <Award className="w-2.5 h-2.5" />
+                            <span>{t("recommended")}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="p-3.5 bg-white dark:bg-[#0a0a0a] space-y-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">
+                              {provider.name}
+                            </h4>
+                            <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate capitalize">
+                              {(
+                                provider.category || t("clinic_default")
+                              ).toLowerCase()}
+                            </p>
+                          </div>
+                          <div className="w-8 h-8 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden shrink-0 shadow-2xs bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                            {provider.logoUrl ? (
                               <img
-                                src={provider.imageUrl || provider.logoUrl}
+                                src={provider.logoUrl}
                                 alt={provider.name}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-emerald-50 to-gray-50 dark:from-emerald-950/20 dark:to-[#050505] flex items-center justify-center">
-                                <User className="w-6 h-6 text-gray-400" />
-                              </div>
-                            )}
-                            {provider.isPromoted && (
-                              <div className="absolute top-2 left-2 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-2xs">
-                                {t("sponsored")}
-                              </div>
+                              <User className="w-4 h-4 text-gray-400" />
                             )}
                           </div>
-  
-                          <div className="p-3.5 bg-white dark:bg-[#0a0a0a] space-y-3">
-                            <div className="flex justify-between items-start gap-2">
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">
-                                  {provider.name}
-                                </h4>
-                                <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate capitalize">
-                                  {(
-                                    provider.category || t("clinic_default")
-                                  ).toLowerCase()}
-                                </p>
-                              </div>
-                              <div className="w-8 h-8 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden shrink-0 shadow-2xs bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
-                                {provider.logoUrl ? (
-                                  <img
-                                    src={provider.logoUrl}
-                                    alt={provider.name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <User className="w-4 h-4 text-gray-400" />
-                                )}
-                              </div>
-                            </div>
-  
-                            <div className="flex flex-col gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1">
-                                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                                  {provider.reviews && provider.reviews > 0 ? (
-                                    <>
-                                      <span className="font-bold font-mono text-gray-900 dark:text-white">
-                                        {provider.rating?.toFixed(1)}
-                                      </span>
-                                      <span className="text-gray-400 text-[10px] font-mono">
-                                        ({provider.reviews})
-                                      </span>
-                                    </>
-                                  ) : (
-                                    <span className="font-bold text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-full text-[10px]">
-                                      {t("new_badge")}
-                                    </span>
-                                  )}
-                                </div>
-  
-                                {provider.distanceKm !== undefined && (
-                                  <div className="flex items-center gap-1 text-[10px] font-mono text-gray-400">
-                                    <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                    <span>
-                                      {provider.distanceKm.toFixed(1)} km
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-  
-                              {provider.basePrice !== undefined && (
-                                <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800/80">
-                                  <span className="text-[10px] text-gray-400 font-medium">
-                                    {t("from")}
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                              {provider.reviews && provider.reviews > 0 ? (
+                                <>
+                                  <span className="font-bold font-mono text-gray-900 dark:text-white">
+                                    {provider.rating?.toFixed(1)}
                                   </span>
-                                  <span className="font-bold font-mono text-gray-900 dark:text-white text-xs">
-                                    ${provider.basePrice}
+                                  <span className="text-gray-400 text-[10px] font-mono">
+                                    ({provider.reviews})
                                   </span>
-                                </div>
+                                </>
+                              ) : (
+                                <span className="font-bold text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded-full text-[10px]">
+                                  {t("new_badge")}
+                                </span>
                               )}
                             </div>
-  
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/store/${provider.slug}`);
-                              }}
-                              className="w-full h-9 text-xs font-bold rounded-xl text-white shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
-                              style={{
-                                backgroundColor: provider.color || "#059669",
-                              }}
-                            >
-                              {t("view_store")}
-                            </button>
-                          </div>
-                        </div>
-                      </InfoWindowF>
-                    )}
-                  </MarkerF>
-                );
-              });
-            })
-          : searchType === "FOUNDATION"
-          ? (foundations || []).map((foundation: any) => {
-              const isSelected = selectedId === foundation.id;
-              const isHovered = hoveredId === foundation.id;
-              const lat = foundation.lat || foundation.latitude;
-              const lng = foundation.lng || foundation.longitude;
 
-              if (!lat || !lng) return null;
-
-              return (
-                <MarkerF
-                  key={`marker-foundation-${foundation.id}`}
-                  position={{ lat, lng }}
-                  onClick={(e) => {
-                    if (e.domEvent) {
-                      e.domEvent.stopPropagation();
-                    }
-                    setSelectedId(foundation.id);
-                    if (map) {
-                      map.panTo({ lat, lng });
-                      map.setZoom(14);
-                    }
-                  }}
-                  onMouseOver={() => setHoveredId(foundation.id)}
-                  onMouseOut={() => setHoveredId(null)}
-                  icon={{
-                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                    fillColor: "#e11d48",
-                    fillOpacity: isSelected || isHovered ? 1 : 0.85,
-                    strokeWeight: isSelected ? 3 : 2,
-                    strokeColor: "#ffffff",
-                    scale: isSelected ? 1.6 : 1.3,
-                    anchor: new google.maps.Point(12, 24),
-                  }}
-                  zIndex={isSelected ? 50 : 10}
-                >
-                  {isSelected && (
-                    <InfoWindowF
-                      position={{ lat, lng }}
-                      onCloseClick={() => setSelectedId(null)}
-                      options={{ pixelOffset: new google.maps.Size(0, -45) }}
-                    >
-                      <div className="p-3.5 min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800 space-y-3">
-                        <div className="flex gap-3 items-start">
-                          <div className="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center font-bold text-sm border border-rose-100 dark:border-rose-900/40 shrink-0 overflow-hidden shadow-2xs">
-                            {foundation.logoUrl ? (
-                              <img
-                                src={foundation.logoUrl}
-                                alt={foundation.brandName || foundation.legalName}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              (foundation.brandName || foundation.legalName || "FN").substring(0, 2).toUpperCase()
+                            {provider.distanceKm !== undefined && (
+                              <div className="flex items-center gap-1 text-[10px] font-mono text-gray-400">
+                                <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                <span>
+                                  {provider.distanceKm.toFixed(1)} km
+                                </span>
+                              </div>
                             )}
                           </div>
-                          <div className="flex-1 min-w-0 space-y-0.5">
-                            <span className="text-[9px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-full border border-rose-200">
-                              {foundation.organizationType || "I.A.P."}
-                            </span>
-                            <h4 className="font-bold text-xs text-gray-900 dark:text-white line-clamp-1 leading-tight pt-0.5">
-                              {foundation.brandName || foundation.legalName}
-                            </h4>
-                            <p className="text-[10px] text-gray-500 line-clamp-1">
-                              {foundation.primaryCauses?.[0] || "Salud Asistencial"}
-                            </p>
-                          </div>
+
+                          {provider.basePrice !== undefined && (
+                            <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100 dark:border-gray-800/80">
+                              <span className="text-[10px] text-gray-400 font-medium">
+                                {t("from")}
+                              </span>
+                              <span className="font-bold font-mono text-gray-900 dark:text-white text-xs">
+                                ${provider.basePrice}
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/foundation/${foundation.id}`);
-                          }}
-                          className="w-full h-9 text-xs font-bold rounded-xl text-white bg-rose-600 hover:bg-rose-700 shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
-                        >
-                          Ver Portal & Apoyos
-                        </button>
-                      </div>
-                    </InfoWindowF>
-                  )}
-                </MarkerF>
-              );
-            })
-          /* Marcadores de Ítems / Productos / Servicios */
-          : items.map((item) => {
-              const isSelected = selectedId === item.id;
-              const isHovered = hoveredId === item.id;
-
-              if (!item.providerLat || !item.providerLng) return null;
-
-              return (
-                <MarkerF
-                  key={`marker-item-${item.id}`}
-                  position={{ lat: item.providerLat, lng: item.providerLng }}
-                  onClick={(e) => {
-                    if (e.domEvent) {
-                      e.domEvent.stopPropagation();
-                    }
-                    setSelectedId(item.id);
-                    if (map) {
-                      map.panTo({
-                        lat: item.providerLat!,
-                        lng: item.providerLng!,
-                      });
-                      map.setZoom(14);
-                    }
-                  }}
-                  onMouseOver={() => setHoveredId(item.id)}
-                  onMouseOut={() => setHoveredId(null)}
-                  icon={{
-                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                    fillColor: item.providerColor || "#059669",
-                    fillOpacity: isSelected || isHovered ? 1 : 0.85,
-                    strokeWeight: isSelected ? 3 : 2,
-                    strokeColor: "#ffffff",
-                    scale: isSelected ? 1.6 : 1.3,
-                    anchor: new google.maps.Point(12, 24),
-                  }}
-                  zIndex={isSelected ? 50 : 10}
-                >
-                  {isSelected && (
-                    <InfoWindowF
-                      position={{
-                        lat: item.providerLat,
-                        lng: item.providerLng,
-                      }}
-                      onCloseClick={() => setSelectedId(null)}
-                      options={{ pixelOffset: new google.maps.Size(0, -45) }}
-                    >
-                      <div className="p-3.5 min-w-[220px] max-w-[260px] font-sans -m-1 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800 space-y-3">
-                        <div className="flex gap-3 items-start">
-                          <div className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-[#050505] flex items-center justify-center border border-gray-100 dark:border-gray-800 shrink-0 overflow-hidden shadow-2xs">
-                            {item.imageUrl || item.providerLogoUrl ? (
-                              <img
-                                src={item.imageUrl || item.providerLogoUrl}
-                                alt={item.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <User className="w-5 h-5 text-gray-400" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0 space-y-0.5">
-                            <h4 className="font-bold text-xs text-gray-900 dark:text-white line-clamp-2 leading-tight">
-                              {item.name}
-                            </h4>
-                            <p className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                              ${item.price.toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/market/item/${item.id}`);
+                            router.push(`/store/${provider.slug}`);
                           }}
                           className="w-full h-9 text-xs font-bold rounded-xl text-white shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
                           style={{
-                            backgroundColor: item.providerColor || "#059669",
+                            backgroundColor: provider.color || "#059669",
                           }}
                         >
-                          {t("view_details")}
+                          {t("view_store")}
                         </button>
                       </div>
-                    </InfoWindowF>
-                  )}
-                </MarkerF>
-              );
-            })}
+                    </div>
+                  </InfoWindowF>
+                )}
+              </MarkerF>
+            );
+          });
+        })}
+
+        {/* ── MARCADORES DE FUNDACIONES & ONGS ───────────────────────────── */}
+        {(foundations || []).map((foundation: any) => {
+          const lat = foundation.lat || foundation.latitude;
+          const lng = foundation.lng || foundation.longitude;
+
+          if (!lat || !lng) return null;
+
+          const isPinActive = activePinKey === `foundation-${foundation.id}` || (selectedId === foundation.id && (activePinKey === `foundation-${foundation.id}` || activePinKey === null));
+          const isHovered = hoveredId === foundation.id;
+
+          return (
+            <MarkerF
+              key={`marker-foundation-${foundation.id}`}
+              position={{ lat, lng }}
+              onClick={(e) => {
+                if (e.domEvent) {
+                  e.domEvent.stopPropagation();
+                }
+                setSelectedId(foundation.id);
+                setActivePinKey(`foundation-${foundation.id}`);
+                if (map) {
+                  map.panTo({ lat, lng });
+                  map.setZoom(14);
+                }
+              }}
+              onMouseOver={() => setHoveredId(foundation.id)}
+              onMouseOut={() => setHoveredId(null)}
+              icon={{
+                path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                fillColor: foundation.primaryColor || "#e11d48",
+                fillOpacity: isPinActive || isHovered ? 1 : 0.9,
+                strokeWeight: isPinActive ? 3 : 2,
+                strokeColor: "#ffffff",
+                scale: isPinActive ? 1.6 : 1.3,
+                anchor: new google.maps.Point(12, 24),
+              }}
+              zIndex={isPinActive ? 50 : 15}
+            >
+              {isPinActive && (
+                <InfoWindowF
+                  position={{ lat, lng }}
+                  onCloseClick={() => {
+                    setSelectedId(null);
+                    setActivePinKey(null);
+                  }}
+                  options={{ pixelOffset: new google.maps.Size(0, -45) }}
+                >
+                  <div className="p-0 min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800">
+                    <div className="relative h-20 w-full bg-gradient-to-r from-rose-500 to-pink-600 overflow-hidden flex items-center justify-center text-white">
+                      {foundation.bannerUrl ? (
+                        <img
+                          src={foundation.bannerUrl}
+                          alt={foundation.brandName || foundation.legalName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <HeartHandshake className="w-8 h-8 opacity-60" />
+                      )}
+                      <span className="absolute top-2 left-2 bg-black/50 backdrop-blur-md text-white text-[8.5px] font-bold uppercase px-2 py-0.5 rounded-full">
+                        {foundation.organizationType || "I.A.P."}
+                      </span>
+                    </div>
+
+                    <div className="p-3.5 space-y-3">
+                      <div className="flex gap-2.5 items-start">
+                        <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center font-bold text-xs border border-rose-100 dark:border-rose-900/40 shrink-0 overflow-hidden shadow-2xs">
+                          {foundation.logoUrl ? (
+                            <img
+                              src={foundation.logoUrl}
+                              alt={foundation.brandName || foundation.legalName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            (foundation.brandName || foundation.legalName || "FN").substring(0, 2).toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-xs text-gray-900 dark:text-white line-clamp-1 leading-tight">
+                            {foundation.brandName || foundation.legalName}
+                          </h4>
+                          <p className="text-[10px] text-gray-500 line-clamp-1 mt-0.5">
+                            {foundation.primaryCauses?.[0] || "Salud Asistencial"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/foundation/${foundation.id}`);
+                        }}
+                        className="w-full h-8 text-xs font-bold rounded-xl text-white shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
+                        style={{ backgroundColor: foundation.primaryColor || "#e11d48" }}
+                      >
+                        Ver Portal & Apoyos
+                      </button>
+                    </div>
+                  </div>
+                </InfoWindowF>
+              )}
+            </MarkerF>
+          );
+        })}
+
+        {/* ── MARCADORES DE ÍTEMS / PRODUCTOS / SERVICIOS ───────────────── */}
+        {searchType !== "STORE" && searchType !== "FOUNDATION" && (items || []).map((item) => {
+          const isSelected = selectedId === item.id;
+          const isHovered = hoveredId === item.id;
+
+          if (!item.providerLat || !item.providerLng) return null;
+
+          return (
+            <MarkerF
+              key={`marker-item-${item.id}`}
+              position={{ lat: item.providerLat, lng: item.providerLng }}
+              onClick={(e) => {
+                if (e.domEvent) {
+                  e.domEvent.stopPropagation();
+                }
+                setSelectedId(item.id);
+                if (map) {
+                  map.panTo({
+                    lat: item.providerLat!,
+                    lng: item.providerLng!,
+                  });
+                  map.setZoom(14);
+                }
+              }}
+              onMouseOver={() => setHoveredId(item.id)}
+              onMouseOut={() => setHoveredId(null)}
+              icon={{
+                path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                fillColor: item.providerColor || "#059669",
+                fillOpacity: isSelected || isHovered ? 1 : 0.85,
+                strokeWeight: isSelected ? 3 : 2,
+                strokeColor: "#ffffff",
+                scale: isSelected ? 1.6 : 1.3,
+                anchor: new google.maps.Point(12, 24),
+              }}
+              zIndex={isSelected ? 50 : 10}
+            >
+              {isSelected && (
+                <InfoWindowF
+                  position={{
+                    lat: item.providerLat,
+                    lng: item.providerLng,
+                  }}
+                  onCloseClick={() => setSelectedId(null)}
+                  options={{ pixelOffset: new google.maps.Size(0, -45) }}
+                >
+                  <div className="p-3.5 min-w-[220px] max-w-[260px] font-sans -m-1 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800 space-y-3">
+                    <div className="flex gap-3 items-start">
+                      <div className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-[#050505] flex items-center justify-center border border-gray-100 dark:border-gray-800 shrink-0 overflow-hidden shadow-2xs">
+                        {item.imageUrl || item.providerLogoUrl ? (
+                          <img
+                            src={item.imageUrl || item.providerLogoUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <h4 className="font-bold text-xs text-gray-900 dark:text-white line-clamp-2 leading-tight">
+                          {item.name}
+                        </h4>
+                        <p className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                          ${item.price.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/market/item/${item.id}`);
+                      }}
+                      className="w-full h-9 text-xs font-bold rounded-xl text-white shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
+                      style={{
+                        backgroundColor: item.providerColor || "#059669",
+                      }}
+                    >
+                      {t("view_details")}
+                    </button>
+                  </div>
+                </InfoWindowF>
+              )}
+            </MarkerF>
+          );
+        })}
       </GoogleMap>
 
       {/* Botón Flotante para re-activar la Interfaz */}

@@ -559,6 +559,16 @@ export interface FoundationPublicStorefront {
   vision?: string;
   description?: string;
   logoUrl?: string;
+  bannerUrl?: string;
+  videoUrl?: string;
+  primaryColor?: string;
+  latitude?: number;
+  longitude?: number;
+  lat?: number;
+  lng?: number;
+  slug?: string;
+  distanceKm?: number;
+  galleryUrls?: string[];
   websiteUrl?: string;
   contactEmail?: string;
   contactPhone?: string;

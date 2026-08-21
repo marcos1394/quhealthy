@@ -117,6 +117,7 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
   const isFoundation = state.searchType === 'FOUNDATION';
   const isStore = state.searchType === 'STORE';
 
+  // Cargar siempre proveedores y fundaciones para que el mapa muestre todos los puntos
   const { 
     providers, 
     isLoading: isLoadingProviders, 
@@ -125,7 +126,7 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     setSize: setProviderSize,
     isReachingEnd: isReachingEndProviders,
     isLoadingMore: isLoadingMoreProviders
-  } = useDiscover(debouncedSearchQuery, state.searchType);
+  } = useDiscover(debouncedSearchQuery, isFoundation ? 'STORE' : state.searchType);
 
   const {
     items,
@@ -147,7 +148,7 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     foundations,
     isLoading: isLoadingFoundations,
     isValidating: isValidatingFoundations,
-  } = useDiscoverFoundations(debouncedSearchQuery, isFoundation);
+  } = useDiscoverFoundations(debouncedSearchQuery, true);
 
   const isLoading = isFoundation
     ? !!isLoadingFoundations

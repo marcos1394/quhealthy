@@ -4,11 +4,11 @@ import axiosInstance from '@/lib/axios';
 const BASE_URL = '/api/catalog/favorites';
 
 export const favoriteService = {
-    addFavorite: async (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE', entityId: number | string): Promise<void> => {
+    addFavorite: async (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE' | 'FOUNDATION', entityId: number | string): Promise<void> => {
         await axiosInstance.post(`${BASE_URL}/${entityType}/${entityId}`);
     },
 
-    removeFavorite: async (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE', entityId: number | string): Promise<void> => {
+    removeFavorite: async (entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE' | 'FOUNDATION', entityId: number | string): Promise<void> => {
         await axiosInstance.delete(`${BASE_URL}/${entityType}/${entityId}`);
     }
 };

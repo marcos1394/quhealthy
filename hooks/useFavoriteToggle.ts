@@ -5,7 +5,7 @@ import { handleApiError } from '@/lib/handleApiError';
 import { favoriteService } from '@/services/favorite.service';
 
 export const useFavoriteToggle = (
-    entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE',
+    entityType: 'PROVIDER' | 'PACKAGE' | 'COURSE' | 'PRODUCT' | 'SERVICE' | 'FOUNDATION',
     entityId: number | string,
     initialState: boolean = false
 ) => {
