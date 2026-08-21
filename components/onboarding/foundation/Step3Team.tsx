@@ -20,6 +20,7 @@ interface Step3TeamProps {
   initialMembers?: FoundationStaffMember[];
   onSave: (data: FoundationTeamInvitePayload) => Promise<void>;
   onBack: () => void;
+  onSkip?: () => void;
   isLoading?: boolean;
 }
 
@@ -35,6 +36,7 @@ export const Step3Team: React.FC<Step3TeamProps> = ({
   initialMembers = [],
   onSave,
   onBack,
+  onSkip,
   isLoading = false,
 }) => {
   const [members, setMembers] = useState<FoundationTeamInvitePayload["members"]>(
@@ -184,30 +186,42 @@ export const Step3Team: React.FC<Step3TeamProps> = ({
       </div>
 
       {/* ── BOTONES DE NAVEGACIÓN ────────────────────────────────────── */}
-      <div className="flex justify-between pt-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4">
         <button
           type="button"
           onClick={onBack}
-          className="h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 text-xs font-bold transition-all shadow-xs flex items-center gap-2"
+          className="w-full sm:w-auto h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver a Legal & Fiscal</span>
         </button>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer border-0"
-        >
-          {isLoading ? (
-            <QhSpinner size="sm" className="text-white" />
-          ) : (
-            <>
-              <span>Continuar a Configurar Programa</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          {onSkip && (
+            <button
+              type="button"
+              onClick={onSkip}
+              className="h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xs font-bold transition-all cursor-pointer"
+            >
+              <span>Omitir por ahora</span>
+            </button>
           )}
-        </button>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer border-0"
+          >
+            {isLoading ? (
+              <QhSpinner size="sm" className="text-white" />
+            ) : (
+              <>
+                <span>Continuar a Configurar Programa</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </form>
   );

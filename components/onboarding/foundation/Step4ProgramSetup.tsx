@@ -14,6 +14,7 @@ interface Step4ProgramSetupProps {
   initialData?: Partial<FoundationProgramPayload>;
   onSave: (data: FoundationProgramPayload) => Promise<void>;
   onBack: () => void;
+  onSkip?: () => void;
   isLoading?: boolean;
 }
 
@@ -40,6 +41,7 @@ export const Step4ProgramSetup: React.FC<Step4ProgramSetupProps> = ({
   initialData,
   onSave,
   onBack,
+  onSkip,
   isLoading = false,
 }) => {
   const [formData, setFormData] = useState<FoundationProgramPayload>({
@@ -97,7 +99,7 @@ export const Step4ProgramSetup: React.FC<Step4ProgramSetupProps> = ({
               1. Configuración de tu Primer Programa Asistencial
             </h2>
             <p className="text-xs text-gray-500">
-              Define la causa, los tipos de apoyos y los requisitos para los beneficiarios.
+              Define la causa, los tipos de apoyos y los requisitos para los beneficiarios (opcional para explorar).
             </p>
           </div>
         </div>
@@ -150,7 +152,6 @@ export const Step4ProgramSetup: React.FC<Step4ProgramSetupProps> = ({
             <Input
               type="number"
               min="0"
-              step="1000"
               placeholder="100000"
               value={formData.allocatedBudget || ""}
               onChange={(e) => setFormData({ ...formData, allocatedBudget: parseFloat(e.target.value) || 0 })}
@@ -160,50 +161,53 @@ export const Step4ProgramSetup: React.FC<Step4ProgramSetupProps> = ({
         </div>
       </div>
 
-      {/* ── CARD 2: TIPOS DE APOYOS A OTORGAR ─────────────────────────── */}
+      {/* ── CARD 2: TIPOS DE APOYO OFRECIDOS ──────────────────────────── */}
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
             <Pill className="w-4 h-4" />
           </div>
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              2. Modalidades de Apoyo que Brindará este Programa
+              2. Modalidades de Apoyo y Cobertura
             </h2>
-            <p className="text-xs text-gray-500">Selecciona los servicios e insumos cubiertos por la fundación.</p>
+            <p className="text-xs text-gray-500">
+              Selecciona qué tipo de beneficios o subsidios gestiona este programa.
+            </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {SUPPORT_TYPES.map((st) => {
-            const Icon = st.icon;
-            const isChecked = (formData.supportTypes || []).includes(st.id);
+          {SUPPORT_TYPES.map((type) => {
+            const isChecked = (formData.supportTypes || []).includes(type.id);
+            const Icon = type.icon;
 
             return (
               <div
-                key={st.id}
+                key={type.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => toggleSupportType(st.id)}
-                onKeyDown={(e) => e.key === "Enter" && toggleSupportType(st.id)}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer select-none ${
+                onClick={() => toggleSupportType(type.id)}
+                onKeyDown={(e) => e.key === "Enter" && toggleSupportType(type.id)}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer select-none flex items-start gap-3.5 ${
                   isChecked
                     ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-xs"
                     : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-[#0a0a0a]"
                 }`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                    isChecked ? "bg-emerald-600 border-emerald-600 text-white" : "border-gray-300"
-                  }`}>
-                    {isChecked && <span className="text-[10px]">✓</span>}
-                  </div>
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    isChecked
+                      ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-500"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
                 </div>
-                <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">{st.label}</h4>
-                <p className="text-[11px] text-gray-500 leading-snug">{st.desc}</p>
+                <div className="space-y-0.5 min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-gray-900 dark:text-white">{type.label}</h4>
+                  <p className="text-[11px] text-gray-500 leading-tight">{type.desc}</p>
+                </div>
               </div>
             );
           })}
@@ -213,14 +217,16 @@ export const Step4ProgramSetup: React.FC<Step4ProgramSetupProps> = ({
       {/* ── CARD 3: REQUISITOS DOCUMENTALES DEL BENEFICIARIO ───────────── */}
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
             <FileCheck className="w-4 h-4" />
           </div>
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              3. Documentación Solicitada a los Pacientes / Beneficiarios
+              3. Documentos Requeridos al Paciente / Solicitante
             </h2>
-            <p className="text-xs text-gray-500">Documentos que el paciente o su familiar deberá adjuntar al postularse.</p>
+            <p className="text-xs text-gray-500">
+              Expediente que el equipo de trabajo social solicitará para dictaminar el caso.
+            </p>
           </div>
         </div>
 
@@ -230,17 +236,17 @@ export const Step4ProgramSetup: React.FC<Step4ProgramSetupProps> = ({
             return (
               <label
                 key={doc.id}
-                className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
+                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all ${
                   isChecked
-                    ? "border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200 font-bold"
-                    : "border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 font-medium"
+                    ? "border-purple-300 dark:border-purple-900/50 bg-purple-50/20 dark:bg-purple-950/20 font-bold text-gray-900 dark:text-white"
+                    : "border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400"
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => toggleDoc(doc.id)}
-                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
+                  className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
                 />
                 <span className="text-xs">{doc.label}</span>
               </label>
@@ -250,30 +256,42 @@ export const Step4ProgramSetup: React.FC<Step4ProgramSetupProps> = ({
       </div>
 
       {/* ── BOTONES DE NAVEGACIÓN ────────────────────────────────────── */}
-      <div className="flex justify-between pt-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4">
         <button
           type="button"
           onClick={onBack}
-          className="h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 text-xs font-bold transition-all shadow-xs flex items-center gap-2"
+          className="w-full sm:w-auto h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver a Equipo</span>
         </button>
 
-        <button
-          type="submit"
-          disabled={isLoading || !formData.name.trim()}
-          className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-0"
-        >
-          {isLoading ? (
-            <QhSpinner size="sm" className="text-white" />
-          ) : (
-            <>
-              <span>Guardar & Ir a Resumen de Activación</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          {onSkip && (
+            <button
+              type="button"
+              onClick={onSkip}
+              className="h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xs font-bold transition-all cursor-pointer"
+            >
+              <span>Omitir y Finalizar</span>
+            </button>
           )}
-        </button>
+
+          <button
+            type="submit"
+            disabled={isLoading || !formData.name.trim()}
+            className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-0"
+          >
+            {isLoading ? (
+              <QhSpinner size="sm" className="text-white" />
+            ) : (
+              <>
+                <span>Guardar & Ir a Resumen de Activación</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </form>
   );

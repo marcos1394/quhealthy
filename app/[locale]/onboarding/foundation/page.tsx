@@ -196,6 +196,7 @@ export default function FoundationOnboardingPage() {
             onUploadDoc={handleUploadDoc}
             onDeleteDoc={handleDeleteDoc}
             onBack={() => setCurrentStep(1)}
+            onSkip={() => setCurrentStep(3)}
             isLoading={isSaving}
           />
         )}
@@ -205,6 +206,7 @@ export default function FoundationOnboardingPage() {
             initialMembers={teamMembers}
             onSave={handleSaveTeam}
             onBack={() => setCurrentStep(2)}
+            onSkip={() => setCurrentStep(4)}
             isLoading={isSaving}
           />
         )}
@@ -214,6 +216,18 @@ export default function FoundationOnboardingPage() {
             initialData={programs[0]}
             onSave={handleSaveInitialProgram}
             onBack={() => setCurrentStep(3)}
+            onSkip={async () => {
+              try {
+                setIsSaving(true);
+                await foundationOnboardingService.completeOnboarding();
+                setCurrentStep(5);
+              } catch (err) {
+                console.error("Error al finalizar onboarding:", err);
+                setCurrentStep(5);
+              } finally {
+                setIsSaving(false);
+              }
+            }}
             isLoading={isSaving}
           />
         )}

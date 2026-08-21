@@ -16,6 +16,7 @@ interface Step2LegalTaxProps {
   onUploadDoc: (docType: string, file: File) => Promise<void>;
   onDeleteDoc: (docId: number) => Promise<void>;
   onBack: () => void;
+  onSkip?: () => void;
   isLoading?: boolean;
 }
 
@@ -35,6 +36,7 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
   onUploadDoc,
   onDeleteDoc,
   onBack,
+  onSkip,
   isLoading = false,
 }) => {
   const [formData, setFormData] = useState<FoundationLegalTaxPayload>({
@@ -60,7 +62,6 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.rfc.trim()) return;
     await onSave(formData);
   };
 
@@ -78,17 +79,16 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
               1. Registro Fiscal & Representante Legal
             </h2>
-            <p className="text-xs text-gray-500">Datos para facturación, deducción de donativos y verificación legal.</p>
+            <p className="text-xs text-gray-500">Datos para facturación, deducción de donativos y verificación legal (opcional para explorar).</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-              RFC de Persona Moral <span className="text-red-500">*</span>
+              RFC de Persona Moral
             </label>
             <Input
-              required
               placeholder="Ej. AAL041120XXX"
               value={formData.rfc}
               onChange={(e) => setFormData({ ...formData, rfc: e.target.value.toUpperCase() })}
@@ -98,22 +98,22 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-              CLUNI (Registro Federal de OSC)
+              Número CLUNI (Indesol / Bienestar)
             </label>
             <Input
-              placeholder="Ej. AAL04112025010"
+              placeholder="Ej. CLU-1234567890"
               value={formData.cluniNumber}
-              onChange={(e) => setFormData({ ...formData, cluniNumber: e.target.value.toUpperCase() })}
+              onChange={(e) => setFormData({ ...formData, cluniNumber: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
             />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-              Nombre del Representante Legal
+              Nombre Completo del Representante Legal
             </label>
             <Input
-              placeholder="Nombre completo según Poder Notarial"
+              placeholder="Ej. Lic. Fernando Sánchez Ruiz"
               value={formData.legalRepName}
               onChange={(e) => setFormData({ ...formData, legalRepName: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
@@ -125,7 +125,7 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
               CURP del Representante Legal
             </label>
             <Input
-              placeholder="18 caracteres alfanuméricos"
+              placeholder="Ej. SARF800512HDFRR02"
               value={formData.legalRepCurp}
               onChange={(e) => setFormData({ ...formData, legalRepCurp: e.target.value.toUpperCase() })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold font-mono"
@@ -133,37 +133,41 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
           </div>
 
           <div className="sm:col-span-2 pt-2">
-            <label className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 cursor-pointer">
+            <label className="flex items-center gap-3 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.isAuthorizedDonatary}
                 onChange={(e) => setFormData({ ...formData, isAuthorizedDonatary: e.target.checked })}
-                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
+                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300"
               />
-              <div className="text-xs">
-                <span className="font-bold text-gray-900 dark:text-white block">
-                  Organización con Estatus de Donataria Autorizada ante el SAT
-                </span>
-                <span className="text-gray-500 text-[11px]">
-                  Permite emitir y gestionar recibos deducibles de impuestos para benefactores.
-                </span>
+              <div>
+                <p className="text-xs font-bold text-gray-900 dark:text-white">
+                  ¿La institución es Donataria Autorizada ante el SAT?
+                </p>
+                <p className="text-[11px] text-gray-500">
+                  Habilita la emisión de recibos deducibles de impuestos (CFDI) para donantes.
+                </p>
               </div>
             </label>
           </div>
         </div>
       </div>
 
-      {/* ── CARD 2: DOCUMENTOS LEGALES OBLIGATORIOS (KYB) ────────────── */}
+      {/* ── CARD 2: DOCUMENTOS INSTITUCIONALES (KYB) ──────────────────── */}
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-            <FileText className="w-4 h-4" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              2. Expediente Digital Institucional (KYB / KYO)
-            </h2>
-            <p className="text-xs text-gray-500">Documentación oficial para verificación de legitimidad social.</p>
+        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                2. Expediente Institucional Digital (GCP Cloud Storage)
+              </h2>
+              <p className="text-xs text-gray-500">
+                Puedes adjuntar tus archivos en PDF o JPG ahora, o subirlos más adelante desde tu panel institucional.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -175,7 +179,7 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
             return (
               <div
                 key={docDef.type}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/40 dark:bg-[#050505] gap-3"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] hover:border-gray-300 gap-3"
               >
                 <div className="space-y-0.5 min-w-0 pr-2">
                   <div className="flex items-center gap-2">
@@ -229,30 +233,42 @@ export const Step2LegalTax: React.FC<Step2LegalTaxProps> = ({
       </div>
 
       {/* ── BOTONES DE NAVEGACIÓN ────────────────────────────────────── */}
-      <div className="flex justify-between pt-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4">
         <button
           type="button"
           onClick={onBack}
-          className="h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 text-xs font-bold transition-all shadow-xs flex items-center gap-2"
+          className="w-full sm:w-auto h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver a Identidad</span>
         </button>
 
-        <button
-          type="submit"
-          disabled={isLoading || !formData.rfc.trim()}
-          className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-0"
-        >
-          {isLoading ? (
-            <QhSpinner size="sm" className="text-white" />
-          ) : (
-            <>
-              <span>Continuar a Equipo Operativo</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          {onSkip && (
+            <button
+              type="button"
+              onClick={onSkip}
+              className="h-12 px-6 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xs font-bold transition-all cursor-pointer"
+            >
+              <span>Omitir por ahora</span>
+            </button>
           )}
-        </button>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-0"
+          >
+            {isLoading ? (
+              <QhSpinner size="sm" className="text-white" />
+            ) : (
+              <>
+                <span>Continuar a Equipo Operativo</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </form>
   );
