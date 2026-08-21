@@ -4,11 +4,13 @@ import React, { createContext, useContext, useReducer, useEffect, useState, useM
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useDiscover } from '@/hooks/useDiscover';
 import { useDiscoverItems } from '@/hooks/useDiscoverItems';
+import { useDiscoverFoundations } from '@/hooks/useDiscoverFoundations';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { FoundationPublicStorefront } from '@/types/foundation';
 
 // --- Tipos de Estado ---
 type ViewMode = 'MAP' | 'GRID';
-type SearchType = 'STORE' | 'SERVICE' | 'PACKAGE' | 'PRODUCT' | 'COURSE';
+type SearchType = 'STORE' | 'SERVICE' | 'PACKAGE' | 'PRODUCT' | 'COURSE' | 'FOUNDATION';
 
 interface DiscoverState {
   map: google.maps.Map | null;
@@ -70,6 +72,7 @@ interface DiscoverContextProps extends DiscoverState {
   
   providers: any[];
   items: any[];
+  foundations: FoundationPublicStorefront[];
   isLoading: boolean;
   isValidating: boolean;
   isLoadingMore: boolean;
@@ -111,6 +114,9 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
 
   const { coordinates, calculateDistance, isLoading: isGeoLoading } = useGeolocation();
 
+  const isFoundation = state.searchType === 'FOUNDATION';
+  const isStore = state.searchType === 'STORE';
+
   const { 
     providers, 
     isLoading: isLoadingProviders, 
@@ -131,22 +137,46 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     isLoadingMore: isLoadingMoreItems
   } = useDiscoverItems({
     q: debouncedSearchQuery,
-    type: state.searchType,
+    type: isFoundation ? 'STORE' : state.searchType,
     lat: coordinates?.lat,
     lng: coordinates?.lng,
     isGeoLoading,
   });
 
-  const isStore = state.searchType === 'STORE';
-  const isLoading = isStore ? !!isLoadingProviders : !!isLoadingItems;
-  const isValidating = isStore ? !!isValidatingProviders : !!isValidatingItems;
-  const isLoadingMore = isStore ? !!isLoadingMoreProviders : !!isLoadingMoreItems;
-  const isReachingEnd = isStore ? !!isReachingEndProviders : !!isReachingEndItems;
+  const {
+    foundations,
+    isLoading: isLoadingFoundations,
+    isValidating: isValidatingFoundations,
+  } = useDiscoverFoundations(debouncedSearchQuery, isFoundation);
+
+  const isLoading = isFoundation
+    ? !!isLoadingFoundations
+    : isStore
+    ? !!isLoadingProviders
+    : !!isLoadingItems;
+
+  const isValidating = isFoundation
+    ? !!isValidatingFoundations
+    : isStore
+    ? !!isValidatingProviders
+    : !!isValidatingItems;
+
+  const isLoadingMore = isFoundation
+    ? false
+    : isStore
+    ? !!isLoadingMoreProviders
+    : !!isLoadingMoreItems;
+
+  const isReachingEnd = isFoundation
+    ? true
+    : isStore
+    ? !!isReachingEndProviders
+    : !!isReachingEndItems;
 
   const loadMore = () => {
     if (isStore) {
       setProviderSize(providerSize + 1);
-    } else {
+    } else if (!isFoundation) {
       setItemSize(itemSize + 1);
     }
   };
@@ -164,6 +194,7 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     
     providers,
     items,
+    foundations,
     isLoading,
     isValidating,
     isLoadingMore,
@@ -172,7 +203,7 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     
     coordinates,
     calculateDistance,
-  }), [state, providers, items, isLoading, isValidating, isLoadingMore, isReachingEnd, coordinates, calculateDistance]);
+  }), [state, providers, items, foundations, isLoading, isValidating, isLoadingMore, isReachingEnd, coordinates, calculateDistance]);
 
   return (
     <DiscoverContext.Provider value={contextValue}>

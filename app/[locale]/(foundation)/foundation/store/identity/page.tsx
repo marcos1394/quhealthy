@@ -54,12 +54,12 @@ export default function FoundationIdentitySetupPage() {
     bannerImageUrl: "",
     description: "",
     videoUrl: "",
-    category: "Salud Integral, Cirugías, Oncología Pediátrica",
+    category: "",
     address: "",
-    city: "Culiacán",
-    latitude: 24.809065,
-    longitude: -107.394017,
-    organizationType: "I.A.P.",
+    city: "",
+    latitude: null,
+    longitude: null,
+    organizationType: "",
     cluniNumber: "",
   });
 
@@ -94,7 +94,7 @@ export default function FoundationIdentitySetupPage() {
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/[^a-z0-9-]/g, "-")
                 .replace(/--+/g, "-")
-            : "fundacion");
+            : "");
 
         const primaryColor = storeData?.primaryColor || prof?.primaryColor || "#e11d48";
         const storeLogoUrl = storeData?.logoUrl || prof?.logoUrl || "";
@@ -107,14 +107,14 @@ export default function FoundationIdentitySetupPage() {
           address = `${prof.addressStreet} ${prof.addressNumber || ""}, ${prof.addressNeighborhood || ""}`.trim();
         }
 
-        const city = storeData?.city || prof?.addressCity || prof?.city || "Culiacán";
-        const latitude = storeData?.latitude || prof?.latitude || 24.809065;
-        const longitude = storeData?.longitude || prof?.longitude || -107.394017;
+        const city = storeData?.city || prof?.addressCity || prof?.city || "";
+        const latitude = storeData?.latitude || prof?.latitude || null;
+        const longitude = storeData?.longitude || prof?.longitude || null;
         const category =
           storeData?.category ||
           (Array.isArray(prof?.primaryCauses)
             ? prof.primaryCauses.join(", ")
-            : prof?.cause || "Salud Integral, Cirugías, Oncología");
+            : prof?.cause || "");
 
         setSettings({
           storeName,
@@ -129,7 +129,7 @@ export default function FoundationIdentitySetupPage() {
           city,
           latitude,
           longitude,
-          organizationType: prof?.organizationType || "I.A.P.",
+          organizationType: prof?.organizationType || "",
           cluniNumber: prof?.cluniNumber || prof?.cluni || "",
         });
       } catch (error) {

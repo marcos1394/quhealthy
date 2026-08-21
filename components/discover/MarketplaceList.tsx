@@ -15,6 +15,7 @@ import { useProviderScore } from "@/hooks/useProviderScore";
 import { DiscoverItemCard } from "@/components/discover/DiscoverItemCard";
 import { FilterPanel } from "@/components/discover/FilterPanel";
 import { ProviderCard } from "@/components/discover/ProviderCard";
+import { FoundationCard } from "@/components/discover/FoundationCard";
 import { DiscoverSkeleton } from "./DiscoverSkeleton";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
@@ -34,6 +35,7 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
     searchType,
     providers,
     items,
+    foundations,
     isLoading,
     isReachingEnd,
     isLoadingMore,
@@ -125,7 +127,9 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
   }
 
   const hasNoResults =
-    searchType === "STORE"
+    searchType === "FOUNDATION"
+      ? (foundations || []).length === 0
+      : searchType === "STORE"
       ? enrichedProviders.length === 0
       : items.length === 0;
 
@@ -194,7 +198,27 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
             )}
           >
             <>
-              {searchType === "STORE"
+              {searchType === "FOUNDATION"
+                ? (foundations || []).map((foundation: any) => (
+                    <FoundationCard
+                      key={`foundation-card-${foundation.id}`}
+                      foundation={foundation}
+                      isSelected={selectedId === foundation.id}
+                      isGrid={viewMode === "GRID"}
+                      onClick={() => {
+                        setSelectedId(foundation.id);
+                        const fLat = foundation.lat || foundation.latitude;
+                        const fLng = foundation.lng || foundation.longitude;
+                        if (map && fLat && fLng) {
+                          map.panTo({ lat: fLat, lng: fLng });
+                          map.setZoom(14);
+                        }
+                      }}
+                      onHover={() => setHoveredId(foundation.id)}
+                      onLeave={() => setHoveredId(null)}
+                    />
+                  ))
+                : searchType === "STORE"
                 ? enrichedProviders.map((provider) => (
                     <ProviderCard
                       key={`card-${provider.id}`}

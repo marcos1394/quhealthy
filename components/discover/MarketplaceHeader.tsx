@@ -180,6 +180,16 @@ export const MarketplaceHeader = ({
                 {t("type_course")}
               </DropdownMenuItem>
               <DropdownMenuItem
+                onClick={() => setSearchType("FOUNDATION")}
+                className={cn(
+                  "text-xs font-bold px-3.5 py-2.5 rounded-xl cursor-pointer mb-1 focus:bg-gray-50 dark:focus:bg-[#111]",
+                  searchType === "FOUNDATION" &&
+                    "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"
+                )}
+              >
+                {t("type_foundation")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onClick={() => setSearchType("PRODUCT")}
                 className={cn(
                   "text-xs font-bold px-3.5 py-2.5 rounded-xl cursor-pointer focus:bg-gray-50 dark:focus:bg-[#111]",

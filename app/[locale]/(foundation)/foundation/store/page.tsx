@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { foundationService } from "@/services/foundation.service";
+import { storeService } from "@/services/store.service";
 import { FoundationProgram, FoundationStaffMember } from "@/types/foundation";
 import { cn } from "@/lib/utils";
 
@@ -42,10 +43,12 @@ export default function FoundationStoreHubPage() {
   useEffect(() => {
     Promise.all([
       foundationService.getProfile().catch(() => null),
+      storeService.getMyStore().catch(() => null),
       foundationService.getPrograms().catch(() => []),
-    ]).then(([prof, progs]) => {
-      setProfile(prof);
-      setPrograms(progs);
+    ]).then(([prof, storeData, progs]) => {
+      setProfile(prof || storeData);
+      setIsPublic(storeData?.marketplaceVisible ?? true);
+      setPrograms(progs || []);
       setLoading(false);
     });
   }, []);
@@ -54,6 +57,7 @@ export default function FoundationStoreHubPage() {
     setIsPublishing(true);
     try {
       const nextState = !isPublic;
+      await storeService.updateMyStore({ marketplaceVisible: nextState }).catch(() => null);
       setIsPublic(nextState);
       toast.success(
         nextState
@@ -66,8 +70,11 @@ export default function FoundationStoreHubPage() {
   };
 
   const handleViewLive = () => {
-    const id = profile?.id || 1;
-    window.open(`/foundation/${id}`, "_blank");
+    if (profile?.id) {
+      window.open(`/foundation/${profile.id}`, "_blank");
+    } else {
+      toast.info("Aún no tienes un ID institucional asignado.");
+    }
   };
 
   // Validación de pasos completados

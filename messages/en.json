@@ -3250,6 +3250,7 @@
       "type_service": "Consultations & Procedures",
       "type_package": "Health Packages",
       "type_course": "Courses & Classes",
+      "type_foundation": "Foundations & Support",
       "type_product": "Pharmacy & Products",
       "filters": "Filters",
       "location_confirmed_title": "Location Confirmed",

@@ -88,6 +88,7 @@ export const MarketplaceMap = () => {
     coordinates,
     providers,
     items,
+    foundations,
     searchType,
     selectedId,
     setSelectedId,
@@ -357,6 +358,90 @@ export const MarketplaceMap = () => {
                   </MarkerF>
                 );
               });
+            })
+          : searchType === "FOUNDATION"
+          ? (foundations || []).map((foundation: any) => {
+              const isSelected = selectedId === foundation.id;
+              const isHovered = hoveredId === foundation.id;
+              const lat = foundation.lat || foundation.latitude;
+              const lng = foundation.lng || foundation.longitude;
+
+              if (!lat || !lng) return null;
+
+              return (
+                <MarkerF
+                  key={`marker-foundation-${foundation.id}`}
+                  position={{ lat, lng }}
+                  onClick={(e) => {
+                    if (e.domEvent) {
+                      e.domEvent.stopPropagation();
+                    }
+                    setSelectedId(foundation.id);
+                    if (map) {
+                      map.panTo({ lat, lng });
+                      map.setZoom(14);
+                    }
+                  }}
+                  onMouseOver={() => setHoveredId(foundation.id)}
+                  onMouseOut={() => setHoveredId(null)}
+                  icon={{
+                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                    fillColor: "#e11d48",
+                    fillOpacity: isSelected || isHovered ? 1 : 0.85,
+                    strokeWeight: isSelected ? 3 : 2,
+                    strokeColor: "#ffffff",
+                    scale: isSelected ? 1.6 : 1.3,
+                    anchor: new google.maps.Point(12, 24),
+                  }}
+                  zIndex={isSelected ? 50 : 10}
+                >
+                  {isSelected && (
+                    <InfoWindowF
+                      position={{ lat, lng }}
+                      onCloseClick={() => setSelectedId(null)}
+                      options={{ pixelOffset: new google.maps.Size(0, -45) }}
+                    >
+                      <div className="p-3.5 min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800 space-y-3">
+                        <div className="flex gap-3 items-start">
+                          <div className="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center font-bold text-sm border border-rose-100 dark:border-rose-900/40 shrink-0 overflow-hidden shadow-2xs">
+                            {foundation.logoUrl ? (
+                              <img
+                                src={foundation.logoUrl}
+                                alt={foundation.brandName || foundation.legalName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              (foundation.brandName || foundation.legalName || "FN").substring(0, 2).toUpperCase()
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0 space-y-0.5">
+                            <span className="text-[9px] font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-full border border-rose-200">
+                              {foundation.organizationType || "I.A.P."}
+                            </span>
+                            <h4 className="font-bold text-xs text-gray-900 dark:text-white line-clamp-1 leading-tight pt-0.5">
+                              {foundation.brandName || foundation.legalName}
+                            </h4>
+                            <p className="text-[10px] text-gray-500 line-clamp-1">
+                              {foundation.primaryCauses?.[0] || "Salud Asistencial"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/foundation/${foundation.id}`);
+                          }}
+                          className="w-full h-9 text-xs font-bold rounded-xl text-white bg-rose-600 hover:bg-rose-700 shadow-xs transition-all flex items-center justify-center cursor-pointer border-0"
+                        >
+                          Ver Portal & Apoyos
+                        </button>
+                      </div>
+                    </InfoWindowF>
+                  )}
+                </MarkerF>
+              );
             })
           /* Marcadores de Ítems / Productos / Servicios */
           : items.map((item) => {
