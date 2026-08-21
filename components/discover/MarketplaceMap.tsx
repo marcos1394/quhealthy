@@ -255,7 +255,7 @@ export const MarketplaceMap = () => {
                           <img
                             src={provider.imageUrl}
                             alt={provider.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-center"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -282,12 +282,12 @@ export const MarketplaceMap = () => {
                               ).toLowerCase()}
                             </p>
                           </div>
-                          <div className="w-8 h-8 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden shrink-0 shadow-2xs bg-gray-50 dark:bg-[#050505] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden shrink-0 shadow-2xs bg-white dark:bg-[#0a0a0a] p-0.5 flex items-center justify-center">
                             {provider.logoUrl ? (
                               <img
                                 src={provider.logoUrl}
                                 alt={provider.name}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain object-center"
                               />
                             ) : (
                               <User className="w-4 h-4 text-gray-400" />
@@ -412,7 +412,7 @@ export const MarketplaceMap = () => {
                         <img
                           src={foundation.bannerUrl}
                           alt={foundation.brandName || foundation.legalName}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-center"
                         />
                       ) : (
                         <HeartHandshake className="w-8 h-8 opacity-60" />
@@ -424,12 +424,12 @@ export const MarketplaceMap = () => {
 
                     <div className="p-3.5 space-y-3">
                       <div className="flex gap-2.5 items-start">
-                        <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center font-bold text-xs border border-rose-100 dark:border-rose-900/40 shrink-0 overflow-hidden shadow-2xs">
+                        <div className="w-9 h-9 rounded-xl bg-white dark:bg-rose-950/40 text-rose-600 flex items-center justify-center font-bold text-xs border border-rose-100 dark:border-rose-900/40 shrink-0 overflow-hidden shadow-2xs p-0.5">
                           {foundation.logoUrl ? (
                             <img
                               src={foundation.logoUrl}
                               alt={foundation.brandName || foundation.legalName}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain object-center"
                             />
                           ) : (
                             (foundation.brandName || foundation.legalName || "FN").substring(0, 2).toUpperCase()
@@ -512,12 +512,12 @@ export const MarketplaceMap = () => {
                 >
                   <div className="p-3.5 min-w-[220px] max-w-[260px] font-sans -m-1 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800 space-y-3">
                     <div className="flex gap-3 items-start">
-                      <div className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-[#050505] flex items-center justify-center border border-gray-100 dark:border-gray-800 shrink-0 overflow-hidden shadow-2xs">
+                      <div className="w-11 h-11 rounded-xl bg-white dark:bg-[#050505] p-0.5 flex items-center justify-center border border-gray-100 dark:border-gray-800 shrink-0 overflow-hidden shadow-2xs">
                         {item.imageUrl || item.providerLogoUrl ? (
                           <img
                             src={item.imageUrl || item.providerLogoUrl}
                             alt={item.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain object-center"
                           />
                         ) : (
                           <User className="w-5 h-5 text-gray-400" />

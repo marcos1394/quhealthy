@@ -157,7 +157,7 @@ export const DiscoverItemCard = ({
           <img
             src={item.imageUrl}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -240,16 +240,16 @@ export const DiscoverItemCard = ({
 
           {/* Proveedor / Especialista */}
           <div className="flex items-center gap-2 pt-1">
-            <div className="shrink-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-2xs">
+            <div className="shrink-0 w-7 h-7 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-2xs p-0.5 flex items-center justify-center">
               {item.providerLogoUrl ? (
                 <img
                   src={item.providerLogoUrl}
                   alt={item.providerName}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain object-center"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-                  <User className="w-3 h-3 text-gray-400" strokeWidth={2} />
+                  <User className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} />
                 </div>
               )}
             </div>

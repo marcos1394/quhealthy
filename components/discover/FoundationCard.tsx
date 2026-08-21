@@ -154,7 +154,7 @@ export const FoundationCard: React.FC<FoundationCardProps> = ({
             src={images[currentImageIndex]}
             alt={title}
             onError={() => setImgError(true)}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           !showVideo && (
@@ -270,13 +270,13 @@ export const FoundationCard: React.FC<FoundationCardProps> = ({
             </span>
           </div>
 
-          <div className="w-10 h-10 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+          <div className="w-11 h-11 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-1 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
             {hasValidLogo ? (
               <img
                 src={foundation.logoUrl}
                 alt={title}
                 onError={() => setLogoError(true)}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain object-center"
               />
             ) : (
               <Building2 className="w-5 h-5 text-rose-400" strokeWidth={2} />
