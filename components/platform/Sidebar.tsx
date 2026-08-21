@@ -47,6 +47,7 @@ import {
   Ticket,
   BarChart3,
   UsersRound,
+  Store,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -90,6 +91,7 @@ const providerSettingsLinks = [
 
 const foundationLinks = [
   { key: "dashboard", href: "/foundation/dashboard", icon: LayoutDashboard, badge: null },
+  { key: "store", href: "/foundation/store", icon: Store, badge: null },
   { key: "programs", href: "/foundation/programs", icon: Layers, badge: null },
   { key: "beneficiaries", href: "/foundation/beneficiaries", icon: Users, badge: null },
   { key: "subsidies", href: "/foundation/subsidies", icon: Ticket, badge: { count: "Fase 2" } },
@@ -99,6 +101,7 @@ const foundationLinks = [
 ];
 
 const foundationSettingsLinks = [
+  { key: "public_profile", href: "/foundation/store/identity", icon: UserCircle, badge: null },
   { key: "settings", href: "/foundation/settings", icon: Settings, badge: null },
 ];
 
