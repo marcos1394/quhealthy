@@ -327,14 +327,14 @@ export default function TermsModal({
                 {t("sec9_title")}
               </h3>
             </div>
-            <div className="bg-gray-50 dark:bg-[#050505] rounded-xl p-3.5 border border-gray-100 dark:border-gray-800 space-y-1 text-xs font-semibold text-gray-700 dark:text-gray-300 ml-8">
+            <div className="bg-gray-50 dark:bg-[#050505] rounded-xl p-3.5 border border-gray-100 dark:border-gray-800 space-y-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 ml-8">
               <p>
                 <span className="text-gray-400">{t("sec9_email_label")}</span>{" "}
                 legal@quhealthy.org
               </p>
               <p>
                 <span className="text-gray-400">{t("sec9_phone_label")}</span>{" "}
-                +52 55 1234 5678
+                privacy@quhealthy.org
               </p>
               <p>
                 <span className="text-gray-400">{t("sec9_address_label")}</span>{" "}
