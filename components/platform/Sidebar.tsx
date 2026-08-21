@@ -42,6 +42,11 @@ import {
   FileText,
   BrainCircuit,
   Flower2,
+  HeartHandshake,
+  Layers,
+  Ticket,
+  BarChart3,
+  UsersRound,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -81,6 +86,20 @@ const providerLinks = [
 const providerSettingsLinks = [
   { key: "public_profile", href: "/provider/dashboard/profile", icon: UserCircle, badge: null },
   { key: "settings", href: "/provider/dashboard/settings", icon: Settings, badge: null },
+];
+
+const foundationLinks = [
+  { key: "dashboard", href: "/foundation/dashboard", icon: LayoutDashboard, badge: null },
+  { key: "programs", href: "/foundation/programs", icon: Layers, badge: null },
+  { key: "beneficiaries", href: "/foundation/beneficiaries", icon: Users, badge: null },
+  { key: "subsidies", href: "/foundation/subsidies", icon: Ticket, badge: { count: "Fase 2" } },
+  { key: "campaigns", href: "/foundation/campaigns", icon: CalendarDays, badge: { count: "Fase 3" } },
+  { key: "social_bi", href: "/foundation/social-bi", icon: BarChart3, badge: { count: "Fase 4" } },
+  { key: "team", href: "/foundation/team", icon: UsersRound, badge: null },
+];
+
+const foundationSettingsLinks = [
+  { key: "settings", href: "/foundation/settings", icon: Settings, badge: null },
 ];
 
 const patientLinks = [
@@ -133,6 +152,7 @@ const NavItem = ({
     pathname === href ||
       (href !== "/provider/dashboard" &&
         href !== "/patient/dashboard" &&
+        href !== "/foundation/dashboard" &&
         pathname?.startsWith(href))
   );
 
@@ -146,13 +166,14 @@ const NavItem = ({
     if (["messages"].includes(key)) return "text-sky-500";
     if (["packages"].includes(key)) return "text-amber-500";
     if (["orders", "inventory"].includes(key)) return "text-purple-500";
-    if (["patients", "dependents", "public_profile", "profile"].includes(key))
+    if (["patients", "dependents", "public_profile", "profile", "team", "beneficiaries"].includes(key))
       return "text-indigo-500";
-    if (["calendar", "appointments"].includes(key)) return "text-orange-500";
-    if (["womens_health", "oncology", "diabetes"].includes(key)) return "text-pink-500";
+    if (["calendar", "appointments", "campaigns"].includes(key)) return "text-orange-500";
+    if (["womens_health", "oncology", "diabetes", "programs"].includes(key)) return "text-pink-500";
     if (["discover"].includes(key)) return "text-fuchsia-500";
     if (["emergencies"].includes(key)) return "text-rose-500";
-    if (["nutrition"].includes(key)) return "text-lime-500";
+    if (["nutrition", "social_bi"].includes(key)) return "text-emerald-500";
+    if (["subsidies"].includes(key)) return "text-amber-500";
     if (["treatments"].includes(key)) return "text-cyan-500";
 
     return "text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors";
@@ -230,11 +251,15 @@ export const Sidebar = ({
   // Carga los módulos activos del paciente según sus diagnósticos CIE-10
   useActiveModules();
 
-  const isConsumer = role === "ROLE_CONSUMER";
+  const isFoundation = pathname?.includes("/foundation") || (role as string) === "ROLE_FOUNDATION" || (role as string) === "FOUNDATION";
+  const isConsumer = !isFoundation && role === "ROLE_CONSUMER";
   const isStaff = role === "ROLE_STAFF";
-  const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
+  const homeLink = isFoundation ? "/foundation/dashboard" : isConsumer ? "/patient/dashboard" : "/provider/dashboard";
 
   const currentLinks = useMemo(() => {
+    if (isFoundation) {
+      return foundationLinks;
+    }
     let links = isConsumer ? patientLinks : providerLinks;
     // Filter specialized modules by active diagnoses
     if (isConsumer) {
@@ -251,20 +276,22 @@ export const Sidebar = ({
       );
     }
     return links;
-  }, [isConsumer, isStaff, user?.permissions, activeModules, isModuleActive]);
+  }, [isFoundation, isConsumer, isStaff, user?.permissions, activeModules, isModuleActive]);
 
-  const currentSettingsLinks = isConsumer
+  const currentSettingsLinks = isFoundation
+    ? foundationSettingsLinks
+    : isConsumer
     ? patientSettingsLinks
     : providerSettingsLinks;
 
   useEffect(() => {
-    if (!isConsumer) {
+    if (!isConsumer && !isFoundation) {
       subscriptionService
         .getCurrentSubscription()
         .then(setSubscription)
         .catch(() => setSubscription(null));
     }
-  }, [isConsumer]);
+  }, [isConsumer, isFoundation]);
 
   const handleSwitchProfile = async () => {
     setIsSwitchingProfile(true);
@@ -370,7 +397,7 @@ export const Sidebar = ({
       </div>
 
       {/* ── BANNER DE PLAN DE SUSCRIPCIÓN (PROVEEDORES) ───────────────── */}
-      {!isCollapsed && !isConsumer && (
+      {!isCollapsed && !isConsumer && !isFoundation && (
         <div className="p-3.5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
           <Link href="/provider/dashboard/settings#subscription">
             <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 p-3 flex items-start gap-3 hover:border-emerald-500/40 transition-all shadow-2xs group cursor-pointer">
@@ -445,31 +472,33 @@ export const Sidebar = ({
 
       {/* ── PIE DE PÁGINA (CAMBIO DE PERFIL Y SALIDA) ─────────────────── */}
       <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-1 shrink-0 bg-white dark:bg-[#0a0a0a]">
-        <button
-          type="button"
-          onClick={handleSwitchProfile}
-          disabled={isSwitchingProfile}
-          className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#050505] transition-all group disabled:opacity-50 cursor-pointer"
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <UserCircle
-              className={cn(
-                "w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400",
-                isSwitchingProfile && "animate-spin"
+        {!isFoundation && (
+          <button
+            type="button"
+            onClick={handleSwitchProfile}
+            disabled={isSwitchingProfile}
+            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#050505] transition-all group disabled:opacity-50 cursor-pointer"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <UserCircle
+                className={cn(
+                  "w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400",
+                  isSwitchingProfile && "animate-spin"
+                )}
+                strokeWidth={2}
+              />
+              {!isCollapsed && (
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors truncate">
+                  {isSwitchingProfile
+                    ? t("switching")
+                    : isConsumer
+                    ? t("switch_to_provider")
+                    : t("switch_to_patient")}
+                </span>
               )}
-              strokeWidth={2}
-            />
-            {!isCollapsed && (
-              <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors truncate">
-                {isSwitchingProfile
-                  ? t("switching")
-                  : isConsumer
-                  ? t("switch_to_provider")
-                  : t("switch_to_patient")}
-              </span>
-            )}
-          </div>
-        </button>
+            </div>
+          </button>
+        )}
 
         {!isCollapsed && (
           <Link href="/patient/dashboard/support">

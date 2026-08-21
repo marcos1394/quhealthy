@@ -28,8 +28,9 @@ export function MobileNavbar() {
   const { role } = useSessionStore();
   const { cart, openCart } = useBookingStore();
 
-  const isConsumer = role === "ROLE_CONSUMER";
-  const homeLink = isConsumer ? "/patient/dashboard" : "/provider/dashboard";
+  const isFoundation = pathname?.includes("/foundation") || (role as string) === "ROLE_FOUNDATION" || (role as string) === "FOUNDATION";
+  const isConsumer = !isFoundation && role === "ROLE_CONSUMER";
+  const homeLink = isFoundation ? "/foundation/dashboard" : isConsumer ? "/patient/dashboard" : "/provider/dashboard";
 
   // Cerrar el menú al cambiar de ruta
   useEffect(() => {

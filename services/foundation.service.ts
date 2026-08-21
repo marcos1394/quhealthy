@@ -323,4 +323,14 @@ export const foundationService = {
     );
     return response.data;
   },
+
+  getProfile: async (): Promise<any> => {
+    const response = await axiosInstance.get("/api/onboarding/foundation/profile");
+    return response.data;
+  },
+
+  updateProfile: async (payload: any): Promise<any> => {
+    const response = await axiosInstance.put("/api/onboarding/foundation/profile", payload);
+    return response.data;
+  },
 };
