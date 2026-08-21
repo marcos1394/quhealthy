@@ -3,8 +3,21 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
 
-import React, { useState } from "react";
-import { Building2, Globe, Mail, Phone, MapPin, Sparkles, ArrowRight, HeartPulse } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { 
+  Building2, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  ArrowRight, 
+  Search, 
+  CheckCircle2, 
+  X, 
+  Navigation,
+  Globe,
+  Map as MapIcon,
+  HeartPulse
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -16,11 +29,20 @@ import {
 } from "@/components/ui/select";
 import { FoundationIdentityPayload, OrganizationType } from "@/types/foundation";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { googleService } from "@/services/google.service";
+import LocationPicker from "@/components/shared/location/LocationPicker";
+import { LocationData } from "@/types/location";
 
 interface Step1IdentityProps {
   initialData?: Partial<FoundationIdentityPayload>;
   onSave: (data: FoundationIdentityPayload) => Promise<void>;
   isLoading?: boolean;
+}
+
+interface PlaceSuggestion {
+  description: string;
+  place_id?: string;
+  placeId?: string;
 }
 
 const HEALTH_CAUSES = [
@@ -58,6 +80,130 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
     primaryCauses: initialData?.primaryCauses || ["RENAL_TRANSPLANT"],
   });
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
+  const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedPlaceFormatted, setSelectedPlaceFormatted] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!searchQuery || searchQuery.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingPlaces(true);
+      try {
+        const response = await googleService.autocomplete(searchQuery.trim());
+        if (Array.isArray(response)) {
+          setSuggestions(response);
+        } else if (response && Array.isArray(response.predictions)) {
+          setSuggestions(response.predictions);
+        } else {
+          setSuggestions([]);
+        }
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Error al autocompletar con Google Places:", error);
+        setSuggestions([]);
+      } finally {
+        setIsSearchingPlaces(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const parseAddressComponents = (components: any[]) => {
+    let streetNumber = "";
+    let route = "";
+    let neighborhood = "";
+    let city = "";
+    let state = "";
+    let postalCode = "";
+
+    if (!Array.isArray(components)) return { streetNumber, route, neighborhood, city, state, postalCode };
+
+    for (const c of components) {
+      const types: string[] = c.types || [];
+      if (types.includes("street_number")) {
+        streetNumber = c.long_name || "";
+      } else if (types.includes("route")) {
+        route = c.long_name || "";
+      } else if (
+        types.includes("sublocality_level_1") || 
+        types.includes("sublocality") || 
+        types.includes("neighborhood")
+      ) {
+        if (!neighborhood) neighborhood = c.long_name || "";
+      } else if (types.includes("locality")) {
+        city = c.long_name || "";
+      } else if (types.includes("administrative_area_level_2") && !city) {
+        city = c.long_name || "";
+      } else if (types.includes("administrative_area_level_1")) {
+        state = c.long_name || "";
+      } else if (types.includes("postal_code")) {
+        postalCode = c.long_name || "";
+      }
+    }
+
+    return { streetNumber, route, neighborhood, city, state, postalCode };
+  };
+
+  const handleSelectPlace = async (placeId?: string, description?: string) => {
+    if (!placeId) return;
+    setIsSearchingPlaces(true);
+    setShowSuggestions(false);
+    try {
+      const response = await googleService.getDetails(placeId);
+      const data = typeof response === "string" ? JSON.parse(response) : response;
+      const result = data.result || data;
+      const components = result.address_components || [];
+      const parsed = parseAddressComponents(components);
+
+      setFormData((prev) => ({
+        ...prev,
+        addressStreet: parsed.route || prev.addressStreet,
+        addressNumber: parsed.streetNumber || prev.addressNumber,
+        addressNeighborhood: parsed.neighborhood || prev.addressNeighborhood,
+        addressCity: parsed.city || prev.addressCity,
+        addressState: parsed.state || prev.addressState,
+        addressPostalCode: parsed.postalCode || prev.addressPostalCode,
+      }));
+
+      setSelectedPlaceFormatted(result.formatted_address || description || null);
+      setSearchQuery(result.formatted_address || description || "");
+    } catch (error) {
+      console.error("Error al obtener detalles del lugar de Google:", error);
+    } finally {
+      setIsSearchingPlaces(false);
+    }
+  };
+
+  const handleLocationFromMap = (location: LocationData) => {
+    setSelectedPlaceFormatted(location.address);
+    setSearchQuery(location.address);
+    if (location.placeId) {
+      handleSelectPlace(location.placeId, location.address);
+    }
+  };
+
   const toggleCause = (causeId: string) => {
     setFormData((prev) => {
       const current = prev.primaryCauses || [];
@@ -77,7 +223,6 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto font-sans">
-      {/* ── CARD 1: IDENTIDAD BÁSICA ─────────────────────────────────── */}
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -148,23 +293,35 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
               placeholder="Describe el propósito y la causa principal de la fundación..."
               value={formData.mission}
               onChange={(e) => setFormData({ ...formData, mission: e.target.value })}
-              className="bg-white dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-gray-800 text-xs"
+              className="bg-white dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
+            />
+          </div>
+
+          <div className="sm:col-span-2 space-y-1.5">
+            <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+              Visión Institucional
+            </label>
+            <Textarea
+              rows={2}
+              placeholder="¿Hacia dónde se proyecta el impacto de la institución?"
+              value={formData.vision}
+              onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
+              className="bg-white dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
             />
           </div>
         </div>
       </div>
 
-      {/* ── CARD 2: ÁREAS DE ENFOQUE SOCIAL & MÉDICO ─────────────────── */}
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
             <HeartPulse className="w-4 h-4" />
           </div>
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              2. Áreas de Enfoque en Salud
+              2. Áreas de Enfoque y Causas Médicas
             </h2>
-            <p className="text-xs text-gray-500">Selecciona las causas y programas médicos que atiende tu organización.</p>
+            <p className="text-xs text-gray-500">Selecciona los programas de salud donde canalizan su asistencia social.</p>
           </div>
         </div>
 
@@ -197,25 +354,123 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
         </div>
       </div>
 
-      {/* ── CARD 3: SEDE & CONTACTO ──────────────────────────────────── */}
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-            <MapPin className="w-4 h-4" />
+        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                3. Sede Operativa & Contacto
+              </h2>
+              <p className="text-xs text-gray-500">Búsqueda inteligente con Google Places y desglose automático de dirección.</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">
-              3. Sede Operativa & Contacto
-            </h2>
-            <p className="text-xs text-gray-500">Ubicación física para atención y medios de comunicación oficial.</p>
-          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowMap(!showMap)}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors cursor-pointer"
+          >
+            <MapIcon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>{showMap ? "Ocultar Mapa" : "Ver en Mapa Interactivo"}</span>
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="sm:col-span-2 space-y-1.5">
-            <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Calle</label>
+        <div ref={searchContainerRef} className="relative space-y-2">
+          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+            <Navigation className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Buscar Dirección en Google Places (Autocompletado Rápido)</span>
+          </label>
+
+          <div className="relative flex items-center">
+            <div className="absolute left-3.5 text-gray-400 pointer-events-none">
+              <Search className="w-4 h-4" />
+            </div>
+
             <Input
-              placeholder="Av. Paseo de las Palmas"
+              type="text"
+              placeholder="Escribe la calle, colonia, ciudad o nombre de la sede..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => {
+                if (suggestions.length > 0) setShowSuggestions(true);
+              }}
+              className="pl-10 pr-10 bg-emerald-50/30 dark:bg-emerald-950/10 border-emerald-200 dark:border-emerald-900/40 h-12 rounded-2xl text-xs font-semibold text-gray-900 dark:text-white shadow-2xs focus-visible:ring-emerald-500"
+            />
+
+            <div className="absolute right-3.5 flex items-center gap-2">
+              {isSearchingPlaces && (
+                <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+              )}
+              {searchQuery && !isSearchingPlaces && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSuggestions([]);
+                    setSelectedPlaceFormatted(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden divide-y divide-gray-100 dark:divide-gray-800">
+              {suggestions.map((item, idx) => {
+                const pId = item.place_id || item.placeId;
+                return (
+                  <button
+                    key={pId || idx}
+                    type="button"
+                    onClick={() => handleSelectPlace(pId, item.description)}
+                    className="w-full text-left px-4 py-3 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 flex items-start gap-3 transition-colors text-xs cursor-pointer group"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 flex items-center justify-center text-gray-500 group-hover:text-emerald-600 shrink-0 mt-0.5 transition-colors">
+                      <MapPin className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-gray-900 dark:text-white truncate">
+                        {item.description}
+                      </p>
+                      <p className="text-[11px] text-gray-400 font-medium">Google Places API</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {selectedPlaceFormatted && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Dirección desglosada y verificada con Google Places</span>
+            </div>
+          )}
+        </div>
+
+        {showMap && (
+          <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
+            <LocationPicker
+              onLocationSelect={handleLocationFromMap}
+              className="h-80 w-full"
+            />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+          <div className="sm:col-span-2 space-y-1.5">
+            <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Calle / Avenida</label>
+            <Input
+              placeholder="Ej. Paseo Niños Héroes / Insurgentes"
               value={formData.addressStreet}
               onChange={(e) => setFormData({ ...formData, addressStreet: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
@@ -225,7 +480,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Número Ext / Int</label>
             <Input
-              placeholder="735 Int. 402"
+              placeholder="Ej. 1205 Ext. / Int. 3B"
               value={formData.addressNumber}
               onChange={(e) => setFormData({ ...formData, addressNumber: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
@@ -233,9 +488,9 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Colonia</label>
+            <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Colonia / Sector</label>
             <Input
-              placeholder="Lomas de Chapultepec"
+              placeholder="Ej. Las Quintas / Providencia"
               value={formData.addressNeighborhood}
               onChange={(e) => setFormData({ ...formData, addressNeighborhood: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
@@ -245,7 +500,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Ciudad / Municipio</label>
             <Input
-              placeholder="Miguel Hidalgo / CDMX"
+              placeholder="Ej. Culiacán / Guadalajara / Monterrey"
               value={formData.addressCity}
               onChange={(e) => setFormData({ ...formData, addressCity: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
@@ -253,12 +508,22 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
           </div>
 
           <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Estado</label>
+            <Input
+              placeholder="Ej. Sinaloa / Jalisco / Nuevo León"
+              value={formData.addressState}
+              onChange={(e) => setFormData({ ...formData, addressState: e.target.value })}
+              className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
+            />
+          </div>
+
+          <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Código Postal</label>
             <Input
-              placeholder="11000"
+              placeholder="80000"
               value={formData.addressPostalCode}
               onChange={(e) => setFormData({ ...formData, addressPostalCode: e.target.value })}
-              className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
+              className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold font-mono"
             />
           </div>
 
@@ -276,7 +541,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Teléfono de Atención</label>
             <Input
-              placeholder="55 1234 5678"
+              placeholder="Ej. 667 123 4567"
               value={formData.contactPhone}
               onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
@@ -286,7 +551,7 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-800 dark:text-gray-200">Sitio Web Oficial</label>
             <Input
-              placeholder="https://fundacionale.org"
+              placeholder="https://fundacion.org"
               value={formData.websiteUrl}
               onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
               className="bg-white dark:bg-[#0a0a0a] h-11 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-semibold"
@@ -295,7 +560,6 @@ export const Step1Identity: React.FC<Step1IdentityProps> = ({
         </div>
       </div>
 
-      {/* ── BOTÓN DE ACCIÓN ─────────────────────────────────────────── */}
       <div className="flex justify-end pt-4">
         <button
           type="submit"

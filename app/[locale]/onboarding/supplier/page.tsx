@@ -652,7 +652,7 @@ export default function SupplierOnboardingPage() {
                   <label className="font-bold text-slate-700 block mb-1">Código de Almacén</label>
                   <input
                     type="text"
-                    placeholder="ALM-CDMX-01"
+                    placeholder="ALM-01"
                     value={whCode}
                     onChange={(e) => setWhCode(e.target.value)}
                     className="w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white font-mono"
@@ -666,7 +666,7 @@ export default function SupplierOnboardingPage() {
                   <input
                     type="text"
                     required
-                    placeholder="Ej. Azcapotzalco"
+                    placeholder="Ej. Culiacán / Guadalajara"
                     value={whCity}
                     onChange={(e) => setWhCity(e.target.value)}
                     className="w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white"
@@ -677,7 +677,7 @@ export default function SupplierOnboardingPage() {
                   <label className="font-bold text-slate-700 block mb-1">Estado</label>
                   <input
                     type="text"
-                    placeholder="Ej. Ciudad de México"
+                    placeholder="Ej. Sinaloa / Jalisco / Nuevo León"
                     value={whState}
                     onChange={(e) => setWhState(e.target.value)}
                     className="w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white"
@@ -688,7 +688,7 @@ export default function SupplierOnboardingPage() {
                   <label className="font-bold text-slate-700 block mb-1">Código Postal</label>
                   <input
                     type="text"
-                    placeholder="02300"
+                    placeholder="80000"
                     value={whPostalCode}
                     onChange={(e) => setWhPostalCode(e.target.value)}
                     className="w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white font-mono"
