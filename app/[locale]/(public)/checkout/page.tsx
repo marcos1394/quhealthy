@@ -1,29 +1,61 @@
 "use client";
 
+/* eslint-disable react-doctor/button-has-type */
+/* eslint-disable @next/next/no-img-element */
+
 import React, { useEffect, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { ShoppingBag, ArrowLeft, Loader2, ShieldCheck, CreditCard, Truck, MapPin, Store, Package } from "lucide-react";
+import {
+  ShoppingBag,
+  ArrowLeft,
+  ShieldCheck,
+  CreditCard,
+  Truck,
+  MapPin,
+  Store,
+  Trash2,
+  Plus,
+  Minus,
+  Stethoscope,
+  BookOpen,
+  Package,
+  Calendar,
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+} from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
-import { useBookingStore } from "@/hooks/useBookingStore";
+import { useBookingStore, CartItem } from "@/hooks/useBookingStore";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGoogleAutocomplete } from "@/hooks/useGoogleAutocomplete";
 import { DatePicker } from "@/components/ui/date-picker";
 import { AnimatePresence, motion } from "framer-motion";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { loadStripe } from "@stripe/stripe-js";
 import { paymentService } from "@/services/payment.service";
+import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
 export default function GlobalCheckoutPage() {
   const t = useTranslations("Checkout");
+  const tCart = useTranslations("Cart");
   const router = useRouter();
-  const { cart, getTotalPrice, removeFromCart, updateQuantity } = useBookingStore();
+
+  const {
+    cart,
+    getTotalPrice,
+    getTotalItemCount,
+    removeFromCart,
+    updateQuantity,
+    getProviderGroups,
+    hasServices,
+  } = useBookingStore();
+
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
   const themeColor = cart[0]?.providerColor || "#059669";
+
   // Logística state
   const [shippingMethod, setShippingMethod] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
   const [address, setAddress] = useState({
@@ -42,6 +74,10 @@ export default function GlobalCheckoutPage() {
     setSuggestions,
     isLoading: isAutocompleteLoading,
   } = useGoogleAutocomplete();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSelectSuggestion = (placeId: string, description: string) => {
     setQuery("");
@@ -70,7 +106,14 @@ export default function GlobalCheckoutPage() {
     setAddress({ street, colony, city, state, zip });
   };
 
-  const hasPhysical = useMemo(() => cart.some((i) => i.type === "PRODUCT" && i.isDigital !== true), [cart]);
+  const hasPhysical = useMemo(
+    () => cart.some((i) => i.type === "PRODUCT" && (i as any).isDigital !== true),
+    [cart]
+  );
+  const containsServices = hasServices();
+  const providerGroups = getProviderGroups();
+  const totalPrice = getTotalPrice();
+  const totalItems = getTotalItemCount();
 
   const PICKUP_TIMES = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -78,20 +121,46 @@ export default function GlobalCheckoutPage() {
     "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
   ];
 
-  const handleSimulatePayment = async () => {
+  const handleRemoveItem = (item: CartItem) => {
+    removeFromCart(item.id);
+    toast.info(
+      <div className="flex items-center justify-between gap-2 text-xs font-medium">
+        <span>{item.name} {tCart("item_removed")}</span>
+        <button
+          type="button"
+          onClick={() => {
+            useBookingStore.getState().addToCart(
+              item,
+              item.providerSlug || "",
+              item.providerName,
+              item.providerColor
+            );
+          }}
+          className="font-bold underline text-white hover:text-emerald-200 cursor-pointer"
+        >
+          {tCart("undo")}
+        </button>
+      </div>,
+      { autoClose: 3000 }
+    );
+  };
+
+  const handleProcessPayment = async () => {
+    if (cart.length === 0) return;
+
     setIsProcessing(true);
-    
-    // Validación básica de logística
+
+    // Validación de logística para productos físicos
     if (hasPhysical) {
       if (shippingMethod === "DELIVERY") {
         if (!address.street || !address.city || !address.state || !address.zip) {
-          toast.error("Por favor completa los datos obligatorios de la dirección de envío.");
+          toast.error(t("error_incomplete_address"));
           setIsProcessing(false);
           return;
         }
       } else {
         if (!pickupDate || !pickupTimeStr) {
-          toast.error("Por favor selecciona fecha y hora de recolección.");
+          toast.error(t("error_incomplete_pickup"));
           setIsProcessing(false);
           return;
         }
@@ -101,19 +170,19 @@ export default function GlobalCheckoutPage() {
     try {
       let combinedPickupTime: string | undefined = undefined;
       if (hasPhysical && shippingMethod === "PICKUP" && pickupDate && pickupTimeStr) {
-        const [hours, minutes] = pickupTimeStr.split(':');
+        const [hours, minutes] = pickupTimeStr.split(":");
         const startDateTime = new Date(pickupDate);
-        startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-        combinedPickupTime = startDateTime.toISOString().replace('Z', ''); // Local ISO
+        startDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+        combinedPickupTime = startDateTime.toISOString().replace("Z", "");
       }
 
-      const mappedItems = cart.map(item => ({
+      const mappedItems = cart.map((item) => ({
         providerId: item.providerId,
         productId: item.id.toString(),
         productName: item.name,
         quantity: item.cartQuantity || 1,
         price: item.price,
-        type: item.type
+        type: item.type,
       }));
 
       const payload = {
@@ -124,7 +193,7 @@ export default function GlobalCheckoutPage() {
       };
 
       const { checkoutUrl } = await paymentService.createGlobalCartCheckout(payload);
-      
+
       if (checkoutUrl) {
         window.location.href = checkoutUrl;
       } else {
@@ -132,230 +201,414 @@ export default function GlobalCheckoutPage() {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Hubo un error al procesar tu pago. Intenta de nuevo.");
+      toast.error(t("error_payment_processing"));
       setIsProcessing(false);
     }
   };
 
+  const getItemBadge = (type: string) => {
+    switch (type) {
+      case "SERVICE":
+        return {
+          label: t("badge_service"),
+          icon: Stethoscope,
+          className: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/40",
+        };
+      case "PACKAGE":
+        return {
+          label: t("badge_package"),
+          icon: Package,
+          className: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200 dark:border-amber-900/40",
+        };
+      case "PRODUCT":
+        return {
+          label: t("badge_product"),
+          icon: ShoppingBag,
+          className: "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border-blue-200 dark:border-blue-900/40",
+        };
+      case "COURSE":
+        return {
+          label: t("badge_course"),
+          icon: BookOpen,
+          className: "bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border-purple-200 dark:border-purple-900/40",
+        };
+      default:
+        return {
+          label: type,
+          icon: ShoppingBag,
+          className: "bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300 border-gray-200",
+        };
+    }
+  };
+
+  if (!mounted) return null;
+
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-[#050505] pt-24 pb-12 font-sans">
-      <div className="container mx-auto max-w-5xl px-4 sm:px-6">
-        
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            className="rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <ShoppingBag className="w-6 h-6" style={{ color: themeColor }} />
-            Finalizar Compra
-          </h1>
+    <main className="min-h-screen bg-gray-50/60 dark:bg-[#050505] pt-24 pb-16 font-sans">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6">
+        {/* ── ENCABEZADO DE CHECKOUT ──────────────────────────────────── */}
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+              className="rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-800 shrink-0"
+              title={t("back_to_cart")}
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2.5">
+                <ShoppingBag className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <span>{t("title")}</span>
+              </h1>
+              <p className="text-xs text-gray-400 font-medium mt-0.5">
+                {tCart("items_count", { count: totalItems })}
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3.5 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-900/40">
+            <Lock className="w-3.5 h-3.5" />
+            <span>{t("trust_encrypted")}</span>
+          </div>
         </div>
 
+        {/* ── ESTADO VACÍO ────────────────────────────────────────────── */}
         {cart.length === 0 ? (
-          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-12 text-center border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center">
-            <ShoppingBag className="w-16 h-16 text-gray-300 dark:text-gray-700 mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Tu carrito está vacío</h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">No has agregado ningún servicio o producto.</p>
-            <Link href="/discover">
-              <Button 
-                style={{ backgroundColor: themeColor }}
-                className="text-white rounded-xl h-12 px-6 font-bold hover:opacity-90 transition-opacity"
-              >
-                Explorar Servicios
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-12 text-center border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center max-w-md mx-auto space-y-4">
+            <div className="w-16 h-16 rounded-3xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-gray-800 flex items-center justify-center text-gray-300 dark:text-gray-700">
+              <ShoppingBag className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("empty_title")}</h2>
+              <p className="text-xs text-gray-400 font-medium">{t("empty_desc")}</p>
+            </div>
+            <Link href="/discover" className="w-full pt-2">
+              <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl h-11 font-bold text-xs">
+                {t("explore_services")}
               </Button>
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* Resumen de Artículos */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Resumen de tu pedido</h2>
-                
-                <div className="space-y-4 divide-y divide-gray-100 dark:divide-gray-800">
-                  {cart.map((item) => (
-                    <div key={`${item.id}-${item.type}`} className="pt-4 first:pt-0 flex flex-col sm:flex-row gap-4">
-                      {/* Imagen */}
-                      <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-900 shrink-0">
-                        {item.imageUrl ? (
-                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Sin imagen</div>
-                        )}
-                      </div>
-                      
-                      {/* Info */}
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div>
-                          <h3 className="font-bold text-gray-900 dark:text-white">{item.name}</h3>
-                          <p className="text-xs font-medium mt-1" style={{ color: item.providerColor || themeColor }}>
-                            Proveedor: {item.providerName || "QuHealthy"}
-                          </p>
-                        </div>
-                        <div className="flex items-center justify-between mt-4">
-                          <p className="font-bold text-gray-900 dark:text-white">${item.price.toLocaleString()} MXN</p>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-xs font-bold text-red-500 hover:text-red-600"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+          /* ── GRID PRINCIPAL DE CHECKOUT ────────────────────────────── */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* ── COLUMNA IZQUIERDA: RESUMEN MULTIPROVEEDOR + LOGÍSTICA ─ */}
+            <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+              {/* AVISO DE CITAS MÉDICAS SI HAY SERVICIOS */}
+              {containsServices && (
+                <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-900/40 rounded-3xl p-4.5 flex items-start gap-3 text-xs text-emerald-900 dark:text-emerald-200 shadow-xs">
+                  <Calendar className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-sm">Tu orden incluye consultas o servicios médicos</p>
+                    <p className="text-emerald-800/80 dark:text-emerald-300/80 text-[11px] leading-relaxed">
+                      Al completar el pago, tu cita quedará reservada y podrás sincronizarla inmediatamente con tu calendario o gestionar tu consulta en línea.
+                    </p>
+                  </div>
                 </div>
+              )}
+
+              {/* GRUPOS POR PROVEEDOR */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-extrabold text-gray-900 dark:text-white tracking-tight">
+                    {t("order_summary_title")}
+                  </h2>
+                  <span className="text-xs font-mono font-bold text-gray-400">
+                    {providerGroups.length} {providerGroups.length === 1 ? "proveedor" : "proveedores"}
+                  </span>
+                </div>
+
+                {providerGroups.map((group, groupIdx) => (
+                  <motion.div
+                    layout
+                    key={group.providerSlug || group.providerId || groupIdx}
+                    className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-5 sm:p-6 border border-gray-100 dark:border-gray-800 shadow-xs space-y-4"
+                  >
+                    {/* Header del Proveedor */}
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800/80">
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: group.providerColor || "#059669" }}
+                        />
+                        <div>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            {t("provider_section_title")}
+                          </p>
+                          <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                            {group.providerName}
+                          </h3>
+                        </div>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+                        Subtotal: ${group.subtotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+
+                    {/* Artículos de este Proveedor */}
+                    <div className="space-y-3 divide-y divide-gray-50 dark:divide-gray-800/50">
+                      {group.items.map((item) => {
+                        const badge = getItemBadge(item.type);
+                        const BadgeIcon = badge.icon;
+                        const qty = item.cartQuantity || 1;
+                        const totalItemPrice = item.price * qty;
+
+                        return (
+                          <div
+                            key={`${item.id}-${item.type}`}
+                            className="pt-3 first:pt-0 flex gap-3.5 items-center"
+                          >
+                            {/* Imagen */}
+                            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 dark:bg-[#151515] border border-gray-200/50 dark:border-gray-800 shrink-0 relative flex items-center justify-center">
+                              {item.imageUrl ? (
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <BadgeIcon className="w-6 h-6 text-gray-300 dark:text-gray-600" />
+                              )}
+                            </div>
+
+                            {/* Detalle */}
+                            <div className="flex-1 min-w-0 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border inline-flex items-center gap-1",
+                                    badge.className
+                                  )}
+                                >
+                                  <BadgeIcon className="w-2.5 h-2.5" />
+                                  {badge.label}
+                                </span>
+                              </div>
+                              <h4 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
+                                {item.name}
+                              </h4>
+                              <p className="text-xs font-mono font-bold text-gray-900 dark:text-white">
+                                ${totalItemPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                                <span className="text-[10px] text-gray-400 font-normal">
+                                  (${item.price.toLocaleString()} x {qty})
+                                </span>
+                              </p>
+                            </div>
+
+                            {/* Controles de Cantidad & Eliminar */}
+                            <div className="flex flex-col items-end gap-2 shrink-0">
+                              {item.type === "PRODUCT" ? (
+                                <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#181818] rounded-xl p-0.5 border border-gray-200/60 dark:border-gray-700/60">
+                                  <button
+                                    type="button"
+                                    onClick={() => updateQuantity(item.id, qty - 1)}
+                                    disabled={qty <= 1}
+                                    className="w-6 h-6 rounded-lg bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center justify-center disabled:opacity-40 shadow-2xs transition-colors cursor-pointer"
+                                  >
+                                    <Minus className="w-3 h-3" />
+                                  </button>
+                                  <span className="w-5 text-center text-xs font-mono font-bold text-gray-900 dark:text-white">
+                                    {qty}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateQuantity(item.id, qty + 1)}
+                                    className="w-6 h-6 rounded-lg bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center justify-center shadow-2xs transition-colors cursor-pointer"
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ) : null}
+
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItem(item)}
+                                className="text-[11px] font-bold text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>{t("remove_item")}</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
 
-              {/* Sección de Logística (Opcional, solo si hay físicos) */}
+              {/* ── SECCIÓN DE LOGÍSTICA DE ENTREGA (SOLO SI HAY FÍSICOS) ─ */}
               {hasPhysical && (
-                <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm mt-4">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Información de Entrega</h2>
-                  
-                  <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-5 sm:p-6 border border-gray-100 dark:border-gray-800 shadow-xs space-y-5">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base font-extrabold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                      <Truck className="w-5 h-5 text-emerald-600" />
+                      <span>{t("delivery_section_title")}</span>
+                    </h2>
+                  </div>
+
+                  {/* Toggle Delivery vs Pickup */}
+                  <div className="grid grid-cols-2 gap-3">
                     <button
+                      type="button"
                       onClick={() => setShippingMethod("DELIVERY")}
-                      style={shippingMethod === "DELIVERY" ? { borderColor: themeColor, color: themeColor, backgroundColor: `${themeColor}10` } : {}}
-                      className={`h-16 flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 transition-all ${
+                      className={cn(
+                        "h-16 flex flex-col items-center justify-center gap-1 rounded-2xl border-2 transition-all cursor-pointer",
                         shippingMethod === "DELIVERY"
-                          ? ""
-                          : "border-gray-100 dark:border-gray-800 text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
-                      }`}
+                          ? "border-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold"
+                          : "border-gray-200 dark:border-gray-800 text-gray-500 hover:border-gray-300 dark:hover:border-gray-700 font-medium"
+                      )}
                     >
                       <Truck className="w-5 h-5" />
-                      <span className="text-xs font-bold">Envío a Domicilio</span>
+                      <span className="text-xs">{t("tab_delivery")}</span>
                     </button>
 
                     <button
+                      type="button"
                       onClick={() => setShippingMethod("PICKUP")}
-                      style={shippingMethod === "PICKUP" ? { borderColor: themeColor, color: themeColor, backgroundColor: `${themeColor}10` } : {}}
-                      className={`h-16 flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 transition-all ${
+                      className={cn(
+                        "h-16 flex flex-col items-center justify-center gap-1 rounded-2xl border-2 transition-all cursor-pointer",
                         shippingMethod === "PICKUP"
-                          ? ""
-                          : "border-gray-100 dark:border-gray-800 text-gray-500 hover:border-gray-200 dark:hover:border-gray-700"
-                      }`}
+                          ? "border-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 font-bold"
+                          : "border-gray-200 dark:border-gray-800 text-gray-500 hover:border-gray-300 dark:hover:border-gray-700 font-medium"
+                      )}
                     >
                       <Store className="w-5 h-5" />
-                      <span className="text-xs font-bold">Recoger (Pickup)</span>
+                      <span className="text-xs">{t("tab_pickup")}</span>
                     </button>
                   </div>
 
+                  {/* Formulario de Envío a Domicilio */}
                   {shippingMethod === "DELIVERY" ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1 md:col-span-2 relative">
-                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Calle y Número *</label>
-                          <div className="relative">
-                            <input 
-                              type="text" 
-                              className="w-full h-10 px-3 pr-10 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
-                              value={address.street}
-                              onChange={(e) => {
-                                setAddress({ ...address, street: e.target.value });
-                                setQuery(e.target.value);
-                              }}
-                              placeholder="Ej. Av. Insurgentes Sur 123"
-                            />
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              {isAutocompleteLoading ? (
-                                <QhSpinner size="sm" className="text-gray-400" />
-                              ) : (
-                                <MapPin className="w-4 h-4 text-gray-400" />
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* Autocompletado de Google */}
-                          <AnimatePresence>
-                            {suggestions.length > 0 && address.street.length > 2 && (
-                              <motion.ul
-                                initial={{ opacity: 0, y: -5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -5 }}
-                                className="absolute z-50 w-full mt-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden max-h-56 overflow-y-auto rounded-2xl custom-scrollbar"
-                              >
-                                {suggestions.map((sug) => {
-                                  const placeId = sug.placeId || sug.place_id;
-                                  if (!placeId) return null;
-                                  return (
-                                    <li
-                                      key={placeId}
-                                      onClick={() => handleSelectSuggestion(placeId, sug.description)}
-                                      className="px-4 py-3 text-xs font-semibold text-gray-900 dark:text-white hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 cursor-pointer border-b border-gray-100 dark:border-gray-800 last:border-0 flex items-start gap-2.5 transition-colors"
-                                    >
-                                      <MapPin
-                                        className="w-4 h-4 mt-0.5 shrink-0"
-                                        style={{ color: themeColor }}
-                                      />
-                                      <span>{sug.description}</span>
-                                    </li>
-                                  );
-                                })}
-                              </motion.ul>
+                    <div className="space-y-4 pt-2">
+                      <div className="space-y-1 relative">
+                        <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                          {t("address_street_label")}
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            className="w-full h-11 px-3.5 pr-10 rounded-2xl border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-emerald-600"
+                            value={address.street}
+                            onChange={(e) => {
+                              setAddress({ ...address, street: e.target.value });
+                              setQuery(e.target.value);
+                            }}
+                            placeholder={t("address_street_placeholder")}
+                          />
+                          <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                            {isAutocompleteLoading ? (
+                              <QhSpinner size="sm" className="text-gray-400" />
+                            ) : (
+                              <MapPin className="w-4 h-4 text-gray-400" />
                             )}
-                          </AnimatePresence>
+                          </div>
                         </div>
+
+                        {/* Sugerencias de Google Autocomplete */}
+                        <AnimatePresence>
+                          {suggestions.length > 0 && address.street.length > 2 && (
+                            <motion.ul
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              className="absolute z-50 w-full mt-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden max-h-56 overflow-y-auto rounded-2xl custom-scrollbar"
+                            >
+                              {suggestions.map((sug) => {
+                                const placeId = sug.placeId || (sug as any).place_id;
+                                if (!placeId) return null;
+                                return (
+                                  <li
+                                    key={placeId}
+                                    onClick={() => handleSelectSuggestion(placeId, sug.description)}
+                                    className="px-4 py-3 text-xs font-semibold text-gray-900 dark:text-white hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 cursor-pointer border-b border-gray-100 dark:border-gray-800 last:border-0 flex items-start gap-2.5 transition-colors"
+                                  >
+                                    <MapPin className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                                    <span>{sug.description}</span>
+                                  </li>
+                                );
+                              })}
+                            </motion.ul>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Colonia</label>
-                          <input 
-                            type="text" 
-                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                            {t("address_colony_label")}
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full h-11 px-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-emerald-600"
                             value={address.colony}
                             onChange={(e) => setAddress({ ...address, colony: e.target.value })}
+                            placeholder={t("address_colony_placeholder")}
                           />
                         </div>
+
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Código Postal *</label>
-                          <input 
-                            type="text" 
-                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                            {t("address_postal_code_label")}
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full h-11 px-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-emerald-600 font-mono"
                             value={address.zip}
                             onChange={(e) => setAddress({ ...address, zip: e.target.value })}
+                            placeholder={t("address_postal_code_placeholder")}
                           />
                         </div>
+
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Ciudad *</label>
-                          <input 
-                            type="text" 
-                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                            {t("address_city_label")}
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full h-11 px-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-emerald-600"
                             value={address.city}
                             onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                            placeholder={t("address_city_placeholder")}
                           />
                         </div>
+
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Estado *</label>
-                          <input 
-                            type="text" 
-                            className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-transparent text-sm"
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                            {t("address_state_label")}
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full h-11 px-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-transparent text-sm focus:outline-emerald-600"
                             value={address.state}
                             onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                            placeholder={t("address_state_placeholder")}
                           />
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div 
-                      className="p-4 rounded-xl border space-y-4"
-                      style={{ borderColor: themeColor, backgroundColor: `${themeColor}10` }}
-                    >
-                      <div className="flex gap-3">
-                        <MapPin className="w-5 h-5 shrink-0 mt-0.5" style={{ color: themeColor }} />
-                        <div>
-                          <p className="text-sm font-bold" style={{ color: themeColor }}>Recolección en sucursal del proveedor</p>
-                          <p className="text-xs mt-1" style={{ color: themeColor, opacity: 0.8 }}>El proveedor te confirmará la dirección exacta al finalizar tu compra.</p>
+                    /* Ficha de Recolección en Sucursal (Pickup) */
+                    <div className="p-4.5 rounded-2xl border border-emerald-200/60 dark:border-emerald-900/40 bg-emerald-50/30 dark:bg-emerald-950/20 space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Store className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <div className="space-y-0.5">
+                          <p className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                            {t("pickup_info_title")}
+                          </p>
+                          <p className="text-xs text-emerald-800/80 dark:text-emerald-300/80 leading-relaxed">
+                            {t("pickup_info_desc")}
+                          </p>
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 mt-4">
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Fecha de Recolección</label>
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                            {t("pickup_date_label")}
+                          </label>
                           <DatePicker
                             value={pickupDate}
                             onChange={setPickupDate}
@@ -364,20 +617,25 @@ export default function GlobalCheckoutPage() {
                               date.getDay() === 0 ||
                               date.getDay() === 6
                             }
-                            placeholder="Elige un día"
-                            className="rounded-lg border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] h-10 text-sm font-semibold"
+                            placeholder={t("pickup_date_placeholder")}
+                            className="rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] h-11 text-xs font-semibold w-full"
                             popoverClassName="z-[100] rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
                           />
                         </div>
+
                         <div className="space-y-1">
-                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Hora Aproximada</label>
+                          <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                            {t("pickup_time_label")}
+                          </label>
                           <Select value={pickupTimeStr} onValueChange={setPickupTimeStr}>
-                            <SelectTrigger className="w-full h-10 bg-white dark:bg-[#0a0a0a]">
-                              <SelectValue placeholder="Selecciona" />
+                            <SelectTrigger className="w-full h-11 bg-white dark:bg-[#0a0a0a] rounded-2xl border-gray-200 dark:border-gray-800 text-xs">
+                              <SelectValue placeholder={t("pickup_time_placeholder")} />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="rounded-2xl">
                               {PICKUP_TIMES.map((time) => (
-                                <SelectItem key={time} value={time}>{time}</SelectItem>
+                                <SelectItem key={time} value={time} className="rounded-xl text-xs font-mono">
+                                  {time} hrs
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -389,51 +647,88 @@ export default function GlobalCheckoutPage() {
               )}
             </div>
 
-            {/* Total y Pago */}
-            <div className="space-y-4">
-              <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm sticky top-28">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Resumen del Pago</h2>
-                
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
-                    <span className="font-medium text-gray-900 dark:text-white">${getTotalPrice().toLocaleString()} MXN</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Impuestos (Calculados)</span>
-                    <span className="font-medium text-gray-900 dark:text-white">$0.00 MXN</span>
-                  </div>
-                  <div className="border-t border-gray-100 dark:border-gray-800 pt-3 flex justify-between">
-                    <span className="font-bold text-gray-900 dark:text-white">Total</span>
-                    <span className="font-black text-xl" style={{ color: themeColor }}>
-                      ${getTotalPrice().toLocaleString()} <span className="text-sm font-medium text-gray-500 dark:text-gray-400">MXN</span>
+            {/* ── COLUMNA DERECHA: RESUMEN DE PAGO & STRIPE ──────────── */}
+            <div className="lg:col-span-5 xl:col-span-4 space-y-5 sticky top-28">
+              <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm space-y-5">
+                <h2 className="text-base font-extrabold text-gray-900 dark:text-white tracking-tight">
+                  {t("payment_summary_title")}
+                </h2>
+
+                {/* Desglose Financiero */}
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center text-gray-500 dark:text-gray-400">
+                    <span>{t("subtotal")}</span>
+                    <span className="font-mono font-semibold text-gray-900 dark:text-white">
+                      ${totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
                     </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-gray-500 dark:text-gray-400">
+                    <span>{t("taxes_note")}</span>
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                      {t("taxes_included")}
+                    </span>
+                  </div>
+
+                  {hasPhysical && (
+                    <div className="flex justify-between items-center text-gray-500 dark:text-gray-400">
+                      <span>{tCart("estimated_shipping")}</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        {shippingMethod === "PICKUP" ? "Gratis (Recolección)" : "A coordinar con proveedor"}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="border-t border-gray-100 dark:border-gray-800 pt-3 flex justify-between items-baseline">
+                    <span className="font-extrabold text-gray-900 dark:text-white text-sm uppercase tracking-wider">
+                      {t("total")}
+                    </span>
+                    <div className="text-right">
+                      <span className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">
+                        ${totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                      <span className="text-xs font-bold text-gray-400 ml-1">MXN</span>
+                    </div>
                   </div>
                 </div>
 
+                {/* Botón de Pago con Stripe */}
                 <Button
-                  onClick={handleSimulatePayment}
-                  disabled={isProcessing}
-                  style={{ backgroundColor: themeColor, borderColor: themeColor }}
-                  className="w-full h-14 text-white rounded-xl font-bold text-base shadow-xl shadow-black/10 dark:shadow-black/40 mb-4 transition-opacity hover:opacity-90"
+                  type="button"
+                  onClick={handleProcessPayment}
+                  disabled={isProcessing || cart.length === 0}
+                  className="w-full h-13 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50"
                 >
                   {isProcessing ? (
-                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                    <>
+                      <QhSpinner size="sm" className="text-white mr-1" />
+                      <span>{t("btn_processing")}</span>
+                    </>
                   ) : (
                     <>
-                      <CreditCard className="w-5 h-5 mr-2" />
-                      Pagar Ahora
+                      <CreditCard className="w-5 h-5" />
+                      <span>{t("btn_pay_now")}</span>
                     </>
                   )}
                 </Button>
-                
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <ShieldCheck className="w-4 h-4" style={{ color: themeColor }} />
-                  <span>Pago seguro procesado por Stripe</span>
+
+                {/* Sellos de Confianza y Cumplimiento Médico */}
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-2 text-[11px] text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{t("trust_encrypted")}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{t("trust_compliance")}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{t("trust_guarantee")}</span>
+                  </div>
                 </div>
               </div>
             </div>
-
           </div>
         )}
       </div>

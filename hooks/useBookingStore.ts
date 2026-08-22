@@ -11,6 +11,15 @@ export interface CartItem extends StorefrontItem {
   providerId?: number;
 }
 
+export interface ProviderGroup {
+  providerId?: number;
+  providerName: string;
+  providerSlug?: string;
+  providerColor?: string;
+  items: CartItem[];
+  subtotal: number;
+}
+
 interface BookingState {
   // El carrito de compras (Multi-proveedor)
   cart: CartItem[];
@@ -26,7 +35,6 @@ interface BookingState {
   closeCart: () => void;
   toggleCart: () => void;
   
-  // Mantenemos setProvider por compatibilidad, aunque ya no es estricto a un solo proveedor
   setProvider: (id: number, slug: string, name: string, color: string) => void;
   addToCart: (item: StorefrontItem, currentSlug: string, providerName?: string, providerColor?: string) => void;
   updateQuantity: (itemId: number, qty: number) => void;
@@ -34,9 +42,14 @@ interface BookingState {
   setDependentId: (id: number | null) => void;
   clearCart: () => void;
 
-  // Selectores derivados
+  // Selectores y Helpers derivados
   getTotalPrice: () => number;
   getTotalDuration: () => number;
+  getTotalItemCount: () => number;
+  hasServices: () => boolean;
+  hasProducts: () => boolean;
+  hasCourses: () => boolean;
+  getProviderGroups: () => ProviderGroup[];
 }
 
 export const useBookingStore = create<BookingState>()(
@@ -50,8 +63,8 @@ export const useBookingStore = create<BookingState>()(
       closeCart: () => set({ isCartOpen: false }),
       toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
 
-      setProvider: (id, slug, name, color) => {
-        // Ya no limpiamos el carrito al cambiar de proveedor porque ahora es multi-proveedor
+      setProvider: (_id, _slug, _name, _color) => {
+        // Multi-proveedor: no se borra el carrito
       },
 
       addToCart: (item, currentSlug, providerName, providerColor) => {
@@ -74,8 +87,9 @@ export const useBookingStore = create<BookingState>()(
             ...item, 
             cartQuantity: 1, 
             providerSlug: currentSlug,
-            providerName: providerName || "Proveedor",
-            providerColor: providerColor || "#000000"
+            providerName: providerName || "Proveedor QuHealthy",
+            providerColor: providerColor || "#059669",
+            providerId: (item as any).providerId || undefined,
           };
           return { cart: [...state.cart, newItem] };
         });
@@ -105,7 +119,50 @@ export const useBookingStore = create<BookingState>()(
 
       getTotalDuration: () => {
         return get().cart.reduce((total, item) => total + (item.durationMinutes || 0), 0);
-      }
+      },
+
+      getTotalItemCount: () => {
+        return get().cart.reduce((count, item) => count + (item.cartQuantity || 1), 0);
+      },
+
+      hasServices: () => {
+        return get().cart.some((item) => item.type === 'SERVICE' || item.type === 'PACKAGE');
+      },
+
+      hasProducts: () => {
+        return get().cart.some((item) => item.type === 'PRODUCT');
+      },
+
+      hasCourses: () => {
+        return get().cart.some((item) => item.type === 'COURSE');
+      },
+
+      getProviderGroups: () => {
+        const cart = get().cart;
+        const groupsMap = new Map<string, ProviderGroup>();
+
+        for (const item of cart) {
+          const key = item.providerSlug || String(item.providerId || 'general');
+          const existing = groupsMap.get(key);
+          const itemSubtotal = item.price * (item.cartQuantity || 1);
+
+          if (existing) {
+            existing.items.push(item);
+            existing.subtotal += itemSubtotal;
+          } else {
+            groupsMap.set(key, {
+              providerId: item.providerId,
+              providerName: item.providerName || 'Proveedor',
+              providerSlug: item.providerSlug,
+              providerColor: item.providerColor,
+              items: [item],
+              subtotal: itemSubtotal,
+            });
+          }
+        }
+
+        return Array.from(groupsMap.values());
+      },
     }),
     {
       name: 'quhealthy-cart-storage',

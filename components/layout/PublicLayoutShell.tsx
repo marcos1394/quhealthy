@@ -9,6 +9,7 @@ import { Sidebar } from "@/components/platform/Sidebar";
 import { MobileNavbar } from "@/components/platform/MobileNavbar";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { GlobalCartDrawer } from "@/components/store/GlobalCartDrawer";
+import { FloatingCartTrigger } from "@/components/cart/FloatingCartTrigger";
 
 export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -42,6 +43,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <GlobalCartDrawer />
+          <FloatingCartTrigger />
         </div>
       </AuthProvider>
     );
@@ -62,6 +64,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
         <GlobalCartDrawer />
+        <FloatingCartTrigger />
       </div>
     );
   }
@@ -71,6 +74,7 @@ export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
       <Navbar />
       <main className="flex-grow relative z-0">{children}</main>
       <GlobalCartDrawer />
+      <FloatingCartTrigger />
       <Footer />
     </div>
   );

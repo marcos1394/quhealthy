@@ -45,7 +45,7 @@ export const DiscoverItemCard = ({
   const params = useParams();
   const locale = params?.locale || "es";
 
-  const { setProvider, addToCart } = useBookingStore();
+  const { setProvider, addToCart, openCart } = useBookingStore();
 
   const handleProviderClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -90,7 +90,7 @@ export const DiscoverItemCard = ({
     if (item.type === "SERVICE") {
       router.push(`/patient/booking/${item.providerSlug}?serviceId=${item.id}`);
     } else {
-      router.push(`/store/${item.providerSlug}?openCart=true`);
+      openCart();
     }
   };
 

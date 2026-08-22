@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { Sidebar } from "@/components/platform/Sidebar";
 import { MobileNavbar } from "@/components/platform/MobileNavbar";
 import AuthProvider from "@/components/providers/AuthProvider";
+import { GlobalCartDrawer } from "@/components/store/GlobalCartDrawer";
+import { FloatingCartTrigger } from "@/components/cart/FloatingCartTrigger";
 
 export async function generateMetadata({
   params,
@@ -56,6 +58,9 @@ export default function PlatformLayout({
             {children}
           </div>
         </main>
+
+        <GlobalCartDrawer />
+        <FloatingCartTrigger />
       </div>
     </AuthProvider>
   );
