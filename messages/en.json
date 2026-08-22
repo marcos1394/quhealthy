@@ -8747,6 +8747,7 @@
     "biomedical": "Biomedical Equipment",
     "billing": "Billing & Invoicing",
     "finance": "Finance & Metrics",
+    "patient_budgets": "Clinical Estimates",
     "appointments": "Consultation Log",
     "treatments": "Treatments",
     "oncology": "Oncology Journey",

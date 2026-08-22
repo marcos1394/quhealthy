@@ -8841,6 +8841,7 @@
     "biomedical": "Equipos",
     "billing": "Facturación",
     "finance": "Finanzas",
+    "patient_budgets": "Presupuestos Clínicos",
     "appointments": "Consultas",
     "treatments": "Tratamientos",
     "oncology": "Oncología",

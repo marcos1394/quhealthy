@@ -77,6 +77,7 @@ const providerLinks = [
   { key: "biomedical", href: "/provider/dashboard/biomedical", icon: Activity, badge: null },
   { key: "billing", href: "/provider/dashboard/billing", icon: CreditCard, badge: null },
   { key: "finance", href: "/provider/dashboard/finance", icon: Calculator, badge: null },
+  { key: "patient_budgets", href: "/provider/dashboard/finance/patient-budgets", icon: FileText, badge: null },
   { key: "appointments", href: "/provider/dashboard/appointments", icon: ClipboardIcon, badge: null },
   { key: "emergencies", href: "/provider/dashboard/emergencies", icon: AlertTriangle, badge: null },
   { key: "messages", href: "/provider/dashboard/messages", icon: MessageCircle, badge: null },
