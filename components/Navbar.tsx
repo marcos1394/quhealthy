@@ -51,6 +51,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 
 // --- 1. DEFINICIÓN DE TIPOS PARA LOS LINKS ---
 interface NavItem {
@@ -447,6 +448,9 @@ export const Navbar: React.FC = () => {
                   )}
                 </Button>
               )}
+
+              {/* Notification Bell Desktop */}
+              <NotificationBell isCollapsed={false} />
 
               {renderUserMenuDropdown()}
             </div>

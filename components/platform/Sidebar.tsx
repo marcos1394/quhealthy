@@ -377,7 +377,7 @@ export const Sidebar = ({
             </button>
           )}
 
-          {!isCollapsed && <NotificationBell isCollapsed={isCollapsed} />}
+          <NotificationBell isCollapsed={isCollapsed} />
 
           {isMobile ? (
             <button

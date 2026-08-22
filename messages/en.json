@@ -10249,5 +10249,26 @@
     "error_incomplete_address": "Please fill in all required shipping address fields.",
     "error_incomplete_pickup": "Please select the pickup date and approximate time.",
     "error_payment_processing": "There was an error connecting with the payment gateway. Please try again."
+  },
+  "NotificationBell": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all as read",
+    "tab_all": "All",
+    "tab_unread": "Unread",
+    "empty_title": "You're all caught up",
+    "empty_desc": "You have no pending notifications.",
+    "unread_empty_title": "No unread notifications",
+    "unread_empty_desc": "You've read all your notifications.",
+    "badge_all_read": "Caught up",
+    "loading": "Loading notifications...",
+    "error_loading": "Failed to load notifications",
+    "type_info": "Info",
+    "type_success": "Completed",
+    "type_warning": "Notice",
+    "type_error": "Alert",
+    "now": "Just now",
+    "view_all": "View all",
+    "open_link": "View details",
+    "mark_read": "Mark as read"
   }
 }

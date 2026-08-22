@@ -10288,5 +10288,26 @@
     "error_incomplete_address": "Por favor completa los campos obligatorios de la dirección de envío.",
     "error_incomplete_pickup": "Por favor selecciona la fecha y hora aproximada de recolección.",
     "error_payment_processing": "Hubo un error al conectar con la pasarela de pagos. Por favor intenta de nuevo."
+  },
+  "NotificationBell": {
+    "title": "Notificaciones",
+    "mark_all_read": "Marcar todo como leído",
+    "tab_all": "Todas",
+    "tab_unread": "No leídas",
+    "empty_title": "Estás al día",
+    "empty_desc": "No tienes notificaciones pendientes.",
+    "unread_empty_title": "Sin notificaciones no leídas",
+    "unread_empty_desc": "Has leído todas tus notificaciones.",
+    "badge_all_read": "Al día",
+    "loading": "Cargando notificaciones...",
+    "error_loading": "No se pudieron cargar las notificaciones",
+    "type_info": "Información",
+    "type_success": "Completado",
+    "type_warning": "Atención",
+    "type_error": "Alerta",
+    "now": "Ahora",
+    "view_all": "Ver todas",
+    "open_link": "Ver detalle",
+    "mark_read": "Marcar como leída"
   }
 }
