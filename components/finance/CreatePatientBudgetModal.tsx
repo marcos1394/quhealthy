@@ -237,7 +237,7 @@ export function CreatePatientBudgetModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto font-sans p-6 sm:p-8">
+      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto font-sans p-6 sm:p-8 bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white shadow-2xl rounded-3xl opacity-100">
         <DialogHeader className="space-y-2">
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
             <Calculator className="w-5 h-5" />
