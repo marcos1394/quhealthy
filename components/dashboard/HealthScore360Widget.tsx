@@ -13,6 +13,7 @@ import {
   HeartPulse,
   TrendingUp,
   ArrowRight,
+  Calculator,
 } from "lucide-react";
 import { HealthScoreResponse } from "@/types/healthscore";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -40,16 +41,49 @@ export function HealthScore360Widget({
     );
   }
 
-  const score = scoreData?.quscore || 84;
+  const hasScore = scoreData && typeof scoreData.quscore === "number" && scoreData.quscore > 0;
+  const score = hasScore ? scoreData.quscore : 0;
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
+  const getBandLabel = () => {
+    if (!hasScore) return "Sin calcular";
+    if (score >= 80) return "Óptimo";
+    if (score >= 60) return "Favorable";
+    if (score >= 40) return "Moderado";
+    return "Atención";
+  };
+
   const pillars = [
-    { key: "activity", label: t("pillar_activity"), score: 82, icon: Activity, color: "#10b981" },
-    { key: "nutrition", label: t("pillar_nutrition"), score: 76, icon: Apple, color: "#06b6d4" },
-    { key: "sleep", label: t("pillar_sleep"), score: 88, icon: Moon, color: "#8b5cf6" },
-    { key: "clinical", label: t("pillar_clinical"), score: 90, icon: HeartPulse, color: "#f43f5e" },
+    {
+      key: "activity",
+      label: t("pillar_activity"),
+      score: hasScore ? Math.min(100, Math.round(score * 0.98)) : 0,
+      icon: Activity,
+      color: "#10b981",
+    },
+    {
+      key: "nutrition",
+      label: t("pillar_nutrition"),
+      score: hasScore ? Math.min(100, Math.round(score * 0.92)) : 0,
+      icon: Apple,
+      color: "#06b6d4",
+    },
+    {
+      key: "sleep",
+      label: t("pillar_sleep"),
+      score: hasScore ? Math.min(100, Math.round(score * 1.02)) : 0,
+      icon: Moon,
+      color: "#8b5cf6",
+    },
+    {
+      key: "clinical",
+      label: t("pillar_clinical"),
+      score: hasScore ? Math.min(100, Math.round(score * 1.05)) : 0,
+      icon: HeartPulse,
+      color: "#f43f5e",
+    },
   ];
 
   return (
@@ -71,7 +105,7 @@ export function HealthScore360Widget({
           onClick={onOpenOnboarding}
           className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors"
         >
-          <span>Actualizar</span>
+          <span>{hasScore ? "Actualizar" : "Calcular"}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -108,10 +142,10 @@ export function HealthScore360Widget({
 
             <div className="absolute flex flex-col items-center justify-center">
               <span className="text-3xl font-black font-mono text-gray-900 dark:text-white leading-none">
-                {score}
+                {hasScore ? score : "—"}
               </span>
               <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mt-0.5">
-                Óptimo
+                {getBandLabel()}
               </span>
             </div>
           </div>
@@ -132,14 +166,14 @@ export function HealthScore360Widget({
                     <span>{pillar.label}</span>
                   </span>
                   <span className="font-mono text-gray-900 dark:text-white font-extrabold">
-                    {pillar.score}%
+                    {hasScore ? `${pillar.score}%` : "—"}
                   </span>
                 </div>
 
                 <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-[#141414] overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${pillar.score}%` }}
+                    animate={{ width: hasScore ? `${pillar.score}%` : "0%" }}
                     transition={{ duration: 1, ease: "easeOut" }}
                     className="h-full rounded-full"
                     style={{ backgroundColor: pillar.color }}
@@ -155,7 +189,10 @@ export function HealthScore360Widget({
       <div className="p-3 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
         <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
         <span className="truncate">
-          <strong>{t("ai_recommendation")}:</strong> Aumentar 1,500 pasos al día elevará tu score a 89 pts.
+          <strong>{t("ai_recommendation")}:</strong>{" "}
+          {hasScore
+            ? "Completar tus signos vitales periódicos mantendrá tu score optimizado."
+            : "Completa el cuestionario clínico inicial para desbloquear tus pilares preventivos."}
         </span>
       </div>
     </div>

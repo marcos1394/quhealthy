@@ -10,34 +10,63 @@ import {
   CheckCircle2,
   Clock,
   ArrowRight,
-  AlertCircle,
-  CalendarDays,
-  Sparkles,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TreatmentDto } from "@/services/treatment.service";
 
 interface PatientTreatmentAdherenceWidgetProps {
-  pendingPrescriptionsCount?: number;
+  treatments?: TreatmentDto[];
+  isLoading?: boolean;
 }
 
 export function PatientTreatmentAdherenceWidget({
-  pendingPrescriptionsCount = 0,
+  treatments = [],
+  isLoading = false,
 }: PatientTreatmentAdherenceWidgetProps) {
   const router = useRouter();
   const t = useTranslations("PatientDashboard.Adherence");
 
-  // Matriz de los 7 días de la semana
-  const daysOfWeek = [
-    { day: "L", date: "17", taken: true },
-    { day: "M", date: "18", taken: true },
-    { day: "M", date: "19", taken: true },
-    { day: "J", date: "20", taken: true },
-    { day: "V", date: "21", taken: true },
-    { day: "S", date: "22", taken: true },
-    { day: "D", date: "23", isToday: true, taken: false },
-  ];
+  const activeTreatments = treatments.filter(
+    (tr) => tr.status === "ACTIVE" || !tr.status
+  );
 
-  const adherenceRate = pendingPrescriptionsCount > 0 ? 94 : 100;
+  // Calcular adherencia real si existen tomas registradas
+  let totalDosesCount = 0;
+  let takenDosesCount = 0;
+  treatments.forEach((tr) => {
+    if (tr.totalDoses && tr.totalDoses > 0) {
+      totalDosesCount += tr.totalDoses;
+      takenDosesCount += tr.dosesTaken || 0;
+    }
+  });
+
+  const adherenceRate =
+    totalDosesCount > 0
+      ? Math.round((takenDosesCount / totalDosesCount) * 100)
+      : activeTreatments.length > 0
+      ? 100
+      : null;
+
+  const nextTreatment = activeTreatments[0] || null;
+
+  // Días de la semana
+  const todayIndex = (new Date().getDay() + 6) % 7; // 0 = Lunes, 6 = Domingo
+  const dayNames = ["L", "M", "M", "J", "V", "S", "D"];
+  const now = new Date();
+
+  const daysOfWeek = dayNames.map((name, index) => {
+    const dayDiff = index - todayIndex;
+    const targetDate = new Date();
+    targetDate.setDate(now.getDate() + dayDiff);
+
+    return {
+      day: name,
+      date: targetDate.getDate().toString(),
+      isToday: index === todayIndex,
+      isPast: index < todayIndex,
+    };
+  });
 
   return (
     <div className="w-full rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-200/80 dark:border-gray-800 p-6 sm:p-7 shadow-xs font-sans select-none space-y-6 transition-all">
@@ -68,14 +97,18 @@ export function PatientTreatmentAdherenceWidget({
         {/* KPI Score de Adherencia */}
         <div className="md:col-span-4 p-4 rounded-2xl bg-cyan-50/60 dark:bg-cyan-950/30 border border-cyan-100 dark:border-cyan-900/40 flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-cyan-500 text-white flex items-center justify-center font-mono font-black text-base shadow-md shadow-cyan-500/20">
-            {adherenceRate}%
+            {adherenceRate !== null ? `${adherenceRate}%` : "—"}
           </div>
           <div className="space-y-0.5 min-w-0">
             <span className="text-[10px] font-bold text-cyan-800 dark:text-cyan-300 uppercase tracking-wider">
               {t("weekly_rate")}
             </span>
             <p className="text-xs font-extrabold text-gray-900 dark:text-white truncate">
-              {adherenceRate >= 90 ? "Excelente cumplimiento" : "Requiere seguimiento"}
+              {adherenceRate !== null && adherenceRate >= 90
+                ? "Cumplimiento al día"
+                : activeTreatments.length > 0
+                ? "Tratamientos en curso"
+                : "Sin prescripciones"}
             </p>
           </div>
         </div>
@@ -98,7 +131,7 @@ export function PatientTreatmentAdherenceWidget({
               <span className="text-xs font-mono font-extrabold text-gray-900 dark:text-white my-1">
                 {d.date}
               </span>
-              {d.taken ? (
+              {d.isPast ? (
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
               ) : d.isToday ? (
                 <div className="w-4 h-4 rounded-full border-2 border-dashed border-cyan-500 animate-pulse" />
@@ -110,8 +143,8 @@ export function PatientTreatmentAdherenceWidget({
         </div>
       </div>
 
-      {/* ── PRÓXIMA DOSIS DESTACADA ──────────────────────────────────── */}
-      {pendingPrescriptionsCount > 0 ? (
+      {/* ── PRÓXIMA DOSIS REAL ───────────────────────────────────────── */}
+      {nextTreatment ? (
         <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-50/50 via-teal-50/30 to-transparent dark:from-cyan-950/20 dark:via-teal-950/10 dark:to-transparent border border-cyan-200/60 dark:border-cyan-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-cyan-500 text-white flex items-center justify-center shadow-xs shrink-0">
@@ -122,15 +155,17 @@ export function PatientTreatmentAdherenceWidget({
                 <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
                   {t("next_dose")}
                 </span>
-                <span className="text-[10px] font-mono font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded-md">
-                  Hoy 20:00 hrs
-                </span>
+                {nextTreatment.nextDoseTime && (
+                  <span className="text-[10px] font-mono font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded-md">
+                    {nextTreatment.nextDoseTime}
+                  </span>
+                )}
               </div>
               <h4 className="text-xs font-bold text-gray-900 dark:text-white truncate">
-                Metformina 500mg • 1 comprimido
+                {nextTreatment.name} • {nextTreatment.dosage}
               </h4>
               <p className="text-[11px] text-gray-400 truncate">
-                Indicación: Ingerir junto con los alimentos (Cena)
+                {nextTreatment.frequency || nextTreatment.route || "Seguir indicación médica"}
               </p>
             </div>
           </div>
@@ -144,13 +179,21 @@ export function PatientTreatmentAdherenceWidget({
           </button>
         </div>
       ) : (
-        <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#121212] border border-gray-100 dark:border-gray-800 text-center space-y-1">
+        <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#121212] border border-gray-100 dark:border-gray-800 text-center space-y-2">
           <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
             {t("no_active_treatments")}
           </p>
           <p className="text-[11px] text-gray-400">
             {t("no_active_treatments_desc")}
           </p>
+          <button
+            type="button"
+            onClick={() => router.push("/patient/dashboard/treatments")}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 cursor-pointer shadow-2xs"
+          >
+            <Plus className="w-3.5 h-3.5 text-cyan-600" />
+            <span>Registrar Medicamento</span>
+          </button>
         </div>
       )}
     </div>

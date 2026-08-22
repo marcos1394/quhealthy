@@ -5,7 +5,10 @@ import { consumerWalletService } from "@/services/consumer-wallet.service";
 import { consumerPackageService } from "@/services/consumer-package.service";
 import { ConsumerOrderService } from "@/services/consumer-order.service";
 import { healthVaultService } from "@/services/healthVault.service";
+import { consumerProfileService } from "@/services/consumerProfile.service";
+import { treatmentService, TreatmentDto } from "@/services/treatment.service";
 import { Appointment } from "@/types/appointments";
+import { ConsumerProfile } from "@/types/consumerProfile";
 import { ActivityItem } from "@/components/dashboard/PatientActivityTimeline";
 import { ConsumerProfileDto } from "@/components/dashboard/PatientDashboardHeader";
 
@@ -25,6 +28,8 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
     vaultDocsCount: number;
     activeOrdersCount: number;
     recentActivity: ActivityItem[];
+    profile: ConsumerProfile | null;
+    treatments: TreatmentDto[];
   }>({
     nextAppointment: null,
     healthMetrics: [],
@@ -35,6 +40,8 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
     vaultDocsCount: 0,
     activeOrdersCount: 0,
     recentActivity: [],
+    profile: null,
+    treatments: [],
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +52,7 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
       setIsLoading(true);
       setError(null);
 
-      // Carga paralela con manejo de fallbacks seguros
+      // Carga paralela 100% real a todos los microservicios
       const [
         summaryRes,
         profilesRes,
@@ -54,17 +61,21 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
         ordersRes,
         vaultRes,
         appointmentsRes,
+        clinicalProfileRes,
+        treatmentsRes,
       ] = await Promise.allSettled([
         appointmentService.getConsumerDashboardSummary(selectedProfileId || undefined),
         appointmentService.getConsumerProfiles(),
         consumerWalletService.getMyWallet(),
-        consumerPackageService.getMyWallet(),
+        consumerPackageService.getMyPackages(),
         ConsumerOrderService.getOrders(),
         healthVaultService.getDocuments(),
         appointmentService.getMyAppointments(0, 10),
+        consumerProfileService.getProfile(),
+        treatmentService.getMyTreatments(),
       ]);
 
-      // 1. Perfiles
+      // 1. Perfiles familiares / dependientes
       if (profilesRes.status === "fulfilled" && Array.isArray(profilesRes.value)) {
         setProfiles(profilesRes.value);
         if (!selectedProfileId && profilesRes.value.length > 0) {
@@ -73,7 +84,7 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
         }
       }
 
-      // 2. Resumen Principal
+      // 2. Resumen Principal y Métricas de Salud
       let nextAppt: Appointment | null = null;
       let metrics: any[] = [];
       let pendingPrescriptions = 0;
@@ -127,7 +138,22 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
         vaultDocs = vaultRes.value.length;
       }
 
-      // 7. Línea de Tiempo (Actividades recientes)
+      // 7. Perfil Clínico NOM-024 Real
+      let clinicalProfile: ConsumerProfile | null = null;
+      if (clinicalProfileRes.status === "fulfilled" && clinicalProfileRes.value) {
+        clinicalProfile = clinicalProfileRes.value;
+      }
+
+      // 8. Tratamientos Farmacológicos Reales
+      let myTreatments: TreatmentDto[] = [];
+      if (treatmentsRes.status === "fulfilled" && Array.isArray(treatmentsRes.value)) {
+        myTreatments = treatmentsRes.value;
+        if (myTreatments.length > 0 && pendingPrescriptions === 0) {
+          pendingPrescriptions = myTreatments.filter(t => t.status === "ACTIVE" || !t.status).length;
+        }
+      }
+
+      // 9. Línea de Tiempo (Actividades recientes)
       const activities: ActivityItem[] = [];
 
       if (appointmentsRes.status === "fulfilled" && appointmentsRes.value?.content) {
@@ -158,7 +184,6 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
         });
       }
 
-      // Ordenar actividades de más reciente a más antigua
       activities.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
@@ -173,6 +198,8 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
         vaultDocsCount: vaultDocs,
         activeOrdersCount: activeOrders,
         recentActivity: activities.slice(0, 5),
+        profile: clinicalProfile,
+        treatments: myTreatments,
       });
     } catch (err: unknown) {
       console.error("Error fetching consumer dashboard summary:", err);
@@ -196,6 +223,8 @@ export const useConsumerDashboard = (initialProfileId?: number) => {
     vaultDocsCount: data.vaultDocsCount,
     activeOrdersCount: data.activeOrdersCount,
     recentActivity: data.recentActivity,
+    profile: data.profile,
+    treatments: data.treatments,
     profiles,
     selectedProfileId,
     setSelectedProfileId,

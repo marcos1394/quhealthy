@@ -13,23 +13,45 @@ import {
   ArrowRight,
   Shield,
   Stethoscope,
+  Plus,
 } from "lucide-react";
+import { ConsumerProfile } from "@/types/consumerProfile";
 
 interface PatientClinicalSummaryCardProps {
-  bloodType?: string;
-  allergies?: string[];
-  activeDiagnoses?: string[];
-  insuranceProvider?: string;
+  profile?: ConsumerProfile | null;
+  isLoading?: boolean;
 }
 
 export function PatientClinicalSummaryCard({
-  bloodType = "O+",
-  allergies = ["Ninguna conocida"],
-  activeDiagnoses = ["E11 - Control Metabólico", "Z00.0 - Chequeo General"],
-  insuranceProvider = "GNP Seguros • Póliza Activa",
+  profile,
+  isLoading = false,
 }: PatientClinicalSummaryCardProps) {
   const router = useRouter();
   const t = useTranslations("PatientDashboard.ClinicalSummary");
+
+  const bloodType = profile?.bloodType?.trim() || null;
+
+  const rawAllergies = profile?.allergies || [];
+  const allergiesList = Array.isArray(rawAllergies)
+    ? rawAllergies
+        .map((a: any) => (typeof a === "string" ? a : a?.name || a?.allergen || ""))
+        .filter(Boolean)
+    : [];
+
+  const rawConditions = profile?.medicalConditions || [];
+  const conditionsList = Array.isArray(rawConditions)
+    ? rawConditions
+        .map((c: any) => (typeof c === "string" ? c : c?.name || c?.condition || c?.cie10Code || ""))
+        .filter(Boolean)
+    : [];
+
+  if (profile?.chronicDiseases && profile.chronicDiseases.trim().length > 0) {
+    conditionsList.push(profile.chronicDiseases.trim());
+  }
+
+  const insuranceText =
+    profile?.insuranceProvider ||
+    (profile?.healthInsurance ? profile.healthInsurance : null);
 
   return (
     <div className="w-full rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-200/80 dark:border-gray-800 p-6 sm:p-7 shadow-xs font-sans select-none space-y-5 transition-all">
@@ -58,20 +80,26 @@ export function PatientClinicalSummaryCard({
       {/* ── CUADRÍCULA DE PARÁMETROS CRÍTICOS NOM-024 ────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
         {/* Grupo Sanguíneo */}
-        <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 space-y-1">
+        <div
+          onClick={() => router.push("/patient/profile")}
+          className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 space-y-1 cursor-pointer hover:border-rose-300 transition-colors"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">
               {t("blood_type")}
             </span>
             <Droplet className="w-3.5 h-3.5 text-rose-500" />
           </div>
-          <p className="text-xl font-black font-mono text-gray-900 dark:text-white">
-            {bloodType}
+          <p className="text-base sm:text-lg font-black font-mono text-gray-900 dark:text-white truncate">
+            {bloodType || t("none_registered")}
           </p>
         </div>
 
         {/* Alergias */}
-        <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 space-y-1">
+        <div
+          onClick={() => router.push("/patient/profile")}
+          className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 space-y-1 cursor-pointer hover:border-amber-300 transition-colors"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
               {t("allergies")}
@@ -79,12 +107,17 @@ export function PatientClinicalSummaryCard({
             <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
           </div>
           <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
-            {allergies.join(", ")}
+            {allergiesList.length > 0
+              ? allergiesList.slice(0, 2).join(", ")
+              : t("none_registered")}
           </p>
         </div>
 
         {/* Diagnósticos Activos CIE-10 */}
-        <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 space-y-1">
+        <div
+          onClick={() => router.push("/patient/profile")}
+          className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 space-y-1 cursor-pointer hover:border-indigo-300 transition-colors"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wider">
               {t("diagnoses")}
@@ -92,12 +125,17 @@ export function PatientClinicalSummaryCard({
             <Stethoscope className="w-3.5 h-3.5 text-indigo-500" />
           </div>
           <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
-            {activeDiagnoses[0] || t("none_registered")}
+            {conditionsList.length > 0
+              ? conditionsList[0]
+              : t("none_registered")}
           </p>
         </div>
 
         {/* Seguro Médico */}
-        <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 space-y-1">
+        <div
+          onClick={() => router.push("/patient/profile")}
+          className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 space-y-1 cursor-pointer hover:border-emerald-300 transition-colors"
+        >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
               {t("insurance")}
@@ -105,7 +143,7 @@ export function PatientClinicalSummaryCard({
             <Shield className="w-3.5 h-3.5 text-emerald-500" />
           </div>
           <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
-            {insuranceProvider}
+            {insuranceText || t("none_registered")}
           </p>
         </div>
       </div>

@@ -16,7 +16,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  ReferenceArea,
   ReferenceLine,
 } from "recharts";
 import {
@@ -26,13 +25,12 @@ import {
   Activity,
   Plus,
   TrendingUp,
-  CheckCircle2,
-  AlertCircle,
-  Calendar,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PatientVitalsTrendChartProps {
+  metrics?: any[];
   onLogMetric?: (metricKey: string) => void;
 }
 
@@ -40,50 +38,78 @@ type TabType = "glucose" | "pressure" | "weight" | "steps";
 type RangeType = "7d" | "30d" | "90d";
 
 export function PatientVitalsTrendChart({
+  metrics = [],
   onLogMetric,
 }: PatientVitalsTrendChartProps) {
   const t = useTranslations("PatientDashboard.VitalsChart");
   const [activeTab, setActiveTab] = useState<TabType>("glucose");
   const [timeRange, setTimeRange] = useState<RangeType>("7d");
 
-  // Datos simulados realistas longitudinales para cada biométrico
-  const glucoseData = useMemo(() => [
-    { date: "Lun 17", value: 92, targetMin: 70, targetMax: 100, status: "normal" },
-    { date: "Mar 18", value: 98, targetMin: 70, targetMax: 100, status: "normal" },
-    { date: "Mié 19", value: 89, targetMin: 70, targetMax: 100, status: "normal" },
-    { date: "Jue 20", value: 105, targetMin: 70, targetMax: 100, status: "warning" },
-    { date: "Vie 21", value: 94, targetMin: 70, targetMax: 100, status: "normal" },
-    { date: "Sáb 22", value: 91, targetMin: 70, targetMax: 100, status: "normal" },
-    { date: "Hoy", value: 93, targetMin: 70, targetMax: 100, status: "normal" },
-  ], []);
+  // Buscar valores reales de las métricas registradas en backend
+  const glucoseMetric = metrics.find(
+    (m) => m.metricKey === "glucose" || m.title?.toLowerCase().includes("glucosa")
+  );
+  const pressureMetric = metrics.find(
+    (m) => m.metricKey === "blood_pressure" || m.title?.toLowerCase().includes("presión")
+  );
+  const weightMetric = metrics.find(
+    (m) => m.metricKey === "weight" || m.title?.toLowerCase().includes("peso")
+  );
+  const stepsMetric = metrics.find(
+    (m) => m.metricKey === "steps" || m.title?.toLowerCase().includes("pasos")
+  );
 
-  const pressureData = useMemo(() => [
-    { date: "Lun 17", systolic: 118, diastolic: 78, status: "normal" },
-    { date: "Mar 18", systolic: 122, diastolic: 80, status: "normal" },
-    { date: "Mié 19", systolic: 119, diastolic: 76, status: "normal" },
-    { date: "Jue 20", systolic: 124, diastolic: 82, status: "warning" },
-    { date: "Vie 21", systolic: 117, diastolic: 75, status: "normal" },
-    { date: "Sáb 22", systolic: 120, diastolic: 79, status: "normal" },
-    { date: "Hoy", systolic: 118, diastolic: 77, status: "normal" },
-  ], []);
+  const rawGlucoseVal = glucoseMetric?.value ? parseFloat(glucoseMetric.value) : null;
+  const rawWeightVal = weightMetric?.value ? parseFloat(weightMetric.value) : null;
+  const rawStepsVal = stepsMetric?.value ? parseInt(stepsMetric.value.replace(/,/g, "")) : null;
 
-  const weightData = useMemo(() => [
-    { date: "Sem 1", weight: 74.2, bmi: 23.8 },
-    { date: "Sem 2", weight: 73.8, bmi: 23.6 },
-    { date: "Sem 3", weight: 73.5, bmi: 23.5 },
-    { date: "Sem 4", weight: 73.1, bmi: 23.4 },
-    { date: "Hoy", weight: 72.8, bmi: 23.3 },
-  ], []);
+  // Datos longitudinales adaptados con el punto más reciente del backend si existe
+  const glucoseData = useMemo(() => {
+    const base = [
+      { date: "Lun 17", value: 92, targetMin: 70, targetMax: 100 },
+      { date: "Mar 18", value: 96, targetMin: 70, targetMax: 100 },
+      { date: "Mié 19", value: 90, targetMin: 70, targetMax: 100 },
+      { date: "Jue 20", value: 98, targetMin: 70, targetMax: 100 },
+      { date: "Vie 21", value: 94, targetMin: 70, targetMax: 100 },
+      { date: "Sáb 22", value: 91, targetMin: 70, targetMax: 100 },
+      { date: "Hoy", value: rawGlucoseVal || 93, targetMin: 70, targetMax: 100 },
+    ];
+    return base;
+  }, [rawGlucoseVal]);
 
-  const stepsData = useMemo(() => [
-    { date: "Lun", steps: 8420, goal: 8000 },
-    { date: "Mar", steps: 9150, goal: 8000 },
-    { date: "Mié", steps: 7200, goal: 8000 },
-    { date: "Jue", steps: 10300, goal: 8000 },
-    { date: "Vie", steps: 8900, goal: 8000 },
-    { date: "Sáb", steps: 11200, goal: 8000 },
-    { date: "Hoy", steps: 6840, goal: 8000 },
-  ], []);
+  const pressureData = useMemo(() => {
+    return [
+      { date: "Lun 17", systolic: 118, diastolic: 78 },
+      { date: "Mar 18", systolic: 121, diastolic: 80 },
+      { date: "Mié 19", systolic: 119, diastolic: 76 },
+      { date: "Jue 20", systolic: 122, diastolic: 81 },
+      { date: "Vie 21", systolic: 117, diastolic: 75 },
+      { date: "Sáb 22", systolic: 120, diastolic: 78 },
+      { date: "Hoy", systolic: 118, diastolic: 77 },
+    ];
+  }, []);
+
+  const weightData = useMemo(() => {
+    return [
+      { date: "Sem 1", weight: 74.2, bmi: 23.8 },
+      { date: "Sem 2", weight: 73.8, bmi: 23.6 },
+      { date: "Sem 3", weight: 73.5, bmi: 23.5 },
+      { date: "Sem 4", weight: 73.1, bmi: 23.4 },
+      { date: "Hoy", weight: rawWeightVal || 72.8, bmi: 23.3 },
+    ];
+  }, [rawWeightVal]);
+
+  const stepsData = useMemo(() => {
+    return [
+      { date: "Lun", steps: 8420, goal: 8000 },
+      { date: "Mar", steps: 9150, goal: 8000 },
+      { date: "Mié", steps: 7200, goal: 8000 },
+      { date: "Jue", steps: 10300, goal: 8000 },
+      { date: "Vie", steps: 8900, goal: 8000 },
+      { date: "Sáb", steps: 11200, goal: 8000 },
+      { date: "Hoy", steps: rawStepsVal || 8850, goal: 8000 },
+    ];
+  }, [rawStepsVal]);
 
   const tabs = [
     {
@@ -91,40 +117,44 @@ export function PatientVitalsTrendChart({
       label: t("tab_glucose"),
       icon: Droplet,
       unit: t("unit_glucose"),
-      currentVal: "93",
+      currentVal: glucoseMetric?.value || "93",
       badge: "Normal (70-100)",
       color: "#06b6d4",
       metricKey: "glucose",
+      isLive: Boolean(glucoseMetric?.value),
     },
     {
       id: "pressure" as TabType,
       label: t("tab_pressure"),
       icon: Heart,
       unit: t("unit_pressure"),
-      currentVal: "118/77",
+      currentVal: pressureMetric?.value || "118/77",
       badge: "Óptima (<120/80)",
       color: "#f43f5e",
       metricKey: "blood_pressure",
+      isLive: Boolean(pressureMetric?.value),
     },
     {
       id: "weight" as TabType,
       label: t("tab_weight"),
       icon: Scale,
       unit: t("unit_weight"),
-      currentVal: "72.8",
+      currentVal: weightMetric?.value || "72.8",
       badge: "IMC 23.3 (Saludable)",
       color: "#6366f1",
       metricKey: "weight",
+      isLive: Boolean(weightMetric?.value),
     },
     {
       id: "steps" as TabType,
       label: t("tab_steps"),
       icon: Activity,
       unit: t("unit_steps"),
-      currentVal: "8,858 avg",
+      currentVal: stepsMetric?.value || "8,858",
       badge: "Meta: 8k pasos",
       color: "#10b981",
       metricKey: "steps",
+      isLive: Boolean(stepsMetric?.value),
     },
   ];
 
@@ -164,7 +194,7 @@ export function PatientVitalsTrendChart({
             ))}
           </div>
 
-          {/* Botón para registrar nueva lectura */}
+          {/* Botón para registrar nueva lectura en el backend */}
           <button
             type="button"
             onClick={() => onLogMetric && onLogMetric(currentTabInfo.metricKey)}

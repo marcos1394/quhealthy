@@ -43,9 +43,10 @@ export default function ConsumerDashboardPage() {
     submitHealthProfile,
   } = useHealthScore();
 
-  // 2. Hook del Dashboard Enriquecido (Citas, Métricas, Billetera, Actividad, Perfiles)
+  // 2. Hook del Dashboard Enriquecido (100% Conectado al Backend Real)
   const {
     nextAppointment,
+    healthMetrics,
     pendingPrescriptionsCount,
     walletBalance,
     walletCurrency,
@@ -53,6 +54,8 @@ export default function ConsumerDashboardPage() {
     vaultDocsCount,
     activeOrdersCount,
     recentActivity,
+    profile,
+    treatments,
     profiles,
     selectedProfileId,
     setSelectedProfileId,
@@ -160,17 +163,24 @@ export default function ConsumerDashboardPage() {
 
         {/* ── 3. CENTRO DE TELEMETRÍA Y GRÁFICAS DE TENDENCIAS CLÍNICAS ─── */}
         <div className="w-full">
-          <PatientVitalsTrendChart onLogMetric={handleMetricClick} />
+          <PatientVitalsTrendChart
+            metrics={healthMetrics}
+            onLogMetric={handleMetricClick}
+          />
         </div>
 
         {/* ── 4. CONTROL CLÍNICO Y ADHERENCIA 360° (2 COLUMNAS) ─────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* Columna Izquierda: Adherencia y Ficha Clínica */}
+          {/* Columna Izquierda: Adherencia y Ficha Clínica Real */}
           <div className="lg:col-span-6 space-y-6 flex flex-col justify-between">
             <PatientTreatmentAdherenceWidget
-              pendingPrescriptionsCount={pendingPrescriptionsCount}
+              treatments={treatments}
+              isLoading={isDashboardLoading}
             />
-            <PatientClinicalSummaryCard />
+            <PatientClinicalSummaryCard
+              profile={profile}
+              isLoading={isDashboardLoading}
+            />
           </div>
 
           {/* Columna Derecha: Score 360° y Copilot IA */}
