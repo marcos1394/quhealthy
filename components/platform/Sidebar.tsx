@@ -193,7 +193,7 @@ const NavItem = ({
         isCollapsed ? "justify-center p-2.5 w-11 h-11 mx-auto" : "px-3.5 py-2.5",
         isActive
           ? "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-900 dark:text-emerald-200 font-bold shadow-2xs"
-          : "bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-[#0a0a0a] hover:text-gray-900 dark:hover:text-white font-semibold"
+          : "bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white font-semibold"
       )}
     >
       <div
@@ -339,7 +339,7 @@ export const Sidebar = ({
         className
       )}
     >
-      {/* ── CABECERA HOMOLOGADA / MARCA ───────────────────────────────── */}
+      {/* ── CABECERA / MARCA ─────────────────────────────────────────── */}
       <div
         className={cn(
           "h-16 flex items-center border-b border-gray-100 dark:border-gray-800/80 shrink-0 transition-all bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md",
@@ -347,26 +347,21 @@ export const Sidebar = ({
         )}
       >
         {isCollapsed ? (
-          <div className="flex flex-col items-center gap-2">
-            <Link
-              href={homeLink}
-              className="flex items-center justify-center group cursor-pointer"
-              title="QuHealthy"
-            >
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-black text-sm shadow-2xs group-hover:scale-105 transition-transform">
-                Q
-              </div>
-            </Link>
-            <button
-              type="button"
-              onClick={() => setIsCollapsed(false)}
-              className="w-8 h-8 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#1c1c1c] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
-              title={t("expand_sidebar")}
-              aria-label={t("expand_sidebar")}
-            >
-              <PanelLeftOpen className="w-4 h-4" strokeWidth={2} />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(false)}
+            className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 hover:border-emerald-500/60 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-black text-base shadow-2xs transition-all hover:scale-105 group relative cursor-pointer"
+            title={t("expand_sidebar")}
+            aria-label={t("expand_sidebar")}
+          >
+            {/* Estado normal: Isotipo Q */}
+            <span className="group-hover:hidden transition-all">Q</span>
+            {/* Estado hover: Icono de expandir */}
+            <PanelLeftOpen
+              className="w-4 h-4 hidden group-hover:block transition-all text-emerald-700 dark:text-emerald-300"
+              strokeWidth={2.5}
+            />
+          </button>
         ) : (
           <>
             <Link
@@ -396,7 +391,7 @@ export const Sidebar = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-8 h-8 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#1c1c1c] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
+                className="w-8 h-8 rounded-xl hover:bg-gray-100 dark:hover:bg-[#141414] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 cursor-pointer"
                 aria-label="Cerrar menú"
               >
                 <X className="w-4 h-4" strokeWidth={2} />
@@ -405,7 +400,7 @@ export const Sidebar = ({
               <button
                 type="button"
                 onClick={() => setIsCollapsed(true)}
-                className="w-8 h-8 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#1c1c1c] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
+                className="w-8 h-8 rounded-xl hover:bg-gray-100 dark:hover:bg-[#141414] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 cursor-pointer"
                 title={t("collapse_sidebar")}
                 aria-label={t("collapse_sidebar")}
               >
@@ -492,14 +487,14 @@ export const Sidebar = ({
 
       {/* ── PIE DE PÁGINA Y HUB DE UTILIDADES HOMOLOGADO ──────────────── */}
       {isCollapsed ? (
-        <div className="p-2 border-t border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a] shrink-0 flex flex-col items-center gap-2">
+        <div className="p-2 border-t border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a] shrink-0 flex flex-col items-center gap-1.5">
           <NotificationBell isCollapsed={true} />
 
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={openCart}
-            className="relative rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-2xs cursor-pointer h-9 w-9 p-0 flex items-center justify-center shrink-0"
+            className="relative rounded-2xl text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer h-9 w-9 p-0 flex items-center justify-center shrink-0"
             title={t("cart")}
             aria-label={t("cart")}
           >
@@ -515,14 +510,14 @@ export const Sidebar = ({
 
           <ThemeToggle />
 
-          <LanguageToggle />
+          <LanguageToggle showText={false} />
 
           {!isFoundation && (
             <button
               type="button"
               onClick={handleSwitchProfile}
               disabled={isSwitchingProfile}
-              className="w-9 h-9 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-2xs cursor-pointer flex items-center justify-center shrink-0"
+              className="w-9 h-9 rounded-2xl hover:bg-gray-100/80 dark:hover:bg-[#141414] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center shrink-0"
               title={isConsumer ? t("switch_to_provider") : t("switch_to_patient")}
             >
               <UserCircle
@@ -538,7 +533,7 @@ export const Sidebar = ({
           <button
             type="button"
             onClick={handleLogout}
-            className="w-9 h-9 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors shadow-2xs cursor-pointer flex items-center justify-center shrink-0"
+            className="w-9 h-9 rounded-2xl hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 text-gray-400 transition-all cursor-pointer flex items-center justify-center shrink-0"
             title={t("logout")}
           >
             <LogOut className="w-4 h-4" strokeWidth={2} />
@@ -546,18 +541,15 @@ export const Sidebar = ({
         </div>
       ) : (
         <div className="p-3 border-t border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a] shrink-0 space-y-3">
-          {/* ── BARRA DE HERRAMIENTAS HOMOLOGADA (4 BOTONES IDÉNTICOS) ── */}
-          <div className="flex items-center justify-between gap-1 p-1 rounded-2xl bg-gray-50/80 dark:bg-[#121212] border border-gray-100 dark:border-gray-800/60 shadow-inner">
-            <NotificationBell
-              isCollapsed={false}
-              className="flex-1 border-transparent bg-transparent shadow-none hover:bg-white dark:hover:bg-[#1f1f1f]"
-            />
+          {/* ── BARRA DE HERRAMIENTAS HOMOLOGADA (4 BOTONES GHOST) ────── */}
+          <div className="flex items-center justify-around gap-1 p-1 rounded-2xl bg-gray-100/50 dark:bg-[#121212]">
+            <NotificationBell isCollapsed={false} className="flex-1" />
 
             <Button
               variant="ghost"
               size="icon"
               onClick={openCart}
-              className="relative flex-1 h-9 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-[#1f1f1f] transition-colors p-0 cursor-pointer shadow-none flex items-center justify-center"
+              className="relative flex-1 h-9 rounded-2xl text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-[#1f1f1f] hover:text-gray-900 dark:hover:text-white transition-all p-0 cursor-pointer flex items-center justify-center"
               title={t("cart")}
               aria-label={t("cart")}
             >
@@ -572,9 +564,9 @@ export const Sidebar = ({
               )}
             </Button>
 
-            <ThemeToggle className="flex-1 border-transparent bg-transparent shadow-none hover:bg-white dark:hover:bg-[#1f1f1f]" />
+            <ThemeToggle className="flex-1 hover:bg-white dark:hover:bg-[#1f1f1f]" />
 
-            <LanguageToggle className="flex-1 border-transparent bg-transparent shadow-none hover:bg-white dark:hover:bg-[#1f1f1f]" />
+            <LanguageToggle showText={false} className="flex-1 hover:bg-white dark:hover:bg-[#1f1f1f]" />
           </div>
 
           {/* ── ACCIONES DE PERFIL, SOPORTE Y SALIDA ───────────────────── */}
@@ -584,7 +576,7 @@ export const Sidebar = ({
                 type="button"
                 onClick={handleSwitchProfile}
                 disabled={isSwitchingProfile}
-                className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-[#141414] transition-all group disabled:opacity-50 cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 p-2 rounded-2xl hover:bg-gray-100/80 dark:hover:bg-[#141414] transition-all group disabled:opacity-50 cursor-pointer text-left"
               >
                 <UserCircle
                   className={cn(
@@ -606,7 +598,7 @@ export const Sidebar = ({
             <Link href="/patient/dashboard/support">
               <button
                 type="button"
-                className="flex items-center gap-2.5 w-full p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-[#141414] transition-all group cursor-pointer text-left"
+                className="flex items-center gap-2.5 w-full p-2 rounded-2xl hover:bg-gray-100/80 dark:hover:bg-[#141414] transition-all group cursor-pointer text-left"
               >
                 <HelpCircle
                   className="w-4 h-4 shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"
@@ -621,7 +613,7 @@ export const Sidebar = ({
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-2.5 w-full p-2 rounded-xl transition-all group hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer text-left"
+              className="flex items-center gap-2.5 w-full p-2 rounded-2xl transition-all group hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer text-left"
             >
               <LogOut
                 className="w-4 h-4 shrink-0 text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors"

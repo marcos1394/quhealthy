@@ -42,7 +42,7 @@ export function LanguageToggle({ className, showText = false }: Props) {
       onClick={toggleLanguage}
       disabled={isPending}
       className={cn(
-        "rounded-xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-2xs cursor-pointer flex items-center justify-center gap-1.5",
+        "rounded-2xl text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5 shrink-0",
         showText ? "h-9 px-3 text-xs font-bold font-mono" : "h-9 w-9 p-0",
         className
       )}
@@ -50,9 +50,11 @@ export function LanguageToggle({ className, showText = false }: Props) {
       title={locale === "es" ? "Cambiar a English" : "Switch to Español"}
     >
       <Globe className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
-      <span className="text-[11px] font-bold uppercase font-mono tracking-tight">
-        {locale === "es" ? "ES" : "EN"}
-      </span>
+      {showText && (
+        <span className="text-[11px] font-bold uppercase font-mono tracking-tight">
+          {locale === "es" ? "ES" : "EN"}
+        </span>
+      )}
       <span className="sr-only">Toggle Language</span>
     </Button>
   );

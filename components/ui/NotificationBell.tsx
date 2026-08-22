@@ -296,10 +296,10 @@ export const NotificationBell = ({
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           className={cn(
-            "relative text-gray-700 dark:text-gray-200 border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl h-9 w-9 shrink-0 shadow-2xs transition-colors cursor-pointer p-0 flex items-center justify-center",
+            "relative text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white rounded-2xl h-9 w-9 shrink-0 transition-all cursor-pointer p-0 flex items-center justify-center",
             isCollapsed && "mx-auto",
             className
           )}
