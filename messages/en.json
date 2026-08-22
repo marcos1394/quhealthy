@@ -1738,7 +1738,13 @@
     "score": {
       "title": "Health Score",
       "status_collecting": "Collecting data...",
-      "accumulating": "Accumulating..."
+      "status_optimal": "Optimal Status",
+      "status_stable": "Stable Status",
+      "status_attention": "Attention Needed",
+      "default_title": "QuHealthScore™",
+      "default_subtitle": "Predictive & preventive health index",
+      "percentile": "Better than {percentile}% of population",
+      "accumulating": "Accumulating data..."
     },
     "telemetry": {
       "title": "Telemetry",

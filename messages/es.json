@@ -1960,7 +1960,13 @@
     "score": {
       "title": "Puntuación de Salud",
       "status_collecting": "Recopilando datos...",
-      "accumulating": "Acumulando..."
+      "status_optimal": "Estado Óptimo",
+      "status_stable": "Estado Estable",
+      "status_attention": "Requiere Atención",
+      "default_title": "QuHealthScore™",
+      "default_subtitle": "Índice predictivo y preventivo de salud",
+      "percentile": "Mejor que el {percentile}% de la población",
+      "accumulating": "Acumulando datos..."
     },
     "telemetry": {
       "title": "Telemetría",
