@@ -8,16 +8,18 @@ import { AlertCircle, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-// Componentes del Dashboard Rediseñado
+// Componentes del Centro de Mando Clínico del Paciente
 import { PatientDashboardHeader } from "@/components/dashboard/PatientDashboardHeader";
 import { NextAppointmentHero } from "@/components/dashboard/NextAppointmentHero";
+import { PatientVitalsTrendChart } from "@/components/dashboard/PatientVitalsTrendChart";
+import { PatientTreatmentAdherenceWidget } from "@/components/dashboard/PatientTreatmentAdherenceWidget";
+import { PatientClinicalSummaryCard } from "@/components/dashboard/PatientClinicalSummaryCard";
+import { HealthScore360Widget } from "@/components/dashboard/HealthScore360Widget";
 import { PatientCopilotInsightCard } from "@/components/dashboard/PatientCopilotInsightCard";
 import { PatientClinicalMetricsGrid } from "@/components/dashboard/PatientClinicalMetricsGrid";
-import { HealthScoreWidget } from "@/components/dashboard/HealthScoreWidget";
-import { HealthOnboardingModal } from "@/components/dashboard/HealthOnboardingModal";
-import { HealthMetricsCarousel } from "@/components/dashboard/HealthMetricsCarousel";
-import { HealthMetricInputModal } from "@/components/dashboard/HealthMetricInputModal";
 import { PatientActivityTimeline } from "@/components/dashboard/PatientActivityTimeline";
+import { HealthOnboardingModal } from "@/components/dashboard/HealthOnboardingModal";
+import { HealthMetricInputModal } from "@/components/dashboard/HealthMetricInputModal";
 
 // Store & Hooks
 import { useSessionStore } from "@/stores/SessionStore";
@@ -44,7 +46,6 @@ export default function ConsumerDashboardPage() {
   // 2. Hook del Dashboard Enriquecido (Citas, Métricas, Billetera, Actividad, Perfiles)
   const {
     nextAppointment,
-    healthMetrics,
     pendingPrescriptionsCount,
     walletBalance,
     walletCurrency,
@@ -60,12 +61,10 @@ export default function ConsumerDashboardPage() {
     refreshDashboard,
   } = useConsumerDashboard();
 
-  // 3. Estado local del Modal Onboarding
+  // 3. Modales
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
-
-  // 4. Estado local del Modal Métricas
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
-  const [selectedMetricKey, setSelectedMetricKey] = useState("");
+  const [selectedMetricKey, setSelectedMetricKey] = useState("glucose");
 
   // Cargar el score al montar la página
   useEffect(() => {
@@ -136,10 +135,10 @@ export default function ConsumerDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50/40 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-24">
       <motion.div
-        initial={{ opacity: 0, y: 14 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10 space-y-8"
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-7"
       >
         {/* ── 1. CABECERA CON SELECTOR FAMILIAR Y ACCIONES RÁPIDAS ──────── */}
         <PatientDashboardHeader
@@ -159,12 +158,33 @@ export default function ConsumerDashboardPage() {
           />
         </div>
 
-        {/* ── 3. BANNER IA: COPILOT CLINICAL INSIGHT ────────────────────── */}
+        {/* ── 3. CENTRO DE TELEMETRÍA Y GRÁFICAS DE TENDENCIAS CLÍNICAS ─── */}
         <div className="w-full">
-          <PatientCopilotInsightCard />
+          <PatientVitalsTrendChart onLogMetric={handleMetricClick} />
         </div>
 
-        {/* ── 4. RESUMEN CLÍNICO DINÁMICO (4 CARDS CON DATOS REALES) ────── */}
+        {/* ── 4. CONTROL CLÍNICO Y ADHERENCIA 360° (2 COLUMNAS) ─────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          {/* Columna Izquierda: Adherencia y Ficha Clínica */}
+          <div className="lg:col-span-6 space-y-6 flex flex-col justify-between">
+            <PatientTreatmentAdherenceWidget
+              pendingPrescriptionsCount={pendingPrescriptionsCount}
+            />
+            <PatientClinicalSummaryCard />
+          </div>
+
+          {/* Columna Derecha: Score 360° y Copilot IA */}
+          <div className="lg:col-span-6 space-y-6 flex flex-col justify-between">
+            <HealthScore360Widget
+              scoreData={scoreData}
+              isLoading={isScoreLoading}
+              onOpenOnboarding={() => setIsOnboardingOpen(true)}
+            />
+            <PatientCopilotInsightCard />
+          </div>
+        </div>
+
+        {/* ── 5. RESUMEN CLÍNICO Y FINANCIERO (4 CARDS) ─────────────────── */}
         <div className="w-full">
           <PatientClinicalMetricsGrid
             walletBalance={walletBalance}
@@ -177,26 +197,7 @@ export default function ConsumerDashboardPage() {
           />
         </div>
 
-        {/* ── 5. TELEMETRÍA BIOMÉTRICA Y QUHEALTHSCORE™ ─────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-5 xl:col-span-4">
-            <HealthScoreWidget
-              scoreData={scoreData}
-              isLoading={isScoreLoading}
-              onOpenOnboarding={() => setIsOnboardingOpen(false || true)}
-            />
-          </div>
-
-          <div className="lg:col-span-7 xl:col-span-8">
-            <HealthMetricsCarousel
-              metrics={healthMetrics}
-              isLoading={isDashboardLoading}
-              onMetricClick={handleMetricClick}
-            />
-          </div>
-        </div>
-
-        {/* ── 6. LÍNEA DE TIEMPO: ACTIVIDAD MÉDICA RECIENTE ─────────────── */}
+        {/* ── 6. LÍNEA DE TIEMPO: HISTORIAL DE ACTIVIDAD MÉDICA ─────────── */}
         <div className="w-full">
           <PatientActivityTimeline
             activities={recentActivity}

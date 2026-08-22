@@ -238,7 +238,28 @@ export const Sidebar = ({
   const router = useRouter();
   const t = useTranslations("SidebarNav");
 
-  const [isCollapsedState, setIsCollapsed] = useState(false);
+  const [isCollapsedState, setIsCollapsedState] = useState(true);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("quhealthy_sidebar_collapsed");
+      if (saved !== null) {
+        setIsCollapsedState(saved === "true");
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const setIsCollapsed = (collapsed: boolean) => {
+    setIsCollapsedState(collapsed);
+    try {
+      localStorage.setItem("quhealthy_sidebar_collapsed", String(collapsed));
+    } catch {
+      // ignore
+    }
+  };
+
   const isCollapsed = isMobile ? false : isCollapsedState;
 
   const { logout } = useAuth();
