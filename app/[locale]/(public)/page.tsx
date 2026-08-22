@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 // Secciones
 import HeroSection from "@/components/sections/HeroSection";
 import { AiCapabilitiesShowcase } from "@/components/sections/AiCapabilitiesShowcase";
+import { MarketplaceShowcaseSection } from "@/components/sections/MarketplaceShowcaseSection";
 import { PlatformModulesSection } from "@/components/sections/PlatformModulesSection";
 import { SpecializedJourneysSection } from "@/components/sections/SpecializedJourneysSection";
 import SuiteSection from "@/components/sections/SuiteSection";
@@ -48,7 +49,10 @@ export default function Home() {
       {/* 2. Superpoderes de IA: AI Scribe, Traducción Simultánea y Recetas Inteligentes */}
       <AiCapabilitiesShowcase />
 
-      {/* 3. Módulos Interactivos de la Plataforma (Pacientes & Médicos) */}
+      {/* 3. Marketplace en Vivo: Especialistas, Paquetes, Servicios y Farmacia */}
+      <MarketplaceShowcaseSection />
+
+      {/* 4. Módulos Interactivos de la Plataforma (Pacientes & Médicos) */}
       <PlatformModulesSection />
 
       {/* 4. Rutas Especializadas: Salud Mujer/Embarazo, Diabetes, Oncología, Nutrición IA, Familia y Wearables */}

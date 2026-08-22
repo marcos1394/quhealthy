@@ -2,7 +2,22 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, ShieldCheck, Tag as TagIcon, Building2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  ShieldCheck,
+  Tag as TagIcon,
+  Building2,
+  Video,
+  MapPin,
+  Clock,
+  Package,
+  Layers,
+  ChevronRight,
+  Sparkles,
+  AlertTriangle,
+  FileCheck,
+} from 'lucide-react';
 import { CatalogItemDTO } from '@/types/catalog';
 import { AddToCartButton } from './AddToCartButton';
 import { ProviderTrustCard } from './ProviderTrustCard';
@@ -23,12 +38,7 @@ async function getCatalogItem(id: string): Promise<CatalogItemDTO | null> {
         'User-Agent': 'Mozilla/5.0 (compatible; QuHealthy/1.0; +Next.js Server)'
       }
     });
-    if (!res.ok) {
-      console.warn(`Catalog item fetch failed: ${res.status} ${res.statusText}`);
-      const text = await res.text();
-      console.warn(`Response body: ${text.substring(0, 200)}`);
-      return null;
-    }
+    if (!res.ok) return null;
     return await res.json();
   } catch (error) {
     console.error("Error fetching catalog item:", error);
@@ -90,7 +100,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   const url = `https://www.quhealthy.org/${locale}/market/item/${slug}`;
   const title = `${item.name} | QuHealthy Marketplace`;
-  const description = item.description || `Compra ${item.name} en QuHealthy.`;
+  const description = item.description || `Adquiere ${item.name} en QuHealthy Marketplace.`;
 
   return {
     title,
@@ -137,13 +147,11 @@ export default async function MarketItemPage({ params }: { params: Params }) {
     notFound();
   }
 
-  // Fetch EEAT data in parallel
   const [providerProfile, allProviderItems] = await Promise.all([
     getProviderProfile(item.providerId || 0),
     getProviderItems(item.providerId || 0)
   ]);
 
-  // Filter out the current item from the related items
   const relatedItems = allProviderItems.filter((i) => i.id !== item.id);
 
   let schemaType = 'Product';
@@ -165,23 +173,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
     }
   };
 
-  if (item.type === 'PRODUCT' || item.type === 'PACKAGE') {
-    jsonLd.brand = {
-      '@type': 'Brand',
-      name: 'QuHealthy Provider'
-    };
-    if ((item as any).sku) jsonLd.sku = (item as any).sku;
-  }
-
-  if ((item as any).averageRating && (item as any).reviewCount && (item as any).reviewCount > 0) {
-    jsonLd.aggregateRating = {
-      '@type': 'AggregateRating',
-      ratingValue: (item as any).averageRating,
-      reviewCount: (item as any).reviewCount
-    };
-  }
-
-  const backText = locale === 'en' ? 'Back to Discover' : 'Volver a Discover';
+  const backText = locale === 'en' ? 'Back to Marketplace' : 'Volver al Marketplace';
 
   return (
     <>
@@ -190,22 +182,34 @@ export default async function MarketItemPage({ params }: { params: Params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
       
-      <main className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-32 pb-24 font-sans selection:bg-gray-200 dark:selection:bg-white/20">
-        <div className="container mx-auto px-6 md:px-12 max-w-6xl">
+      <main className="min-h-screen bg-gray-50/40 dark:bg-[#070707] pt-28 pb-24 font-sans select-none selection:bg-emerald-100 dark:selection:bg-emerald-950/40">
+        <div className="container mx-auto px-4 sm:px-6 md:px-10 max-w-6xl space-y-8">
           
-          <div className="mb-12 border-b border-gray-200 dark:border-gray-800 pb-6">
-            <Link 
-              href={`/${locale}/discover`} 
-              className="group inline-flex items-center text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-3 group-hover:-translate-x-1 transition-transform" />
-              {backText}
+          {/* ── Breadcrumbs ─────────────────────────────────────────── */}
+          <nav className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <Link href={`/${locale}`} className="hover:text-emerald-600 transition-colors">
+              Inicio
             </Link>
-          </div>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <Link href={`/${locale}/discover`} className="hover:text-emerald-600 transition-colors">
+              Marketplace
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="text-gray-400 truncate max-w-[150px]">
+              {item.category || item.type}
+            </span>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="text-gray-900 dark:text-white truncate font-bold max-w-[200px]">
+              {item.name}
+            </span>
+          </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            <div className="space-y-6">
-              <div className="w-full aspect-square bg-gray-100 dark:bg-gray-900 relative flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-800">
+          {/* ── Main Detail Grid ────────────────────────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            
+            {/* Columna Izquierda: Imagen del Ítem + Ficha de Confianza */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="w-full aspect-square rounded-3xl bg-white dark:bg-[#0f0f0f] relative flex items-center justify-center overflow-hidden border border-gray-200/80 dark:border-gray-800 shadow-md">
                 {item.imageUrl ? (
                   <img 
                     src={item.imageUrl} 
@@ -214,89 +218,135 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                     loading="eager"
                   />
                 ) : (
-                  <TagIcon className="w-24 h-24 text-gray-300 dark:text-gray-700" />
+                  <div className="flex flex-col items-center justify-center text-gray-300 dark:text-gray-700 space-y-2">
+                    <TagIcon className="w-20 h-20 stroke-1" />
+                    <span className="text-xs font-bold uppercase tracking-wider">QuHealthy Item</span>
+                  </div>
                 )}
+
+                {/* Badge de tipo de ítem */}
+                <div className="absolute top-4 left-4 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-xs font-extrabold text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 shadow-xs">
+                  {item.type === 'SERVICE' ? 'Consulta / Servicio' : item.type === 'PACKAGE' ? 'Paquete de Salud' : item.type === 'PRODUCT' ? 'Producto / Farmacia' : 'Curso Digital'}
+                </div>
               </div>
+
+              {/* Ficha de Confianza y Datos del Proveedor */}
               <ProviderTrustCard provider={providerProfile} locale={locale} />
             </div>
 
-            <div className="flex flex-col">
-              <div className="flex flex-wrap items-center gap-4 text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
-                <span>{item.type}</span>
-                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
-                <span>{item.category || 'General'}</span>
-              </div>
+            {/* Columna Derecha: Información del Ítem, Precio y Acciones */}
+            <div className="lg:col-span-6 rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/80 dark:border-gray-800 p-6 sm:p-8 shadow-sm space-y-6">
+              
+              {/* Categoría & Modalidad */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-extrabold">
+                  {item.category || 'General'}
+                </span>
 
-              <h1 className="text-4xl md:text-5xl font-semibold text-black dark:text-white leading-[1.1] mb-6 tracking-tight">
-                {item.name}
-              </h1>
+                {item.modality && (
+                  <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#181818] text-gray-700 dark:text-gray-300 text-xs font-bold flex items-center gap-1.5">
+                    {item.modality === 'ONLINE' ? <Video className="w-3.5 h-3.5 text-emerald-600" /> : <MapPin className="w-3.5 h-3.5 text-emerald-600" />}
+                    <span>{item.modality.replace('_', ' ')}</span>
+                  </span>
+                )}
 
-              <div className="flex flex-col mb-8">
-                <div className="text-3xl font-bold text-black dark:text-white">
-                  ${item.price?.toFixed(2)} {(item as any).currency || 'MXN'}
-                </div>
-                {item.requiresEvaluation && (
-                  <span className="text-sm font-bold text-gray-500 mt-1">
-                    * Requiere valoración
+                {item.durationMinutes && (
+                  <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-[#181818] text-gray-700 dark:text-gray-300 text-xs font-bold flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-gray-500" />
+                    <span>{item.durationMinutes} min</span>
                   </span>
                 )}
               </div>
 
-              <div className="prose prose-gray dark:prose-invert max-w-none mb-10 text-gray-600 dark:text-gray-300 font-light leading-relaxed">
-                <p>{item.description}</p>
+              {/* Título */}
+              <div className="space-y-2">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+                  {item.name}
+                </h1>
+                {providerProfile?.displayName && (
+                  <Link
+                    href={`/${locale}/store/${providerProfile.slug}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                  >
+                    <span>Por {providerProfile.displayName}</span>
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                  </Link>
+                )}
               </div>
 
-              {/* Contenido Enriquecido para AI Search y Usuarios */}
-              {(item.manufacturer || item.activeIngredient || item.modality || item.durationMinutes) && (
-                <div className="mb-10 space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white border-b border-gray-200 dark:border-gray-800 pb-2">
-                    Especificaciones
-                  </h3>
-                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
+              {/* Precio */}
+              <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-[#121212] border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                    Precio Total
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black font-mono text-gray-900 dark:text-white">
+                      ${item.price?.toFixed(2)}
+                    </span>
+                    <span className="text-xs font-bold text-gray-400 font-mono">
+                      {(item as any).currency || 'MXN'}
+                    </span>
+                  </div>
+                </div>
+
+                {item.requiresEvaluation && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-800">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>Requiere valoración</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Descripción */}
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-normal">
+                <h3 className="text-xs font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">
+                  Detalles del Servicio / Producto
+                </h3>
+                <p>{item.description || 'Sin descripción detallada disponible.'}</p>
+              </div>
+
+              {/* ── Especificaciones Farmacéuticas / Clínicas ──────── */}
+              {(item.manufacturer || item.activeIngredient || item.requiresPrescription) && (
+                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#121212] border border-gray-100 dark:border-gray-800 space-y-2.5">
+                  <h4 className="text-xs font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">
+                    Ficha Técnica
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
                     {item.manufacturer && (
                       <div>
-                        <dt className="text-gray-500 dark:text-gray-400">Fabricante / Marca</dt>
-                        <dd className="font-semibold text-black dark:text-white">{item.manufacturer}</dd>
+                        <span className="text-gray-400 block text-[10px] font-bold uppercase">Fabricante</span>
+                        <span className="font-bold text-gray-800 dark:text-gray-200">{item.manufacturer}</span>
                       </div>
                     )}
                     {item.activeIngredient && (
                       <div>
-                        <dt className="text-gray-500 dark:text-gray-400">Principio Activo</dt>
-                        <dd className="font-semibold text-black dark:text-white">{item.activeIngredient}</dd>
+                        <span className="text-gray-400 block text-[10px] font-bold uppercase">Principio Activo</span>
+                        <span className="font-bold text-gray-800 dark:text-gray-200">{item.activeIngredient}</span>
                       </div>
                     )}
                     {item.requiresPrescription && (
-                      <div>
-                        <dt className="text-gray-500 dark:text-gray-400">Receta Médica</dt>
-                        <dd className="font-semibold text-red-600 dark:text-red-400">Requerida</dd>
+                      <div className="col-span-2">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-900/60">
+                          <FileCheck className="w-3.5 h-3.5" />
+                          <span>Requiere Receta Médica Certificada para Entrega</span>
+                        </span>
                       </div>
                     )}
-                    {item.modality && (
-                      <div>
-                        <dt className="text-gray-500 dark:text-gray-400">Modalidad</dt>
-                        <dd className="font-semibold text-black dark:text-white">{item.modality.replace('_', ' ')}</dd>
-                      </div>
-                    )}
-                    {item.durationMinutes && (
-                      <div>
-                        <dt className="text-gray-500 dark:text-gray-400">Duración Aprox.</dt>
-                        <dd className="font-semibold text-black dark:text-white">{item.durationMinutes} minutos</dd>
-                      </div>
-                    )}
-                  </dl>
+                  </div>
                 </div>
               )}
 
-              <div className="mt-auto mb-12 flex items-center gap-4">
-                <div className="flex-grow">
-                  <AddToCartButton 
-                    item={item} 
-                    providerName={providerProfile?.displayName} 
-                    providerSlug={providerProfile?.slug} 
-                    brandColor={providerProfile?.primaryColor}
-                  />
-                </div>
-                <div className="shrink-0 flex gap-4">
+              {/* ── Botón de Compra / Agendamiento + Compartir ────── */}
+              <div className="space-y-3 pt-2">
+                <AddToCartButton 
+                  item={item} 
+                  providerName={providerProfile?.displayName} 
+                  providerSlug={providerProfile?.slug} 
+                  brandColor={providerProfile?.primaryColor}
+                />
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
                   <ItemShareButton itemName={item.name} />
                   <SmartFavoriteButton 
                     entityType={item.type as any} 
@@ -306,26 +356,21 @@ export default async function MarketItemPage({ params }: { params: Params }) {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 dark:border-gray-800 pt-8 space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-4">
-                  Garantía QuHealthy
-                </h3>
-                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <ShieldCheck className="w-5 h-5 mr-3 text-black dark:text-white" />
-                  <span>Proveedor Verificado Médicamente (EEAT)</span>
+              {/* ── Garantía Médica QuHealthy ────────────────────── */}
+              <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2.5 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Especialista verificado con Cédula Profesional SEP y NOM-004</span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <Building2 className="w-5 h-5 mr-3 text-black dark:text-white" />
-                  <span>Transacción 100% Segura</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <CheckCircle2 className="w-5 h-5 mr-3 text-black dark:text-white" />
-                  <span>Soporte 24/7 disponible</span>
+                <div className="flex items-center gap-2.5">
+                  <Building2 className="w-4 h-4 text-emerald-600" />
+                  <span>Transacción protegida con Stripe y Cifrado Bancario AES-256</span>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* ── Más del Especialista / Proveedor ───────────────────── */}
           <MoreFromProvider 
             items={relatedItems} 
             locale={locale} 

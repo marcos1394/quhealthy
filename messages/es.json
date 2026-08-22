@@ -10033,6 +10033,28 @@
       "cta": "Conocer el Módulo de Recetas"
     }
   },
+  "MarketplaceShowcase": {
+    "badge": "Marketplace de Salud Inteligente",
+    "title_start": "Encuentra especialistas, paquetes y servicios ",
+    "title_highlight": "en un solo lugar",
+    "description": "Explora la red médica de QuHealthy. Agenda consultas presenciales o por telemedicina, adquiere paquetes preventivos y productos de farmacia con total seguridad.",
+    "tabs": {
+      "specialists": "Especialistas y Clínicas",
+      "packages": "Paquetes Preventivos",
+      "services": "Servicios y Telemedicina",
+      "pharmacy": "Farmacia y Bienestar"
+    },
+    "btn_explore_all": "Explorar todo el Marketplace",
+    "btn_book": "Agendar Consulta",
+    "btn_view_package": "Ver Paquete",
+    "btn_add_to_cart": "Añadir al Carrito",
+    "btn_added": "Añadido",
+    "verified_badge": "Verificado NOM",
+    "online_badge": "Online / Presencial",
+    "save_badge": "Ahorro del {percent}%",
+    "sessions_count": "{count} {count, plural, one {sesión} other {sesiones}}",
+    "reviews_count": "({count} reseñas)"
+  },
   "SpecializedJourneys": {
     "badge": "Rutas Clínicas de Precisión",
     "title_start": "Acompañamiento especializado para cada ",

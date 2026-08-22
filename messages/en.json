@@ -9994,6 +9994,28 @@
       "cta": "Discover Prescription Module"
     }
   },
+  "MarketplaceShowcase": {
+    "badge": "Intelligent Health Marketplace",
+    "title_start": "Find top specialists, packages and services ",
+    "title_highlight": "all in one place",
+    "description": "Explore the QuHealthy medical network. Book in-person or telemedicine appointments, purchase preventive health packages and pharmacy products with complete peace of mind.",
+    "tabs": {
+      "specialists": "Specialists & Clinics",
+      "packages": "Preventive Packages",
+      "services": "Services & Telemedicine",
+      "pharmacy": "Pharmacy & Wellness"
+    },
+    "btn_explore_all": "Explore Full Marketplace",
+    "btn_book": "Book Appointment",
+    "btn_view_package": "View Package",
+    "btn_add_to_cart": "Add to Cart",
+    "btn_added": "Added",
+    "verified_badge": "NOM Verified",
+    "online_badge": "Online / In-Person",
+    "save_badge": "Save {percent}%",
+    "sessions_count": "{count} {count, plural, one {session} other {sessions}}",
+    "reviews_count": "({count} reviews)"
+  },
   "SpecializedJourneys": {
     "badge": "Precision Clinical Journeys",
     "title_start": "Specialized care for every ",
