@@ -8656,7 +8656,14 @@
     "social_bi": "Social Impact",
     "team": "Institutional Team",
     "courses": "Courses & Workshops",
-    "profile": "My Profile"
+    "profile": "My Profile",
+    "cart": "Shopping Cart",
+    "role_provider": "Professional",
+    "role_patient": "Patient",
+    "role_foundation": "Foundation",
+    "role_staff": "Staff",
+    "collapse_sidebar": "Collapse sidebar",
+    "expand_sidebar": "Expand sidebar"
   },
 
   "TrialBanner": {

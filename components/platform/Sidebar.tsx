@@ -25,7 +25,6 @@ import {
   MessageCircle,
   Star,
   HeartIcon,
-  Menu,
   Package,
   ClipboardIcon,
   Handshake,
@@ -42,12 +41,13 @@ import {
   FileText,
   BrainCircuit,
   Flower2,
-  HeartHandshake,
   Layers,
   Ticket,
   BarChart3,
   UsersRound,
   Store,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -58,6 +58,8 @@ import { useBookingStore } from "@/hooks/useBookingStore";
 import { useActiveModules } from "@/hooks/useActiveModules";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { Button } from "@/components/ui/button";
 import {
   subscriptionService,
   CurrentSubscription,
@@ -110,10 +112,10 @@ const patientLinks = [
   { key: "copilot", href: "/copilot", icon: BrainCircuit, badge: { count: "IA" } },
   { key: "appointments", href: "/patient/dashboard/appointments", icon: CalendarDays, badge: null },
   { key: "treatments", href: "/patient/dashboard/treatments", icon: BriefcaseMedical, badge: null },
-  // ─── Módulos especializados: solo visibles si el paciente tiene un diagnóstico relacionado ───
-  { key: "oncology",     href: "/patient/oncology",                   icon: Activity, badge: null, condition: "oncology" },
-  { key: "womens_health",href: "/patient/dashboard/womens-health",    icon: Flower2,  badge: null, condition: "womens_health" },
-  { key: "diabetes",     href: "/patient/diabetes",                   icon: Activity, badge: null, condition: "diabetes" },
+  // ─── Módulos especializados ───
+  { key: "oncology", href: "/patient/oncology", icon: Activity, badge: null, condition: "oncology" },
+  { key: "womens_health", href: "/patient/dashboard/womens-health", icon: Flower2, badge: null, condition: "womens_health" },
+  { key: "diabetes", href: "/patient/diabetes", icon: Activity, badge: null, condition: "diabetes" },
   // ─── Módulos base ───
   { key: "discover", href: "/discover", icon: Sparkles, badge: null },
   { key: "vault", href: "/patient/dashboard/vault", icon: Vault, badge: null },
@@ -212,24 +214,19 @@ const NavItem = ({
           <span className="text-xs truncate tracking-tight">{label}</span>
         )}
 
-        {/* Insignias de la Plataforma */}
         {badge && !isCollapsed && (
           <span className="ml-auto px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 text-[10px] font-mono font-bold shadow-2xs">
             {badge.count}
           </span>
-        )}
-
-        {badge && isCollapsed && (
-          <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-[#0a0a0a]" />
         )}
       </div>
     </Link>
   );
 };
 
-// ── BARRA LATERAL PRINCIPAL ──────────────────────────────────────────────
+// ── COMPONENTE PRINCIPAL SIDEBAR ─────────────────────────────────────────
 export const Sidebar = ({
-  className = "",
+  className,
   isMobile = false,
   onClose,
 }: {
@@ -241,7 +238,7 @@ export const Sidebar = ({
   const router = useRouter();
   const t = useTranslations("SidebarNav");
 
-  const [isCollapsedState, setIsCollapsed] = useState(true);
+  const [isCollapsedState, setIsCollapsed] = useState(false);
   const isCollapsed = isMobile ? false : isCollapsedState;
 
   const { logout } = useAuth();
@@ -254,21 +251,27 @@ export const Sidebar = ({
   // Carga los módulos activos del paciente según sus diagnósticos CIE-10
   useActiveModules();
 
-  const isFoundation = pathname?.includes("/foundation") || (role as string) === "ROLE_FOUNDATION" || (role as string) === "FOUNDATION";
+  const isFoundation =
+    pathname?.includes("/foundation") ||
+    (role as string) === "ROLE_FOUNDATION" ||
+    (role as string) === "FOUNDATION";
   const isConsumer = !isFoundation && role === "ROLE_CONSUMER";
   const isStaff = role === "ROLE_STAFF";
-  const homeLink = isFoundation ? "/foundation/dashboard" : isConsumer ? "/patient/dashboard" : "/provider/dashboard";
+  const homeLink = isFoundation
+    ? "/foundation/dashboard"
+    : isConsumer
+    ? "/patient/dashboard"
+    : "/provider/dashboard";
 
   const currentLinks = useMemo(() => {
     if (isFoundation) {
       return foundationLinks;
     }
     let links = isConsumer ? patientLinks : providerLinks;
-    // Filter specialized modules by active diagnoses
     if (isConsumer) {
       links = links.filter((link) => {
         const condition = (link as { condition?: string }).condition;
-        if (!condition) return true; // base links always visible
+        if (!condition) return true;
         return isModuleActive(condition);
       });
     }
@@ -336,76 +339,90 @@ export const Sidebar = ({
         className
       )}
     >
-      {/* ── CABECERA / MARCA ─────────────────────────────────────────── */}
+      {/* ── CABECERA HOMOLOGADA / MARCA ───────────────────────────────── */}
       <div
         className={cn(
-          "h-16 flex items-center border-b border-gray-100 dark:border-gray-800 shrink-0 transition-all bg-white dark:bg-[#0a0a0a]",
-          isCollapsed ? "justify-center px-0" : "px-4 sm:px-5 gap-2"
+          "h-16 flex items-center border-b border-gray-100 dark:border-gray-800/80 shrink-0 transition-all bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md",
+          isCollapsed ? "justify-center px-2" : "justify-between px-4 sm:px-5"
         )}
       >
-        {!isCollapsed && (
-          <Link
-            href={homeLink}
-            className="flex-1 items-center gap-2 flex overflow-hidden min-w-0"
-          >
-            <span className="text-xs font-bold text-gray-900 dark:text-white tracking-wider truncate uppercase">
-              {t("brand_name")}
-            </span>
-          </Link>
-        )}
-
-        <div
-          className={cn(
-            "flex items-center gap-1.5",
-            isCollapsed ? "mx-auto flex-col gap-3" : "ml-auto"
-          )}
-        >
-          {!isCollapsed && <ThemeToggle />}
-          
-          {!isCollapsed && (
+        {isCollapsed ? (
+          <div className="flex flex-col items-center gap-2">
+            <Link
+              href={homeLink}
+              className="flex items-center justify-center group cursor-pointer"
+              title="QuHealthy"
+            >
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-black text-sm shadow-2xs group-hover:scale-105 transition-transform">
+                Q
+              </div>
+            </Link>
             <button
               type="button"
-              onClick={openCart}
-              className="relative w-8 h-8 rounded-xl border border-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all flex items-center justify-center shrink-0 cursor-pointer"
+              onClick={() => setIsCollapsed(false)}
+              className="w-8 h-8 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#1c1c1c] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
+              title={t("expand_sidebar")}
+              aria-label={t("expand_sidebar")}
             >
-              <ShoppingBag className="w-4 h-4" strokeWidth={2} />
-              {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-3.5 w-3.5 rounded-full flex items-center justify-center">
-                  {cart.length}
+              <PanelLeftOpen className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </div>
+        ) : (
+          <>
+            <Link
+              href={homeLink}
+              className="flex items-center gap-2.5 min-w-0 group cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-black text-sm shadow-2xs group-hover:scale-105 transition-transform shrink-0">
+                Q
+              </div>
+              <div className="flex items-center gap-2 truncate">
+                <span className="text-sm font-extrabold tracking-tight text-gray-900 dark:text-white">
+                  QuHealthy<span className="text-emerald-600 dark:text-emerald-400">.</span>
                 </span>
-              )}
-            </button>
-          )}
+                <span className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-[#181818] border border-gray-200/60 dark:border-gray-800 text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                  {isFoundation
+                    ? t("role_foundation")
+                    : isConsumer
+                    ? t("role_patient")
+                    : isStaff
+                    ? t("role_staff")
+                    : t("role_provider")}
+                </span>
+              </div>
+            </Link>
 
-          <NotificationBell isCollapsed={isCollapsed} />
-
-          {isMobile ? (
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-8 h-8 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
-            >
-              <X className="w-4 h-4" strokeWidth={2} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsCollapsed(!isCollapsedState)}
-              className="w-8 h-8 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
-            >
-              <Menu className="w-4 h-4" strokeWidth={2} />
-            </button>
-          )}
-        </div>
+            {isMobile ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#1c1c1c] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
+                aria-label="Cerrar menú"
+              >
+                <X className="w-4 h-4" strokeWidth={2} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(true)}
+                className="w-8 h-8 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-[#111] hover:bg-gray-100 dark:hover:bg-[#1c1c1c] text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all flex items-center justify-center shrink-0 shadow-2xs cursor-pointer"
+                title={t("collapse_sidebar")}
+                aria-label={t("collapse_sidebar")}
+              >
+                <PanelLeftClose className="w-4 h-4" strokeWidth={2} />
+              </button>
+            )}
+          </>
+        )}
       </div>
 
       {/* ── BANNER DE PLAN DE SUSCRIPCIÓN (PROVEEDORES) ───────────────── */}
       {!isCollapsed && !isConsumer && !isFoundation && (
-        <div className="p-3.5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+        <div className="p-3 border-b border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a]">
           <Link href="/provider/dashboard/settings#subscription">
-            <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 p-3 flex items-start gap-3 hover:border-emerald-500/40 transition-all shadow-2xs group cursor-pointer">
-              <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
-                <Crown className="w-4 h-4" strokeWidth={2} />
+            <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 p-2.5 flex items-start gap-2.5 hover:border-emerald-500/40 transition-all shadow-2xs group cursor-pointer">
+              <div className="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+                <Crown className="w-3.5 h-3.5" strokeWidth={2} />
               </div>
               <div className="space-y-0.5 truncate">
                 <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
@@ -425,15 +442,15 @@ export const Sidebar = ({
       )}
 
       {/* ── NAVEGACIÓN Y MENÚS ────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar py-4 px-2 space-y-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar py-3 px-1.5 space-y-5">
         {/* Módulo Principal */}
         <nav className="space-y-1">
           {!isCollapsed && (
-            <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">
+            <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-1.5">
               {t("platform")}
             </h3>
           )}
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {currentLinks.map((link) => (
               <NavItem
                 key={link.href}
@@ -450,13 +467,13 @@ export const Sidebar = ({
         </nav>
 
         {/* Módulo de Configuración */}
-        <nav className="border-t border-gray-100 dark:border-gray-800/80 pt-4 space-y-1">
+        <nav className="border-t border-gray-100 dark:border-gray-800/80 pt-3 space-y-1">
           {!isCollapsed && (
-            <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">
+            <h3 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-1.5">
               {t("settings_section")}
             </h3>
           )}
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {currentSettingsLinks.map((link) => (
               <NavItem
                 key={link.href}
@@ -473,24 +490,109 @@ export const Sidebar = ({
         </nav>
       </div>
 
-      {/* ── PIE DE PÁGINA (CAMBIO DE PERFIL Y SALIDA) ─────────────────── */}
-      <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-1 shrink-0 bg-white dark:bg-[#0a0a0a]">
-        {!isFoundation && (
-          <button
-            type="button"
-            onClick={handleSwitchProfile}
-            disabled={isSwitchingProfile}
-            className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#050505] transition-all group disabled:opacity-50 cursor-pointer"
+      {/* ── PIE DE PÁGINA Y HUB DE UTILIDADES HOMOLOGADO ──────────────── */}
+      {isCollapsed ? (
+        <div className="p-2 border-t border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a] shrink-0 flex flex-col items-center gap-2">
+          <NotificationBell isCollapsed={true} />
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={openCart}
+            className="relative rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-2xs cursor-pointer h-9 w-9 p-0 flex items-center justify-center shrink-0"
+            title={t("cart")}
+            aria-label={t("cart")}
           >
-            <div className="flex items-center gap-3 min-w-0">
+            <ShoppingBag className="h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 items-center justify-center text-[8px] text-white font-mono font-black border border-white dark:border-[#0a0a0a]">
+                  {cart.length > 9 ? "9+" : cart.length}
+                </span>
+              </span>
+            )}
+          </Button>
+
+          <ThemeToggle />
+
+          <LanguageToggle />
+
+          {!isFoundation && (
+            <button
+              type="button"
+              onClick={handleSwitchProfile}
+              disabled={isSwitchingProfile}
+              className="w-9 h-9 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-2xs cursor-pointer flex items-center justify-center shrink-0"
+              title={isConsumer ? t("switch_to_provider") : t("switch_to_patient")}
+            >
               <UserCircle
                 className={cn(
-                  "w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400",
+                  "w-4 h-4 text-emerald-600 dark:text-emerald-400",
                   isSwitchingProfile && "animate-spin"
                 )}
                 strokeWidth={2}
               />
-              {!isCollapsed && (
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-9 h-9 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors shadow-2xs cursor-pointer flex items-center justify-center shrink-0"
+            title={t("logout")}
+          >
+            <LogOut className="w-4 h-4" strokeWidth={2} />
+          </button>
+        </div>
+      ) : (
+        <div className="p-3 border-t border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a] shrink-0 space-y-3">
+          {/* ── BARRA DE HERRAMIENTAS HOMOLOGADA (4 BOTONES IDÉNTICOS) ── */}
+          <div className="flex items-center justify-between gap-1 p-1 rounded-2xl bg-gray-50/80 dark:bg-[#121212] border border-gray-100 dark:border-gray-800/60 shadow-inner">
+            <NotificationBell
+              isCollapsed={false}
+              className="flex-1 border-transparent bg-transparent shadow-none hover:bg-white dark:hover:bg-[#1f1f1f]"
+            />
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={openCart}
+              className="relative flex-1 h-9 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-[#1f1f1f] transition-colors p-0 cursor-pointer shadow-none flex items-center justify-center"
+              title={t("cart")}
+              aria-label={t("cart")}
+            >
+              <ShoppingBag className="h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+              {cart.length > 0 && (
+                <span className="absolute top-1 right-1.5 flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 items-center justify-center text-[8px] text-white font-mono font-black border border-white dark:border-[#0a0a0a]">
+                    {cart.length > 9 ? "9+" : cart.length}
+                  </span>
+                </span>
+              )}
+            </Button>
+
+            <ThemeToggle className="flex-1 border-transparent bg-transparent shadow-none hover:bg-white dark:hover:bg-[#1f1f1f]" />
+
+            <LanguageToggle className="flex-1 border-transparent bg-transparent shadow-none hover:bg-white dark:hover:bg-[#1f1f1f]" />
+          </div>
+
+          {/* ── ACCIONES DE PERFIL, SOPORTE Y SALIDA ───────────────────── */}
+          <div className="space-y-0.5">
+            {!isFoundation && (
+              <button
+                type="button"
+                onClick={handleSwitchProfile}
+                disabled={isSwitchingProfile}
+                className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-[#141414] transition-all group disabled:opacity-50 cursor-pointer text-left"
+              >
+                <UserCircle
+                  className={cn(
+                    "w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400",
+                    isSwitchingProfile && "animate-spin"
+                  )}
+                  strokeWidth={2}
+                />
                 <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors truncate">
                   {isSwitchingProfile
                     ? t("switching")
@@ -498,48 +600,40 @@ export const Sidebar = ({
                     ? t("switch_to_provider")
                     : t("switch_to_patient")}
                 </span>
-              )}
-            </div>
-          </button>
-        )}
+              </button>
+            )}
 
-        {!isCollapsed && (
-          <Link href="/patient/dashboard/support">
+            <Link href="/patient/dashboard/support">
+              <button
+                type="button"
+                className="flex items-center gap-2.5 w-full p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-[#141414] transition-all group cursor-pointer text-left"
+              >
+                <HelpCircle
+                  className="w-4 h-4 shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"
+                  strokeWidth={2}
+                />
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors truncate">
+                  {t("support")}
+                </span>
+              </button>
+            </Link>
+
             <button
               type="button"
-              className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#050505] transition-all group cursor-pointer"
+              onClick={handleLogout}
+              className="flex items-center gap-2.5 w-full p-2 rounded-xl transition-all group hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer text-left"
             >
-              <HelpCircle
-                className="w-4 h-4 shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"
+              <LogOut
+                className="w-4 h-4 shrink-0 text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors"
                 strokeWidth={2}
               />
-              <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors truncate">
-                {t("support")}
+              <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors truncate">
+                {t("logout")}
               </span>
             </button>
-          </Link>
-        )}
-
-        <button
-          type="button"
-          onClick={handleLogout}
-          className={cn(
-            "flex items-center gap-3 w-full p-2.5 rounded-xl transition-all group hover:bg-rose-50 dark:hover:bg-rose-950/30 cursor-pointer",
-            isCollapsed ? "justify-center" : ""
-          )}
-          title={isCollapsed ? t("logout") : undefined}
-        >
-          <LogOut
-            className="w-4 h-4 shrink-0 text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors"
-            strokeWidth={2}
-          />
-          {!isCollapsed && (
-            <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors truncate">
-              {t("logout")}
-            </span>
-          )}
-        </button>
-      </div>
+          </div>
+        </div>
+      )}
     </motion.aside>
   );
 };

@@ -8750,7 +8750,14 @@
     "social_bi": "Impacto Social",
     "team": "Equipo Institucional",
     "courses": "Cursos",
-    "profile": "Mi Perfil"
+    "profile": "Mi Perfil",
+    "cart": "Carrito de Compras",
+    "role_provider": "Profesional",
+    "role_patient": "Paciente",
+    "role_foundation": "Fundación",
+    "role_staff": "Equipo",
+    "collapse_sidebar": "Colapsar menú lateral",
+    "expand_sidebar": "Expandir menú lateral"
   },
 
 

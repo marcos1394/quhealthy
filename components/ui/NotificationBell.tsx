@@ -50,7 +50,13 @@ interface UnreadCountResponse {
   count?: number;
 }
 
-export const NotificationBell = ({ isCollapsed = false }: { isCollapsed?: boolean }) => {
+export const NotificationBell = ({
+  isCollapsed = false,
+  className,
+}: {
+  isCollapsed?: boolean;
+  className?: string;
+}) => {
   const t = useTranslations("NotificationBell");
   const locale = useLocale();
   const router = useRouter();
@@ -293,8 +299,9 @@ export const NotificationBell = ({ isCollapsed = false }: { isCollapsed?: boolea
           variant="outline"
           size="icon"
           className={cn(
-            "relative text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl h-10 w-10 shrink-0 shadow-2xs transition-all cursor-pointer",
-            isCollapsed && "mx-auto"
+            "relative text-gray-700 dark:text-gray-200 border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-[#0a0a0a]/80 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl h-9 w-9 shrink-0 shadow-2xs transition-colors cursor-pointer p-0 flex items-center justify-center",
+            isCollapsed && "mx-auto",
+            className
           )}
           title={t("title")}
           aria-label={t("title")}
