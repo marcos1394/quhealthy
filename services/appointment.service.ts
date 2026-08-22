@@ -57,6 +57,14 @@ export const appointmentService = {
   },
 
   /**
+   * 👨‍👩‍👧 Obtiene los perfiles del paciente (Titular y dependientes)
+   */
+  getConsumerProfiles: async (): Promise<any[]> => {
+    const response = await axiosInstance.get(`${BASE_URL}/consumer/dashboard/profiles`);
+    return response.data;
+  },
+
+  /**
    * 🔍 Obtiene los detalles extendidos de una cita específica por su ID
    */
   getAppointmentById: async (id: string | number): Promise<AppointmentResponse> => {
