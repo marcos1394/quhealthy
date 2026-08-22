@@ -1,54 +1,42 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-doctor/button-has-type */
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Stethoscope,
   Package,
   Pill,
-  Star,
-  ShieldCheck,
   Video,
-  MapPin,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  ShoppingBag,
   Sparkles,
-  Clock,
-  Layers,
-  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useBookingStore } from "@/hooks/useBookingStore";
 import { discoverService } from "@/services/discover.service";
 import { DiscoverItem, DiscoverProvider } from "@/types/discover";
-import { toast } from "sonner";
-import { cn, generateSlug } from "@/lib/utils";
+import { ProviderCard } from "@/components/discover/ProviderCard";
+import { DiscoverItemCard } from "@/components/discover/DiscoverItemCard";
+import { cn } from "@/lib/utils";
 
 type ShowcaseTab = "specialists" | "packages" | "services" | "pharmacy";
 
 export function MarketplaceShowcaseSection() {
   const t = useTranslations("MarketplaceShowcase");
   const locale = useLocale();
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<ShowcaseTab>("specialists");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { addToCart, setProvider, openCart } = useBookingStore();
 
-  // Estados reales cargados del backend
+  // Estados reales cargados de las APIs de producción
   const [providers, setProviders] = useState<DiscoverProvider[]>([]);
   const [packages, setPackages] = useState<DiscoverItem[]>([]);
   const [services, setServices] = useState<DiscoverItem[]>([]);
   const [products, setProducts] = useState<DiscoverItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Carga paralela de datos 100% reales desde el catálogo y storefront de producción
   useEffect(() => {
     let isMounted = true;
 
@@ -111,35 +99,9 @@ export function MarketplaceShowcaseSection() {
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === "left" ? -380 : 380;
+      const scrollAmount = direction === "left" ? -360 : 360;
       scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
-  };
-
-  const handleAddProductToCart = (prod: DiscoverItem) => {
-    setProvider(
-      prod.providerId,
-      prod.providerSlug || String(prod.providerId),
-      prod.providerName || "Proveedor",
-      prod.providerColor || "#10b981"
-    );
-    addToCart(
-      {
-        id: prod.id,
-        name: prod.name,
-        price: prod.price,
-        imageUrl: prod.imageUrl,
-        type: "PRODUCT",
-        category: prod.category || "Farmacia",
-        description: prod.description || "",
-        quantity: 1,
-      },
-      prod.providerSlug || String(prod.providerId),
-      prod.providerName || "Proveedor",
-      prod.providerColor || "#10b981"
-    );
-    toast.success(`${prod.name} agregado al carrito`);
-    openCart();
   };
 
   return (
@@ -224,19 +186,19 @@ export function MarketplaceShowcaseSection() {
           })}
         </div>
 
-        {/* ── CONTENEDOR CARRUSEL DE ÍTEMS 100% REALES ────────────────── */}
+        {/* ── CONTENEDOR CARRUSEL DE CARDS HOMOLOGADAS ────────────────── */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-5 overflow-x-auto no-scrollbar pb-4 pt-1 snap-x snap-mandatory min-h-[360px]"
+          className="flex gap-5 overflow-x-auto no-scrollbar pb-4 pt-1 snap-x snap-mandatory min-h-[380px]"
         >
           {isLoading ? (
-            /* Skeletons de Carga */
+            /* Skeletons Homologados */
             [1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="w-[300px] sm:w-[340px] shrink-0 snap-start rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 p-5 space-y-4 animate-pulse"
+                className="w-[280px] sm:w-[320px] shrink-0 snap-start rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 p-5 space-y-4 animate-pulse"
               >
-                <div className="w-full aspect-4/3 rounded-2xl bg-gray-100 dark:bg-[#181818]" />
+                <div className="w-full aspect-video rounded-2xl bg-gray-100 dark:bg-[#181818]" />
                 <div className="h-4 w-3/4 rounded-full bg-gray-100 dark:bg-[#181818]" />
                 <div className="h-3 w-1/2 rounded-full bg-gray-100 dark:bg-[#181818]" />
                 <div className="h-10 w-full rounded-2xl bg-gray-100 dark:bg-[#181818]" />
@@ -244,81 +206,15 @@ export function MarketplaceShowcaseSection() {
             ))
           ) : (
             <>
-              {/* 1. DOCTORES Y ESPECIALISTAS (STOREFRONT) */}
+              {/* 1. DOCTORES Y ESPECIALISTAS (HOMOLOGADO CON ProviderCard) */}
               {activeTab === "specialists" && (
                 providers.length > 0 ? (
                   providers.map((doc) => (
                     <div
                       key={doc.id}
-                      onClick={() => router.push(`/${locale}/store/${doc.slug}`)}
-                      className="w-[300px] sm:w-[340px] shrink-0 snap-start rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/80 dark:border-gray-800 p-5 flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                      className="w-[280px] sm:w-[320px] shrink-0 snap-start flex flex-col"
                     >
-                      <div className="space-y-4">
-                        <div className="relative w-full aspect-4/3 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 shadow-2xs">
-                          <img
-                            src={doc.imageUrl || doc.logoUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400"}
-                            alt={doc.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute top-3 left-3 bg-white/90 dark:bg-[#0f0f0f]/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-[10px] font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1 shadow-xs">
-                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>{t("verified_badge")}</span>
-                          </div>
-
-                          {doc.scheduleSummary && (
-                            <div className="absolute bottom-3 left-3 right-3 bg-emerald-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-bold text-emerald-200 flex items-center justify-between shadow-xs">
-                              <span className="flex items-center gap-1 truncate">
-                                <Clock className="w-3 h-3 text-emerald-400 shrink-0" />
-                                <span className="truncate">{doc.scheduleSummary}</span>
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider truncate">
-                              {doc.category || "Especialidad Médica"}
-                            </span>
-                            <div className="flex items-center gap-1 text-xs font-bold font-mono text-gray-900 dark:text-white shrink-0">
-                              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                              <span>{doc.rating || 5.0}</span>
-                              <span className="text-[10px] text-gray-400 font-normal">
-                                {t("reviews_count", { count: doc.reviews || 1 })}
-                              </span>
-                            </div>
-                          </div>
-
-                          <h3 className="text-base font-extrabold text-gray-900 dark:text-white tracking-tight group-hover:text-emerald-600 transition-colors truncate">
-                            {doc.name}
-                          </h3>
-
-                          {doc.city && (
-                            <p className="text-xs text-gray-500 flex items-center gap-1 font-medium truncate">
-                              <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
-                              <span className="truncate">{doc.city}</span>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                            Consulta desde
-                          </span>
-                          <span className="text-lg font-black font-mono text-gray-900 dark:text-white">
-                            ${doc.basePrice || 700} MXN
-                          </span>
-                        </div>
-
-                        <Button
-                          size="sm"
-                          className="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs"
-                        >
-                          {t("btn_book")}
-                        </Button>
-                      </div>
+                      <ProviderCard provider={doc} isGrid={true} />
                     </div>
                   ))
                 ) : (
@@ -332,65 +228,15 @@ export function MarketplaceShowcaseSection() {
                 )
               )}
 
-              {/* 2. PAQUETES Y CHECKUPS */}
+              {/* 2. PAQUETES Y CHECKUPS (HOMOLOGADO CON DiscoverItemCard) */}
               {activeTab === "packages" && (
                 packages.length > 0 ? (
                   packages.map((pkg) => (
                     <div
                       key={pkg.id}
-                      onClick={() => router.push(`/${locale}/market/item/${pkg.id}-${generateSlug(pkg.name)}`)}
-                      className="w-[310px] sm:w-[350px] shrink-0 snap-start rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/80 dark:border-gray-800 p-5 flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                      className="w-[280px] sm:w-[320px] shrink-0 snap-start flex flex-col"
                     >
-                      <div className="space-y-4">
-                        <div className="relative w-full aspect-16/9 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 shadow-2xs">
-                          <img
-                            src={pkg.imageUrl || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=600"}
-                            alt={pkg.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          {pkg.discountPercentage && pkg.discountPercentage > 0 && (
-                            <div className="absolute top-3 right-3 bg-rose-600 text-white px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md">
-                              {t("save_badge", { percent: pkg.discountPercentage })}
-                            </div>
-                          )}
-                          <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-[#0f0f0f]/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-[10px] font-bold text-gray-900 dark:text-white flex items-center gap-1 shadow-xs">
-                            <Layers className="w-3 h-3 text-emerald-600" />
-                            <span>Paquete Integral</span>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <p className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-wider truncate">
-                            {pkg.providerName || "Proveedor Verificado"}
-                          </p>
-                          <h3 className="text-base font-extrabold text-gray-900 dark:text-white tracking-tight leading-snug group-hover:text-emerald-600 transition-colors truncate">
-                            {pkg.name}
-                          </h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
-                            {pkg.description || "Paquete de salud preventivo con consultas y estudios incluidos."}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                        <div>
-                          {pkg.compareAtPrice && pkg.compareAtPrice > pkg.price && (
-                            <span className="text-xs line-through text-gray-400 font-mono block">
-                              ${pkg.compareAtPrice} MXN
-                            </span>
-                          )}
-                          <span className="text-lg font-black font-mono text-gray-900 dark:text-white">
-                            ${pkg.price} MXN
-                          </span>
-                        </div>
-
-                        <Button
-                          size="sm"
-                          className="h-9 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-xs"
-                        >
-                          {t("btn_view_package")}
-                        </Button>
-                      </div>
+                      <DiscoverItemCard item={pkg} isGrid={true} />
                     </div>
                   ))
                 ) : (
@@ -404,64 +250,15 @@ export function MarketplaceShowcaseSection() {
                 )
               )}
 
-              {/* 3. SERVICIOS Y TELEMEDICINA */}
+              {/* 3. SERVICIOS Y TELEMEDICINA (HOMOLOGADO CON DiscoverItemCard) */}
               {activeTab === "services" && (
                 services.length > 0 ? (
                   services.map((srv) => (
                     <div
                       key={srv.id}
-                      onClick={() => router.push(`/${locale}/market/item/${srv.id}-${generateSlug(srv.name)}`)}
-                      className="w-[300px] sm:w-[340px] shrink-0 snap-start rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/80 dark:border-gray-800 p-5 flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                      className="w-[280px] sm:w-[320px] shrink-0 snap-start flex flex-col"
                     >
-                      <div className="space-y-4">
-                        <div className="relative w-full aspect-16/9 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 shadow-2xs">
-                          <img
-                            src={srv.imageUrl || "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=600"}
-                            alt={srv.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          {srv.durationMinutes && (
-                            <div className="absolute top-3 left-3 bg-emerald-950/85 backdrop-blur-md px-2.5 py-1 rounded-xl text-[10px] font-bold text-emerald-300 flex items-center gap-1 shadow-xs">
-                              <Clock className="w-3 h-3" />
-                              <span>{srv.durationMinutes} min</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-extrabold text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 px-2 py-0.5 rounded-md truncate">
-                              {srv.category || "Consulta Médica"}
-                            </span>
-                            <span className="text-[10px] font-bold text-gray-400 shrink-0">
-                              {srv.modality || "ONLINE & PRESENCIAL"}
-                            </span>
-                          </div>
-
-                          <h3 className="text-base font-extrabold text-gray-900 dark:text-white tracking-tight leading-snug group-hover:text-emerald-600 transition-colors truncate">
-                            {srv.name}
-                          </h3>
-
-                          <p className="text-xs text-gray-500 font-medium truncate">
-                            {srv.providerName || "Especialista Certificado"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                        <div>
-                          <span className="text-lg font-black font-mono text-gray-900 dark:text-white">
-                            ${srv.price} MXN
-                          </span>
-                        </div>
-
-                        <Button
-                          size="sm"
-                          className="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs"
-                        >
-                          {t("btn_book")}
-                        </Button>
-                      </div>
+                      <DiscoverItemCard item={srv} isGrid={true} />
                     </div>
                   ))
                 ) : (
@@ -475,58 +272,15 @@ export function MarketplaceShowcaseSection() {
                 )
               )}
 
-              {/* 4. FARMACIA Y BIENESTAR */}
+              {/* 4. FARMACIA Y BIENESTAR (HOMOLOGADO CON DiscoverItemCard) */}
               {activeTab === "pharmacy" && (
                 products.length > 0 ? (
                   products.map((prod) => (
                     <div
                       key={prod.id}
-                      className="w-[300px] sm:w-[330px] shrink-0 snap-start rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/80 dark:border-gray-800 p-5 flex flex-col justify-between shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                      className="w-[280px] sm:w-[320px] shrink-0 snap-start flex flex-col"
                     >
-                      <div className="space-y-4">
-                        <div
-                          onClick={() => router.push(`/${locale}/market/item/${prod.id}-${generateSlug(prod.name)}`)}
-                          className="relative w-full aspect-square rounded-2xl overflow-hidden bg-gray-50 dark:bg-[#111] p-4 flex items-center justify-center shadow-2xs cursor-pointer"
-                        >
-                          <img
-                            src={prod.imageUrl || "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&q=80&w=600"}
-                            alt={prod.name}
-                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute top-3 left-3 bg-white/90 dark:bg-[#0f0f0f]/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shadow-2xs truncate max-w-[180px]">
-                            {prod.providerName || "Farmacia"}
-                          </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <h3
-                            onClick={() => router.push(`/${locale}/market/item/${prod.id}-${generateSlug(prod.name)}`)}
-                            className="text-sm font-extrabold text-gray-900 dark:text-white tracking-tight leading-snug truncate cursor-pointer hover:text-emerald-600 transition-colors"
-                          >
-                            {prod.name}
-                          </h3>
-                          <p className="text-xs text-gray-500 font-medium truncate">
-                            {prod.category || "Farmacia y Cuidado"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                        <div>
-                          <span className="text-lg font-black font-mono text-gray-900 dark:text-white">
-                            ${prod.price} MXN
-                          </span>
-                        </div>
-
-                        <Button
-                          size="sm"
-                          onClick={() => handleAddProductToCart(prod)}
-                          className="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>{t("btn_add_to_cart")}</span>
-                        </Button>
-                      </div>
+                      <DiscoverItemCard item={prod} isGrid={true} />
                     </div>
                   ))
                 ) : (
