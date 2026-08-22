@@ -10040,9 +10040,11 @@
     "description": "Explora la red médica de QuHealthy. Agenda consultas presenciales o por telemedicina, adquiere paquetes preventivos y productos de farmacia con total seguridad.",
     "tabs": {
       "specialists": "Especialistas y Clínicas",
-      "packages": "Paquetes Preventivos",
       "services": "Servicios y Telemedicina",
-      "pharmacy": "Farmacia y Bienestar"
+      "packages": "Paquetes Preventivos",
+      "pharmacy": "Farmacia y Productos",
+      "courses": "Cursos y Talleres",
+      "foundations": "Fundaciones y Causas"
     },
     "btn_explore_all": "Explorar todo el Marketplace",
     "btn_book": "Agendar Consulta",

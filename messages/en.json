@@ -10001,9 +10001,11 @@
     "description": "Explore the QuHealthy medical network. Book in-person or telemedicine appointments, purchase preventive health packages and pharmacy products with complete peace of mind.",
     "tabs": {
       "specialists": "Specialists & Clinics",
-      "packages": "Preventive Packages",
       "services": "Services & Telemedicine",
-      "pharmacy": "Pharmacy & Wellness"
+      "packages": "Preventive Packages",
+      "pharmacy": "Pharmacy & Products",
+      "courses": "Courses & Workshops",
+      "foundations": "Foundations & Causes"
     },
     "btn_explore_all": "Explore Full Marketplace",
     "btn_book": "Book Appointment",
