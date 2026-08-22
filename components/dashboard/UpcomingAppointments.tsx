@@ -215,7 +215,7 @@ export const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
 
             <div className="flex items-start gap-3">
               <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-2xs">
-                {nextAppointment.clientName.charAt(0).toUpperCase()}
+                {(nextAppointment.clientName || "P").trim().charAt(0).toUpperCase()}
               </div>
 
               <div className="flex-1 min-w-0 space-y-1">

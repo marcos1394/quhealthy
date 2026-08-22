@@ -10,7 +10,6 @@ import {
   BrainCircuit,
   ShieldCheck,
   ChevronDown,
-  User,
   Users,
   Check,
 } from "lucide-react";
@@ -27,8 +26,10 @@ import { cn } from "@/lib/utils";
 
 export interface ConsumerProfileDto {
   id: number;
-  fullName: string;
+  name?: string;
+  fullName?: string;
   relation?: string;
+  type?: string;
   isPrimary?: boolean;
   avatarUrl?: string;
 }
@@ -39,6 +40,16 @@ interface PatientDashboardHeaderProps {
   selectedProfileId: number | null;
   onProfileChange: (profileId: number) => void;
 }
+
+const getProfileName = (profile?: ConsumerProfileDto, fallback = "Paciente"): string => {
+  if (!profile) return fallback;
+  return (profile.name || profile.fullName || fallback).trim();
+};
+
+const getProfileInitial = (profile?: ConsumerProfileDto, fallback = "P"): string => {
+  const name = getProfileName(profile, fallback);
+  return name.length > 0 ? name.charAt(0).toUpperCase() : fallback;
+};
 
 export function PatientDashboardHeader({
   firstName,
@@ -58,10 +69,15 @@ export function PatientDashboardHeader({
       ? "afternoon_greeting"
       : "evening_greeting";
 
+  const safeFirstName = firstName || "Paciente";
+
   const selectedProfile =
     profiles.find((p) => p.id === selectedProfileId) ||
     profiles.find((p) => p.isPrimary) ||
     profiles[0];
+
+  const selectedDisplayName = getProfileName(selectedProfile, safeFirstName);
+  const selectedInitial = getProfileInitial(selectedProfile, safeFirstName.charAt(0) || "P");
 
   return (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2 border-b border-gray-100 dark:border-gray-800/80 font-sans transition-colors">
@@ -69,7 +85,7 @@ export function PatientDashboardHeader({
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
-            {t(greetingKey, { name: firstName })}
+            {t(greetingKey, { name: safeFirstName })}
           </h1>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold shadow-2xs">
@@ -79,7 +95,7 @@ export function PatientDashboardHeader({
         </div>
 
         {/* Selector de Dependientes / Expediente Activo */}
-        {profiles.length > 0 && (
+        {profiles && profiles.length > 0 && (
           <div className="flex items-center gap-2 text-xs">
             <span className="text-gray-400 font-medium">{t("profile_selector_title")}:</span>
             <DropdownMenu>
@@ -89,10 +105,10 @@ export function PatientDashboardHeader({
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0f0f0f] hover:bg-gray-50 dark:hover:bg-[#181818] text-gray-800 dark:text-gray-200 font-bold transition-all shadow-2xs cursor-pointer"
                 >
                   <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[10px] font-black">
-                    {selectedProfile?.fullName ? selectedProfile.fullName.charAt(0).toUpperCase() : "P"}
+                    {selectedInitial}
                   </div>
                   <span className="truncate max-w-[160px]">
-                    {selectedProfile?.fullName || firstName}
+                    {selectedDisplayName}
                   </span>
                   {selectedProfile?.isPrimary && (
                     <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -113,6 +129,12 @@ export function PatientDashboardHeader({
 
                 {profiles.map((profile) => {
                   const isSelected = profile.id === selectedProfile?.id;
+                  const profileName = getProfileName(profile, safeFirstName);
+                  const profileInitial = getProfileInitial(profile, "P");
+                  const profileType = profile.isPrimary
+                    ? t("primary_profile")
+                    : profile.relation || profile.type || "Dependiente";
+
                   return (
                     <DropdownMenuItem
                       key={profile.id}
@@ -126,12 +148,12 @@ export function PatientDashboardHeader({
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 shrink-0">
-                          {profile.fullName.charAt(0).toUpperCase()}
+                          {profileInitial}
                         </div>
                         <div className="truncate">
-                          <p className="truncate">{profile.fullName}</p>
+                          <p className="truncate">{profileName}</p>
                           <p className="text-[10px] text-gray-400 font-normal">
-                            {profile.isPrimary ? t("primary_profile") : profile.relation || "Dependiente"}
+                            {profileType}
                           </p>
                         </div>
                       </div>
