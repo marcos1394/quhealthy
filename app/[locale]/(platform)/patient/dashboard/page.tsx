@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 // Componentes del Dashboard Rediseñado
 import { PatientDashboardHeader } from "@/components/dashboard/PatientDashboardHeader";
 import { NextAppointmentHero } from "@/components/dashboard/NextAppointmentHero";
+import { PatientCopilotInsightCard } from "@/components/dashboard/PatientCopilotInsightCard";
 import { PatientClinicalMetricsGrid } from "@/components/dashboard/PatientClinicalMetricsGrid";
 import { HealthScoreWidget } from "@/components/dashboard/HealthScoreWidget";
 import { HealthOnboardingModal } from "@/components/dashboard/HealthOnboardingModal";
@@ -133,11 +134,11 @@ export default function ConsumerDashboardPage() {
   const firstName = user?.firstName || t("fallback_name");
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-24">
+    <div className="min-h-screen bg-gray-50/40 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-24">
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10 space-y-8"
       >
         {/* ── 1. CABECERA CON SELECTOR FAMILIAR Y ACCIONES RÁPIDAS ──────── */}
@@ -158,7 +159,12 @@ export default function ConsumerDashboardPage() {
           />
         </div>
 
-        {/* ── 3. RESUMEN CLÍNICO DINÁMICO (4 CARDS CON DATOS REALES) ────── */}
+        {/* ── 3. BANNER IA: COPILOT CLINICAL INSIGHT ────────────────────── */}
+        <div className="w-full">
+          <PatientCopilotInsightCard />
+        </div>
+
+        {/* ── 4. RESUMEN CLÍNICO DINÁMICO (4 CARDS CON DATOS REALES) ────── */}
         <div className="w-full">
           <PatientClinicalMetricsGrid
             walletBalance={walletBalance}
@@ -171,7 +177,7 @@ export default function ConsumerDashboardPage() {
           />
         </div>
 
-        {/* ── 4. TELEMETRÍA BIOMÉTRICA Y QUHEALTHSCORE™ ─────────────────── */}
+        {/* ── 5. TELEMETRÍA BIOMÉTRICA Y QUHEALTHSCORE™ ─────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           <div className="lg:col-span-5 xl:col-span-4">
             <HealthScoreWidget
@@ -190,7 +196,7 @@ export default function ConsumerDashboardPage() {
           </div>
         </div>
 
-        {/* ── 5. LÍNEA DE TIEMPO: ACTIVIDAD MÉDICA RECIENTE ─────────────── */}
+        {/* ── 6. LÍNEA DE TIEMPO: ACTIVIDAD MÉDICA RECIENTE ─────────────── */}
         <div className="w-full">
           <PatientActivityTimeline
             activities={recentActivity}

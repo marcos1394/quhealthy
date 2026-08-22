@@ -1886,6 +1886,11 @@
       "btn_book": "Agendar Consulta",
       "btn_copilot": "Copilot IA"
     },
+    "CopilotInsight": {
+      "title": "QuHealthy Copilot • Inteligencia Clínica Preventiva",
+      "desc": "Basado en tu expediente médico, tus indicadores se mantienen estables. Recuerda registrar tus signos vitales periódicamente y mantenerte al día con tus consultas de control.",
+      "cta": "Consultar con Copilot IA"
+    },
     "Hero": {
       "title": "Bienvenido",
       "empty_title": "Tu agenda está libre",

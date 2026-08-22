@@ -1664,6 +1664,11 @@
       "btn_book": "Book Appointment",
       "btn_copilot": "AI Copilot"
     },
+    "CopilotInsight": {
+      "title": "QuHealthy Copilot • Preventive Clinical AI",
+      "desc": "Based on your health records, your biometrics remain stable. Remember to log your vitals regularly and stay on track with recommended preventive checkups.",
+      "cta": "Chat with AI Copilot"
+    },
     "Hero": {
       "title": "Welcome",
       "empty_title": "Your schedule is clear",
