@@ -28,6 +28,12 @@ import { paymentService } from "@/services/payment.service";
 import { DenominationMap } from "@/types/cash-register";
 import { CloseRegisterModal } from "@/components/cash-register/CloseRegisterModal";
 import { ManualExpenseModal } from "@/components/cash-register/ManualExpenseModal";
+import { PosCheckoutModal } from "@/components/pos/PosCheckoutModal";
+import { ThermalTicketModal } from "@/components/pos/ThermalTicketModal";
+import { PosReceipt } from "@/types/pos";
+import { useSessionStore } from "@/stores/SessionStore";
+import { useProviderRole } from "@/hooks/useProviderRole";
+import { Zap, Printer } from "lucide-react";
 
 interface State {
   register: any;
@@ -42,6 +48,9 @@ interface State {
   breakdown: Record<string, number>;
   isCloseModalOpen: boolean;
   isExpenseModalOpen: boolean;
+  isPosModalOpen: boolean;
+  isTicketModalOpen: boolean;
+  currentReceipt: PosReceipt | null;
 }
 
 type Action =
@@ -56,7 +65,10 @@ type Action =
   | { type: "SET_SHOWBREAKDOWN"; payload: boolean }
   | { type: "SET_BREAKDOWN"; payload: Record<string, number> }
   | { type: "SET_ISCLOSEMODALOPEN"; payload: boolean }
-  | { type: "SET_ISEXPENSEMODALOPEN"; payload: boolean };
+  | { type: "SET_ISEXPENSEMODALOPEN"; payload: boolean }
+  | { type: "SET_ISPOSMODALOPEN"; payload: boolean }
+  | { type: "SET_ISTICKETMODALOPEN"; payload: boolean }
+  | { type: "SET_CURRENTRECEIPT"; payload: PosReceipt | null };
 
 const initialState: State = {
   register: null,
@@ -83,6 +95,9 @@ const initialState: State = {
   },
   isCloseModalOpen: false,
   isExpenseModalOpen: false,
+  isPosModalOpen: false,
+  isTicketModalOpen: false,
+  currentReceipt: null,
 };
 
 function reducer(state: State, action: Action): State {
@@ -111,6 +126,12 @@ function reducer(state: State, action: Action): State {
       return { ...state, isCloseModalOpen: action.payload };
     case "SET_ISEXPENSEMODALOPEN":
       return { ...state, isExpenseModalOpen: action.payload };
+    case "SET_ISPOSMODALOPEN":
+      return { ...state, isPosModalOpen: action.payload };
+    case "SET_ISTICKETMODALOPEN":
+      return { ...state, isTicketModalOpen: action.payload };
+    case "SET_CURRENTRECEIPT":
+      return { ...state, currentReceipt: action.payload };
     default:
       return state;
   }
@@ -119,6 +140,8 @@ function reducer(state: State, action: Action): State {
 export default function CashRegisterPage() {
   const t = useTranslations("CashRegister");
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { isStaff } = useProviderRole();
+  const { user, status: doctorStatus } = useSessionStore();
 
   const {
     register,
@@ -133,6 +156,9 @@ export default function CashRegisterPage() {
     breakdown,
     isCloseModalOpen,
     isExpenseModalOpen,
+    isPosModalOpen,
+    isTicketModalOpen,
+    currentReceipt,
   } = state;
 
   const setRegister = (val: any) =>
@@ -159,6 +185,12 @@ export default function CashRegisterPage() {
     dispatch({ type: "SET_ISCLOSEMODALOPEN", payload: val });
   const setIsExpenseModalOpen = (val: boolean) =>
     dispatch({ type: "SET_ISEXPENSEMODALOPEN", payload: val });
+  const setIsPosModalOpen = (val: boolean) =>
+    dispatch({ type: "SET_ISPOSMODALOPEN", payload: val });
+  const setIsTicketModalOpen = (val: boolean) =>
+    dispatch({ type: "SET_ISTICKETMODALOPEN", payload: val });
+  const setCurrentReceipt = (val: PosReceipt | null) =>
+    dispatch({ type: "SET_CURRENTRECEIPT", payload: val });
 
   const updateBreakdown = (denom: string, count: number) => {
     const newBreakdown = { ...breakdown, [denom]: count };
@@ -483,6 +515,14 @@ export default function CashRegisterPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto shrink-0">
+                <Button
+                  onClick={() => setIsPosModalOpen(true)}
+                  className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs h-11 px-5 shadow-md shadow-emerald-600/20 flex items-center gap-2 cursor-pointer border-0"
+                >
+                  <Zap className="w-4 h-4" />
+                  <span>Cobro en Caja / POS</span>
+                </Button>
+
                 <Button
                   variant="outline"
                   onClick={() => setIsExpenseModalOpen(true)}
@@ -853,6 +893,35 @@ export default function CashRegisterPage() {
           maxExpectedBalance={
             register.expectedClosingBalance || register.initialBalance
           }
+        />
+
+        {/* ── MODAL POS MULTIFORMA (SPLIT PAYMENT) ────────────────────── */}
+        <PosCheckoutModal
+          isOpen={isPosModalOpen}
+          onClose={() => setIsPosModalOpen(false)}
+          onSuccess={(receipt) => {
+            setCurrentReceipt(receipt);
+            setIsTicketModalOpen(true);
+            fetchCurrentRegister();
+            fetchHistory();
+          }}
+        />
+
+        {/* ── MODAL TICKET TÉRMICO (80MM / SAT CFDI 4.0) ─────────────── */}
+        <ThermalTicketModal
+          isOpen={isTicketModalOpen}
+          onClose={() => {
+            setIsTicketModalOpen(false);
+            setCurrentReceipt(null);
+          }}
+          receipt={currentReceipt}
+          doctorProfile={{
+            displayName: user?.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : undefined,
+            license: (doctorStatus as any)?.professionalLicense,
+            specialty: (doctorStatus as any)?.primarySpecialty,
+            address: (doctorStatus as any)?.workAddress,
+            logoUrl: user?.profileImageUrl || undefined,
+          }}
         />
 
       </div>
