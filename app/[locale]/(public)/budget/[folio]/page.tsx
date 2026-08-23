@@ -203,7 +203,10 @@ export default function PublicPatientBudgetPage() {
         </div>
 
         {/* ── FICHA PRINCIPAL DEL PRESUPUESTO ────────────────────────── */}
-        <div className="rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/90 dark:border-gray-800 p-6 sm:p-10 shadow-sm space-y-8">
+        <div
+          className="rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/90 dark:border-gray-800 p-6 sm:p-10 shadow-xl space-y-8 overflow-hidden"
+          style={{ borderTop: "10px solid #059669" }}
+        >
           
           {/* Cabecera del Documento */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
