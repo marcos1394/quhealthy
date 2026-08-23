@@ -161,9 +161,14 @@ export default async function RootLayout({
             <Analytics />
             <SpeedInsights />
 
-            {/* Chatwoot Live Chat */}
+            {/* Chatwoot Live Chat (Iniciado silenciosamente para activarse bajo demanda) */}
             <Script id="chatwoot-widget" strategy="afterInteractive">
               {`
+                window.chatwootSettings = {
+                  hideMessageBubble: true,
+                  position: 'right',
+                  type: 'standard'
+                };
                 (function(d,t) {
                   var BASE_URL="https://app.chatwoot.com";
                   var g=d.createElement(t),s=d.getElementsByTagName(t)[0];

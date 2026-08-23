@@ -4735,6 +4735,8 @@
     "location_title": "Ubicación Céntrica",
     "location_desc": "Ubicado en {city}",
     "default_city": "Ciudad Principal",
+    "about_specialist": "Sobre el Especialista",
+    "default_bio": "Especialista comprometido con la salud y el bienestar integral de sus pacientes, brindando atención médica personalizada de alta calidad.",
     "contact_whatsapp": "Contactar por WhatsApp",
     "follow_instagram": "Seguir en Instagram",
     "call_phone": "Llamar",

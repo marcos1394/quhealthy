@@ -5004,6 +5004,8 @@
     "location_title": "Central Location",
     "location_desc": "Located in {city}",
     "default_city": "Main City",
+    "about_specialist": "About the Specialist",
+    "default_bio": "Dedicated specialist committed to patient wellness and comprehensive health, offering top-tier personalized medical care.",
     "contact_whatsapp": "Contact via WhatsApp",
     "follow_instagram": "Follow on Instagram",
     "call_phone": "Call",
