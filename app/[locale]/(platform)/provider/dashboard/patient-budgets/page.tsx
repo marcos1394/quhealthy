@@ -25,6 +25,7 @@ import {
   Mail,
   Receipt,
   FileSpreadsheet,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ import {
   PatientBudgetStatus,
 } from "@/types/clinical-budget";
 import { clinicalBudgetService } from "@/services/clinical-budget.service";
+import { generateClinicalBudgetPdf } from "@/lib/pdf/clinicalBudgetPdf";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -75,6 +77,16 @@ export default function PatientBudgetsPage() {
       fetchBudgets();
     } catch (err) {
       toast.error("No se pudo actualizar el estado de la cotización.");
+    }
+  };
+
+  const handleDownloadPdf = async (budget: PatientClinicalBudgetDTO) => {
+    try {
+      await generateClinicalBudgetPdf(budget);
+      toast.success("PDF descargado correctamente.");
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      toast.error("No se pudo generar el archivo PDF.");
     }
   };
 
@@ -308,6 +320,16 @@ export default function PatientBudgetsPage() {
                     >
                       <Copy className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">Copiar Link</span>
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleDownloadPdf(b)}
+                      title="Descargar PDF Oficial"
+                      className="h-9 w-9 p-0 rounded-xl border-gray-200 dark:border-gray-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1a1a1a]"
+                    >
+                      <Download className="w-3.5 h-3.5" />
                     </Button>
 
                     <Button

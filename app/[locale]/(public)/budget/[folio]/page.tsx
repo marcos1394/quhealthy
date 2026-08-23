@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PatientClinicalBudgetDTO } from "@/types/clinical-budget";
 import { clinicalBudgetService } from "@/services/clinical-budget.service";
+import { generateClinicalBudgetPdf, formatDoctorDisplayName } from "@/lib/pdf/clinicalBudgetPdf";
 import { toast } from "sonner";
 
 export default function PublicPatientBudgetPage() {
@@ -37,8 +38,8 @@ export default function PublicPatientBudgetPage() {
   const [budget, setBudget] = useState<PatientClinicalBudgetDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSigning, setIsSigning] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   // Canvas de firma digital
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -61,38 +62,64 @@ export default function PublicPatientBudgetPage() {
     loadBudget();
   }, [folio]);
 
-  // Dibujo en Canvas de Firma
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  // Ajustar resolución interna del canvas al abrir el modal de firma
+  useEffect(() => {
+    if (isSigning && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "#059669";
+        ctx.lineWidth = 2.5;
+      }
+    }
+  }, [isSigning]);
+
+  // Dibujo en Canvas de Firma con escalado de coordenadas exactas
+  const getCoordinates = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+    canvas: HTMLCanvasElement
+  ) => {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  };
+
+  const startDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = ("touches" in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = ("touches" in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-
+    const { x, y } = getCoordinates(e, canvas);
     ctx.beginPath();
     ctx.moveTo(x, y);
     setIsDrawing(true);
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const draw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = ("touches" in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = ("touches" in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-
+    const { x, y } = getCoordinates(e, canvas);
     ctx.lineTo(x, y);
-    ctx.strokeStyle = "#059669";
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
     ctx.stroke();
     setHasSignature(true);
   };
@@ -106,7 +133,8 @@ export default function PublicPatientBudgetPage() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const dpr = window.devicePixelRatio || 1;
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
     setHasSignature(false);
   };
 
@@ -150,9 +178,23 @@ export default function PublicPatientBudgetPage() {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    if (!budget) return;
+    try {
+      setIsGeneratingPdf(true);
+      await generateClinicalBudgetPdf(budget);
+      toast.success("PDF descargado correctamente.");
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      toast.error("No se pudo generar el archivo PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#080808] flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#080808] flex items-center justify-center p-6 pt-32">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 rounded-full border-3 border-emerald-600 border-t-transparent animate-spin mx-auto" />
           <p className="text-sm font-bold text-gray-500">Cargando presupuesto médico seguro...</p>
@@ -163,7 +205,7 @@ export default function PublicPatientBudgetPage() {
 
   if (!budget) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#080808] flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#080808] flex items-center justify-center p-6 pt-32">
         <div className="max-w-md w-full bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 rounded-3xl p-8 text-center space-y-4 shadow-md">
           <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
           <h2 className="text-xl font-black text-gray-900 dark:text-white">Presupuesto no encontrado</h2>
@@ -178,12 +220,14 @@ export default function PublicPatientBudgetPage() {
     );
   }
 
+  const doctorFormatted = formatDoctorDisplayName(budget.doctorName);
+
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-[#070707] py-12 px-4 sm:px-6 lg:px-8 font-sans select-none">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#070707] pt-28 sm:pt-32 pb-20 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* ── BARRA SUPERIOR DE ACCIONES ─────────────────────────────── */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link href="/" className="inline-flex items-center gap-2 text-emerald-600 font-black text-lg">
             <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-mono font-bold text-sm">
               Q
@@ -191,15 +235,28 @@ export default function PublicPatientBudgetPage() {
             <span>QuHealthy Clinical Engine</span>
           </Link>
 
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => window.print()}
-            className="rounded-xl gap-1.5 text-xs font-bold"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Imprimir Cotización</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="rounded-xl gap-1.5 text-xs font-bold bg-white dark:bg-[#121212] border-gray-200 dark:border-gray-800 cursor-pointer shadow-2xs"
+            >
+              {isGeneratingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+              <span>Descargar PDF Oficial</span>
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.print()}
+              className="rounded-xl gap-1.5 text-xs font-bold bg-white dark:bg-[#121212] border-gray-200 dark:border-gray-800 cursor-pointer shadow-2xs"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Imprimir</span>
+            </Button>
+          </div>
         </div>
 
         {/* ── FICHA PRINCIPAL DEL PRESUPUESTO ────────────────────────── */}
@@ -213,18 +270,16 @@ export default function PublicPatientBudgetPage() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold">
                 <FileText className="w-3.5 h-3.5" />
-                <span>COTIZACIÓN CLÍNICA & QUIRÚRGICA</span>
+                <span>COTIZACIÓN CLÍNICA & QUIRÚRGICA OFICIAL</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                 {budget.procedureName}
               </h1>
               <div className="space-y-0.5">
-                {budget.doctorName && (
-                  <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <Stethoscope className="w-4 h-4 text-emerald-600" />
-                    <span>Dr(a). {budget.doctorName} {budget.doctorSpecialty ? `• ${budget.doctorSpecialty}` : ""}</span>
-                  </p>
-                )}
+                <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <Stethoscope className="w-4 h-4 text-emerald-600" />
+                  <span>{doctorFormatted} {budget.doctorSpecialty ? `• ${budget.doctorSpecialty}` : ""}</span>
+                </p>
                 {budget.doctorLicense && (
                   <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -232,7 +287,7 @@ export default function PublicPatientBudgetPage() {
                   </p>
                 )}
                 {budget.diagnosisCie10 && (
-                  <p className="text-xs font-mono font-bold text-gray-400">
+                  <p className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">
                     Diagnóstico CIE-10: {budget.diagnosisCie10}
                   </p>
                 )}
@@ -252,6 +307,7 @@ export default function PublicPatientBudgetPage() {
               {(budget.doctorPhone || budget.doctorEmail) && (
                 <div className="text-[10px] text-gray-400 pt-1 border-t border-gray-200/60 dark:border-gray-800">
                   {budget.doctorPhone && <div>Tel: {budget.doctorPhone}</div>}
+                  {budget.doctorEmail && <div>{budget.doctorEmail}</div>}
                 </div>
               )}
             </div>
@@ -262,6 +318,9 @@ export default function PublicPatientBudgetPage() {
             <div>
               <span className="text-gray-400 font-bold uppercase text-[10px] block">Paciente</span>
               <span className="font-extrabold text-gray-900 dark:text-white text-sm">{budget.patientName}</span>
+              {(budget.patientPhone || budget.patientEmail) && (
+                <span className="text-[10px] text-gray-400 block">{budget.patientPhone || budget.patientEmail}</span>
+              )}
             </div>
             <div>
               <span className="text-gray-400 font-bold uppercase text-[10px] block">Fecha de Emisión</span>
@@ -298,12 +357,16 @@ export default function PublicPatientBudgetPage() {
                     <tr key={idx} className="hover:bg-gray-50/40">
                       <td className="p-3.5 font-medium">
                         <span className="font-bold block text-gray-900 dark:text-white">{it.description}</span>
-                        <span className="text-[10px] text-gray-400 uppercase tracking-wider">{it.itemType.replace("_", " ")}</span>
+                        <span className="text-[10px] text-gray-400 uppercase">
+                          {it.itemType.replace("_", " ")}
+                        </span>
                       </td>
                       <td className="p-3.5 text-center font-mono">{it.quantity}</td>
-                      <td className="p-3.5 text-right font-mono">${it.unitPrice?.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                      <td className="p-3.5 text-right font-mono">
+                        ${it.unitPrice.toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                      </td>
                       <td className="p-3.5 text-right font-mono font-bold text-gray-900 dark:text-white">
-                        ${it.subtotal?.toLocaleString("es-MX", { minimumFractionDigits: 2 })}
+                        ${(it.subtotal ?? (it.quantity * it.unitPrice)).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   ))}
@@ -312,73 +375,62 @@ export default function PublicPatientBudgetPage() {
             </div>
           </div>
 
-          {/* ── TOTALES Y RESUMEN FINANCIERO ───────────────────────────── */}
-          <div className="flex flex-col sm:flex-row justify-between gap-6 pt-4 border-t border-gray-100 dark:border-gray-800">
-            <div className="space-y-2 sm:max-w-md text-xs text-gray-500">
-              <h4 className="font-bold text-gray-900 dark:text-white uppercase text-[10px]">
-                Indicaciones Clínicas
+          {/* ── INDICACIONES CLÍNICAS & RESUMEN FINANCIERO ───────────────── */}
+          <div className="flex flex-col sm:flex-row justify-between gap-6 pt-4 border-t border-gray-200 dark:border-gray-800">
+            <div className="space-y-2 sm:max-w-md">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                Indicaciones Clínicas y Términos
               </h4>
-              <p className="leading-relaxed">
-                {budget.clinicalNotes || "No se especificaron indicaciones adicionales."}
+              <p className="text-xs text-gray-500 leading-relaxed">
+                {budget.clinicalNotes || "No se especificaron indicaciones previas adicionales."}
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-gray-50 dark:bg-[#121212] border border-gray-200/80 dark:border-gray-800 w-full sm:w-80 space-y-2.5 text-xs">
+            <div className="w-full sm:w-80 space-y-2.5 p-5 rounded-2xl bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-gray-800 text-xs shrink-0">
               <div className="flex justify-between text-gray-500">
-                <span>Subtotal:</span>
-                <span className="font-mono font-bold">${budget.subtotalAmount?.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN</span>
+                <span>Subtotal Bruto:</span>
+                <span className="font-mono font-bold">
+                  ${(budget.subtotalAmount || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN
+                </span>
               </div>
               {budget.discountAmount > 0 && (
                 <div className="flex justify-between text-emerald-600 font-bold">
-                  <span>Descuento:</span>
-                  <span className="font-mono">-${budget.discountAmount?.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN</span>
+                  <span>Descuento Comercial:</span>
+                  <span className="font-mono">
+                    -${budget.discountAmount.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN
+                  </span>
                 </div>
               )}
               <div className="flex justify-between text-gray-500">
-                <span>IVA Médicamente Exento:</span>
-                <span className="font-mono text-emerald-600 font-bold">$0.00 (0%)</span>
+                <span>IVA (Art. 15 Fracc. XIV LIVA):</span>
+                <span className="font-mono font-bold text-emerald-600">EXENTO (0%)</span>
               </div>
-              <div className="pt-2 border-t border-gray-200 dark:border-gray-800 flex justify-between items-baseline">
-                <span className="font-black uppercase text-[10px] text-gray-900 dark:text-white">Total a Pagar:</span>
-                <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">
-                  ${budget.totalAmount?.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-800 flex justify-between items-baseline">
+                <span className="font-black uppercase tracking-wider text-gray-900 dark:text-white">Total a Pagar:</span>
+                <span className="text-2xl font-black font-mono text-emerald-600">
+                  ${budget.totalAmount.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN
                 </span>
               </div>
             </div>
           </div>
 
-          {/* ── TÉRMINOS Y CONDICIONES ─────────────────────────────────── */}
-          <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#111] border border-gray-100 dark:border-gray-800 text-[11px] text-gray-500 space-y-1.5">
-            <h4 className="font-bold text-gray-800 dark:text-gray-200 uppercase text-[10px]">
-              Términos del Presupuesto
-            </h4>
-            <p className="whitespace-pre-line leading-relaxed">
-              {budget.termsAndConditions}
-            </p>
-          </div>
-
-          {/* ── SECCIÓN DE FIRMA Y ACEPTACIÓN DEL PACIENTE ─────────────── */}
-          <div className="pt-6 border-t border-gray-100 dark:border-gray-800 space-y-4">
+          {/* ── ACCIONES DE ACEPTACIÓN / FIRMA DIGITAL ──────────────────── */}
+          <div className="pt-6 border-t border-gray-200 dark:border-gray-800">
             {budget.status === "ACCEPTED" ? (
-              <div className="p-6 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-600 shrink-0" />
-                  <div>
-                    <h4 className="text-sm font-extrabold text-emerald-900 dark:text-emerald-200">
-                      Presupuesto Aceptado con Firma Digital
-                    </h4>
-                    <p className="text-xs text-emerald-700 dark:text-emerald-400">
-                      Aceptado el {new Date(budget.acceptedAt || Date.now()).toLocaleDateString("es-MX")} a las {new Date(budget.acceptedAt || Date.now()).toLocaleTimeString("es-MX")}.
-                    </p>
-                  </div>
-                </div>
-
+              <div className="p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-center space-y-3">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
+                <h4 className="text-base font-black text-emerald-900 dark:text-emerald-200">
+                  Cotización Aceptada y Firmada Digitalmente
+                </h4>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 max-w-md mx-auto">
+                  Aceptado el {budget.acceptedAt ? new Date(budget.acceptedAt).toLocaleString("es-MX") : "recientemente"}. Guarda este comprobante para tu procedimiento.
+                </p>
                 {budget.patientSignatureUrl && (
-                  <div className="p-2 rounded-xl bg-white dark:bg-[#111] border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+                  <div className="pt-2 flex justify-center">
                     <img
                       src={budget.patientSignatureUrl}
                       alt="Firma del Paciente"
-                      className="h-12 object-contain"
+                      className="h-14 object-contain mix-blend-multiply dark:mix-blend-normal bg-white p-2 rounded-xl border border-emerald-200"
                     />
                   </div>
                 )}
@@ -394,13 +446,13 @@ export default function PublicPatientBudgetPage() {
                 </p>
               </div>
             ) : isSigning ? (
-              /* Canvas para dibujar firma */
+              /* Canvas para dibujar firma digital con 100% de área útil */
               <div className="p-6 rounded-3xl bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200">
                     <PenTool className="w-4 h-4" />
                     <h4 className="text-xs font-black uppercase tracking-wider">
-                      Firma Digital del Paciente
+                      Lienzo de Firma Digital del Paciente
                     </h4>
                   </div>
                   <button
@@ -413,11 +465,9 @@ export default function PublicPatientBudgetPage() {
                   </button>
                 </div>
 
-                <div className="w-full bg-white dark:bg-[#141414] rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-800 h-40 relative flex items-center justify-center overflow-hidden touch-none cursor-crosshair">
+                <div className="w-full bg-white dark:bg-[#141414] rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-800 h-44 relative flex items-center justify-center overflow-hidden touch-none cursor-crosshair shadow-inner">
                   <canvas
                     ref={canvasRef}
-                    width={700}
-                    height={160}
                     onMouseDown={startDrawing}
                     onMouseMove={draw}
                     onMouseUp={stopDrawing}
@@ -425,11 +475,11 @@ export default function PublicPatientBudgetPage() {
                     onTouchStart={startDrawing}
                     onTouchMove={draw}
                     onTouchEnd={stopDrawing}
-                    className="w-full h-full"
+                    className="w-full h-full block"
                   />
                   {!hasSignature && (
-                    <span className="absolute pointer-events-none text-xs text-gray-300 dark:text-gray-700 font-bold">
-                      Dibuja tu firma aquí con el dedo o ratón
+                    <span className="absolute pointer-events-none text-xs text-gray-300 dark:text-gray-600 font-bold select-none">
+                      Dibuja tu firma aquí en cualquier parte del recuadro
                     </span>
                   )}
                 </div>
@@ -439,17 +489,17 @@ export default function PublicPatientBudgetPage() {
                     variant="outline"
                     onClick={() => setIsSigning(false)}
                     disabled={isSubmitting}
-                    className="rounded-xl text-xs"
+                    className="rounded-xl text-xs cursor-pointer"
                   >
                     Cancelar
                   </Button>
                   <Button
                     onClick={handleAcceptBudget}
                     disabled={isSubmitting || !hasSignature}
-                    className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-2 shadow-md shadow-emerald-600/20"
+                    className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-2 shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    <span>Confirmar Aceptación</span>
+                    <span>Confirmar y Aceptar Presupuesto</span>
                   </Button>
                 </div>
               </div>
@@ -469,14 +519,14 @@ export default function PublicPatientBudgetPage() {
                     variant="outline"
                     onClick={handleRejectBudget}
                     disabled={isSubmitting}
-                    className="flex-1 sm:flex-initial rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border-rose-200"
+                    className="flex-1 sm:flex-initial rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border-rose-200 cursor-pointer"
                   >
                     Rechazar
                   </Button>
 
                   <Button
                     onClick={() => setIsSigning(true)}
-                    className="flex-1 sm:flex-initial rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-2 shadow-md shadow-emerald-600/20"
+                    className="flex-1 sm:flex-initial rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-2 shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
                     <PenTool className="w-3.5 h-3.5" />
                     <span>Aceptar y Firmar Cotización</span>

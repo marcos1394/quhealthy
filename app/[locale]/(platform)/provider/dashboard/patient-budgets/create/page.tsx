@@ -27,6 +27,7 @@ import {
   Stethoscope,
   Clock,
   Printer,
+  Download,
   ChevronRight,
   Send,
   Save,
@@ -54,6 +55,7 @@ import {
   CreatePatientBudgetDTO,
   PatientBudgetItemDTO,
   PatientBudgetItemType,
+  PatientClinicalBudgetDTO,
 } from "@/types/clinical-budget";
 import { clinicalBudgetService } from "@/services/clinical-budget.service";
 import { patientDirectoryService } from "@/services/patientDirectory.service";
@@ -63,6 +65,7 @@ import { onboardingService } from "@/services/onboarding.service";
 import { PatientDirectorySearchResult } from "@/types/patient";
 import { CatalogItemDTO } from "@/types/catalog";
 import { ProfileResponse, OnboardingStatusResponse } from "@/types/onboarding";
+import { generateClinicalBudgetPdf, formatDoctorDisplayName } from "@/lib/pdf/clinicalBudgetPdf";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -92,7 +95,7 @@ const TEMPLATES = [
   {
     name: "Cirugía de Catarata + Lente",
     procedureName: "Facoemulsificación con Implante de Lente Intraocular",
-    diagnosisCie10: "H25.9",
+    diagnosisCie10: "H25.9 - Catarata senil, no especificada",
     items: [
       { itemType: "SURGEON_FEE" as PatientBudgetItemType, description: "Honorarios de Cirujano Oftalmólogo", quantity: 1, unitPrice: 12000 },
       { itemType: "ANESTHESIOLOGIST_FEE" as PatientBudgetItemType, description: "Honorarios de Anestesiólogo (Sedación)", quantity: 1, unitPrice: 3500 },
@@ -104,7 +107,7 @@ const TEMPLATES = [
   {
     name: "Colecistectomía Laparoscópica",
     procedureName: "Extirpación de Vesícula Biliar por Laparoscopia",
-    diagnosisCie10: "K80.2",
+    diagnosisCie10: "K80.2 - Cálculo de vesícula biliar sin colecistitis",
     items: [
       { itemType: "SURGEON_FEE" as PatientBudgetItemType, description: "Honorarios Cirujano General", quantity: 1, unitPrice: 18000 },
       { itemType: "ASSISTANT_FEE" as PatientBudgetItemType, description: "Honorarios Primer Ayudante Quirúrgico", quantity: 1, unitPrice: 4000 },
@@ -116,7 +119,7 @@ const TEMPLATES = [
   {
     name: "Implante Dental + Corona",
     procedureName: "Colocación de Implante de Titanio y Corona Zirconia",
-    diagnosisCie10: "K08.1",
+    diagnosisCie10: "K08.1 - Pérdida de dientes debida a accidente o extracción",
     items: [
       { itemType: "SURGEON_FEE" as PatientBudgetItemType, description: "Fase Quirúrgica (Colocación de Implante Osteointegrado)", quantity: 1, unitPrice: 9500 },
       { itemType: "SUPPLY" as PatientBudgetItemType, description: "Pilar Protésico y Corona de Zirconia Monolítica", quantity: 1, unitPrice: 6500 },
@@ -126,7 +129,7 @@ const TEMPLATES = [
   {
     name: "Chequeo Médico Integral 360°",
     procedureName: "Protocolo de Evaluación Preventiva Integral",
-    diagnosisCie10: "Z00.0",
+    diagnosisCie10: "Z00.0 - Examen médico general",
     items: [
       { itemType: "SURGEON_FEE" as PatientBudgetItemType, description: "Consulta de Medicina Interna + Electrocardiograma", quantity: 1, unitPrice: 1500 },
       { itemType: "LAB" as PatientBudgetItemType, description: "Checkup de Laboratorio (Biometría, Química 45, Perfil Lipídico)", quantity: 1, unitPrice: 2200 },
@@ -308,7 +311,7 @@ export default function CreatePatientBudgetPage() {
 
   // Selección de CIE-10
   const handleSelectCie10 = (item: { code: string; name: string }) => {
-    setDiagnosisCie10(item.code);
+    setDiagnosisCie10(`${item.code} - ${item.name}`);
     setCie10SearchQuery("");
     setIsCie10DropdownOpen(false);
     toast.success(`Diagnóstico "${item.code} - ${item.name}" seleccionado.`);
@@ -409,6 +412,73 @@ export default function CreatePatientBudgetPage() {
     it.name.toLowerCase().includes(procedureSearchQuery.toLowerCase())
   );
 
+  const doctorDisplayName = formatDoctorDisplayName(
+    doctorStatus?.prescriptionHeaderData?.doctorName ||
+    doctorStatus?.firstName ||
+    doctorProfile?.businessName
+  );
+
+  const doctorLicenseNumber =
+    doctorStatus?.prescriptionHeaderData?.professionalLicense ||
+    (doctorStatus?.professionalLicenses && doctorStatus.professionalLicenses.length > 0
+      ? doctorStatus.professionalLicenses[0].licenseNumber
+      : "");
+
+  const doctorSpecialtyName =
+    doctorStatus?.prescriptionHeaderData?.specialty ||
+    (doctorStatus?.professionalLicenses && doctorStatus.professionalLicenses.length > 0
+      ? (doctorStatus.professionalLicenses[0].institution || doctorStatus.professionalLicenses[0].type)
+      : "");
+
+  const handleDownloadPdf = async () => {
+    try {
+      const previewBudget: PatientClinicalBudgetDTO = {
+        id: 0,
+        folio: "PR-2026-BORRADOR",
+        providerId: 0,
+        patientId: selectedPatientId,
+        patientName: patientName || "Nombre del Paciente",
+        patientEmail,
+        patientPhone,
+        procedureName: procedureName || "Procedimiento Médico",
+        diagnosisCie10,
+        clinicalNotes,
+        doctorName: doctorDisplayName,
+        doctorLicense: doctorLicenseNumber,
+        doctorSpecialty: doctorSpecialtyName,
+        doctorPhone: doctorProfile?.contactPhone || "",
+        doctorEmail: doctorProfile?.contactEmail || doctorStatus?.email || "",
+        subtotalAmount: subtotal,
+        discountAmount,
+        taxAmount: 0,
+        totalAmount: total,
+        status: "DRAFT",
+        validUntil: validUntilDate.toISOString().split("T")[0],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        items: items.map((i, idx) => ({
+          id: idx,
+          itemType: i.itemType,
+          description: i.description,
+          quantity: Number(i.quantity) || 1,
+          unitPrice: Number(i.unitPrice) || 0,
+          subtotal: (Number(i.quantity) || 1) * (Number(i.unitPrice) || 0),
+          notes: i.notes,
+        })),
+      };
+
+      await generateClinicalBudgetPdf(previewBudget, {
+        accentColorHex: accentColor,
+        clinicLogoUrl,
+        footerNote: footerCustomNote,
+      });
+      toast.success("PDF descargado correctamente.");
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      toast.error("No se pudo generar el archivo PDF.");
+    }
+  };
+
   const handleSubmit = async (sendImmediately: boolean = false) => {
     if (!patientName.trim()) {
       toast.error("El nombre del paciente es obligatorio.");
@@ -433,9 +503,9 @@ export default function CreatePatientBudgetPage() {
         diagnosisCie10: diagnosisCie10.trim() || undefined,
         procedureName,
         clinicalNotes: clinicalNotes.trim() || undefined,
-        doctorName: doctorStatus?.firstName ? `Dr(a). ${doctorStatus.firstName}` : (doctorProfile?.businessName || undefined),
-        doctorLicense: doctorStatus?.professionalLicenses && doctorStatus.professionalLicenses.length > 0 ? doctorStatus.professionalLicenses[0].licenseNumber : undefined,
-        doctorSpecialty: doctorStatus?.professionalLicenses && doctorStatus.professionalLicenses.length > 0 ? (doctorStatus.professionalLicenses[0].institution || doctorStatus.professionalLicenses[0].type) : undefined,
+        doctorName: doctorDisplayName,
+        doctorLicense: doctorLicenseNumber || undefined,
+        doctorSpecialty: doctorSpecialtyName || undefined,
         doctorPhone: doctorProfile?.contactPhone || undefined,
         doctorEmail: doctorProfile?.contactEmail || doctorStatus?.email || undefined,
         validUntil: validUntilDate.toISOString().split("T")[0],
@@ -519,16 +589,14 @@ export default function CreatePatientBudgetPage() {
               "font-black text-gray-900 dark:text-white tracking-tight leading-tight",
               isSplit ? "text-base sm:text-lg" : "text-2xl"
             )}>
-              {doctorStatus?.firstName ? `Dr(a). ${doctorStatus.firstName}` : (doctorProfile?.businessName || "Consultorio Médico Especializado")}
+              {doctorDisplayName}
             </h2>
             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 font-medium">
-              {doctorStatus?.professionalLicenses && doctorStatus.professionalLicenses.length > 0 && (
+              {doctorLicenseNumber && (
                 <span className="flex items-center gap-1 font-bold text-gray-700 dark:text-gray-300">
                   <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
                   <span>
-                    Cédula Profesional SEP: {doctorStatus.professionalLicenses[0].licenseNumber} (
-                    {doctorStatus.professionalLicenses[0].institution || doctorStatus.professionalLicenses[0].type}
-                    )
+                    Cédula Profesional SEP: {doctorLicenseNumber} {doctorSpecialtyName ? `(${doctorSpecialtyName})` : ""}
                   </span>
                 </span>
               )}
@@ -775,15 +843,27 @@ export default function CreatePatientBudgetPage() {
               <span>Volver al Formulario de Edición</span>
             </button>
 
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => window.print()}
-              className="rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Imprimir Cotización</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleDownloadPdf}
+                className="rounded-xl text-xs font-bold gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Descargar PDF Oficial</span>
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => window.print()}
+                className="rounded-xl text-xs font-bold gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Imprimir Cotización</span>
+              </Button>
+            </div>
           </div>
 
           {renderOfficialLetterhead(false)}
@@ -958,6 +1038,14 @@ export default function CreatePatientBudgetPage() {
                   </div>
                 )}
               </div>
+
+              {/* Indicador de expediente QuHealthy y Health Vault */}
+              {selectedPatientId && (
+                <div className="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>Paciente QuHealthy vinculado: El presupuesto se integrará automáticamente a su expediente clínico y Health Vault.</span>
+                </div>
+              )}
 
               {/* Teléfono y Correo del Paciente */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1311,14 +1399,25 @@ export default function CreatePatientBudgetPage() {
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setViewMode("preview")}
-                  className="text-[11px] font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 hover:underline cursor-pointer"
-                >
-                  <Eye className="w-3 h-3" />
-                  <span>Pantalla Completa</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    title="Descargar PDF Oficial"
+                    className="p-1 text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-200/60 dark:hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("preview")}
+                    className="text-[11px] font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    <Eye className="w-3 h-3" />
+                    <span>Pantalla Completa</span>
+                  </button>
+                </div>
               </div>
 
               {/* Contenedor con Scroll Independiente para el Documento Completo */}
