@@ -54,7 +54,7 @@ export const DiscoverItemCard = ({
 
   const handleItemClick = () => {
     router.push(
-      `/store/${item.providerSlug}?autoShow=${item.id}&type=${item.type}`
+      `/${locale}/market/item/${item.id}-${generateSlug(item.name)}`
     );
   };
 

@@ -2,16 +2,19 @@ import { GalleryImage } from './store';
 
 export interface StorefrontItem {
   id: number;
+  providerId?: number;
   type: 'SERVICE' | 'PACKAGE' | 'PRODUCT' | 'COURSE'; // 🚀 AHORA SOPORTA LOS 4 TIPOS
   category: string;
   name: string;
   description: string;
   price: number;
+  currency?: string;
   quantity?: number; // Solo para productos físicos (Stock)
   cartQuantity?: number; // 🚀 NUEVO: Cantidad en el carrito
   imageUrl?: string;
   galleryImages?: GalleryImage[];
   requiresEvaluation?: boolean;
+  status?: string;
   
   // 🩺 Campos de Servicio
   durationMinutes?: number;

@@ -36,8 +36,16 @@ export interface CatalogItemDTO {
   manufacturer?: string;
   requiresPrescription?: boolean;
 
+  // 🏷️ Marketing y Precios
+  compareAtPrice?: number;
+  currency?: string;
+  searchTags?: string[];
+
   // 🎓 Específico Cursos / Contenido Digital
   contentUrl?: string;
+  minimumPassingScore?: number;
+  hasCertificate?: boolean;
+  certificateTemplateColor?: string;
 
   // Específico de Paquetes
   packageItems?: { itemId: number; quantity: number }[];
