@@ -34,7 +34,7 @@ import {
   PatientBudgetStatus,
 } from "@/types/clinical-budget";
 import { clinicalBudgetService } from "@/services/clinical-budget.service";
-import { CreatePatientBudgetModal } from "@/components/finance/CreatePatientBudgetModal";
+import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +43,6 @@ export default function PatientBudgetsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeStatus, setActiveStatus] = useState<PatientBudgetStatus | "ALL">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const fetchBudgets = useCallback(async () => {
     try {
@@ -144,11 +143,13 @@ export default function PatientBudgetsPage() {
         </div>
 
         <Button
-          onClick={() => setIsCreateModalOpen(true)}
+          asChild
           className="h-11 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 gap-2 shrink-0 cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
-          <span>Nueva Cotización / Presupuesto</span>
+          <Link href="/provider/dashboard/patient-budgets/create">
+            <Plus className="w-4 h-4" />
+            <span>Nueva Cotización / Presupuesto</span>
+          </Link>
         </Button>
       </div>
 
@@ -356,21 +357,16 @@ export default function PatientBudgetsPage() {
               </p>
             </div>
             <Button
-              onClick={() => setIsCreateModalOpen(true)}
+              asChild
               className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs"
             >
-              Crear Nueva Cotización
+              <Link href="/provider/dashboard/patient-budgets/create">
+                Crear Nueva Cotización
+              </Link>
             </Button>
           </div>
         )}
       </div>
-
-      {/* ── MODAL DE CREACIÓN ───────────────────────────────────────── */}
-      <CreatePatientBudgetModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={fetchBudgets}
-      />
     </div>
   );
 }
