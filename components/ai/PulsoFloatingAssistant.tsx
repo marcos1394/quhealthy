@@ -21,166 +21,50 @@ import {
   Maximize2,
   Minimize2,
   ChevronDown,
-  Stethoscope,
-  ShoppingBag,
-  Calendar,
-  MapPin,
-  ExternalLink,
 } from "lucide-react";
 
-import { useHealthOSStore, Message } from "@/stores/useHealthOSStore";
+import { PulsoMascot, PulsoState, PulsoPalette } from "@/components/ai/PulsoMascot";
 import { healthOSService, AttachmentData } from "@/services/healthOS.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { WidgetRenderer } from "@/components/engine/WidgetRenderer";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
 
-// ── 1. TIPOS Y MASCOTA "QU" / PULSO ──────────────────────────────────────────
-type MascotState = "idle" | "attending" | "thinking" | "searching" | "success" | "wink";
-
-interface QuMascotProps {
-  state?: MascotState;
-  size?: number;
-  className?: string;
-  onClick?: () => void;
-}
-
-function QuMascot({
-  state = "idle",
-  size = 28,
-  className = "",
-  onClick,
-}: QuMascotProps) {
-  const [internalState, setInternalState] = useState<MascotState>(state);
-  const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    setInternalState(state);
-  }, [state]);
-
-  const activeState = isHovered && internalState === "idle" ? "wink" : internalState;
-
-  const getMouthPoints = () => {
-    switch (activeState) {
-      case "thinking":
-      case "searching":
-        return { leftY: 16.2, centerY: 16.2, rightY: 16.2 };
-      case "attending":
-        return { leftY: 15.6, centerY: 18.2, rightY: 15.6 };
-      case "success":
-      case "wink":
-        return { leftY: 14.8, centerY: 18.8, rightY: 14.8 };
-      case "idle":
-      default:
-        return { leftY: 16.2, centerY: 18.0, rightY: 16.2 };
-    }
+export interface FloatingChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  text?: string;
+  response?: any;
+  attachment?: {
+    base64Data: string;
+    mimeType: string;
+    fileName?: string;
   };
-
-  const { leftY, centerY, rightY } = getMouthPoints();
-
-  return (
-    <svg
-      className={cn(
-        "cursor-pointer transition-transform duration-200 active:scale-90",
-        className
-      )}
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={() => {
-        setInternalState("wink");
-        setTimeout(() => setInternalState(state), 1200);
-        if (onClick) onClick();
-      }}
-    >
-      <defs>
-        <linearGradient id="pulsoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#059669" />
-        </linearGradient>
-      </defs>
-
-      {/* Bisel Exterior */}
-      <rect
-        x="1.2"
-        y="1.2"
-        width="21.6"
-        height="21.6"
-        rx="6"
-        className="fill-emerald-600 dark:fill-emerald-500 stroke-emerald-700 dark:stroke-emerald-400"
-        strokeWidth="0.8"
-      />
-
-      {/* Matriz LED Exterior */}
-      <circle cx="3.5" cy="3.5" r="0.75" className="fill-white/80" />
-      <circle cx="12" cy="3.5" r="0.75" className="fill-white/80" />
-      <circle cx="20.5" cy="3.5" r="0.75" className="fill-white/80" />
-      <circle cx="3.5" cy="12" r="0.75" className="fill-white/80" />
-      <circle cx="20.5" cy="12" r="0.75" className="fill-white/80" />
-      <circle cx="3.5" cy="20.5" r="0.75" className="fill-white/80" />
-      <circle cx="12" cy="20.5" r="0.75" className="fill-white/80" />
-      <circle cx="20.5" cy="20.5" r="0.75" className="fill-white/80" />
-
-      {/* Ojo Izquierdo */}
-      {activeState === "wink" ? (
-        <path d="M 6.5 10 Q 8.5 8 10.5 10" stroke="white" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      ) : activeState === "thinking" ? (
-        <circle cx="8.5" cy="9.5" r="1.5" className="fill-white" />
-      ) : (
-        <circle cx="8.5" cy="9.5" r="1.8" className="fill-white" />
-      )}
-
-      {/* Ojo Derecho */}
-      {activeState === "thinking" ? (
-        <circle cx="15.5" cy="9.5" r="1.5" className="fill-white" />
-      ) : (
-        <circle cx="15.5" cy="9.5" r="1.8" className="fill-white" />
-      )}
-
-      {/* Sonrisa Dinámica */}
-      <path
-        d={`M 7.5 ${leftY} Q 12 ${centerY} 16.5 ${rightY}`}
-        stroke="white"
-        strokeWidth="1.6"
-        fill="none"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  audioBase64?: string;
 }
 
-// ── 2. COMPONENTE PRINCIPAL FLOTANTE DE PULSO ────────────────────────────────
 export function PulsoFloatingAssistant() {
   const t = useTranslations("PulsoAssistant");
   const pathname = usePathname();
   const { user } = useSessionStore();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
-  const [mascotState, setMascotState] = useState<MascotState>("idle");
+  const [mascotState, setMascotState] = useState<PulsoState>("idle");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ttsEnabled, setTtsEnabled] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [attachments, setAttachments] = useState<AttachmentData[]>([]);
+  const [messages, setMessages] = useState<FloatingChatMessage[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
-
-  const {
-    conversation,
-    addUserMessage,
-    updateAssistantStream,
-    finalizeStream,
-    resetConversation,
-    streamingState,
-  } = useHealthOSStore();
 
   // Detección contextual de la tienda actual a partir de la URL
   const isStorePage = pathname?.includes("/store/");
@@ -197,27 +81,27 @@ export function PulsoFloatingAssistant() {
       },
     });
 
-  // Auto-scroll al final de la conversación
+  // Auto-scroll suave
   useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [conversation, isOpen, streamingState]);
+  }, [messages, isOpen, isProcessing]);
 
-  // Manejo de Mascot State
+  // Manejo de Estados de Pulso Mascot
   useEffect(() => {
     if (isListening) {
-      setMascotState("attending");
-    } else if (streamingState === "processing") {
+      setMascotState("listening");
+    } else if (isProcessing) {
       setMascotState("thinking");
-    } else if (conversation.length > 0 && conversation[conversation.length - 1].role === "assistant") {
+    } else if (messages.length > 0 && messages[messages.length - 1].role === "assistant") {
       setMascotState("success");
-      const timer = setTimeout(() => setMascotState("idle"), 3000);
+      const timer = setTimeout(() => setMascotState("idle"), 3500);
       return () => clearTimeout(timer);
     } else {
       setMascotState("idle");
     }
-  }, [isListening, streamingState, conversation]);
+  }, [isListening, isProcessing, messages]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputMessage).trim();
@@ -227,17 +111,21 @@ export function PulsoFloatingAssistant() {
     const currentAttachments = [...attachments];
     setAttachments([]);
 
-    // Añadir mensaje a store local
-    addUserMessage(
+    const userMsgId = crypto.randomUUID();
+    const newUserMessage: FloatingChatMessage = {
+      id: userMsgId,
+      role: "user",
       text,
-      currentAttachments.length > 0
+      attachment: currentAttachments.length > 0
         ? {
             base64Data: currentAttachments[0].base64Data,
             mimeType: currentAttachments[0].mimeType,
           }
-        : undefined
-    );
+        : undefined,
+    };
 
+    setMessages((prev) => [...prev, newUserMessage]);
+    setIsProcessing(true);
     setMascotState("thinking");
 
     // Construir contexto enriquecido
@@ -257,10 +145,19 @@ export function PulsoFloatingAssistant() {
       );
 
       startTransition(() => {
-        updateAssistantStream(response);
-        finalizeStream();
+        const assistantMsgId = crypto.randomUUID();
+        const newAssistantMsg: FloatingChatMessage = {
+          id: assistantMsgId,
+          role: "assistant",
+          text: response.text || (response as any).reply || "",
+          response: response,
+          audioBase64: (response as any).audioBase64,
+        };
 
-        // Reproducir audio TTS si está habilitado y el backend devuelve audio
+        setMessages((prev) => [...prev, newAssistantMsg]);
+        setIsProcessing(false);
+
+        // Reproducir audio TTS si está activo
         if (ttsEnabled && (response as any).audioBase64) {
           try {
             if (audioPlayerRef.current) {
@@ -283,10 +180,15 @@ export function PulsoFloatingAssistant() {
       });
     } catch (err) {
       console.error("Error al enviar mensaje a Pulso AI:", err);
-      updateAssistantStream({
-        text: "Disculpa, tuve un problema temporal al conectarme con el servicio de salud. Por favor intenta de nuevo.",
-      });
-      finalizeStream();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text: "Disculpa, tuve un problema temporal al conectarme con el servicio de salud. Por favor intenta de nuevo.",
+        },
+      ]);
+      setIsProcessing(false);
     }
   };
 
@@ -308,7 +210,14 @@ export function PulsoFloatingAssistant() {
     reader.readAsDataURL(file);
   };
 
-  // Sugerencias rápidas basadas en el contexto
+  const handleResetChat = () => {
+    setMessages([]);
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.pause();
+    }
+  };
+
+  // Sugerencias rápidas según la ruta actual
   const quickPrompts = isStorePage
     ? [
         t("prompt_store_services", { defaultValue: "¿Qué servicios ofrece este especialista?" }),
@@ -325,103 +234,121 @@ export function PulsoFloatingAssistant() {
 
   return (
     <>
-      {/* ── BOTÓN FLOTANTE TRIGGER (PULSO / QU MASCOT) ────────────────── */}
+      {/* ── 1. BOTÓN FLOTANTE TRIGGER (PULSO / FAB) ──────────────────── */}
       <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 select-none">
         {/* Tooltip flotante con aviso cuando está cerrado */}
         {!isOpen && (
           <motion.div
             initial={{ opacity: 0, x: 10, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ delay: 1 }}
+            transition={{ delay: 0.8 }}
             onClick={() => setIsOpen(true)}
-            className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/90 dark:bg-[#111]/90 backdrop-blur-md border border-emerald-500/20 shadow-lg text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:border-emerald-500/40 transition-all group"
+            className="hidden md:flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/95 dark:bg-[#111]/95 backdrop-blur-md border border-[#5DCAA5]/40 shadow-xl text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:border-[#1D9E75] hover:scale-105 transition-all group"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 group-hover:rotate-12 transition-transform" />
-            <span>{isStorePage ? t("ask_about_store", { defaultValue: "Preguntar sobre esta tienda" }) : t("ask_pulso", { defaultValue: "¿En qué te puedo ayudar hoy?" })}</span>
+            <Sparkles className="w-4 h-4 text-[#1D9E75] dark:text-[#5DCAA5] group-hover:rotate-12 transition-transform" />
+            <span>
+              {isStorePage
+                ? t("ask_about_store", { defaultValue: "Preguntar sobre esta tienda" })
+                : t("ask_pulso", { defaultValue: "Pregúntale a Pulso" })}
+            </span>
           </motion.div>
         )}
 
+        {/* Botón Circular de Pulso */}
         <motion.button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.94 }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
           className={cn(
-            "relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-xl transition-all border-2 cursor-pointer",
+            "relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all border-2 cursor-pointer bg-white dark:bg-[#111]",
             isOpen
-              ? "bg-gray-900 border-gray-700 text-white dark:bg-white dark:border-gray-200 dark:text-black"
-              : "bg-emerald-600 border-emerald-400/60 text-white hover:shadow-emerald-500/30 hover:shadow-2xl"
+              ? "border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white"
+              : "border-[#5DCAA5] hover:border-[#1D9E75] shadow-[0_4px_20px_rgba(29,158,117,0.3)]"
           )}
           aria-label="Abrir asistente de salud Pulso AI"
         >
-          {/* Anillo de pulso animado */}
+          {/* Anillo de pulso sutil cuando está cerrado */}
           {!isOpen && (
-            <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-25 pointer-events-none" />
+            <span
+              className="absolute inset-0 rounded-full animate-ping opacity-25 pointer-events-none"
+              style={{ backgroundColor: PulsoPalette.body }}
+            />
           )}
 
           {isOpen ? (
-            <X className="w-6 h-6" strokeWidth={2.5} />
+            <X className="w-6 h-6 text-gray-700 dark:text-gray-300" strokeWidth={2.5} />
           ) : (
-            <QuMascot state={mascotState} size={36} />
+            <PulsoMascot state={mascotState} size={42} />
           )}
         </motion.button>
       </div>
 
-      {/* ── VENTANA DE CHAT EXPANDIDA ────────────────────────────────── */}
+      {/* ── 2. VENTANA DE CHAT EXPANDIDA (ESTILO IOS HOMOLOGADO) ──────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 24, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            exit={{ opacity: 0, y: 24, scale: 0.94 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "fixed bottom-24 right-4 sm:right-6 z-50 bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans transition-all duration-300",
+              "fixed bottom-24 right-4 sm:right-6 z-50 bg-white dark:bg-[#0d0d0d] border border-gray-200/90 dark:border-gray-800 rounded-[28px] shadow-2xl flex flex-col font-sans transition-all duration-300 overflow-hidden",
               isExpanded
-                ? "w-[calc(100vw-32px)] sm:w-[680px] h-[calc(100vh-120px)] max-h-[820px]"
-                : "w-[calc(100vw-32px)] sm:w-[420px] h-[580px] sm:h-[620px] max-h-[85vh]"
+                ? "w-[calc(100vw-32px)] sm:w-[640px] h-[calc(100vh-120px)] max-h-[820px]"
+                : "w-[calc(100vw-32px)] sm:w-[410px] h-[580px] sm:h-[620px] max-h-[85vh]"
             )}
           >
-            {/* Header del Asistente */}
-            <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/80 dark:bg-[#111]/80 backdrop-blur-md flex items-center justify-between gap-3 shrink-0">
+            {/* Cabecera iOS de Pulso */}
+            <div className="px-5 py-3.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/90 dark:bg-[#141414]/90 backdrop-blur-md flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-center shrink-0 shadow-2xs">
-                  <QuMascot state={mascotState} size={28} />
+                <div className="w-11 h-11 rounded-full bg-[#5DCAA5]/20 border border-[#5DCAA5]/40 flex items-center justify-center shrink-0 shadow-2xs">
+                  <PulsoMascot state={mascotState} size={34} />
                 </div>
 
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
-                      Pulso AI
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                      Pulso
                     </h3>
-                    <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/40 rounded-full text-[9px] font-black px-2 py-0">
-                      ONLINE
+                    <Badge className="bg-emerald-50 text-[#1D9E75] dark:bg-emerald-950/50 dark:text-[#5DCAA5] border border-[#5DCAA5]/40 rounded-full text-[9px] font-black px-2 py-0">
+                      AI COPILOT
                     </Badge>
                   </div>
 
-                  <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
-                    {isStorePage ? t("store_mode", { defaultValue: "Modo Tienda Activo" }) : t("health_assistant", { defaultValue: "Copiloto Clínico & Marketplace" })}
+                  <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 truncate">
+                    {isListening
+                      ? "Escuchando tu voz..."
+                      : isProcessing
+                      ? "Pensando respuesta..."
+                      : isStorePage
+                      ? t("store_mode", { defaultValue: "Modo Tienda Activo" })
+                      : t("health_assistant", { defaultValue: "Tu asistente de salud 24/7" })}
                   </p>
                 </div>
               </div>
 
-              {/* Botones de Control en Header */}
-              <div className="flex items-center gap-1">
-                {/* Toggle TTS */}
+              {/* Botones de Control de Cabecera */}
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Audio TTS Toggle */}
                 <button
                   type="button"
                   onClick={() => setTtsEnabled(!ttsEnabled)}
-                  className="p-2 rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  title={ttsEnabled ? "Silenciar respuestas de voz" : "Activar respuestas de voz"}
+                  className="p-2 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors"
+                  title={ttsEnabled ? "Silenciar voz de Pulso" : "Activar voz de Pulso"}
                 >
-                  {ttsEnabled ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4" />}
+                  {ttsEnabled ? (
+                    <Volume2 className="w-4 h-4 text-[#1D9E75] dark:text-[#5DCAA5]" />
+                  ) : (
+                    <VolumeX className="w-4 h-4" />
+                  )}
                 </button>
 
                 {/* Reset Chat */}
                 <button
                   type="button"
-                  onClick={() => resetConversation()}
-                  className="p-2 rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  onClick={handleResetChat}
+                  className="p-2 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors"
                   title="Nueva conversación"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -431,7 +358,7 @@ export function PulsoFloatingAssistant() {
                 <button
                   type="button"
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="p-2 rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden sm:block"
+                  className="p-2 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors hidden sm:block"
                   title={isExpanded ? "Reducir ventana" : "Expandir ventana"}
                 >
                   {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -441,20 +368,20 @@ export function PulsoFloatingAssistant() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="p-2 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors"
                 >
                   <ChevronDown className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            {/* ── FEED DE MENSAJES ────────────────────────────────────── */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 font-sans no-scrollbar">
+            {/* ── FEED DE MENSAJES (RESPONSIVE SIN OVERFLOW HORIZONTAL) ── */}
+            <div className="flex-1 w-full min-w-0 overflow-y-auto overflow-x-hidden p-4 space-y-4 font-sans no-scrollbar">
               {/* Mensaje de Bienvenida Si No Hay Mensajes */}
-              {conversation.length === 0 && (
-                <div className="py-6 px-2 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/40 mx-auto flex items-center justify-center shadow-xs">
-                    <QuMascot state="attending" size={40} />
+              {messages.length === 0 && (
+                <div className="py-6 px-1 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-[#5DCAA5]/20 border border-[#5DCAA5]/40 mx-auto flex items-center justify-center shadow-xs">
+                    <PulsoMascot state="idle" size={44} />
                   </div>
 
                   <div className="space-y-1 max-w-xs mx-auto">
@@ -471,7 +398,7 @@ export function PulsoFloatingAssistant() {
                   </div>
 
                   {/* Chips de Sugerencia Rápida */}
-                  <div className="flex flex-col gap-2 pt-2 text-left">
+                  <div className="flex flex-col gap-2 pt-2 text-left w-full">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">
                       {t("suggested_questions", { defaultValue: "Sugerencias Rápidas" })}
                     </span>
@@ -480,10 +407,10 @@ export function PulsoFloatingAssistant() {
                         key={idx}
                         type="button"
                         onClick={() => handleSendMessage(prompt)}
-                        className="text-left text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#161616] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 transition-all flex items-center justify-between group shadow-2xs"
+                        className="text-left text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-[#161616] hover:bg-[#5DCAA5]/10 hover:text-[#1D9E75] dark:hover:text-[#5DCAA5] p-3 rounded-2xl border border-gray-100 dark:border-gray-800 transition-all flex items-center justify-between group shadow-2xs cursor-pointer"
                       >
-                        <span>{prompt}</span>
-                        <Send className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-emerald-600 transition-opacity shrink-0 ml-2" />
+                        <span className="truncate mr-2">{prompt}</span>
+                        <Send className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-[#1D9E75] transition-opacity shrink-0" />
                       </button>
                     ))}
                   </div>
@@ -491,42 +418,26 @@ export function PulsoFloatingAssistant() {
               )}
 
               {/* Lista de Mensajes */}
-              {conversation.map((msg: Message) => (
+              {messages.map((msg) => (
                 <div
                   key={msg.id}
                   className={cn(
-                    "flex flex-col gap-1.5 max-w-[88%]",
-                    msg.role === "user" ? "ml-auto items-end" : "mr-auto items-start"
+                    "w-full min-w-0 flex flex-col gap-1.5",
+                    msg.role === "user" ? "items-end" : "items-start"
                   )}
                 >
                   <div
                     className={cn(
-                      "p-3.5 rounded-3xl text-xs sm:text-sm font-medium leading-relaxed shadow-2xs",
+                      "p-3.5 rounded-[22px] text-xs sm:text-sm font-medium leading-relaxed shadow-2xs break-words max-w-[88%]",
                       msg.role === "user"
-                        ? "bg-emerald-600 text-white rounded-br-xs"
-                        : "bg-gray-100 dark:bg-[#181818] text-gray-900 dark:text-gray-100 rounded-bl-xs border border-gray-200/60 dark:border-gray-800"
+                        ? "bg-[#1D9E75] text-white rounded-br-xs ml-auto"
+                        : "bg-gray-100 dark:bg-[#181818] text-gray-900 dark:text-gray-100 rounded-bl-xs mr-auto border border-gray-200/50 dark:border-gray-800/80"
                     )}
                   >
-                    {/* Contenido de Texto */}
-                    {msg.content && <p className="whitespace-pre-wrap">{msg.content}</p>}
+                    {/* Texto del Mensaje */}
+                    {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
 
-                    {/* Respuesta estructurada del Backend */}
-                    {msg.response && (
-                      <div className="space-y-3">
-                        {msg.response.text && (
-                          <p className="whitespace-pre-wrap">{msg.response.text}</p>
-                        )}
-
-                        {/* Render de Widgets Nativos */}
-                        {msg.response.widgets && msg.response.widgets.length > 0 && (
-                          <div className="w-full pt-2">
-                            <WidgetRenderer widgets={msg.response.widgets} />
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Adjuntos */}
+                    {/* Adjunto de Imagen si Existe */}
                     {msg.attachment && (
                       <div className="mt-2 rounded-xl overflow-hidden border border-white/20">
                         <img
@@ -537,25 +448,22 @@ export function PulsoFloatingAssistant() {
                       </div>
                     )}
                   </div>
+
+                  {/* Render de Widgets Fuera de la Burbuja para Ajuste Perfecto */}
+                  {msg.response?.widgets && msg.response.widgets.length > 0 && (
+                    <div className="w-full max-w-full min-w-0 overflow-hidden pt-1">
+                      <WidgetRenderer widgets={msg.response.widgets} />
+                    </div>
+                  )}
                 </div>
               ))}
 
-              {/* Indicador de Pensando / Streaming */}
-              {streamingState === "processing" && (
-                <div className="flex items-center gap-2 p-3.5 rounded-3xl bg-gray-100 dark:bg-[#181818] text-gray-500 rounded-bl-xs w-fit shadow-2xs">
-                  <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+              {/* Indicador de Pensando */}
+              {isProcessing && (
+                <div className="flex items-center gap-2.5 p-3 rounded-[20px] bg-gray-100 dark:bg-[#181818] text-gray-600 dark:text-gray-400 rounded-bl-xs w-fit shadow-2xs">
+                  <QhSpinner size="sm" className="text-[#1D9E75]" />
                   <span className="text-xs font-semibold animate-pulse">
-                    Pulso está procesando tu solicitud...
-                  </span>
-                </div>
-              )}
-
-              {/* Indicador de Escuchando Voz */}
-              {isListening && (
-                <div className="flex items-center gap-2 p-3.5 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-900/50 rounded-bl-xs w-fit shadow-2xs">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="text-xs font-bold">
-                    Escuchando tu voz... {transcript ? `"${transcript}"` : ""}
+                    Pulso está procesando...
                   </span>
                 </div>
               )}
@@ -563,11 +471,33 @@ export function PulsoFloatingAssistant() {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* ── VISUALIZADOR DE ONDA DE VOZ EN TIEMPO REAL (ESTILO IOS 12 BARS) ── */}
+            {isListening && (
+              <div className="px-4 py-3 bg-[#5DCAA5]/10 border-t border-[#5DCAA5]/30 flex flex-col items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-1.5 h-7">
+                  {[14, 22, 10, 26, 18, 28, 16, 24, 12, 26, 16, 20].map((height, i) => (
+                    <span
+                      key={i}
+                      className="w-1 bg-[#1D9E75] rounded-full animate-pulse"
+                      style={{
+                        height: `${height}px`,
+                        animationDelay: `${i * 0.08}s`,
+                        animationDuration: "0.6s",
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs font-bold text-[#04342C] dark:text-[#5DCAA5] text-center truncate max-w-xs">
+                  {transcript ? `"${transcript}"` : "Escuchando tu voz..."}
+                </p>
+              </div>
+            )}
+
             {/* Vista Previa de Archivo Adjunto */}
             {attachments.length > 0 && (
               <div className="px-4 py-2 bg-gray-50 dark:bg-[#141414] border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                 <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
-                  <Paperclip className="w-3.5 h-3.5 text-emerald-600" />
+                  <Paperclip className="w-3.5 h-3.5 text-[#1D9E75]" />
                   1 archivo adjunto listo para enviar
                 </span>
                 <button
@@ -580,16 +510,16 @@ export function PulsoFloatingAssistant() {
               </div>
             )}
 
-            {/* ── BARRA DE ENTRADA (VOZ Y TEXTO) ──────────────────────── */}
-            <div className="p-3 sm:p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0c0c0c] shrink-0">
+            {/* ── BARRA DE ENTRADA (ESTILO PILL IOS) ────────────────────── */}
+            <div className="p-3 sm:p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0d0d0d] shrink-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSendMessage();
                 }}
-                className="flex items-center gap-2 bg-gray-50 dark:bg-[#141414] border border-gray-200/80 dark:border-gray-800 rounded-2xl p-1.5 transition-all focus-within:border-emerald-500 dark:focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20"
+                className="flex items-center gap-2 bg-gray-100 dark:bg-[#181818] border border-gray-200/80 dark:border-gray-800/80 rounded-full p-1.5 pl-3 transition-all focus-within:border-[#1D9E75] focus-within:ring-2 focus-within:ring-[#1D9E75]/20"
               >
-                {/* Botón Adjuntar Archivo */}
+                {/* Botón Adjuntar */}
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -600,7 +530,7 @@ export function PulsoFloatingAssistant() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-800 transition-colors"
+                  className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                   title="Adjuntar receta o foto"
                 >
                   <Paperclip className="w-4 h-4" />
@@ -618,10 +548,10 @@ export function PulsoFloatingAssistant() {
                       ? t("input_placeholder_store", { defaultValue: "Pregunta sobre esta tienda o especialista..." })
                       : t("input_placeholder_general", { defaultValue: "Escribe o habla con Pulso..." })
                   }
-                  className="flex-1 bg-transparent text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none px-2 font-medium"
+                  className="flex-1 bg-transparent text-xs sm:text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none font-medium px-1 min-w-0"
                 />
 
-                {/* Botón de Voz / Micrófono */}
+                {/* Botón Micrófono */}
                 <button
                   type="button"
                   onClick={() => {
@@ -629,10 +559,10 @@ export function PulsoFloatingAssistant() {
                     else startListening();
                   }}
                   className={cn(
-                    "p-2.5 rounded-xl transition-all cursor-pointer",
+                    "p-2 rounded-full transition-all cursor-pointer",
                     isListening
                       ? "bg-rose-500 text-white shadow-md animate-pulse"
-                      : "text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                      : "text-gray-400 hover:text-[#1D9E75] hover:bg-gray-200/60 dark:hover:bg-gray-800"
                   )}
                   title={isListening ? "Detener grabación" : "Hablar con Pulso"}
                 >
@@ -646,10 +576,10 @@ export function PulsoFloatingAssistant() {
                 {/* Botón Enviar */}
                 <Button
                   type="submit"
-                  disabled={(!inputMessage.trim() && attachments.length === 0) || streamingState === "processing"}
-                  className="h-9 w-9 p-0 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  disabled={(!inputMessage.trim() && attachments.length === 0) || isProcessing}
+                  className="h-8 w-8 p-0 rounded-full bg-[#1D9E75] hover:bg-[#178563] text-white shadow-xs disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3.5 h-3.5" />
                 </Button>
               </form>
             </div>

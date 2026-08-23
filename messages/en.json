@@ -1662,12 +1662,12 @@
       "primary_profile": "Primary",
       "manage_family": "Manage Family",
       "btn_book": "Book Appointment",
-      "btn_copilot": "AI Copilot"
+      "btn_copilot": "Pulso AI"
     },
     "CopilotInsight": {
-      "title": "QuHealthy Copilot • Preventive Clinical AI",
+      "title": "Pulso AI • Preventive Clinical AI",
       "desc": "Based on your health records, your biometrics remain stable. Remember to log your vitals regularly and stay on track with recommended preventive checkups.",
-      "cta": "Chat with AI Copilot"
+      "cta": "Chat with Pulso AI"
     },
     "Hero": {
       "title": "Welcome",
@@ -8776,7 +8776,7 @@
     "marketing": "Promos & Coupons",
     "public_profile": "Public Profile",
     "settings": "Settings",
-    "copilot": "AI Copilot",
+    "copilot": "Pulso AI",
     "discover": "Discover & Book",
     "vault": "Medical Vault",
     "nutrition": "Nutrition AI",

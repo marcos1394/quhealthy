@@ -1884,12 +1884,12 @@
       "primary_profile": "Titular",
       "manage_family": "Gestionar Familia",
       "btn_book": "Agendar Consulta",
-      "btn_copilot": "Copilot IA"
+      "btn_copilot": "Pulso AI"
     },
     "CopilotInsight": {
-      "title": "QuHealthy Copilot • Inteligencia Clínica Preventiva",
+      "title": "Pulso AI • Inteligencia Clínica Preventiva",
       "desc": "Basado en tu expediente médico, tus indicadores se mantienen estables. Recuerda registrar tus signos vitales periódicamente y mantenerte al día con tus consultas de control.",
-      "cta": "Consultar con Copilot IA"
+      "cta": "Consultar con Pulso AI"
     },
     "Hero": {
       "title": "Bienvenido",
@@ -8870,7 +8870,7 @@
     "marketing": "Promociones",
     "public_profile": "Perfil Público",
     "settings": "Configuración",
-    "copilot": "Asistente IA",
+    "copilot": "Pulso AI",
     "discover": "Explorar",
     "vault": "Expediente",
     "nutrition": "Nutrición",

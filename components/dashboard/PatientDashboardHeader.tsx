@@ -23,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PulsoMascot } from "@/components/ai/PulsoMascot";
 import { cn } from "@/lib/utils";
 
 export interface ConsumerProfileDto {
@@ -187,8 +188,8 @@ export function PatientDashboardHeader({
             variant="outline"
             className="h-12 px-5 rounded-2xl border-emerald-200/80 dark:border-emerald-800/60 bg-white/90 dark:bg-[#0a0a0a]/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-gray-800 dark:text-gray-200 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold text-xs shadow-xs hover:shadow-md transition-all gap-2.5 cursor-pointer group"
           >
-            <div className="w-6 h-6 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-              <BrainCircuit className="w-3.5 h-3.5" />
+            <div className="w-6 h-6 rounded-full bg-[#5DCAA5]/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <PulsoMascot state="idle" size={20} />
             </div>
             <span>{t("btn_copilot")}</span>
           </Button>
