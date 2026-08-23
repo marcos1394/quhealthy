@@ -44,6 +44,8 @@ export interface PatientClinicalBudgetDTO {
   doctorSpecialty?: string;
   doctorPhone?: string;
   doctorEmail?: string;
+  doctorAddress?: string;
+  doctorLogoUrl?: string;
   termsAndConditions?: string;
   validUntil: string;
   subtotalAmount: number;
@@ -72,6 +74,8 @@ export interface CreatePatientBudgetDTO {
   doctorSpecialty?: string;
   doctorPhone?: string;
   doctorEmail?: string;
+  doctorAddress?: string;
+  doctorLogoUrl?: string;
   termsAndConditions?: string;
   validUntil: string;
   discountAmount?: number;

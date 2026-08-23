@@ -24,6 +24,24 @@ export function hexToRgb(hex: string): [number, number, number] {
   return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
 }
 
+async function loadImageAsBase64(url: string): Promise<string | null> {
+  if (!url) return null;
+  if (url.startsWith("data:image/")) return url;
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
 export async function generateClinicalBudgetPdf(
   budget: PatientClinicalBudgetDTO,
   options?: BudgetPdfOptions
@@ -54,41 +72,10 @@ export async function generateClinicalBudgetPdf(
 
   // ── 2. MEMBRETE OFICIAL DEL MÉDICO / CLÍNICA ────────────────────────────────
   const doctorName = formatDoctorDisplayName(budget.doctorName);
-  
-  // Título / Tipo de Documento
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-  doc.text("COTIZACIÓN CLÍNICA & QUIRÚRGICA OFICIAL", margin, currentY + 4);
-
-  // Nombre del Doctor / Institución
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.text(doctorName, margin, currentY + 11);
-
-  // Especialidad y Cédula Profesional SEP
-  let subInfoY = currentY + 16;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-
-  if (budget.doctorLicense || budget.doctorSpecialty) {
-    const specText = budget.doctorSpecialty ? `${budget.doctorSpecialty}` : "Especialista";
-    const licenseText = budget.doctorLicense ? ` | Cédula Profesional SEP: ${budget.doctorLicense}` : "";
-    doc.text(`${specText}${licenseText}`, margin, subInfoY);
-    subInfoY += 4.5;
-  }
-
-  // Teléfono, Correo y Dirección
-  doc.setFontSize(7.5);
-  doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
-  const contactParts = [];
-  if (budget.doctorEmail) contactParts.push(`Email: ${budget.doctorEmail}`);
-  if (budget.doctorPhone) contactParts.push(`Tel: ${budget.doctorPhone}`);
-  if (contactParts.length > 0) {
-    doc.text(contactParts.join("  •  "), margin, subInfoY);
-    subInfoY += 4;
+  const logoSource = budget.doctorLogoUrl || options?.clinicLogoUrl;
+  let logoBase64: string | null = null;
+  if (logoSource) {
+    logoBase64 = await loadImageAsBase64(logoSource);
   }
 
   // Folio y Vigencia en cuadro a la derecha
@@ -114,6 +101,54 @@ export async function generateClinicalBudgetPdf(
   doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
   doc.text(`Emisión: ${new Date(budget.createdAt).toLocaleDateString("es-MX")}`, boxX + boxWidth - 4, currentY + 16.5, { align: "right" });
   doc.text(`Vigencia: ${budget.validUntil}`, boxX + boxWidth - 4, currentY + 20, { align: "right" });
+
+  let textStartX = margin;
+  if (logoBase64) {
+    try {
+      doc.addImage(logoBase64, "PNG", margin, currentY + 1, 16, 16);
+      textStartX = margin + 19;
+    } catch {
+      // Ignorar error de decodificación si no es imagen válida
+    }
+  }
+
+  // Título / Tipo de Documento
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+  doc.text("COTIZACIÓN CLÍNICA & QUIRÚRGICA OFICIAL", textStartX, currentY + 4);
+
+  // Nombre del Doctor / Institución
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.text(doctorName, textStartX, currentY + 10);
+
+  // Especialidad y Cédula Profesional SEP
+  let subInfoY = currentY + 14.5;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+
+  if (budget.doctorLicense || budget.doctorSpecialty) {
+    const specText = budget.doctorSpecialty ? `${budget.doctorSpecialty}` : "Especialista";
+    const licenseText = budget.doctorLicense ? ` | Cédula Profesional SEP: ${budget.doctorLicense}` : "";
+    doc.text(`${specText}${licenseText}`, textStartX, subInfoY);
+    subInfoY += 4;
+  }
+
+  // Teléfono, Correo y Dirección del Consultorio
+  doc.setFontSize(7.5);
+  doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
+  const contactParts: string[] = [];
+  if (budget.doctorAddress) contactParts.push(`Dir: ${budget.doctorAddress}`);
+  if (budget.doctorPhone) contactParts.push(`Tel: ${budget.doctorPhone}`);
+  if (budget.doctorEmail) contactParts.push(`Email: ${budget.doctorEmail}`);
+  if (contactParts.length > 0) {
+    const splitContacts = doc.splitTextToSize(contactParts.join("  •  "), boxX - textStartX - 3);
+    doc.text(splitContacts, textStartX, subInfoY);
+    subInfoY += splitContacts.length * 3.5;
+  }
 
   currentY = Math.max(subInfoY + 4, currentY + boxHeight + 4);
 

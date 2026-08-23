@@ -38,6 +38,11 @@ import {
   X,
   UserPlus,
   BriefcaseMedical,
+  MapPin,
+  Phone,
+  Mail,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -151,6 +156,15 @@ export default function CreatePatientBudgetPage() {
   const [clinicLogoUrl, setClinicLogoUrl] = useState<string>("");
   const [footerCustomNote, setFooterCustomNote] = useState<string>("");
 
+  // ── Datos del Membrete del Especialista (Editables) ────
+  const [docName, setDocName] = useState<string>("");
+  const [docLicense, setDocLicense] = useState<string>("");
+  const [docSpecialty, setDocSpecialty] = useState<string>("");
+  const [docPhone, setDocPhone] = useState<string>("");
+  const [docEmail, setDocEmail] = useState<string>("");
+  const [docAddress, setDocAddress] = useState<string>("");
+  const [isEditingDoctorHeader, setIsEditingDoctorHeader] = useState<boolean>(false);
+
   // ── Catálogo de Servicios del Doctor ────
   const [catalogItems, setCatalogItems] = useState<CatalogItemDTO[]>([]);
   const [procedureSearchQuery, setProcedureSearchQuery] = useState("");
@@ -203,18 +217,62 @@ export default function CreatePatientBudgetPage() {
           onboardingService.getOnboardingStatus(),
           catalogService.getMyCatalog(),
         ]);
-        if (profileRes.status === "fulfilled" && profileRes.value) {
-          setDoctorProfile(profileRes.value);
+        const profile = profileRes.status === "fulfilled" ? profileRes.value : null;
+        const status = statusRes.status === "fulfilled" ? statusRes.value : null;
+
+        if (profile) setDoctorProfile(profile);
+        if (status) setDoctorStatus(status);
+
+        // Logo
+        const resolvedLogo =
+          status?.prescriptionLogoUrl ||
+          status?.profileImageUrl ||
+          profile?.profileImageUrl ||
+          "";
+        if (resolvedLogo) setClinicLogoUrl(resolvedLogo);
+
+        // Color & Notas
+        if (status?.prescriptionColor) setAccentColor(status.prescriptionColor);
+        if (status?.prescriptionFooterNote) setFooterCustomNote(status.prescriptionFooterNote);
+
+        // Nombre del Médico / Clínica
+        const resolvedName = formatDoctorDisplayName(
+          status?.prescriptionHeaderData?.doctorName ||
+          status?.firstName ||
+          profile?.businessName ||
+          ""
+        );
+        setDocName(resolvedName);
+
+        // Cédula Profesional SEP
+        let resolvedLicense = status?.prescriptionHeaderData?.professionalLicense || "";
+        if (!resolvedLicense && status?.professionalLicenses && status.professionalLicenses.length > 0) {
+          resolvedLicense = status.professionalLicenses
+            .map((l: any) => l.licenseNumber)
+            .filter(Boolean)
+            .join(" • ");
         }
-        if (statusRes.status === "fulfilled" && statusRes.value) {
-          const st = statusRes.value;
-          setDoctorStatus(st);
-          // Cargar preferencias de la receta por defecto
-          if (st.prescriptionColor) setAccentColor(st.prescriptionColor);
-          if (st.prescriptionLogoUrl) setClinicLogoUrl(st.prescriptionLogoUrl);
-          else if (st.profileImageUrl) setClinicLogoUrl(st.profileImageUrl);
-          if (st.prescriptionFooterNote) setFooterCustomNote(st.prescriptionFooterNote);
+        setDocLicense(resolvedLicense);
+
+        // Especialidad
+        let resolvedSpecialty = status?.prescriptionHeaderData?.specialty || "";
+        if (!resolvedSpecialty && status?.professionalLicenses && status.professionalLicenses.length > 0) {
+          resolvedSpecialty = status.professionalLicenses[0].institution || status.professionalLicenses[0].type || "";
         }
+        setDocSpecialty(resolvedSpecialty);
+
+        // Teléfono
+        const resolvedPhone = profile?.contactPhone || status?.prescriptionHeaderData?.phone || "";
+        setDocPhone(resolvedPhone);
+
+        // Email
+        const resolvedEmail = profile?.contactEmail || status?.email || "";
+        setDocEmail(resolvedEmail);
+
+        // Dirección
+        const resolvedAddress = profile?.address || status?.prescriptionHeaderData?.address || "";
+        setDocAddress(resolvedAddress);
+
         if (catalogRes.status === "fulfilled" && catalogRes.value) {
           setCatalogItems(catalogRes.value || []);
         }
@@ -443,11 +501,13 @@ export default function CreatePatientBudgetPage() {
         procedureName: procedureName || "Procedimiento Médico",
         diagnosisCie10,
         clinicalNotes,
-        doctorName: doctorDisplayName,
-        doctorLicense: doctorLicenseNumber,
-        doctorSpecialty: doctorSpecialtyName,
-        doctorPhone: doctorProfile?.contactPhone || "",
-        doctorEmail: doctorProfile?.contactEmail || doctorStatus?.email || "",
+        doctorName: docName || doctorDisplayName,
+        doctorLicense: docLicense,
+        doctorSpecialty: docSpecialty,
+        doctorPhone: docPhone,
+        doctorEmail: docEmail,
+        doctorAddress: docAddress,
+        doctorLogoUrl: clinicLogoUrl,
         subtotalAmount: subtotal,
         discountAmount,
         taxAmount: 0,
@@ -503,11 +563,13 @@ export default function CreatePatientBudgetPage() {
         diagnosisCie10: diagnosisCie10.trim() || undefined,
         procedureName,
         clinicalNotes: clinicalNotes.trim() || undefined,
-        doctorName: doctorDisplayName,
-        doctorLicense: doctorLicenseNumber || undefined,
-        doctorSpecialty: doctorSpecialtyName || undefined,
-        doctorPhone: doctorProfile?.contactPhone || undefined,
-        doctorEmail: doctorProfile?.contactEmail || doctorStatus?.email || undefined,
+        doctorName: docName || doctorDisplayName,
+        doctorLicense: docLicense || undefined,
+        doctorSpecialty: docSpecialty || undefined,
+        doctorPhone: docPhone || undefined,
+        doctorEmail: docEmail || undefined,
+        doctorAddress: docAddress || undefined,
+        doctorLogoUrl: clinicLogoUrl || undefined,
         validUntil: validUntilDate.toISOString().split("T")[0],
         discountAmount: Number(discountAmount) || 0,
         taxAmount: 0,
@@ -589,22 +651,29 @@ export default function CreatePatientBudgetPage() {
               "font-black text-gray-900 dark:text-white tracking-tight leading-tight",
               isSplit ? "text-base sm:text-lg" : "text-2xl"
             )}>
-              {doctorDisplayName}
+              {docName || doctorDisplayName}
             </h2>
             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 font-medium">
-              {doctorLicenseNumber && (
+              {docLicense && (
                 <span className="flex items-center gap-1 font-bold text-gray-700 dark:text-gray-300">
                   <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
                   <span>
-                    Cédula Profesional SEP: {doctorLicenseNumber} {doctorSpecialtyName ? `(${doctorSpecialtyName})` : ""}
+                    Cédula Profesional SEP: {docLicense} {docSpecialty ? `(${docSpecialty})` : ""}
                   </span>
                 </span>
               )}
-              {(doctorProfile?.contactEmail || doctorStatus?.email) && (
-                <span>• {doctorProfile?.contactEmail || doctorStatus?.email}</span>
+              {docAddress && (
+                <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                  <MapPin className="w-3.5 h-3.5" style={{ color: accentColor }} />
+                  <span>{docAddress}</span>
+                </span>
               )}
-              {doctorProfile?.contactPhone && <span>• Tel: {doctorProfile.contactPhone}</span>}
-              {doctorProfile?.address && <span>• {doctorProfile.address}</span>}
+              {(docEmail || docPhone) && (
+                <span className="flex items-center gap-2 text-gray-500">
+                  {docPhone && <span>• Tel: {docPhone}</span>}
+                  {docEmail && <span>• {docEmail}</span>}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -880,16 +949,25 @@ export default function CreatePatientBudgetPage() {
             viewMode === "split" ? "lg:col-span-7" : "w-full"
           )}>
             
-            {/* 🎨 PERSONALIZACIÓN DEL DISEÑO DE LA COTIZACIÓN (COMO EN LA RECETA) */}
-            <div className="p-5 rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/80 dark:border-gray-800 space-y-3 shadow-xs">
+            {/* 🎨 PERSONALIZACIÓN DEL DISEÑO & MEMBRETE OFICIAL */}
+            <div className="p-5 rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200/80 dark:border-gray-800 space-y-4 shadow-xs">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
                   <Palette className="w-4 h-4" style={{ color: accentColor }} />
-                  <span>Personalización Visual del Documento</span>
+                  <span>Personalización Visual y Membrete Oficial</span>
                 </label>
-                <span className="text-[11px] font-mono text-gray-400 font-bold uppercase">{accentColor}</span>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingDoctorHeader(!isEditingDoctorHeader)}
+                  className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>{isEditingDoctorHeader ? "Ocultar edición de membrete" : "Editar membrete, cédula y consultorio"}</span>
+                  {isEditingDoctorHeader ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
               </div>
 
+              {/* Selector de Color de Acento */}
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-xs text-gray-500 font-semibold">Color de Acento:</span>
                 <div className="flex items-center gap-2">
@@ -920,6 +998,128 @@ export default function CreatePatientBudgetPage() {
                   />
                 </div>
               </div>
+
+              {/* Logo del Consultorio / Clínica */}
+              <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5" style={{ color: accentColor }} />
+                  <span>Logotipo del Consultorio / Clínica (URL o Imagen):</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  {clinicLogoUrl ? (
+                    <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 p-1 flex items-center justify-center shrink-0">
+                      <img src={clinicLogoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
+                    </div>
+                  ) : null}
+                  <Input
+                    placeholder="https://ejemplo.com/logo.png o URL de la imagen del consultorio"
+                    value={clinicLogoUrl}
+                    onChange={(e) => setClinicLogoUrl(e.target.value)}
+                    className="rounded-xl text-xs h-10 bg-gray-50 dark:bg-[#141414] border-gray-200 dark:border-gray-800 flex-1"
+                  />
+                  {clinicLogoUrl && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setClinicLogoUrl("")}
+                      className="rounded-xl text-xs text-gray-400 hover:text-rose-600 h-10 px-2.5"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Formulario Desplegable para Editar Membrete del Médico (Cédula, Dirección, etc.) */}
+              {isEditingDoctorHeader && (
+                <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-[#141414] border border-gray-200/80 dark:border-gray-800 space-y-3 pt-3 animate-in fade-in-50">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-200/60 dark:border-gray-800">
+                    <span className="text-[11px] font-black uppercase text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Datos del Emisor en la Hoja Membretada</span>
+                    </span>
+                    <span className="text-[10px] text-gray-400">Se precargan de tu perfil y puedes personalizarlos</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400">
+                        Nombre del Médico / Clínica
+                      </label>
+                      <Input
+                        value={docName}
+                        onChange={(e) => setDocName(e.target.value)}
+                        placeholder="Dr. Nombre Completo"
+                        className="rounded-xl text-xs h-9 bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                        <span>Cédula Profesional SEP</span>
+                      </label>
+                      <Input
+                        value={docLicense}
+                        onChange={(e) => setDocLicense(e.target.value)}
+                        placeholder="Ej. 12345678 - UNAM"
+                        className="rounded-xl text-xs h-9 bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700 font-mono font-bold"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400">
+                        Especialidad Médica
+                      </label>
+                      <Input
+                        value={docSpecialty}
+                        onChange={(e) => setDocSpecialty(e.target.value)}
+                        placeholder="Ej. Cirugía General y Laparoscopia"
+                        className="rounded-xl text-xs h-9 bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-emerald-600" />
+                        <span>Dirección del Consultorio / Clínica</span>
+                      </label>
+                      <Input
+                        value={docAddress}
+                        onChange={(e) => setDocAddress(e.target.value)}
+                        placeholder="Ej. Av. Insurgentes Sur 1234, Cons. 502, CDMX"
+                        className="rounded-xl text-xs h-9 bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                        <Phone className="w-3 h-3" />
+                        <span>Teléfono de Contacto</span>
+                      </label>
+                      <Input
+                        value={docPhone}
+                        onChange={(e) => setDocPhone(e.target.value)}
+                        placeholder="+52 55 1234 5678"
+                        className="rounded-xl text-xs h-9 bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                        <Mail className="w-3 h-3" />
+                        <span>Correo Electrónico</span>
+                      </label>
+                      <Input
+                        value={docEmail}
+                        onChange={(e) => setDocEmail(e.target.value)}
+                        placeholder="contacto@drconsultorio.com"
+                        className="rounded-xl text-xs h-9 bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-700"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 1. Plantillas Quirúrgicas Rápidas */}

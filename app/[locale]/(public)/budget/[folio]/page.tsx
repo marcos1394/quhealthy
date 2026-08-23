@@ -19,6 +19,9 @@ import {
   Download,
   Building2,
   Stethoscope,
+  MapPin,
+  Phone,
+  Mail,
   XCircle,
   Loader2,
   PenTool,
@@ -267,30 +270,52 @@ export default function PublicPatientBudgetPage() {
           
           {/* Cabecera del Documento */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold">
-                <FileText className="w-3.5 h-3.5" />
-                <span>COTIZACIÓN CLÍNICA & QUIRÚRGICA OFICIAL</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                {budget.procedureName}
-              </h1>
-              <div className="space-y-0.5">
-                <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                  <Stethoscope className="w-4 h-4 text-emerald-600" />
-                  <span>{doctorFormatted} {budget.doctorSpecialty ? `• ${budget.doctorSpecialty}` : ""}</span>
-                </p>
-                {budget.doctorLicense && (
-                  <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Cédula Profesional SEP: {budget.doctorLicense}</span>
+            <div className="flex items-start gap-4">
+              {budget.doctorLogoUrl ? (
+                <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden p-1 shrink-0 shadow-xs">
+                  <img
+                    src={budget.doctorLogoUrl}
+                    alt="Logo del Consultorio"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-black text-xl shadow-xs shrink-0">
+                  Q
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold">
+                  <FileText className="w-3 h-3" />
+                  <span>COTIZACIÓN CLÍNICA & QUIRÚRGICA OFICIAL</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
+                  {budget.procedureName}
+                </h1>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{doctorFormatted} {budget.doctorSpecialty ? `• ${budget.doctorSpecialty}` : ""}</span>
                   </p>
-                )}
-                {budget.diagnosisCie10 && (
-                  <p className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">
-                    Diagnóstico CIE-10: {budget.diagnosisCie10}
-                  </p>
-                )}
+                  {budget.doctorLicense && (
+                    <p className="text-[11px] text-gray-600 dark:text-gray-300 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Cédula Profesional SEP: {budget.doctorLicense}</span>
+                    </p>
+                  )}
+                  {budget.doctorAddress && (
+                    <p className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{budget.doctorAddress}</span>
+                    </p>
+                  )}
+                  {budget.diagnosisCie10 && (
+                    <p className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 pt-0.5">
+                      Diagnóstico CIE-10: {budget.diagnosisCie10}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -305,9 +330,9 @@ export default function PublicPatientBudgetPage() {
                 Vigencia: {budget.validUntil}
               </span>
               {(budget.doctorPhone || budget.doctorEmail) && (
-                <div className="text-[10px] text-gray-400 pt-1 border-t border-gray-200/60 dark:border-gray-800">
-                  {budget.doctorPhone && <div>Tel: {budget.doctorPhone}</div>}
-                  {budget.doctorEmail && <div>{budget.doctorEmail}</div>}
+                <div className="text-[10px] text-gray-400 pt-1.5 border-t border-gray-200/60 dark:border-gray-800 space-y-0.5">
+                  {budget.doctorPhone && <div className="flex items-center justify-end gap-1"><Phone className="w-3 h-3" /><span>{budget.doctorPhone}</span></div>}
+                  {budget.doctorEmail && <div className="flex items-center justify-end gap-1"><Mail className="w-3 h-3" /><span>{budget.doctorEmail}</span></div>}
                 </div>
               )}
             </div>
