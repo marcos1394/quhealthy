@@ -65,12 +65,7 @@ export const QuickAvailability: React.FC<QuickAvailabilityProps> = ({
   }
 
   if (nextSlots.length === 0) {
-    return (
-      <div className="flex items-center gap-3 mt-6 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-500 dark:text-gray-400 shadow-2xs font-sans select-none">
-        <Calendar className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={2} />
-        <span>{t("subject_to_confirmation")}</span>
-      </div>
-    );
+    return null;
   }
 
   return (

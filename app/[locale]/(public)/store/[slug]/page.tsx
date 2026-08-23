@@ -256,105 +256,122 @@ export default function PublicStorePage() {
         isFavorited={favoriteProviderIds.has(store.providerId)}
       />
 
-      {/* --- NAVEGACIÓN TABULAR ARQUITECTÓNICA --- */}
-      <div className="sticky top-0 z-40 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex w-full overflow-x-auto custom-scrollbar">
+      {/* --- NAVEGACIÓN TABULAR MODERNA CON SEGMENTED PILLS --- */}
+      <div className="sticky top-0 z-40 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 py-3 shadow-2xs">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {/* SERVICIOS */}
             <button
               onClick={() => setActiveTab("servicios")}
               className={cn(
-                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
                 activeTab === "servicios"
-                  ? !hasValidPrimaryColor
-                    ? "border-black text-black dark:border-white dark:text-white"
-                    : ""
-                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
+                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
               )}
               style={
                 activeTab === "servicios" && hasValidPrimaryColor
-                  ? {
-                      borderBottomColor: safePrimaryColor,
-                      color: safePrimaryColor,
-                    }
-                  : {}
+                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                  : undefined
               }
             >
-              {t("tab_services", { defaultValue: "Servicios" })}
-              <span className="border border-current px-1.5 py-0.5 text-[9px]">
+              <Clock className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>{t("tab_services", { defaultValue: "Servicios" })}</span>
+              <span
+                className={cn(
+                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                  activeTab === "servicios"
+                    ? "bg-white/20 text-white"
+                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                )}
+              >
                 {store.services?.length || 0}
               </span>
             </button>
 
-            <button
-              onClick={() => setActiveTab("paquetes")}
-              className={cn(
-                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
-                activeTab === "paquetes"
-                  ? !hasValidPrimaryColor
-                    ? "border-black text-black dark:border-white dark:text-white"
-                    : ""
-                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
-              )}
-              style={
-                activeTab === "paquetes" && hasValidPrimaryColor
-                  ? {
-                      borderBottomColor: safePrimaryColor,
-                      color: safePrimaryColor,
-                    }
-                  : {}
-              }
-            >
-              {t("tab_packages", { defaultValue: "Paquetes" })}
-              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
-            </button>
-
+            {/* PRODUCTOS */}
             <button
               onClick={() => setActiveTab("productos")}
               className={cn(
-                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
                 activeTab === "productos"
-                  ? !hasValidPrimaryColor
-                    ? "border-black text-black dark:border-white dark:text-white"
-                    : ""
-                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
+                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
               )}
               style={
                 activeTab === "productos" && hasValidPrimaryColor
-                  ? {
-                      borderBottomColor: safePrimaryColor,
-                      color: safePrimaryColor,
-                    }
-                  : {}
+                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                  : undefined
               }
             >
-              <ShoppingBag className="w-3.5 h-3.5" strokeWidth={1.5} />{" "}
-              PRODUCTOS
-              <span className="border border-current px-1.5 py-0.5 text-[9px]">
+              <ShoppingBag className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>{t("tab_products", { defaultValue: "Productos" })}</span>
+              <span
+                className={cn(
+                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                  activeTab === "productos"
+                    ? "bg-white/20 text-white"
+                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                )}
+              >
                 {store.products?.length || 0}
               </span>
             </button>
 
+            {/* PAQUETES */}
+            <button
+              onClick={() => setActiveTab("paquetes")}
+              className={cn(
+                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
+                activeTab === "paquetes"
+                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
+              )}
+              style={
+                activeTab === "paquetes" && hasValidPrimaryColor
+                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                  : undefined
+              }
+            >
+              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>{t("tab_packages", { defaultValue: "Paquetes" })}</span>
+              <span
+                className={cn(
+                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                  activeTab === "paquetes"
+                    ? "bg-white/20 text-white"
+                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                )}
+              >
+                {store.packages?.length || 0}
+              </span>
+            </button>
+
+            {/* CURSOS */}
             <button
               onClick={() => setActiveTab("cursos")}
               className={cn(
-                "h-14 px-6 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 flex items-center gap-3 whitespace-nowrap",
+                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
                 activeTab === "cursos"
-                  ? !hasValidPrimaryColor
-                    ? "border-black text-black dark:border-white dark:text-white"
-                    : ""
-                  : "text-gray-500 hover:text-black dark:hover:text-white border-transparent",
+                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
               )}
               style={
                 activeTab === "cursos" && hasValidPrimaryColor
-                  ? {
-                      borderBottomColor: safePrimaryColor,
-                      color: safePrimaryColor,
-                    }
-                  : {}
+                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                  : undefined
               }
             >
-              <GraduationCap className="w-3.5 h-3.5" strokeWidth={1.5} /> CURSOS
-              <span className="border border-current px-1.5 py-0.5 text-[9px]">
+              <GraduationCap className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>{t("tab_courses", { defaultValue: "Cursos" })}</span>
+              <span
+                className={cn(
+                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                  activeTab === "cursos"
+                    ? "bg-white/20 text-white"
+                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                )}
+              >
                 {store.courses?.length || 0}
               </span>
             </button>
@@ -747,25 +764,6 @@ export default function PublicStorePage() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-6"
             >
-              {/* B2B Wholesale / Insumos Notice Banner */}
-              {store.products && store.products.length > 0 && (
-                <div className="p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
-                      <Box className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">
-                        Catálogo Sanitario Verificado & Venta Directa
-                      </h4>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                        Facturación automática SAT CFDI 4.0, trazabilidad de lotes y precios con deducción fiscal.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {store.products && store.products.length > 0 ? (
                 <div className="flex flex-col gap-8">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

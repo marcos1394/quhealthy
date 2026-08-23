@@ -139,11 +139,21 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
               </>
             )}
 
-            {/* Ubicación */}
-            <span className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-medium">
-              <MapPin className="w-4 h-4 shrink-0" strokeWidth={2} />
-              <span>{store.city || store.address || t("consultorio")}</span>
-            </span>
+            {/* Ubicación Real */}
+            {(() => {
+              const displayLocation = (store.locations && store.locations.length > 0)
+                ? (store.locations[0].city || store.locations[0].name || store.locations[0].address)
+                : (store.city || store.address);
+
+              if (!displayLocation) return null;
+
+              return (
+                <span className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-medium">
+                  <MapPin className="w-4 h-4 shrink-0" strokeWidth={2} />
+                  <span>{displayLocation}</span>
+                </span>
+              );
+            })()}
           </div>
         </div>
 
@@ -228,31 +238,28 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
         )}
       </div>
 
-      {/* ── 3. DETALLES DEL PROFESIONAL Y HECHOS CLAVE ───────────────── */}
+      {/* ── 3. DETALLES DEL PROFESIONAL Y HECHOS CLAVE REALES ────────── */}
       <div className="flex flex-col lg:flex-row gap-10">
         <div className="flex-1 space-y-8">
           {/* Header del Anfitrión */}
           <div className="flex items-start justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
             <div className="space-y-1">
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-                {t("attended_by", { name: store.displayName })}
+                {store.displayName}
               </h2>
 
               <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-                <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
-                  {store.tags && store.tags.length > 0
-                    ? store.tags[0]
-                    : t("verified_specialist")}
-                </Badge>
+                {store.tags && store.tags.length > 0 && (
+                  <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 rounded-full text-[10px] font-bold px-2.5 py-0.5 shadow-2xs">
+                    {store.tags[0]}
+                  </Badge>
+                )}
 
                 {store.languages && store.languages.length > 0 && (
-                  <>
-                    <span className="text-gray-300 dark:text-gray-700">•</span>
-                    <span className="flex items-center gap-1 font-semibold text-gray-600 dark:text-gray-300">
-                      <Globe className="w-3.5 h-3.5" strokeWidth={2} />
-                      <span>{store.languages.join(", ")}</span>
-                    </span>
-                  </>
+                  <span className="flex items-center gap-1 font-semibold text-gray-600 dark:text-gray-300">
+                    <Globe className="w-3.5 h-3.5" strokeWidth={2} />
+                    <span>{store.languages.join(", ")}</span>
+                  </span>
                 )}
               </div>
             </div>
@@ -270,194 +277,133 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
                   {store.displayName.charAt(0)}
                 </span>
               )}
-
-              <div className="absolute bottom-1 right-1 bg-emerald-600 rounded-full p-0.5 border border-white dark:border-[#0a0a0a] shadow-2xs">
-                <ShieldCheck className="w-3 h-3 text-white" strokeWidth={2.5} />
-              </div>
             </div>
           </div>
 
-          {/* Tarjetas Informativas Rápidas (Quick Facts) Adaptativas y Objetivas */}
+          {/* Tarjetas Informativas Basadas Exclusivamente en Datos Reales */}
           {(() => {
-            const isSupplier = store.providerType === 'SUPPLIER' || store.providerType === 'PHARMACY' || (store.products?.length > 0 && (!store.services || store.services.length === 0));
-            const isFoundation = store.providerType === 'FOUNDATION';
+            const hasLocations = (store.locations && store.locations.length > 0) || Boolean(store.address) || Boolean(store.city);
+            const hasServices = store.services && store.services.length > 0;
+            const hasProducts = store.products && store.products.length > 0;
+            const hasCourses = store.courses && store.courses.length > 0;
+            const hasPackages = store.packages && store.packages.length > 0;
 
-            if (isSupplier) {
-              return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
-                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">
-                        {store.cofeprisNotice ? "Aviso Sanitario COFEPRIS Validado" : "Catálogo de Insumos & Farmacia"}
-                      </h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        Fichas técnicas y especificaciones provistas directamente por el fabricante.
-                      </p>
-                    </div>
-                  </div>
+            const cards: React.ReactNode[] = [];
 
-                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Facturación Fiscal SAT CFDI 4.0</h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        Emisión y timbrado de comprobantes fiscales deducibles para cada compra.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <Star className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Venta Directa & Cotizaciones</h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        Pedidos unitarios y cotizaciones formales para consultorios y clínicas.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Ubicación y Cobertura</h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        {store.city || store.address || "Distribución e inventario registrado en plataforma."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            if (isFoundation) {
-              return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
-                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <CheckCircle2 className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Donataria Autorizada SAT</h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        Comprobantes fiscales de donativo deducibles de impuestos según normativa SAT.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <Clock className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Programas de Salud Social</h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        Atención y registro de beneficiarios mediante CURP para apoyo comunitario.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <Star className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Transparencia & Proyectos</h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        Difusión de metas y seguimiento público de programas y campañas activas.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
-                    <MapPin className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
-                    <div className="space-y-0.5">
-                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Sede de la Fundación</h4>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                        {store.city || store.address || "Centros de apoyo y voluntariado comunitario."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
-                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
-                  <div className="space-y-0.5">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("medical_verification_title")}</h4>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">{t("medical_verification_desc")}</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+            if (hasServices) {
+              cards.push(
+                <div key="services" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
                   <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
                   <div className="space-y-0.5">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("availability_title")}</h4>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">{t("availability_desc")}</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-                  <Star className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
-                  <div className="space-y-0.5">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("experience_title")}</h4>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">{t("experience_desc")}</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-                  <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
-                  <div className="space-y-0.5">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("location_title")}</h4>
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">Servicios & Consultas</h4>
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                      {store.locations && store.locations.length > 0
-                        ? store.locations.map(loc => loc.name).join(" • ")
-                        : t("location_desc", { city: store.city || t("default_city") })}
+                      {store.services.length} {store.services.length === 1 ? "servicio disponible" : "servicios disponibles"} para atención.
                     </p>
                   </div>
                 </div>
+              );
+            }
+
+            if (hasProducts) {
+              cards.push(
+                <div key="products" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">Catálogo de Productos & Farmacia</h4>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {store.products.length} {store.products.length === 1 ? "ítem registrado" : "ítems registrados"} en catálogo directo.
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+
+            if (hasPackages || hasCourses) {
+              cards.push(
+                <div key="packages_courses" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+                  <Star className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">Programas & Contenido</h4>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {(store.packages?.length || 0)} paquetes y {(store.courses?.length || 0)} cursos disponibles.
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+
+            if (hasLocations) {
+              const locationText = (store.locations && store.locations.length > 0)
+                ? store.locations.map(loc => loc.address || loc.name || loc.city).filter(Boolean).join(" • ")
+                : (store.address || store.city);
+
+              cards.push(
+                <div key="location" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+                  <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">Ubicación</h4>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed truncate max-w-sm">
+                      {locationText}
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+
+            if (cards.length === 0) return null;
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+                {cards}
               </div>
             );
           })()}
 
-          {/* Componente de Disponibilidad Rápida */}
-          <QuickAvailability providerId={store.providerId} locations={store.locations} />
+          {/* Componente de Disponibilidad Rápida (ÚNICAMENTE si tiene servicios para agendar) */}
+          {store.services && store.services.length > 0 && (
+            <QuickAvailability providerId={store.providerId} locations={store.locations} />
+          )}
 
-          {/* Biografía y Contacto */}
-          <div className="space-y-4 pt-2">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
-              {t("about_specialist")}
-            </h3>
+          {/* Biografía y Contacto (Solo si tiene bio real) */}
+          {store.bio && store.bio.trim().length > 0 && (
+            <div className="space-y-4 pt-2">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("about_specialist")}
+              </h3>
 
-            <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl whitespace-pre-wrap">
-              {store.bio || t("default_bio")}
-            </p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl whitespace-pre-wrap">
+                {store.bio}
+              </p>
 
-            {/* Botones de Redes y Contacto */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              {store.whatsappEnabled && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-xl h-10 px-5 text-xs font-bold border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-2xs cursor-pointer flex items-center gap-2"
-                >
-                  <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                  <span>{t("contact_whatsapp")}</span>
-                </Button>
-              )}
+              {/* Botones de Redes y Contacto */}
+              <div className="flex flex-wrap gap-3 pt-2">
+                {store.whatsappEnabled && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl h-10 px-5 text-xs font-bold border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-2xs cursor-pointer flex items-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <span>{t("contact_whatsapp")}</span>
+                  </Button>
+                )}
 
-              {store.instagramUrl && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    window.open(store.instagramUrl || "", "_blank")
-                  }
-                  className="rounded-xl h-10 px-5 text-xs font-bold border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-700 dark:hover:text-rose-400 transition-all shadow-2xs cursor-pointer flex items-center gap-2"
-                >
-                  <Instagram className="w-4 h-4 text-rose-500" strokeWidth={2} />
-                  <span>{t("follow_instagram")}</span>
-                </Button>
-              )}
+                {store.instagramUrl && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      window.open(store.instagramUrl || "", "_blank")
+                    }
+                    className="rounded-xl h-10 px-5 text-xs font-bold border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-700 dark:hover:text-rose-400 transition-all shadow-2xs cursor-pointer flex items-center gap-2"
+                  >
+                    <Instagram className="w-4 h-4 text-rose-500" strokeWidth={2} />
+                    <span>{t("follow_instagram")}</span>
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Staff / Equipo */}
           {((store.staffMembers && store.staffMembers.length > 0) || (store.staff && store.staff.length > 0)) && (
