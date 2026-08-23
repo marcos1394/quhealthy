@@ -66,9 +66,13 @@ export function PulsoFloatingAssistant() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
-  // Detección contextual de la tienda actual a partir de la URL
-  const isStorePage = pathname?.includes("/store/");
-  const storeSlug = isStorePage ? pathname.split("/store/")[1]?.split("/")[0] : null;
+  // Detección contextual de la tienda o producto actual a partir de la URL
+  const isStorePage = Boolean(pathname && /\/store\/[^/?#]+/.test(pathname));
+  const rawSlug = isStorePage ? pathname.split("/store/")[1]?.split("/")[0]?.split("?")[0]?.split("#")[0] : null;
+  const storeSlug = rawSlug && rawSlug !== "identity" && rawSlug !== "settings" ? rawSlug : null;
+
+  const isItemPage = Boolean(pathname && /\/market\/item\/[^/?#]+/.test(pathname));
+  const itemSlug = isItemPage ? pathname.split("/market/item/")[1]?.split("/")[0]?.split("?")[0]?.split("#")[0] : null;
 
   // Reconocimiento de Voz
   const { isListening, transcript, startListening, stopListening } =
@@ -133,8 +137,10 @@ export function PulsoFloatingAssistant() {
       userId: user?.id,
       userName: user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "Invitado",
       currentRoute: pathname,
-      isStoreContext: isStorePage,
+      isStoreContext: Boolean(storeSlug),
       storeSlug: storeSlug || undefined,
+      isItemContext: Boolean(itemSlug),
+      itemSlug: itemSlug || undefined,
     };
 
     try {
