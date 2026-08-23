@@ -469,17 +469,23 @@ export default function CreatePatientBudgetPage() {
   };
 
   /* ── RENDER DE HOJA MEMBRETADA OFICIAL (ESTILO RECETA CLÍNICA) ────────── */
-  const renderOfficialLetterhead = () => (
+  const renderOfficialLetterhead = (isSplit: boolean = false) => (
     <div
-      className="space-y-6 p-6 sm:p-10 rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 shadow-xl text-gray-900 dark:text-white transition-all duration-300 relative overflow-hidden"
+      className={cn(
+        "rounded-3xl bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 shadow-xl text-gray-900 dark:text-white transition-all duration-300 relative overflow-hidden",
+        isSplit ? "p-4 sm:p-6 space-y-4 text-xs" : "p-6 sm:p-10 space-y-6 text-sm"
+      )}
       style={{ borderTop: `10px solid ${accentColor}` }}
     >
       {/* Membrete Oficial con Logo y Datos Reales del Médico */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-start gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-start gap-3">
           {/* Logotipo del Doctor / Clínica */}
           {clinicLogoUrl ? (
-            <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden p-1 shrink-0 shadow-xs">
+            <div className={cn(
+              "rounded-2xl bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden p-1 shrink-0 shadow-xs",
+              isSplit ? "w-12 h-12" : "w-16 h-16"
+            )}>
               <img
                 src={clinicLogoUrl}
                 alt="Logo del Consultorio"
@@ -488,28 +494,34 @@ export default function CreatePatientBudgetPage() {
             </div>
           ) : (
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-xs shrink-0"
+              className={cn(
+                "rounded-2xl flex items-center justify-center text-white font-black shadow-xs shrink-0",
+                isSplit ? "w-12 h-12 text-lg" : "w-14 h-14 text-xl"
+              )}
               style={{ backgroundColor: accentColor }}
             >
               Q
             </div>
           )}
 
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <div
-              className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-extrabold"
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold"
               style={{
                 backgroundColor: `${accentColor}18`,
                 color: accentColor,
               }}
             >
-              <FileText className="w-3.5 h-3.5" />
+              <FileText className="w-3 h-3" />
               <span>COTIZACIÓN CLÍNICA & QUIRÚRGICA</span>
             </div>
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+            <h2 className={cn(
+              "font-black text-gray-900 dark:text-white tracking-tight leading-tight",
+              isSplit ? "text-base sm:text-lg" : "text-2xl"
+            )}>
               {doctorStatus?.firstName ? `Dr(a). ${doctorStatus.firstName}` : (doctorProfile?.businessName || "Consultorio Médico Especializado")}
             </h2>
-            <div className="flex flex-wrap items-center gap-2.5 text-xs text-gray-500 font-medium">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 font-medium">
               {doctorStatus?.professionalLicenses && doctorStatus.professionalLicenses.length > 0 && (
                 <span className="flex items-center gap-1 font-bold text-gray-700 dark:text-gray-300">
                   <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
@@ -529,59 +541,64 @@ export default function CreatePatientBudgetPage() {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 text-right shrink-0">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Folio Oficial</span>
-          <span className="font-mono font-black text-base text-gray-900 dark:text-white">PR-2026-NUEVO</span>
+        <div className={cn(
+          "rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 text-right shrink-0",
+          isSplit ? "p-2.5" : "p-4"
+        )}>
+          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Folio Oficial</span>
+          <span className={cn("font-mono font-black text-gray-900 dark:text-white block", isSplit ? "text-xs" : "text-base")}>
+            PR-2026-NUEVO
+          </span>
           <span className="text-[10px] text-gray-400 block">Vigencia: {validUntilDate.toLocaleDateString("es-MX")}</span>
         </div>
       </div>
 
       {/* Datos del Paciente */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-gray-50/60 dark:bg-[#141414] border border-gray-100 dark:border-gray-800 text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-gray-50/60 dark:bg-[#141414] border border-gray-100 dark:border-gray-800 text-[11px]">
         <div>
-          <span className="text-gray-400 font-bold uppercase text-[10px] block">Paciente</span>
-          <span className="font-extrabold text-gray-900 dark:text-white text-sm">{patientName || "Nombre del Paciente"}</span>
+          <span className="text-gray-400 font-bold uppercase text-[9px] block">Paciente</span>
+          <span className="font-extrabold text-gray-900 dark:text-white text-xs block">{patientName || "Nombre del Paciente"}</span>
           {(patientPhone || patientEmail) && (
-            <span className="text-[10px] text-gray-400 block">{patientPhone || patientEmail}</span>
+            <span className="text-[10px] text-gray-400 truncate block">{patientPhone || patientEmail}</span>
           )}
         </div>
         <div>
-          <span className="text-gray-400 font-bold uppercase text-[10px] block">Procedimiento</span>
-          <span className="font-bold text-gray-800 dark:text-gray-200">{procedureName || "Sin procedimiento especificado"}</span>
+          <span className="text-gray-400 font-bold uppercase text-[9px] block">Procedimiento</span>
+          <span className="font-bold text-gray-800 dark:text-gray-200 block truncate">{procedureName || "Sin procedimiento especificado"}</span>
         </div>
         <div>
-          <span className="text-gray-400 font-bold uppercase text-[10px] block">Diagnóstico CIE-10</span>
-          <span className="font-mono font-bold" style={{ color: accentColor }}>
+          <span className="text-gray-400 font-bold uppercase text-[9px] block">Diagnóstico CIE-10</span>
+          <span className="font-mono font-bold block" style={{ color: accentColor }}>
             {diagnosisCie10 || "N/A"}
           </span>
         </div>
       </div>
 
       {/* Tabla de Partidas */}
-      <div className="space-y-2">
-        <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
+      <div className="space-y-1.5">
+        <h3 className="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-white">
           Desglose Detallado de Conceptos Médicos & Hospitalarios
         </h3>
         <div className="rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-gray-50 dark:bg-[#141414] text-gray-500 font-bold uppercase text-[10px] border-b border-gray-200 dark:border-gray-800">
+          <table className="w-full text-left text-[11px]">
+            <thead className="bg-gray-50 dark:bg-[#141414] text-gray-500 font-bold uppercase text-[9px] border-b border-gray-200 dark:border-gray-800">
               <tr>
-                <th className="p-3.5">Concepto</th>
-                <th className="p-3.5 text-center">Cant.</th>
-                <th className="p-3.5 text-right">P. Unitario</th>
-                <th className="p-3.5 text-right">Subtotal</th>
+                <th className="p-2.5">Concepto</th>
+                <th className="p-2.5 text-center">Cant.</th>
+                <th className="p-2.5 text-right">P. Unitario</th>
+                <th className="p-2.5 text-right">Subtotal</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {items.map((it, idx) => (
                 <tr key={idx} className="hover:bg-gray-50/40">
-                  <td className="p-3.5">
-                    <span className="font-bold block text-gray-900 dark:text-white">{it.description || "Concepto sin descripción"}</span>
-                    <span className="text-[10px] text-gray-400 uppercase">{it.itemType.replace("_", " ")}</span>
+                  <td className="p-2.5">
+                    <span className="font-bold block text-gray-900 dark:text-white text-xs">{it.description || "Concepto sin descripción"}</span>
+                    <span className="text-[9px] text-gray-400 uppercase">{it.itemType.replace("_", " ")}</span>
                   </td>
-                  <td className="p-3.5 text-center font-mono">{it.quantity}</td>
-                  <td className="p-3.5 text-right font-mono">${(Number(it.unitPrice) || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
-                  <td className="p-3.5 text-right font-mono font-bold text-gray-900 dark:text-white">
+                  <td className="p-2.5 text-center font-mono">{it.quantity}</td>
+                  <td className="p-2.5 text-right font-mono">${(Number(it.unitPrice) || 0).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</td>
+                  <td className="p-2.5 text-right font-mono font-bold text-gray-900 dark:text-white">
                     ${((Number(it.quantity) || 1) * (Number(it.unitPrice) || 0)).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
@@ -592,34 +609,40 @@ export default function CreatePatientBudgetPage() {
       </div>
 
       {/* Indicaciones y Totales */}
-      <div className="flex flex-col sm:flex-row justify-between gap-6 pt-4 border-t border-gray-200 dark:border-gray-800">
-        <div className="space-y-1.5 sm:max-w-md text-xs text-gray-500">
-          <h4 className="font-bold text-gray-900 dark:text-white uppercase text-[10px]">
+      <div className={cn(
+        "flex justify-between gap-4 pt-3 border-t border-gray-200 dark:border-gray-800",
+        isSplit ? "flex-col" : "flex-col sm:flex-row"
+      )}>
+        <div className="space-y-1 text-xs text-gray-500 flex-1">
+          <h4 className="font-bold text-gray-900 dark:text-white uppercase text-[9px]">
             Indicaciones Clínicas
           </h4>
-          <p className="leading-relaxed">
+          <p className="text-[11px] leading-relaxed">
             {clinicalNotes || "No se especificaron indicaciones previas adicionales."}
           </p>
         </div>
 
-        <div className="w-full sm:w-80 space-y-2 text-xs p-5 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 shrink-0">
-          <div className="flex justify-between text-gray-500">
+        <div className={cn(
+          "space-y-1.5 p-4 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 shrink-0 text-xs",
+          isSplit ? "w-full" : "w-full sm:w-80"
+        )}>
+          <div className="flex justify-between text-gray-500 text-[11px]">
             <span>Subtotal Bruto:</span>
             <span className="font-mono font-bold">${subtotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN</span>
           </div>
           {discountAmount > 0 && (
-            <div className="flex justify-between font-bold" style={{ color: accentColor }}>
+            <div className="flex justify-between font-bold text-[11px]" style={{ color: accentColor }}>
               <span>Descuento Comercial:</span>
               <span className="font-mono">-${discountAmount.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN</span>
             </div>
           )}
-          <div className="flex justify-between text-gray-500">
+          <div className="flex justify-between text-gray-500 text-[11px]">
             <span>IVA Exento (Art. 15 Fracc. XIV LIVA):</span>
             <span className="font-mono font-bold" style={{ color: accentColor }}>$0.00 (0%)</span>
           </div>
           <div className="pt-2 border-t border-gray-200 dark:border-gray-800 flex justify-between items-baseline">
             <span className="font-black uppercase text-[10px] text-gray-900 dark:text-white">Total a Pagar:</span>
-            <span className="text-2xl font-black font-mono" style={{ color: accentColor }}>
+            <span className="text-xl font-black font-mono" style={{ color: accentColor }}>
               ${total.toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN
             </span>
           </div>
@@ -628,19 +651,19 @@ export default function CreatePatientBudgetPage() {
 
       {/* Nota al pie personalizada */}
       {footerCustomNote && (
-        <div className="p-3.5 rounded-xl bg-gray-50/70 dark:bg-[#141414] text-[11px] text-gray-500 text-center border border-gray-100 dark:border-gray-800">
+        <div className="p-2.5 rounded-xl bg-gray-50/70 dark:bg-[#141414] text-[10px] text-gray-500 text-center border border-gray-100 dark:border-gray-800">
           {footerCustomNote}
         </div>
       )}
 
       {/* Pie de Documento con Área de Firma */}
-      <div className="pt-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between text-xs text-gray-400">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4" style={{ color: accentColor }} />
+      <div className="pt-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between text-[10px] text-gray-400">
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
           <span>Documento Clínico Cifrado QuHealthy Engine</span>
         </div>
-        <div className="border-b border-dashed border-gray-400 w-52 text-center text-[10px] pb-1">
-          Espacio para Firma Digital del Paciente
+        <div className="border-b border-dashed border-gray-400 w-40 text-center text-[9px] pb-1">
+          Espacio para Firma Digital
         </div>
       </div>
     </div>
@@ -741,7 +764,30 @@ export default function CreatePatientBudgetPage() {
 
       {/* ── CUERPO PRINCIPAL (SEGÚN MODO DE VISTA) ──────────────────── */}
       {viewMode === "preview" ? (
-        renderOfficialLetterhead()
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-gray-800 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("edit")}
+              className="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Volver al Formulario de Edición</span>
+            </button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.print()}
+              className="rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Imprimir Cotización</span>
+            </Button>
+          </div>
+
+          {renderOfficialLetterhead(false)}
+        </div>
       ) : (
         <div className={cn(
           "grid gap-8 items-start",
@@ -1254,8 +1300,31 @@ export default function CreatePatientBudgetPage() {
 
           {/* COLUMNA DE PREVISUALIZACIÓN EN VIVO (SPLIT VIEW) */}
           {viewMode === "split" && (
-            <div className="hidden lg:block lg:col-span-5 sticky top-6">
-              {renderOfficialLetterhead()}
+            <div className="hidden lg:flex lg:col-span-5 flex-col sticky top-6 max-h-[calc(100vh-3rem)] rounded-3xl bg-gray-100/80 dark:bg-[#090909] border border-gray-200/90 dark:border-gray-800 p-3.5 shadow-sm space-y-2.5 overflow-hidden">
+              {/* Header de la Columna Preview */}
+              <div className="flex items-center justify-between px-2 pt-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5" style={{ color: accentColor }} />
+                    <span>Vista Previa en Vivo</span>
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setViewMode("preview")}
+                  className="text-[11px] font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 hover:underline cursor-pointer"
+                >
+                  <Eye className="w-3 h-3" />
+                  <span>Pantalla Completa</span>
+                </button>
+              </div>
+
+              {/* Contenedor con Scroll Independiente para el Documento Completo */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4 rounded-2xl">
+                {renderOfficialLetterhead(true)}
+              </div>
             </div>
           )}
         </div>
