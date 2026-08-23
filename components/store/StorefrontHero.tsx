@@ -277,70 +277,145 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
             </div>
           </div>
 
-          {/* Tarjetas Informativas Rápidas (Quick Facts) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
-            <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-              <CheckCircle2
-                className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
-                strokeWidth={2}
-              />
-              <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-gray-900 dark:text-white">
-                  {t("medical_verification_title")}
-                </h4>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                  {t("medical_verification_desc")}
-                </p>
-              </div>
-            </div>
+          {/* Tarjetas Informativas Rápidas (Quick Facts) Adaptativas y Objetivas */}
+          {(() => {
+            const isSupplier = store.providerType === 'SUPPLIER' || store.providerType === 'PHARMACY' || (store.products?.length > 0 && (!store.services || store.services.length === 0));
+            const isFoundation = store.providerType === 'FOUNDATION';
 
-            <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-              <Clock
-                className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
-                strokeWidth={2}
-              />
-              <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-gray-900 dark:text-white">
-                  {t("availability_title")}
-                </h4>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                  {t("availability_desc")}
-                </p>
-              </div>
-            </div>
+            if (isSupplier) {
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                        {store.cofeprisNotice ? "Aviso Sanitario COFEPRIS Validado" : "Catálogo de Insumos & Farmacia"}
+                      </h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Fichas técnicas y especificaciones provistas directamente por el fabricante.
+                      </p>
+                    </div>
+                  </div>
 
-            <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-              <Star
-                className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
-                strokeWidth={2}
-              />
-              <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-gray-900 dark:text-white">
-                  {t("experience_title")}
-                </h4>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                  {t("experience_desc")}
-                </p>
-              </div>
-            </div>
+                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Facturación Fiscal SAT CFDI 4.0</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Emisión y timbrado de comprobantes fiscales deducibles para cada compra.
+                      </p>
+                    </div>
+                  </div>
 
-            <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-              <MapPin
-                className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
-                strokeWidth={2}
-              />
-              <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-gray-900 dark:text-white">
-                  {t("location_title")}
-                </h4>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                  {store.locations && store.locations.length > 0
-                    ? store.locations.map(loc => loc.name).join(" • ")
-                    : t("location_desc", { city: store.city || t("default_city") })}
-                </p>
+                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <Star className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Venta Directa & Cotizaciones</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Pedidos unitarios y cotizaciones formales para consultorios y clínicas.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Ubicación y Cobertura</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {store.city || store.address || "Distribución e inventario registrado en plataforma."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            if (isFoundation) {
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <CheckCircle2 className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Donataria Autorizada SAT</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Comprobantes fiscales de donativo deducibles de impuestos según normativa SAT.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <Clock className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Programas de Salud Social</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Atención y registro de beneficiarios mediante CURP para apoyo comunitario.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <Star className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Transparencia & Proyectos</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Difusión de metas y seguimiento público de programas y campañas activas.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-start gap-3.5 shadow-2xs">
+                    <MapPin className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Sede de la Fundación</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {store.city || store.address || "Centros de apoyo y voluntariado comunitario."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-6 border-b border-gray-100 dark:border-gray-800">
+                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("medical_verification_title")}</h4>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">{t("medical_verification_desc")}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+                  <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("availability_title")}</h4>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">{t("availability_desc")}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+                  <Star className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("experience_title")}</h4>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">{t("experience_desc")}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
+                  <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{t("location_title")}</h4>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {store.locations && store.locations.length > 0
+                        ? store.locations.map(loc => loc.name).join(" • ")
+                        : t("location_desc", { city: store.city || t("default_city") })}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Componente de Disponibilidad Rápida */}
           <QuickAvailability providerId={store.providerId} locations={store.locations} />

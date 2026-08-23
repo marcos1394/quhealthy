@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -17,6 +19,10 @@ import {
   ArrowRight,
   ExternalLink,
   Lock,
+  Phone,
+  MapPin,
+  Award,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,22 +147,100 @@ function FacturacionContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-[#050505] dark:via-[#0a0a0a] dark:to-[#050505] text-gray-900 dark:text-white font-sans py-12 px-4 sm:px-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-[#050505] dark:via-[#0a0a0a] dark:to-[#050505] text-gray-900 dark:text-white font-sans py-10 px-4 sm:px-6">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* Header Institucional */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold shadow-2xs">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>Portal Oficial de Autofacturación SAT CFDI 4.0</span>
-          </div>
+        
+        {/* ── HEADER PERSONALIZADO CON LA MARCA DEL MÉDICO / CLÍNICA ───────── */}
+        {receipt ? (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-[#0c0c0c] border border-gray-200/90 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+          >
+            <div className="flex items-center gap-5">
+              {receipt.doctorLogoUrl ? (
+                <div className="w-16 h-16 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-white shadow-sm shrink-0 relative">
+                  <Image
+                    src={receipt.doctorLogoUrl}
+                    alt={receipt.doctorName || "Logo Médico"}
+                    fill
+                    className="object-contain p-1"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <Building2 className="w-8 h-8" strokeWidth={1.75} />
+                </div>
+              )}
 
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">
-            Genera tu Factura Electrónica
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-lg mx-auto">
-            Ingresa los datos de tu ticket de consulta o compra para timbrar tu comprobante fiscal con deducción autorizada por el SAT.
-          </p>
-        </div>
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200 dark:border-emerald-800">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Portal Oficial de Autofacturación</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+                  {receipt.doctorName || "Consultorio Médico"}
+                </h1>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                  {receipt.doctorSpecialty && (
+                    <span>{receipt.doctorSpecialty}</span>
+                  )}
+                  {receipt.doctorLicense && (
+                    <span className="flex items-center gap-1 font-mono text-[11px] text-gray-600 dark:text-gray-300">
+                      <Award className="w-3.5 h-3.5 text-emerald-600" />
+                      Céd. Prof: {receipt.doctorLicense}
+                    </span>
+                  )}
+                </div>
+                {receipt.doctorAddress && (
+                  <p className="text-[11px] text-gray-400 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span className="truncate max-w-sm">{receipt.doctorAddress}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="shrink-0 flex sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto justify-between pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800">
+              <Link href={`/market`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl text-xs h-9 px-3.5 gap-1.5 font-bold border-gray-200 dark:border-gray-700 hover:border-emerald-500"
+                >
+                  <Store className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Tienda & Servicios</span>
+                </Button>
+              </Link>
+              {receipt.doctorPhone && (
+                <a
+                  href={`https://wa.me/${receipt.doctorPhone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-500 flex items-center gap-1"
+                >
+                  <Phone className="w-3 h-3" />
+                  <span>Ayuda: {receipt.doctorPhone}</span>
+                </a>
+              )}
+            </div>
+          </motion.div>
+        ) : (
+          /* Header Genérico si aún no busca el ticket */
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-bold shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Portal de Autofacturación SAT CFDI 4.0</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">
+              Genera tu Factura Electrónica
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-lg mx-auto">
+              Ingresa los datos de tu ticket de consulta o compra para timbrar tu comprobante fiscal con deducción autorizada por el SAT.
+            </p>
+          </div>
+        )}
 
         {/* ── PASO 1: BÚSQUEDA O CONFIRMACIÓN DEL TICKET ─────────────────────── */}
         {!receipt && (
@@ -226,10 +310,10 @@ function FacturacionContent() {
                   Ticket Localizado: {receipt.folio}
                 </span>
                 <h4 className="font-extrabold text-sm text-gray-900 dark:text-white">
-                  {receipt.doctorName || "Consultorio QuHealthy"}
+                  {receipt.items?.[0]?.description || "Honorarios por Consulta Médica"}
                 </h4>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Fecha: {new Date(receipt.createdAt).toLocaleString("es-MX", { dateStyle: "long" })} • Partidas: {receipt.items?.length || 1}
+                  Fecha: {new Date(receipt.createdAt).toLocaleString("es-MX", { dateStyle: "long" })} • Conceptos: {receipt.items?.length || 1}
                 </p>
               </div>
 
@@ -402,6 +486,10 @@ function FacturacionContent() {
             </div>
 
             <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-gray-800 max-w-md mx-auto text-xs space-y-2 text-left">
+              <div className="flex justify-between text-gray-500">
+                <span>Emisor:</span>
+                <span className="font-bold text-gray-900 dark:text-white">{receipt?.doctorName || "Consultorio QuHealthy"}</span>
+              </div>
               <div className="flex justify-between text-gray-500">
                 <span>Receptor:</span>
                 <span className="font-bold text-gray-900 dark:text-white">{stampedCfdi.patientName}</span>

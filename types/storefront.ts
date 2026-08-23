@@ -74,6 +74,13 @@ export interface StorefrontStaff {
 
 export interface StorefrontData {
   providerId: number;
+  providerType?: 'DOCTOR' | 'CLINIC' | 'FOUNDATION' | 'SUPPLIER' | 'PHARMACY';
+  doctorLicense?: string;
+  specialty?: string;
+  cofeprisNotice?: string;
+  coldChainCertified?: boolean;
+  taxReceiptAvailable?: boolean;
+  b2bQuoteAvailable?: boolean;
   displayName: string;
   slug: string;
   bio: string;

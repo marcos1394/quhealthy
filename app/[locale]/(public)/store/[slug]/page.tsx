@@ -95,6 +95,18 @@ export default function PublicStorePage() {
 
   useEffect(() => {
     if (store && slug) {
+      // Smart tab selection
+      const hasServices = store.services && store.services.length > 0;
+      const hasProducts = store.products && store.products.length > 0;
+      const hasPackages = store.packages && store.packages.length > 0;
+      const hasCourses = store.courses && store.courses.length > 0;
+
+      if (!hasServices) {
+        if (hasProducts) setActiveTab("productos");
+        else if (hasPackages) setActiveTab("paquetes");
+        else if (hasCourses) setActiveTab("cursos");
+      }
+
       setProvider(
         store.providerId,
         slug,
@@ -733,7 +745,27 @@ export default function PublicStorePage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
+              className="space-y-6"
             >
+              {/* B2B Wholesale / Insumos Notice Banner */}
+              {store.products && store.products.length > 0 && (
+                <div className="p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
+                      <Box className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                        Catálogo Sanitario Verificado & Venta Directa
+                      </h4>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                        Facturación automática SAT CFDI 4.0, trazabilidad de lotes y precios con deducción fiscal.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {store.products && store.products.length > 0 ? (
                 <div className="flex flex-col gap-8">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
