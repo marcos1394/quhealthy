@@ -39,6 +39,11 @@ export interface PatientClinicalBudgetDTO {
   diagnosisCie10?: string;
   procedureName: string;
   clinicalNotes?: string;
+  doctorName?: string;
+  doctorLicense?: string;
+  doctorSpecialty?: string;
+  doctorPhone?: string;
+  doctorEmail?: string;
   termsAndConditions?: string;
   validUntil: string;
   subtotalAmount: number;
@@ -62,6 +67,11 @@ export interface CreatePatientBudgetDTO {
   diagnosisCie10?: string;
   procedureName: string;
   clinicalNotes?: string;
+  doctorName?: string;
+  doctorLicense?: string;
+  doctorSpecialty?: string;
+  doctorPhone?: string;
+  doctorEmail?: string;
   termsAndConditions?: string;
   validUntil: string;
   discountAmount?: number;

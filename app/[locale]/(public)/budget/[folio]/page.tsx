@@ -215,11 +215,25 @@ export default function PublicPatientBudgetPage() {
               <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                 {budget.procedureName}
               </h1>
-              {budget.diagnosisCie10 && (
-                <p className="text-xs font-mono font-bold text-gray-400">
-                  Diagnóstico CIE-10: {budget.diagnosisCie10}
-                </p>
-              )}
+              <div className="space-y-0.5">
+                {budget.doctorName && (
+                  <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <Stethoscope className="w-4 h-4 text-emerald-600" />
+                    <span>Dr(a). {budget.doctorName} {budget.doctorSpecialty ? `• ${budget.doctorSpecialty}` : ""}</span>
+                  </p>
+                )}
+                {budget.doctorLicense && (
+                  <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Cédula Profesional SEP: {budget.doctorLicense}</span>
+                  </p>
+                )}
+                {budget.diagnosisCie10 && (
+                  <p className="text-xs font-mono font-bold text-gray-400">
+                    Diagnóstico CIE-10: {budget.diagnosisCie10}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-200/80 dark:border-gray-800 space-y-1 text-right shrink-0">
@@ -232,6 +246,11 @@ export default function PublicPatientBudgetPage() {
               <span className="text-[10px] text-gray-400 block">
                 Vigencia: {budget.validUntil}
               </span>
+              {(budget.doctorPhone || budget.doctorEmail) && (
+                <div className="text-[10px] text-gray-400 pt-1 border-t border-gray-200/60 dark:border-gray-800">
+                  {budget.doctorPhone && <div>Tel: {budget.doctorPhone}</div>}
+                </div>
+              )}
             </div>
           </div>
 
