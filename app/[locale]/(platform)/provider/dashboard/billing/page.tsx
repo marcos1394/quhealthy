@@ -1,10 +1,6 @@
 "use client";
 
-/* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */
-/* eslint-disable react-doctor/no-giant-component */
-
-import React, { Suspense, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Building2,
@@ -13,488 +9,725 @@ import {
   ExternalLink,
   CheckCircle2,
   XCircle,
-  ArrowRightLeft,
   CalendarDays,
   CreditCard,
   ChevronLeft,
   ChevronRight,
   Download,
-  FileDown,
-  FileText as FileTextIcon,
+  FileText,
   Printer,
+  ShieldCheck,
+  Key,
+  Lock,
+  Plus,
+  Ban,
+  Upload,
+  RefreshCcw,
+  AlertCircle,
+  FileCheck,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { useBillingHistory } from "@/hooks/useBillingHistory";
 import StripeConnectCard from "@/components/dashboard/billing/StripeConnectCard";
+import { cfdiService } from "@/services/cfdi.service";
+import {
+  FiscalProfile,
+  UploadCsdPayload,
+  CfdiRecordResponse,
+  DirectInvoicePayload,
+  SAT_REGIMES,
+  SAT_CFDI_USES,
+} from "@/types/cfdi";
 import { cn } from "@/lib/utils";
-
-function StripeConnectCardSkeleton() {
-  return (
-    <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-8 rounded-3xl shadow-sm transition-colors">
-      <div className="flex items-start gap-5 animate-pulse">
-        <div className="h-14 w-14 rounded-2xl bg-gray-100 dark:bg-gray-800 shrink-0" />
-        <div className="space-y-4 flex-1 mt-2">
-          <div className="h-4 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg" />
-          <div className="h-2 w-full max-w-md bg-gray-100 dark:bg-gray-800/60 rounded-lg" />
-          <div className="h-2 w-3/4 max-w-sm bg-gray-100 dark:bg-gray-800/60 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function BillingSettingsPage() {
   const t = useTranslations("DashboardBilling");
   const locale = useLocale();
-  const { transactions, isLoading, page, totalPages, fetchPage } =
-    useBillingHistory();
-  const [selectedTx, setSelectedTx] = useState<any>(null);
 
-  const dateLocale = locale === "en" ? enUS : es;
+  // Pestañas
+  const [activeTab, setActiveTab] = useState<"invoices" | "global" | "fiscal_setup" | "stripe">("invoices");
 
-  const exportToCSV = () => {
-    toast.success("Extracción CSV en curso...");
+  // Facturas Emitidas
+  const [invoices, setInvoices] = useState<CfdiRecordResponse[]>([]);
+  const [isInvoicesLoading, setIsInvoicesLoading] = useState(false);
+  const [invoicePage, setInvoicePage] = useState(0);
+  const [totalInvoicePages, setTotalInvoicePages] = useState(1);
+
+  // Perfil Fiscal & Sellos CSD
+  const [fiscalProfile, setFiscalProfile] = useState<FiscalProfile | null>(null);
+  const [isFiscalLoading, setIsFiscalLoading] = useState(false);
+  const [isSavingFiscal, setIsSavingFiscal] = useState(false);
+
+  const [rfc, setRfc] = useState("");
+  const [legalName, setLegalName] = useState("");
+  const [fiscalRegime, setFiscalRegime] = useState("612");
+  const [zipCode, setZipCode] = useState("");
+  const [cerBase64, setCerBase64] = useState("");
+  const [keyBase64, setKeyBase64] = useState("");
+  const [csdPassword, setCsdPassword] = useState("");
+  const [cerFileName, setCerFileName] = useState("");
+  const [keyFileName, setKeyFileName] = useState("");
+
+  // Modal Emisión Directa
+  const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
+  const [directRfc, setDirectRfc] = useState("");
+  const [directName, setDirectName] = useState("");
+  const [directZip, setDirectZip] = useState("");
+  const [directRegime, setDirectRegime] = useState("605");
+  const [directUse, setDirectUse] = useState("D01");
+  const [directConcept, setDirectConcept] = useState("Honorarios por Servicios Médicos");
+  const [directAmount, setDirectAmount] = useState("");
+  const [isIssuingDirect, setIsIssuingDirect] = useState(false);
+
+  // Modal Cancelación
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedInvoiceToCancel, setSelectedInvoiceToCancel] = useState<CfdiRecordResponse | null>(null);
+  const [cancelReason, setCancelReason] = useState<"01" | "02" | "03" | "04">("02");
+  const [replacementUuid, setReplacementUuid] = useState("");
+  const [isCanceling, setIsCanceling] = useState(false);
+
+  // Cargar Perfil Fiscal
+  const fetchFiscalProfile = useCallback(async () => {
+    try {
+      setIsFiscalLoading(true);
+      const data = await cfdiService.getFiscalProfile();
+      setFiscalProfile(data);
+      if (data.rfc) setRfc(data.rfc);
+      if (data.legalName) setLegalName(data.legalName);
+      if (data.fiscalRegime) setFiscalRegime(data.fiscalRegime);
+      if (data.zipCode) setZipCode(data.zipCode);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsFiscalLoading(false);
+    }
+  }, []);
+
+  // Cargar Facturas Emitidas
+  const fetchInvoices = useCallback(async () => {
+    try {
+      setIsInvoicesLoading(true);
+      const res = await cfdiService.getInvoices(invoicePage, 20);
+      setInvoices(res.content || []);
+      setTotalInvoicePages(Math.ceil((res.totalElements || 0) / 20) || 1);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsInvoicesLoading(false);
+    }
+  }, [invoicePage]);
+
+  useEffect(() => {
+    fetchFiscalProfile();
+    fetchInvoices();
+  }, [fetchFiscalProfile, fetchInvoices]);
+
+  // Manejadores de Archivos CSD (.cer y .key)
+  const handleCerFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCerFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      setCerBase64(base64);
+    };
+    reader.readAsDataURL(file);
   };
-  const exportToPDF = () => {
-    toast.success("Extracción PDF en curso...");
+
+  const handleKeyFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setKeyFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      setKeyBase64(base64);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const getStatusBadge = (status: string) => {
-    const baseClass =
-      "px-2.5 py-0.5 text-[10px] font-bold whitespace-nowrap inline-flex items-center gap-1 rounded-full border shadow-sm";
+  const handleSaveFiscalSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!rfc.trim() || rfc.length < 12) {
+      toast.error("El RFC debe tener entre 12 y 13 caracteres.");
+      return;
+    }
+    if (!legalName.trim()) {
+      toast.error("Ingresa la Razón Social o Nombre fiscal.");
+      return;
+    }
+    if (!zipCode.trim() || zipCode.length !== 5) {
+      toast.error("El Código Postal debe ser de 5 dígitos.");
+      return;
+    }
 
-    switch (status) {
-      case "SUCCEEDED":
-        return (
-          <span
-            className={cn(
-              baseClass,
-              "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/40"
-            )}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
-            {t("table.settled")}
-          </span>
-        );
-      case "FAILED":
-        return (
-          <span
-            className={cn(
-              baseClass,
-              "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900/40"
-            )}
-          >
-            <XCircle className="w-3.5 h-3.5" strokeWidth={2} />
-            {t("table.failed")}
-          </span>
-        );
-      case "REFUNDED":
-        return (
-          <span
-            className={cn(
-              baseClass,
-              "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
-            )}
-          >
-            <ArrowRightLeft className="w-3.5 h-3.5" strokeWidth={2} />
-            {t("table.refunded")}
-          </span>
-        );
-      default:
-        return (
-          <span
-            className={cn(
-              baseClass,
-              "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
-            )}
-          >
-            {status}
-          </span>
-        );
+    try {
+      setIsSavingFiscal(true);
+      const payload: UploadCsdPayload = {
+        rfc: rfc.toUpperCase().trim(),
+        legalName: legalName.trim(),
+        fiscalRegime,
+        zipCode: zipCode.trim(),
+        certificateBase64: cerBase64 || "CERT_CONFIGURED",
+        privateKeyBase64: keyBase64 || "KEY_CONFIGURED",
+        privateKeyPassword: csdPassword || "PWD_CONFIGURED",
+      };
+
+      const updated = await cfdiService.saveFiscalProfile(payload);
+      setFiscalProfile(updated);
+      toast.success("Configuración fiscal y sellos CSD actualizados correctamente.");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.response?.data?.message || "Error al actualizar configuración fiscal.");
+    } finally {
+      setIsSavingFiscal(false);
     }
   };
 
-  const getTypeLabel = (type: string) => {
-    if (type === "APPOINTMENT_PAYMENT") return t("types.appointment_payment");
-    if (type === "SUBSCRIPTION_CHARGE") return t("types.subscription_charge");
-    return type
-      .replace(/_/g, " ")
-      .toLowerCase()
-      .replace(/\b\w/g, (l) => l.toUpperCase());
+  // Emisión Directa
+  const handleIssueDirectInvoice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!directRfc.trim() || directRfc.length < 12) {
+      toast.error("RFC del paciente no válido.");
+      return;
+    }
+    if (!directName.trim()) {
+      toast.error("Ingresa el nombre del paciente.");
+      return;
+    }
+    const amt = parseFloat(directAmount);
+    if (isNaN(amt) || amt <= 0) {
+      toast.error("El importe debe ser mayor a $0.");
+      return;
+    }
+
+    try {
+      setIsIssuingDirect(true);
+      const payload: DirectInvoicePayload = {
+        patientRfc: directRfc.toUpperCase().trim(),
+        patientName: directName.toUpperCase().trim(),
+        patientRegime: directRegime,
+        patientZipCode: directZip.trim() || "06700",
+        cfdiUsage: directUse,
+        paymentMethod: "PUE",
+        paymentForm: "04",
+        items: [
+          {
+            description: directConcept,
+            quantity: 1,
+            unitPrice: amt,
+            subtotal: amt,
+            isTaxExempt: true,
+          },
+        ],
+        totalAmount: amt,
+      };
+
+      await cfdiService.issueDirectInvoice(payload);
+      toast.success("¡Factura CFDI 4.0 emitida con éxito!");
+      setIsDirectModalOpen(false);
+      fetchInvoices();
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.response?.data?.message || "Error al emitir CFDI.");
+    } finally {
+      setIsIssuingDirect(false);
+    }
+  };
+
+  // Cancelar CFDI
+  const handleConfirmCancel = async () => {
+    if (!selectedInvoiceToCancel) return;
+    try {
+      setIsCanceling(true);
+      await cfdiService.cancelCfdi(selectedInvoiceToCancel.uuidSat, {
+        cancellationReason: cancelReason,
+        replacementUuid: cancelReason === "01" ? replacementUuid.trim() : undefined,
+      });
+      toast.success("Factura cancelada ante el SAT.");
+      setIsCancelModalOpen(false);
+      setSelectedInvoiceToCancel(null);
+      fetchInvoices();
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.response?.data?.message || "Error al cancelar factura.");
+    } finally {
+      setIsCanceling(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-24">
-      <div className="max-w-6xl mx-auto px-6 py-10 sm:py-12 space-y-12">
-        
-        {/* ── HEADER ────────────────────────────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-start gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 shadow-sm flex items-center justify-center shrink-0">
-              <Building2 className="w-7 h-7" strokeWidth={2} />
+    <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white transition-colors pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
+        {/* Header Principal */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#0a0a0a] p-6 sm:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <ReceiptText className="w-7 h-7" strokeWidth={2} />
             </div>
             <div>
-              <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400 px-3 py-1 text-xs font-bold shadow-sm">
-                <span>Auditoría Contable</span>
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  Facturación SAT CFDI 4.0 & Finanzas
+                </h1>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  SAT 4.0
+                </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">
-                {t("title")}
-              </h1>
-              <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                {t("subtitle")}
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Administración de CFDI, sellos digitales CSD, autofacturación y dispersiones.
               </p>
             </div>
           </div>
 
-          <div className="shrink-0">
-            <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-3.5 py-1.5 text-xs font-bold rounded-full flex items-center gap-2 shadow-sm">
-              <Sparkles className="w-4 h-4" strokeWidth={2} />
-              <span>Operativa Financiera</span>
-            </span>
+          <div className="flex items-center gap-2.5">
+            <Button
+              onClick={() => setIsDirectModalOpen(true)}
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs h-11 px-5 shadow-md shadow-emerald-600/20 flex items-center gap-2 cursor-pointer border-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Emitir Factura Manual</span>
+            </Button>
           </div>
         </div>
 
-        <div className="space-y-12">
-          
-          {/* ── SECCIÓN 1: STRIPE CONNECT ──────────────────────────────── */}
-          <section className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
-                <Building2 className="w-5 h-5" strokeWidth={2} />
-              </div>
+        {/* Barra de Pestañas */}
+        <div className="flex bg-gray-100/70 dark:bg-gray-800/40 p-1.5 rounded-2xl w-fit shadow-sm overflow-x-auto">
+          <button
+            onClick={() => setActiveTab("invoices")}
+            className={cn(
+              "px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer",
+              activeTab === "invoices"
+                ? "bg-white dark:bg-[#0a0a0a] text-emerald-600 dark:text-emerald-400 shadow-sm"
+                : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+            )}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Facturas Emitidas (CFDI)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("fiscal_setup")}
+            className={cn(
+              "px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer",
+              activeTab === "fiscal_setup"
+                ? "bg-white dark:bg-[#0a0a0a] text-emerald-600 dark:text-emerald-400 shadow-sm"
+                : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+            )}
+          >
+            <Key className="w-4 h-4" />
+            <span>Configuración Fiscal & CSD</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("stripe")}
+            className={cn(
+              "px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer",
+              activeTab === "stripe"
+                ? "bg-white dark:bg-[#0a0a0a] text-emerald-600 dark:text-emerald-400 shadow-sm"
+                : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+            )}
+          >
+            <CreditCard className="w-4 h-4" />
+            <span>Pasarela Stripe Connect</span>
+          </button>
+        </div>
+
+        {/* ── PESTAÑA 1: FACTURAS EMITIDAS ──────────────────────────────────── */}
+        {activeTab === "invoices" && (
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden space-y-4">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                  {t("stripe_section")}
-                </h2>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {t("stripe_subtitle")}
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Historial de CFDI 4.0 Timbrados
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Comprobantes fiscales generados por citas, POS y autofacturación de pacientes.
                 </p>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchInvoices}
+                className="rounded-xl h-9 px-3 text-xs gap-1.5"
+              >
+                <RefreshCcw className="w-3.5 h-3.5" />
+                <span>Actualizar</span>
+              </Button>
             </div>
 
-            <Suspense fallback={<StripeConnectCardSkeleton />}>
-              <StripeConnectCard />
-            </Suspense>
-          </section>
-
-          {/* ── SECCIÓN 2: HISTORIAL TRANSACCIONAL ─────────────────────── */}
-          <section className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
-                  <ReceiptText className="w-5 h-5" strokeWidth={2} />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t("transactions_title")}
-                  </h2>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                    {t("transactions_subtitle")}
-                  </p>
-                </div>
+            {isInvoicesLoading ? (
+              <div className="p-12 flex justify-center"><QhSpinner size="lg" /></div>
+            ) : invoices.length === 0 ? (
+              <div className="p-12 text-center text-xs text-gray-400">
+                Aún no tienes facturas emitidas en el periodo.
               </div>
-
-              <div className="flex flex-wrap gap-2.5 w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  onClick={exportToCSV}
-                  className="flex-1 sm:flex-none rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] text-gray-700 dark:text-gray-300 text-xs font-bold transition-all h-10 px-4 shadow-sm flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" strokeWidth={2} />
-                  <span>{t("export_csv")}</span>
-                </Button>
-
-                <Button
-                  onClick={exportToPDF}
-                  className="flex-1 sm:flex-none rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-xs font-bold transition-all h-10 px-4 border-0 shadow-sm flex items-center gap-2"
-                >
-                  <FileDown className="w-4 h-4" strokeWidth={2} />
-                  <span>{t("export_pdf")}</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* TABLA TRANSACCIONAL */}
-            <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-sm overflow-hidden transition-all">
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-gray-50/50 dark:bg-[#050505]">
-                  <QhSpinner size="lg" />
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-4 animate-pulse">
-                    {t("loading")}
-                  </p>
-                </div>
-              ) : transactions.length === 0 ? (
-                <div className="p-16 text-center flex flex-col items-center justify-center">
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 shadow-sm">
-                    <ReceiptText className="w-7 h-7" strokeWidth={2} />
-                  </div>
-                  <h4 className="text-base font-bold text-gray-900 dark:text-white mb-1">
-                    {t("empty.title")}
-                  </h4>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 max-w-sm leading-relaxed">
-                    {t("empty.description")}
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[700px]">
-                    <thead>
-                      <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]">
-                        <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                          {t("table.date")}
-                        </th>
-                        <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                          {t("table.service")}
-                        </th>
-                        <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                          {t("table.status")}
-                        </th>
-                        <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-wider text-gray-400 text-right">
-                          {t("table.amount")}
-                        </th>
-                        <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-wider text-gray-400 text-center">
-                          {t("table.receipt")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800/60">
-                      {transactions.map((tx) => (
-                        <tr
-                          key={tx.id}
-                          className="hover:bg-gray-50/50 dark:hover:bg-[#111]/50 transition-colors group cursor-pointer"
-                        >
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 flex items-center justify-center shrink-0">
-                                <CalendarDays className="w-4 h-4 text-gray-400" strokeWidth={2} />
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs font-bold text-gray-900 dark:text-white">
-                                  {format(new Date(tx.date), "dd MMM yyyy", { locale: dateLocale })}
-                                </span>
-                                <span className="text-[10px] font-medium text-gray-400 font-mono">
-                                  {format(new Date(tx.date), "HH:mm")} hrs
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2.5">
-                              <CreditCard className="w-4 h-4 text-gray-400" strokeWidth={2} />
-                              <div className="flex flex-col">
-                                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                                  {getTypeLabel(tx.type)}
-                                </span>
-                                {tx.appointmentId && (
-                                  <span className="text-[10px] font-mono text-gray-400">
-                                    Ref: #{tx.appointmentId}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="py-4 px-6">
-                            {getStatusBadge(tx.status)}
-                          </td>
-
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex flex-col items-end">
-                              <span className="text-sm font-bold text-gray-900 dark:text-white font-mono">
-                                {tx.amount.toLocaleString(locale === "en" ? "en-US" : "es-MX", {
-                                  style: "currency",
-                                  currency: tx.currency,
-                                })}
-                              </span>
-                              <span className="text-[9px] font-bold text-gray-400 uppercase">
-                                {tx.currency}
-                              </span>
-                            </div>
-                          </td>
-
-                          <td className="py-4 px-6">
-                            <div className="flex items-center justify-center gap-2">
-                              <Button
-                                variant="outline"
-                                onClick={() => setSelectedTx(tx)}
-                                className="w-8 h-8 p-0 rounded-xl border-gray-200 dark:border-gray-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
-                              >
-                                <FileTextIcon className="w-4 h-4" strokeWidth={2} />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-gray-50/70 dark:bg-[#121212] text-gray-400 font-bold uppercase text-[10px] border-b border-gray-100 dark:border-gray-800">
+                    <tr>
+                      <th className="p-4 pl-6">Fecha</th>
+                      <th className="p-4">Folio Fiscal (UUID)</th>
+                      <th className="p-4">Receptor / RFC</th>
+                      <th className="p-4">Total</th>
+                      <th className="p-4">Estatus</th>
+                      <th className="p-4 pr-6 text-right">Comprobantes</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800/60">
+                    {invoices.map((inv) => (
+                      <tr key={inv.id} className="hover:bg-gray-50/50 dark:hover:bg-[#141414] transition-colors">
+                        <td className="p-4 pl-6 font-mono text-gray-500">
+                          {new Date(inv.createdAt).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" })}
+                        </td>
+                        <td className="p-4 font-mono font-bold text-gray-800 dark:text-gray-200">
+                          {inv.uuidSat ? `${inv.uuidSat.substring(0, 18)}...` : "PENDIENTE"}
+                        </td>
+                        <td className="p-4">
+                          <div className="font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
+                            {inv.patientName}
+                          </div>
+                          <span className="text-[10px] text-gray-400 font-mono">{inv.patientRfc}</span>
+                        </td>
+                        <td className="p-4 font-mono font-black text-emerald-600 dark:text-emerald-400">
+                          ${inv.totalAmount.toFixed(2)} MXN
+                        </td>
+                        <td className="p-4">
+                          {inv.status === "GENERATED" ? (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                              Timbrado
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                              Cancelado
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 pr-6 text-right space-x-1.5">
+                          {inv.xmlUrl && (
+                            <a href={inv.xmlUrl} target="_blank" rel="noopener noreferrer" download>
+                              <Button variant="outline" size="sm" className="h-8 px-2 rounded-lg text-[11px]">
+                                XML
                               </Button>
-
-                              {tx.receiptUrl && (
-                                <a
-                                  href={tx.receiptUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="w-8 h-8 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center justify-center transition-colors"
-                                >
-                                  <ExternalLink className="w-4 h-4" strokeWidth={2} />
-                                </a>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* PAGINACIÓN */}
-              {totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-gray-50/50 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 gap-4">
-                  <span className="text-xs font-medium text-gray-500">
-                    {t("pagination.page_of", {
-                      page: page + 1,
-                      totalPages,
-                    })}
-                  </span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => fetchPage(page - 1)}
-                      disabled={page === 0}
-                      className="rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold h-9 px-3.5 shadow-sm"
-                    >
-                      <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={2} />
-                      <span>{t("pagination.previous")}</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => fetchPage(page + 1)}
-                      disabled={page >= totalPages - 1}
-                      className="rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold h-9 px-3.5 shadow-sm"
-                    >
-                      <span>{t("pagination.next")}</span>
-                      <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-
-      </div>
-
-      {/* ── MODAL COMPROBANTE TÉCNICO ─────────────────────────────────── */}
-      <Dialog open={!!selectedTx} onOpenChange={(o) => !o && setSelectedTx(null)}>
-        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xl">
-          <div className="bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800 p-6 sm:p-8 flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
-                <ReceiptText className="w-6 h-6" strokeWidth={2} />
+                            </a>
+                          )}
+                          {inv.pdfUrl && (
+                            <a href={inv.pdfUrl} target="_blank" rel="noopener noreferrer" download>
+                              <Button variant="outline" size="sm" className="h-8 px-2 rounded-lg text-[11px]">
+                                PDF
+                              </Button>
+                            </a>
+                          )}
+                          {inv.status === "GENERATED" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInvoiceToCancel(inv);
+                                setIsCancelModalOpen(true);
+                              }}
+                              className="h-8 px-2 rounded-lg text-[11px] text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                            >
+                              <Ban className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
-                  {t("modal.internal_receipt")}
+            )}
+          </div>
+        )}
+
+        {/* ── PESTAÑA 2: CONFIGURACIÓN FISCAL & SELLOS CSD ─────────────────── */}
+        {activeTab === "fiscal_setup" && (
+          <form onSubmit={handleSaveFiscalSetup} className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Identidad Fiscal & Sellos Digitales (CSD)
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Configura tus certificados de sello digital del SAT para emitir facturas con tu propio RFC.
                 </p>
-                <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                  DOC-{selectedTx?.id?.substring(0, 8).toUpperCase() || "0001"}
-                </DialogTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <CalendarDays className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} />
-                  <p className="text-xs font-medium text-gray-500">
-                    {selectedTx &&
-                      format(new Date(selectedTx.date), "dd MMM yyyy", {
-                        locale: dateLocale,
-                      })}
-                  </p>
+              </div>
+
+              {fiscalProfile?.isCsdConfigured ? (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Sellos CSD Activos</span>
+                </span>
+              ) : (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4 text-amber-600" />
+                  <span>Sellos Pendientes</span>
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">RFC del Emisor *</label>
+                <Input
+                  value={rfc}
+                  onChange={(e) => setRfc(e.target.value.toUpperCase())}
+                  placeholder="XAXX010101000"
+                  className="rounded-xl h-11 text-xs font-mono font-bold uppercase"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Código Postal / Lugar Expedición *</label>
+                <Input
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  placeholder="06700"
+                  className="rounded-xl h-11 text-xs font-mono font-bold"
+                  maxLength={5}
+                  required
+                />
+              </div>
+
+              <div className="col-span-1 sm:col-span-2 space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Razón Social o Nombre Fiscal *</label>
+                <Input
+                  value={legalName}
+                  onChange={(e) => setLegalName(e.target.value.toUpperCase())}
+                  placeholder="DR. JUAN PEREZ LOPEZ"
+                  className="rounded-xl h-11 text-xs font-bold uppercase"
+                  required
+                />
+              </div>
+
+              <div className="col-span-1 sm:col-span-2 space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Régimen Fiscal Emisor *</label>
+                <Select value={fiscalRegime} onValueChange={setFiscalRegime}>
+                  <SelectTrigger className="rounded-xl h-11 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl text-xs">
+                    {SAT_REGIMES.map((reg) => (
+                      <SelectItem key={reg.code} value={reg.code}>
+                        {reg.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Subida de CSD */}
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                <Key className="w-4 h-4 text-emerald-600" />
+                <span>Cargar Archivos de Certificado de Sello Digital (.cer y .key)</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-[#121212] text-center space-y-2">
+                  <Upload className="w-6 h-6 text-gray-400 mx-auto" />
+                  <span className="text-xs font-bold block text-gray-700 dark:text-gray-300">
+                    {cerFileName || "Seleccionar archivo .cer"}
+                  </span>
+                  <input
+                    type="file"
+                    accept=".cer"
+                    onChange={handleCerFileChange}
+                    className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 cursor-pointer"
+                  />
+                </div>
+
+                <div className="p-4 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-[#121212] text-center space-y-2">
+                  <Key className="w-6 h-6 text-gray-400 mx-auto" />
+                  <span className="text-xs font-bold block text-gray-700 dark:text-gray-300">
+                    {keyFileName || "Seleccionar archivo .key"}
+                  </span>
+                  <input
+                    type="file"
+                    accept=".key"
+                    onChange={handleKeyFileChange}
+                    className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 cursor-pointer"
+                  />
+                </div>
+
+                <div className="col-span-1 sm:col-span-2 space-y-1.5">
+                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Contraseña de la Llave Privada (.key) *</label>
+                  <Input
+                    type="password"
+                    value={csdPassword}
+                    onChange={(e) => setCsdPassword(e.target.value)}
+                    placeholder="Contraseña del CSD"
+                    className="rounded-xl h-11 text-xs"
+                  />
                 </div>
               </div>
             </div>
-            {selectedTx && getStatusBadge(selectedTx.status)}
+
+            <Button
+              type="submit"
+              disabled={isSavingFiscal}
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs h-11 px-6 shadow-md shadow-emerald-600/20 cursor-pointer"
+            >
+              {isSavingFiscal ? <QhSpinner size="sm" /> : <span>Guardar y Validar Sellos en SAT</span>}
+            </Button>
+          </form>
+        )}
+
+        {/* ── PESTAÑA 3: PASARELA STRIPE CONNECT ─────────────────────────────── */}
+        {activeTab === "stripe" && (
+          <div className="space-y-6">
+            <StripeConnectCard />
           </div>
+        )}
 
-          {selectedTx && (
-            <div className="bg-white dark:bg-[#0a0a0a]">
-              <div className="grid grid-cols-2 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505]">
-                <div className="border-r border-gray-100 dark:border-gray-800 p-6 sm:p-8">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
-                    {t("modal.sender")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">
-                    {t("modal.patient")}
-                  </p>
-                  <p className="text-xs font-mono text-gray-500 mt-1">
-                    Ref: #{selectedTx.appointmentId || "N/A"}
-                  </p>
+        {/* ── MODAL EMISIÓN DIRECTA ─────────────────────────────────────────── */}
+        <Dialog open={isDirectModalOpen} onOpenChange={setIsDirectModalOpen}>
+          <DialogContent className="max-w-xl rounded-3xl p-6 sm:p-8">
+            <DialogTitle className="text-base font-black text-gray-900 dark:text-white mb-2">
+              Emitir Factura Manual CFDI 4.0
+            </DialogTitle>
+
+            <form onSubmit={handleIssueDirectInvoice} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-gray-600">RFC Receptor *</label>
+                  <Input
+                    value={directRfc}
+                    onChange={(e) => setDirectRfc(e.target.value.toUpperCase())}
+                    placeholder="XAXX010101000"
+                    className="rounded-xl h-9 text-xs font-mono uppercase"
+                    required
+                  />
                 </div>
-                <div className="p-6 sm:p-8 text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
-                    {t("modal.receiver")}
-                  </p>
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">
-                    Quhealthy Services
-                  </p>
-                  <p className="text-xs font-mono text-gray-500 mt-1">
-                    Divisa: {selectedTx.currency}
-                  </p>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-gray-600">Código Postal *</label>
+                  <Input
+                    value={directZip}
+                    onChange={(e) => setDirectZip(e.target.value)}
+                    placeholder="06700"
+                    className="rounded-xl h-9 text-xs font-mono"
+                    maxLength={5}
+                    required
+                  />
+                </div>
+
+                <div className="col-span-2 space-y-1">
+                  <label className="font-bold text-gray-600">Nombre / Razón Social *</label>
+                  <Input
+                    value={directName}
+                    onChange={(e) => setDirectName(e.target.value.toUpperCase())}
+                    placeholder="PACIENTE O EMPRESA"
+                    className="rounded-xl h-9 text-xs uppercase"
+                    required
+                  />
+                </div>
+
+                <div className="col-span-2 space-y-1">
+                  <label className="font-bold text-gray-600">Concepto del Servicio *</label>
+                  <Input
+                    value={directConcept}
+                    onChange={(e) => setDirectConcept(e.target.value)}
+                    className="rounded-xl h-9 text-xs"
+                    required
+                  />
+                </div>
+
+                <div className="col-span-2 space-y-1">
+                  <label className="font-bold text-gray-600">Total a Facturar (MXN) *</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={directAmount}
+                    onChange={(e) => setDirectAmount(e.target.value)}
+                    placeholder="1500.00"
+                    className="rounded-xl h-9 text-xs font-mono font-bold"
+                    required
+                  />
                 </div>
               </div>
 
-              <div className="p-6 sm:p-8 space-y-6">
-                <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-800">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                    {t("modal.description")}
-                  </p>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                    {t("modal.amount")}
-                  </p>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-50 dark:border-gray-800/50">
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">
-                    {getTypeLabel(selectedTx.type)}
-                  </p>
-                  <p className="text-base font-bold font-mono text-gray-900 dark:text-white">
-                    {selectedTx.amount.toLocaleString(locale === "en" ? "en-US" : "es-MX", {
-                      style: "currency",
-                      currency: selectedTx.currency,
-                    })}
-                  </p>
-                </div>
-                <div className="flex justify-between items-center pt-4">
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                    {t("modal.total_settled")}
-                  </p>
-                  <p className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                    {selectedTx.amount.toLocaleString(locale === "en" ? "en-US" : "es-MX", {
-                      style: "currency",
-                      currency: selectedTx.currency,
-                    })}
-                  </p>
-                </div>
+              <div className="flex justify-end gap-2 pt-3">
+                <Button type="button" variant="ghost" onClick={() => setIsDirectModalOpen(false)} className="rounded-xl text-xs h-9">
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isIssuingDirect} className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs h-9 px-5">
+                  {isIssuingDirect ? <QhSpinner size="sm" /> : <span>Timbrar CFDI 4.0</span>}
+                </Button>
               </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── MODAL CANCELACIÓN SAT ─────────────────────────────────────────── */}
+        <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+          <DialogContent className="max-w-md rounded-3xl p-6">
+            <DialogTitle className="text-base font-bold text-gray-900 dark:text-white mb-2">
+              Cancelar Factura ante el SAT
+            </DialogTitle>
+            <p className="text-xs text-gray-400 mb-4 font-mono">
+              UUID: {selectedInvoiceToCancel?.uuidSat}
+            </p>
+
+            <div className="space-y-3 text-xs">
+              <div className="space-y-1">
+                <label className="font-bold text-gray-600">Motivo de Cancelación (SAT) *</label>
+                <Select value={cancelReason} onValueChange={(val) => setCancelReason(val as any)}>
+                  <SelectTrigger className="rounded-xl h-9 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl text-xs">
+                    <SelectItem value="01">01 - Comprobante emitido con errores con relación</SelectItem>
+                    <SelectItem value="02">02 - Comprobante emitido con errores sin relación</SelectItem>
+                    <SelectItem value="03">03 - No se llevó a cabo la operación</SelectItem>
+                    <SelectItem value="04">04 - Operación nominativa relacionada en la factura global</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {cancelReason === "01" && (
+                <div className="space-y-1">
+                  <label className="font-bold text-gray-600">UUID Sustituto *</label>
+                  <Input
+                    value={replacementUuid}
+                    onChange={(e) => setReplacementUuid(e.target.value)}
+                    placeholder="Folio fiscal del nuevo CFDI"
+                    className="rounded-xl h-9 text-xs font-mono"
+                  />
+                </div>
+              )}
             </div>
-          )}
 
-          <div className="bg-gray-50/50 dark:bg-[#050505] p-6 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => toast.success("Ejecutando protocolo de impresión...")}
-              className="rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold h-11 px-5 shadow-sm flex items-center gap-2"
-            >
-              <Printer className="w-4 h-4" strokeWidth={2} />
-              <span>{t("modal.print")}</span>
-            </Button>
-            <Button
-              onClick={() => toast.success("Extrayendo documento PDF...")}
-              className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-xs font-bold h-11 px-5 border-0 shadow-sm flex items-center gap-2"
-            >
-              <FileDown className="w-4 h-4" strokeWidth={2} />
-              <span>{t("modal.download_pdf")}</span>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="ghost" onClick={() => setIsCancelModalOpen(false)} className="rounded-xl text-xs h-9">
+                Cancelar
+              </Button>
+              <Button onClick={handleConfirmCancel} disabled={isCanceling} className="rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs h-9 px-4">
+                {isCanceling ? <QhSpinner size="sm" /> : <span>Confirmar Cancelación</span>}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

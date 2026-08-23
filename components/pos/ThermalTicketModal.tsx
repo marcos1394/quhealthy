@@ -11,6 +11,7 @@ import {
   Copy,
   ExternalLink,
   MessageCircle,
+  Mail,
   FileCheck,
   ShieldCheck,
 } from "lucide-react";
@@ -105,6 +106,15 @@ export function ThermalTicketModal({
     window.open(url, "_blank");
   };
 
+  const handleEmailShare = () => {
+    const subject = encodeURIComponent(`Comprobante de Pago - Folio ${receipt.folio} - QuHealthy`);
+    const body = encodeURIComponent(
+      `Estimado(a) ${receipt.patientName},\n\nLe compartimos su comprobante de pago por el total de $${receipt.totalAmount.toFixed(2)} MXN.\n\nFolio del Ticket: ${receipt.folio}\n\nPuede consultar su comprobante y generar su factura fiscal CFDI 4.0 directamente en el siguiente enlace:\n${qrUrl}\n\n¡Gracias por su preferencia!\n${doctorProfile?.displayName || "Consultorio Médico QuHealthy"}`
+    );
+    const email = receipt.patientEmail || "";
+    window.open(`mailto:${email}?subject=${subject}&body=${body}`, "_blank");
+  };
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm font-sans select-none overflow-y-auto">
@@ -116,15 +126,17 @@ export function ThermalTicketModal({
           className="w-full max-w-lg bg-white dark:bg-[#0f0f0f] border border-gray-200 dark:border-gray-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col my-8"
         >
           {/* Header Modal */}
-          <div className="p-4 sm:p-5 bg-emerald-600 text-white flex items-center justify-between">
+          <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-white" />
+              </div>
               <div>
                 <h3 className="font-extrabold text-sm sm:text-base leading-tight">
-                  ¡Cobro Exitoso & Ticket Generado!
+                  ¡Cobro Registrado! Comprobante Digital
                 </h3>
                 <p className="text-[11px] text-emerald-100 font-mono">
-                  Folio: {receipt.folio}
+                  Folio: {receipt.folio} • Envío Digital o Impresión Opcional
                 </p>
               </div>
             </div>
@@ -305,6 +317,16 @@ export function ThermalTicketModal({
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>WhatsApp</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEmailShare}
+                className="rounded-xl text-xs h-9 px-3 gap-1.5 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Email</span>
               </Button>
             </div>
 
