@@ -35,6 +35,20 @@ interface StorefrontHeroProps {
   isFavorited: boolean;
 }
 
+const isPlaceholder = (val?: string | null) => {
+  if (!val) return true;
+  const lower = val.trim().toLowerCase();
+  return (
+    lower === "selected location" ||
+    lower === "ubicación seleccionada" ||
+    lower === "default_city" ||
+    lower === "ciudad principal" ||
+    lower === "consultorio" ||
+    lower === "consultorio principal" ||
+    lower === ""
+  );
+};
+
 export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
   store,
   scoreData,
@@ -141,9 +155,24 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
 
             {/* Ubicación Real */}
             {(() => {
-              const displayLocation = (store.locations && store.locations.length > 0)
-                ? (store.locations[0].city || store.locations[0].name || store.locations[0].address)
-                : (store.city || store.address);
+              let displayLocation: string | null = null;
+              if (store.locations && store.locations.length > 0) {
+                const validLoc = store.locations.find(
+                  (loc) => !isPlaceholder(loc.city) || !isPlaceholder(loc.address) || !isPlaceholder(loc.name)
+                );
+                if (validLoc) {
+                  displayLocation =
+                    (!isPlaceholder(validLoc.city) && validLoc.city) ||
+                    (!isPlaceholder(validLoc.name) && validLoc.name) ||
+                    (!isPlaceholder(validLoc.address) && validLoc.address) ||
+                    null;
+                }
+              }
+
+              if (!displayLocation) {
+                if (!isPlaceholder(store.city)) displayLocation = store.city!;
+                else if (!isPlaceholder(store.address)) displayLocation = store.address!;
+              }
 
               if (!displayLocation) return null;
 
@@ -332,18 +361,31 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
               );
             }
 
-            if (hasLocations) {
-              const locationText = (store.locations && store.locations.length > 0)
-                ? store.locations.map(loc => loc.address || loc.name || loc.city).filter(Boolean).join(" • ")
-                : (store.address || store.city);
+            const validLocationText = (() => {
+              if (store.locations && store.locations.length > 0) {
+                const parts = store.locations
+                  .map((loc) => {
+                    if (!isPlaceholder(loc.address)) return loc.address;
+                    if (!isPlaceholder(loc.city)) return loc.city;
+                    if (!isPlaceholder(loc.name)) return loc.name;
+                    return null;
+                  })
+                  .filter(Boolean);
+                if (parts.length > 0) return parts.join(" • ");
+              }
+              if (!isPlaceholder(store.city)) return store.city;
+              if (!isPlaceholder(store.address)) return store.address;
+              return null;
+            })();
 
+            if (validLocationText) {
               cards.push(
                 <div key="location" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
                   <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
                   <div className="space-y-0.5">
                     <h4 className="text-xs font-bold text-gray-900 dark:text-white">Ubicación</h4>
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed truncate max-w-sm">
-                      {locationText}
+                      {validLocationText}
                     </p>
                   </div>
                 </div>

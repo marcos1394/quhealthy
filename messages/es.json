@@ -4698,6 +4698,8 @@
     "error_back": "Regresar",
     "tab_services": "Servicios",
     "tab_packages": "Paquetes",
+    "tab_products": "Productos",
+    "tab_courses": "Cursos",
     "modality_online": "En Línea",
     "modality_in_person": "Presencial",
     "modality_hybrid": "Híbrido",

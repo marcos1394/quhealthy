@@ -231,11 +231,19 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
       const response = await googleService.reverseGeocode(lat, lng);
       const data =
         typeof response === "string" ? JSON.parse(response) : response;
+
+      const parsedAddress =
+        data?.formatted_address ||
+        data?.results?.[0]?.formatted_address ||
+        (Array.isArray(data) && data[0]?.formatted_address) ||
+        selectedLocation?.address ||
+        "";
+
       const newLocation: LocationData = {
         lat,
         lng,
-        address: data.formatted_address || t("location_selected_default"),
-        placeId: placeId || data.place_id,
+        address: parsedAddress || t("location_selected_default"),
+        placeId: placeId || data?.place_id || data?.results?.[0]?.place_id,
         city: selectedLocation?.city,
         state: selectedLocation?.state,
       };

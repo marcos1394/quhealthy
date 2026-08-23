@@ -4967,6 +4967,8 @@
     "error_back": "Go Back",
     "tab_services": "Services",
     "tab_packages": "Packages",
+    "tab_products": "Products",
+    "tab_courses": "Courses",
     "modality_online": "Online",
     "modality_in_person": "In Person",
     "modality_hybrid": "Hybrid",
