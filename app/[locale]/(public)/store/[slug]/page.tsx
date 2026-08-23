@@ -72,10 +72,11 @@ export default function PublicStorePage() {
   const locale = useLocale();
   const slug = params?.slug as string;
   const t = useTranslations("StorePublic");
-
   const autoBookServiceId = searchParams?.get("autoBook");
 
   const [activeTab, setActiveTab] = useState<TabType>("servicios");
+  const [selectedServiceCategory, setSelectedServiceCategory] = useState<string>("ALL");
+  const [serviceSearchQuery, setServiceSearchQuery] = useState<string>("");
   const [visibleProducts, setVisibleProducts] = useState(12);
   const { cart, addToCart, removeFromCart, setProvider, updateQuantity } =
     useBookingStore();
@@ -219,21 +220,23 @@ export default function PublicStorePage() {
   const renderModalityBadge = (modality?: string) => {
     if (modality === "ONLINE")
       return (
-        <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-          <Video className="w-3 h-3" strokeWidth={1.5} /> {t("modality_online")}
+        <span className="bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-900/40 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+          <Video className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+          <span>{t("modality_online")}</span>
         </span>
       );
     if (modality === "IN_PERSON")
       return (
-        <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-          <Building2 className="w-3 h-3" strokeWidth={1.5} />{" "}
-          {t("modality_in_person")}
+        <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-900/40 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+          <Building2 className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+          <span>{t("modality_in_person")}</span>
         </span>
       );
     if (modality === "HYBRID")
       return (
-        <span className="border border-black dark:border-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-          <Globe className="w-3 h-3" strokeWidth={1.5} /> {t("modality_hybrid")}
+        <span className="bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/80 dark:border-purple-900/40 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
+          <Globe className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+          <span>{t("modality_hybrid")}</span>
         </span>
       );
     return null;
@@ -382,7 +385,7 @@ export default function PublicStorePage() {
       {/* --- CONTENIDO PRINCIPAL --- */}
       <div className="max-w-5xl mx-auto px-6 mt-10">
         <AnimatePresence mode="wait">
-          {/* VISTA 1: SERVICIOS CORREGIDA */}
+          {/* VISTA 1: SERVICIOS CORREGIDA Y REDISEÑADA */}
           {activeTab === "servicios" && (
             <motion.div
               key="servicios"
@@ -391,191 +394,237 @@ export default function PublicStorePage() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-6"
             >
-              {store.services && store.services.length > 0 ? (
-                store.services.map((service) => (
-                  <div
-                    key={service.id}
-                    className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 transition-all p-6 md:p-8 flex flex-col md:flex-row gap-6 md:items-start group hover:-translate-y-1 hover:shadow-lg rounded-3xl relative hover:z-10"
-                    style={
-                      hasValidPrimaryColor
-                        ? ({
-                            "--store-color": safePrimaryColor,
-                          } as React.CSSProperties)
-                        : undefined
-                    }
-                  >
-                    <div className="flex-1 flex flex-col gap-4">
-                      {/* Cabecera Interna: Controla etiquetas y botón favoritos en una sola fila */}
-                      <div className="flex items-start justify-between gap-4 w-full">
-                        <div className="flex flex-wrap items-center gap-3">
-                          {service.category && (
-                            <span
-                              className={cn(
-                                "border px-3 py-1 rounded-full text-xs font-semibold tracking-wide bg-transparent",
-                                !hasValidPrimaryColor &&
-                                  "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400",
-                              )}
-                              style={
-                                hasValidPrimaryColor
-                                  ? {
-                                      borderColor: safePrimaryColor,
-                                      color: safePrimaryColor,
-                                    }
-                                  : {}
-                              }
-                            >
-                              {service.category}
-                            </span>
+              {/* --- FILTRO RÁPIDO DE CATEGORÍAS DE SERVICIO --- */}
+              {(() => {
+                const categories = Array.from(
+                  new Set((store.services || []).map((s) => s.category).filter(Boolean))
+                );
+                if (categories.length <= 1 && (store.services?.length || 0) <= 3) return null;
+
+                return (
+                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedServiceCategory("ALL")}
+                      className={cn(
+                        "h-8 px-3.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 border",
+                        selectedServiceCategory === "ALL"
+                          ? "bg-gray-900 text-white border-transparent dark:bg-white dark:text-black shadow-2xs"
+                          : "bg-gray-50 dark:bg-[#141414] text-gray-600 dark:text-gray-400 border-gray-200/80 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-[#1e1e1e]"
+                      )}
+                    >
+                      {t("all_categories", { defaultValue: "Todas las Categorías" })} ({store.services.length})
+                    </button>
+
+                    {categories.map((cat) => {
+                      const count = store.services.filter((s) => s.category === cat).length;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setSelectedServiceCategory(cat)}
+                          className={cn(
+                            "h-8 px-3.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 border",
+                            selectedServiceCategory === cat
+                              ? "bg-gray-900 text-white border-transparent dark:bg-white dark:text-black shadow-2xs"
+                              : "bg-gray-50 dark:bg-[#141414] text-gray-600 dark:text-gray-400 border-gray-200/80 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-[#1e1e1e]"
                           )}
-                          {renderModalityBadge(service.modality)}
-                          <span className="flex items-center text-xs font-medium text-gray-500">
-                            <Clock
-                              className="w-3.5 h-3.5 mr-1.5"
-                              strokeWidth={2}
-                            />{" "}
-                            {service.durationMinutes || 0} min
-                          </span>
-                        </div>
-
-                        {/* El botón favoritos ahora vive aquí de forma segura, aislado de los precios inferiores */}
-                        <div className="shrink-0">
-                          <FavoriteButton
-                            entityType="SERVICE"
-                            entityId={service.id}
-                            initialIsFavorite={favoriteServiceIds.has(
-                              service.id,
-                            )}
-                            brandColor={safePrimaryColor}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Link
-                          href={`/${locale}/market/item/${service.id}-${generateSlug(service.name)}`}
-                          className="hover:underline"
                         >
-                          <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white">
-                            {service.name}
-                          </h3>
-                        </Link>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed max-w-2xl">
-                          {service.description}
+                          {cat} ({count})
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {store.services && store.services.length > 0 ? (
+                (() => {
+                  const filteredServices = store.services.filter((s) => {
+                    if (selectedServiceCategory === "ALL") return true;
+                    return s.category === selectedServiceCategory;
+                  });
+
+                  if (filteredServices.length === 0) {
+                    return (
+                      <div className="text-center py-12 border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl bg-gray-50/50 dark:bg-[#050505]">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                          No hay servicios en esta categoría.
                         </p>
                       </div>
+                    );
+                  }
 
-                      <div className="flex flex-wrap gap-3 pt-2">
-                        {service.searchTags &&
-                          service.searchTags.map((tag, idx) => (
-                            <span
-                              key={idx}
-                              className="flex items-center text-[9px] font-bold uppercase tracking-widest text-gray-400"
-                            >
-                              <TagIcon
-                                className="w-3 h-3 mr-1.5"
-                                strokeWidth={1.5}
-                              />{" "}
-                              {tag}
-                            </span>
-                          ))}
-                      </div>
-
-                      {/* --- GALERÍA DEL SERVICIO --- */}
-                      {service.galleryImages &&
-                        service.galleryImages.length > 0 && (
-                          <div className="mt-6 space-y-6">
-                            {/* Galería general (fotos del procedimiento) */}
-                            {service.galleryImages.some(
-                              (img) => img.galleryType === "SERVICE_WORK",
-                            ) && (
-                              <ImageGalleryViewer
-                                images={service.galleryImages.filter(
-                                  (img) => img.galleryType === "SERVICE_WORK",
+                  return filteredServices.map((service) => (
+                    <div
+                      key={service.id}
+                      className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800/90 transition-all p-6 sm:p-7 flex flex-col md:flex-row gap-6 md:items-start group hover:-translate-y-0.5 hover:shadow-lg rounded-3xl relative hover:z-10 shadow-2xs"
+                      style={
+                        hasValidPrimaryColor
+                          ? ({
+                              "--store-color": safePrimaryColor,
+                            } as React.CSSProperties)
+                          : undefined
+                      }
+                    >
+                      <div className="flex-1 flex flex-col gap-4">
+                        {/* Cabecera Interna: Badges de Modalidad, Categoría y Favoritos */}
+                        <div className="flex items-start justify-between gap-4 w-full">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {service.category && (
+                              <span
+                                className={cn(
+                                  "border px-3 py-1 rounded-full text-xs font-semibold tracking-wide bg-transparent",
+                                  !hasValidPrimaryColor &&
+                                    "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400",
                                 )}
+                                style={
+                                  hasValidPrimaryColor
+                                    ? {
+                                        borderColor: safePrimaryColor,
+                                        color: safePrimaryColor,
+                                      }
+                                    : {}
+                                }
+                              >
+                                {service.category}
+                              </span>
+                            )}
+                            {renderModalityBadge(service.modality)}
+                            {Boolean(service.durationMinutes) && (
+                              <span className="bg-gray-50 dark:bg-[#121212] border border-gray-200/60 dark:border-gray-800 px-2.5 py-1 rounded-full text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1.5 shadow-2xs">
+                                <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" strokeWidth={2} />
+                                <span>{service.durationMinutes} min</span>
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="shrink-0">
+                            <FavoriteButton
+                              entityType="SERVICE"
+                              entityId={service.id}
+                              initialIsFavorite={favoriteServiceIds.has(service.id)}
+                              brandColor={safePrimaryColor}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Nombre y Descripción */}
+                        <div className="space-y-2">
+                          <Link
+                            href={`/${locale}/market/item/${service.id}-${generateSlug(service.name)}`}
+                            className="hover:underline"
+                          >
+                            <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors tracking-tight">
+                              {service.name}
+                            </h3>
+                          </Link>
+                          <p className="text-xs sm:text-sm font-normal text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl">
+                            {service.description}
+                          </p>
+                        </div>
+
+                        {/* Tags */}
+                        {service.searchTags && service.searchTags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {service.searchTags.map((tag, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center text-[11px] font-medium bg-gray-50 dark:bg-[#121212] text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-800/80 px-2.5 py-0.5 rounded-lg"
+                              >
+                                <TagIcon className="w-3 h-3 mr-1 text-gray-400" strokeWidth={1.5} />
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* --- GALERÍA DEL SERVICIO --- */}
+                        {service.galleryImages && service.galleryImages.length > 0 && (
+                          <div className="mt-4 space-y-4">
+                            {service.galleryImages.some((img) => img.galleryType === "SERVICE_WORK") && (
+                              <ImageGalleryViewer
+                                images={service.galleryImages.filter((img) => img.galleryType === "SERVICE_WORK")}
                                 className="max-w-xl"
                               />
                             )}
 
-                            {/* Casos Antes / Después */}
-                            {service.galleryImages.some(
-                              (img) => img.galleryType === "BEFORE_AFTER",
-                            ) && (
+                            {service.galleryImages.some((img) => img.galleryType === "BEFORE_AFTER") && (
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {service.galleryImages
-                                  .filter(
-                                    (img) => img.galleryType === "BEFORE_AFTER",
-                                  )
+                                  .filter((img) => img.galleryType === "BEFORE_AFTER")
                                   .map((pair) => (
-                                    <BeforeAfterComparator
-                                      key={pair.id}
-                                      imagePair={pair}
-                                    />
+                                    <BeforeAfterComparator key={pair.id} imagePair={pair} />
                                   ))}
                               </div>
                             )}
                           </div>
                         )}
-                    </div>
-
-                    {/* Panel Lateral de Precios y Cierre */}
-                    <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-6 border-t border-gray-200 dark:border-gray-800 md:border-t-0 pt-6 md:pt-0 min-w-[160px] self-stretch justify-end">
-                      <div className="flex flex-col items-start md:items-end">
-                        {service.compareAtPrice &&
-                          service.compareAtPrice > service.price && (
-                            <span className="text-[10px] font-bold text-gray-400 line-through mb-1">
-                              ${formatPrice(service.compareAtPrice)}
-                            </span>
-                          )}
-                        <div className="flex flex-col">
-                          <span className="text-2xl font-semibold tracking-tight text-black dark:text-white leading-none">
-                            ${formatPrice(service.price)}
-                          </span>
-                          {service.requiresEvaluation && (
-                            <span className="text-xs font-bold text-gray-500 mt-1">
-                              * {t("requires_eval", { defaultValue: "Requiere valoración" })}
-                            </span>
-                          )}
-                        </div>
                       </div>
 
-                      {(() => {
-                        const isInCart = cart.some(
-                          (c) => c.id === service.id && c.type === service.type,
-                        );
-                        return (
-                          <Button
-                            onClick={() =>
-                              isInCart
-                                ? removeFromCart(service.id)
-                                : handleAddToCart(service)
-                            }
-                            className={cn(
-                              "rounded-xl px-6 h-12 w-full text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
-                              isInCart
-                                ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white"
-                                : "text-white",
+                      {/* Panel Lateral de Precios y Acción */}
+                      <div className="flex md:flex-col items-center md:items-end justify-between md:justify-between gap-4 border-t border-gray-100 dark:border-gray-800/80 md:border-t-0 pt-4 md:pt-0 md:min-w-[190px] self-stretch">
+                        <div className="flex flex-col items-start md:items-end">
+                          {service.compareAtPrice && service.compareAtPrice > service.price && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-bold text-gray-400 line-through">
+                                ${formatPrice(service.compareAtPrice)}
+                              </span>
+                              <span className="text-[10px] font-black bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 px-1.5 py-0.5 rounded-md">
+                                {Math.round(((service.compareAtPrice - service.price) / service.compareAtPrice) * 100)}% OFF
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex flex-col md:items-end">
+                            <span className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white leading-none">
+                              ${formatPrice(service.price)}
+                            </span>
+                            {service.requiresEvaluation && (
+                              <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1">
+                                * {t("requires_eval", { defaultValue: "Requiere valoración" })}
+                              </span>
                             )}
-                            style={
-                              !isInCart
-                                ? { backgroundColor: safePrimaryColor }
-                                : {}
-                            }
-                          >
-                            {isInCart
-                              ? "REMOVER"
-                              : t("btn_book", { defaultValue: "AGREGAR" })}{" "}
-                            {!isInCart && (
-                              <ArrowRight className="w-4 h-4 ml-2 opacity-70" />
-                            )}
-                          </Button>
-                        );
-                      })()}
+                          </div>
+                        </div>
+
+                        {/* Botón de Agendar / Carrito */}
+                        {(() => {
+                          const isInCart = cart.some((c) => c.id === service.id && c.type === service.type);
+                          return (
+                            <Button
+                              onClick={() =>
+                                isInCart ? removeFromCart(service.id) : handleAddToCart(service)
+                              }
+                              className={cn(
+                                "rounded-2xl px-6 h-12 w-full text-xs font-bold tracking-wide transition-all shadow-xs hover:shadow-md cursor-pointer border-0",
+                                isInCart
+                                  ? "bg-gray-100 text-gray-900 dark:bg-[#181818] dark:text-white border border-gray-200 dark:border-gray-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+                                  : "text-white"
+                              )}
+                              style={
+                                !isInCart
+                                  ? { backgroundColor: safePrimaryColor }
+                                  : {}
+                              }
+                            >
+                              {isInCart ? (
+                                <span>{t("remove_from_cart", { defaultValue: "Quitar" })}</span>
+                              ) : (
+                                <span className="flex items-center gap-1.5">
+                                  <span>{t("add_to_cart", { defaultValue: "Agendar Cita" })}</span>
+                                  <ArrowRight className="w-4 h-4" />
+                                </span>
+                              )}
+                            </Button>
+                          );
+                        })()}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ));
+                })()
               ) : (
-                <div className="text-center py-16 border border-dashed border-gray-300 dark:border-gray-800 bg-gray-50 dark:bg-[#050505]">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <div className="text-center py-16 border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] rounded-3xl">
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
                     {t("empty_services", {
                       defaultValue: "CATÁLOGO DE SERVICIOS NO DISPONIBLE.",
                     })}

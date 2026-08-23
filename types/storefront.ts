@@ -53,6 +53,7 @@ export interface StorefrontLocation {
   city?: string;
   state?: string;
   zipCode?: string;
+  googlePlaceId?: string;
   latitude?: number;
   longitude?: number;
 }
@@ -90,6 +91,7 @@ export interface StorefrontData {
   primaryColor: string;
   whatsappEnabled: boolean;
   instagramUrl: string | null;
+  phone?: string | null;
   
   // Datos de Ubicación y Tienda
   address?: string;

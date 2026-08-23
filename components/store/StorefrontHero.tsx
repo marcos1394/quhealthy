@@ -17,12 +17,14 @@ import {
   Instagram,
   ChevronLeft,
   ChevronRight,
+  PhoneCall,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { StorefrontData } from "@/types/storefront";
+import { StorefrontData, StorefrontLocation } from "@/types/storefront";
 import { ProviderScoreResponse } from "@/types/providerScore";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { QuScoreModal } from "@/components/store/QuScoreModal";
@@ -47,6 +49,25 @@ const isPlaceholder = (val?: string | null) => {
     lower === "consultorio principal" ||
     lower === ""
   );
+};
+
+export const buildGoogleMapsUrl = (
+  loc?: Partial<StorefrontLocation> | { address?: string; city?: string; name?: string; latitude?: number; longitude?: number; googlePlaceId?: string } | null,
+  fallbackName?: string
+): string => {
+  if (!loc && !fallbackName) return "https://maps.google.com";
+
+  if (loc?.googlePlaceId) {
+    const query = encodeURIComponent(loc.name || loc.address || fallbackName || "");
+    return `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${loc.googlePlaceId}`;
+  }
+
+  if (loc?.latitude && loc?.longitude) {
+    return `https://www.google.com/maps/search/?api=1&query=${loc.latitude},${loc.longitude}`;
+  }
+
+  const query = encodeURIComponent(loc?.address || loc?.city || fallbackName || "");
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
 };
 
 export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
@@ -153,14 +174,17 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
               </>
             )}
 
-            {/* Ubicación Real */}
+            {/* Ubicación Real con enlace interactivo a Google Maps */}
             {(() => {
               let displayLocation: string | null = null;
+              let activeLoc: StorefrontLocation | null = null;
+
               if (store.locations && store.locations.length > 0) {
                 const validLoc = store.locations.find(
                   (loc) => !isPlaceholder(loc.city) || !isPlaceholder(loc.address) || !isPlaceholder(loc.name)
                 );
                 if (validLoc) {
+                  activeLoc = validLoc;
                   displayLocation =
                     (!isPlaceholder(validLoc.city) && validLoc.city) ||
                     (!isPlaceholder(validLoc.name) && validLoc.name) ||
@@ -176,11 +200,23 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
 
               if (!displayLocation) return null;
 
+              const mapsUrl = buildGoogleMapsUrl(
+                activeLoc || { address: store.address, city: store.city, latitude: store.latitude, longitude: store.longitude },
+                store.displayName
+              );
+
               return (
-                <span className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 font-medium">
-                  <MapPin className="w-4 h-4 shrink-0" strokeWidth={2} />
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors cursor-pointer group hover:underline"
+                  title={t("open_in_google_maps")}
+                >
+                  <MapPin className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                   <span>{displayLocation}</span>
-                </span>
+                  <ExternalLink className="w-3 h-3 opacity-40 group-hover:opacity-100 shrink-0 transition-opacity" strokeWidth={2} />
+                </a>
               );
             })()}
           </div>
@@ -311,7 +347,6 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
 
           {/* Tarjetas Informativas Basadas Exclusivamente en Datos Reales */}
           {(() => {
-            const hasLocations = (store.locations && store.locations.length > 0) || Boolean(store.address) || Boolean(store.city);
             const hasServices = store.services && store.services.length > 0;
             const hasProducts = store.products && store.products.length > 0;
             const hasCourses = store.courses && store.courses.length > 0;
@@ -361,33 +396,62 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
               );
             }
 
-            const validLocationText = (() => {
-              if (store.locations && store.locations.length > 0) {
-                const parts = store.locations
-                  .map((loc) => {
-                    if (!isPlaceholder(loc.address)) return loc.address;
-                    if (!isPlaceholder(loc.city)) return loc.city;
-                    if (!isPlaceholder(loc.name)) return loc.name;
-                    return null;
-                  })
-                  .filter(Boolean);
-                if (parts.length > 0) return parts.join(" • ");
-              }
-              if (!isPlaceholder(store.city)) return store.city;
-              if (!isPlaceholder(store.address)) return store.address;
-              return null;
-            })();
+            // Ubicación con botón directo a Google Maps
+            const validLocations = store.locations && store.locations.length > 0
+              ? store.locations.filter(loc => !isPlaceholder(loc.address) || !isPlaceholder(loc.name) || !isPlaceholder(loc.city))
+              : [];
 
-            if (validLocationText) {
+            if (validLocations.length > 0) {
+              const primaryLoc = validLocations[0];
+              const mapsUrl = buildGoogleMapsUrl(primaryLoc, store.displayName);
+              const displayTitle = validLocations.length === 1 && primaryLoc.name && !isPlaceholder(primaryLoc.name)
+                ? primaryLoc.name
+                : "Ubicación";
+
               cards.push(
-                <div key="location" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
-                  <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
-                  <div className="space-y-0.5">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">Ubicación</h4>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed truncate max-w-sm">
-                      {validLocationText}
-                    </p>
+                <div key="location" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex flex-col justify-between gap-3 shadow-2xs">
+                  <div className="flex items-start gap-3.5">
+                    <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">{displayTitle}</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {primaryLoc.address || primaryLoc.city || store.address || store.city}
+                      </p>
+                    </div>
                   </div>
+                  <a
+                    href={mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors ml-8 hover:underline"
+                  >
+                    <span>{t("how_to_get_there")}</span>
+                    <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
+                  </a>
+                </div>
+              );
+            } else if (!isPlaceholder(store.address) || !isPlaceholder(store.city)) {
+              const mapsUrl = buildGoogleMapsUrl({ address: store.address, city: store.city, latitude: store.latitude, longitude: store.longitude }, store.displayName);
+              cards.push(
+                <div key="location" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex flex-col justify-between gap-3 shadow-2xs">
+                  <div className="flex items-start gap-3.5">
+                    <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-gray-900 dark:text-white">Ubicación</h4>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {store.address || store.city}
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href={mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors ml-8 hover:underline"
+                  >
+                    <span>{t("how_to_get_there")}</span>
+                    <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
+                  </a>
                 </div>
               );
             }
@@ -406,30 +470,53 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
             <QuickAvailability providerId={store.providerId} locations={store.locations} />
           )}
 
-          {/* Biografía y Contacto (Solo si tiene bio real) */}
-          {store.bio && store.bio.trim().length > 0 && (
+          {/* Biografía y Contacto (Solo si tiene bio real o teléfono/redes) */}
+          {(Boolean(store.bio && store.bio.trim().length > 0) || Boolean(store.phone) || Boolean(store.whatsappEnabled) || Boolean(store.instagramUrl)) && (
             <div className="space-y-4 pt-2">
               <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
-                {t("about_specialist")}
+                {t("about_specialist", { defaultValue: "Sobre el Especialista" })}
               </h3>
 
-              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl whitespace-pre-wrap">
-                {store.bio}
-              </p>
+              {store.bio && store.bio.trim().length > 0 && (
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl whitespace-pre-wrap">
+                  {store.bio}
+                </p>
+              )}
 
-              {/* Botones de Redes y Contacto */}
-              <div className="flex flex-wrap gap-3 pt-2">
-                {store.whatsappEnabled && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-xl h-10 px-5 text-xs font-bold border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-2xs cursor-pointer flex items-center gap-2"
+              {/* Botones de Contacto Directo */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                {/* Llamar por Teléfono */}
+                {store.phone && (
+                  <a
+                    href={`tel:${store.phone}`}
+                    className="inline-flex items-center gap-2 rounded-xl h-10 px-4 text-xs font-bold border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-2xs cursor-pointer"
                   >
-                    <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                    <span>{t("contact_whatsapp")}</span>
-                  </Button>
+                    <PhoneCall className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <span>{t("call_phone")}: {store.phone}</span>
+                  </a>
                 )}
 
+                {/* WhatsApp enriquecido */}
+                {store.whatsappEnabled && (() => {
+                  const cleanPhone = (store.phone || "").replace(/\D/g, "");
+                  const waHref = cleanPhone
+                    ? `https://wa.me/${cleanPhone.length === 10 ? `52${cleanPhone}` : cleanPhone}?text=${encodeURIComponent(`Hola, vi tu perfil en QuHealthy (${store.displayName}) y me gustaría solicitar información.`)}`
+                    : `https://wa.me/?text=${encodeURIComponent(`Hola, vi tu perfil en QuHealthy (${store.displayName}) y me gustaría solicitar información.`)}`;
+
+                  return (
+                    <a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-xl h-10 px-5 text-xs font-bold border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-2xs cursor-pointer"
+                    >
+                      <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <span>{t("contact_whatsapp")}</span>
+                    </a>
+                  );
+                })()}
+
+                {/* Instagram */}
                 {store.instagramUrl && (
                   <Button
                     type="button"
@@ -444,6 +531,21 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
                   </Button>
                 )}
               </div>
+
+              {/* Política de Cancelación Transparente */}
+              {store.cancellationPolicy && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-start gap-3.5 mt-4">
+                  <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-bold text-emerald-950 dark:text-emerald-300 uppercase tracking-wider">
+                      {t("cancellation_policy_title")}
+                    </h4>
+                    <p className="text-xs font-medium text-emerald-900/80 dark:text-emerald-400/80 leading-relaxed">
+                      {store.cancellationPolicy}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
