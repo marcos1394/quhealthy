@@ -10437,5 +10437,26 @@
     "view_all": "View all",
     "open_link": "View details",
     "mark_read": "Mark as read"
+  },
+  "PulsoAssistant": {
+    "ask_about_store": "Ask about this store",
+    "ask_pulso": "How can I help you today?",
+    "store_mode": "Store Mode Active",
+    "health_assistant": "Clinical & Marketplace Copilot",
+    "welcome_store_title": "Hello! I know all about this store",
+    "welcome_store_desc": "Ask me about services, prices, availability or let me book for you.",
+    "welcome_general_title": "Hello! I'm Pulso, your health assistant",
+    "welcome_general_desc": "I can help you find specialists, schedule appointments, order supplies or answer health questions.",
+    "suggested_questions": "Quick Suggestions",
+    "prompt_store_services": "What services does this specialist offer?",
+    "prompt_store_hours": "What are their hours and location?",
+    "prompt_store_book": "I'd like to book an appointment here",
+    "prompt_store_prices": "What are the consultation fees?",
+    "prompt_find_doctor": "Find a doctor by symptom",
+    "prompt_supplies": "Where can I buy medical supplies?",
+    "prompt_my_appointments": "Check my upcoming appointments",
+    "prompt_explain_rx": "Explain a prescription or lab report",
+    "input_placeholder_store": "Ask about this store or specialist...",
+    "input_placeholder_general": "Type or speak with Pulso..."
   }
 }

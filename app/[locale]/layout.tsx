@@ -16,6 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { CookieConsent } from '@/components/ui/CookieConsent';
 import { LocationPrompt } from '@/components/ui/LocationPrompt';
 import { AnalyticsManager } from '@/components/providers/AnalyticsManager';
+import { PulsoFloatingAssistant } from '@/components/ai/PulsoFloatingAssistant';
 
 // Fuente
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -156,6 +157,7 @@ export default async function RootLayout({
             <AnalyticsManager />
             <CookieConsent />
             <LocationPrompt />
+            <PulsoFloatingAssistant />
 
             {/* Vercel Analytics */}
             <Analytics />

@@ -10476,5 +10476,26 @@
     "view_all": "Ver todas",
     "open_link": "Ver detalle",
     "mark_read": "Marcar como leída"
+  },
+  "PulsoAssistant": {
+    "ask_about_store": "Preguntar sobre esta tienda",
+    "ask_pulso": "¿En qué te puedo ayudar hoy?",
+    "store_mode": "Modo Tienda Activo",
+    "health_assistant": "Copiloto Clínico & Marketplace",
+    "welcome_store_title": "¡Hola! Conozco toda esta tienda",
+    "welcome_store_desc": "Pregúntame sobre los servicios, precios, disponibilidad o pídeme que agende por ti.",
+    "welcome_general_title": "¡Hola! Soy Pulso, tu asistente de salud",
+    "welcome_general_desc": "Puedo ayudarte a buscar médicos, agendar citas, ordenar insumos o responder dudas médicas.",
+    "suggested_questions": "Sugerencias Rápidas",
+    "prompt_store_services": "¿Qué servicios ofrece este especialista?",
+    "prompt_store_hours": "¿Cuáles son sus horarios y ubicación?",
+    "prompt_store_book": "Quiero agendar una cita aquí",
+    "prompt_store_prices": "¿Cuáles son los precios de sus consultas?",
+    "prompt_find_doctor": "Buscar especialista por síntoma",
+    "prompt_supplies": "¿Dónde puedo comprar insumos médicos?",
+    "prompt_my_appointments": "Consultar mis próximas citas",
+    "prompt_explain_rx": "Explicar una receta o estudio médico",
+    "input_placeholder_store": "Pregunta sobre esta tienda o especialista...",
+    "input_placeholder_general": "Escribe o habla con Pulso..."
   }
 }
