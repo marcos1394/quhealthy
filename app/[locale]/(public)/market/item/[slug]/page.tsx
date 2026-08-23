@@ -469,7 +469,7 @@ export default async function MarketItemPage({
                   brandColor={providerProfile?.primaryColor}
                 />
 
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-800">
                   <ItemShareButton itemName={item.name} />
                   <SmartFavoriteButton
                     entityType={item.type as any}

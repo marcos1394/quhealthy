@@ -4,21 +4,16 @@ import React, { useState } from "react";
 import {
   ShoppingBag,
   Loader2,
-  ArrowRight,
   Calendar,
-  PackageCheck,
   Plus,
   Minus,
   Zap,
-  CheckCircle2,
   ShieldCheck,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { CatalogItemDTO } from "@/types/catalog";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { StorefrontItem } from "@/types/storefront";
 import { toast } from "sonner";
 
@@ -45,6 +40,10 @@ export function AddToCartButton({
   const cart = useBookingStore((state) => state.cart);
 
   const isInCart = cart.some((c) => c.id === item.id && c.type === item.type);
+
+  const safeBrandColor = brandColor && brandColor !== "#000000" && brandColor !== "#ffffff"
+    ? brandColor
+    : "#059669";
 
   const getStorefrontItem = (qty: number = 1): StorefrontItem => ({
     id: item.id || 0,
@@ -73,13 +72,12 @@ export function AddToCartButton({
     setTimeout(() => {
       const finalSlug = providerSlug || String(item.providerId);
       const finalName = providerName || "Proveedor";
-      const color = brandColor || "#10b981";
 
-      addToCart(storefrontItem, finalSlug, finalName, color);
+      addToCart(storefrontItem, finalSlug, finalName, safeBrandColor);
       openCart();
       setIsAdding(false);
       toast.success(`${item.name} agregado a tu carrito`);
-    }, 250);
+    }, 200);
   };
 
   const handleBuyNow = () => {
@@ -89,9 +87,8 @@ export function AddToCartButton({
     setTimeout(() => {
       const finalSlug = providerSlug || String(item.providerId);
       const finalName = providerName || "Proveedor";
-      const color = brandColor || "#10b981";
 
-      addToCart(storefrontItem, finalSlug, finalName, color);
+      addToCart(storefrontItem, finalSlug, finalName, safeBrandColor);
       setIsBuyingNow(false);
       router.push("/checkout");
     }, 200);
@@ -109,7 +106,8 @@ export function AddToCartButton({
         <div className="flex flex-col sm:flex-row items-stretch gap-3">
           <Button
             onClick={handleDirectBooking}
-            className="flex-1 h-13 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2.5 cursor-pointer border-0"
+            style={{ backgroundColor: safeBrandColor }}
+            className="flex-1 h-13 rounded-2xl text-white font-extrabold text-sm shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer border-0 hover:opacity-90"
           >
             <Calendar className="w-4 h-4" />
             <span>Agendar Cita en Calendario</span>
@@ -129,7 +127,7 @@ export function AddToCartButton({
   }
 
   /* ── 💊 PRODUCTOS FÍSICOS & FARMACIA ───────────────────────────────── */
-  if (item.type === "PRODUCT") {
+  if (item.type === "PRODUCT" || item.type === "SUPPLY") {
     return (
       <div className="space-y-4 w-full">
         {/* Selector de Unidades */}
@@ -163,7 +161,8 @@ export function AddToCartButton({
           <Button
             onClick={handleBuyNow}
             disabled={isBuyingNow}
-            className="h-13 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer border-0"
+            style={{ backgroundColor: safeBrandColor }}
+            className="h-13 rounded-2xl text-white font-black text-sm shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer border-0 hover:opacity-90"
           >
             {isBuyingNow ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -202,7 +201,8 @@ export function AddToCartButton({
         <Button
           onClick={handleBuyNow}
           disabled={isBuyingNow}
-          className="h-13 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer border-0"
+          style={{ backgroundColor: safeBrandColor }}
+          className="h-13 rounded-2xl text-white font-black text-sm shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer border-0 hover:opacity-90"
         >
           {isBuyingNow ? (
             <Loader2 className="w-4 h-4 animate-spin" />

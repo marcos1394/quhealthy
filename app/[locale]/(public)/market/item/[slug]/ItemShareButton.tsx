@@ -1,44 +1,48 @@
 "use client";
 
-import React from 'react';
-import { Share } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { useTranslations } from 'next-intl';
+import React from "react";
+import { Share } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface ItemShareButtonProps {
   itemName: string;
+  className?: string;
 }
 
-export function ItemShareButton({ itemName }: ItemShareButtonProps) {
-  const t = useTranslations("StorePublic");
-
+export function ItemShareButton({ itemName, className }: ItemShareButtonProps) {
   const handleShare = async () => {
     const shareData = {
       title: itemName,
       text: `Descubre ${itemName} en QuHealthy`,
-      url: window.location.href,
+      url: typeof window !== "undefined" ? window.location.href : "",
     };
 
     if (navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.error("Error al compartir:", err);
+        // Cancelado por el usuario
       }
-    } else {
+    } else if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
-      toast.success(t("copied_toast"));
+      toast.success("Enlace copiado al portapapeles");
     }
   };
 
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       onClick={handleShare}
-      className="w-14 h-14 md:h-16 flex items-center justify-center border border-black dark:border-white bg-white dark:bg-[#0a0a0a] text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
-      title={t("share")}
+      className={
+        className ||
+        "flex-1 h-12 rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121212] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] flex items-center justify-center gap-2 cursor-pointer shadow-2xs transition-all"
+      }
+      title="Compartir este ítem"
     >
-      <Share className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
-    </button>
+      <Share className="w-4 h-4 text-gray-500 dark:text-gray-400" strokeWidth={1.75} />
+      <span>Compartir</span>
+    </Button>
   );
 }

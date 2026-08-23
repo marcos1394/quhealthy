@@ -6,7 +6,6 @@ import { CatalogItemDTO } from "@/types/catalog";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { StorefrontItem } from "@/types/storefront";
 
 interface StickyBottomBarProps {
@@ -32,9 +31,12 @@ export function StickyBottomBar({
 
   const isInCart = cart.some((c) => c.id === item.id && c.type === item.type);
 
+  const safeBrandColor = brandColor && brandColor !== "#000000" && brandColor !== "#ffffff"
+    ? brandColor
+    : "#059669";
+
   useEffect(() => {
     const handleScroll = () => {
-      // Mostrar la barra inferior cuando el usuario hace scroll hacia abajo más de 300px
       if (window.scrollY > 320) {
         setIsVisible(true);
       } else {
@@ -80,9 +82,8 @@ export function StickyBottomBar({
     setTimeout(() => {
       const finalSlug = providerSlug || String(item.providerId);
       const finalName = providerName || "Proveedor";
-      const color = brandColor || "#10b981";
 
-      addToCart(storefrontItem, finalSlug, finalName, color);
+      addToCart(storefrontItem, finalSlug, finalName, safeBrandColor);
       setIsProcessing(false);
       router.push("/checkout");
     }, 250);
@@ -107,7 +108,8 @@ export function StickyBottomBar({
       <Button
         onClick={handleQuickAction}
         disabled={isProcessing}
-        className="h-11 px-5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer border-0 shrink-0"
+        style={{ backgroundColor: safeBrandColor }}
+        className="h-11 px-5 rounded-2xl text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer border-0 shrink-0 hover:opacity-90 transition-all"
       >
         {isProcessing ? (
           <Loader2 className="w-3.5 h-3.5 animate-spin" />

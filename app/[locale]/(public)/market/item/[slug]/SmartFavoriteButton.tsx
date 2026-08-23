@@ -1,26 +1,51 @@
 "use client";
 
-import React from 'react';
-import { FavoriteButton } from '@/components/ui/FavoriteButton';
-import { useMyFavorites } from '@/hooks/useMyFavorites';
-import { useSessionStore } from '@/stores/SessionStore';
+import React from "react";
+import { Heart } from "lucide-react";
+import { useMyFavorites } from "@/hooks/useMyFavorites";
+import { useFavoriteToggle } from "@/hooks/useFavoriteToggle";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export function SmartFavoriteButton({ entityType, entityId, brandColor }: { entityType: any, entityId: number, brandColor?: string }) {
-  const { token } = useSessionStore();
-  
-  // Extraemos todos los IDs favoritos de este tipo (solo si hay sesión)
+export function SmartFavoriteButton({
+  entityType,
+  entityId,
+  brandColor,
+  className,
+}: {
+  entityType: any;
+  entityId: number;
+  brandColor?: string;
+  className?: string;
+}) {
   const { favoriteIds } = useMyFavorites(entityType);
-  
-  // Verificamos si este ítem está en los favoritos del usuario
   const isFavorited = favoriteIds.has(entityId);
+  const { toggleFavorite } = useFavoriteToggle(entityType, entityId, isFavorited);
 
   return (
-    <FavoriteButton 
-      entityType={entityType} 
-      entityId={entityId}
-      initialIsFavorite={isFavorited}
-      brandColor={brandColor}
-      className="w-14 h-14 md:h-16 flex items-center justify-center border border-black dark:border-white bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-colors"
-    />
+    <Button
+      type="button"
+      variant="outline"
+      onClick={toggleFavorite}
+      className={
+        className ||
+        cn(
+          "flex-1 h-12 rounded-2xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#121212] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs",
+          isFavorited
+            ? "text-rose-600 border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/20"
+            : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+        )
+      }
+      title={isFavorited ? "Quitar de favoritos" : "Guardar en favoritos"}
+    >
+      <Heart
+        className={cn(
+          "w-4 h-4 transition-transform",
+          isFavorited ? "fill-rose-600 text-rose-600 scale-110" : "text-gray-500 dark:text-gray-400"
+        )}
+        strokeWidth={1.75}
+      />
+      <span>{isFavorited ? "Guardado" : "Guardar"}</span>
+    </Button>
   );
 }
