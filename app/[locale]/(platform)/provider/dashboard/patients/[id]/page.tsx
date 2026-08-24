@@ -459,7 +459,7 @@ export default function PatientDetailPage() {
                                     className="h-7 px-2.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg flex items-center gap-1 cursor-pointer"
                                   >
                                     <ExternalLink className="w-3 h-3" />
-                                    <span>{t("view_consultation", { defaultValue: "Ver Consulta" })}</span>
+                                    <span>{t("view_consultation")}</span>
                                   </Button>
                                 )}
                               </div>

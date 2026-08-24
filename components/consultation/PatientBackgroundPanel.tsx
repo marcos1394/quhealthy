@@ -385,37 +385,38 @@ export function PatientBackgroundPanel({
   return (
     <div className="space-y-4">
       {/* ── HEADER DEL PANEL ────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-            <FileText className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 shadow-xs">
+        <div className="flex items-start sm:items-center gap-3.5 flex-1 min-w-0">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0">
+            <FileText className="w-5 h-5" strokeWidth={2} />
           </div>
-          <div>
-            <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <span>{t("title_clinical_backgrounds")}</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40">
+          <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+                {t("title_clinical_backgrounds")}
+              </h3>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40 shrink-0">
                 NOM-004
               </span>
-            </h3>
-            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium line-clamp-1">
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
               {t("subtitle_clinical_backgrounds")}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-2.5 self-stretch xl:self-auto justify-end shrink-0 flex-wrap sm:flex-nowrap pt-3 xl:pt-0 border-t xl:border-t-0 border-gray-100 dark:border-gray-800">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={handleSetAllNegative}
             disabled={saving}
-            className="flex-1 sm:flex-none rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-9 px-3 shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex-1 sm:flex-none rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 text-xs font-bold h-9 px-3.5 shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
             title="Completa todos los antecedentes como interrogados y negados"
           >
             <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span className="hidden md:inline">{t("btn_all_negative")}</span>
-            <span className="md:hidden">Negar Todo</span>
+            <span>{t("btn_all_negative")}</span>
           </Button>
 
           <Button
@@ -423,7 +424,7 @@ export function PatientBackgroundPanel({
             size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 sm:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-9 px-4 shadow-xs transition-all flex items-center justify-center gap-1.5 border-0 cursor-pointer disabled:opacity-50"
+            className="flex-1 sm:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-9 px-4 shadow-xs transition-all flex items-center justify-center gap-1.5 border-0 cursor-pointer disabled:opacity-50 shrink-0"
           >
             {saving ? (
               <QhSpinner size="sm" />

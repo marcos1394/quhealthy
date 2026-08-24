@@ -3944,6 +3944,7 @@
 
   "DashboardPatientDetail": {
     "back_to_list": "Back to directory",
+    "view_consultation": "View Consultation",
     "start_consultation": "Start / Book consultation",
     "new_appointment": "New appointment",
     "loading": "Loading medical record...",
@@ -3961,6 +3962,13 @@
     "save_changes": "Save changes",
     "clinical_history": "Medical history",
     "private_notes": "Private consultation notes",
+    "internal_notes_title": "Private Notes",
+    "internal_notes_desc": "Only visible to you. Not part of the patient's public medical record.",
+    "internal_notes_placeholder": "Write your confidential observations here...",
+    "save_note": "Save Note",
+    "no_internal_notes": "No private notes for this patient.",
+    "toast_note_created": "Private note saved.",
+    "toast_note_deleted": "Note deleted.",
     "empty_history": "No appointments recorded in the timeline yet.",
     "app_user": "Linked user",
     "offline": "Local record",

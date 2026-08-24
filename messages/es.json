@@ -3547,6 +3547,7 @@
 
   "DashboardPatientDetail": {
     "back_to_list": "Volver al directorio",
+    "view_consultation": "Ver Consulta",
     "start_consultation": "Iniciar / Agendar consulta",
     "new_appointment": "Nueva consulta",
     "loading": "Cargando expediente clínico...",
@@ -3564,6 +3565,13 @@
     "save_changes": "Guardar cambios",
     "clinical_history": "Historial clínico",
     "private_notes": "Notas privadas de la consulta",
+    "internal_notes_title": "Notas Privadas",
+    "internal_notes_desc": "Solo visibles para ti. No forman parte del expediente clínico del paciente.",
+    "internal_notes_placeholder": "Escribe tus observaciones confidenciales aquí...",
+    "save_note": "Guardar Nota",
+    "no_internal_notes": "No hay notas privadas para este paciente.",
+    "toast_note_created": "Nota privada guardada.",
+    "toast_note_deleted": "Nota eliminada.",
     "empty_history": "Aún no hay consultas registradas en la cronología.",
     "app_user": "Usuario vinculado",
     "offline": "Registro local",
