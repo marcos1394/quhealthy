@@ -4161,21 +4161,34 @@
     }
   },
 
- "DashboardReviews": {
-    "title": "Patient reviews & feedback",
-    "subtitle": "Review patient feedback and build trust by responding to their comments",
-    "avg_rating": "Average rating",
-    "total_reviews": "Total reviews",
-    "your_response": "Your response",
+  "DashboardReviews": {
+    "title": "Patient Reviews & Reputation",
+    "subtitle": "Manage your practice's reputation, analyze clinical satisfaction metrics, and respond to patients",
+    "avg_rating": "Average Rating",
+    "total_reviews": "Total Reviews",
+    "response_rate": "Response Rate",
+    "unanswered_count": "Awaiting Response",
+    "filter_all": "All Reviews",
+    "filter_unanswered": "Needs Response",
+    "filter_5_star": "5 Stars",
+    "filter_verified": "Verified Visits",
+    "quick_reply_1": "Thank you so much for your trust! We are always here to help you.",
+    "quick_reply_2": "We truly appreciate your kind words and valuable feedback.",
+    "quick_reply_3": "Thank you for visiting us. We are delighted to hear you had an excellent experience.",
+    "your_response": "Your Official Response",
     "response_placeholder": "Write a warm thank-you or clarifying message for your patient...",
-    "publish_response": "Publish response",
+    "publish_response": "Publish Response",
     "loading": "Loading patient reviews...",
     "error_loading": "Could not load reviews at this time.",
     "warn_empty": "Please write a response before publishing.",
     "publish_success": "Your response has been published successfully!",
     "error_publish": "Could not submit your response. Please try again.",
     "empty_title": "No reviews yet",
-    "empty_desc": "Patients will be able to rate their experience after completing their consultation."
+    "empty_desc": "Patients will be able to rate their experience after completing their consultation.",
+    "sub_punctuality": "Punctuality",
+    "sub_communication": "Bedside Manner & Care",
+    "sub_knowledge": "Medical Expertise",
+    "sub_facilities": "Facilities & Cleanliness"
   },
 
   "DashboardMarketing": {
@@ -6164,8 +6177,26 @@
     "toast_error": "An error occurred while submitting your review. Please try again.",
     "title_service": "Service Review",
     "title_product": "Product Review",
-    "title_order": "Order Review"
-    
+    "title_order": "Order Review",
+    "rating_1": "Poor experience",
+    "rating_2": "Fair",
+    "rating_3": "Good",
+    "rating_4": "Very good",
+    "rating_5": "Excellent!",
+    "sub_ratings_title": "Care Details (Optional)",
+    "sub_ratings_desc": "Rate specific aspects to help fellow patients",
+    "quick_tags_title": "What stood out about your visit?",
+    "tag_punctual": "Very punctual",
+    "tag_clear_explanation": "Clear explanation",
+    "tag_empathic": "Empathetic care",
+    "tag_clean_facilities": "Clean facilities",
+    "tag_recommended": "100% Recommended",
+    "sub_punctuality": "Punctuality",
+    "sub_communication": "Bedside Manner & Care",
+    "sub_knowledge": "Medical Expertise",
+    "sub_facilities": "Facilities & Cleanliness",
+    "anonymous_toggle": "Post as anonymous review",
+    "anonymous_desc": "Your name will not be shown publicly on the specialist's storefront"
   },
 
   "SettingsActiveSessions": {
@@ -6466,12 +6497,31 @@
     "copied_toast": "Link copied to clipboard."
   },
   "StorefrontReviews": {
-    "title": "Patient Reviews",
+    "title": "Patient Reviews & Experiences",
+    "subtitle": "Ratings based exclusively on 100% verified appointments and purchases",
+    "verified_badge": "100% Verified Visits & Orders",
     "verified_user": "Verified Patient",
     "recent": "Recent",
-    "authentic": "Authentic",
-    "provider_response_title": "Specialist Response",
-    "show_all_btn": "Show all {count} reviews"
+    "authentic": "Verified Visit",
+    "provider_response_title": "Official Specialist Response",
+    "show_all_btn": "Show all {count} reviews",
+    "show_less_btn": "Show less",
+    "score_out_of": "out of 5.0",
+    "total_reviews": "{count} reviews",
+    "empty_title": "Be the first to share your experience",
+    "empty_desc": "This specialist does not have public reviews yet. Book your visit and be the first to evaluate their care with verified authenticity.",
+    "filter_all": "All",
+    "filter_5_star": "5 stars",
+    "filter_4_star": "4 stars",
+    "filter_verified": "Verified",
+    "filter_with_comments": "With comments",
+    "sort_recent": "Most recent",
+    "sort_highest": "Highest rating",
+    "sort_lowest": "Lowest rating",
+    "sub_punctuality": "Punctuality",
+    "sub_communication": "Bedside Manner & Care",
+    "sub_knowledge": "Medical Expertise",
+    "sub_facilities": "Facilities & Cleanliness"
   },
 
   "PatientSupport": {
@@ -6535,7 +6585,10 @@
     "rejected_notice": "This review does not comply with our community guidelines and is not publicly visible.",
     "empty_history_title": "No published reviews yet",
     "empty_history_desc": "Your feedback will appear here after reviewing your appointments.",
-    "pending_integration": "We are matching data with your recent appointments. Soon you'll see who is left to review here!",
+    "pending_empty_title": "You're all caught up with your reviews!",
+    "pending_empty_desc": "You have no completed appointments pending review right now.",
+    "btn_leave_review": "Rate Visit",
+    "completed_on": "Completed on {date}",
     "toast_error": "We couldn't load your review history. Please try again."
   },
  

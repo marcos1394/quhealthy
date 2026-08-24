@@ -21,6 +21,16 @@ export default function LeaveReviewPage({
     validationError,
     rating,
     setRating,
+    ratingPunctuality,
+    setRatingPunctuality,
+    ratingCommunication,
+    setRatingCommunication,
+    ratingKnowledge,
+    setRatingKnowledge,
+    ratingFacilities,
+    setRatingFacilities,
+    isAnonymous,
+    setIsAnonymous,
     comment,
     setComment,
     isSubmitting,
@@ -45,6 +55,16 @@ export default function LeaveReviewPage({
           entityType={context?.entityType}
           rating={rating}
           setRating={setRating}
+          ratingPunctuality={ratingPunctuality}
+          setRatingPunctuality={setRatingPunctuality}
+          ratingCommunication={ratingCommunication}
+          setRatingCommunication={setRatingCommunication}
+          ratingKnowledge={ratingKnowledge}
+          setRatingKnowledge={setRatingKnowledge}
+          ratingFacilities={ratingFacilities}
+          setRatingFacilities={setRatingFacilities}
+          isAnonymous={isAnonymous}
+          setIsAnonymous={setIsAnonymous}
           comment={comment}
           setComment={setComment}
           onSubmit={submitReview}

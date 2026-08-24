@@ -19,6 +19,11 @@ export const useLeaveReview = (token: string | undefined) => {
 
     // Estados del Formulario
     const [rating, setRating] = useState<number>(0);
+    const [ratingPunctuality, setRatingPunctuality] = useState<number>(0);
+    const [ratingCommunication, setRatingCommunication] = useState<number>(0);
+    const [ratingKnowledge, setRatingKnowledge] = useState<number>(0);
+    const [ratingFacilities, setRatingFacilities] = useState<number>(0);
+    const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
     const [comment, setComment] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -59,7 +64,7 @@ export const useLeaveReview = (token: string | undefined) => {
         if (!context) return;
         
         if (rating === 0) {
-            toast.error(t('error_rating', { defaultValue: 'Por favor, seleccione una calificación.' }));
+            toast.error(t('toast_rating_required', { defaultValue: 'Por favor, seleccione una calificación en estrellas.' }));
             return;
         }
 
@@ -69,11 +74,16 @@ export const useLeaveReview = (token: string | undefined) => {
             const payload: CreateReviewPayload = {
                 providerId: context.providerId,
                 rating,
-                comment: comment.trim()
+                comment: comment.trim(),
+                isAnonymous,
+                ratingPunctuality: ratingPunctuality > 0 ? ratingPunctuality : undefined,
+                ratingCommunication: ratingCommunication > 0 ? ratingCommunication : undefined,
+                ratingKnowledge: ratingKnowledge > 0 ? ratingKnowledge : undefined,
+                ratingFacilities: ratingFacilities > 0 ? ratingFacilities : undefined,
             };
 
             if (context.entityType === 'ORDER') {
-                payload.orderItemId = context.transactionId; // Transaction is orderId or orderItemId
+                payload.orderItemId = context.transactionId;
             } else if (context.entityType === 'PRODUCT') {
                 payload.productId = context.entityId;
                 payload.orderItemId = context.transactionId;
@@ -81,7 +91,6 @@ export const useLeaveReview = (token: string | undefined) => {
                 payload.packageId = context.entityId;
                 payload.orderItemId = context.transactionId;
             } else {
-                // Default to legacy appointment
                 payload.appointmentId = context.appointmentId || context.transactionId;
                 if (context.entityId) {
                     payload.serviceId = context.entityId;
@@ -101,7 +110,7 @@ export const useLeaveReview = (token: string | undefined) => {
         } finally {
             setIsSubmitting(false);
         }
-    }, [context, rating, comment, router, t]);
+    }, [context, rating, comment, isAnonymous, ratingPunctuality, ratingCommunication, ratingKnowledge, ratingFacilities, router, t]);
 
     return {
         // Estados de carga y error iniciales
@@ -112,6 +121,16 @@ export const useLeaveReview = (token: string | undefined) => {
         // Controladores del formulario
         rating,
         setRating,
+        ratingPunctuality,
+        setRatingPunctuality,
+        ratingCommunication,
+        setRatingCommunication,
+        ratingKnowledge,
+        setRatingKnowledge,
+        ratingFacilities,
+        setRatingFacilities,
+        isAnonymous,
+        setIsAnonymous,
         comment,
         setComment,
         

@@ -3718,11 +3718,20 @@
   },
 
   "DashboardReviews": {
-    "title": "Reseñas y experiencia de pacientes",
-    "subtitle": "Conoce la opinión de tus pacientes y fortalece la confianza respondiendo a sus comentarios",
+    "title": "Reseñas y Experiencia de Pacientes",
+    "subtitle": "Gestiona la reputación de tu consultorio, analiza métricas de satisfacción y responde a tus pacientes",
     "avg_rating": "Calificación promedio",
     "total_reviews": "Total de opiniones",
-    "your_response": "Tu respuesta",
+    "response_rate": "Tasa de respuesta",
+    "unanswered_count": "Sin responder",
+    "filter_all": "Todas las opiniones",
+    "filter_unanswered": "Pendientes de responder",
+    "filter_5_star": "5 Estrellas",
+    "filter_verified": "Citas verificadas",
+    "quick_reply_1": "¡Muchas gracias por tu confianza! Estamos siempre para servirte.",
+    "quick_reply_2": "Agradecemos mucho tus amables palabras y tu retroalimentación.",
+    "quick_reply_3": "Gracias por visitarnos. Nos da mucho gusto saber que tu experiencia fue excelente.",
+    "your_response": "Tu respuesta oficial",
     "response_placeholder": "Escribe un mensaje de agradecimiento o aclaración para tu paciente...",
     "publish_response": "Publicar respuesta",
     "loading": "Cargando las opiniones de tus pacientes...",
@@ -3731,7 +3740,11 @@
     "publish_success": "¡Tu respuesta ha sido publicada con éxito!",
     "error_publish": "Ocurrió un problema al enviar tu respuesta. Inténtalo de nuevo.",
     "empty_title": "Aún no tienes opiniones registradas",
-    "empty_desc": "Tus pacientes podrán calificar la atención recibida después de completar su consulta."
+    "empty_desc": "Tus pacientes podrán calificar la atención recibida después de completar su consulta.",
+    "sub_punctuality": "Puntualidad",
+    "sub_communication": "Atención & Trato",
+    "sub_knowledge": "Conocimiento Médico",
+    "sub_facilities": "Instalaciones & Limpieza"
   },
 
 
@@ -5830,8 +5843,26 @@
     "toast_error": "Ocurrió un error al enviar tu reseña. Intenta nuevamente.",
     "title_service": "Evaluación de Servicio",
     "title_product": "Evaluación de Producto",
-    "title_order": "Evaluación de Orden"
-
+    "title_order": "Evaluación de Orden",
+    "rating_1": "Mala experiencia",
+    "rating_2": "Regular",
+    "rating_3": "Buena",
+    "rating_4": "Muy buena",
+    "rating_5": "¡Excelente!",
+    "sub_ratings_title": "Detalles de la atención (Opcional)",
+    "sub_ratings_desc": "Califica aspectos específicos para ayudar a otros pacientes",
+    "quick_tags_title": "¿Qué destacarías de la consulta?",
+    "tag_punctual": "Muy puntual",
+    "tag_clear_explanation": "Explicación clara",
+    "tag_empathic": "Excelente trato",
+    "tag_clean_facilities": "Instalaciones limpias",
+    "tag_recommended": "100% Recomendado",
+    "sub_punctuality": "Puntualidad",
+    "sub_communication": "Atención & Empatía",
+    "sub_knowledge": "Conocimiento Médico",
+    "sub_facilities": "Instalaciones & Limpieza",
+    "anonymous_toggle": "Publicar como reseña anónima",
+    "anonymous_desc": "Tu nombre no será visible públicamente en la tienda del especialista"
   },
 
   "PatientSettings": {
@@ -5869,7 +5900,10 @@
     "rejected_notice": "Esta reseña no cumple con nuestras normas comunitarias y no es visible al público.",
     "empty_history_title": "Aún no tienes reseñas publicadas",
     "empty_history_desc": "Tus opiniones aparecerán aquí después de calificar tus citas.",
-    "pending_integration": "Estamos cruzando datos con tus citas recientes. ¡Pronto verás aquí a quién te falta calificar!",
+    "pending_empty_title": "¡Estás al día con tus opiniones!",
+    "pending_empty_desc": "No tienes citas completadas pendientes de calificar en este momento.",
+    "btn_leave_review": "Calificar Cita",
+    "completed_on": "Cita realizada el {date}",
     "toast_error": "No pudimos cargar tu historial. Intenta de nuevo."
   },
 
@@ -6077,12 +6111,31 @@
     "copied_toast": "Enlace copiado al portapapeles."
   },
   "StorefrontReviews": {
-    "title": "Reseñas de Pacientes",
-    "verified_user": "Usuario Verificado",
+    "title": "Opiniones y Experiencias de Pacientes",
+    "subtitle": "Calificaciones basadas exclusivamente en consultas y compras 100% verificadas",
+    "verified_badge": "100% Citas y Compras Verificadas",
+    "verified_user": "Paciente Verificado",
     "recent": "Reciente",
-    "authentic": "Auténtico",
-    "provider_response_title": "Respuesta del Especialista",
-    "show_all_btn": "Mostrar todas las {count} reseñas"
+    "authentic": "Cita Verificada",
+    "provider_response_title": "Respuesta Oficial del Especialista",
+    "show_all_btn": "Mostrar todas las {count} reseñas",
+    "show_less_btn": "Mostrar menos",
+    "score_out_of": "de 5.0",
+    "total_reviews": "{count} opiniones",
+    "empty_title": "Sé el primero en compartir tu experiencia",
+    "empty_desc": "Este especialista aún no tiene reseñas públicas. Agenda tu consulta y sé el primero en evaluar su atención con garantía de verificación.",
+    "filter_all": "Todas",
+    "filter_5_star": "5 estrellas",
+    "filter_4_star": "4 estrellas",
+    "filter_verified": "Verificadas",
+    "filter_with_comments": "Con comentarios",
+    "sort_recent": "Más recientes",
+    "sort_highest": "Mejor calificación",
+    "sort_lowest": "Menor calificación",
+    "sub_punctuality": "Puntualidad",
+    "sub_communication": "Atención & Empatía",
+    "sub_knowledge": "Conocimiento Médico",
+    "sub_facilities": "Instalaciones & Limpieza"
   },
 
  

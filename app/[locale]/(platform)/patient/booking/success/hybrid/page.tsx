@@ -20,10 +20,11 @@ import {
 } from "lucide-react";
 
 import { useBookingStore } from "@/hooks/useBookingStore";
+import { useSessionStore } from "@/stores/SessionStore";
 import { paymentService } from "@/services/payment.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { Button } from "@/components/ui/button";
-import Script from "next/script";
+import { GoogleCustomerReviewsOptIn } from "@/components/reviews/GoogleCustomerReviewsOptIn";
 
 import { BackgroundEffects } from "@/components/booking/success/SuccessEffects";
 
@@ -55,6 +56,7 @@ export default function HybridSuccessPage() {
   const dateLocale = locale === "en" ? enUS : es;
 
   const clearCart = useBookingStore((state) => state.clearCart);
+  const { user } = useSessionStore();
 
   const [receipt, setReceipt] = useState<UnifiedReceiptResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -156,44 +158,23 @@ export default function HybridSuccessPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white relative overflow-hidden py-12 px-6 sm:px-12 lg:px-24 pb-32 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
       {receipt && (
-        <>
-          <Script id="gcr-init-hybrid" strategy="afterInteractive">
-            {`
-              window.renderOptIn = function() {
-                // Calcular fecha de entrega dinámicamente
-                var hasPhysicalProduct = ${receipt.items.some(i => i.type === 'PRODUCT')};
-                var isDelivery = ${!!receipt.shippingAddress};
-                var pickupTimeStr = "${receipt.pickupTime || ''}";
-                var deliveryDate = new Date();
-                
-                // Si es un producto físico y se enviará a domicilio, sumamos 5 días.
-                // Si es Pick Up en sitio, usamos la fecha seleccionada o sumamos 2 días por defecto.
-                if (hasPhysicalProduct && isDelivery) {
-                  deliveryDate.setDate(deliveryDate.getDate() + 5);
-                } else if (hasPhysicalProduct && !isDelivery) {
-                  if (pickupTimeStr) {
-                    deliveryDate = new Date(pickupTimeStr);
-                  } else {
-                    deliveryDate.setDate(deliveryDate.getDate() + 2); // 2 días para pick up por defecto
-                  }
-                }
-                
-                var formattedDate = deliveryDate.toISOString().split('T')[0];
-
-                window.gapi.load('surveyoptin', function() {
-                  window.gapi.surveyoptin.render({
-                    "merchant_id": 5836869157,
-                    "order_id": "${receipt.transactionId}",
-                    "email": "${receipt.customerName || ''}",
-                    "delivery_country": "MX",
-                    "estimated_delivery_date": formattedDate
-                  });
-                });
-              }
-            `}
-          </Script>
-          <Script src="https://apis.google.com/js/platform.js?onload=renderOptIn" strategy="afterInteractive" />
-        </>
+        <GoogleCustomerReviewsOptIn
+          orderId={receipt.transactionId}
+          email={user?.email}
+          deliveryDate={(() => {
+            const hasPhysical = receipt.items.some((i) => i.type === "PRODUCT");
+            const d = new Date();
+            if (hasPhysical && receipt.shippingAddress) {
+              d.setDate(d.getDate() + 5);
+            } else if (hasPhysical && receipt.pickupTime) {
+              return new Date(receipt.pickupTime);
+            } else {
+              d.setDate(d.getDate() + 2);
+            }
+            return d;
+          })()}
+          country="MX"
+        />
       )}
 
       <BackgroundEffects />
