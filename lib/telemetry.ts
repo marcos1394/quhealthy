@@ -3,11 +3,9 @@
  * Ingestión no-bloqueante de sesiones, heartbeats y uso de módulos
  */
 
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
-const TELEMETRY_ENDPOINT = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/intelligence/telemetry`
-  : '/api/intelligence/telemetry';
+const TELEMETRY_ENDPOINT = '/api/intelligence/telemetry';
 
 export interface TelemetryEvent {
   sessionId: string;
@@ -115,7 +113,7 @@ class TelemetryClient {
     const deviceType = window.innerWidth <= 768 ? 'MOBILE' : window.innerWidth <= 1024 ? 'TABLET' : 'DESKTOP';
 
     try {
-      await axios.post(
+      await axiosInstance.post(
         `${TELEMETRY_ENDPOINT}/heartbeat`,
         {
           sessionId: this.sessionId,
@@ -128,7 +126,7 @@ class TelemetryClient {
           os: navigator.platform,
           referrer: document.referrer || undefined,
         },
-        { timeout: 5000, withCredentials: true }
+        { timeout: 5000 }
       );
     } catch {
       // Falla silenciosa para no degradar experiencia de usuario
@@ -142,9 +140,8 @@ class TelemetryClient {
     this.eventBuffer = [];
 
     try {
-      await axios.post(`${TELEMETRY_ENDPOINT}/events`, eventsToSend, {
+      await axiosInstance.post(`${TELEMETRY_ENDPOINT}/events`, eventsToSend, {
         timeout: 5000,
-        withCredentials: true,
       });
     } catch {
       // Reintentar en siguiente ciclo si falló
