@@ -192,19 +192,25 @@ export default async function RootLayout({
               id="merchantWidgetScript"
               src="https://www.gstatic.com/shopping/merchant/merchantwidget.js"
               strategy="lazyOnload"
-              onLoad={() => {
-                if (typeof window !== "undefined" && (window as any).merchantwidget) {
-                  try {
-                    (window as any).merchantwidget.start({
-                      merchant_id: 5836869157,
-                      position: "BOTTOM_LEFT",
-                    });
-                  } catch (e) {
-                    console.warn("Merchant widget init error:", e);
-                  }
-                }
-              }}
             />
+            <Script id="merchantWidgetInit" strategy="lazyOnload">
+              {`
+                (function initGoogleMerchant(retries) {
+                  if (typeof window !== 'undefined' && window.merchantwidget) {
+                    try {
+                      window.merchantwidget.start({
+                        merchant_id: 5836869157,
+                        position: "BOTTOM_LEFT"
+                      });
+                    } catch (e) {
+                      console.warn("Merchant widget init error:", e);
+                    }
+                  } else if (retries > 0) {
+                    setTimeout(function() { initGoogleMerchant(retries - 1); }, 500);
+                  }
+                })(20);
+              `}
+            </Script>
           </CustomProvider>
         </NextIntlClientProvider>
       </body>
