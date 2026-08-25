@@ -4200,7 +4200,12 @@
   },
 
   "DashboardMarketing": {
+    "title": "Marketing & Social Media",
     "subtitle": "Attract more patients with built-in promotional tools.",
+    "loading_studio": "Loading marketing studio...",
+    "oauth_success": "Account connected successfully.",
+    "oauth_error": "Error connecting account.",
+    "copy_error": "Failed to copy to clipboard.",
     "tab_social": "Social Media",
     "tab_profile": "Public Profile",
     "item_service": "Service",
@@ -4210,7 +4215,21 @@
     "google_business": {
       "not_connected_title": "Google Business Not Connected",
       "not_connected_desc": "Connect your Google Business Profile to sync your practice reviews and posts automatically.",
-      "btn_connect": "Connect Account"
+      "btn_connect": "Connect Account",
+      "toast_update_success": "Google profile updated successfully.",
+      "toast_update_error": "Failed to update Google profile.",
+      "toast_auth_url_error": "Could not generate Google auth URL.",
+      "syncing": "Syncing with Google Business Profile...",
+      "profile_title": "Google Business Profile",
+      "profile_desc": "Manage public information and optimize your clinic visibility on Google Maps.",
+      "status_connected": "Connected",
+      "bio_label": "Business Description / Biography",
+      "bio_placeholder": "Describe your clinic's services, specialties and values for patients searching on Google...",
+      "btn_save": "Save Changes",
+      "seo_preview_title": "Google Search / Maps Preview",
+      "reviews_title": "Reviews & Reputation",
+      "reviews_desc": "Share your reviews link with your patients to improve your ranking.",
+      "btn_copy_reviews": "Copy Reviews Link"
     },
     "ai_studio_title": "Generative AI Studio",
     "step_select_service": "1. Select a base concept or service",

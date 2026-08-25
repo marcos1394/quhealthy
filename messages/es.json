@@ -3782,7 +3782,12 @@
   },
 
   "DashboardMarketing": {
+    "title": "Marketing y Redes Sociales",
     "subtitle": "Atrae a más pacientes con herramientas promocionales integradas.",
+    "loading_studio": "Cargando estudio de marketing...",
+    "oauth_success": "Cuenta vinculada exitosamente.",
+    "oauth_error": "Error al vincular la cuenta.",
+    "copy_error": "Error al copiar al portapapeles.",
     "tab_social": "Redes Sociales",
     "tab_profile": "Perfil Público",
     "item_service": "Servicio",
@@ -3792,7 +3797,21 @@
     "google_business": {
       "not_connected_title": "Google Business No Conectado",
       "not_connected_desc": "Conecta tu perfil de Google Business para sincronizar tus reseñas y publicaciones automáticamente.",
-      "btn_connect": "Conectar Cuenta"
+      "btn_connect": "Conectar Cuenta",
+      "toast_update_success": "Perfil de Google actualizado correctamente.",
+      "toast_update_error": "Error al actualizar el perfil de Google.",
+      "toast_auth_url_error": "No se pudo generar la URL de autenticación de Google.",
+      "syncing": "Sincronizando con Google Business Profile...",
+      "profile_title": "Perfil de Google Business",
+      "profile_desc": "Gestiona la información pública y optimiza la visibilidad de tu clínica en Google Maps.",
+      "status_connected": "Conectado",
+      "bio_label": "Descripción del Negocio / Biografía",
+      "bio_placeholder": "Describe los servicios, especialidades y valores de tu clínica para los pacientes que te buscan en Google...",
+      "btn_save": "Guardar Cambios",
+      "seo_preview_title": "Vista Previa en Google Search / Maps",
+      "reviews_title": "Reseñas y Reputación",
+      "reviews_desc": "Comparte tu enlace de reseñas con tus pacientes para mejorar tu posicionamiento.",
+      "btn_copy_reviews": "Copiar Enlace de Reseñas"
     },
     "ai_studio_title": "Estudio Generativo de Contenido",
     "step_select_service": "1. Selecciona un concepto o servicio base",
