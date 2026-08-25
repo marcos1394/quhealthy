@@ -139,6 +139,22 @@ function YouTubeIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
+function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="#25D366">
+      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.23 8.23 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.45 1.03 2.61.13.17 1.77 2.71 4.3 3.8 2.52 1.09 2.52.73 2.98.69.46-.04 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.3" />
+    </svg>
+  );
+}
+
+function TikTokIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.46V11.8a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-2-.66 4.79 4.79 0 0 1-1.02-.97v-.01z" />
+    </svg>
+  );
+}
+
 function AppleIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg
@@ -187,6 +203,8 @@ function ProviderConnectionsSettingsInner() {
     const googleConnected = searchParams.get("google_connected");
     const linkedinConnected = searchParams.get("linkedin_connected");
     const instagramConnected = searchParams.get("instagram_connected");
+    const whatsappConnected = searchParams.get("whatsapp_connected");
+    const tiktokConnected = searchParams.get("tiktok_connected");
     const statusParam = searchParams.get("status");
 
     if (
@@ -195,8 +213,12 @@ function ProviderConnectionsSettingsInner() {
       googleConnected === "true" ||
       linkedinConnected === "true" ||
       instagramConnected === "true" ||
+      whatsappConnected === "true" ||
+      tiktokConnected === "true" ||
       statusParam === "success_google" ||
-      statusParam === "success_youtube"
+      statusParam === "success_youtube" ||
+      statusParam === "success_whatsapp" ||
+      statusParam === "success_tiktok"
     ) {
       toast.success(t("toast.linked_success"));
     }
@@ -313,6 +335,22 @@ function ProviderConnectionsSettingsInner() {
       description: t("social.youtube_desc"),
       icon: <YouTubeIcon className="w-6 h-6" />,
       accentBg: "bg-rose-500/10 dark:bg-rose-500/20 border-rose-500/20",
+    },
+    {
+      key: "whatsapp",
+      apiKey: "WHATSAPP",
+      name: t("social.whatsapp"),
+      description: t("social.whatsapp_desc"),
+      icon: <WhatsAppIcon className="w-6 h-6" />,
+      accentBg: "bg-emerald-500/10 dark:bg-emerald-500/20 border-emerald-500/20",
+    },
+    {
+      key: "tiktok",
+      apiKey: "TIKTOK",
+      name: t("social.tiktok"),
+      description: t("social.tiktok_desc"),
+      icon: <TikTokIcon className="w-6 h-6" />,
+      accentBg: "bg-zinc-500/10 dark:bg-zinc-500/20 border-zinc-500/20",
     },
   ];
 
