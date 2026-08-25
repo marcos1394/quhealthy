@@ -374,19 +374,19 @@ function ProviderConnectionsSettingsInner() {
         </Link>
       </div>
 
-      {/* ── SECCIÓN 1: REDES SOCIALES Y MARKETING MÉDICO ─────────────── */}
+      {/* ── SECCIÓN 1: REDES SOCIALES ─────────────────────────────── */}
       <div className="space-y-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h2 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white tracking-tight">
-              Presencia Digital y Redes Sociales Médicas
+              Redes Sociales y Canales Oficiales
             </h2>
             <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 rounded-full text-[10px] font-bold px-2 py-0.5 shadow-2xs">
               {connections.length} Conectadas
             </Badge>
           </div>
           <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-            Sincroniza tus perfiles oficiales para difusión de salud preventiva, publicaciones con IA y reseñas verificadas.
+            Sincroniza tus cuentas oficiales para programar publicaciones, difusión de contenido y gestión de reseñas.
           </p>
         </div>
 
