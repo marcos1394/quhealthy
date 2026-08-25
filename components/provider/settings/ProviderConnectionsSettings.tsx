@@ -16,7 +16,8 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import api from "@/lib/axios";
+import { socialService } from "@/services/social.service";
+import { securityService } from "@/services/security.service";
 import { cn } from "@/lib/utils";
 
 // ── TIPOS ──────────────────────────────────────────────────────────────
@@ -48,11 +49,11 @@ function ProviderConnectionsSettingsInner() {
     try {
       setLoading(true);
       const [connRes, settingsRes] = await Promise.all([
-        api.get("/social/connections"),
-        api.get("/auth/provider/settings"),
+        socialService.getActiveConnections(),
+        securityService.getProviderSettings(),
       ]);
-      setConnections(connRes.data || []);
-      setSettings(settingsRes.data || {});
+      setConnections((connRes as unknown as SocialConnection[]) || []);
+      setSettings(settingsRes || {});
     } catch (err) {
       console.error(err);
       toast.error(t("toast.load_error"));
@@ -93,10 +94,7 @@ function ProviderConnectionsSettingsInner() {
     onSuccess: async (tokenResponse) => {
       try {
         setConnecting("google");
-        await api.post("/auth/provider/settings/link-identity/google", {
-          token: tokenResponse.access_token,
-          role: "PROVIDER",
-        });
+        await securityService.linkGoogleIdentity(tokenResponse.access_token);
         toast.success(t("toast.google_success"));
         loadData();
       } catch (err) {
@@ -125,9 +123,9 @@ function ProviderConnectionsSettingsInner() {
 
     try {
       setConnecting(provider);
-      const res = await api.get(`/social/${provider}/url`);
-      if (res.data && res.data.url) {
-        window.location.href = res.data.url;
+      const res = await socialService.getAuthUrl(provider.toUpperCase());
+      if (res && res.url) {
+        window.location.href = res.url;
       }
     } catch (err) {
       console.error(err);
@@ -143,9 +141,9 @@ function ProviderConnectionsSettingsInner() {
   ) => {
     try {
       if (isIdentity) {
-        await api.delete(`/auth/provider/settings/link-identity/${provider}`);
+        await securityService.unlinkIdentity(provider);
       } else {
-        await api.delete(`/social/connections/${id}`);
+        await socialService.disconnectConnection(id);
       }
       toast.success(t("toast.disconnected_success"));
       loadData();

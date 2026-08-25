@@ -78,5 +78,20 @@ export const securityService = {
   updateProviderSettings: async (data: UpdateProviderSettingsRequest): Promise<ProviderSettingsResponse> => {
     const response = await axiosInstance.put<ProviderSettingsResponse>('/api/auth/provider/settings', data);
     return response.data;
+  },
+
+  linkGoogleIdentity: async (token: string): Promise<MessageResponse> => {
+    const response = await axiosInstance.post<MessageResponse>(
+      '/api/auth/provider/settings/link-identity/google',
+      { token, role: 'PROVIDER' }
+    );
+    return response.data;
+  },
+
+  unlinkIdentity: async (provider: string): Promise<MessageResponse> => {
+    const response = await axiosInstance.delete<MessageResponse>(
+      `/api/auth/provider/settings/link-identity/${provider}`
+    );
+    return response.data;
   }
 };
