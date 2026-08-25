@@ -22,6 +22,8 @@ export interface ProviderSettingsResponse {
   marketingEmailsOptIn: boolean;
   appointmentRemindersEnabled: boolean;
   loginAlertsEnabled: boolean;
+  isGoogleConnected?: boolean;
+  isAppleConnected?: boolean;
   mfaEnabled?: boolean;
 }
 

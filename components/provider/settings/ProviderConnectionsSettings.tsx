@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { socialService } from "@/services/social.service";
 import { securityService } from "@/services/security.service";
+import { ProviderSettingsResponse } from "@/types/security";
 import { cn } from "@/lib/utils";
 
 // ── TIPOS ──────────────────────────────────────────────────────────────
@@ -30,17 +31,12 @@ interface SocialConnection {
   connectedAt: string;
 }
 
-interface ProviderSettings {
-  isGoogleConnected?: boolean;
-  isAppleConnected?: boolean;
-}
-
 function ProviderConnectionsSettingsInner() {
   const t = useTranslations("SettingsConnections");
   const searchParams = useSearchParams();
 
   const [connections, setConnections] = useState<SocialConnection[]>([]);
-  const [settings, setSettings] = useState<ProviderSettings>({});
+  const [settings, setSettings] = useState<Partial<ProviderSettingsResponse>>({});
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
 
