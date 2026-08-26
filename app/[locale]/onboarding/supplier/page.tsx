@@ -617,9 +617,7 @@ export default function SupplierOnboardingPage() {
   };
 
   const handleSkipToDashboard = () => {
-    toast.info("Progreso guardado. Podrás completar los requisitos pendientes desde tu panel.", {
-      icon: "📋",
-    });
+    toast.info("📋 Progreso guardado. Podrás completar los requisitos pendientes desde tu panel.");
     router.push("/supplier/dashboard");
   };
 
