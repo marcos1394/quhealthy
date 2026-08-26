@@ -6,8 +6,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useGoogleLogin } from "@react-oauth/google";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
 import { useAuth } from "@/hooks/useAuth";

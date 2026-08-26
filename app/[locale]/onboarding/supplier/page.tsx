@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/select";
 import { UniversalCameraModal } from "@/components/ui/UniversalCameraModal";
 import { googleService } from "@/services/google.service";
+import { useSessionStore } from "@/stores/SessionStore";
 import { supplierService } from "@/services/supplier.service";
 import {
   SupplierOrganization,
@@ -419,6 +420,18 @@ export default function SupplierOnboardingPage() {
           setWhMaxTemp(mainWh.maxTempSupported != null ? String(mainWh.maxTempSupported) : "");
           setWhManager(mainWh.managerName || "");
           setWhManagerPhone(mainWh.managerPhone || "");
+        }
+      } else {
+        // Usuario recién registrado con Google o correo: prellenar con datos de sesión
+        const currentUser = useSessionStore.getState().user;
+        if (currentUser) {
+          const defaultName = `${currentUser.firstName || ""} ${currentUser.lastName || ""}`.trim();
+          if (defaultName) {
+            setBrandName((prev) => prev || defaultName);
+          }
+          if (currentUser.email) {
+            setContactEmail((prev) => prev || currentUser.email);
+          }
         }
       }
     } catch (err: any) {

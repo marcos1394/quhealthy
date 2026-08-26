@@ -276,17 +276,16 @@ export const useSessionStore = create<SessionState>()(
       name: 'quhealthy-session',
       storage: createJSONStorage(() => localStorage),
 
-      // 🚀 FIX BUG-8: NO persistimos isAuthenticated para evitar estado stale
-      // Al rehidratar, isAuthenticated será false hasta que initializeSession valide la cookie
       partialize: (state) => ({
+        token: state.token,
         user: state.user,
         role: state.role,
         status: state.status,
-        // isAuthenticated REMOVIDO — se deriva del token al rehidratar
       }),
 
       onRehydrateStorage: () => (state) => {
         if (state) {
+          state.isAuthenticated = !!state.token;
           state.setHasHydrated(true);
         }
       },
