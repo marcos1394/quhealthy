@@ -39,7 +39,7 @@ export default function OnboardingLayout({
 
         {/* Área de contenido principal */}
         <main className="flex-1 overflow-y-auto relative bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 custom-scrollbar">
-          <div className="container mx-auto px-4 pb-12 max-w-3xl animate-in fade-in-0 duration-300 h-full flex flex-col">
+          <div className="container mx-auto px-4 pb-12 max-w-4xl animate-in fade-in-0 duration-300 h-full flex flex-col">
             {children}
           </div>
         </main>
