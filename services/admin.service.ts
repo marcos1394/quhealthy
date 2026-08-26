@@ -349,4 +349,47 @@ export const adminService = {
     const response = await axiosInstance.post('/api/social/crm/ai/suggest', { conversationId, lastMessage });
     return response.data;
   },
+
+  // --- ANALÍTICAS CMO & REDES SOCIALES (FACEBOOK / INSTAGRAM / OFICIALES) ---
+
+  getAdminSocialAnalyticsDashboard: async (): Promise<{
+    totalLikes: number;
+    totalComments: number;
+    totalViews: number;
+    totalShares: number;
+    chartData: Array<{ date: string; views: number; engagement: number }>;
+  }> => {
+    const response = await axiosInstance.get('/api/social/analytics/dashboard');
+    return response.data;
+  },
+
+  getAdminSocialInsights: async (): Promise<{
+    engagementByType?: Record<string, number>;
+    engagementByDayOfWeek?: Record<string, number>;
+    engagementByPlatform?: Record<string, number>;
+    topPosts?: Array<{
+      id: string;
+      content: string;
+      platform: string;
+      mediaUrl?: string;
+      totalEngagement: number;
+      views: number;
+      scheduledAt: string;
+      platformPostId?: string;
+    }>;
+    aiSuggestion?: string;
+  }> => {
+    const response = await axiosInstance.get('/api/social/analytics/insights');
+    return response.data;
+  },
+
+  getAdminSocialBestTimes: async (): Promise<any> => {
+    const response = await axiosInstance.get('/api/social/analytics/best-times');
+    return response.data;
+  },
+
+  syncAdminSocialAnalytics: async (): Promise<any> => {
+    const response = await axiosInstance.post('/api/social/internal/sync-analytics');
+    return response.data;
+  },
 };
