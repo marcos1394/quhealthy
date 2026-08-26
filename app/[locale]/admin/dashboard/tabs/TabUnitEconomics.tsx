@@ -56,14 +56,14 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="ARPU (Ingreso / Usuario)"
-          value={formatCurrency(economics?.arpu || 280)}
+          value={formatCurrency(economics?.arpu || 0)}
           subtext="Promedio global por usuario activo"
           icon={DollarSign}
           variant="emerald"
         />
         <KpiCard
           title="Costo por Usuario (CPAU)"
-          value={formatCurrency(economics?.costPerUser || 18.5)}
+          value={formatCurrency(economics?.costPerUser || 0)}
           subtext="Nube + IA + Pasarelas / Activo"
           icon={TrendingUp}
           variant="rose"
@@ -78,7 +78,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
         <KpiCard
           title="Margen Neto Global"
           value={formatCurrency(economics?.netProfit || 0)}
-          changePercent={22.4}
+          changePercent={0}
           changePeriod="Utilidad neta real"
           icon={Percent}
           variant="indigo"
@@ -96,7 +96,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
               Ingreso Promedio (ARPU)
             </span>
             <span className="text-2xl font-extrabold text-emerald-900 mt-1 block">
-              {formatCurrency(economics?.arpu || 280)}
+              {formatCurrency(economics?.arpu || 0)}
             </span>
             <span className="text-[11px] text-emerald-600 mt-1 block">SaaS + Comisiones</span>
           </div>
@@ -108,7 +108,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
               Costo Unitario (CPAU)
             </span>
             <span className="text-2xl font-extrabold text-rose-900 mt-1 block">
-              {formatCurrency(economics?.costPerUser || 18.5)}
+              {formatCurrency(economics?.costPerUser || 0)}
             </span>
             <span className="text-[11px] text-rose-600 mt-1 block">GCP + IA + Timbres + Pasarela</span>
           </div>

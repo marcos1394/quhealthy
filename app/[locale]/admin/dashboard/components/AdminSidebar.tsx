@@ -10,10 +10,14 @@ import {
   Server,
   FileCheck,
   ShieldAlert,
+  MessageSquare,
+  Share2,
 } from "lucide-react";
 
 export type AdminTab =
   | "pulse"
+  | "crm"
+  | "channels"
   | "finances"
   | "economics"
   | "analytics"
@@ -41,6 +45,22 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       description: "Visión 360° Negocio & Ops",
       icon: LayoutDashboard,
       badge: null,
+    },
+    {
+      id: "crm" as AdminTab,
+      label: "Admin CRM & Leads",
+      description: "Inbox Omnicanal & Soporte",
+      icon: MessageSquare,
+      badge: "En vivo",
+      badgeColor: "bg-emerald-100 text-emerald-800",
+    },
+    {
+      id: "channels" as AdminTab,
+      label: "Canales & Redes Oficiales",
+      description: "WhatsApp, IG, FB & TikTok",
+      icon: Share2,
+      badge: "Oficial",
+      badgeColor: "bg-indigo-100 text-indigo-700",
     },
     {
       id: "finances" as AdminTab,

@@ -34,10 +34,10 @@ interface TabProductAnalyticsProps {
 export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
   productMetrics,
 }) => {
-  const dau = productMetrics?.dau || 42;
-  const wau = productMetrics?.wau || 118;
-  const mau = productMetrics?.mau || 185;
-  const stickiness = productMetrics?.stickinessRatio || 22.7;
+  const dau = productMetrics?.dau || 0;
+  const wau = productMetrics?.wau || 0;
+  const mau = productMetrics?.mau || 0;
+  const stickiness = productMetrics?.stickinessRatio || 0;
 
   const topModules = productMetrics?.topModules || [];
   const dauTrends = productMetrics?.dauTrends || [];
@@ -58,30 +58,30 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
         <KpiCard
           title="DAU (Usuarios Activos Hoy)"
           value={dau}
-          changePercent={12.5}
-          changePeriod="vs ayer"
+          changePercent={0}
+          changePeriod="Usuarios diarios"
           icon={Flame}
           variant="orange"
         />
         <KpiCard
           title="MAU (Usuarios Activos Mes)"
           value={mau}
-          changePercent={18.2}
-          changePeriod={`${productMetrics?.activeProvidersMonth || 34} Médicos / ${productMetrics?.activePatientsMonth || 151} Pacientes`}
+          changePercent={0}
+          changePeriod={`${productMetrics?.activeProvidersMonth || 0} Médicos / ${productMetrics?.activePatientsMonth || 0} Pacientes`}
           icon={Users}
           variant="indigo"
         />
         <KpiCard
           title="Stickiness (DAU / MAU)"
           value={`${stickiness}%`}
-          subtext="Hábito diario de uso (>20% excelente)"
+          subtext="Ratio de retención diaria"
           icon={Activity}
           variant="emerald"
         />
         <KpiCard
-          title="Tiempo Promedio de Sesión"
-          value={`${productMetrics?.avgSessionDurationMinutes || 19.4} min`}
-          subtext={`Médicos: ${productMetrics?.avgProviderSessionDurationMinutes || 26.8}m | Pacientes: ${productMetrics?.avgPatientSessionDurationMinutes || 9.1}m`}
+          title="Duración Media de Sesión"
+          value={`${productMetrics?.avgSessionDurationMinutes || 0}m`}
+          subtext={`${productMetrics?.totalSessionsMonth || 0} sesiones totales`}
           icon={Clock}
           variant="blue"
         />

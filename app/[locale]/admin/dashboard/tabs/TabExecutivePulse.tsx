@@ -49,12 +49,19 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
 }) => {
   const pendingKyc = providers.filter((p) => !p.onboardingComplete || p.status === "INACTIVE");
 
-  const revenueData = [
-    { name: "Sem 1", suscripciones: 18000, comisiones: 12000, total: 30000 },
-    { name: "Sem 2", suscripciones: 21000, comisiones: 16500, total: 37500 },
-    { name: "Sem 3", suscripciones: 24500, comisiones: 19800, total: 44300 },
-    { name: "Sem 4", suscripciones: 29000, comisiones: 23500, total: 52500 },
-  ];
+  const revenueData = economics?.chartData && economics.chartData.length > 0
+    ? economics.chartData.map((d) => ({
+        name: d.date,
+        suscripciones: d.subscriptions,
+        comisiones: d.commissions,
+        total: d.subscriptions + d.commissions,
+      }))
+    : [
+        { name: "Sem 1", suscripciones: 0, comisiones: 0, total: 0 },
+        { name: "Sem 2", suscripciones: 0, comisiones: 0, total: 0 },
+        { name: "Sem 3", suscripciones: 0, comisiones: 0, total: 0 },
+        { name: "Sem 4", suscripciones: economics?.totalSubscriptionsRevenue || 0, comisiones: economics?.totalCommissionsRevenue || 0, total: economics?.totalRevenue || 0 },
+      ];
 
   return (
     <div className="space-y-6">
@@ -63,31 +70,31 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
         <KpiCard
           title="Ingreso Total (30D)"
           value={formatCurrency(economics?.totalRevenue || 0)}
-          changePercent={14.2}
-          changePeriod="vs mes anterior"
+          changePercent={0}
+          changePeriod="Ingreso total acumulado"
           icon={DollarSign}
           variant="emerald"
         />
         <KpiCard
           title="SaaS MRR (Planes Médicos)"
           value={formatCurrency(economics?.mrr || economics?.totalSubscriptionsRevenue || 0)}
-          changePercent={18.5}
+          changePercent={0}
           changePeriod={`${economics?.activeSubscriptions || 0} suscripciones`}
           icon={Zap}
           variant="blue"
         />
         <KpiCard
           title="Usuarios Activos (MAU)"
-          value={productMetrics?.mau || 185}
-          changePercent={8.9}
-          changePeriod={`${productMetrics?.activeProvidersMonth || 34} Médicos / ${productMetrics?.activePatientsMonth || 151} Pacientes`}
+          value={productMetrics?.mau || 0}
+          changePercent={0}
+          changePeriod={`${productMetrics?.activeProvidersMonth || 0} Médicos / ${productMetrics?.activePatientsMonth || 0} Pacientes`}
           icon={Users}
           variant="indigo"
         />
         <KpiCard
           title="Citas Hoy"
-          value={dashboard?.appointmentsToday || 12}
-          subtext={`${dashboard?.appointmentsThisMonth || 180} este mes`}
+          value={dashboard?.appointmentsToday || 0}
+          subtext={`${dashboard?.appointmentsThisMonth || 0} este mes`}
           icon={CalendarCheck}
           variant="purple"
         />

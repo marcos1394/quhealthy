@@ -84,11 +84,9 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
     document.body.removeChild(link);
   };
 
-  const planTiersData = economics?.planTiers || [
-    { tierName: "Plan Profesional", activeSubscribers: 28, percentageShare: 65, monthlyRevenue: 28000 },
-    { tierName: "Plan Clínico / Grupal", activeSubscribers: 8, percentageShare: 25, monthlyRevenue: 14000 },
-    { tierName: "Plan Básico", activeSubscribers: 4, percentageShare: 10, monthlyRevenue: 3200 },
-  ];
+  const planTiersData = economics?.planTiers && economics.planTiers.length > 0
+    ? economics.planTiers
+    : [];
 
   const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
 
@@ -99,8 +97,8 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
         <KpiCard
           title="SaaS MRR (Mensual)"
           value={formatCurrency(economics?.mrr || economics?.totalSubscriptionsRevenue || 0)}
-          changePercent={18.5}
-          changePeriod="38 planes activos"
+          changePercent={0}
+          changePeriod={`${economics?.activeSubscriptions || 0} planes activos`}
           icon={Zap}
           variant="blue"
         />

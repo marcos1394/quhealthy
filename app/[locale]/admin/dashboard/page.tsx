@@ -18,6 +18,8 @@ import {
 import { AdminHeader } from "./components/AdminHeader";
 import { AdminSidebar, AdminTab } from "./components/AdminSidebar";
 import { TabExecutivePulse } from "./tabs/TabExecutivePulse";
+import { TabAdminCrm } from "./tabs/TabAdminCrm";
+import { TabAdminSocialConnections } from "./tabs/TabAdminSocialConnections";
 import { TabFinances } from "./tabs/TabFinances";
 import { TabUnitEconomics } from "./tabs/TabUnitEconomics";
 import { TabProductAnalytics } from "./tabs/TabProductAnalytics";
@@ -187,6 +189,14 @@ export default function AdminDashboardPage() {
               formatCurrency={formatCurrency}
               onNavigateTab={setActiveTab}
             />
+          )}
+
+          {activeTab === "crm" && (
+            <TabAdminCrm />
+          )}
+
+          {activeTab === "channels" && (
+            <TabAdminSocialConnections />
           )}
 
           {activeTab === "finances" && (
