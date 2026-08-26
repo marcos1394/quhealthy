@@ -153,20 +153,31 @@ export const TabAdminCrm: React.FC = () => {
       const list: CrmConversation[] = res?.content || res || [];
       setConversations(list);
 
-      if (list.length > 0) {
-        if (autoSelectFirst && !selectedConversation) {
-          setSelectedConversation(list[0]);
-        } else if (selectedConversation) {
-          const updated = list.find((c) => c.id === selectedConversation.id);
-          if (updated) setSelectedConversation(updated);
+      setSelectedConversation((prev) => {
+        if (!prev && autoSelectFirst && list.length > 0) {
+          return list[0];
         }
-      }
+        if (prev) {
+          const updated = list.find((c) => c.id === prev.id);
+          if (
+            updated &&
+            (updated.funnelStage !== prev.funnelStage ||
+              updated.lastMessagePreview !== prev.lastMessagePreview ||
+              updated.leadScore !== prev.leadScore ||
+              updated.contactName !== prev.contactName)
+          ) {
+            return updated;
+          }
+          return prev;
+        }
+        return null;
+      });
     } catch (err) {
       console.error("Error cargando conversaciones CRM", err);
     } finally {
       setLoadingConversations(false);
     }
-  }, [selectedConversation]);
+  }, []);
 
   // 2. Cargar Estadísticas del Funnel
   const loadFunnelStats = useCallback(async () => {
@@ -223,10 +234,10 @@ export const TabAdminCrm: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedConversation) {
+    if (selectedConversation?.id) {
       loadMessages(selectedConversation.id);
     }
-  }, [selectedConversation, loadMessages]);
+  }, [selectedConversation?.id, loadMessages]);
 
   // 5. Enviar Mensaje
   const handleSendMessage = async (textToSend?: string) => {
