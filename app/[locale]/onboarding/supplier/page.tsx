@@ -3,7 +3,7 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "@/i18n/routing";
 import { handleApiError } from "@/lib/handleApiError";
 import {
@@ -31,9 +31,13 @@ import {
   X,
   ExternalLink,
   MapPin,
-  FileCheck,
+  Search,
+  Camera,
+  Check,
+  Shield,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import Confetti from "react-confetti";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +49,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UniversalCameraModal } from "@/components/ui/UniversalCameraModal";
+import { googleService } from "@/services/google.service";
 import { supplierService } from "@/services/supplier.service";
 import {
   SupplierOrganization,
@@ -63,8 +69,8 @@ const STEPS = [
   { id: 1, label: "Identidad & Modelo", icon: Building2, subtitle: "Giro y Canales" },
   { id: 2, label: "Datos Fiscales", icon: FileText, subtitle: "RFC y COFEPRIS" },
   { id: 3, label: "Almacén Principal", icon: Truck, subtitle: "Sede y Despacho" },
-  { id: 4, label: "Documentación", icon: ShieldCheck, subtitle: "Validación KYB" },
-  { id: 5, label: "Equipo & RBAC", icon: Users, subtitle: "Colaboradores" },
+  { id: 4, label: "Documentación KYB", icon: ShieldCheck, subtitle: "Expediente Oficial" },
+  { id: 5, label: "Equipo & Activación", icon: Users, subtitle: "Resumen y Panel" },
 ];
 
 const SUPPLIER_TYPES: {
@@ -122,13 +128,14 @@ const DOCUMENT_TYPES: {
   value: SupplierDocumentType;
   label: string;
   description: string;
+  required: boolean;
 }[] = [
-  { value: "COFEPRIS_NOTICE", label: "Aviso de Funcionamiento COFEPRIS", description: "Obligatorio para comercialización sanitaria" },
-  { value: "TAX_ID_PROOF", label: "Constancia de Situación Fiscal (SAT)", description: "RFC emitido en los últimos 3 meses" },
-  { value: "SANITARY_LICENSE", label: "Licencia Sanitaria Oficial", description: "Requerida para psicotrópicos, estupefacientes o biológicos" },
-  { value: "POWER_OF_ATTORNEY", label: "Poder Notarial del Representante", description: "Facultades para actos de administración" },
-  { value: "ARTICLES_OF_INCORPORATION", label: "Acta Constitutiva de la Empresa", description: "Con boleta de inscripción en el Registro Público" },
-  { value: "GOOD_STORAGE_PRACTICES_CERT", label: "Certificado de Buenas Prácticas de Almacenamiento", description: "Cumplimiento de la NOM-059/NOM-137" },
+  { value: "COFEPRIS_NOTICE", label: "Aviso de Funcionamiento COFEPRIS", description: "Obligatorio para comercialización sanitaria (NOM-137-SSA1)", required: true },
+  { value: "TAX_ID_PROOF", label: "Constancia de Situación Fiscal (SAT)", description: "RFC emitido en los últimos 3 meses con actividad médica", required: true },
+  { value: "POWER_OF_ATTORNEY", label: "Poder Notarial del Representante", description: "Facultades para actos de administración (Personas Morales)", required: false },
+  { value: "ARTICLES_OF_INCORPORATION", label: "Acta Constitutiva de la Empresa", description: "Con boleta de inscripción en el Registro Público", required: false },
+  { value: "SANITARY_LICENSE", label: "Licencia Sanitaria Oficial", description: "Requerida si manejas psicotrópicos, estupefacientes o biológicos", required: false },
+  { value: "GOOD_STORAGE_PRACTICES_CERT", label: "Certificado de Buenas Prácticas de Almacenamiento", description: "Cumplimiento de la NOM-059 para insumos de la salud", required: false },
 ];
 
 const MEMBER_ROLES: {
@@ -137,7 +144,7 @@ const MEMBER_ROLES: {
   description: string;
 }[] = [
   { value: "SUPPLIER_SALES", label: "Ventas & Cotizaciones B2B", description: "Gestión de solicitudes de cotización y pedidos" },
-  { value: "SUPPLIER_INVENTORY", label: "Almacén & Inventarios", description: "Control de lotes, transferencias y recepciones" },
+  { value: "SUPPLIER_INVENTORY", label: "Almacén & Control de Inventarios", description: "Control de lotes, transferencias y recepciones" },
   { value: "SUPPLIER_FINANCE", label: "Finanzas & Facturación", description: "Facturación SAT y cobranza de órdenes" },
   { value: "SUPPLIER_LOGISTICS", label: "Logística & Cadena de Frío", description: "Despachos y telemetría de temperatura" },
   { value: "SUPPLIER_SUPPORT", label: "Atención & Soporte Clínico", description: "Servicio a médicos y seguimiento de garantías" },
@@ -152,10 +159,28 @@ export default function SupplierOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [org, setOrg] = useState<SupplierOrganization | null>(null);
   const [status, setStatus] = useState<SupplierOnboardingStatus | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Modal de Migración Aditiva
   const [migrationModalOpen, setMigrationModalOpen] = useState(false);
   const [migrating, setMigrating] = useState(false);
+
+  // Cámara KYB Modal
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [activeCameraDocType, setActiveCameraDocType] = useState<SupplierDocumentType>("COFEPRIS_NOTICE");
+
+  // Google Places Autocomplete (Paso 1 y Almacén)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedPlaceInfo, setSelectedPlaceInfo] = useState<{
+    name: string;
+    address: string;
+    rating?: number;
+    userRatingsTotal?: number;
+  } | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Step 1: Identidad Form
   const [legalName, setLegalName] = useState("");
@@ -192,6 +217,7 @@ export default function SupplierOnboardingPage() {
   const [docType, setDocType] = useState<SupplierDocumentType>("COFEPRIS_NOTICE");
   const [docNumber, setDocNumber] = useState("");
   const [docFile, setDocFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Step 5: Team Form
   const [memberName, setMemberName] = useState("");
@@ -202,6 +228,159 @@ export default function SupplierOnboardingPage() {
   useEffect(() => {
     loadOnboarding();
   }, []);
+
+  // Autocomplete con Google Places
+  useEffect(() => {
+    if (!searchQuery || searchQuery.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingPlaces(true);
+      try {
+        const response = await googleService.autocomplete(searchQuery.trim());
+        const data = typeof response === "string" ? JSON.parse(response) : response;
+        if (Array.isArray(data)) {
+          setSuggestions(data);
+        } else if (data && Array.isArray(data.predictions)) {
+          setSuggestions(data.predictions);
+        } else {
+          setSuggestions([]);
+        }
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Error al autocompletar con Google Places:", error);
+        setSuggestions([]);
+      } finally {
+        setIsSearchingPlaces(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Click outside para cerrar sugerencias
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const parseAddressComponents = (components: any[], formattedAddress?: string) => {
+    let streetNumber = "";
+    let route = "";
+    let neighborhood = "";
+    let city = "";
+    let state = "";
+    let postalCode = "";
+
+    if (Array.isArray(components) && components.length > 0) {
+      for (const c of components) {
+        const types: string[] = c.types || [];
+        if (types.includes("street_number")) {
+          streetNumber = c.long_name || "";
+        } else if (types.includes("route")) {
+          route = c.long_name || "";
+        } else if (
+          types.includes("sublocality_level_1") || 
+          types.includes("sublocality") || 
+          types.includes("neighborhood")
+        ) {
+          if (!neighborhood) neighborhood = c.long_name || "";
+        } else if (types.includes("locality")) {
+          city = c.long_name || "";
+        } else if (types.includes("administrative_area_level_2") && !city) {
+          city = c.long_name || "";
+        } else if (types.includes("administrative_area_level_1")) {
+          state = c.long_name || "";
+        } else if (types.includes("postal_code")) {
+          postalCode = c.long_name || "";
+        }
+      }
+    }
+
+    if (formattedAddress && (!route || !city)) {
+      const parts = formattedAddress.split(",").map((p) => p.trim());
+      if (!route && parts.length > 0) route = parts[0];
+      if (!neighborhood && parts.length > 1) neighborhood = parts[1];
+      if (!city && parts.length > 2) city = parts[2];
+      if (!state && parts.length > 3) state = parts[3];
+    }
+
+    return { streetNumber, route, neighborhood, city, state, postalCode };
+  };
+
+  const handleSelectPlace = async (placeId?: string, descriptionText?: string) => {
+    if (!placeId) {
+      if (descriptionText) {
+        setBrandName(descriptionText);
+        if (!legalName) setLegalName(descriptionText);
+      }
+      setShowSuggestions(false);
+      return;
+    }
+
+    setIsSearchingPlaces(true);
+    setShowSuggestions(false);
+    try {
+      const response = await googleService.getDetails(placeId);
+      const data = typeof response === "string" ? JSON.parse(response) : response;
+      const result = data.result || data;
+
+      // 1. Nombre Comercial / Legal
+      if (result.name) {
+        setBrandName(result.name);
+        if (!legalName) setLegalName(result.name);
+      }
+
+      // 2. Teléfono
+      const phone = result.international_phone_number || result.formatted_phone_number;
+      if (phone) {
+        setContactPhone(phone.replace(/\s+/g, ""));
+      }
+
+      // 3. Sitio Web
+      if (result.website) {
+        setWebsite(result.website);
+      }
+
+      // 4. Dirección del Almacén Sede
+      const parsed = parseAddressComponents(result.address_components || [], result.formatted_address);
+      if (parsed.route || parsed.streetNumber) {
+        setWhStreet(`${parsed.route} ${parsed.streetNumber}`.trim());
+      }
+      if (parsed.city) setWhCity(parsed.city);
+      if (parsed.state) setWhState(parsed.state);
+      if (parsed.postalCode) setWhPostalCode(parsed.postalCode);
+      if (result.name && !whName) setWhName(`Almacén Principal ${result.name}`);
+
+      setSelectedPlaceInfo({
+        name: result.name || descriptionText || "Establecimiento",
+        address: result.formatted_address || descriptionText || "",
+        rating: result.rating,
+        userRatingsTotal: result.user_ratings_total,
+      });
+
+      setSearchQuery(result.name || descriptionText || "");
+      toast.success(`🏪 Datos importados de Google: ${result.name || "Establecimiento"}`);
+    } catch (error) {
+      console.error("Error al obtener detalles de Google Places:", error);
+      if (descriptionText) {
+        setBrandName(descriptionText);
+        if (!legalName) setLegalName(descriptionText);
+      }
+    } finally {
+      setIsSearchingPlaces(false);
+    }
+  };
 
   const loadOnboarding = async () => {
     try {
@@ -347,26 +526,38 @@ export default function SupplierOnboardingPage() {
     }
   };
 
-  const handleUploadDoc = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!docFile) {
-      toast.warning("Selecciona un archivo PDF o imagen.");
+  const handleUploadDoc = async (fileToUpload?: File) => {
+    const targetFile = fileToUpload || docFile;
+    if (!targetFile) {
+      toast.warning("Selecciona un archivo PDF o toma una fotografía.");
       return;
     }
 
     try {
       setIsSaving(true);
-      await supplierService.uploadDocument(docType, docFile, docNumber.trim() || undefined);
+      await supplierService.uploadDocument(docType, targetFile, docNumber.trim() || undefined);
       const profile = await supplierService.getProfile();
       setOrg(profile);
       setDocFile(null);
       setDocNumber("");
-      toast.success("Documento cargado correctamente.");
+      toast.success("Documento cargado correctamente en el expediente.");
     } catch (err: any) {
       handleApiError(err, "Error al subir el documento.");
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const openCameraForDoc = (type: SupplierDocumentType) => {
+    setActiveCameraDocType(type);
+    setDocType(type);
+    setIsCameraOpen(true);
+  };
+
+  const handleCameraCapture = async (file: File) => {
+    setIsCameraOpen(false);
+    setDocFile(file);
+    await handleUploadDoc(file);
   };
 
   const handleInviteMember = async (e: React.FormEvent) => {
@@ -425,6 +616,23 @@ export default function SupplierOnboardingPage() {
     }
   };
 
+  const handleSkipToDashboard = () => {
+    toast.info("Progreso guardado. Podrás completar los requisitos pendientes desde tu panel.", {
+      icon: "📋",
+    });
+    router.push("/supplier/dashboard");
+  };
+
+  const handleFinishOnboarding = () => {
+    setShowConfetti(true);
+    toast.success("¡Onboarding completado exitosamente! Bienvenido a QuHealthy.", {
+      autoClose: 4000,
+    });
+    setTimeout(() => {
+      router.push("/supplier/dashboard");
+    }, 1500);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
@@ -440,6 +648,8 @@ export default function SupplierOnboardingPage() {
 
   return (
     <div className="w-full py-6 sm:py-8 font-sans space-y-6 animate-in fade-in-0 duration-300">
+      {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
+
       {/* ── ENCABEZADO Y HERO DEL ONBOARDING ──────────────────────────────── */}
       <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xs transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -461,19 +671,29 @@ export default function SupplierOnboardingPage() {
                 Onboarding para Proveedores Médicos
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 max-w-2xl leading-relaxed">
-                Habilita la distribución de consumibles clínicos, equipamiento, medicamentos y despacho con cadena de frío conforme a la normativa sanitaria.
+                Habilita la comercialización de insumos, dispositivos médicos, medicamentos y despacho con cadena de frío conforme a la normativa sanitaria.
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setMigrationModalOpen(true)}
-            className="self-start sm:self-center px-4 py-2.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 shadow-2xs"
-          >
-            <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span>¿Ya operas? Vincula tu empresa</span>
-          </button>
+          <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
+            <button
+              type="button"
+              onClick={handleSkipToDashboard}
+              className="px-3.5 py-2 rounded-2xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#151515] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+            >
+              Completar después
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMigrationModalOpen(true)}
+              className="px-4 py-2 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>Vincular cuenta</span>
+            </button>
+          </div>
         </div>
 
         {/* ── BARRA DE PROGRESO Y STEPPER ─────────────────────────────────── */}
@@ -534,23 +754,135 @@ export default function SupplierOnboardingPage() {
       {/* 📋 PASO 1: IDENTIDAD & MODELO DE VENTA */}
       {currentStep === 1 && (
         <form onSubmit={handleSaveStep1} className="space-y-6">
-          {/* Bloque 1.1: Identidad Corporativa */}
+          {/* Bloque 1.1: Identidad Corporativa & Google Places */}
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xs space-y-6 transition-colors">
-            <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                <Building2 className="w-4 h-4" />
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                    1. Identidad Institucional & Búsqueda Inteligente
+                  </h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Busca tu empresa en Google Places para auto-importar tus datos o llena el formulario manualmente.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                  1. Identidad Institucional & Razón Social
-                </h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Ingresa la denominación oficial de tu empresa y el giro sanitario correspondiente.
-                </p>
-              </div>
+
+              {selectedPlaceInfo && (
+                <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Google Places Vinculado</span>
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 🔍 Buscador de Google Places */}
+            <div ref={searchContainerRef} className="relative space-y-2">
+              <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Buscar empresa en Google Places (Opcional - Autocompletado rápido)</span>
+              </label>
+
+              <div className="relative flex items-center">
+                <div className="absolute left-3.5 text-gray-400 pointer-events-none">
+                  <Search className="w-4 h-4" />
+                </div>
+
+                <Input
+                  type="text"
+                  placeholder="Escribe el nombre de la empresa, distribuidora o laboratorio en Google..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
+                  }}
+                  className="pl-10 pr-10 bg-emerald-50/20 dark:bg-emerald-950/10 border-emerald-200 dark:border-emerald-900/40 h-12 rounded-2xl text-xs font-semibold text-gray-900 dark:text-white shadow-2xs focus-visible:ring-emerald-500/20"
+                />
+
+                <div className="absolute right-3.5 flex items-center gap-2">
+                  {isSearchingPlaces && (
+                    <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400" />
+                  )}
+                  {searchQuery && !isSearchingPlaces && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSuggestions([]);
+                        setSelectedPlaceInfo(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Sugerencias desplegables */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden divide-y divide-gray-100 dark:divide-gray-800 animate-in fade-in-0 duration-150">
+                  {suggestions.map((item, idx) => {
+                    const pId = item.place_id || item.placeId;
+                    const mainText = item.structured_formatting?.main_text || item.description;
+                    const secondaryText = item.structured_formatting?.secondary_text || "";
+                    return (
+                      <button
+                        key={pId || idx}
+                        type="button"
+                        onClick={() => handleSelectPlace(pId, item.description)}
+                        className="w-full text-left px-4 py-3 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 flex items-start gap-3 transition-colors text-xs cursor-pointer group"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 flex items-center justify-center text-gray-500 group-hover:text-emerald-600 shrink-0 mt-0.5 transition-colors">
+                          <Building2 className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-gray-900 dark:text-white truncate">
+                            {mainText}
+                          </p>
+                          {secondaryText && (
+                            <p className="text-[11px] text-gray-400 truncate mt-0.5">
+                              {secondaryText}
+                            </p>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {selectedPlaceInfo && (
+                <div className="p-3.5 rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/40 flex items-center justify-between text-xs gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-base">🏪</span>
+                    <div className="truncate">
+                      <p className="font-bold text-emerald-900 dark:text-emerald-300 truncate">
+                        {selectedPlaceInfo.name}
+                      </p>
+                      <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80 truncate">
+                        {selectedPlaceInfo.address}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlaceInfo(null)}
+                    className="text-[11px] font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline cursor-pointer shrink-0"
+                  >
+                    Limpiar
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="sm:col-span-2 space-y-1.5">
                 <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
                   Razón Social Oficial <span className="text-rose-500">*</span>
@@ -564,13 +896,13 @@ export default function SupplierOnboardingPage() {
                   className="bg-white dark:bg-[#0a0a0a] h-12 rounded-2xl border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white shadow-2xs focus-visible:ring-emerald-500/20"
                 />
                 <p className="text-[11px] text-gray-400 dark:text-gray-500">
-                  Nombre fiscal legal registrado en tu Cédula de Identificación Fiscal (SAT).
+                  Nombre legal registrado ante el SAT en tu Cédula de Identificación Fiscal.
                 </p>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                  Nombre Comercial / Marca
+                  Nombre Comercial / Marca Visible
                 </label>
                 <Input
                   icon={<Award className="w-4 h-4" />}
@@ -580,7 +912,7 @@ export default function SupplierOnboardingPage() {
                   className="bg-white dark:bg-[#0a0a0a] h-12 rounded-2xl border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white shadow-2xs focus-visible:ring-emerald-500/20"
                 />
                 <p className="text-[11px] text-gray-400 dark:text-gray-500">
-                  Nombre visible en el Marketplace para consultorios y clínicas.
+                  Nombre visible en el Marketplace de cotizaciones y pedidos.
                 </p>
               </div>
 
@@ -855,7 +1187,15 @@ export default function SupplierOnboardingPage() {
           </div>
 
           {/* Botón de Acción Siguiente */}
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center justify-between pt-2">
+            <button
+              type="button"
+              onClick={handleSkipToDashboard}
+              className="text-xs font-bold text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 underline cursor-pointer"
+            >
+              Completar más tarde e ir al Panel
+            </button>
+
             <button
               type="submit"
               disabled={isSaving || !legalName.trim()}
@@ -930,6 +1270,13 @@ export default function SupplierOnboardingPage() {
                   className="bg-white dark:bg-[#0a0a0a] h-12 rounded-2xl border border-gray-200 dark:border-gray-800 text-xs font-semibold font-mono text-gray-900 dark:text-white shadow-2xs focus-visible:ring-emerald-500/20"
                 />
               </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 flex items-start gap-3">
+              <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                Tus datos fiscales están protegidos y serán utilizados para la emisión de CFDI 4.0 por transacciones dentro del ecosistema QuHealthy.
+              </p>
             </div>
           </div>
 
@@ -1145,29 +1492,37 @@ export default function SupplierOnboardingPage() {
         </form>
       )}
 
-      {/* 📋 PASO 4: CARGA DE DOCUMENTACIÓN */}
+      {/* 📋 PASO 4: CARGA DE DOCUMENTACIÓN KYB (ARCHIVOS + CÁMARA) */}
       {currentStep === 4 && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xs space-y-6 transition-colors">
-            <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                <ShieldCheck className="w-4 h-4" />
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                    Expediente Regulatorio y Validación KYB
+                  </h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Carga tus documentos mediante archivo digital (PDF/JPG) o <b>escaneo directo con cámara</b>.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">
-                  Expediente Regulatorio y Validación KYB
-                </h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Carga tus documentos oficiales para la revisión del equipo de cumplimiento sanitario.
-                </p>
-              </div>
+
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-900/40">
+                <Camera className="w-3.5 h-3.5" />
+                <span>Foto & Archivo Soportados</span>
+              </span>
             </div>
 
-            <form onSubmit={handleUploadDoc} className="space-y-4 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]">
+            {/* Selector y Carga Rápida */}
+            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111] space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                    Tipo de Documento <span className="text-rose-500">*</span>
+                    Tipo de Documento a Cargar <span className="text-rose-500">*</span>
                   </label>
                   <Select
                     value={docType}
@@ -1184,7 +1539,7 @@ export default function SupplierOnboardingPage() {
                           className="py-2.5 px-3 rounded-xl cursor-pointer text-xs focus:bg-emerald-50 dark:focus:bg-emerald-950/30"
                         >
                           <span className="font-semibold text-gray-900 dark:text-white">
-                            {dt.label}
+                            {dt.label} {dt.required ? "(Obligatorio)" : "(Opcional)"}
                           </span>
                         </SelectItem>
                       ))}
@@ -1194,7 +1549,7 @@ export default function SupplierOnboardingPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                    Número de Folio / Referencia Oficial
+                    Número de Folio / Referencia Oficial (Opcional)
                   </label>
                   <Input
                     placeholder="Ej. Folio Oficial SAT / COFEPRIS"
@@ -1205,84 +1560,162 @@ export default function SupplierOnboardingPage() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                  Archivo Digital (PDF o Imagen) <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="file"
-                    required
-                    accept=".pdf,.png,.jpg,.jpeg"
-                    onChange={(e) => setDocFile(e.target.files?.[0] || null)}
-                    className="w-full px-3 py-2.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-[#0a0a0a] text-xs font-semibold text-gray-700 dark:text-gray-300 file:mr-4 file:py-1.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-950/50 dark:file:text-emerald-300 hover:file:bg-emerald-100 cursor-pointer"
-                  />
-                </div>
-              </div>
+              {/* Botones de Carga: Archivo + Cámara */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setDocFile(file);
+                      handleUploadDoc(file);
+                    }
+                  }}
+                />
 
-              <div className="flex justify-end pt-2">
                 <button
-                  type="submit"
-                  disabled={isSaving || !docFile}
-                  className="h-11 px-6 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-white text-white dark:text-gray-900 font-bold text-xs rounded-2xl transition-all shadow-2xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isSaving}
+                  className="w-full sm:w-1/2 h-12 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-emerald-500 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-2xs"
                 >
-                  <Upload className="w-4 h-4" />
-                  <span>{isSaving ? "Subiendo archivo..." : "Subir Documento"}</span>
+                  <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Subir Archivo (PDF / Imagen)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => openCameraForDoc(docType)}
+                  disabled={isSaving}
+                  className="w-full sm:w-1/2 h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm border-0"
+                >
+                  <Camera className="w-4 h-4 text-white" />
+                  <span>Tomar Foto con Cámara</span>
                 </button>
               </div>
-            </form>
 
-            {/* Lista de Documentos Cargados */}
+              {isSaving && (
+                <div className="flex items-center justify-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 pt-2 animate-pulse">
+                  <QhSpinner size="sm" />
+                  <span>Procesando y subiendo documento al expediente...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Lista y Estado de los Documentos del Catálogo KYB */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                  Documentos Registrados ({org?.documents?.length || 0})
+                  Expediente de Documentos ({org?.documents?.length || 0} cargados)
                 </h4>
               </div>
 
-              {org?.documents && org.documents.length > 0 ? (
-                <div className="divide-y divide-gray-100 dark:divide-gray-800 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a]">
-                  {org.documents.map((doc) => (
-                    <div key={doc.id} className="p-4 flex items-center justify-between text-xs gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                          <FileCheck className="w-4 h-4" />
+              <div className="grid grid-cols-1 gap-3">
+                {DOCUMENT_TYPES.map((dt) => {
+                  const uploadedDoc = org?.documents?.find((d) => d.documentType === dt.value);
+                  const isUploaded = !!uploadedDoc;
+
+                  return (
+                    <div
+                      key={dt.value}
+                      className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                        isUploaded
+                          ? "border-emerald-200/80 dark:border-emerald-900/40 bg-emerald-50/20 dark:bg-emerald-950/10"
+                          : "border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                            isUploaded
+                              ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
+                              : "bg-gray-100 dark:bg-gray-800 text-gray-400"
+                          }`}
+                        >
+                          {isUploaded ? <Check className="w-4 h-4 stroke-2" /> : <FileText className="w-4 h-4" />}
                         </div>
-                        <div className="truncate">
-                          <span className="font-bold text-gray-900 dark:text-white block truncate">
-                            {DOCUMENT_TYPES.find((d) => d.value === doc.documentType)?.label || doc.documentType}
-                          </span>
-                          <span className="text-[11px] text-gray-400 font-mono">
-                            {doc.documentNumber || doc.fileName || "Archivo adjunto"}
-                          </span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900 dark:text-white text-xs truncate">
+                              {dt.label}
+                            </span>
+                            {dt.required && (
+                              <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200/60">
+                                Requerido
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                            {dt.description}
+                          </p>
+                          {uploadedDoc && (
+                            <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono mt-1">
+                              Folio: {uploadedDoc.documentNumber || uploadedDoc.fileName || "Cargado"}
+                            </p>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2.5 shrink-0">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900">
-                          {doc.status}
-                        </span>
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        {isUploaded ? (
+                          <>
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900">
+                              {uploadedDoc.status}
+                            </span>
 
-                        {doc.fileUrl && (
-                          <a
-                            href={doc.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            title="Ver documento"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
+                            {uploadedDoc.fileUrl && (
+                              <a
+                                href={uploadedDoc.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-xl text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                title="Ver documento"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => openCameraForDoc(dt.value)}
+                              className="px-2.5 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 text-[11px] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#151515] flex items-center gap-1 cursor-pointer"
+                              title="Tomar nueva foto"
+                            >
+                              <Camera className="w-3.5 h-3.5" />
+                              <span>Reemplazar</span>
+                            </button>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => openCameraForDoc(dt.value)}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 hover:bg-emerald-100 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <Camera className="w-3.5 h-3.5" />
+                              <span>Foto</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDocType(dt.value);
+                                fileInputRef.current?.click();
+                              }}
+                              className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#151515] text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>Subir</span>
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center text-xs text-gray-400">
-                  Aún no has subido documentos. Carga al menos tu Aviso de Funcionamiento COFEPRIS.
-                </div>
-              )}
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -1300,14 +1733,14 @@ export default function SupplierOnboardingPage() {
               onClick={() => setCurrentStep(5)}
               className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer border-0"
             >
-              <span>Continuar a Equipo & RBAC</span>
+              <span>Continuar a Equipo & Activación</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* 📋 PASO 5: EQUIPO & RBAC */}
+      {/* 📋 PASO 5: EQUIPO & ACTIVACIÓN PROGRESIVA */}
       {currentStep === 5 && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xs space-y-6 transition-colors">
@@ -1432,10 +1865,69 @@ export default function SupplierOnboardingPage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-6 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center text-xs text-gray-400">
-                  Aún no has agregado colaboradores adicionales. Puedes finalizar ahora y agregarlos más tarde desde el dashboard.
+                <div className="p-5 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center text-xs text-gray-400">
+                  Aún no has agregado colaboradores adicionales. Podrás agregarlos desde el menú de Ajustes en cualquier momento.
                 </div>
               )}
+            </div>
+
+            {/* 📋 RESUMEN DE ACTIVACIÓN & REQUISITOS PENDIENTES */}
+            <div className="p-6 rounded-3xl bg-linear-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                    Onboarding Progresivo Habilitado
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Tu portal empresarial está listo para operar inmediatamente.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center gap-2.5">
+                  <div className="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 flex items-center justify-center font-bold text-xs">✓</div>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">Identidad comercial y modelo de venta</span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center gap-2.5">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs ${
+                    rfc ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50" : "bg-amber-100 text-amber-600"
+                  }`}>
+                    {rfc ? "✓" : "!"}
+                  </div>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">
+                    {rfc ? "Datos fiscales y RFC registrados" : "RFC pendiente de completar"}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center gap-2.5">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs ${
+                    whName ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50" : "bg-amber-100 text-amber-600"
+                  }`}>
+                    {whName ? "✓" : "!"}
+                  </div>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">
+                    {whName ? "Almacén de despacho registrado" : "Almacén inicial pendiente"}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 flex items-center gap-2.5">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs ${
+                    (org?.documents?.length || 0) > 0 ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50" : "bg-amber-100 text-amber-600"
+                  }`}>
+                    {(org?.documents?.length || 0) > 0 ? "✓" : "!"}
+                  </div>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">
+                    {(org?.documents?.length || 0) > 0
+                      ? `${org?.documents?.length} documentos en validación`
+                      : "Documentación KYB pendiente"}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1450,18 +1942,25 @@ export default function SupplierOnboardingPage() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                toast.success("¡Onboarding completado exitosamente!");
-                router.push("/supplier/dashboard");
-              }}
+              onClick={handleFinishOnboarding}
               className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer border-0"
             >
-              <span>Finalizar Onboarding & Ir al Panel</span>
+              <span>Finalizar Onboarding & Entrar al Panel</span>
               <CheckCircle2 className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
+
+      {/* 📸 MODAL: CÁMARA UNIVERSAL PARA ESCANEO DE DOCUMENTOS */}
+      <UniversalCameraModal
+        isOpen={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onCapture={handleCameraCapture}
+        mode="document"
+        title={`Escanear ${DOCUMENT_TYPES.find((d) => d.value === activeCameraDocType)?.label || "Documento"}`}
+        description="Coloca el documento centrado dentro del recuadro con buena iluminación."
+      />
 
       {/* 🚀 MODAL: MIGRACIÓN ADITIVA UNIVERSAL */}
       {migrationModalOpen && (
@@ -1526,10 +2025,7 @@ export default function SupplierOnboardingPage() {
                         value={type.value}
                         className="py-2 px-3 rounded-xl cursor-pointer text-xs"
                       >
-                        <div className="flex items-center gap-2">
-                          <span>{type.icon}</span>
-                          <span className="font-semibold text-gray-900 dark:text-white">{type.label}</span>
-                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-white">{type.label}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>
