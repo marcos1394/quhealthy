@@ -39,6 +39,7 @@ export interface UnitEconomicsDTO {
   totalRevenue: number;
   totalSubscriptionsRevenue: number;
   totalCommissionsRevenue: number;
+  chartData?: ChartPointDTO[];
   
   // Costos Operativos Granulares
   cloudCosts: number;
