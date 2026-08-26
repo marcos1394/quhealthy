@@ -330,7 +330,7 @@ export const adminService = {
     await axiosInstance.delete(`/api/social/connections/${id}`);
   },
 
-  getAdminCrmConversations: async (page: number = 0, size: number = 20) => {
+  getAdminCrmConversations: async (page: number = 0, size: number = 50) => {
     const response = await axiosInstance.get(`/api/social/crm/conversations?page=${page}&size=${size}`);
     return response.data;
   },
@@ -340,13 +340,78 @@ export const adminService = {
     return response.data;
   },
 
-  sendAdminCrmMessage: async (conversationId: string, message: { text?: string; mediaUrl?: string; mediaType?: string }) => {
-    const response = await axiosInstance.post(`/api/social/crm/conversations/${conversationId}/messages`, message);
+  sendAdminCrmMessage: async (conversationId: string, message: { text?: string; content?: string; mediaUrl?: string; type?: string }) => {
+    const payload = {
+      type: message.type || "TEXT",
+      content: message.content || message.text || "",
+      mediaUrl: message.mediaUrl || null,
+    };
+    const response = await axiosInstance.post(`/api/social/crm/conversations/${conversationId}/messages`, payload);
     return response.data;
   },
 
-  getAdminAiSuggestedReply: async (conversationId: string, lastMessage: string) => {
-    const response = await axiosInstance.post('/api/social/crm/ai/suggest', { conversationId, lastMessage });
+  syncAdminCrmMessages: async (): Promise<{ providerId: number; conversationsSynced: number; messagesSynced: number; status: string }> => {
+    const response = await axiosInstance.post('/api/social/crm/sync-messages');
+    return response.data;
+  },
+
+  getAdminFunnelStats: async (): Promise<{
+    totalLeads: number;
+    newLeads: number;
+    contacted: number;
+    qualified: number;
+    demoScheduled: number;
+    proposalSent: number;
+    won: number;
+    lost: number;
+    conversionRate: number;
+    leadsByPlan: Record<string, number>;
+    leadsBySource: Record<string, number>;
+  }> => {
+    const response = await axiosInstance.get('/api/social/crm/funnel/stats');
+    return response.data;
+  },
+
+  updateAdminLeadStage: async (
+    conversationId: string,
+    data: {
+      funnelStage?: string;
+      interestedPlan?: string;
+      leadScore?: number;
+      notes?: string;
+      contactEmail?: string;
+      contactPhone?: string;
+    }
+  ) => {
+    const response = await axiosInstance.patch(`/api/social/crm/conversations/${conversationId}/stage`, data);
+    return response.data;
+  },
+
+  toggleAdminAutoResponder: async (conversationId: string, enabled: boolean) => {
+    const response = await axiosInstance.post(`/api/social/crm/conversations/${conversationId}/auto-responder`, { enabled });
+    return response.data;
+  },
+
+  scanAdminLeadProspects: async (): Promise<Array<{
+    conversationId?: string;
+    platform: string;
+    authorName: string;
+    authorId: string;
+    postUrlOrId: string;
+    commentText: string;
+    leadScore: number;
+    interestedPlan: string;
+    intentSummary: string;
+    suggestedAction: string;
+    suggestedReply: string;
+    detectedAt: string;
+  }>> => {
+    const response = await axiosInstance.post('/api/social/crm/prospecting/scan');
+    return response.data;
+  },
+
+  getAdminAiSuggestedReply: async (conversationId: string, lastMessage?: string, preferredTone?: string) => {
+    const response = await axiosInstance.post('/api/social/crm/ai-suggest', { conversationId, lastMessage, preferredTone });
     return response.data;
   },
 
