@@ -792,10 +792,11 @@ export const TabAdminCrm: React.FC = () => {
                   className="w-full text-xs font-bold p-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20"
                 >
                   <option value="GENERAL">General / Indeciso</option>
-                  <option value="FREE">Gratis ($0 MXN)</option>
-                  <option value="BASIC">Básico ($499 MXN)</option>
-                  <option value="PRO">Profesional / Pro ($999 MXN)</option>
-                  <option value="ENTERPRISE">Clínicas / Enterprise ($1,999 MXN)</option>
+                  <option value="BASIC_FREE">Básico Gratuito ($0/mes - 12% com.)</option>
+                  <option value="BASIC">Básico ($450/mes - Facturación CFDI 4.0)</option>
+                  <option value="STANDARD">Estándar ($900/mes - Copiloto IA) [Más Popular]</option>
+                  <option value="PREMIUM">Premium ($1,800/mes - Chatbot WhatsApp)</option>
+                  <option value="ENTERPRISE">Empresarial (A la Medida - Clínicas)</option>
                 </select>
               </div>
 
@@ -825,25 +826,52 @@ export const TabAdminCrm: React.FC = () => {
 
               {/* Enlaces Rápidos de Conversión */}
               <div className="border-t border-slate-100 pt-3 space-y-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Enlaces de Conversión</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Enlaces Oficiales de Conversión</span>
                 <div className="flex flex-col gap-1.5 text-xs">
                   <a
-                    href="https://quhealthy.org/es/auth/register"
+                    href="https://www.quhealthy.org/provider/register?planId=5"
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-medium"
                   >
-                    <span>Registro Oficial Quhealthy</span>
+                    <span>Básico Gratuito ($0/mes)</span>
                     <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                   <a
-                    href="https://quhealthy.org/es/contacto"
+                    href="https://www.quhealthy.org/provider/register?planId=1"
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-medium"
                   >
-                    <span>Agendar Demo de Software</span>
+                    <span>Básico ($450/mes - CFDI)</span>
                     <ExternalLink className="w-3 h-3 text-slate-400" />
+                  </a>
+                  <a
+                    href="https://www.quhealthy.org/provider/register?planId=2"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between p-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-[11px] font-bold"
+                  >
+                    <span>Estándar ($900/mes - 14d Gratis)</span>
+                    <ExternalLink className="w-3 h-3 text-indigo-500" />
+                  </a>
+                  <a
+                    href="https://www.quhealthy.org/provider/register?planId=3"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-medium"
+                  >
+                    <span>Premium ($1,800/mes)</span>
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
+                  </a>
+                  <a
+                    href="https://www.quhealthy.org/contact"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between p-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-bold"
+                  >
+                    <span>Empresarial / Agendar Demo</span>
+                    <ExternalLink className="w-3 h-3 text-amber-600" />
                   </a>
                 </div>
               </div>
@@ -899,7 +927,7 @@ export const TabAdminCrm: React.FC = () => {
 
                             <div className="flex items-center justify-between text-[10px] pt-2 border-t border-slate-100">
                               <span className="font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">
-                                {lead.interestedPlan || "PRO"}
+                                {lead.interestedPlan || "ESTÁNDAR"}
                               </span>
                               <span className="font-semibold text-slate-400">Score: {lead.leadScore}</span>
                             </div>
@@ -981,53 +1009,84 @@ export const TabAdminCrm: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {prospects.map((p, idx) => (
-                <div
-                  key={idx}
-                  className="bg-slate-50/70 border border-slate-200 rounded-2xl p-4 space-y-3 hover:border-indigo-300 transition-all flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-slate-900">{p.authorName}</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
-                          Score: {p.leadScore}
+              {prospects.map((p, idx) => {
+                const isUrl = p.postUrlOrId && (p.postUrlOrId.startsWith("http://") || p.postUrlOrId.startsWith("https://"));
+                return (
+                  <div
+                    key={idx}
+                    className="bg-slate-50/70 border border-slate-200 rounded-2xl p-4 space-y-3 hover:border-indigo-300 transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                          {p.authorName}
                         </span>
-                        {getPlatformBadge(p.platform)}
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
+                            Score: {p.leadScore}
+                          </span>
+                          {getPlatformBadge(p.platform)}
+                        </div>
+                      </div>
+
+                      {/* Enlace a la Publicación Original si está disponible */}
+                      {isUrl ? (
+                        <a
+                          href={p.postUrlOrId}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold"
+                        >
+                          <span>Ver publicación en {p.platform}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <span className="text-[10px] text-slate-400">Post ID: {p.postUrlOrId}</span>
+                      )}
+
+                      <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 italic">
+                        &quot;{p.commentText}&quot;
+                      </div>
+
+                      <div className="space-y-1 text-xs">
+                        <span className="text-[10px] font-bold text-indigo-700 uppercase">Intención Comercial:</span>
+                        <p className="text-slate-600 text-[11px] leading-relaxed">{p.intentSummary}</p>
+                      </div>
+
+                      <div className="p-2.5 bg-indigo-50/80 border border-indigo-100 rounded-xl space-y-1 text-[11px]">
+                        <span className="font-bold text-indigo-900 flex items-center justify-between">
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-amber-500" /> Respuesta IA Sugerida:
+                          </span>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(p.suggestedReply);
+                              toast.success("Respuesta copiada al portapapeles.");
+                            }}
+                            className="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 underline"
+                          >
+                            Copiar
+                          </button>
+                        </span>
+                        <p className="text-slate-700 leading-snug">{p.suggestedReply}</p>
                       </div>
                     </div>
 
-                    <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 italic">
-                      &quot;{p.commentText}&quot;
-                    </div>
-
-                    <div className="space-y-1 text-xs">
-                      <span className="text-[10px] font-bold text-indigo-700 uppercase">Intención Comercial:</span>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">{p.intentSummary}</p>
-                    </div>
-
-                    <div className="p-2.5 bg-indigo-50/80 border border-indigo-100 rounded-xl space-y-1 text-[11px]">
-                      <span className="font-bold text-indigo-900 flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-amber-500" /> Respuesta IA Sugerida:
-                      </span>
-                      <p className="text-slate-700 leading-snug">{p.suggestedReply}</p>
+                    <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-500">Plan: {p.interestedPlan}</span>
+                      <button
+                        onClick={() => {
+                          loadConversations(true);
+                          setActiveTab("inbox");
+                        }}
+                        className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all"
+                      >
+                        Ver en Inbox
+                      </button>
                     </div>
                   </div>
-
-                  <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-500">Plan Sugerido: {p.interestedPlan}</span>
-                    <button
-                      onClick={() => {
-                        loadConversations(true);
-                        setActiveTab("inbox");
-                      }}
-                      className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all"
-                    >
-                      Ver en Inbox
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
