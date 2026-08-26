@@ -417,13 +417,21 @@ export const adminService = {
 
   // --- ANALÍTICAS CMO & REDES SOCIALES (FACEBOOK / INSTAGRAM / OFICIALES) ---
 
-  getAdminSocialAnalyticsDashboard: async (): Promise<{
+  getAdminSocialAnalyticsDashboard: async (
+    period: string = '30d',
+    platform?: string
+  ): Promise<{
     totalLikes: number;
     totalComments: number;
     totalViews: number;
     totalShares: number;
     totalEngagement: number;
     overallEngagementRate: number;
+    growthLikes?: number;
+    growthComments?: number;
+    growthShares?: number;
+    growthViews?: number;
+    growthEngagement?: number;
     byPlatform?: Record<
       string,
       {
@@ -439,13 +447,48 @@ export const adminService = {
         engagementRate: number;
       }
     >;
-    chartData: Array<{ date: string; views: number; engagement: number }>;
+    chartData: Array<{
+      date: string;
+      views: number;
+      engagement: number;
+      likes?: number;
+      comments?: number;
+      shares?: number;
+      facebookEngagement?: number;
+      instagramEngagement?: number;
+      otherEngagement?: number;
+      facebookViews?: number;
+      instagramViews?: number;
+      otherViews?: number;
+    }>;
+    topPosts?: Array<{
+      id: string;
+      content: string;
+      platform: string;
+      mediaUrl?: string;
+      mediaType?: string;
+      postUrl?: string;
+      likesCount: number;
+      commentsCount: number;
+      sharesCount: number;
+      viewsCount: number;
+      totalEngagement: number;
+      engagementRate: number;
+      scheduledAt: string;
+      platformPostId?: string;
+    }>;
   }> => {
-    const response = await axiosInstance.get('/api/social/analytics/dashboard');
+    const params = new URLSearchParams();
+    if (period) params.append('period', period);
+    if (platform && platform !== 'ALL') params.append('platform', platform);
+    const response = await axiosInstance.get(`/api/social/analytics/dashboard?${params.toString()}`);
     return response.data;
   },
 
-  getAdminSocialInsights: async (): Promise<{
+  getAdminSocialInsights: async (
+    period: string = '30d',
+    platform?: string
+  ): Promise<{
     engagementByType?: Record<string, number>;
     engagementByDayOfWeek?: Record<string, number>;
     engagementByPlatform?: Record<string, number>;
@@ -454,14 +497,24 @@ export const adminService = {
       content: string;
       platform: string;
       mediaUrl?: string;
+      mediaType?: string;
+      postUrl?: string;
+      likesCount?: number;
+      commentsCount?: number;
+      sharesCount?: number;
+      viewsCount?: number;
       totalEngagement: number;
       views: number;
+      engagementRate?: number;
       scheduledAt: string;
       platformPostId?: string;
     }>;
     aiSuggestion?: string;
   }> => {
-    const response = await axiosInstance.get('/api/social/analytics/insights');
+    const params = new URLSearchParams();
+    if (period) params.append('period', period);
+    if (platform && platform !== 'ALL') params.append('platform', platform);
+    const response = await axiosInstance.get(`/api/social/analytics/insights?${params.toString()}`);
     return response.data;
   },
 

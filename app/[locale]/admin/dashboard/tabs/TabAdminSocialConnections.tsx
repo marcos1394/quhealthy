@@ -28,6 +28,10 @@ import {
   Flame,
   Activity,
   Clock,
+  TrendingDown,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 import {
@@ -133,11 +137,18 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [loadingConnections, setLoadingConnections] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
 
-  // Analíticas CMO
+  // Analíticas CMO y Filtros
   const [analytics, setAnalytics] = useState<any>(null);
   const [insights, setInsights] = useState<any>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [syncingMeta, setSyncingMeta] = useState(false);
+
+  // 🎯 Filtros interactivos de periodo, canal y visualización
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("30d");
+  const [selectedPlatform, setSelectedPlatform] = useState<string>("ALL");
+  const [chartMode, setChartMode] = useState<"channels" | "breakdown" | "overview">("channels");
+  const [carouselIndex, setCarouselIndex] = useState<number>(0);
+  const [postViewMode, setPostViewMode] = useState<"carousel" | "grid">("carousel");
 
   const loadConnections = useCallback(async () => {
     try {
@@ -152,12 +163,12 @@ export const TabAdminSocialConnections: React.FC = () => {
     }
   }, []);
 
-  const loadAnalytics = useCallback(async () => {
+  const loadAnalytics = useCallback(async (period = selectedPeriod, platform = selectedPlatform) => {
     try {
       setLoadingAnalytics(true);
       const [dash, ins] = await Promise.allSettled([
-        adminService.getAdminSocialAnalyticsDashboard(),
-        adminService.getAdminSocialInsights(),
+        adminService.getAdminSocialAnalyticsDashboard(period, platform),
+        adminService.getAdminSocialInsights(period, platform),
       ]);
 
       if (dash.status === "fulfilled") setAnalytics(dash.value);
@@ -167,7 +178,19 @@ export const TabAdminSocialConnections: React.FC = () => {
     } finally {
       setLoadingAnalytics(false);
     }
-  }, []);
+  }, [selectedPeriod, selectedPlatform]);
+
+  const handlePeriodChange = (period: string) => {
+    setSelectedPeriod(period);
+    setCarouselIndex(0);
+    loadAnalytics(period, selectedPlatform);
+  };
+
+  const handlePlatformFilterChange = (platform: string) => {
+    setSelectedPlatform(platform);
+    setCarouselIndex(0);
+    loadAnalytics(selectedPeriod, platform);
+  };
 
   useEffect(() => {
     loadConnections();
@@ -343,9 +366,48 @@ export const TabAdminSocialConnections: React.FC = () => {
 
   const chartData = analytics?.chartData ?? [];
 
+  // Lista enriquecida de Top Posts / Reels (de dashboard o insights)
+  const topPostsList = (analytics?.topPosts && analytics.topPosts.length > 0)
+    ? analytics.topPosts
+    : (insights?.topPosts || []);
+  
+  const currentTopPost = topPostsList[carouselIndex] || topPostsList[0];
+
   // Proporción de engagement entre canales
   const fbSharePct = totalEngagement > 0 ? Math.round((fbMetrics.totalEngagement / totalEngagement) * 100) : 0;
   const igSharePct = totalEngagement > 0 ? Math.round((igMetrics.totalEngagement / totalEngagement) * 100) : 0;
+
+  // Helper para renderizar badge de crecimiento porcentual
+  const renderGrowthBadge = (growth?: number) => {
+    if (growth === undefined || growth === null || selectedPeriod === "all") return null;
+    const isPositive = growth > 0;
+    const isNeutral = growth === 0;
+
+    return (
+      <span
+        className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+          isNeutral
+            ? "bg-slate-100 text-slate-600 border border-slate-200"
+            : isPositive
+            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+            : "bg-rose-50 text-rose-700 border border-rose-200"
+        }`}
+      >
+        {isNeutral ? (
+          "0.0%"
+        ) : isPositive ? (
+          <>
+            <TrendingUp className="w-3 h-3" /> +{growth}%
+          </>
+        ) : (
+          <>
+            <TrendingDown className="w-3 h-3" /> {growth}%
+          </>
+        )}
+        <span className="text-[9px] font-normal opacity-75 ml-0.5">vs prev</span>
+      </span>
+    );
+  };
 
   return (
     <div className="space-y-5">
@@ -433,6 +495,62 @@ export const TabAdminSocialConnections: React.FC = () => {
       {/* ========================================================================= */}
       {activeSubTab === "cmo" && (
         <div className="space-y-5">
+          {/* 🗓️ Barra de Filtros Interactivos: Periodo de Tiempo y Canal */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            {/* Selector de Rango de Fecha */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-bold text-slate-500 flex items-center gap-1 mr-1">
+                <Calendar className="w-3.5 h-3.5 text-indigo-600" /> Periodo:
+              </span>
+              {[
+                { key: "7d", label: "7 Días" },
+                { key: "30d", label: "30 Días" },
+                { key: "90d", label: "90 Días" },
+                { key: "1y", label: "1 Año" },
+                { key: "all", label: "Histórico Total" },
+              ].map((p) => (
+                <button
+                  key={p.key}
+                  onClick={() => handlePeriodChange(p.key)}
+                  disabled={loadingAnalytics}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                    selectedPeriod === p.key
+                      ? "bg-indigo-600 text-white shadow-sm font-black"
+                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Selector de Canal / Plataforma */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs font-bold text-slate-500 flex items-center gap-1 mr-1">
+                <Filter className="w-3.5 h-3.5 text-indigo-600" /> Canal:
+              </span>
+              {[
+                { key: "ALL", label: "Todos los Canales", icon: <Globe className="w-3.5 h-3.5" /> },
+                { key: "FACEBOOK", label: "Facebook", icon: <FacebookIcon className="w-3.5 h-3.5" /> },
+                { key: "INSTAGRAM", label: "Instagram", icon: <InstagramIcon className="w-3.5 h-3.5" /> },
+              ].map((plat) => (
+                <button
+                  key={plat.key}
+                  onClick={() => handlePlatformFilterChange(plat.key)}
+                  disabled={loadingAnalytics}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                    selectedPlatform === plat.key
+                      ? "bg-slate-900 text-white shadow-sm font-black"
+                      : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80"
+                  }`}
+                >
+                  {plat.icon}
+                  {plat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* 🌟 Scorecard de 4 KPIs Reales Consolidados */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* KPI 1: Alcance & Vistas */}
@@ -444,11 +562,14 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-slate-900">
-                  {totalViews.toLocaleString("es-MX")}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-slate-900">
+                    {totalViews.toLocaleString("es-MX")}
+                  </span>
+                  {renderGrowthBadge(analytics?.growthViews)}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  {totalViews > 0 ? "Vistas en Feed y Reels" : "Sin visualizaciones registradas"}
+                  {totalViews > 0 ? "Vistas en Feed y Reels" : "Sin visualizaciones en periodo"}
                 </p>
               </div>
             </div>
@@ -462,8 +583,11 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
               </div>
               <div className="mt-2">
-                <div className="text-2xl font-black text-slate-900">
-                  {totalEngagement.toLocaleString("es-MX")}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-slate-900">
+                    {totalEngagement.toLocaleString("es-MX")}
+                  </span>
+                  {renderGrowthBadge(analytics?.growthEngagement)}
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
                   <span>👍 {totalLikes}</span>
@@ -511,7 +635,7 @@ export const TabAdminSocialConnections: React.FC = () => {
           </div>
 
           {/* 🌟 Balance de Tracción de Redes (Distribution Bar) */}
-          {totalEngagement > 0 && (
+          {selectedPlatform === "ALL" && totalEngagement > 0 && (
             <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-slate-800">
                 <span className="flex items-center gap-1.5">
@@ -535,10 +659,10 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
               <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-pink-500" /> Instagram: {igMetrics.totalEngagement} interacciones
+                  <span className="w-2 h-2 rounded-full bg-pink-500" /> Instagram: {igMetrics.totalEngagement} interacciones ({igMetrics.likes} likes, {igMetrics.comments} comments)
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-blue-600" /> Facebook: {fbMetrics.totalEngagement} interacciones
+                  <span className="w-2 h-2 rounded-full bg-blue-600" /> Facebook: {fbMetrics.totalEngagement} interacciones ({fbMetrics.likes} likes, {fbMetrics.shares} shares)
                 </span>
               </div>
             </div>
@@ -547,125 +671,576 @@ export const TabAdminSocialConnections: React.FC = () => {
           {/* 🌟 Comparativa Detallada 100% Separada: Facebook vs Instagram */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* 🟦 Tarjeta Facebook Page Oficial */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
-                    <FacebookIcon className="w-6 h-6" />
+            {(selectedPlatform === "ALL" || selectedPlatform === "FACEBOOK") && (
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                      <FacebookIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm">Facebook Page Oficial</h3>
+                      <p className="text-xs text-slate-500">
+                        {fbMetrics.accountName ? `Página: ${fbMetrics.accountName}` : "Página corporativa @quhealthy"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                    isFbConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
+                  }`}>
+                    {isFbConnected ? "Conectado" : "Sin vincular"}
+                  </span>
+                </div>
+
+                {/* Métricas Reales de Facebook */}
+                <div className="grid grid-cols-3 gap-2.5 text-center">
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Me Gusta</span>
+                    <span className="text-lg font-black text-slate-900">{fbMetrics.likes.toLocaleString("es-MX")}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Comentarios</span>
+                    <span className="text-lg font-black text-slate-900">{fbMetrics.comments.toLocaleString("es-MX")}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Compartidos</span>
+                    <span className="text-lg font-black text-slate-900">{fbMetrics.shares.toLocaleString("es-MX")}</span>
+                  </div>
+                </div>
+
+                {/* Rendimiento Adicional Facebook */}
+                <div className="grid grid-cols-3 gap-2.5 text-center pt-2 border-t border-slate-100">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Alcance / Vistas</span>
+                    <span className="text-sm font-bold text-slate-800">{fbMetrics.views.toLocaleString("es-MX")}</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm">Facebook Page Oficial</h3>
-                    <p className="text-xs text-slate-500">
-                      {fbMetrics.accountName ? `Página: ${fbMetrics.accountName}` : "Página corporativa @quhealthy"}
-                    </p>
+                    <span className="text-[10px] text-slate-500 block">Interacciones Totales</span>
+                    <span className="text-sm font-bold text-blue-600">{fbMetrics.totalEngagement.toLocaleString("es-MX")}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Tasa ER</span>
+                    <span className="text-sm font-bold text-emerald-600">{fbMetrics.engagementRate}%</span>
                   </div>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                  isFbConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
-                }`}>
-                  {isFbConnected ? "Conectado" : "Sin vincular"}
-                </span>
-              </div>
 
-              {/* Métricas Reales de Facebook */}
-              <div className="grid grid-cols-3 gap-2.5 text-center">
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Me Gusta</span>
-                  <span className="text-lg font-black text-slate-900">{fbMetrics.likes.toLocaleString("es-MX")}</span>
-                </div>
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Comentarios</span>
-                  <span className="text-lg font-black text-slate-900">{fbMetrics.comments.toLocaleString("es-MX")}</span>
-                </div>
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Compartidos</span>
-                  <span className="text-lg font-black text-slate-900">{fbMetrics.shares.toLocaleString("es-MX")}</span>
+                <div className="text-[11px] text-slate-400 text-center pt-1">
+                  {fbMetrics.postsCount > 0
+                    ? `📊 ${fbMetrics.postsCount} publicaciones institucionales sincronizadas en el periodo.`
+                    : "ℹ️ Sin publicaciones en el periodo para Facebook Page."}
                 </div>
               </div>
-
-              {/* Rendimiento Adicional Facebook */}
-              <div className="grid grid-cols-3 gap-2.5 text-center pt-2 border-t border-slate-100">
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Alcance / Vistas</span>
-                  <span className="text-sm font-bold text-slate-800">{fbMetrics.views.toLocaleString("es-MX")}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Interacciones Totales</span>
-                  <span className="text-sm font-bold text-blue-600">{fbMetrics.totalEngagement.toLocaleString("es-MX")}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Tasa ER</span>
-                  <span className="text-sm font-bold text-emerald-600">{fbMetrics.engagementRate}%</span>
-                </div>
-              </div>
-
-              <div className="text-[11px] text-slate-400 text-center pt-1">
-                {fbMetrics.postsCount > 0
-                  ? `📊 ${fbMetrics.postsCount} publicaciones institucionales sincronizadas en los últimos 30 días.`
-                  : "ℹ️ Sin publicaciones sincronizadas aún en Facebook Page."}
-              </div>
-            </div>
+            )}
 
             {/* 🟪 Tarjeta Instagram @quhealthyorg */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2.5 bg-pink-50 text-pink-600 rounded-xl">
-                    <InstagramIcon className="w-6 h-6" />
+            {(selectedPlatform === "ALL" || selectedPlatform === "INSTAGRAM") && (
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2.5 bg-pink-50 text-pink-600 rounded-xl">
+                      <InstagramIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm">Instagram @quhealthyorg</h3>
+                      <p className="text-xs text-slate-500">
+                        {igMetrics.accountName ? `Cuenta: ${igMetrics.accountName}` : "Cuenta profesional & Reels"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                    isIgConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
+                  }`}>
+                    {isIgConnected ? "Conectado" : "Sin vincular"}
+                  </span>
+                </div>
+
+                {/* Métricas Reales de Instagram */}
+                <div className="grid grid-cols-3 gap-2.5 text-center">
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Likes (Corazones)</span>
+                    <span className="text-lg font-black text-slate-900">{igMetrics.likes.toLocaleString("es-MX")}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Comentarios</span>
+                    <span className="text-lg font-black text-slate-900">{igMetrics.comments.toLocaleString("es-MX")}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Interacciones</span>
+                    <span className="text-lg font-black text-pink-600">{igMetrics.totalEngagement.toLocaleString("es-MX")}</span>
+                  </div>
+                </div>
+
+                {/* Rendimiento Adicional Instagram */}
+                <div className="grid grid-cols-3 gap-2.5 text-center pt-2 border-t border-slate-100">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Vistas / Alcance</span>
+                    <span className="text-sm font-bold text-slate-800">{igMetrics.views.toLocaleString("es-MX")}</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm">Instagram @quhealthyorg</h3>
-                    <p className="text-xs text-slate-500">
-                      {igMetrics.accountName ? `Cuenta: ${igMetrics.accountName}` : "Cuenta profesional & Reels"}
-                    </p>
+                    <span className="text-[10px] text-slate-500 block">Tasa ER</span>
+                    <span className="text-sm font-bold text-emerald-600">{igMetrics.engagementRate}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Reels & Posts</span>
+                    <span className="text-sm font-bold text-slate-800">{igMetrics.postsCount}</span>
                   </div>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                  isIgConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
-                }`}>
-                  {isIgConnected ? "Conectado" : "Sin vincular"}
-                </span>
-              </div>
 
-              {/* Métricas Reales de Instagram */}
-              <div className="grid grid-cols-3 gap-2.5 text-center">
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Likes (Corazones)</span>
-                  <span className="text-lg font-black text-slate-900">{igMetrics.likes.toLocaleString("es-MX")}</span>
-                </div>
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Comentarios</span>
-                  <span className="text-lg font-black text-slate-900">{igMetrics.comments.toLocaleString("es-MX")}</span>
-                </div>
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Interacciones</span>
-                  <span className="text-lg font-black text-pink-600">{igMetrics.totalEngagement.toLocaleString("es-MX")}</span>
+                <div className="text-[11px] text-slate-400 text-center pt-1">
+                  {igMetrics.postsCount > 0
+                    ? `📊 ${igMetrics.postsCount} reels y publicaciones activas sincronizadas en Instagram.`
+                    : "ℹ️ Sin publicaciones en el periodo para Instagram @quhealthyorg."}
                 </div>
               </div>
+            )}
+          </div>
 
-              {/* Rendimiento Adicional Instagram */}
-              <div className="grid grid-cols-3 gap-2.5 text-center pt-2 border-t border-slate-100">
+          {/* 🌟 Tendencia de Rendimiento Multimétrica (Recharts) */}
+          {chartData && chartData.length > 0 && (
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <span className="text-[10px] text-slate-500 block">Vistas / Alcance</span>
-                  <span className="text-sm font-bold text-slate-800">{igMetrics.views.toLocaleString("es-MX")}</span>
+                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-indigo-600" />
+                    Tendencia Histórica de Rendimiento ({selectedPeriod.toUpperCase()})
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Evolución diaria real basada en la fecha de publicación de cada post y snapshot consolidado.
+                  </p>
                 </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Tasa ER</span>
-                  <span className="text-sm font-bold text-emerald-600">{igMetrics.engagementRate}%</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">Reels & Posts</span>
-                  <span className="text-sm font-bold text-slate-800">{igMetrics.postsCount}</span>
+
+                {/* Modos de la Gráfica */}
+                <div className="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200 text-xs font-semibold self-start sm:self-auto">
+                  <button
+                    onClick={() => setChartMode("channels")}
+                    className={`px-2.5 py-1 rounded-lg transition-all ${
+                      chartMode === "channels" ? "bg-white text-slate-900 shadow-sm font-bold" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    FB vs IG
+                  </button>
+                  <button
+                    onClick={() => setChartMode("breakdown")}
+                    className={`px-2.5 py-1 rounded-lg transition-all ${
+                      chartMode === "breakdown" ? "bg-white text-slate-900 shadow-sm font-bold" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Likes / Comentarios
+                  </button>
+                  <button
+                    onClick={() => setChartMode("overview")}
+                    className={`px-2.5 py-1 rounded-lg transition-all ${
+                      chartMode === "overview" ? "bg-white text-slate-900 shadow-sm font-bold" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Alcance vs Engagement
+                  </button>
                 </div>
               </div>
 
-              <div className="text-[11px] text-slate-400 text-center pt-1">
-                {igMetrics.postsCount > 0
-                  ? `📊 ${igMetrics.postsCount} reels y publicaciones activas sincronizadas en Instagram.`
-                  : "ℹ️ Sin publicaciones sincronizadas aún en Instagram @quhealthyorg."}
+              {/* Leyenda de la Gráfica */}
+              <div className="flex items-center gap-4 text-xs flex-wrap border-b border-slate-100 pb-2">
+                {chartMode === "channels" && (
+                  <>
+                    <span className="flex items-center gap-1.5 text-pink-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Instagram Engagement
+                    </span>
+                    <span className="flex items-center gap-1.5 text-blue-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-600" /> Facebook Engagement
+                    </span>
+                  </>
+                )}
+                {chartMode === "breakdown" && (
+                  <>
+                    <span className="flex items-center gap-1.5 text-rose-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Likes (Me Gusta)
+                    </span>
+                    <span className="flex items-center gap-1.5 text-purple-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Comentarios
+                    </span>
+                    <span className="flex items-center gap-1.5 text-blue-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-600" /> Compartidos
+                    </span>
+                  </>
+                )}
+                {chartMode === "overview" && (
+                  <>
+                    <span className="flex items-center gap-1.5 text-pink-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Total Interacciones
+                    </span>
+                    <span className="flex items-center gap-1.5 text-indigo-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> Alcance / Vistas
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <div className="h-64 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gradIg" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradFb" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradLikes" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradComments" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradViews" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradTotalEng" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(val) => {
+                        try {
+                          const parts = val.split("-");
+                          return `${parts[2]}/${parts[1]}`;
+                        } catch {
+                          return val;
+                        }
+                      }}
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#0f172a",
+                        borderRadius: "12px",
+                        border: "1px solid #334155",
+                        color: "#fff",
+                        fontSize: "12px",
+                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+                      }}
+                      labelStyle={{ color: "#94a3b8", marginBottom: "6px", fontWeight: "bold" }}
+                    />
+                    {chartMode === "channels" && (
+                      <>
+                        <Area
+                          type="monotone"
+                          dataKey="instagramEngagement"
+                          name="Instagram"
+                          stroke="#ec4899"
+                          strokeWidth={2.5}
+                          fillOpacity={1}
+                          fill="url(#gradIg)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="facebookEngagement"
+                          name="Facebook"
+                          stroke="#2563eb"
+                          strokeWidth={2.5}
+                          fillOpacity={1}
+                          fill="url(#gradFb)"
+                        />
+                      </>
+                    )}
+                    {chartMode === "breakdown" && (
+                      <>
+                        <Area
+                          type="monotone"
+                          dataKey="likes"
+                          name="Likes"
+                          stroke="#f43f5e"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#gradLikes)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="comments"
+                          name="Comentarios"
+                          stroke="#8b5cf6"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#gradComments)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="shares"
+                          name="Compartidos"
+                          stroke="#2563eb"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#gradFb)"
+                        />
+                      </>
+                    )}
+                    {chartMode === "overview" && (
+                      <>
+                        <Area
+                          type="monotone"
+                          dataKey="views"
+                          name="Alcance / Vistas"
+                          stroke="#6366f1"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#gradViews)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="engagement"
+                          name="Total Interacciones"
+                          stroke="#ec4899"
+                          strokeWidth={2.5}
+                          fillOpacity={1}
+                          fill="url(#gradTotalEng)"
+                        />
+                      </>
+                    )}
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* 🌟 Carrusel / Cuadrícula Interactiva de Mejores Posts & Reels */}
+          {topPostsList && topPostsList.length > 0 ? (
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-amber-500" />
+                    Publicaciones & Reels de Mayor Impacto
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Contenido con más atracción y respuestas de la audiencia ({topPostsList.length} publicaciones analizadas).
+                  </p>
+                </div>
+
+                {/* Controles de vista (Carrusel vs Cuadrícula) y Navegación */}
+                <div className="flex items-center gap-2">
+                  <div className="bg-slate-100 p-0.5 rounded-xl flex items-center border border-slate-200 text-xs">
+                    <button
+                      onClick={() => setPostViewMode("carousel")}
+                      className={`px-2.5 py-1 rounded-lg transition-all font-semibold ${
+                        postViewMode === "carousel" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+                      }`}
+                    >
+                      Carrusel
+                    </button>
+                    <button
+                      onClick={() => setPostViewMode("grid")}
+                      className={`px-2.5 py-1 rounded-lg transition-all font-semibold ${
+                        postViewMode === "grid" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+                      }`}
+                    >
+                      Cuadrícula
+                    </button>
+                  </div>
+
+                  {postViewMode === "carousel" && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setCarouselIndex((prev) => (prev > 0 ? prev - 1 : topPostsList.length - 1))}
+                        className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
+                        title="Anterior"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <span className="text-xs font-bold text-slate-600 px-1">
+                        {carouselIndex + 1} / {topPostsList.length}
+                      </span>
+                      <button
+                        onClick={() => setCarouselIndex((prev) => (prev < topPostsList.length - 1 ? prev + 1 : 0))}
+                        className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all"
+                        title="Siguiente"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* VISTA 1: MODO CARRUSEL SPOTLIGHT */}
+              {postViewMode === "carousel" && currentTopPost && (
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 lg:p-5">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                    {/* Media Thumbnail */}
+                    <div className="md:col-span-4 relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200 aspect-video md:aspect-square flex items-center justify-center">
+                      {currentTopPost.mediaUrl ? (
+                        <img
+                          src={currentTopPost.mediaUrl}
+                          alt="Post Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-center p-4 text-slate-400">
+                          {currentTopPost.platform === "FACEBOOK" ? (
+                            <FacebookIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                          ) : (
+                            <InstagramIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                          )}
+                          <span className="text-xs font-semibold">Publicación Institucional</span>
+                        </div>
+                      )}
+
+                      {/* Badge Plataforma */}
+                      <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                        <span className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full text-white shadow ${
+                          currentTopPost.platform === "FACEBOOK" ? "bg-blue-600" : "bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500"
+                        }`}>
+                          {currentTopPost.platform === "FACEBOOK" ? <FacebookIcon className="w-3 h-3 fill-white" /> : <InstagramIcon className="w-3 h-3" />}
+                          {currentTopPost.platform}
+                        </span>
+                        {currentTopPost.mediaType && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white">
+                            {currentTopPost.mediaType === "REEL" ? "🎬 REEL" : currentTopPost.mediaType}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Información y Métricas */}
+                    <div className="md:col-span-8 space-y-3.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-500">
+                          📅 {new Date(currentTopPost.scheduledAt).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          🎯 {currentTopPost.totalEngagement} Interacciones Totales
+                        </span>
+                      </div>
+
+                      {/* Texto del Post */}
+                      <p className="text-slate-800 text-xs md:text-sm font-medium leading-relaxed line-clamp-3 bg-white p-3 rounded-xl border border-slate-100">
+                        "{currentTopPost.content || "Sin descripción disponible"}"
+                      </p>
+
+                      {/* KPIs del Post */}
+                      <div className="grid grid-cols-4 gap-2 text-center">
+                        <div className="p-2 bg-white rounded-xl border border-slate-100">
+                          <span className="text-[10px] uppercase font-bold text-slate-500 block">Likes</span>
+                          <span className="text-sm font-black text-slate-900">❤️ {currentTopPost.likesCount ?? currentTopPost.totalEngagement}</span>
+                        </div>
+                        <div className="p-2 bg-white rounded-xl border border-slate-100">
+                          <span className="text-[10px] uppercase font-bold text-slate-500 block">Comentarios</span>
+                          <span className="text-sm font-black text-slate-900">💬 {currentTopPost.commentsCount ?? 0}</span>
+                        </div>
+                        <div className="p-2 bg-white rounded-xl border border-slate-100">
+                          <span className="text-[10px] uppercase font-bold text-slate-500 block">Vistas</span>
+                          <span className="text-sm font-black text-slate-900">👁️ {currentTopPost.viewsCount ?? currentTopPost.views ?? 0}</span>
+                        </div>
+                        <div className="p-2 bg-white rounded-xl border border-slate-100">
+                          <span className="text-[10px] uppercase font-bold text-slate-500 block">Tasa ER</span>
+                          <span className="text-sm font-black text-emerald-600">{currentTopPost.engagementRate ?? 0.0}%</span>
+                        </div>
+                      </div>
+
+                      {/* Botón de Enlace Oficial */}
+                      {currentTopPost.postUrl && (
+                        <div className="pt-1">
+                          <a
+                            href={currentTopPost.postUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95"
+                          >
+                            <span>Ver publicación oficial en {currentTopPost.platform === "FACEBOOK" ? "Facebook" : "Instagram"}</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Dots de navegación */}
+                  <div className="flex items-center justify-center gap-1.5 pt-4">
+                    {topPostsList.map((_: any, i: number) => (
+                      <button
+                        key={i}
+                        onClick={() => setCarouselIndex(i)}
+                        className={`h-2 rounded-full transition-all ${
+                          carouselIndex === i ? "w-6 bg-indigo-600" : "w-2 bg-slate-300 hover:bg-slate-400"
+                        }`}
+                        title={`Ir al post ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* VISTA 2: MODO CUADRÍCULA (GRID) */}
+              {postViewMode === "grid" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {topPostsList.map((post: any, index: number) => (
+                    <div
+                      key={post.id || index}
+                      className="bg-slate-50 border border-slate-200/80 rounded-2xl overflow-hidden p-4 space-y-3 flex flex-col justify-between"
+                    >
+                      <div className="space-y-2.5">
+                        <div className="relative rounded-xl overflow-hidden bg-slate-900 aspect-video flex items-center justify-center">
+                          {post.mediaUrl ? (
+                            <img src={post.mediaUrl} alt="Post preview" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="text-slate-400 text-xs font-semibold">Publicación {post.platform}</div>
+                          )}
+                          <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white shadow ${
+                            post.platform === "FACEBOOK" ? "bg-blue-600" : "bg-gradient-to-r from-purple-500 to-pink-500"
+                          }`}>
+                            {post.platform}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold">
+                          <span>{new Date(post.scheduledAt).toLocaleDateString("es-MX")}</span>
+                          <span className="font-bold text-emerald-600">{post.totalEngagement} interacciones</span>
+                        </div>
+
+                        <p className="text-slate-800 text-xs font-medium line-clamp-2">
+                          "{post.content || "Sin descripción"}"
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                        <span className="text-[11px] text-slate-600 font-semibold">
+                          ❤️ {post.likesCount ?? post.totalEngagement} | 💬 {post.commentsCount ?? 0}
+                        </span>
+                        {post.postUrl && (
+                          <a
+                            href={post.postUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                          >
+                            Ver <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-center text-xs text-slate-500">
+              <p className="font-medium text-slate-700">Sin publicaciones registradas para el filtro seleccionado.</p>
+              <p className="mt-0.5">Prueba cambiando el rango de fechas o seleccionando otro canal.</p>
+            </div>
+          )}
 
           {/* 🌟 Diagnóstico y Recomendación de IA */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
@@ -699,129 +1274,6 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* 🌟 Tendencia de Rendimiento Histórica (30 Días) */}
-          {chartData && chartData.length > 0 && (
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-indigo-600" />
-                    Tendencia Histórica de Rendimiento (Últimos 30 Días)
-                  </h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Evolución diaria real de interacciones (Likes, Comentarios, Compartidos) y Vistas.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="flex items-center gap-1.5 text-pink-600 font-semibold">
-                    <span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Interacciones
-                  </span>
-                  <span className="flex items-center gap-1.5 text-indigo-600 font-semibold">
-                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> Vistas
-                  </span>
-                </div>
-              </div>
-
-              <div className="h-64 w-full pt-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorEngagement" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(val) => {
-                        try {
-                          const parts = val.split("-");
-                          return `${parts[2]}/${parts[1]}`;
-                        } catch {
-                          return val;
-                        }
-                      }}
-                      tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#1e293b",
-                        borderRadius: "12px",
-                        border: "none",
-                        color: "#fff",
-                        fontSize: "12px",
-                      }}
-                      labelStyle={{ color: "#94a3b8", marginBottom: "4px" }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="views"
-                      name="Vistas"
-                      stroke="#6366f1"
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorViews)"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="engagement"
-                      name="Interacciones"
-                      stroke="#ec4899"
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorEngagement)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          )}
-
-          {/* 🌟 Top Contenido Real */}
-          {insights?.topPosts && insights.topPosts.length > 0 ? (
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
-              <h3 className="font-bold text-slate-900 text-sm">Publicaciones con Mayor Interacción</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {insights.topPosts.map((post: any, index: number) => (
-                  <div
-                    key={post.id || index}
-                    className="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-2 text-xs"
-                  >
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold">
-                      <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded">
-                        {post.platform}
-                      </span>
-                      <span>{new Date(post.scheduledAt).toLocaleDateString("es-MX")}</span>
-                    </div>
-                    <p className="text-slate-800 font-medium line-clamp-2">
-                      {post.content || "Sin descripción"}
-                    </p>
-                    <div className="pt-2 border-t border-slate-200 text-slate-600 font-bold">
-                      {post.totalEngagement} interacciones
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-center text-xs text-slate-500">
-              <p className="font-medium text-slate-700">Sin publicaciones registradas en los últimos 30 días.</p>
-              <p className="mt-0.5">Al programar o publicar contenido institucional, los datos de rendimiento aparecerán aquí automáticamente.</p>
-            </div>
-          )}
         </div>
       )}
 
