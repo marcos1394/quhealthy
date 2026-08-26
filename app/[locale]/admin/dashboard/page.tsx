@@ -33,6 +33,7 @@ export default function AdminDashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>("pulse");
   const [selectedPeriod, setSelectedPeriod] = useState<"24h" | "7d" | "30d" | "month" | "90d">("30d");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // State data
   const [economics, setEconomics] = useState<UnitEconomicsDTO | null>(null);
@@ -152,8 +153,6 @@ export default function AdminDashboardPage() {
       </div>
     );
   }
-
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const pendingKycCount = providers.filter(
     (p) => !p.onboardingComplete || p.status === "INACTIVE"
