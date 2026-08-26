@@ -36,7 +36,8 @@ interface SocialConnection {
   platform: string;
   platformUserName?: string;
   profileImageUrl?: string;
-  isConnected: boolean;
+  isConnected?: boolean;
+  connected?: boolean;
   connectedAt?: string;
 }
 
@@ -133,7 +134,7 @@ export const TabAdminSocialConnections: React.FC = () => {
     try {
       setLoadingConnections(true);
       const data = await adminService.getAdminSocialConnections();
-      setConnections(data || []);
+      setConnections(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error al cargar conexiones de Quhealthy", err);
       toast.error("Error al sincronizar canales oficiales");
@@ -272,15 +273,29 @@ export const TabAdminSocialConnections: React.FC = () => {
     },
   ];
 
-  const isFbConnected = connections.some(
-    (c) => c.platform?.toUpperCase() === "FACEBOOK" && c.isConnected
-  );
-  const isIgConnected = connections.some(
-    (c) => c.platform?.toUpperCase() === "INSTAGRAM" && c.isConnected
-  );
-  const isWaConnected = connections.some(
-    (c) => c.platform?.toUpperCase() === "WHATSAPP" && c.isConnected
-  );
+  // Helper para verificar conexión activa soportando tanto 'connected' como 'isConnected'
+  const isConnectionActive = (conn?: SocialConnection | null): boolean => {
+    if (!conn) return false;
+    if (conn.connected !== undefined) return Boolean(conn.connected);
+    if (conn.isConnected !== undefined) return Boolean(conn.isConnected);
+    return true;
+  };
+
+  const getChannelConnection = (channelKey: string): SocialConnection | undefined => {
+    return connections.find(
+      (c) => c.platform?.toUpperCase() === channelKey.toUpperCase() && isConnectionActive(c)
+    );
+  };
+
+  const fbConn = getChannelConnection("FACEBOOK");
+  const igConn = getChannelConnection("INSTAGRAM");
+  const waConn = getChannelConnection("WHATSAPP");
+
+  const isFbConnected = !!fbConn;
+  const isIgConnected = !!igConn;
+  const isWaConnected = !!waConn;
+
+  const connectedCount = connections.filter(isConnectionActive).length;
 
   // Cálculos consolidados 100% reales
   const totalLikes = analytics?.totalLikes ?? 0;
@@ -331,7 +346,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              Configurar Canales ({connections.filter((c) => c.isConnected).length})
+              Configurar Canales ({connectedCount})
             </button>
           </div>
 
@@ -352,7 +367,7 @@ export const TabAdminSocialConnections: React.FC = () => {
           <FacebookIcon className="w-4 h-4" />
           <span className="text-slate-600 font-medium">Facebook:</span>
           <span className={`font-bold ${isFbConnected ? "text-emerald-600" : "text-slate-400"}`}>
-            {isFbConnected ? "Conectado" : "Sin vincular"}
+            {isFbConnected ? `Conectado (${fbConn?.platformUserName || "Oficial"})` : "Sin vincular"}
           </span>
         </div>
 
@@ -360,7 +375,7 @@ export const TabAdminSocialConnections: React.FC = () => {
           <InstagramIcon className="w-4 h-4" />
           <span className="text-slate-600 font-medium">Instagram:</span>
           <span className={`font-bold ${isIgConnected ? "text-emerald-600" : "text-slate-400"}`}>
-            {isIgConnected ? "Conectado" : "Sin vincular"}
+            {isIgConnected ? `Conectado (${igConn?.platformUserName || "Oficial"})` : "Sin vincular"}
           </span>
         </div>
 
@@ -446,7 +461,7 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
               <div className="mt-2">
                 <div className="text-2xl font-black text-slate-900">
-                  {connections.filter((c) => c.isConnected).length} / 7
+                  {connectedCount} / 7
                 </div>
                 <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-0.5">
                   <CheckCircle2 className="w-3 h-3" /> Token E2E activo
@@ -466,7 +481,9 @@ export const TabAdminSocialConnections: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm">Facebook Page Oficial</h3>
-                    <p className="text-[11px] text-slate-500">Página corporativa @quhealthy</p>
+                    <p className="text-[11px] text-slate-500">
+                      {fbConn?.platformUserName ? `Página: ${fbConn.platformUserName}` : "Página corporativa @quhealthy"}
+                    </p>
                   </div>
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
@@ -501,7 +518,9 @@ export const TabAdminSocialConnections: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm">Instagram @quhealthyorg</h3>
-                    <p className="text-[11px] text-slate-500">Cuenta profesional de salud & Reels</p>
+                    <p className="text-[11px] text-slate-500">
+                      {igConn?.platformUserName ? `Cuenta: ${igConn.platformUserName}` : "Cuenta profesional de salud & Reels"}
+                    </p>
                   </div>
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
@@ -598,9 +617,7 @@ export const TabAdminSocialConnections: React.FC = () => {
       {activeSubTab === "manage" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {officialChannels.map((channel) => {
-            const activeConn = connections.find(
-              (c) => c.platform?.toUpperCase() === channel.key
-            );
+            const activeConn = getChannelConnection(channel.key);
             const isConnected = !!activeConn;
 
             return (
