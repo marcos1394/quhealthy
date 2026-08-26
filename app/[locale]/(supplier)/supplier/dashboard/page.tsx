@@ -30,8 +30,8 @@ import {
   SupplierOnboardingStatus,
   MedicalProduct,
   ProductBatch,
-  PurchaseOrder,
-  QuoteRequest,
+  SupplierPurchaseOrder,
+  SupplierQuote,
   ThermalShipment,
 } from "@/types/supplier";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -43,8 +43,8 @@ export default function SupplierDashboardPage() {
   const [onboardingStatus, setOnboardingStatus] = useState<SupplierOnboardingStatus | null>(null);
   const [products, setProducts] = useState<MedicalProduct[]>([]);
   const [batches, setBatches] = useState<ProductBatch[]>([]);
-  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
-  const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
+  const [orders, setOrders] = useState<SupplierPurchaseOrder[]>([]);
+  const [quotes, setQuotes] = useState<SupplierQuote[]>([]);
   const [shipments, setShipments] = useState<ThermalShipment[]>([]);
 
   useEffect(() => {
@@ -66,12 +66,12 @@ export default function SupplierDashboardPage() {
       const [prodsRes, batchesRes, ordersRes, quotesRes, shipmentsRes] = await Promise.allSettled([
         supplierService.getProducts(),
         supplierService.getBatches(),
-        supplierService.getOrders(),
+        supplierService.getPurchaseOrders(),
         supplierService.getQuotes(),
         supplierService.getThermalShipments(),
       ]);
 
-      if (prodsRes.status === "fulfilled") setProducts(prodsRes.value.content || []);
+      if (prodsRes.status === "fulfilled") setProducts(prodsRes.value || []);
       if (batchesRes.status === "fulfilled") setBatches(batchesRes.value || []);
       if (ordersRes.status === "fulfilled") setOrders(ordersRes.value || []);
       if (quotesRes.status === "fulfilled") setQuotes(quotesRes.value || []);
@@ -109,9 +109,9 @@ export default function SupplierDashboardPage() {
     const diffDays = (exp - now) / (1000 * 60 * 60 * 24);
     return diffDays > 0 && diffDays <= 60;
   });
-  const pendingOrders = orders.filter((o) => o.status === "PENDING" || o.status === "PROCESSING");
-  const pendingQuotes = quotes.filter((q) => q.status === "SUBMITTED" || q.status === "IN_REVIEW");
-  const activeShipments = shipments.filter((s) => s.status === "IN_TRANSIT" || s.status === "DISPATCHED");
+  const pendingOrders = orders.filter((o) => o.status === "ISSUED" || o.status === "CONFIRMED" || o.status === "IN_PREPARATION");
+  const pendingQuotes = quotes.filter((q) => q.status === "DRAFT" || q.status === "SENT");
+  const activeShipments = shipments.filter((s) => s.status === "IN_TRANSIT" || s.status === "PREPARING");
 
   const isVerified = profile?.status === "VERIFIED";
 
