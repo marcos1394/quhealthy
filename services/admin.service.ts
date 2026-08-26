@@ -224,7 +224,7 @@ export const adminService = {
   getAuditLogs: async (page: number = 0, size: number = 20): Promise<{ content: AuditLogDTO[]; totalElements: number }> => {
     try {
       const response = await axiosInstance.get<{ content: AuditLogDTO[]; totalElements: number }>(
-        `/api/admin/auth/audit-log?page=${page}&size=${size}`
+        `/api/auth/admin/audit-log?page=${page}&size=${size}`
       );
       return response.data;
     } catch {
@@ -237,7 +237,7 @@ export const adminService = {
 
   getProviders: async (status?: string): Promise<{ content: ProviderAdminDTO[]; totalElements: number }> => {
     try {
-      const url = status ? `/api/admin/providers?status=${status}` : '/api/admin/providers';
+      const url = status ? `/api/auth/admin/providers?status=${status}` : '/api/auth/admin/providers';
       const response = await axiosInstance.get<{ content: ProviderAdminDTO[]; totalElements: number }>(url);
       return response.data;
     } catch {
@@ -249,25 +249,16 @@ export const adminService = {
   },
 
   fixProviderStatus: async (providerId: number, action: 'COMPLETE_ONBOARDING' | 'ACTIVATE' | 'SUSPEND' | 'DELETE'): Promise<any> => {
-    const response = await axiosInstance.post(`/api/admin/providers/${providerId}/fix-status`, { action });
+    const response = await axiosInstance.post(`/api/auth/admin/providers/${providerId}/fix-status`, { action });
     return response.data;
   },
 
   forceApproveKYC: async (providerId: number): Promise<any> => {
-    const response = await axiosInstance.post(`/api/admin/onboarding/${providerId}/force-approve`);
+    const response = await axiosInstance.post(`/api/onboarding/admin/${providerId}/force-approve`);
     return response.data;
   },
 
   getSystemHealthList: async (): Promise<MicroserviceHealthDTO[]> => {
-    try {
-      const response = await axiosInstance.get<MicroserviceHealthDTO[]>('/api/admin/system/health');
-      if (response.data && Array.isArray(response.data)) {
-        return response.data;
-      }
-    } catch {
-      // Ignoramos si el endpoint consolidado no está activo y construimos la lista real
-    }
-
     const services = [
       { name: 'API Gateway', serviceKey: 'api-gateway', port: 8080 },
       { name: 'Auth Service', serviceKey: 'auth-service', port: 8081 },
