@@ -422,6 +422,23 @@ export const adminService = {
     totalComments: number;
     totalViews: number;
     totalShares: number;
+    totalEngagement: number;
+    overallEngagementRate: number;
+    byPlatform?: Record<
+      string,
+      {
+        platform: string;
+        accountName?: string;
+        isConnected: boolean;
+        postsCount: number;
+        likes: number;
+        comments: number;
+        shares: number;
+        views: number;
+        totalEngagement: number;
+        engagementRate: number;
+      }
+    >;
     chartData: Array<{ date: string; views: number; engagement: number }>;
   }> => {
     const response = await axiosInstance.get('/api/social/analytics/dashboard');

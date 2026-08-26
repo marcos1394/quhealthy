@@ -30,6 +30,15 @@ import {
   Clock,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 interface SocialConnection {
   id: string;
@@ -297,19 +306,50 @@ export const TabAdminSocialConnections: React.FC = () => {
 
   const connectedCount = connections.filter(isConnectionActive).length;
 
-  // Cálculos consolidados 100% reales
+  // Métricas consolidadas globales 100% reales
   const totalLikes = analytics?.totalLikes ?? 0;
   const totalComments = analytics?.totalComments ?? 0;
   const totalViews = analytics?.totalViews ?? 0;
   const totalShares = analytics?.totalShares ?? 0;
-  const totalEngagement = totalLikes + totalComments + totalShares;
+  const totalEngagement = analytics?.totalEngagement ?? (totalLikes + totalComments + totalShares);
+  const overallER = analytics?.overallEngagementRate ?? (totalViews > 0 ? ((totalEngagement / totalViews) * 100).toFixed(1) : "0.0");
 
-  const engagementRate =
-    totalViews > 0 ? ((totalEngagement / totalViews) * 100).toFixed(1) : "0.0";
+  // Métricas desglosadas por canal 100% reales (sin suposiciones)
+  const fbMetrics = analytics?.byPlatform?.["FACEBOOK"] ?? {
+    platform: "FACEBOOK",
+    accountName: fbConn?.platformUserName || "Quhealthy",
+    isConnected: isFbConnected,
+    postsCount: 0,
+    likes: 0,
+    comments: 0,
+    shares: 0,
+    views: 0,
+    totalEngagement: 0,
+    engagementRate: 0.0,
+  };
+
+  const igMetrics = analytics?.byPlatform?.["INSTAGRAM"] ?? {
+    platform: "INSTAGRAM",
+    accountName: igConn?.platformUserName || "@quhealthyorg",
+    isConnected: isIgConnected,
+    postsCount: 0,
+    likes: 0,
+    comments: 0,
+    shares: 0,
+    views: 0,
+    totalEngagement: 0,
+    engagementRate: 0.0,
+  };
+
+  const chartData = analytics?.chartData ?? [];
+
+  // Proporción de engagement entre canales
+  const fbSharePct = totalEngagement > 0 ? Math.round((fbMetrics.totalEngagement / totalEngagement) * 100) : 0;
+  const igSharePct = totalEngagement > 0 ? Math.round((igMetrics.totalEngagement / totalEngagement) * 100) : 0;
 
   return (
     <div className="space-y-5">
-      {/* 🚀 Header Ejecutivo Compacto (Sin banners oscuros gigantes) */}
+      {/* 🚀 Header Ejecutivo Compacto */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-4 lg:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -393,7 +433,7 @@ export const TabAdminSocialConnections: React.FC = () => {
       {/* ========================================================================= */}
       {activeSubTab === "cmo" && (
         <div className="space-y-5">
-          {/* 🌟 Scorecard de 4 KPIs Reales para el CMO */}
+          {/* 🌟 Scorecard de 4 KPIs Reales Consolidados */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* KPI 1: Alcance & Vistas */}
             <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
@@ -408,7 +448,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                   {totalViews.toLocaleString("es-MX")}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  {totalViews > 0 ? "Vistas en Feed y Reels" : "Sin visualizaciones en el periodo"}
+                  {totalViews > 0 ? "Vistas en Feed y Reels" : "Sin visualizaciones registradas"}
                 </p>
               </div>
             </div>
@@ -433,7 +473,7 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
             </div>
 
-            {/* KPI 3: Tasa de Engagement */}
+            {/* KPI 3: Tasa de Engagement Global */}
             <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
                 <span>Tasa Interacción (ER)</span>
@@ -443,7 +483,7 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
               <div className="mt-2">
                 <div className="text-2xl font-black text-slate-900">
-                  {engagementRate}%
+                  {overallER}%
                 </div>
                 <p className="text-[11px] text-slate-500 mt-0.5">
                   Benchmark Salud: <span className="font-semibold text-slate-700">2.1%</span>
@@ -470,79 +510,159 @@ export const TabAdminSocialConnections: React.FC = () => {
             </div>
           </div>
 
-          {/* 🌟 Comparativa Directa: Facebook vs Instagram */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Tarjeta Facebook Page */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+          {/* 🌟 Balance de Tracción de Redes (Distribution Bar) */}
+          {totalEngagement > 0 && (
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span className="flex items-center gap-1.5">
+                  <Flame className="w-4 h-4 text-amber-500" /> Distribución Real de Engagement por Canal
+                </span>
+                <span className="text-slate-500 font-medium text-[11px]">
+                  Instagram ({igSharePct}%) · Facebook ({fbSharePct}%)
+                </span>
+              </div>
+              <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+                <div
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-500"
+                  style={{ width: `${igSharePct}%` }}
+                  title={`Instagram: ${igMetrics.totalEngagement} interacciones (${igSharePct}%)`}
+                />
+                <div
+                  className="bg-blue-600 h-full transition-all duration-500"
+                  style={{ width: `${fbSharePct}%` }}
+                  title={`Facebook: ${fbMetrics.totalEngagement} interacciones (${fbSharePct}%)`}
+                />
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-pink-500" /> Instagram: {igMetrics.totalEngagement} interacciones
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-blue-600" /> Facebook: {fbMetrics.totalEngagement} interacciones
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* 🌟 Comparativa Detallada 100% Separada: Facebook vs Instagram */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* 🟦 Tarjeta Facebook Page Oficial */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 bg-blue-50 rounded-xl">
-                    <FacebookIcon className="w-5 h-5" />
+                  <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                    <FacebookIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm">Facebook Page Oficial</h3>
-                    <p className="text-[11px] text-slate-500">
-                      {fbConn?.platformUserName ? `Página: ${fbConn.platformUserName}` : "Página corporativa @quhealthy"}
+                    <p className="text-xs text-slate-500">
+                      {fbMetrics.accountName ? `Página: ${fbMetrics.accountName}` : "Página corporativa @quhealthy"}
                     </p>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
                   isFbConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
                 }`}>
                   {isFbConnected ? "Conectado" : "Sin vincular"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
-                <div className="p-2.5 bg-slate-50 rounded-xl">
-                  <span className="text-[10px] text-slate-500 block">Me Gusta</span>
-                  <span className="text-base font-bold text-slate-900">{totalLikes}</span>
+              {/* Métricas Reales de Facebook */}
+              <div className="grid grid-cols-3 gap-2.5 text-center">
+                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Me Gusta</span>
+                  <span className="text-lg font-black text-slate-900">{fbMetrics.likes.toLocaleString("es-MX")}</span>
                 </div>
-                <div className="p-2.5 bg-slate-50 rounded-xl">
-                  <span className="text-[10px] text-slate-500 block">Comentarios</span>
-                  <span className="text-base font-bold text-slate-900">{totalComments}</span>
+                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Comentarios</span>
+                  <span className="text-lg font-black text-slate-900">{fbMetrics.comments.toLocaleString("es-MX")}</span>
                 </div>
-                <div className="p-2.5 bg-slate-50 rounded-xl">
-                  <span className="text-[10px] text-slate-500 block">Compartidos</span>
-                  <span className="text-base font-bold text-slate-900">{totalShares}</span>
+                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Compartidos</span>
+                  <span className="text-lg font-black text-slate-900">{fbMetrics.shares.toLocaleString("es-MX")}</span>
                 </div>
+              </div>
+
+              {/* Rendimiento Adicional Facebook */}
+              <div className="grid grid-cols-3 gap-2.5 text-center pt-2 border-t border-slate-100">
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Alcance / Vistas</span>
+                  <span className="text-sm font-bold text-slate-800">{fbMetrics.views.toLocaleString("es-MX")}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Interacciones Totales</span>
+                  <span className="text-sm font-bold text-blue-600">{fbMetrics.totalEngagement.toLocaleString("es-MX")}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Tasa ER</span>
+                  <span className="text-sm font-bold text-emerald-600">{fbMetrics.engagementRate}%</span>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-400 text-center pt-1">
+                {fbMetrics.postsCount > 0
+                  ? `📊 ${fbMetrics.postsCount} publicaciones institucionales sincronizadas en los últimos 30 días.`
+                  : "ℹ️ Sin publicaciones sincronizadas aún en Facebook Page."}
               </div>
             </div>
 
-            {/* Tarjeta Instagram Oficial */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+            {/* 🟪 Tarjeta Instagram @quhealthyorg */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 bg-pink-50 rounded-xl">
-                    <InstagramIcon className="w-5 h-5" />
+                  <div className="p-2.5 bg-pink-50 text-pink-600 rounded-xl">
+                    <InstagramIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm">Instagram @quhealthyorg</h3>
-                    <p className="text-[11px] text-slate-500">
-                      {igConn?.platformUserName ? `Cuenta: ${igConn.platformUserName}` : "Cuenta profesional de salud & Reels"}
+                    <p className="text-xs text-slate-500">
+                      {igMetrics.accountName ? `Cuenta: ${igMetrics.accountName}` : "Cuenta profesional & Reels"}
                     </p>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
                   isIgConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
                 }`}>
                   {isIgConnected ? "Conectado" : "Sin vincular"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
-                <div className="p-2.5 bg-slate-50 rounded-xl">
-                  <span className="text-[10px] text-slate-500 block">Vistas</span>
-                  <span className="text-base font-bold text-slate-900">{totalViews}</span>
+              {/* Métricas Reales de Instagram */}
+              <div className="grid grid-cols-3 gap-2.5 text-center">
+                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Likes (Corazones)</span>
+                  <span className="text-lg font-black text-slate-900">{igMetrics.likes.toLocaleString("es-MX")}</span>
                 </div>
-                <div className="p-2.5 bg-slate-50 rounded-xl">
-                  <span className="text-[10px] text-slate-500 block">Interacciones</span>
-                  <span className="text-base font-bold text-slate-900">{totalEngagement}</span>
+                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Comentarios</span>
+                  <span className="text-lg font-black text-slate-900">{igMetrics.comments.toLocaleString("es-MX")}</span>
                 </div>
-                <div className="p-2.5 bg-slate-50 rounded-xl">
+                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Interacciones</span>
+                  <span className="text-lg font-black text-pink-600">{igMetrics.totalEngagement.toLocaleString("es-MX")}</span>
+                </div>
+              </div>
+
+              {/* Rendimiento Adicional Instagram */}
+              <div className="grid grid-cols-3 gap-2.5 text-center pt-2 border-t border-slate-100">
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Vistas / Alcance</span>
+                  <span className="text-sm font-bold text-slate-800">{igMetrics.views.toLocaleString("es-MX")}</span>
+                </div>
+                <div>
                   <span className="text-[10px] text-slate-500 block">Tasa ER</span>
-                  <span className="text-base font-bold text-slate-900">{engagementRate}%</span>
+                  <span className="text-sm font-bold text-emerald-600">{igMetrics.engagementRate}%</span>
                 </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Reels & Posts</span>
+                  <span className="text-sm font-bold text-slate-800">{igMetrics.postsCount}</span>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-400 text-center pt-1">
+                {igMetrics.postsCount > 0
+                  ? `📊 ${igMetrics.postsCount} reels y publicaciones activas sincronizadas en Instagram.`
+                  : "ℹ️ Sin publicaciones sincronizadas aún en Instagram @quhealthyorg."}
               </div>
             </div>
           </div>
@@ -557,26 +677,120 @@ export const TabAdminSocialConnections: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
                 <div className="flex items-center gap-1.5 text-slate-800 font-bold">
-                  <Clock className="w-3.5 h-3.5 text-indigo-600" /> Horario Recomendado en México
+                  <Clock className="w-3.5 h-3.5 text-indigo-600" /> Horario Óptimo de Publicación
                 </div>
                 <p className="text-slate-600 leading-relaxed">
-                  Publicar en la ventana de <span className="font-semibold text-slate-900">7:00 PM a 9:30 PM</span> en días laborales suele maximizar el alcance de contenido preventivo.
+                  Publicar en la ventana de <span className="font-semibold text-slate-900">7:00 PM a 9:30 PM (CST)</span> en días laborales suele maximizar el alcance de contenido de salud y prevención.
                 </p>
               </div>
 
               <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
                 <div className="flex items-center gap-1.5 text-slate-800 font-bold">
-                  <Activity className="w-3.5 h-3.5 text-emerald-600" /> Estado de Operación
+                  <Activity className="w-3.5 h-3.5 text-emerald-600" /> Rendimiento de Canales
                 </div>
                 <p className="text-slate-600 leading-relaxed">
-                  {insights?.aiSuggestion ||
-                    "Los mensajes y comentarios recibidos en Facebook e Instagram se enrutan automáticamente al Admin CRM Inbox para atención inmediata."}
+                  {igMetrics.totalEngagement > fbMetrics.totalEngagement
+                    ? `Instagram está liderando la atracción de audiencia con ${igMetrics.totalEngagement} interacciones (${igSharePct}% del total). Se recomienda mantener la cadencia de Reels educativos y derivar prospectos con palabras clave al CRM.`
+                    : fbMetrics.totalEngagement > igMetrics.totalEngagement
+                    ? `Facebook Page está liderando el volumen con ${fbMetrics.totalEngagement} interacciones (${fbSharePct}% del total). Ideal para campañas de conversión y publicaciones estructuradas con enlaces de registro.`
+                    : insights?.aiSuggestion ||
+                      "Los comentarios y mensajes recibidos en Facebook e Instagram se enrutan automáticamente al Radar de Prospectos y CRM Inbox para atención inmediata."}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* 🌟 Top Contenido Real (Si existe) */}
+          {/* 🌟 Tendencia de Rendimiento Histórica (30 Días) */}
+          {chartData && chartData.length > 0 && (
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-indigo-600" />
+                    Tendencia Histórica de Rendimiento (Últimos 30 Días)
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Evolución diaria real de interacciones (Likes, Comentarios, Compartidos) y Vistas.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="flex items-center gap-1.5 text-pink-600 font-semibold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Interacciones
+                  </span>
+                  <span className="flex items-center gap-1.5 text-indigo-600 font-semibold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> Vistas
+                  </span>
+                </div>
+              </div>
+
+              <div className="h-64 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="colorEngagement" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(val) => {
+                        try {
+                          const parts = val.split("-");
+                          return `${parts[2]}/${parts[1]}`;
+                        } catch {
+                          return val;
+                        }
+                      }}
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1e293b",
+                        borderRadius: "12px",
+                        border: "none",
+                        color: "#fff",
+                        fontSize: "12px",
+                      }}
+                      labelStyle={{ color: "#94a3b8", marginBottom: "4px" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="views"
+                      name="Vistas"
+                      stroke="#6366f1"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorViews)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="engagement"
+                      name="Interacciones"
+                      stroke="#ec4899"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorEngagement)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* 🌟 Top Contenido Real */}
           {insights?.topPosts && insights.topPosts.length > 0 ? (
             <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
               <h3 className="font-bold text-slate-900 text-sm">Publicaciones con Mayor Interacción</h3>
