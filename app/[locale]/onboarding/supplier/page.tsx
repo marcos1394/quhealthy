@@ -226,6 +226,21 @@ export default function SupplierOnboardingPage() {
         setAllowsRental(profile.allowsRental ?? false);
         setHasColdChainCapacity(profile.hasColdChainCapacity ?? false);
         setRfc(profile.rfc || "");
+
+        if (profile.warehouses && profile.warehouses.length > 0) {
+          const mainWh = profile.warehouses[0];
+          setWhName(mainWh.name || "");
+          setWhCode(mainWh.code || "ALM-01");
+          setWhStreet(mainWh.streetAddress || "");
+          setWhCity(mainWh.city || "");
+          setWhState(mainWh.state || "");
+          setWhPostalCode(mainWh.postalCode || "");
+          setWhColdStorage(mainWh.allowsColdStorage ?? false);
+          setWhMinTemp(mainWh.minTempSupported != null ? String(mainWh.minTempSupported) : "");
+          setWhMaxTemp(mainWh.maxTempSupported != null ? String(mainWh.maxTempSupported) : "");
+          setWhManager(mainWh.managerName || "");
+          setWhManagerPhone(mainWh.managerPhone || "");
+        }
       }
     } catch (err: any) {
       if (err?.response?.status === 401) {
@@ -308,18 +323,19 @@ export default function SupplierOnboardingPage() {
       const payload: SaveSupplierWarehousePayload = {
         name: whName.trim(),
         code: whCode.trim() || undefined,
-        addressStreet: whStreet.trim() || undefined,
-        addressCity: whCity.trim(),
-        addressState: whState.trim() || undefined,
-        addressPostalCode: whPostalCode.trim() || undefined,
-        isColdStorage: whColdStorage,
-        minTemperature: whMinTemp ? parseFloat(whMinTemp) : undefined,
-        maxTemperature: whMaxTemp ? parseFloat(whMaxTemp) : undefined,
+        streetAddress: whStreet.trim() || undefined,
+        city: whCity.trim(),
+        state: whState.trim() || undefined,
+        postalCode: whPostalCode.trim() || undefined,
+        allowsColdStorage: whColdStorage,
+        minTempSupported: whMinTemp ? parseFloat(whMinTemp) : undefined,
+        maxTempSupported: whMaxTemp ? parseFloat(whMaxTemp) : undefined,
         managerName: whManager.trim() || undefined,
         managerPhone: whManagerPhone.trim() || undefined,
+        isMain: true,
       };
 
-      await supplierService.saveWarehouse(payload);
+      await supplierService.createWarehouse(payload);
       const profile = await supplierService.getProfile();
       setOrg(profile);
       toast.success("Almacén principal configurado.");
