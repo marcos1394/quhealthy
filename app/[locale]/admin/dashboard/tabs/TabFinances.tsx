@@ -118,9 +118,9 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
         />
         <KpiCard
           title="Tasa de Churn"
-          value={`${economics?.churnRate || 2.8}%`}
-          changePercent={-0.4}
-          changePeriod="vs mes anterior (Mejora)"
+          value={`${economics?.churnRate ?? 0}%`}
+          changePercent={0}
+          changePeriod="Cancelaciones del periodo"
           icon={TrendingDown}
           variant="emerald"
         />
@@ -195,9 +195,9 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
                   Pagado a Doctores (Connect)
                 </span>
                 <span className="text-xl font-bold text-indigo-950 mt-1 block">
-                  {formatCurrency(economics?.totalDoctorPayouts || (economics?.totalCommissionsRevenue || 0) * 5.6)}
+                  {formatCurrency(economics?.totalDoctorPayouts || 0)}
                 </span>
-                <span className="text-[11px] text-indigo-600 mt-1 block">85% del GMV procesado</span>
+                <span className="text-[11px] text-indigo-600 mt-1 block">Dispersión real transferida</span>
               </div>
               <div className="p-4 bg-purple-50/60 rounded-xl border border-purple-100">
                 <span className="text-xs text-purple-700 font-semibold block">

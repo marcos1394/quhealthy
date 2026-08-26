@@ -34,11 +34,11 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
   economics,
   formatCurrency,
 }) => {
-  const gcpCost = economics?.cloudCosts || 1250;
-  const aiCost = economics?.aiCosts || 450;
-  const satCost = economics?.satFacturamaCosts || 180;
-  const commsCost = economics?.communicationsCosts || 95;
-  const stripeCost = economics?.stripeFees || 1420;
+  const gcpCost = economics?.cloudCosts || 0;
+  const aiCost = economics?.aiCosts || 0;
+  const satCost = economics?.satFacturamaCosts || 0;
+  const commsCost = economics?.communicationsCosts || 0;
+  const stripeCost = economics?.stripeFees || 0;
   const totalOperatingCosts =
     economics?.totalCosts || gcpCost + aiCost + satCost + commsCost + stripeCost;
 

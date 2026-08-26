@@ -28,7 +28,6 @@ import {
   Flame,
   Activity,
   Clock,
-  Send,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 
@@ -42,7 +41,7 @@ interface SocialConnection {
 }
 
 // Iconos Oficiales SVG
-function FacebookIcon({ className = "w-6 h-6" }: { className?: string }) {
+function FacebookIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="#1877F2">
       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -50,10 +49,10 @@ function FacebookIcon({ className = "w-6 h-6" }: { className?: string }) {
   );
 }
 
-function InstagramIcon({ className = "w-6 h-6" }: { className?: string }) {
+function InstagramIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24">
-      <radialGradient id="ig-admin-grad" cx="20%" cy="100%" r="150%">
+      <radialGradient id="ig-admin-grad-compact" cx="20%" cy="100%" r="150%">
         <stop offset="0%" stopColor="#fdf497" />
         <stop offset="5%" stopColor="#fdf497" />
         <stop offset="45%" stopColor="#fd5949" />
@@ -61,14 +60,14 @@ function InstagramIcon({ className = "w-6 h-6" }: { className?: string }) {
         <stop offset="90%" stopColor="#285AEB" />
       </radialGradient>
       <path
-        fill="url(#ig-admin-grad)"
+        fill="url(#ig-admin-grad-compact)"
         d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
       />
     </svg>
   );
 }
 
-function WhatsAppIcon({ className = "w-6 h-6" }: { className?: string }) {
+function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="#25D366">
       <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.23 8.23 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.45 1.03 2.61.13.17 1.77 2.71 4.3 3.8 2.52 1.09 2.52.73 2.98.69.46-.04 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.3" />
@@ -76,7 +75,7 @@ function WhatsAppIcon({ className = "w-6 h-6" }: { className?: string }) {
   );
 }
 
-function LinkedInIcon({ className = "w-6 h-6" }: { className?: string }) {
+function LinkedInIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="#0A66C2">
       <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.45 1.45 0 1 0 0-2.9 1.45 1.45 0 0 0 0 2.9m1.38 9.74V9.93H5.08v8.57h2.76z" />
@@ -84,7 +83,7 @@ function LinkedInIcon({ className = "w-6 h-6" }: { className?: string }) {
   );
 }
 
-function TikTokIcon({ className = "w-6 h-6" }: { className?: string }) {
+function TikTokIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
       <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.46V11.8a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-2-.66 4.79 4.79 0 0 1-1.02-.97v-.01z" />
@@ -92,7 +91,7 @@ function TikTokIcon({ className = "w-6 h-6" }: { className?: string }) {
   );
 }
 
-function YouTubeIcon({ className = "w-6 h-6" }: { className?: string }) {
+function YouTubeIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24">
       <path
@@ -104,7 +103,7 @@ function YouTubeIcon({ className = "w-6 h-6" }: { className?: string }) {
   );
 }
 
-function GoogleBusinessIcon({ className = "w-6 h-6" }: { className?: string }) {
+function GoogleBusinessIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24">
       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -118,7 +117,6 @@ function GoogleBusinessIcon({ className = "w-6 h-6" }: { className?: string }) {
 export const TabAdminSocialConnections: React.FC = () => {
   const searchParams = useSearchParams();
   const [activeSubTab, setActiveSubTab] = useState<"cmo" | "manage">("cmo");
-  const [selectedPeriod, setSelectedPeriod] = useState<"7d" | "30d" | "90d">("30d");
 
   // Conexiones de Redes
   const [connections, setConnections] = useState<SocialConnection[]>([]);
@@ -192,10 +190,10 @@ export const TabAdminSocialConnections: React.FC = () => {
     try {
       setSyncingMeta(true);
       await adminService.syncAdminSocialAnalytics();
-      toast.success("Métricas de Meta sincronizadas con éxito.");
+      toast.success("Métricas sincronizadas con éxito.");
       await loadAnalytics();
     } catch (err) {
-      toast.info("Métricas actualizadas con los últimos datos de la plataforma.");
+      toast.info("Métricas actualizadas con los últimos datos.");
       await loadAnalytics();
     } finally {
       setSyncingMeta(false);
@@ -234,43 +232,43 @@ export const TabAdminSocialConnections: React.FC = () => {
       key: "FACEBOOK",
       name: "Facebook Page Oficial",
       desc: "Página institucional de Quhealthy para anuncios, publicaciones y mensajería.",
-      icon: <FacebookIcon className="w-8 h-8" />,
+      icon: <FacebookIcon className="w-6 h-6" />,
     },
     {
       key: "INSTAGRAM",
       name: "Instagram @quhealthyorg",
       desc: "Cuenta oficial para difusión de marca, reels educativos y mensajes directos (DMs).",
-      icon: <InstagramIcon className="w-8 h-8" />,
+      icon: <InstagramIcon className="w-6 h-6" />,
     },
     {
       key: "WHATSAPP",
       name: "WhatsApp Business Institucional",
       desc: "Línea oficial de soporte a usuarios, ventas de planes SaaS y atención a clínicas.",
-      icon: <WhatsAppIcon className="w-8 h-8" />,
+      icon: <WhatsAppIcon className="w-6 h-6" />,
     },
     {
       key: "LINKEDIN",
       name: "LinkedIn Quhealthy",
       desc: "Perfil empresarial para networking médico, artículos de salud y alianzas B2B.",
-      icon: <LinkedInIcon className="w-8 h-8" />,
+      icon: <LinkedInIcon className="w-6 h-6" />,
     },
     {
       key: "TIKTOK",
       name: "TikTok @quhealthy",
       desc: "Canal de videos cortos, educación sanitaria y campañas virales de prevención.",
-      icon: <TikTokIcon className="w-8 h-8" />,
+      icon: <TikTokIcon className="w-6 h-6" />,
     },
     {
       key: "YOUTUBE",
       name: "YouTube Quhealthy",
       desc: "Canal oficial de webinars, tutoriales de la plataforma y contenido médico.",
-      icon: <YouTubeIcon className="w-8 h-8" />,
+      icon: <YouTubeIcon className="w-6 h-6" />,
     },
     {
       key: "GOOGLE_BUSINESS",
       name: "Google Business Profile",
       desc: "Perfil corporativo de Quhealthy en Google Maps, Búsqueda y reseñas oficiales.",
-      icon: <GoogleBusinessIcon className="w-8 h-8" />,
+      icon: <GoogleBusinessIcon className="w-6 h-6" />,
     },
   ];
 
@@ -284,7 +282,7 @@ export const TabAdminSocialConnections: React.FC = () => {
     (c) => c.platform?.toUpperCase() === "WHATSAPP" && c.isConnected
   );
 
-  // Cálculos consolidados para el CMO
+  // Cálculos consolidados 100% reales
   const totalLikes = analytics?.totalLikes ?? 0;
   const totalComments = analytics?.totalComments ?? 0;
   const totalViews = analytics?.totalViews ?? 0;
@@ -295,79 +293,83 @@ export const TabAdminSocialConnections: React.FC = () => {
     totalViews > 0 ? ((totalEngagement / totalViews) * 100).toFixed(1) : "0.0";
 
   return (
-    <div className="space-y-6">
-      {/* 🚀 Header Maestro del CMO */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 rounded-3xl p-6 lg:p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" /> CMO Social Command Center • Meta Ecosistema
-            </div>
-            <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
-              Panel Ejecutivo de Marketing & Redes Oficiales
+    <div className="space-y-5">
+      {/* 🚀 Header Ejecutivo Compacto (Sin banners oscuros gigantes) */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 lg:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
+              Métricas Meta & Redes (CMO Command Center)
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Métricas consolidadas de **Facebook Page** e **Instagram @quhealthyorg** para evaluar alcance de marca, interacción con pacientes/médicos y conversión hacia el ecosistema Quhealthy.
-            </p>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              Tenant Oficial 0L
+            </span>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={handleSyncMeta}
-              disabled={syncingMeta || loadingAnalytics}
-              className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${syncingMeta ? "animate-spin" : ""}`} />
-              Sincronizar Métricas Meta
-            </button>
-          </div>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Analíticas consolidadas de Facebook Page, Instagram @quhealthyorg y canales institucionales.
+          </p>
         </div>
 
-        {/* Selector de Sub-vistas: CMO Pulse vs Configuración de Canales */}
-        <div className="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-2 p-1 bg-slate-950/60 rounded-2xl border border-slate-800">
+        {/* Acciones y Subtabs */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+          <div className="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200/80 text-xs font-semibold">
             <button
               onClick={() => setActiveSubTab("cmo")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg transition-all ${
                 activeSubTab === "cmo"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-white text-slate-900 shadow-sm font-bold"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
-              Métricas CMO (Facebook & Instagram)
+              Métricas CMO (FB & IG)
             </button>
             <button
               onClick={() => setActiveSubTab("manage")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg transition-all ${
                 activeSubTab === "manage"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-white text-slate-900 shadow-sm font-bold"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <Globe className="w-3.5 h-3.5" />
-              Canales Conectados ({connections.filter((c) => c.isConnected).length})
+              Configurar Canales ({connections.filter((c) => c.isConnected).length})
             </button>
           </div>
 
-          {/* Estado Rápido de Canales */}
-          <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700">
-              <FacebookIcon className="w-4 h-4" />
-              <span className="text-slate-300">Facebook:</span>
-              <span className={`font-bold ${isFbConnected ? "text-emerald-400" : "text-amber-400"}`}>
-                {isFbConnected ? "Conectado" : "Pendiente"}
-              </span>
-            </div>
+          <button
+            onClick={handleSyncMeta}
+            disabled={syncingMeta || loadingAnalytics}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${syncingMeta ? "animate-spin" : ""}`} />
+            Sincronizar
+          </button>
+        </div>
+      </div>
 
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700">
-              <InstagramIcon className="w-4 h-4" />
-              <span className="text-slate-300">Instagram:</span>
-              <span className={`font-bold ${isIgConnected ? "text-emerald-400" : "text-amber-400"}`}>
-                {isIgConnected ? "Conectado" : "Pendiente"}
-              </span>
-            </div>
-          </div>
+      {/* Estado Rápido de Canales Meta */}
+      <div className="flex items-center flex-wrap gap-2 text-xs">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+          <FacebookIcon className="w-4 h-4" />
+          <span className="text-slate-600 font-medium">Facebook:</span>
+          <span className={`font-bold ${isFbConnected ? "text-emerald-600" : "text-slate-400"}`}>
+            {isFbConnected ? "Conectado" : "Sin vincular"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+          <InstagramIcon className="w-4 h-4" />
+          <span className="text-slate-600 font-medium">Instagram:</span>
+          <span className={`font-bold ${isIgConnected ? "text-emerald-600" : "text-slate-400"}`}>
+            {isIgConnected ? "Conectado" : "Sin vincular"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+          <WhatsAppIcon className="w-4 h-4" />
+          <span className="text-slate-600 font-medium">WhatsApp:</span>
+          <span className={`font-bold ${isWaConnected ? "text-emerald-600" : "text-slate-400"}`}>
+            {isWaConnected ? "Conectado" : "Sin vincular"}
+          </span>
         </div>
       </div>
 
@@ -375,47 +377,40 @@ export const TabAdminSocialConnections: React.FC = () => {
       {/* 📊 VISTA 1: CMO EXECUTIVE PULSE (FACEBOOK + INSTAGRAM EN UN SOLO VISTAZO) */}
       {/* ========================================================================= */}
       {activeSubTab === "cmo" && (
-        <div className="space-y-6">
-          {/* 🌟 1. Scorecard de Métricas Críticas para el CMO */}
+        <div className="space-y-5">
+          {/* 🌟 Scorecard de 4 KPIs Reales para el CMO */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* KPI 1: Alcance Total (Reach) */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Alcance & Impresiones
-                </span>
-                <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+            {/* KPI 1: Alcance & Vistas */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                <span>Alcance & Impresiones</span>
+                <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
                   <Eye className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="mt-2">
                 <div className="text-2xl font-black text-slate-900">
-                  {totalViews > 0 ? totalViews.toLocaleString("es-MX") : "0"}
+                  {totalViews.toLocaleString("es-MX")}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-                  <span className="text-emerald-600 font-bold flex items-center">
-                    <TrendingUp className="w-3 h-3 mr-0.5" /> Meta Graph
-                  </span>
-                  <span>Impactos únicos en feed y reels</span>
-                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  {totalViews > 0 ? "Vistas en Feed y Reels" : "Sin visualizaciones en el periodo"}
+                </p>
               </div>
             </div>
 
-            {/* KPI 2: Interacciones Totales (Engagement) */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Interacciones Totales
-                </span>
-                <div className="p-2 rounded-xl bg-pink-50 text-pink-600">
+            {/* KPI 2: Interacciones Totales */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                <span>Interacciones Totales</span>
+                <div className="p-1.5 rounded-lg bg-pink-50 text-pink-600">
                   <Heart className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="mt-2">
                 <div className="text-2xl font-black text-slate-900">
-                  {totalEngagement > 0 ? totalEngagement.toLocaleString("es-MX") : "0"}
+                  {totalEngagement.toLocaleString("es-MX")}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
                   <span>👍 {totalLikes}</span>
                   <span>💬 {totalComments}</span>
                   <span>↗️ {totalShares}</span>
@@ -423,208 +418,175 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
             </div>
 
-            {/* KPI 3: Tasa de Engagement (Benchmark Médico) */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Tasa de Interacción (ER)
-                </span>
-                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+            {/* KPI 3: Tasa de Engagement */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                <span>Tasa Interacción (ER)</span>
+                <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600">
                   <Target className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="mt-2">
                 <div className="text-2xl font-black text-slate-900">
-                  {totalViews > 0 ? `${engagementRate}%` : "0.0%"}
+                  {engagementRate}%
                 </div>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-[11px] text-slate-500 mt-0.5">
                   Benchmark Salud: <span className="font-semibold text-slate-700">2.1%</span>
                 </p>
               </div>
             </div>
 
             {/* KPI 4: Canales Oficiales Activos */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Canales Conectados
-                </span>
-                <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                <span>Canales Conectados</span>
+                <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
                   <Globe className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="mt-2">
                 <div className="text-2xl font-black text-slate-900">
                   {connections.filter((c) => c.isConnected).length} / 7
                 </div>
-                <div className="flex items-center gap-1 text-xs text-emerald-600 font-semibold mt-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Token seguro E2E
+                <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-0.5">
+                  <CheckCircle2 className="w-3 h-3" /> Token E2E activo
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 🌟 2. Comparativa Directa: Facebook Page vs Instagram */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* 🌟 Comparativa Directa: Facebook vs Instagram */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Tarjeta Facebook Page */}
-            <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-blue-50 rounded-2xl">
-                    <FacebookIcon className="w-7 h-7" />
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-blue-50 rounded-xl">
+                    <FacebookIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-lg">Facebook Page Oficial</h3>
-                    <p className="text-xs text-slate-500">Página corporativa @quhealthy</p>
+                    <h3 className="font-bold text-slate-900 text-sm">Facebook Page Oficial</h3>
+                    <p className="text-[11px] text-slate-500">Página corporativa @quhealthy</p>
                   </div>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   isFbConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
                 }`}>
-                  {isFbConnected ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
-                  {isFbConnected ? "En Línea" : "Sin Conectar"}
+                  {isFbConnected ? "Conectado" : "Sin vincular"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-slate-100 text-center">
-                <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-[11px] text-slate-500 block">Me Gusta</span>
-                  <span className="text-lg font-extrabold text-slate-900">{totalLikes}</span>
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <span className="text-[10px] text-slate-500 block">Me Gusta</span>
+                  <span className="text-base font-bold text-slate-900">{totalLikes}</span>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-[11px] text-slate-500 block">Comentarios</span>
-                  <span className="text-lg font-extrabold text-slate-900">{totalComments}</span>
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <span className="text-[10px] text-slate-500 block">Comentarios</span>
+                  <span className="text-base font-bold text-slate-900">{totalComments}</span>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-[11px] text-slate-500 block">Compartidos</span>
-                  <span className="text-lg font-extrabold text-slate-900">{totalShares}</span>
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <span className="text-[10px] text-slate-500 block">Compartidos</span>
+                  <span className="text-base font-bold text-slate-900">{totalShares}</span>
                 </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100 text-xs text-blue-900 flex items-center justify-between">
-                <span>Tráfico orgánico a quhealthy.org</span>
-                <span className="font-bold text-blue-700">Activo</span>
               </div>
             </div>
 
             {/* Tarjeta Instagram Oficial */}
-            <div className="bg-white border border-pink-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-pink-50 rounded-2xl">
-                    <InstagramIcon className="w-7 h-7" />
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-pink-50 rounded-xl">
+                    <InstagramIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-lg">Instagram @quhealthyorg</h3>
-                    <p className="text-xs text-slate-500">Cuenta profesional de salud & Reels</p>
+                    <h3 className="font-bold text-slate-900 text-sm">Instagram @quhealthyorg</h3>
+                    <p className="text-[11px] text-slate-500">Cuenta profesional de salud & Reels</p>
                   </div>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   isIgConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
                 }`}>
-                  {isIgConnected ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
-                  {isIgConnected ? "En Línea" : "Sin Conectar"}
+                  {isIgConnected ? "Conectado" : "Sin vincular"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-slate-100 text-center">
-                <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-[11px] text-slate-500 block">Vistas Reels</span>
-                  <span className="text-lg font-extrabold text-slate-900">{totalViews}</span>
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <span className="text-[10px] text-slate-500 block">Vistas</span>
+                  <span className="text-base font-bold text-slate-900">{totalViews}</span>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-[11px] text-slate-500 block">Interacciones</span>
-                  <span className="text-lg font-extrabold text-slate-900">{totalEngagement}</span>
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <span className="text-[10px] text-slate-500 block">Interacciones</span>
+                  <span className="text-base font-bold text-slate-900">{totalEngagement}</span>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-[11px] text-slate-500 block">Tasa ER</span>
-                  <span className="text-lg font-extrabold text-slate-900">{engagementRate}%</span>
+                <div className="p-2.5 bg-slate-50 rounded-xl">
+                  <span className="text-[10px] text-slate-500 block">Tasa ER</span>
+                  <span className="text-base font-bold text-slate-900">{engagementRate}%</span>
                 </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-pink-50/50 rounded-xl border border-pink-100 text-xs text-pink-900 flex items-center justify-between">
-                <span>Reels y Contenido Educativo</span>
-                <span className="font-bold text-pink-700">Mayor Viralidad</span>
               </div>
             </div>
           </div>
 
-          {/* 🌟 3. CMO AI Copilot & Recomendaciones Estratégicas */}
-          <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 rounded-3xl p-6 lg:p-7 text-white shadow-lg space-y-4">
-            <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
-              CMO Strategic Copilot & Diagnóstico de Crecimiento
+          {/* 🌟 Diagnóstico y Recomendación de IA */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+            <div className="flex items-center gap-2 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              Diagnóstico Estratégico CMO
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl space-y-1">
-                <div className="flex items-center gap-2 text-indigo-300 font-bold text-xs">
-                  <Clock className="w-4 h-4" /> Horario Óptimo (México)
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                  <Clock className="w-3.5 h-3.5 text-indigo-600" /> Horario Recomendado en México
                 </div>
-                <p className="text-slate-200 text-xs leading-relaxed">
-                  Publicar entre <span className="font-bold text-white">7:00 PM y 9:30 PM</span> en días martes y jueves maximiza el alcance de Reels y carruseles médicos.
+                <p className="text-slate-600 leading-relaxed">
+                  Publicar en la ventana de <span className="font-semibold text-slate-900">7:00 PM a 9:30 PM</span> en días laborales suele maximizar el alcance de contenido preventivo.
                 </p>
               </div>
 
-              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl space-y-1">
-                <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs">
-                  <Flame className="w-4 h-4" /> Formato de Mayor Tracción
+              <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                  <Activity className="w-3.5 h-3.5 text-emerald-600" /> Estado de Operación
                 </div>
-                <p className="text-slate-200 text-xs leading-relaxed">
-                  Los Reels de <span className="font-bold text-white">15-30 segundos</span> sobre la Bóveda de Recetas y prevención médica generan 3.4x más guardados y compartidos.
-                </p>
-              </div>
-
-              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl space-y-1">
-                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
-                  <Activity className="w-4 h-4" /> Recomendación Ejecutiva
-                </div>
-                <p className="text-slate-200 text-xs leading-relaxed">
+                <p className="text-slate-600 leading-relaxed">
                   {insights?.aiSuggestion ||
-                    "Canaliza las consultas médicas desde los comentarios de Instagram y Facebook hacia el Admin CRM Inbox para asegurar atención en menos de 5 minutos."}
+                    "Los mensajes y comentarios recibidos en Facebook e Instagram se enrutan automáticamente al Admin CRM Inbox para atención inmediata."}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* 🌟 4. Top Contenido & Publicaciones Institucionales */}
-          {insights?.topPosts && insights.topPosts.length > 0 && (
-            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-lg">Top Contenido con Mayor Rendimiento</h3>
-                  <p className="text-xs text-slate-500">Publicaciones y Reels con más interacción en los últimos 30 días</p>
-                </div>
-                <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
-                  {insights.topPosts.length} destacados
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 🌟 Top Contenido Real (Si existe) */}
+          {insights?.topPosts && insights.topPosts.length > 0 ? (
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+              <h3 className="font-bold text-slate-900 text-sm">Publicaciones con Mayor Interacción</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {insights.topPosts.map((post: any, index: number) => (
                   <div
                     key={post.id || index}
-                    className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col justify-between space-y-3"
+                    className="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-2 text-xs"
                   >
-                    <div>
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
-                        <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md">
-                          {post.platform}
-                        </span>
-                        <span>{new Date(post.scheduledAt).toLocaleDateString("es-MX")}</span>
-                      </div>
-                      <p className="text-xs text-slate-800 font-medium line-clamp-3 leading-relaxed">
-                        {post.content || "Sin descripción"}
-                      </p>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold">
+                      <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded">
+                        {post.platform}
+                      </span>
+                      <span>{new Date(post.scheduledAt).toLocaleDateString("es-MX")}</span>
                     </div>
-
-                    <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
-                      <span className="text-slate-500">Interacción:</span>
-                      <span className="font-bold text-slate-900">{post.totalEngagement} interacciones</span>
+                    <p className="text-slate-800 font-medium line-clamp-2">
+                      {post.content || "Sin descripción"}
+                    </p>
+                    <div className="pt-2 border-t border-slate-200 text-slate-600 font-bold">
+                      {post.totalEngagement} interacciones
                     </div>
                   </div>
                 ))}
               </div>
+            </div>
+          ) : (
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-center text-xs text-slate-500">
+              <p className="font-medium text-slate-700">Sin publicaciones registradas en los últimos 30 días.</p>
+              <p className="mt-0.5">Al programar o publicar contenido institucional, los datos de rendimiento aparecerán aquí automáticamente.</p>
             </div>
           )}
         </div>
@@ -634,7 +596,7 @@ export const TabAdminSocialConnections: React.FC = () => {
       {/* ⚙️ VISTA 2: GESTIÓN DE CANALES OFICIALES (TENANT 0L) */}
       {/* ========================================================================= */}
       {activeSubTab === "manage" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {officialChannels.map((channel) => {
             const activeConn = connections.find(
               (c) => c.platform?.toUpperCase() === channel.key
@@ -644,41 +606,41 @@ export const TabAdminSocialConnections: React.FC = () => {
             return (
               <div
                 key={channel.key}
-                className={`bg-white border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md flex flex-col justify-between ${
+                className={`bg-white border rounded-2xl p-4 shadow-sm transition-all flex flex-col justify-between ${
                   isConnected ? "border-emerald-200 ring-1 ring-emerald-100" : "border-slate-200/90"
                 }`}
               >
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-start justify-between">
-                    <div className="p-3 bg-slate-50 border border-slate-100 rounded-2xl">
+                    <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl">
                       {channel.icon}
                     </div>
                     {isConnected ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Conectado
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
+                        <CheckCircle2 className="w-3 h-3" /> Conectado
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-semibold">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[11px] font-semibold">
                         Sin vincular
                       </span>
                     )}
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base">{channel.name}</h3>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">{channel.desc}</p>
+                    <h3 className="font-bold text-slate-900 text-sm">{channel.name}</h3>
+                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{channel.desc}</p>
                   </div>
 
                   {isConnected && activeConn && (
-                    <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center gap-3">
+                    <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center gap-2.5">
                       {activeConn.profileImageUrl ? (
                         <img
                           src={activeConn.profileImageUrl}
                           alt="Profile"
-                          className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                          className="w-7 h-7 rounded-full object-cover border border-slate-200"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">
+                        <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-[10px]">
                           QH
                         </div>
                       )}
@@ -686,17 +648,17 @@ export const TabAdminSocialConnections: React.FC = () => {
                         <p className="text-xs font-bold text-slate-900 truncate">
                           {activeConn.platformUserName || "Cuenta Oficial Quhealthy"}
                         </p>
-                        <p className="text-[11px] text-slate-500">ID: {activeConn.id.slice(0, 8)}...</p>
+                        <p className="text-[10px] text-slate-500">ID: {activeConn.id.slice(0, 8)}...</p>
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="pt-4 mt-3 border-t border-slate-100">
                   {isConnected ? (
                     <button
                       onClick={() => handleDisconnect(activeConn!.id)}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-100 transition-colors"
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-100 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" /> Desconectar Canal
                     </button>
@@ -704,7 +666,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                     <button
                       onClick={() => handleConnect(channel.key)}
                       disabled={connecting === channel.key}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all active:scale-95 shadow-sm disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all active:scale-95 shadow-sm disabled:opacity-50"
                     >
                       {connecting === channel.key ? (
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />

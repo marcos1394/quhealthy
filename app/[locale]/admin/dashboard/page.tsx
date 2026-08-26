@@ -153,6 +153,8 @@ export default function AdminDashboardPage() {
     );
   }
 
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   const pendingKycCount = providers.filter(
     (p) => !p.onboardingComplete || p.status === "INACTIVE"
   ).length;
@@ -168,6 +170,7 @@ export default function AdminDashboardPage() {
         onRefresh={loadAllData}
         isRefreshing={isRefreshing}
         onLogout={handleLogout}
+        onToggleMobileMenu={() => setMobileSidebarOpen((prev) => !prev)}
       />
 
       {/* 🧭 Master Body with Sidebar + Content */}
@@ -177,9 +180,11 @@ export default function AdminDashboardPage() {
           onTabChange={setActiveTab}
           pendingKycCount={pendingKycCount}
           unhealthyServicesCount={unhealthyServicesCount}
+          isMobileOpen={mobileSidebarOpen}
+          onCloseMobile={() => setMobileSidebarOpen(false)}
         />
 
-        <main className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 max-w-7xl mx-auto w-full space-y-5">
           {activeTab === "pulse" && (
             <TabExecutivePulse
               economics={economics}

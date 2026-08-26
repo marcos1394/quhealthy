@@ -210,18 +210,27 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           {/* Unit Economics Snapshot */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-500 font-semibold uppercase">
-              <span>Margen Neto Estimado</span>
+              <span>Margen Neto Real</span>
               <span className="text-emerald-600 font-bold">
-                {economics?.grossMargin && economics?.totalRevenue
+                {economics?.totalRevenue && economics.totalRevenue > 0
                   ? `${Math.round((economics.netProfit / economics.totalRevenue) * 100)}%`
-                  : "68%"}
+                  : "0%"}
               </span>
             </div>
             <div className="text-2xl font-extrabold text-slate-900">
               {formatCurrency(economics?.netProfit || 0)}
             </div>
             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-emerald-500 h-full rounded-full" style={{ width: "68%" }} />
+              <div
+                className="bg-emerald-500 h-full rounded-full transition-all"
+                style={{
+                  width: `${
+                    economics?.totalRevenue && economics.totalRevenue > 0
+                      ? Math.min(Math.max(Math.round((economics.netProfit / economics.totalRevenue) * 100), 0), 100)
+                      : 0
+                  }%`,
+                }}
+              />
             </div>
           </div>
         </div>

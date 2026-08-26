@@ -389,7 +389,7 @@ export const adminService = {
   },
 
   syncAdminSocialAnalytics: async (): Promise<any> => {
-    const response = await axiosInstance.post('/api/social/internal/sync-analytics');
+    const response = await axiosInstance.post('/api/social/analytics/sync');
     return response.data;
   },
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ShieldCheck, RefreshCw, LogOut, Calendar, Activity } from "lucide-react";
+import { ShieldCheck, RefreshCw, LogOut, Menu } from "lucide-react";
 
 interface AdminHeaderProps {
   selectedPeriod: "24h" | "7d" | "30d" | "month" | "90d";
@@ -10,6 +10,7 @@ interface AdminHeaderProps {
   isRefreshing: boolean;
   onLogout: () => void;
   adminEmail?: string;
+  onToggleMobileMenu?: () => void;
 }
 
 export const AdminHeader: React.FC<AdminHeaderProps> = ({
@@ -18,28 +19,39 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   onRefresh,
   isRefreshing,
   onLogout,
-  adminEmail = "admin@quhealthy.org",
+  onToggleMobileMenu,
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-6 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
       {/* Brand & Live status */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-medical-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-          <ShieldCheck className="w-5 h-5" />
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-bold text-slate-900 text-base lg:text-lg tracking-tight">
-              QuHealthy Command Center
-            </h1>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Sync
-            </span>
+      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div className="flex items-center gap-2.5">
+          {/* Mobile menu trigger */}
+          <button
+            onClick={onToggleMobileMenu}
+            className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200"
+            aria-label="Abrir menú de navegación"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-medical-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0">
+            <ShieldCheck className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500">
-            Control Financiero, Operativo, Telemetría y Microservicios
-          </p>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h1 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">
+                QuHealthy Command Center
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 hidden sm:block">
+              Control Ejecutivo, Operativo & Analíticas Meta
+            </p>
+          </div>
         </div>
       </div>
 
