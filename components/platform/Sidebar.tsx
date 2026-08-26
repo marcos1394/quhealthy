@@ -47,6 +47,8 @@ import {
   BarChart3,
   UsersRound,
   Store,
+  ThermometerSnowflake,
+  Building2,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -109,6 +111,21 @@ const foundationSettingsLinks = [
   { key: "settings", href: "/foundation/settings", icon: Settings, badge: null },
 ];
 
+const supplierLinks = [
+  { key: "dashboard", href: "/supplier/dashboard", icon: LayoutDashboard, badge: null },
+  { key: "products", href: "/supplier/products", icon: Package, badge: null },
+  { key: "inventory", href: "/supplier/inventory", icon: PackageCheck, badge: null },
+  { key: "orders", href: "/supplier/orders", icon: ShoppingBag, badge: null },
+  { key: "quotes", href: "/supplier/quotes", icon: FileText, badge: null },
+  { key: "rentals", href: "/supplier/rentals", icon: Activity, badge: null },
+  { key: "cold_chain", href: "/supplier/cold-chain", icon: ThermometerSnowflake, badge: null },
+];
+
+const supplierSettingsLinks = [
+  { key: "onboarding", href: "/onboarding/supplier", icon: Building2, badge: null },
+  { key: "settings", href: "/provider/dashboard/settings", icon: Settings, badge: null },
+];
+
 const patientLinks = [
   { key: "dashboard", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
   { key: "copilot", href: "/copilot", icon: BrainCircuit, badge: { count: "IA" } },
@@ -160,6 +177,7 @@ const NavItem = ({
       (href !== "/provider/dashboard" &&
         href !== "/patient/dashboard" &&
         href !== "/foundation/dashboard" &&
+        href !== "/supplier/dashboard" &&
         pathname?.startsWith(href))
   );
 
@@ -172,16 +190,17 @@ const NavItem = ({
     if (["copilot"].includes(key)) return "text-emerald-600 dark:text-emerald-400";
     if (["messages"].includes(key)) return "text-sky-500";
     if (["packages"].includes(key)) return "text-amber-500";
-    if (["orders", "inventory"].includes(key)) return "text-purple-500";
-    if (["patients", "dependents", "public_profile", "profile", "team", "beneficiaries"].includes(key))
+    if (["orders", "inventory", "products"].includes(key)) return "text-purple-500";
+    if (["patients", "dependents", "public_profile", "profile", "team", "beneficiaries", "quotes", "onboarding"].includes(key))
       return "text-indigo-500";
     if (["calendar", "appointments", "campaigns"].includes(key)) return "text-orange-500";
     if (["womens_health", "oncology", "diabetes", "programs"].includes(key)) return "text-pink-500";
     if (["discover"].includes(key)) return "text-fuchsia-500";
     if (["emergencies"].includes(key)) return "text-rose-500";
     if (["nutrition", "social_bi"].includes(key)) return "text-emerald-500";
-    if (["subsidies"].includes(key)) return "text-amber-500";
+    if (["subsidies", "rentals"].includes(key)) return "text-amber-500";
     if (["treatments"].includes(key)) return "text-cyan-500";
+    if (["cold_chain"].includes(key)) return "text-sky-500";
 
     return "text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors";
   };
@@ -274,19 +293,28 @@ export const Sidebar = ({
   // Carga los módulos activos del paciente según sus diagnósticos CIE-10
   useActiveModules();
 
+  const isSupplier =
+    pathname?.includes("/supplier") ||
+    (role as string) === "ROLE_SUPPLIER" ||
+    (role as string) === "SUPPLIER";
   const isFoundation =
     pathname?.includes("/foundation") ||
     (role as string) === "ROLE_FOUNDATION" ||
     (role as string) === "FOUNDATION";
-  const isConsumer = !isFoundation && role === "ROLE_CONSUMER";
+  const isConsumer = !isFoundation && !isSupplier && role === "ROLE_CONSUMER";
   const isStaff = role === "ROLE_STAFF";
-  const homeLink = isFoundation
+  const homeLink = isSupplier
+    ? "/supplier/dashboard"
+    : isFoundation
     ? "/foundation/dashboard"
     : isConsumer
     ? "/patient/dashboard"
     : "/provider/dashboard";
 
   const currentLinks = useMemo(() => {
+    if (isSupplier) {
+      return supplierLinks;
+    }
     if (isFoundation) {
       return foundationLinks;
     }
@@ -305,22 +333,24 @@ export const Sidebar = ({
       );
     }
     return links;
-  }, [isFoundation, isConsumer, isStaff, user?.permissions, activeModules, isModuleActive]);
+  }, [isSupplier, isFoundation, isConsumer, isStaff, user?.permissions, activeModules, isModuleActive]);
 
-  const currentSettingsLinks = isFoundation
+  const currentSettingsLinks = isSupplier
+    ? supplierSettingsLinks
+    : isFoundation
     ? foundationSettingsLinks
     : isConsumer
     ? patientSettingsLinks
     : providerSettingsLinks;
 
   useEffect(() => {
-    if (!isConsumer && !isFoundation) {
+    if (!isConsumer && !isFoundation && !isSupplier) {
       subscriptionService
         .getCurrentSubscription()
         .then(setSubscription)
         .catch(() => setSubscription(null));
     }
-  }, [isConsumer, isFoundation]);
+  }, [isConsumer, isFoundation, isSupplier]);
 
   const handleSwitchProfile = async () => {
     setIsSwitchingProfile(true);
@@ -399,7 +429,9 @@ export const Sidebar = ({
                   QuHealthy<span className="text-emerald-600 dark:text-emerald-400">.</span>
                 </span>
                 <span className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-[#181818] border border-gray-200/60 dark:border-gray-800 text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
-                  {isFoundation
+                  {isSupplier
+                    ? t("role_supplier")
+                    : isFoundation
                     ? t("role_foundation")
                     : isConsumer
                     ? t("role_patient")
@@ -435,7 +467,7 @@ export const Sidebar = ({
       </div>
 
       {/* ── BANNER DE PLAN DE SUSCRIPCIÓN (PROVEEDORES) ───────────────── */}
-      {!isCollapsed && !isConsumer && !isFoundation && (
+      {!isCollapsed && !isConsumer && !isFoundation && !isSupplier && (
         <div className="p-3 border-b border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a]">
           <Link href="/provider/dashboard/settings#subscription">
             <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 p-2.5 flex items-start gap-2.5 hover:border-emerald-500/40 transition-all shadow-2xs group cursor-pointer">
@@ -535,7 +567,7 @@ export const Sidebar = ({
 
           <LanguageToggle showText={false} />
 
-          {!isFoundation && (
+          {!isFoundation && !isSupplier && (
             <button
               type="button"
               onClick={handleSwitchProfile}
@@ -594,7 +626,7 @@ export const Sidebar = ({
 
           {/* ── ACCIONES DE PERFIL, SOPORTE Y SALIDA ───────────────────── */}
           <div className="space-y-0.5">
-            {!isFoundation && (
+            {!isFoundation && !isSupplier && (
               <button
                 type="button"
                 onClick={handleSwitchProfile}

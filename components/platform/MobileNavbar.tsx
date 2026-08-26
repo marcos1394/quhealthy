@@ -29,12 +29,18 @@ export function MobileNavbar() {
   const { role } = useSessionStore();
   const { cart, openCart } = useBookingStore();
 
+  const isSupplier =
+    pathname?.includes("/supplier") ||
+    (role as string) === "ROLE_SUPPLIER" ||
+    (role as string) === "SUPPLIER";
   const isFoundation =
     pathname?.includes("/foundation") ||
     (role as string) === "ROLE_FOUNDATION" ||
     (role as string) === "FOUNDATION";
-  const isConsumer = !isFoundation && role === "ROLE_CONSUMER";
-  const homeLink = isFoundation
+  const isConsumer = !isFoundation && !isSupplier && role === "ROLE_CONSUMER";
+  const homeLink = isSupplier
+    ? "/supplier/dashboard"
+    : isFoundation
     ? "/foundation/dashboard"
     : isConsumer
     ? "/patient/dashboard"

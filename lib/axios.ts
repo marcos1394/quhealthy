@@ -119,7 +119,7 @@ axiosInstance.interceptors.response.use(
 
     // ── 404: lo pasamos directo al componente ────────────────────────────
     if (error.response?.status === 404) {
-      return Promise.reject(buildCustomError(error));
+      return Promise.reject(await buildCustomError(error));
     }
 
     // ── 401: intentamos renovar el token ─────────────────────────────────
@@ -135,7 +135,7 @@ axiosInstance.interceptors.response.use(
         url.includes('/api/auth/refresh-token') ||
         url.includes('/api/auth/logout')
       ) {
-        return Promise.reject(buildCustomError(error));
+        return Promise.reject(await buildCustomError(error));
       }
 
       // 🚀 FIX BUG-5: Si initializeSession() ya está haciendo refresh,
@@ -146,7 +146,7 @@ axiosInstance.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
           }
           return axiosInstance(originalRequest);
-        }).catch(() => Promise.reject(buildCustomError(error)));
+        }).catch(async () => Promise.reject(await buildCustomError(error)));
       }
 
       // Si ya hay un refresh en curso (desde otro 401) → encolar este request
@@ -263,9 +263,11 @@ async function buildCustomError(error: AxiosError<ApiErrorResponse>): Promise<Er
 
   const customError = new Error(message) as Error & {
     status?: number;
+    response?: AxiosResponse<ApiErrorResponse>;
     originalError?: unknown;
   };
   customError.status = error.response?.status;
+  customError.response = error.response;
   customError.originalError = error.response?.data;
 
   return customError;

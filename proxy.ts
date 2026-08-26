@@ -49,21 +49,24 @@ export function proxy(request: NextRequest) {
   // 🛡️ 4. 🌐 MATCHERS A PRUEBA DE IDIOMAS Y LÓGICA DE SEGURIDAD
   // =========================================================================
   const isProviderRegisterRoute = /^\/([a-zA-Z]{2}\/)?provider\/register/.test(pathname);
+  const isSupplierRegisterRoute = /^\/([a-zA-Z]{2}\/)?supplier\/register/.test(pathname);
+  const isFoundationRegisterRoute = /^\/([a-zA-Z]{2}\/)?foundation\/register/.test(pathname);
   
-  // 🚀 NUEVO: Identificamos la ruta pública de la receta para excluirla
+  // 🚀 Identificamos la ruta pública de la receta para excluirla
   const isPublicPrescriptionRoute = /^\/([a-zA-Z]{2}\/)?patient\/prescription\//.test(pathname);
 
-  // 🚀 NUEVO: Identificamos la ruta de login de admin para excluirla de las protegidas
+  // 🚀 Identificamos la ruta de login de admin para excluirla de las protegidas
   const isAdminLoginRoute = /^\/([a-zA-Z]{2}\/)?admin\/login/.test(pathname);
 
-  // Todo bajo /patient, /provider o /admin está protegido, 
-  // EXCEPTO /provider/register, la Bóveda de Recetas (/patient/prescription/...) y Admin Login
-  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|admin)/.test(pathname) 
+  // Todo bajo /patient, /provider, /supplier, /foundation o /admin está protegido
+  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|supplier|foundation|admin)/.test(pathname) 
     && !isProviderRegisterRoute 
+    && !isSupplierRegisterRoute
+    && !isFoundationRegisterRoute
     && !isPublicPrescriptionRoute
     && !isAdminLoginRoute;
   
-  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register|admin\/login)/.test(pathname);
+  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register|supplier\/register|foundation\/register|admin\/login)/.test(pathname);
 
   const localeMatch = pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
   const currentLocale = localeMatch ? `/${localeMatch[1]}` : '';
@@ -76,13 +79,18 @@ export function proxy(request: NextRequest) {
   }
 
   // 🛡️ Lógica Anti-rebote (Con token intentando ir a Login/Registro)
-  // 🚀 FIX: Si la URL tiene expired=true, significa que el token falló en el frontend. NO redirigir de vuelta al dashboard.
   const isExpired = request.nextUrl.searchParams.get('expired') === 'true';
   
   if (isAuthRoute && isTokenPresent && !isExpired) {
     const userRole = request.cookies.get('__Secure-userRole')?.value;
     
     // 🚀 Redirigir según el rol guardado en la cookie
+    if (userRole === 'ROLE_SUPPLIER' || userRole === 'SUPPLIER') {
+      return NextResponse.redirect(new URL(`${currentLocale}/supplier/dashboard`, request.url));
+    }
+    if (userRole === 'ROLE_FOUNDATION' || userRole === 'FOUNDATION') {
+      return NextResponse.redirect(new URL(`${currentLocale}/foundation/dashboard`, request.url));
+    }
     if (userRole === 'ROLE_PROVIDER' || userRole === 'ROLE_STAFF') {
       return NextResponse.redirect(new URL(`${currentLocale}/provider/dashboard`, request.url));
     }

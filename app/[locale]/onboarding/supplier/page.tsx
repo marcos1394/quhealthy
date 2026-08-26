@@ -4,8 +4,8 @@
 /* eslint-disable react-doctor/no-giant-component */
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter, Link } from "@/i18n/routing";
+import { handleApiError } from "@/lib/handleApiError";
 import {
   Building2,
   Package,
@@ -256,8 +256,8 @@ export default function SupplierOnboardingPage() {
       setDocFile(null);
       setDocNumber("");
       toast.success("Documento cargado correctamente.");
-    } catch {
-      toast.error("Error al subir el documento.");
+    } catch (err: any) {
+      handleApiError(err, "Error al subir el documento.");
     } finally {
       setIsSaving(false);
     }
