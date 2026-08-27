@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
@@ -161,13 +162,13 @@ export default function LoginPage() {
       toast.success(t("login_success"), { theme: "colored" });
       try {
         const sStatus = await supplierService.getOnboardingStatus();
-        if (sStatus.currentStep >= 5) {
+        if (sStatus.isRegistered && sStatus.currentStep >= 5) {
           router.push("/supplier/dashboard");
         } else {
           router.push("/onboarding/supplier");
         }
       } catch {
-        router.push("/supplier/dashboard");
+        router.push("/onboarding/supplier");
       }
       return;
     }

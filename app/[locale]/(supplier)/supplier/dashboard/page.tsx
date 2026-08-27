@@ -2,9 +2,8 @@
 
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/no-giant-component */
-
 import React, { useEffect, useState } from "react";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import {
   Package,
   PackageCheck,
@@ -37,6 +36,7 @@ import {
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 export default function SupplierDashboardPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [profile, setProfile] = useState<SupplierOrganization | null>(null);
@@ -59,23 +59,34 @@ export default function SupplierDashboardPage() {
         supplierService.getProfile(),
       ]);
 
-      if (st.status === "fulfilled") setOnboardingStatus(st.value);
-      if (prof.status === "fulfilled") setProfile(prof.value);
+      const obStatus = st.status === "fulfilled" ? st.value : null;
+      const orgProfile = prof.status === "fulfilled" ? prof.value : null;
 
-      // Cargar métricas adicionales en paralelo
-      const [prodsRes, batchesRes, ordersRes, quotesRes, shipmentsRes] = await Promise.allSettled([
-        supplierService.getProducts(),
-        supplierService.getBatches(),
-        supplierService.getPurchaseOrders(),
-        supplierService.getQuotes(),
-        supplierService.getThermalShipments(),
-      ]);
+      if (obStatus) setOnboardingStatus(obStatus);
+      if (orgProfile) setProfile(orgProfile);
 
-      if (prodsRes.status === "fulfilled") setProducts(prodsRes.value || []);
-      if (batchesRes.status === "fulfilled") setBatches(batchesRes.value || []);
-      if (ordersRes.status === "fulfilled") setOrders(ordersRes.value || []);
-      if (quotesRes.status === "fulfilled") setQuotes(quotesRes.value || []);
-      if (shipmentsRes.status === "fulfilled") setShipments(shipmentsRes.value || []);
+      // Si aún no está registrada la empresa en el paso 1, redirigir al onboarding
+      if (obStatus && !obStatus.isRegistered) {
+        router.push("/onboarding/supplier");
+        return;
+      }
+
+      // Solo consultar catálogos y operaciones si la organización proveedora existe
+      if (obStatus?.isRegistered || orgProfile) {
+        const [prodsRes, batchesRes, ordersRes, quotesRes, shipmentsRes] = await Promise.allSettled([
+          supplierService.getProducts(),
+          supplierService.getBatches(),
+          supplierService.getPurchaseOrders(),
+          supplierService.getQuotes(),
+          supplierService.getThermalShipments(),
+        ]);
+
+        if (prodsRes.status === "fulfilled") setProducts(prodsRes.value || []);
+        if (batchesRes.status === "fulfilled") setBatches(batchesRes.value || []);
+        if (ordersRes.status === "fulfilled") setOrders(ordersRes.value || []);
+        if (quotesRes.status === "fulfilled") setQuotes(quotesRes.value || []);
+        if (shipmentsRes.status === "fulfilled") setShipments(shipmentsRes.value || []);
+      }
     } catch (error) {
       console.error("Error al cargar dashboard del proveedor:", error);
     } finally {
