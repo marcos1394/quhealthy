@@ -342,6 +342,7 @@ export const TabAdminSocialConnections: React.FC = () => {
     platform: "FACEBOOK",
     accountName: fbConn?.platformUserName || "Quhealthy",
     isConnected: isFbConnected,
+    followersCount: 0,
     postsCount: 0,
     likes: 0,
     comments: 0,
@@ -355,6 +356,7 @@ export const TabAdminSocialConnections: React.FC = () => {
     platform: "INSTAGRAM",
     accountName: igConn?.platformUserName || "@quhealthyorg",
     isConnected: isIgConnected,
+    followersCount: 0,
     postsCount: 0,
     likes: 0,
     comments: 0,
@@ -615,20 +617,22 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
             </div>
 
-            {/* KPI 4: Canales Oficiales Activos */}
+            {/* KPI 4: Audiencia y Seguidores Totales */}
             <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
-                <span>Canales Conectados</span>
+                <span>Seguidores & Audiencia</span>
                 <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-                  <Globe className="w-4 h-4" />
+                  <Users className="w-4 h-4" />
                 </div>
               </div>
               <div className="mt-2">
                 <div className="text-2xl font-black text-slate-900">
-                  {connectedCount} / 7
+                  {(analytics?.totalFollowers || ((fbMetrics.followersCount || 0) + (igMetrics.followersCount || 0))).toLocaleString("es-MX")}
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-0.5">
-                  <CheckCircle2 className="w-3 h-3" /> Token E2E activo
+                <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                  <span className="font-semibold text-pink-600">📸 IG: {(igMetrics.followersCount || 0).toLocaleString("es-MX")}</span>
+                  <span>·</span>
+                  <span className="font-semibold text-blue-600">📘 FB: {(fbMetrics.followersCount || 0).toLocaleString("es-MX")}</span>
                 </div>
               </div>
             </div>
@@ -682,6 +686,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <h3 className="font-bold text-slate-900 text-sm">Facebook Page Oficial</h3>
                       <p className="text-xs text-slate-500">
                         {fbMetrics.accountName ? `Página: ${fbMetrics.accountName}` : "Página corporativa @quhealthy"}
+                        {fbMetrics.followersCount ? ` · ${fbMetrics.followersCount.toLocaleString("es-MX")} seguidores` : ""}
                       </p>
                     </div>
                   </div>
@@ -744,6 +749,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <h3 className="font-bold text-slate-900 text-sm">Instagram @quhealthyorg</h3>
                       <p className="text-xs text-slate-500">
                         {igMetrics.accountName ? `Cuenta: ${igMetrics.accountName}` : "Cuenta profesional & Reels"}
+                        {igMetrics.followersCount ? ` · ${igMetrics.followersCount.toLocaleString("es-MX")} seguidores` : ""}
                       </p>
                     </div>
                   </div>

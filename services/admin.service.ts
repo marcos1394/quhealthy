@@ -427,6 +427,7 @@ export const adminService = {
     totalShares: number;
     totalEngagement: number;
     overallEngagementRate: number;
+    totalFollowers?: number;
     growthLikes?: number;
     growthComments?: number;
     growthShares?: number;
@@ -438,6 +439,7 @@ export const adminService = {
         platform: string;
         accountName?: string;
         isConnected: boolean;
+        followersCount?: number;
         postsCount: number;
         likes: number;
         comments: number;
