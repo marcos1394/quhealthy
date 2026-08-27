@@ -1033,7 +1033,7 @@ export const TabAdminSocialConnections: React.FC = () => {
 
               <div className="h-64 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 15, left: 10, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 15, right: 20, left: 10, bottom: 15 }}>
                     <defs>
                       <linearGradient id="gradIg" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
@@ -1076,17 +1076,20 @@ export const TabAdminSocialConnections: React.FC = () => {
                         }
                       }}
                       tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      axisLine={false}
+                      axisLine={{ stroke: "#e2e8f0" }}
                       tickLine={false}
+                      dy={6}
                     />
                     <YAxis
+                      domain={[0, (dataMax: number) => Math.max(dataMax || 0, 5)]}
                       tick={{ fontSize: 11, fill: "#64748b" }}
-                      axisLine={{ stroke: "#f1f5f9" }}
+                      axisLine={{ stroke: "#e2e8f0" }}
                       tickLine={false}
                       allowDecimals={false}
                       width={45}
                     />
                     <Tooltip
+                      cursor={{ stroke: "#94a3b8", strokeWidth: 1, strokeDasharray: "4 4" }}
                       contentStyle={{
                         backgroundColor: "#0f172a",
                         borderRadius: "12px",
@@ -1107,8 +1110,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2.5}
                           fillOpacity={1}
                           fill="url(#gradIg)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#ec4899" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#ec4899" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#ec4899", stroke: "#ffffff" }}
                         />
                         <Area
                           type="monotone"
@@ -1118,8 +1121,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2.5}
                           fillOpacity={1}
                           fill="url(#gradFb)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#2563eb" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#2563eb" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#2563eb", stroke: "#ffffff" }}
                         />
                         <Area
                           type="monotone"
@@ -1129,8 +1132,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2.5}
                           fillOpacity={1}
                           fill="url(#gradWa)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#22c55e" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#22c55e" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#22c55e", stroke: "#ffffff" }}
                         />
                       </>
                     )}
@@ -1144,8 +1147,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradLikes)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#f43f5e" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#f43f5e" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#f43f5e", stroke: "#ffffff" }}
                         />
                         <Area
                           type="monotone"
@@ -1155,8 +1158,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradComments)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#8b5cf6" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#8b5cf6" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#8b5cf6", stroke: "#ffffff" }}
                         />
                         <Area
                           type="monotone"
@@ -1166,8 +1169,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradFb)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#2563eb" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#2563eb" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#2563eb", stroke: "#ffffff" }}
                         />
                       </>
                     )}
@@ -1181,8 +1184,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradViews)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#6366f1" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#6366f1" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#6366f1", stroke: "#ffffff" }}
                         />
                         <Area
                           type="monotone"
@@ -1192,8 +1195,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2.5}
                           fillOpacity={1}
                           fill="url(#gradTotalEng)"
-                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#ec4899" }}
-                          activeDot={{ r: 6, strokeWidth: 2 }}
+                          dot={{ r: 4.5, strokeWidth: 2, fill: "#ffffff", stroke: "#ec4899" }}
+                          activeDot={{ r: 7, strokeWidth: 2, fill: "#ec4899", stroke: "#ffffff" }}
                         />
                       </>
                     )}
