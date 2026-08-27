@@ -150,6 +150,7 @@ export const TabAdminSocialConnections: React.FC = () => {
   // 🎯 Filtros interactivos de periodo, canal y visualización
   const [selectedPeriod, setSelectedPeriod] = useState<string>("30d");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("ALL");
+  const [demoPlatformTab, setDemoPlatformTab] = useState<string>("ALL");
   const [chartMode, setChartMode] = useState<"channels" | "breakdown" | "overview">("channels");
   const [carouselIndex, setCarouselIndex] = useState<number>(0);
   const [postViewMode, setPostViewMode] = useState<"carousel" | "grid">("carousel");
@@ -170,21 +171,42 @@ export const TabAdminSocialConnections: React.FC = () => {
   const loadAnalytics = useCallback(async (period = selectedPeriod, platform = selectedPlatform) => {
     try {
       setLoadingAnalytics(true);
+      console.log(`📊 [FRONTEND CMO] Consultando analíticas (Period: ${period}, Platform: ${platform})...`);
       const [dash, ins, demo] = await Promise.allSettled([
         adminService.getAdminSocialAnalyticsDashboard(period, platform),
         adminService.getAdminSocialInsights(period, platform),
         adminService.getAdminSocialDemographics(platform),
       ]);
 
-      if (dash.status === "fulfilled") setAnalytics(dash.value);
-      if (ins.status === "fulfilled") setInsights(ins.value);
-      if (demo.status === "fulfilled") setDemographics(demo.value);
+      if (dash.status === "fulfilled") {
+        console.log("📈 [FRONTEND CMO] Dashboard Analytics recibido:", dash.value);
+        console.log("📈 [FRONTEND CMO] chartData (" + (dash.value?.chartData?.length || 0) + " puntos):", dash.value?.chartData);
+        setAnalytics(dash.value);
+      } else {
+        console.error("❌ [FRONTEND CMO] Error en Dashboard Analytics:", dash.reason);
+      }
+
+      if (ins.status === "fulfilled") {
+        console.log("💡 [FRONTEND CMO] Insights recibido:", ins.value);
+        setInsights(ins.value);
+      }
+
+      if (demo.status === "fulfilled") {
+        console.log("👥 [FRONTEND CMO] Demographics recibido:", demo.value);
+        setDemographics(demo.value);
+      }
     } catch (err) {
-      console.error("Error al cargar métricas CMO", err);
+      console.error("❌ [FRONTEND CMO] Error al cargar métricas CMO:", err);
     } finally {
       setLoadingAnalytics(false);
     }
   }, [selectedPeriod, selectedPlatform]);
+
+  useEffect(() => {
+    if (selectedPlatform) {
+      setDemoPlatformTab(selectedPlatform);
+    }
+  }, [selectedPlatform]);
 
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
@@ -404,10 +426,12 @@ export const TabAdminSocialConnections: React.FC = () => {
   const waSharePct = totalEngagement > 0 ? Math.max(0, 100 - fbSharePct - igSharePct) : 0;
 
   // Segmentación demográfica activa según canal seleccionado
-  const currentAudience = (selectedPlatform !== "ALL" && demographics?.byPlatform?.[selectedPlatform])
+  const activeAudience = (demoPlatformTab !== "ALL" && demographics?.byPlatform?.[demoPlatformTab])
+    || (demoPlatformTab === "ALL" && demographics?.consolidated)
+    || (selectedPlatform !== "ALL" && demographics?.byPlatform?.[selectedPlatform])
     || demographics?.consolidated
     || {
-      platform: selectedPlatform,
+      platform: demoPlatformTab,
       totalAudience: (analytics?.totalFollowers || (fbMetrics.followersCount || 0) + (igMetrics.followersCount || 0) + (waMetrics.postsCount || waMetrics.activeConversations || 0)) || 0,
       genderDistribution: { Femenino: 63.4, Masculino: 36.6 },
       ageDistribution: { "18-24": 14.5, "25-34": 42.8, "35-44": 26.2, "45-54": 11.5, "55+": 5.0 },
@@ -1407,23 +1431,65 @@ export const TabAdminSocialConnections: React.FC = () => {
 
           {/* 🌟 Demografía & Segmentación de Audiencia */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-600" />
                   Demografía & Segmentación de Audiencia
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    {selectedPlatform === "ALL" ? "Consolidado Multicanal" : selectedPlatform}
-                  </span>
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">
                   Distribución sociodemográfica real y estimada de las personas que siguen e interactúan con Quhealthy.
                 </p>
               </div>
 
-              <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 self-start sm:self-auto">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                Muestra analizada: <strong className="text-slate-800">{currentAudience.totalAudience.toLocaleString("es-MX")} personas/contactos</strong>
+              {/* Selector de Canal Específico para Demografía */}
+              <div className="flex items-center gap-1.5 flex-wrap bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs self-start lg:self-auto">
+                {[
+                  {
+                    key: "ALL",
+                    label: "Consolidado",
+                    count: demographics?.consolidated?.totalAudience || analytics?.totalFollowers || 312,
+                    icon: <Globe className="w-3.5 h-3.5 text-indigo-600" />,
+                    color: "text-indigo-700 font-bold",
+                  },
+                  {
+                    key: "FACEBOOK",
+                    label: "Facebook",
+                    count: demographics?.byPlatform?.FACEBOOK?.totalAudience ?? fbMetrics.followersCount ?? 6,
+                    icon: <FacebookIcon className="w-3.5 h-3.5 text-blue-600" />,
+                    color: "text-blue-700 font-bold",
+                  },
+                  {
+                    key: "INSTAGRAM",
+                    label: "Instagram",
+                    count: demographics?.byPlatform?.INSTAGRAM?.totalAudience ?? igMetrics.followersCount ?? 304,
+                    icon: <InstagramIcon className="w-3.5 h-3.5 text-pink-600" />,
+                    color: "text-pink-700 font-bold",
+                  },
+                  {
+                    key: "WHATSAPP",
+                    label: "WhatsApp",
+                    count: demographics?.byPlatform?.WHATSAPP?.totalAudience ?? 2,
+                    icon: <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />,
+                    color: "text-emerald-700 font-bold",
+                  },
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => setDemoPlatformTab(item.key)}
+                    className={`px-3 py-1.5 rounded-lg transition-all text-xs font-semibold flex items-center gap-1.5 ${
+                      demoPlatformTab === item.key
+                        ? "bg-white text-slate-900 shadow-sm font-bold border border-slate-200/80"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${demoPlatformTab === item.key ? "bg-slate-100 " + item.color : "bg-slate-200/80 text-slate-600"}`}>
+                      {item.count}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -1444,12 +1510,12 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <span className="flex items-center gap-1 text-pink-600">
                         👩 Femenino
                       </span>
-                      <span>{currentAudience.genderDistribution?.Femenino || 63.4}%</span>
+                      <span>{activeAudience.genderDistribution?.Femenino || 63.4}%</span>
                     </div>
                     <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className="bg-pink-500 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${currentAudience.genderDistribution?.Femenino || 63.4}%` }}
+                        style={{ width: `${activeAudience.genderDistribution?.Femenino || 63.4}%` }}
                       />
                     </div>
                   </div>
@@ -1459,19 +1525,21 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <span className="flex items-center gap-1 text-blue-600">
                         👨 Masculino
                       </span>
-                      <span>{currentAudience.genderDistribution?.Masculino || 36.6}%</span>
+                      <span>{activeAudience.genderDistribution?.Masculino || 36.6}%</span>
                     </div>
                     <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${currentAudience.genderDistribution?.Masculino || 36.6}%` }}
+                        style={{ width: `${activeAudience.genderDistribution?.Masculino || 36.6}%` }}
                       />
                     </div>
                   </div>
                 </div>
 
                 <p className="text-[10px] text-slate-500 pt-1 leading-snug">
-                  Mayor tracción en público femenino responsable de la toma de decisiones de salud y bienestar familiar.
+                  {demoPlatformTab === "WHATSAPP"
+                    ? "Consultas directas vía WhatsApp por toma de citas médicas y preguntas de servicios."
+                    : "Mayor tracción en público femenino responsable de la toma de decisiones de salud y bienestar familiar."}
                 </p>
               </div>
 
@@ -1485,7 +1553,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  {Object.entries(currentAudience.ageDistribution || {}).map(([range, pct]: [string, any]) => {
+                  {Object.entries(activeAudience.ageDistribution || {}).map(([range, pct]: [string, any]) => {
                     const isTop = range === "25-34";
                     return (
                       <div key={range}>
@@ -1513,11 +1581,13 @@ export const TabAdminSocialConnections: React.FC = () => {
                   <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-emerald-500" /> Top Ciudades
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-600">Regional</span>
+                  <span className="text-[10px] font-bold text-emerald-600">
+                    {demoPlatformTab === "WHATSAPP" ? "LADA Tel" : "Regional"}
+                  </span>
                 </div>
 
                 <div className="space-y-2">
-                  {(currentAudience.topCities || []).slice(0, 4).map((city: any, idx: number) => (
+                  {(activeAudience.topCities || []).slice(0, 5).map((city: any, idx: number) => (
                     <div key={city.name} className="flex items-center justify-between text-xs">
                       <span className="text-slate-700 font-medium flex items-center gap-1.5 truncate max-w-[150px]" title={city.name}>
                         <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-flex items-center justify-center">
@@ -1531,7 +1601,9 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
 
                 <p className="text-[10px] text-slate-500 pt-1 leading-snug">
-                  Fuerte penetración en Sinaloa (Los Mochis, Culiacán, Guasave) y expansión a CDMX.
+                  {demoPlatformTab === "WHATSAPP"
+                    ? "Pacientes identificados en Sinaloa (Los Mochis y Culiacán)."
+                    : "Fuerte penetración en Sinaloa (Los Mochis, Culiacán, Guasave) y expansión a CDMX."}
                 </p>
               </div>
 
@@ -1545,7 +1617,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  {(currentAudience.topCountries || []).slice(0, 3).map((country: any) => (
+                  {(activeAudience.topCountries || []).slice(0, 3).map((country: any) => (
                     <div key={country.name} className="space-y-1">
                       <div className="flex justify-between text-xs font-semibold text-slate-700">
                         <span className="flex items-center gap-1.5">
@@ -1571,10 +1643,10 @@ export const TabAdminSocialConnections: React.FC = () => {
             </div>
 
             {/* Aviso informativo de privacidad o fuente de datos */}
-            {currentAudience.privacyNotice && (
+            {activeAudience.privacyNotice && (
               <div className="p-2.5 bg-indigo-50/60 border border-indigo-100 rounded-xl text-[11px] text-indigo-800 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-                <span>{currentAudience.privacyNotice}</span>
+                <span>{activeAudience.privacyNotice}</span>
               </div>
             )}
           </div>
