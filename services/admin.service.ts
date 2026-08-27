@@ -447,6 +447,9 @@ export const adminService = {
         views: number;
         totalEngagement: number;
         engagementRate: number;
+        inboundMessages?: number;
+        outboundMessages?: number;
+        activeConversations?: number;
       }
     >;
     chartData: Array<{
@@ -458,9 +461,11 @@ export const adminService = {
       shares?: number;
       facebookEngagement?: number;
       instagramEngagement?: number;
+      whatsappEngagement?: number;
       otherEngagement?: number;
       facebookViews?: number;
       instagramViews?: number;
+      whatsappViews?: number;
       otherViews?: number;
     }>;
     topPosts?: Array<{

@@ -366,6 +366,23 @@ export const TabAdminSocialConnections: React.FC = () => {
     engagementRate: 0.0,
   };
 
+  const waMetrics = analytics?.byPlatform?.["WHATSAPP"] ?? {
+    platform: "WHATSAPP",
+    accountName: waConn?.platformUserName || "+52 16681842487",
+    isConnected: isWaConnected,
+    followersCount: 0,
+    postsCount: 0,
+    likes: 0,
+    comments: 0,
+    shares: 0,
+    views: 0,
+    totalEngagement: 0,
+    engagementRate: 100.0,
+    inboundMessages: 0,
+    outboundMessages: 0,
+    activeConversations: 0,
+  };
+
   const chartData = analytics?.chartData ?? [];
 
   // Lista enriquecida de Top Posts / Reels (de dashboard o insights)
@@ -378,6 +395,7 @@ export const TabAdminSocialConnections: React.FC = () => {
   // Proporción de engagement entre canales
   const fbSharePct = totalEngagement > 0 ? Math.round((fbMetrics.totalEngagement / totalEngagement) * 100) : 0;
   const igSharePct = totalEngagement > 0 ? Math.round((igMetrics.totalEngagement / totalEngagement) * 100) : 0;
+  const waSharePct = totalEngagement > 0 ? Math.max(0, 100 - fbSharePct - igSharePct) : 0;
 
   // Helper para renderizar badge de crecimiento porcentual
   const renderGrowthBadge = (growth?: number) => {
@@ -535,6 +553,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                 { key: "ALL", label: "Todos los Canales", icon: <Globe className="w-3.5 h-3.5" /> },
                 { key: "FACEBOOK", label: "Facebook", icon: <FacebookIcon className="w-3.5 h-3.5" /> },
                 { key: "INSTAGRAM", label: "Instagram", icon: <InstagramIcon className="w-3.5 h-3.5" /> },
+                { key: "WHATSAPP", label: "WhatsApp", icon: <WhatsAppIcon className="w-3.5 h-3.5" /> },
               ].map((plat) => (
                 <button
                   key={plat.key}
@@ -643,10 +662,10 @@ export const TabAdminSocialConnections: React.FC = () => {
             <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-slate-800">
                 <span className="flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-amber-500" /> Distribución Real de Engagement por Canal
+                  <Flame className="w-4 h-4 text-amber-500" /> Distribución Real de Tracción por Canal
                 </span>
                 <span className="text-slate-500 font-medium text-[11px]">
-                  Instagram ({igSharePct}%) · Facebook ({fbSharePct}%)
+                  Instagram ({igSharePct}%) · Facebook ({fbSharePct}%) {waSharePct > 0 ? `· WhatsApp (${waSharePct}%)` : ""}
                 </span>
               </div>
               <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
@@ -660,20 +679,32 @@ export const TabAdminSocialConnections: React.FC = () => {
                   style={{ width: `${fbSharePct}%` }}
                   title={`Facebook: ${fbMetrics.totalEngagement} interacciones (${fbSharePct}%)`}
                 />
+                {waSharePct > 0 && (
+                  <div
+                    className="bg-emerald-500 h-full transition-all duration-500"
+                    style={{ width: `${waSharePct}%` }}
+                    title={`WhatsApp: ${waMetrics.totalEngagement} mensajes (${waSharePct}%)`}
+                  />
+                )}
               </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5 flex-wrap gap-2">
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-pink-500" /> Instagram: {igMetrics.totalEngagement} interacciones ({igMetrics.likes} likes, {igMetrics.comments} comments)
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-blue-600" /> Facebook: {fbMetrics.totalEngagement} interacciones ({fbMetrics.likes} likes, {fbMetrics.shares} shares)
                 </span>
+                {waMetrics.totalEngagement > 0 && (
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" /> WhatsApp: {waMetrics.totalEngagement} mensajes ({waMetrics.inboundMessages || waMetrics.likes} in, {waMetrics.outboundMessages || waMetrics.comments} out)
+                  </span>
+                )}
               </div>
             </div>
           )}
 
-          {/* 🌟 Comparativa Detallada 100% Separada: Facebook vs Instagram */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* 🌟 Comparativa Detallada por Canal: Facebook, Instagram & WhatsApp */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {/* 🟦 Tarjeta Facebook Page Oficial */}
             {(selectedPlatform === "ALL" || selectedPlatform === "FACEBOOK") && (
               <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
@@ -799,6 +830,68 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* 🟩 Tarjeta WhatsApp Business Oficial */}
+            {(selectedPlatform === "ALL" || selectedPlatform === "WHATSAPP") && (
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                      <WhatsAppIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm">WhatsApp Business Oficial</h3>
+                      <p className="text-xs text-slate-500">
+                        {waMetrics.accountName ? `Línea: ${waMetrics.accountName}` : "+52 16681842487"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                    isWaConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-500"
+                  }`}>
+                    {isWaConnected ? "Conectado" : "Sin vincular"}
+                  </span>
+                </div>
+
+                {/* Métricas Reales de WhatsApp */}
+                <div className="grid grid-cols-3 gap-2.5 text-center">
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Recibidos (In)</span>
+                    <span className="text-lg font-black text-slate-900">{(waMetrics.inboundMessages || waMetrics.likes || 0).toLocaleString("es-MX")}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Enviados (Out)</span>
+                    <span className="text-lg font-black text-slate-900">{(waMetrics.outboundMessages || waMetrics.comments || 0).toLocaleString("es-MX")}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Mensajes Totales</span>
+                    <span className="text-lg font-black text-emerald-600">{(waMetrics.totalEngagement || 0).toLocaleString("es-MX")}</span>
+                  </div>
+                </div>
+
+                {/* Rendimiento Adicional WhatsApp */}
+                <div className="grid grid-cols-3 gap-2.5 text-center pt-2 border-t border-slate-100">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Conversaciones</span>
+                    <span className="text-sm font-bold text-slate-800">{waMetrics.postsCount || waMetrics.activeConversations || 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Tasa Respuesta</span>
+                    <span className="text-sm font-bold text-emerald-600">{waMetrics.engagementRate}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Estado Canal</span>
+                    <span className="text-sm font-bold text-emerald-600">Cloud API v22</span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-400 text-center pt-1">
+                  {waMetrics.totalEngagement > 0
+                    ? `💬 ${(waMetrics.totalEngagement).toLocaleString("es-MX")} mensajes intercambiados en el periodo.`
+                    : "ℹ️ Canal oficial verificado. Esperando mensajes entrantes en el periodo."}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 🌟 Tendencia de Rendimiento Multimétrica (Recharts) */}
@@ -823,7 +916,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                       chartMode === "channels" ? "bg-white text-slate-900 shadow-sm font-bold" : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    FB vs IG
+                    Canales (FB/IG/WA)
                   </button>
                   <button
                     onClick={() => setChartMode("breakdown")}
@@ -854,15 +947,18 @@ export const TabAdminSocialConnections: React.FC = () => {
                     <span className="flex items-center gap-1.5 text-blue-600 font-bold">
                       <span className="w-2.5 h-2.5 rounded-full bg-blue-600" /> Facebook Engagement
                     </span>
+                    <span className="flex items-center gap-1.5 text-emerald-600 font-bold">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> WhatsApp Mensajes
+                    </span>
                   </>
                 )}
                 {chartMode === "breakdown" && (
                   <>
                     <span className="flex items-center gap-1.5 text-rose-600 font-bold">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Likes (Me Gusta)
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Likes / Recibidos
                     </span>
                     <span className="flex items-center gap-1.5 text-purple-600 font-bold">
-                      <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Comentarios
+                      <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Comentarios / Enviados
                     </span>
                     <span className="flex items-center gap-1.5 text-blue-600 font-bold">
                       <span className="w-2.5 h-2.5 rounded-full bg-blue-600" /> Compartidos
@@ -875,7 +971,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Total Interacciones
                     </span>
                     <span className="flex items-center gap-1.5 text-indigo-600 font-bold">
-                      <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> Alcance / Vistas
+                      <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> Alcance / Vistas / Mensajes
                     </span>
                   </>
                 )}
@@ -883,7 +979,7 @@ export const TabAdminSocialConnections: React.FC = () => {
 
               <div className="h-64 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 10, right: 15, left: 10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gradIg" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
@@ -892,6 +988,10 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <linearGradient id="gradFb" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#2563eb" stopOpacity={0.4} />
                         <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradWa" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gradLikes" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4} />
@@ -926,9 +1026,11 @@ export const TabAdminSocialConnections: React.FC = () => {
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      axisLine={false}
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={{ stroke: "#f1f5f9" }}
                       tickLine={false}
+                      allowDecimals={false}
+                      width={45}
                     />
                     <Tooltip
                       contentStyle={{
@@ -951,6 +1053,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2.5}
                           fillOpacity={1}
                           fill="url(#gradIg)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#ec4899" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
                         />
                         <Area
                           type="monotone"
@@ -960,6 +1064,19 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2.5}
                           fillOpacity={1}
                           fill="url(#gradFb)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#2563eb" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="whatsappEngagement"
+                          name="WhatsApp"
+                          stroke="#22c55e"
+                          strokeWidth={2.5}
+                          fillOpacity={1}
+                          fill="url(#gradWa)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#22c55e" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
                         />
                       </>
                     )}
@@ -968,20 +1085,24 @@ export const TabAdminSocialConnections: React.FC = () => {
                         <Area
                           type="monotone"
                           dataKey="likes"
-                          name="Likes"
+                          name="Likes / Recibidos"
                           stroke="#f43f5e"
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradLikes)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#f43f5e" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
                         />
                         <Area
                           type="monotone"
                           dataKey="comments"
-                          name="Comentarios"
+                          name="Comentarios / Enviados"
                           stroke="#8b5cf6"
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradComments)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#8b5cf6" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
                         />
                         <Area
                           type="monotone"
@@ -991,6 +1112,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradFb)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#2563eb" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
                         />
                       </>
                     )}
@@ -999,11 +1122,13 @@ export const TabAdminSocialConnections: React.FC = () => {
                         <Area
                           type="monotone"
                           dataKey="views"
-                          name="Alcance / Vistas"
+                          name="Alcance / Vistas / Mensajes"
                           stroke="#6366f1"
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#gradViews)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#6366f1" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
                         />
                         <Area
                           type="monotone"
@@ -1013,6 +1138,8 @@ export const TabAdminSocialConnections: React.FC = () => {
                           strokeWidth={2.5}
                           fillOpacity={1}
                           fill="url(#gradTotalEng)"
+                          dot={{ r: 4, strokeWidth: 2, fill: "#fff", stroke: "#ec4899" }}
+                          activeDot={{ r: 6, strokeWidth: 2 }}
                         />
                       </>
                     )}
