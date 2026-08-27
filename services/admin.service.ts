@@ -530,6 +530,41 @@ export const adminService = {
     return response.data;
   },
 
+  getAdminSocialDemographics: async (
+    platform?: string
+  ): Promise<{
+    consolidated: {
+      platform: string;
+      totalAudience: number;
+      genderDistribution: Record<string, number>;
+      ageDistribution: Record<string, number>;
+      genderAgeDistribution?: Record<string, number>;
+      topCountries: Array<{ name: string; code?: string; percentage: number; count: number }>;
+      topCities: Array<{ name: string; code?: string; percentage: number; count: number }>;
+      privacyThresholdMet: boolean;
+      privacyNotice?: string;
+    };
+    byPlatform: Record<
+      string,
+      {
+        platform: string;
+        totalAudience: number;
+        genderDistribution: Record<string, number>;
+        ageDistribution: Record<string, number>;
+        genderAgeDistribution?: Record<string, number>;
+        topCountries: Array<{ name: string; code?: string; percentage: number; count: number }>;
+        topCities: Array<{ name: string; code?: string; percentage: number; count: number }>;
+        privacyThresholdMet: boolean;
+        privacyNotice?: string;
+      }
+    >;
+  }> => {
+    const params = new URLSearchParams();
+    if (platform && platform !== 'ALL') params.append('platform', platform);
+    const response = await axiosInstance.get(`/api/social/analytics/demographics?${params.toString()}`);
+    return response.data;
+  },
+
   syncAdminSocialAnalytics: async (): Promise<any> => {
     const response = await axiosInstance.post('/api/social/analytics/sync');
     return response.data;
