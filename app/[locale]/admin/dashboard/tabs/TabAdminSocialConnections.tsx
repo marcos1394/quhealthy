@@ -2044,7 +2044,21 @@ export const TabAdminSocialConnections: React.FC = () => {
               {loadingMarketIntel ? (
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-12 text-center space-y-3">
                   <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
-                  <p className="text-xs font-semibold text-slate-600">Consultando Google Places API y Catálogo DENUE INEGI...</p>
+                  <p className="text-xs font-semibold text-slate-600">Consultando Google Places API (Google Maps Platform)...</p>
+                </div>
+              ) : (marketIntel?.leads || []).length === 0 ? (
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-10 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                  <div className="max-w-md mx-auto space-y-1">
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Búsqueda en Google Maps Lista para Ejecutar
+                    </h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Presiona <strong>"Explorar Mercado"</strong> para buscar consultorios y clínicas en vivo a través de la API oficial de Google Places.
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -2059,11 +2073,15 @@ export const TabAdminSocialConnections: React.FC = () => {
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
                             {lead.specialty || "Medicina General"}
                           </span>
-                          <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
-                            <Star className="w-3.5 h-3.5 fill-amber-400" />
-                            <span>{lead.rating || 4.8}</span>
-                            <span className="text-[10px] text-slate-400 font-normal">({lead.userRatingsTotal || 15})</span>
-                          </div>
+                          {lead.rating ? (
+                            <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                              <Star className="w-3.5 h-3.5 fill-amber-400" />
+                              <span>{lead.rating}</span>
+                              <span className="text-[10px] text-slate-400 font-normal">({lead.userRatingsTotal || 0})</span>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-slate-400">Google Maps</span>
+                          )}
                         </div>
 
                         <div>
@@ -2150,144 +2168,122 @@ export const TabAdminSocialConnections: React.FC = () => {
           {/* SECCIÓN 2: Radar de Palabras Clave y Demanda en Google */}
           {marketViewSection === "keywords" && (
             <div className="space-y-4">
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-indigo-600" />
                     <h4 className="text-sm font-bold text-slate-900">
-                      Términos de Búsqueda de Software Médico en México (Google Ads / Trends)
+                      Términos de Búsqueda de Software Médico en México (Google Ads / Keyword Planner)
                     </h4>
                   </div>
                   <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    Búsquedas Mensuales Exactas
+                    Google Ads API
                   </span>
                 </div>
-                <p className="text-xs text-slate-500">
-                  Volumen mensual de médicos y administradores de clínicas en México buscando soluciones de digitalización y expedientes clínicos.
-                </p>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
-                        <th className="py-2.5 px-3">Palabra Clave en Google</th>
-                        <th className="py-2.5 px-3">Búsquedas / Mes</th>
-                        <th className="py-2.5 px-3">Tendencia Crecimiento</th>
-                        <th className="py-2.5 px-3">Competencia</th>
-                        <th className="py-2.5 px-3">Categoría de Demanda</th>
-                        <th className="py-2.5 px-3">Intención Comercial</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {(marketIntel?.keywordTrends || []).map((kw: any) => (
-                        <tr key={kw.keyword} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="py-3 px-3 font-bold text-slate-900 flex items-center gap-1.5">
-                            <Search className="w-3 h-3 text-slate-400" />
-                            <span>{kw.keyword}</span>
-                          </td>
-                          <td className="py-3 px-3 font-bold text-indigo-600">
-                            {kw.monthlySearches?.toLocaleString()} búsquedas
-                          </td>
-                          <td className="py-3 px-3">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              <TrendingUp className="w-3 h-3" /> {kw.growthTrend}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3">
-                            <span
-                              className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                                kw.competition === "ALTA"
-                                  ? "bg-rose-50 text-rose-700 border border-rose-200"
-                                  : "bg-amber-50 text-amber-700 border border-amber-200"
-                              }`}
-                            >
-                              {kw.competition}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3 text-slate-600 font-medium">{kw.category}</td>
-                          <td className="py-3 px-3">
-                            <span className="font-semibold text-slate-700">{kw.commercialIntent}</span>
-                          </td>
+                {(marketIntel?.keywordTrends || []).length === 0 ? (
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center space-y-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <div className="max-w-md mx-auto space-y-1">
+                      <h5 className="text-xs font-bold text-slate-800">Conexión con Google Ads Keyword Planner</h5>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Para sincronizar el volumen mensual de búsquedas en tiempo real desde los servidores de Google, se requiere habilitar el <strong>Google Ads Developer Token</strong> en Google Cloud / Google Ads.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                          <th className="py-2.5 px-3">Palabra Clave en Google</th>
+                          <th className="py-2.5 px-3">Búsquedas / Mes</th>
+                          <th className="py-2.5 px-3">Tendencia Crecimiento</th>
+                          <th className="py-2.5 px-3">Competencia</th>
+                          <th className="py-2.5 px-3">Categoría de Demanda</th>
+                          <th className="py-2.5 px-3">Intención Comercial</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {marketIntel.keywordTrends.map((kw: any) => (
+                          <tr key={kw.keyword} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="py-3 px-3 font-bold text-slate-900 flex items-center gap-1.5">
+                              <Search className="w-3 h-3 text-slate-400" />
+                              <span>{kw.keyword}</span>
+                            </td>
+                            <td className="py-3 px-3 font-bold text-indigo-600">
+                              {kw.monthlySearches?.toLocaleString()} búsquedas
+                            </td>
+                            <td className="py-3 px-3">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <TrendingUp className="w-3 h-3" /> {kw.growthTrend}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <span
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                  kw.competition === "ALTA"
+                                    ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                    : "bg-amber-50 text-amber-700 border border-amber-200"
+                                }`}
+                              >
+                                {kw.competition}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-slate-600 font-medium">{kw.category}</td>
+                            <td className="py-3 px-3">
+                              <span className="font-semibold text-slate-700">{kw.commercialIntent}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* SECCIÓN 3: Estimador de Alcance & Especialidades */}
           {marketViewSection === "reach" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-purple-600" />
-                    <h4 className="text-sm font-bold text-slate-900">
-                      Distribución por Especialidad Médica ({marketIntel?.marketReach?.region || "Sinaloa"})
-                    </h4>
-                  </div>
-                  <span className="text-xs font-bold text-purple-700">
-                    Total: {marketIntel?.marketReach?.potentialMedicalAudience?.toLocaleString() || "38,500"} médicos
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  {Object.entries(marketIntel?.marketReach?.breakdownBySpecialty || {}).map(([spec, count]: [string, any]) => {
-                    const total = marketIntel?.marketReach?.potentialMedicalAudience || 38500;
-                    const pct = Math.round((Number(count) / total) * 100);
-                    return (
-                      <div key={spec} className="space-y-1">
-                        <div className="flex justify-between text-xs font-semibold text-slate-700">
-                          <span>{spec}</span>
-                          <span className="flex items-center gap-1.5">
-                            <span className="font-bold text-slate-900">{Number(count).toLocaleString()}</span>
-                            <span className="text-[10px] text-slate-500">({pct}%)</span>
-                          </span>
-                        </div>
-                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="bg-purple-600 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-purple-600" />
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Estimador de Alcance Meta Marketing API & Audiencias
+                  </h4>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-2xl p-5 border border-indigo-800/50 flex flex-col justify-between space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-                    <Sparkles className="w-4 h-4 text-indigo-400" /> Estrategia de Prospección
+              {!marketIntel?.marketReach ? (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mx-auto">
+                    <Target className="w-5 h-5" />
                   </div>
-                  <h4 className="text-base font-bold text-white">Adopción Digital en Sinaloa</h4>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Aproximadamente el <strong className="text-emerald-400">75.5% de los consultorios médicos</strong> en Los Mochis y Culiacán operan todavía con expedientes físicos en papel o recetas impresas no estructuradas.
-                  </p>
-                  <div className="p-3 bg-white/10 rounded-xl border border-white/10 space-y-1">
-                    <span className="text-[11px] font-bold text-amber-300">⚡ Ventaja Competitiva Quhealthy</span>
-                    <p className="text-[10px] text-slate-300 leading-snug">
-                      La obligatoriedad de la <strong>NOM-004-SSA3-2012</strong> (Expediente Clínico) y la receta médica digital con sello fiscal hacen que el ROI de adopción sea inmediato para consultorios independientes.
+                  <div className="max-w-md mx-auto space-y-1">
+                    <h5 className="text-xs font-bold text-slate-800">Cálculo de Alcance con Meta Ads</h5>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      El cálculo de alcance potencial de médicos por estado y ciudad se consulta en tiempo real mediante el endpoint <code>/reachestimate</code> de Meta Marketing API al vincular la cuenta publicitaria de Quhealthy.
                     </p>
                   </div>
                 </div>
-
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      setMarketViewSection("leads");
-                      setScoutOnlyWithoutWeb(true);
-                      loadMarketIntelligence(scoutQuery, scoutCity, scoutState, true);
-                    }}
-                    className="w-full py-2.5 px-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5"
-                  >
-                    <Zap className="w-3.5 h-3.5" /> Ver Prospectos sin Sitio Web
-                  </button>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="lg:col-span-2 space-y-3">
+                    {Object.entries(marketIntel.marketReach.breakdownBySpecialty || {}).map(([spec, count]: [string, any]) => (
+                      <div key={spec} className="space-y-1">
+                        <div className="flex justify-between text-xs font-semibold text-slate-700">
+                          <span>{spec}</span>
+                          <span className="font-bold text-slate-900">{Number(count).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
