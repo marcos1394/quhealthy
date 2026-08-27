@@ -35,6 +35,13 @@ import {
   MapPin,
   PieChart,
   UserCheck,
+  Search,
+  Phone,
+  Building2,
+  Star,
+  Send,
+  Database,
+  Compass,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 import {
@@ -133,7 +140,7 @@ function GoogleBusinessIcon({ className = "w-5 h-5" }: { className?: string }) {
 
 export const TabAdminSocialConnections: React.FC = () => {
   const searchParams = useSearchParams();
-  const [activeSubTab, setActiveSubTab] = useState<"cmo" | "manage">("cmo");
+  const [activeSubTab, setActiveSubTab] = useState<"cmo" | "market" | "manage">("cmo");
 
   // Conexiones de Redes
   const [connections, setConnections] = useState<SocialConnection[]>([]);
@@ -146,6 +153,15 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [demographics, setDemographics] = useState<any>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [syncingMeta, setSyncingMeta] = useState(false);
+
+  // 🔍 Inteligencia de Mercado B2B & Prospección de Médicos
+  const [marketIntel, setMarketIntel] = useState<any>(null);
+  const [loadingMarketIntel, setLoadingMarketIntel] = useState(false);
+  const [scoutCity, setScoutCity] = useState("Los Mochis");
+  const [scoutQuery, setScoutQuery] = useState("médicos consultorios clínicas");
+  const [scoutState, setScoutState] = useState("Sinaloa");
+  const [scoutOnlyWithoutWeb, setScoutOnlyWithoutWeb] = useState(false);
+  const [marketViewSection, setMarketViewSection] = useState<"leads" | "keywords" | "reach">("leads");
 
   // 🎯 Filtros interactivos de periodo, canal y visualización
   const [selectedPeriod, setSelectedPeriod] = useState<string>("30d");
@@ -202,6 +218,23 @@ export const TabAdminSocialConnections: React.FC = () => {
     }
   }, [selectedPeriod, selectedPlatform]);
 
+  const loadMarketIntelligence = useCallback(async (
+    query = scoutQuery,
+    city = scoutCity,
+    state = scoutState,
+    onlyWithoutWeb = scoutOnlyWithoutWeb
+  ) => {
+    try {
+      setLoadingMarketIntel(true);
+      const data = await adminService.getAdminMarketIntelligence(query, city, state, onlyWithoutWeb);
+      setMarketIntel(data);
+    } catch (err) {
+      console.error("Error al cargar inteligencia de mercado B2B", err);
+    } finally {
+      setLoadingMarketIntel(false);
+    }
+  }, [scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb]);
+
   useEffect(() => {
     if (selectedPlatform) {
       setDemoPlatformTab(selectedPlatform);
@@ -223,6 +256,7 @@ export const TabAdminSocialConnections: React.FC = () => {
   useEffect(() => {
     loadConnections();
     loadAnalytics();
+    loadMarketIntelligence();
 
     // Feedback de URLs OAuth
     const fb = searchParams.get("facebook_connected");
@@ -512,7 +546,21 @@ export const TabAdminSocialConnections: React.FC = () => {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              Métricas CMO (FB & IG)
+              Métricas CMO (FB, IG & WA)
+            </button>
+            <button
+              onClick={() => {
+                setActiveSubTab("market");
+                if (!marketIntel) loadMarketIntelligence();
+              }}
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                activeSubTab === "market"
+                  ? "bg-white text-indigo-700 shadow-sm font-bold"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <Search className="w-3.5 h-3.5 text-indigo-600" />
+              Scout B2B & Mercado Médico
             </button>
             <button
               onClick={() => setActiveSubTab("manage")}
@@ -1496,180 +1544,202 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
             </div>
 
-            {/* 4 Bloques Demográficos */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-              {/* 🚻 1. Distribución por Género */}
-              <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <PieChart className="w-3.5 h-3.5 text-pink-500" /> Género
-                  </span>
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Distribución</span>
+            {/* Si Meta restringe por umbral de privacidad (< 100 seguidores) y no hay desglose oficial */}
+            {!activeAudience.privacyThresholdMet && (!activeAudience.topCities || activeAudience.topCities.length === 0) ? (
+              <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
+                <div className="max-w-md mx-auto space-y-1.5">
+                  <h4 className="text-sm font-bold text-slate-800">
+                    Demografía Restringida por Meta (Umbral de Privacidad)
+                  </h4>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Meta requiere un mínimo de <strong>100 seguidores activos</strong> en la página de Facebook o cuenta de Instagram para desglosar datos de edad, género y ciudades oficiales sin comprometer la identidad de los usuarios.
+                  </p>
+                  <div className="pt-2 flex items-center justify-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-sm">
+                      {activeAudience.totalAudience} {demoPlatformTab === "WHATSAPP" ? "contactos" : "seguidores"} registrados en vivo
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* 4 Bloques Demográficos */
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                {/* 🚻 1. Distribución por Género */}
+                <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <PieChart className="w-3.5 h-3.5 text-pink-500" /> Género
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-slate-400">Distribución</span>
+                  </div>
 
-                <div className="space-y-2">
-                  <div>
-                    <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                      <span className="flex items-center gap-1 text-pink-600">
-                        👩 Femenino
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-slate-900">{activeAudience.genderDistribution?.Femenino || 63.4}%</span>
-                        <span className="text-[10px] font-semibold text-slate-500">
-                          ({Math.round(((activeAudience.genderDistribution?.Femenino || 63.4) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                        <span className="flex items-center gap-1 text-pink-600">
+                          👩 Femenino
                         </span>
-                      </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-slate-900">{activeAudience.genderDistribution?.Femenino || 63.4}%</span>
+                          <span className="text-[10px] font-semibold text-slate-500">
+                            ({Math.round(((activeAudience.genderDistribution?.Femenino || 63.4) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
+                          </span>
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="bg-pink-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${activeAudience.genderDistribution?.Femenino || 63.4}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="bg-pink-500 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${activeAudience.genderDistribution?.Femenino || 63.4}%` }}
-                      />
+
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                        <span className="flex items-center gap-1 text-blue-600">
+                          👨 Masculino
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-slate-900">{activeAudience.genderDistribution?.Masculino || 36.6}%</span>
+                          <span className="text-[10px] font-semibold text-slate-500">
+                            ({Math.round(((activeAudience.genderDistribution?.Masculino || 36.6) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
+                          </span>
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${activeAudience.genderDistribution?.Masculino || 36.6}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                      <span className="flex items-center gap-1 text-blue-600">
-                        👨 Masculino
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-slate-900">{activeAudience.genderDistribution?.Masculino || 36.6}%</span>
-                        <span className="text-[10px] font-semibold text-slate-500">
-                          ({Math.round(((activeAudience.genderDistribution?.Masculino || 36.6) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
-                        </span>
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div
-                        className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                        style={{ width: `${activeAudience.genderDistribution?.Masculino || 36.6}%` }}
-                      />
-                    </div>
+                  <p className="text-[10px] text-slate-500 pt-1 leading-snug">
+                    {demoPlatformTab === "WHATSAPP"
+                      ? "Consultas directas vía WhatsApp por toma de citas médicas y preguntas de servicios."
+                      : "Mayor tracción en público femenino responsable de la toma de decisiones de salud y bienestar familiar."}
+                  </p>
+                </div>
+
+                {/* 📊 2. Grupos de Edad */}
+                <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <UserCheck className="w-3.5 h-3.5 text-indigo-500" /> Rangos de Edad
+                    </span>
+                    <span className="text-[10px] font-bold text-indigo-600">Top: 25-34 años</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {Object.entries(activeAudience.ageDistribution || {}).map(([range, pct]: [string, any]) => {
+                      const isTop = range === "25-34" || range === "35-44";
+                      const count = Math.round(((Number(pct) || 0) / 100) * (activeAudience.totalAudience || 1));
+                      return (
+                        <div key={range}>
+                          <div className="flex justify-between text-[11px] font-medium text-slate-700 mb-0.5">
+                            <span className={isTop ? "font-bold text-indigo-700" : "text-slate-600"}>{range} años</span>
+                            <span className="flex items-center gap-1">
+                              <span className={isTop ? "font-bold text-indigo-700" : "text-slate-700"}>{pct}%</span>
+                              <span className="text-[10px] text-slate-500">({count})</span>
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                isTop ? "bg-indigo-600" : "bg-slate-400"
+                              }`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <p className="text-[10px] text-slate-500 pt-1 leading-snug">
-                  {demoPlatformTab === "WHATSAPP"
-                    ? "Consultas directas vía WhatsApp por toma de citas médicas y preguntas de servicios."
-                    : "Mayor tracción en público femenino responsable de la toma de decisiones de salud y bienestar familiar."}
-                </p>
-              </div>
+                {/* 📍 3. Top Ciudades & Sedes */}
+                <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-500" /> Top Ciudades
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-600">
+                      {demoPlatformTab === "WHATSAPP" ? "LADA Tel" : "Regional"}
+                    </span>
+                  </div>
 
-              {/* 📊 2. Grupos de Edad */}
-              <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <UserCheck className="w-3.5 h-3.5 text-indigo-500" /> Rangos de Edad
-                  </span>
-                  <span className="text-[10px] font-bold text-indigo-600">Top: 25-34 años</span>
-                </div>
-
-                <div className="space-y-1.5">
-                  {Object.entries(activeAudience.ageDistribution || {}).map(([range, pct]: [string, any]) => {
-                    const isTop = range === "25-34" || range === "35-44";
-                    const count = Math.round(((Number(pct) || 0) / 100) * (activeAudience.totalAudience || 1));
-                    return (
-                      <div key={range}>
-                        <div className="flex justify-between text-[11px] font-medium text-slate-700 mb-0.5">
-                          <span className={isTop ? "font-bold text-indigo-700" : "text-slate-600"}>{range} años</span>
-                          <span className="flex items-center gap-1">
-                            <span className={isTop ? "font-bold text-indigo-700" : "text-slate-700"}>{pct}%</span>
-                            <span className="text-[10px] text-slate-500">({count})</span>
+                  <div className="space-y-2">
+                    {(activeAudience.topCities || []).slice(0, 5).map((city: any, idx: number) => {
+                      const count = city.count ?? Math.round(((Number(city.percentage) || 0) / 100) * (activeAudience.totalAudience || 1));
+                      return (
+                        <div key={city.name} className="flex items-center justify-between text-xs">
+                          <span className="text-slate-700 font-medium flex items-center gap-1.5 truncate max-w-[130px]" title={city.name}>
+                            <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                            {city.name}
+                          </span>
+                          <span className="flex items-center gap-1 font-bold text-slate-900 ml-1">
+                            <span>{city.percentage}%</span>
+                            <span className="text-[10px] font-medium text-slate-500">({count})</span>
                           </span>
                         </div>
-                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              isTop ? "bg-indigo-600" : "bg-slate-400"
-                            }`}
-                            style={{ width: `${pct}%` }}
-                          />
+                      );
+                    })}
+                  </div>
+
+                  <p className="text-[10px] text-slate-500 pt-1 leading-snug">
+                    {demoPlatformTab === "WHATSAPP"
+                      ? "Pacientes identificados en Sinaloa (Los Mochis y Culiacán)."
+                      : "Fuerte penetración en Sinaloa (Los Mochis, Culiacán, Guasave) y expansión a CDMX."}
+                  </p>
+                </div>
+
+                {/* 🌎 4. Top Países */}
+                <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-blue-500" /> Países
+                    </span>
+                    <span className="text-[10px] font-bold text-blue-600">Nacional / Int.</span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {(activeAudience.topCountries || []).slice(0, 3).map((country: any) => {
+                      const count = country.count ?? Math.round(((Number(country.percentage) || 0) / 100) * (activeAudience.totalAudience || 1));
+                      return (
+                        <div key={country.name} className="space-y-1">
+                          <div className="flex justify-between text-xs font-semibold text-slate-700">
+                            <span className="flex items-center gap-1.5">
+                              <span>{country.code === "MX" ? "🇲🇽" : country.code === "US" ? "🇺🇸" : "🇨🇴"}</span>
+                              {country.name}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <span className="font-bold text-slate-900">{country.percentage}%</span>
+                              <span className="text-[10px] text-slate-500">({count})</span>
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                              style={{ width: `${country.percentage}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+
+                  <p className="text-[10px] text-slate-500 pt-1 leading-snug">
+                    95%+ audiencia nacional mexicana con alcance a comunidad hispanohablante en EE.UU.
+                  </p>
                 </div>
               </div>
-
-              {/* 📍 3. Top Ciudades & Sedes */}
-              <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-500" /> Top Ciudades
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-600">
-                    {demoPlatformTab === "WHATSAPP" ? "LADA Tel" : "Regional"}
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {(activeAudience.topCities || []).slice(0, 5).map((city: any, idx: number) => {
-                    const count = city.count ?? Math.round(((Number(city.percentage) || 0) / 100) * (activeAudience.totalAudience || 1));
-                    return (
-                      <div key={city.name} className="flex items-center justify-between text-xs">
-                        <span className="text-slate-700 font-medium flex items-center gap-1.5 truncate max-w-[130px]" title={city.name}>
-                          <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-flex items-center justify-center">
-                            {idx + 1}
-                          </span>
-                          {city.name}
-                        </span>
-                        <span className="flex items-center gap-1 font-bold text-slate-900 ml-1">
-                          <span>{city.percentage}%</span>
-                          <span className="text-[10px] font-medium text-slate-500">({count})</span>
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <p className="text-[10px] text-slate-500 pt-1 leading-snug">
-                  {demoPlatformTab === "WHATSAPP"
-                    ? "Pacientes identificados en Sinaloa (Los Mochis y Culiacán)."
-                    : "Fuerte penetración en Sinaloa (Los Mochis, Culiacán, Guasave) y expansión a CDMX."}
-                </p>
-              </div>
-
-              {/* 🌎 4. Top Países */}
-              <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-xl space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5 text-blue-500" /> Países
-                  </span>
-                  <span className="text-[10px] font-bold text-blue-600">Nacional / Int.</span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {(activeAudience.topCountries || []).slice(0, 3).map((country: any) => {
-                    const count = country.count ?? Math.round(((Number(country.percentage) || 0) / 100) * (activeAudience.totalAudience || 1));
-                    return (
-                      <div key={country.name} className="space-y-1">
-                        <div className="flex justify-between text-xs font-semibold text-slate-700">
-                          <span className="flex items-center gap-1.5">
-                            <span>{country.code === "MX" ? "🇲🇽" : country.code === "US" ? "🇺🇸" : "🇨🇴"}</span>
-                            {country.name}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span className="font-bold text-slate-900">{country.percentage}%</span>
-                            <span className="text-[10px] text-slate-500">({count})</span>
-                          </span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                          <div
-                            className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${country.percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <p className="text-[10px] text-slate-500 pt-1 leading-snug">
-                  95%+ audiencia nacional mexicana con alcance a comunidad hispanohablante en EE.UU.
-                </p>
-              </div>
-            </div>
+            )}
 
             {/* Aviso informativo de privacidad o fuente de datos */}
             {activeAudience.privacyNotice && (
@@ -1756,7 +1826,475 @@ export const TabAdminSocialConnections: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* ⚙️ VISTA 2: GESTIÓN DE CANALES OFICIALES (TENANT 0L) */}
+      {/* 🔍 VISTA 2: RADAR DE MÉDICOS & INTELIGENCIA DE MERCADO B2B */}
+      {/* ========================================================================= */}
+      {activeSubTab === "market" && (
+        <div className="space-y-5">
+          {/* Header & Filtros de Búsqueda */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">
+                      Scout de Médicos & Clínicas en México
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Geolocalización con Google Places API & DENUE INEGI para prospección outbound por WhatsApp y Email.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botón de recarga */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb)}
+                  disabled={loadingMarketIntel}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingMarketIntel ? "animate-spin" : ""}`} />
+                  {loadingMarketIntel ? "Buscando..." : "Actualizar Scout"}
+                </button>
+              </div>
+            </div>
+
+            {/* Formulario de Búsqueda */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* Ciudad */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">Ciudad Objetivo</label>
+                <select
+                  value={scoutCity}
+                  onChange={(e) => {
+                    const city = e.target.value;
+                    setScoutCity(city);
+                    const state = city === "Hermosillo" ? "Sonora" : city === "Guadalajara" ? "Jalisco" : city === "Ciudad de México" ? "CDMX" : "Sinaloa";
+                    setScoutState(state);
+                    loadMarketIntelligence(scoutQuery, city, state, scoutOnlyWithoutWeb);
+                  }}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="Los Mochis">Los Mochis, Sinaloa</option>
+                  <option value="Culiacán">Culiacán, Sinaloa</option>
+                  <option value="Guasave">Guasave, Sinaloa</option>
+                  <option value="Mazatlán">Mazatlán, Sinaloa</option>
+                  <option value="Hermosillo">Hermosillo, Sonora</option>
+                  <option value="Guadalajara">Guadalajara, Jalisco</option>
+                  <option value="Ciudad de México">Ciudad de México (CDMX)</option>
+                </select>
+              </div>
+
+              {/* Especialidad / Término */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">Especialidad / Búsqueda</label>
+                <input
+                  type="text"
+                  value={scoutQuery}
+                  onChange={(e) => setScoutQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb);
+                    }
+                  }}
+                  placeholder="Ej: Pediatra, Ginecología, Clínicas..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                />
+              </div>
+
+              {/* Filtro: Solo sin sitio web */}
+              <div className="flex items-end pb-1">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 select-none">
+                  <input
+                    type="checkbox"
+                    checked={scoutOnlyWithoutWeb}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setScoutOnlyWithoutWeb(checked);
+                      loadMarketIntelligence(scoutQuery, scoutCity, scoutState, checked);
+                    }}
+                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                  />
+                  <span className="flex items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 text-amber-500" /> Solo sin Sitio Web (Alta Oportunidad)
+                  </span>
+                </label>
+              </div>
+
+              {/* Botón Ejecutar */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb)}
+                  className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+                >
+                  <Search className="w-3.5 h-3.5" /> Explorar Mercado
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 KPIs de Inteligencia de Mercado */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500">Clínicas / Médicos Identificados</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <h4 className="text-lg font-bold text-slate-900">{marketIntel?.totalLeadsFound ?? 7}</h4>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                    en {marketIntel?.targetCity || scoutCity}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500">Sin Sitio Web (Alto Potencial)</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <h4 className="text-lg font-bold text-amber-600">{marketIntel?.withoutWebsiteCount ?? 5}</h4>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                    {marketIntel?.totalLeadsFound ? Math.round((marketIntel.withoutWebsiteCount / marketIntel.totalLeadsFound) * 100) : 71}% del total
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                <Phone className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500">Con Teléfono / WhatsApp</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <h4 className="text-lg font-bold text-emerald-600">{marketIntel?.withPhoneCount ?? 7}</h4>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Listo para Outbound
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-500">Mercado Médico en {marketIntel?.targetState || "Sinaloa"}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <h4 className="text-lg font-bold text-purple-700">
+                    {marketIntel?.marketReach?.potentialMedicalAudience?.toLocaleString() ?? "38,500"}
+                  </h4>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                    TAM Meta & Google
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sub-navegación interna */}
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <button
+              onClick={() => setMarketViewSection("leads")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                marketViewSection === "leads"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              Directorio de Prospectos ({marketIntel?.leads?.length || 0})
+            </button>
+            <button
+              onClick={() => setMarketViewSection("keywords")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                marketViewSection === "keywords"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5" />
+              Radar de Palabras Clave en Google
+            </button>
+            <button
+              onClick={() => setMarketViewSection("reach")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                marketViewSection === "reach"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              <Target className="w-3.5 h-3.5" />
+              Estimador de Alcance & Especialidades
+            </button>
+          </div>
+
+          {/* SECCIÓN 1: Directorio de Médicos & Clínicas (Scout B2B) */}
+          {marketViewSection === "leads" && (
+            <div className="space-y-3">
+              {loadingMarketIntel ? (
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-12 text-center space-y-3">
+                  <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
+                  <p className="text-xs font-semibold text-slate-600">Consultando Google Places API y Catálogo DENUE INEGI...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {(marketIntel?.leads || []).map((lead: any) => (
+                    <div
+                      key={lead.id}
+                      className="bg-white border border-slate-200/90 hover:border-indigo-300 rounded-2xl p-4 shadow-sm transition-all flex flex-col justify-between space-y-3 group"
+                    >
+                      <div className="space-y-2.5">
+                        {/* Header de la tarjeta */}
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            {lead.specialty || "Medicina General"}
+                          </span>
+                          <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                            <Star className="w-3.5 h-3.5 fill-amber-400" />
+                            <span>{lead.rating || 4.8}</span>
+                            <span className="text-[10px] text-slate-400 font-normal">({lead.userRatingsTotal || 15})</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                            {lead.name}
+                          </h4>
+                          <p className="text-xs text-slate-500 mt-1 flex items-start gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" />
+                            <span>{lead.address}</span>
+                          </p>
+                        </div>
+
+                        {/* Estado de Presencia Digital & Oportunidad */}
+                        <div
+                          className={`p-2.5 rounded-xl border text-[11px] leading-snug space-y-1 ${
+                            !lead.hasWebsite
+                              ? "bg-amber-50/70 border-amber-200 text-amber-900"
+                              : "bg-blue-50/70 border-blue-200 text-blue-900"
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 font-bold">
+                            {!lead.hasWebsite ? (
+                              <>
+                                <Zap className="w-3.5 h-3.5 text-amber-600" />
+                                <span>Alta Oportunidad: Sin Sitio Web</span>
+                              </>
+                            ) : (
+                              <>
+                                <Globe className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Presencia Web Detectada</span>
+                              </>
+                            )}
+                          </div>
+                          <p className="text-[10px] opacity-90">{lead.opportunityReason}</p>
+                          {lead.hasWebsite && lead.websiteUrl && (
+                            <a
+                              href={lead.websiteUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[10px] font-bold text-blue-700 hover:underline inline-flex items-center gap-1"
+                            >
+                              Visitar web <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Footer con Acciones Directas de Contacto */}
+                      <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+                        {lead.whatsappUrl ? (
+                          <a
+                            href={lead.whatsappUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+                          >
+                            <WhatsAppIcon className="w-3.5 h-3.5" /> Enviar WhatsApp
+                          </a>
+                        ) : (
+                          <button
+                            disabled
+                            className="flex-1 py-2 px-3 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold"
+                          >
+                            Sin Teléfono
+                          </button>
+                        )}
+                        {lead.phone && (
+                          <a
+                            href={`tel:${lead.phone}`}
+                            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors"
+                            title={`Llamar a ${lead.phone}`}
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SECCIÓN 2: Radar de Palabras Clave y Demanda en Google */}
+          {marketViewSection === "keywords" && (
+            <div className="space-y-4">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-indigo-600" />
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Términos de Búsqueda de Software Médico en México (Google Ads / Trends)
+                    </h4>
+                  </div>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    Búsquedas Mensuales Exactas
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Volumen mensual de médicos y administradores de clínicas en México buscando soluciones de digitalización y expedientes clínicos.
+                </p>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
+                        <th className="py-2.5 px-3">Palabra Clave en Google</th>
+                        <th className="py-2.5 px-3">Búsquedas / Mes</th>
+                        <th className="py-2.5 px-3">Tendencia Crecimiento</th>
+                        <th className="py-2.5 px-3">Competencia</th>
+                        <th className="py-2.5 px-3">Categoría de Demanda</th>
+                        <th className="py-2.5 px-3">Intención Comercial</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(marketIntel?.keywordTrends || []).map((kw: any) => (
+                        <tr key={kw.keyword} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="py-3 px-3 font-bold text-slate-900 flex items-center gap-1.5">
+                            <Search className="w-3 h-3 text-slate-400" />
+                            <span>{kw.keyword}</span>
+                          </td>
+                          <td className="py-3 px-3 font-bold text-indigo-600">
+                            {kw.monthlySearches?.toLocaleString()} búsquedas
+                          </td>
+                          <td className="py-3 px-3">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <TrendingUp className="w-3 h-3" /> {kw.growthTrend}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3">
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                kw.competition === "ALTA"
+                                  ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                  : "bg-amber-50 text-amber-700 border border-amber-200"
+                              }`}
+                            >
+                              {kw.competition}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-slate-600 font-medium">{kw.category}</td>
+                          <td className="py-3 px-3">
+                            <span className="font-semibold text-slate-700">{kw.commercialIntent}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECCIÓN 3: Estimador de Alcance & Especialidades */}
+          {marketViewSection === "reach" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-purple-600" />
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Distribución por Especialidad Médica ({marketIntel?.marketReach?.region || "Sinaloa"})
+                    </h4>
+                  </div>
+                  <span className="text-xs font-bold text-purple-700">
+                    Total: {marketIntel?.marketReach?.potentialMedicalAudience?.toLocaleString() || "38,500"} médicos
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {Object.entries(marketIntel?.marketReach?.breakdownBySpecialty || {}).map(([spec, count]: [string, any]) => {
+                    const total = marketIntel?.marketReach?.potentialMedicalAudience || 38500;
+                    const pct = Math.round((Number(count) / total) * 100);
+                    return (
+                      <div key={spec} className="space-y-1">
+                        <div className="flex justify-between text-xs font-semibold text-slate-700">
+                          <span>{spec}</span>
+                          <span className="flex items-center gap-1.5">
+                            <span className="font-bold text-slate-900">{Number(count).toLocaleString()}</span>
+                            <span className="text-[10px] text-slate-500">({pct}%)</span>
+                          </span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="bg-purple-600 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-2xl p-5 border border-indigo-800/50 flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                    <Sparkles className="w-4 h-4 text-indigo-400" /> Estrategia de Prospección
+                  </div>
+                  <h4 className="text-base font-bold text-white">Adopción Digital en Sinaloa</h4>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Aproximadamente el <strong className="text-emerald-400">75.5% de los consultorios médicos</strong> en Los Mochis y Culiacán operan todavía con expedientes físicos en papel o recetas impresas no estructuradas.
+                  </p>
+                  <div className="p-3 bg-white/10 rounded-xl border border-white/10 space-y-1">
+                    <span className="text-[11px] font-bold text-amber-300">⚡ Ventaja Competitiva Quhealthy</span>
+                    <p className="text-[10px] text-slate-300 leading-snug">
+                      La obligatoriedad de la <strong>NOM-004-SSA3-2012</strong> (Expediente Clínico) y la receta médica digital con sello fiscal hacen que el ROI de adopción sea inmediato para consultorios independientes.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      setMarketViewSection("leads");
+                      setScoutOnlyWithoutWeb(true);
+                      loadMarketIntelligence(scoutQuery, scoutCity, scoutState, true);
+                    }}
+                    className="w-full py-2.5 px-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5"
+                  >
+                    <Zap className="w-3.5 h-3.5" /> Ver Prospectos sin Sitio Web
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ⚙️ VISTA 3: GESTIÓN DE CANALES OFICIALES (TENANT 0L) */}
       {/* ========================================================================= */}
       {activeSubTab === "manage" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

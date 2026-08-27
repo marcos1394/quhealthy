@@ -565,8 +565,68 @@ export const adminService = {
     return response.data;
   },
 
+  getAdminMarketIntelligence: async (
+    query?: string,
+    city?: string,
+    state?: string,
+    onlyWithoutWebsite?: boolean
+  ): Promise<{
+    targetCity: string;
+    targetState: string;
+    specialtyFilter: string;
+    totalLeadsFound: number;
+    withoutWebsiteCount: number;
+    withPhoneCount: number;
+    averageRating: number;
+    leads: Array<{
+      id: string;
+      name: string;
+      specialty: string;
+      phone: string;
+      formattedPhone: string;
+      whatsappUrl: string;
+      address: string;
+      city: string;
+      state: string;
+      hasWebsite: boolean;
+      websiteUrl?: string;
+      rating?: number;
+      userRatingsTotal?: number;
+      opportunityLevel: string;
+      opportunityReason: string;
+      source: string;
+      latitude?: number;
+      longitude?: number;
+    }>;
+    keywordTrends: Array<{
+      keyword: string;
+      monthlySearches: number;
+      growthTrend: string;
+      competition: string;
+      category: string;
+      commercialIntent: string;
+    }>;
+    marketReach: {
+      region: string;
+      potentialMedicalAudience: number;
+      activeDoctorsOnMeta: number;
+      activeClinicsOnGoogle: number;
+      estimatedDigitalAdoptionRate: number;
+      breakdownBySpecialty: Record<string, number>;
+    };
+  }> => {
+    const params = new URLSearchParams();
+    if (query) params.append('query', query);
+    if (city) params.append('city', city);
+    if (state) params.append('state', state);
+    if (onlyWithoutWebsite !== undefined) params.append('onlyWithoutWebsite', String(onlyWithoutWebsite));
+    const response = await axiosInstance.get(`/api/social/analytics/market-intelligence?${params.toString()}`);
+    return response.data;
+  },
+
   syncAdminSocialAnalytics: async (): Promise<any> => {
     const response = await axiosInstance.post('/api/social/analytics/sync');
     return response.data;
   },
 };
+
