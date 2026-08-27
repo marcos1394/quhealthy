@@ -1513,7 +1513,12 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <span className="flex items-center gap-1 text-pink-600">
                         👩 Femenino
                       </span>
-                      <span>{activeAudience.genderDistribution?.Femenino || 63.4}%</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-slate-900">{activeAudience.genderDistribution?.Femenino || 63.4}%</span>
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          ({Math.round(((activeAudience.genderDistribution?.Femenino || 63.4) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
+                        </span>
+                      </span>
                     </div>
                     <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div
@@ -1528,7 +1533,12 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <span className="flex items-center gap-1 text-blue-600">
                         👨 Masculino
                       </span>
-                      <span>{activeAudience.genderDistribution?.Masculino || 36.6}%</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-slate-900">{activeAudience.genderDistribution?.Masculino || 36.6}%</span>
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          ({Math.round(((activeAudience.genderDistribution?.Masculino || 36.6) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
+                        </span>
+                      </span>
                     </div>
                     <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div
@@ -1557,12 +1567,16 @@ export const TabAdminSocialConnections: React.FC = () => {
 
                 <div className="space-y-1.5">
                   {Object.entries(activeAudience.ageDistribution || {}).map(([range, pct]: [string, any]) => {
-                    const isTop = range === "25-34";
+                    const isTop = range === "25-34" || range === "35-44";
+                    const count = Math.round(((Number(pct) || 0) / 100) * (activeAudience.totalAudience || 1));
                     return (
                       <div key={range}>
                         <div className="flex justify-between text-[11px] font-medium text-slate-700 mb-0.5">
                           <span className={isTop ? "font-bold text-indigo-700" : "text-slate-600"}>{range} años</span>
-                          <span className={isTop ? "font-bold text-indigo-700" : "text-slate-600"}>{pct}%</span>
+                          <span className="flex items-center gap-1">
+                            <span className={isTop ? "font-bold text-indigo-700" : "text-slate-700"}>{pct}%</span>
+                            <span className="text-[10px] text-slate-500">({count})</span>
+                          </span>
                         </div>
                         <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                           <div
@@ -1590,17 +1604,23 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  {(activeAudience.topCities || []).slice(0, 5).map((city: any, idx: number) => (
-                    <div key={city.name} className="flex items-center justify-between text-xs">
-                      <span className="text-slate-700 font-medium flex items-center gap-1.5 truncate max-w-[150px]" title={city.name}>
-                        <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-flex items-center justify-center">
-                          {idx + 1}
+                  {(activeAudience.topCities || []).slice(0, 5).map((city: any, idx: number) => {
+                    const count = city.count ?? Math.round(((Number(city.percentage) || 0) / 100) * (activeAudience.totalAudience || 1));
+                    return (
+                      <div key={city.name} className="flex items-center justify-between text-xs">
+                        <span className="text-slate-700 font-medium flex items-center gap-1.5 truncate max-w-[130px]" title={city.name}>
+                          <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold inline-flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          {city.name}
                         </span>
-                        {city.name}
-                      </span>
-                      <span className="font-bold text-slate-900 ml-1">{city.percentage}%</span>
-                    </div>
-                  ))}
+                        <span className="flex items-center gap-1 font-bold text-slate-900 ml-1">
+                          <span>{city.percentage}%</span>
+                          <span className="text-[10px] font-medium text-slate-500">({count})</span>
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <p className="text-[10px] text-slate-500 pt-1 leading-snug">
@@ -1620,23 +1640,29 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  {(activeAudience.topCountries || []).slice(0, 3).map((country: any) => (
-                    <div key={country.name} className="space-y-1">
-                      <div className="flex justify-between text-xs font-semibold text-slate-700">
-                        <span className="flex items-center gap-1.5">
-                          <span>{country.code === "MX" ? "🇲🇽" : country.code === "US" ? "🇺🇸" : "🇨🇴"}</span>
-                          {country.name}
-                        </span>
-                        <span>{country.percentage}%</span>
+                  {(activeAudience.topCountries || []).slice(0, 3).map((country: any) => {
+                    const count = country.count ?? Math.round(((Number(country.percentage) || 0) / 100) * (activeAudience.totalAudience || 1));
+                    return (
+                      <div key={country.name} className="space-y-1">
+                        <div className="flex justify-between text-xs font-semibold text-slate-700">
+                          <span className="flex items-center gap-1.5">
+                            <span>{country.code === "MX" ? "🇲🇽" : country.code === "US" ? "🇺🇸" : "🇨🇴"}</span>
+                            {country.name}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span className="font-bold text-slate-900">{country.percentage}%</span>
+                            <span className="text-[10px] text-slate-500">({count})</span>
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${country.percentage}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                        <div
-                          className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${country.percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <p className="text-[10px] text-slate-500 pt-1 leading-snug">
@@ -1652,6 +1678,46 @@ export const TabAdminSocialConnections: React.FC = () => {
                 <span>{activeAudience.privacyNotice}</span>
               </div>
             )}
+
+            {/* 🩺 Panel Estratégico: Penetración en Profesionales de la Salud y Prospección de Médicos */}
+            <div className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-xl p-4 border border-indigo-900/50 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-800/60 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
+                    <UserCheck className="w-4 h-4 text-indigo-300" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xs text-white">Segmentación de Médicos & Penetración de Mercado</h4>
+                    <p className="text-[10px] text-indigo-200">Estrategia de prospección B2B para médicos especialistas y consultorios en México.</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 self-start sm:self-auto">
+                  Potencial Outbound WhatsApp / Email
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3 space-y-1">
+                  <span className="text-[11px] font-bold text-indigo-300">👥 ¿Quiénes son estos datos?</span>
+                  <p className="text-[11px] text-slate-300 leading-snug">
+                    <strong>Meta (FB/IG):</strong> 100% seguidores y fans agregados por Meta.<br />
+                    <strong>WhatsApp:</strong> Pacientes y contactos reales que han conversado con el número oficial.
+                  </p>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3 space-y-1">
+                  <span className="text-[11px] font-bold text-indigo-300">🩺 Identificación de Médicos</span>
+                  <p className="text-[11px] text-slate-300 leading-snug">
+                    Las APIs de Meta restringen profesiones individuales por privacidad. En Quhealthy los identificamos mediante el <strong>CRM de WhatsApp</strong> y el <strong>Directorio de Médicos Registrados</strong>.
+                  </p>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3 space-y-1">
+                  <span className="text-[11px] font-bold text-indigo-300">🚀 Prospección B2B & Campañas</span>
+                  <p className="text-[11px] text-slate-300 leading-snug">
+                    Vía <strong>Meta Marketing API</strong> y <strong>WhatsApp Cloud API</strong> podemos lanzar campañas de captación a médicos en Sinaloa y México con plantillas oficiales y onboarding directo.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 🌟 Diagnóstico y Recomendación de IA */}
