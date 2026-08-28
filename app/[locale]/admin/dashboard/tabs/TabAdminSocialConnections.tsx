@@ -2515,14 +2515,13 @@ export const TabAdminSocialConnections: React.FC = () => {
                           style={{ border: 0 }}
                           loading="lazy"
                           allowFullScreen
-                          src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                            (selectedLeadForMap?.name || scoutQuery || "médicos clínicas laboratorios") +
-                              " en " +
-                              scoutCity +
-                              ", " +
-                              scoutState +
-                              ", Mexico"
-                          )}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                          src={`https://www.google.com/maps?q=${encodeURIComponent(
+                            selectedLeadForMap
+                              ? (selectedLeadForMap.latitude && selectedLeadForMap.longitude
+                                  ? `${selectedLeadForMap.latitude},${selectedLeadForMap.longitude}`
+                                  : `${selectedLeadForMap.name}, ${selectedLeadForMap.address}`)
+                              : `${scoutQuery ? scoutQuery + " en " : ""}${scoutCity}, ${scoutState}, Mexico`
+                          )}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
                         />
                         {selectedLeadForMap && (
                           <div className="absolute top-3 left-3 right-3 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-3 shadow-lg flex items-center justify-between gap-2">
