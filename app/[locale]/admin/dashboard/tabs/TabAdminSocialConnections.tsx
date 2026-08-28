@@ -52,6 +52,16 @@ import {
   Map,
   Navigation,
   Download,
+  Play,
+  Pause,
+  Plus,
+  CheckSquare,
+  Square,
+  Copy,
+  Check,
+  X,
+  Megaphone,
+  Inbox,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 import {
@@ -173,11 +183,60 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [scoutState, setScoutState] = useState("Sinaloa");
   const [scoutCategory, setScoutCategory] = useState<string>("ALL");
   const [scoutOnlyWithoutWeb, setScoutOnlyWithoutWeb] = useState(false);
-  const [marketViewSection, setMarketViewSection] = useState<"leads" | "keywords" | "reach">("leads");
+  const [marketViewSection, setMarketViewSection] = useState<"leads" | "outbound" | "batch" | "keywords" | "reach">("leads");
   const [scoutDisplayMode, setScoutDisplayMode] = useState<"cards" | "table" | "map">("cards");
   const [selectedLeadForMap, setSelectedLeadForMap] = useState<any>(null);
   const [leadsPage, setLeadsPage] = useState<number>(1);
   const LEADS_PER_PAGE = 9;
+
+  // 📢 Campañas Outbound & Lead Pool
+  const [outboundCampaigns, setOutboundCampaigns] = useState<any[]>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const [campaignMetrics, setCampaignMetrics] = useState<any>(null);
+  const [prospectPool, setProspectPool] = useState<any[]>([]);
+  const [loadingProspectPool, setLoadingProspectPool] = useState(false);
+  const [prospectPoolPage, setProspectPoolPage] = useState<number>(0);
+  const [prospectPoolTotal, setProspectPoolTotal] = useState<number>(0);
+  const [poolCityFilter, setPoolCityFilter] = useState<string>("");
+  const [poolCategoryFilter, setPoolCategoryFilter] = useState<string>("ALL");
+  const [poolStatusFilter, setPoolStatusFilter] = useState<string>("ALL");
+  const [poolOnlyWithoutWeb, setPoolOnlyWithoutWeb] = useState(false);
+  const [selectedPoolLeadIds, setSelectedPoolLeadIds] = useState<string[]>([]);
+  
+  const [showCreateCampaignModal, setShowCreateCampaignModal] = useState(false);
+  const [showBatchHarvesterModal, setShowBatchHarvesterModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  
+  const [newCampaignData, setNewCampaignData] = useState({
+    name: "",
+    channel: "WHATSAPP",
+    targetCity: "Los Mochis",
+    targetState: "Sinaloa",
+    targetCategory: "ALL",
+    calendarUrl: "https://quhealthy.org/demo",
+    customTemplateBody: "",
+    launchImmediately: true,
+  });
+
+  const [batchHarvesterData, setBatchHarvesterData] = useState({
+    city: "Los Mochis",
+    state: "Sinaloa",
+    categories: ["MEDICOS", "PEDIATRIA", "GINECOLOGIA", "DENTISTAS", "CLINICAS", "LABORATORIOS", "FARMACIAS", "OPTICAS"],
+    onlyWithoutWebsite: false,
+    maxPagesPerCategory: 2,
+  });
+  const [harvestingBatch, setHarvestingBatch] = useState(false);
+  const [batchHarvestResult, setBatchHarvestResult] = useState<any>(null);
+
+  const [previewData, setPreviewData] = useState<{
+    recipientName: string;
+    specialty: string;
+    detectedPainPoint: string;
+    renderedMessage: string;
+    directWhatsappLink?: string;
+  } | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [copiedPreview, setCopiedPreview] = useState(false);
 
   // 🎯 Filtros interactivos de periodo, canal y visualización
   const [selectedPeriod, setSelectedPeriod] = useState<string>("30d");
@@ -389,6 +448,167 @@ export const TabAdminSocialConnections: React.FC = () => {
     } catch (err) {
       console.error(err);
       toast.error("No se pudo desconectar el canal.");
+    }
+  };
+
+  const loadOutboundData = useCallback(async () => {
+    try {
+      setLoadingCampaigns(true);
+      const [camps, metrics] = await Promise.allSettled([
+        adminService.getOutboundCampaigns(0, 50),
+        adminService.getOutboundMetrics(),
+      ]);
+      if (camps.status === "fulfilled") {
+        setOutboundCampaigns(camps.value?.content || []);
+      }
+      if (metrics.status === "fulfilled") {
+        setCampaignMetrics(metrics.value);
+      }
+    } catch (e) {
+      console.error("Error cargando campañas outbound", e);
+    } finally {
+      setLoadingCampaigns(false);
+    }
+  }, []);
+
+  const loadProspectPool = useCallback(async (page = 0) => {
+    try {
+      setLoadingProspectPool(true);
+      const res = await adminService.getProspectPool({
+        city: poolCityFilter || undefined,
+        category: poolCategoryFilter !== "ALL" ? poolCategoryFilter : undefined,
+        status: poolStatusFilter !== "ALL" ? poolStatusFilter : undefined,
+        onlyWithoutWeb: poolOnlyWithoutWeb ? true : undefined,
+        page,
+        size: 20,
+      });
+      setProspectPool(res?.content || []);
+      setProspectPoolTotal(res?.totalElements || 0);
+      setProspectPoolPage(page);
+    } catch (e) {
+      console.error("Error cargando lead pool", e);
+    } finally {
+      setLoadingProspectPool(false);
+    }
+  }, [poolCityFilter, poolCategoryFilter, poolStatusFilter, poolOnlyWithoutWeb]);
+
+  useEffect(() => {
+    if (marketViewSection === "outbound") {
+      loadOutboundData();
+    } else if (marketViewSection === "batch") {
+      loadProspectPool(0);
+    }
+  }, [marketViewSection, loadOutboundData, loadProspectPool]);
+
+  const handleLaunchCampaign = async (id: string) => {
+    try {
+      toast.info("Iniciando despacho de campaña outbound...");
+      await adminService.launchOutboundCampaign(id);
+      toast.success("¡Campaña outbound en marcha con cadencia progresiva!");
+      loadOutboundData();
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Error al lanzar campaña");
+    }
+  };
+
+  const handlePauseCampaign = async (id: string) => {
+    try {
+      await adminService.pauseOutboundCampaign(id);
+      toast.info("Campaña pausada");
+      loadOutboundData();
+    } catch (e: any) {
+      toast.error("Error al pausar campaña");
+    }
+  };
+
+  const handleCreateCampaignSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCampaignData.name.trim()) {
+      toast.error("Por favor ingresa un nombre para la campaña");
+      return;
+    }
+    if (!newCampaignData.calendarUrl.trim()) {
+      toast.error("Por favor ingresa el enlace de Google Calendar");
+      return;
+    }
+    try {
+      await adminService.createOutboundCampaign({
+        name: newCampaignData.name,
+        channel: newCampaignData.channel,
+        targetCity: newCampaignData.targetCity,
+        targetState: newCampaignData.targetState,
+        targetCategory: newCampaignData.targetCategory !== "ALL" ? newCampaignData.targetCategory : undefined,
+        calendarUrl: newCampaignData.calendarUrl,
+        customTemplateBody: newCampaignData.customTemplateBody || undefined,
+        prospectIds: selectedPoolLeadIds.length > 0 ? selectedPoolLeadIds : undefined,
+        launchImmediately: newCampaignData.launchImmediately,
+      });
+      toast.success("¡Campaña outbound creada exitosamente!");
+      setShowCreateCampaignModal(false);
+      setSelectedPoolLeadIds([]);
+      setMarketViewSection("outbound");
+      loadOutboundData();
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Error al crear campaña");
+    }
+  };
+
+  const handleRunBatchHarvest = async () => {
+    try {
+      setHarvestingBatch(true);
+      setBatchHarvestResult(null);
+      toast.info(`Iniciando barrido batch en ${batchHarvesterData.city}, ${batchHarvesterData.state}...`);
+      const res = await adminService.harvestPlacesBatch({
+        city: batchHarvesterData.city,
+        state: batchHarvesterData.state,
+        categories: batchHarvesterData.categories,
+        onlyWithoutWebsite: batchHarvesterData.onlyWithoutWebsite,
+        maxPagesPerCategory: batchHarvesterData.maxPagesPerCategory,
+      });
+      setBatchHarvestResult(res);
+      toast.success(`¡Barrido completado! Encontrados: ${res.totalFound}, Nuevos en Pool: ${res.newAdded}`);
+      loadProspectPool(0);
+      loadOutboundData();
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Error durante el barrido batch");
+    } finally {
+      setHarvestingBatch(false);
+    }
+  };
+
+  const handlePreviewLeadMessage = async (lead: any) => {
+    try {
+      setPreviewLoading(true);
+      setShowPreviewModal(true);
+      setCopiedPreview(false);
+      const res = await adminService.renderOutboundPreview({
+        doctorName: lead.name,
+        specialty: lead.specialty || lead.category,
+        city: lead.city || scoutCity,
+        hasWebsite: lead.hasWebsite,
+        calendarUrl: newCampaignData.calendarUrl || "https://quhealthy.org/demo",
+      });
+      setPreviewData(res);
+    } catch (e) {
+      toast.error("Error generando previsualización");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const handleImportCurrentPlacesLeadsToPool = async () => {
+    const leads = marketIntel?.leads || [];
+    if (leads.length === 0) {
+      toast.info("No hay leads en la búsqueda actual para importar.");
+      return;
+    }
+    try {
+      const res = await adminService.importPlacesLeadsToPool({ leads });
+      toast.success(`¡${res.importedCount || leads.length} prospectos importados al Lead Pool!`);
+      setMarketViewSection("batch");
+      loadProspectPool(0);
+    } catch (e) {
+      toast.error("Error importando prospectos al pool");
     }
   };
 
@@ -2139,9 +2359,9 @@ export const TabAdminSocialConnections: React.FC = () => {
             </div>
           </div>
 
-          {/* Sub-navegación interna */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
-            <div className="flex items-center gap-2">
+          {/* Sub-navegación interna con 5 Secciones */}
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 border-b border-slate-200 pb-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 onClick={() => setMarketViewSection("leads")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
@@ -2151,7 +2371,29 @@ export const TabAdminSocialConnections: React.FC = () => {
                 }`}
               >
                 <Building2 className="w-3.5 h-3.5" />
-                Directorio de Prospectos ({marketIntel?.leads?.length || 0})
+                Directorio Maps ({marketIntel?.leads?.length || 0})
+              </button>
+              <button
+                onClick={() => setMarketViewSection("outbound")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  marketViewSection === "outbound"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <Megaphone className="w-3.5 h-3.5" />
+                Campañas Outbound ({outboundCampaigns.length})
+              </button>
+              <button
+                onClick={() => setMarketViewSection("batch")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  marketViewSection === "batch"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <Database className="w-3.5 h-3.5" />
+                Lead Pool & Batch ({prospectPoolTotal})
               </button>
               <button
                 onClick={() => setMarketViewSection("keywords")}
@@ -2162,7 +2404,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                 }`}
               >
                 <TrendingUp className="w-3.5 h-3.5" />
-                Radar de Palabras Clave en Google
+                Radar Palabras Clave
               </button>
               <button
                 onClick={() => setMarketViewSection("reach")}
@@ -2173,9 +2415,52 @@ export const TabAdminSocialConnections: React.FC = () => {
                 }`}
               >
                 <Target className="w-3.5 h-3.5" />
-                Estimador de Alcance & Especialidades
+                Alcance & Demanda
               </button>
             </div>
+
+            {/* Acciones Rápidas del Directorio */}
+            {marketViewSection === "leads" && (
+              <div className="flex items-center flex-wrap gap-1.5">
+                {(marketIntel?.leads || []).length > 0 && (
+                  <>
+                    <button
+                      onClick={handleImportCurrentPlacesLeadsToPool}
+                      className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1 shadow-sm"
+                      title="Guardar todos estos leads en el Lead Pool permanente"
+                    >
+                      <Database className="w-3.5 h-3.5" />
+                      <span>Guardar en Pool</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNewCampaignData((prev) => ({
+                          ...prev,
+                          name: `Campaña ${scoutCategory !== "ALL" ? scoutCategory : "Salud"} - ${scoutCity}`,
+                          targetCity: scoutCity,
+                          targetState: scoutState,
+                          targetCategory: scoutCategory,
+                        }));
+                        setShowCreateCampaignModal(true);
+                      }}
+                      className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 shadow-sm"
+                    >
+                      <Megaphone className="w-3.5 h-3.5" />
+                      <span>Lanzar Outbound</span>
+                    </button>
+                  </>
+                )}
+
+                <button
+                  onClick={() => setShowBatchHarvesterModal(true)}
+                  className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1 shadow-sm"
+                  title="Barrer automáticamente múltiples especialidades en una ciudad"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Barrido Batch</span>
+                </button>
+              </div>
+            )}
 
             {/* Selector de Modo de Visualización (Cards | Tabla | Mapa) + Exportar CSV */}
             {marketViewSection === "leads" && (marketIntel?.leads || []).length > 0 && (
@@ -2645,7 +2930,490 @@ export const TabAdminSocialConnections: React.FC = () => {
             </div>
           )}
 
-          {/* SECCIÓN 2: Radar de Palabras Clave y Demanda en Google */}
+          {/* ========================================================================= */}
+          {/* 📢 SECCIÓN 2: Automatización de Campañas Outbound & Funnel (WhatsApp / IG) */}
+          {/* ========================================================================= */}
+          {marketViewSection === "outbound" && (
+            <div className="space-y-4">
+              {/* KPIs Globales de Outbound */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                    <span>Mensajes Enviados</span>
+                    <Send className="w-4 h-4 text-indigo-600" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 mt-2">
+                    {campaignMetrics?.totalMessagesSent ?? 0}
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">A prospectos médicos</p>
+                </div>
+
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                    <span>Respuestas Recibidas</span>
+                    <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="text-2xl font-black text-emerald-600 mt-2">
+                    {campaignMetrics?.totalRepliesReceived ?? 0}
+                  </div>
+                  <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                    {campaignMetrics?.overallReplyRate ?? 0}% tasa de apertura
+                  </p>
+                </div>
+
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                    <span>Demos Agendadas</span>
+                    <Calendar className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div className="text-2xl font-black text-purple-700 mt-2">
+                    {campaignMetrics?.totalDemosScheduled ?? 0}
+                  </div>
+                  <p className="text-[11px] text-purple-700 font-semibold mt-0.5">
+                    Google Calendar / 1er Mes Gratis
+                  </p>
+                </div>
+
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase">
+                    <span>Campañas Activas</span>
+                    <Megaphone className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 mt-2">
+                    {campaignMetrics?.activeCampaigns ?? 0} <span className="text-xs text-slate-400 font-normal">/ {campaignMetrics?.totalCampaigns ?? 0}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Despacho automatizado</p>
+                </div>
+              </div>
+
+              {/* Header con botón para Nueva Campaña */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Megaphone className="w-4 h-4 text-indigo-600" />
+                    Historial de Campañas Outbound
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Campañas programadas con personalización por especialidad y enlace de agendamiento.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={loadOutboundData}
+                    disabled={loadingCampaigns}
+                    className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors"
+                    title="Actualizar lista"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${loadingCampaigns ? "animate-spin" : ""}`} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setNewCampaignData({
+                        name: `Campaña ${scoutCity} - ${new Date().toLocaleDateString("es-MX")}`,
+                        channel: "WHATSAPP",
+                        targetCity: scoutCity,
+                        targetState: scoutState,
+                        targetCategory: "ALL",
+                        calendarUrl: "https://quhealthy.org/demo",
+                        customTemplateBody: "",
+                        launchImmediately: true,
+                      });
+                      setShowCreateCampaignModal(true);
+                    }}
+                    className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Crear Campaña Outbound</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Tabla de Campañas */}
+              {loadingCampaigns ? (
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-12 text-center space-y-3">
+                  <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
+                  <p className="text-xs font-semibold text-slate-600">Cargando campañas outbound...</p>
+                </div>
+              ) : outboundCampaigns.length === 0 ? (
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-10 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+                    <Megaphone className="w-6 h-6" />
+                  </div>
+                  <div className="max-w-md mx-auto space-y-1">
+                    <h4 className="text-sm font-bold text-slate-900">No hay campañas outbound activas</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Crea tu primera campaña para prospectar a médicos y clínicas de Google Places con tu oferta de 1er Mes Gratis y Google Calendar.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowCreateCampaignModal(true)}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm inline-flex items-center gap-1.5"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Crear Primera Campaña</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                        <tr>
+                          <th className="py-3 px-4">Campaña</th>
+                          <th className="py-3 px-4">Canal & Segmento</th>
+                          <th className="py-3 px-4">Estado</th>
+                          <th className="py-3 px-4">Enviados</th>
+                          <th className="py-3 px-4">Respuestas</th>
+                          <th className="py-3 px-4">Demos</th>
+                          <th className="py-3 px-4 text-right">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {outboundCampaigns.map((camp: any) => {
+                          const statusColor =
+                            camp.status === "RUNNING"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : camp.status === "PAUSED"
+                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                              : camp.status === "COMPLETED"
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-slate-100 text-slate-600 border-slate-200";
+
+                          return (
+                            <tr key={camp.id} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="py-3 px-4">
+                                <span className="font-bold text-slate-900 block">{camp.name}</span>
+                                <span className="text-[10px] text-slate-400">
+                                  {camp.createdAt ? new Date(camp.createdAt).toLocaleDateString("es-MX") : ""}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <div className="space-y-0.5">
+                                  <span className="font-semibold text-slate-800 flex items-center gap-1">
+                                    {camp.channel === "WHATSAPP" ? <WhatsAppIcon className="w-3.5 h-3.5" /> : <InstagramIcon className="w-3.5 h-3.5" />}
+                                    {camp.channel}
+                                  </span>
+                                  <span className="text-[10px] text-slate-500 block">
+                                    {camp.targetCity || "Nacional"} · {camp.targetCategory || "Todas las especialidades"}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusColor}`}>
+                                  {camp.status}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="font-bold text-slate-900">{camp.sentCount}</span>
+                                <span className="text-[10px] text-slate-400"> / {camp.totalProspects}</span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="font-bold text-emerald-600">{camp.repliedCount}</span>
+                                <span className="text-[10px] text-slate-400"> ({camp.responseRate || 0}%)</span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="font-bold text-purple-700">{camp.demoScheduledCount}</span>
+                                <span className="text-[10px] text-slate-400"> ({camp.demoConversionRate || 0}%)</span>
+                              </td>
+                              <td className="py-3 px-4 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  {camp.status === "RUNNING" ? (
+                                    <button
+                                      onClick={() => handlePauseCampaign(camp.id)}
+                                      className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors"
+                                      title="Pausar Campaña"
+                                    >
+                                      <Pause className="w-3.5 h-3.5" />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleLaunchCampaign(camp.id)}
+                                      className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors"
+                                      title="Lanzar / Reanudar Campaña"
+                                    >
+                                      <Play className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                  <a
+                                    href={camp.calendarUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                                    title="Ver enlace de calendario configurado"
+                                  >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 🌾 SECCIÓN 3: Lead Pool & Barrido Batch Sistemático */}
+          {/* ========================================================================= */}
+          {marketViewSection === "batch" && (
+            <div className="space-y-4">
+              {/* Barra Superior con Filtros y Disparador de Barrido */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <Database className="w-4 h-4 text-indigo-600" />
+                      Lead Pool de Prospectos Sanitarios ({prospectPoolTotal})
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Base de datos consolidada y desduplicada de médicos, clínicas, laboratorios y farmacias.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center flex-wrap gap-2">
+                    {selectedPoolLeadIds.length > 0 && (
+                      <button
+                        onClick={() => {
+                          setNewCampaignData((prev) => ({
+                            ...prev,
+                            name: `Campaña Outbound (${selectedPoolLeadIds.length} leads)`,
+                          }));
+                          setShowCreateCampaignModal(true);
+                        }}
+                        className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                      >
+                        <Megaphone className="w-3.5 h-3.5" />
+                        <span>Crear Campaña con ({selectedPoolLeadIds.length}) Seleccionados</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => setShowBatchHarvesterModal(true)}
+                      className="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                    >
+                      <Zap className="w-4 h-4" />
+                      <span>Ejecutar Nuevo Barrido Batch</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filtros del Pool */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 pt-2 border-t border-slate-100">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Ciudad</label>
+                    <input
+                      type="text"
+                      placeholder="Filtrar por ciudad..."
+                      value={poolCityFilter}
+                      onChange={(e) => setPoolCityFilter(e.target.value)}
+                      className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Especialidad</label>
+                    <select
+                      value={poolCategoryFilter}
+                      onChange={(e) => setPoolCategoryFilter(e.target.value)}
+                      className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="ALL">Todas las Categorías</option>
+                      <option value="MEDICOS">Médicos Especialistas</option>
+                      <option value="PEDIATRIA">Pediatría</option>
+                      <option value="GINECOLOGIA">Ginecología</option>
+                      <option value="DENTISTAS">Odontología / Dental</option>
+                      <option value="CLINICAS">Clínicas y Hospitales</option>
+                      <option value="LABORATORIOS">Laboratorios Clínicos</option>
+                      <option value="FARMACIAS">Farmacias</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Estado Outbound</label>
+                    <select
+                      value={poolStatusFilter}
+                      onChange={(e) => setPoolStatusFilter(e.target.value)}
+                      className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="ALL">Todos los Estados</option>
+                      <option value="PENDING">PENDING (Sin contactar)</option>
+                      <option value="QUEUED">QUEUED (En cola)</option>
+                      <option value="SENT">SENT (Enviado)</option>
+                      <option value="DELIVERED">DELIVERED (Entregado)</option>
+                      <option value="REPLIED">REPLIED (Respondió)</option>
+                      <option value="DEMO_SCHEDULED">DEMO_SCHEDULED (Demo Agendada)</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-end">
+                    <label className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 cursor-pointer w-full">
+                      <input
+                        type="checkbox"
+                        checked={poolOnlyWithoutWeb}
+                        onChange={(e) => setPoolOnlyWithoutWeb(e.target.checked)}
+                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span>Solo Sin Sitio Web</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabla de Prospectos del Pool */}
+              {loadingProspectPool ? (
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-12 text-center space-y-3">
+                  <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
+                  <p className="text-xs font-semibold text-slate-600">Cargando prospectos del pool...</p>
+                </div>
+              ) : prospectPool.length === 0 ? (
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-10 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-sm">
+                    <Database className="w-6 h-6" />
+                  </div>
+                  <div className="max-w-md mx-auto space-y-1">
+                    <h4 className="text-sm font-bold text-slate-900">Lead Pool Vacío para estos filtros</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Ejecuta un barrido batch sistemático para llenar el pool automáticamente desde Google Places.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowBatchHarvesterModal(true)}
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm inline-flex items-center gap-1.5"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span>Ejecutar Barrido Batch</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                        <tr>
+                          <th className="py-3 px-3 w-8">
+                            <button
+                              onClick={() => {
+                                if (selectedPoolLeadIds.length === prospectPool.length) {
+                                  setSelectedPoolLeadIds([]);
+                                } else {
+                                  setSelectedPoolLeadIds(prospectPool.map((p) => p.id));
+                                }
+                              }}
+                              className="text-slate-500 hover:text-slate-900"
+                            >
+                              {selectedPoolLeadIds.length > 0 && selectedPoolLeadIds.length === prospectPool.length ? (
+                                <CheckSquare className="w-4 h-4 text-indigo-600" />
+                              ) : (
+                                <Square className="w-4 h-4 text-slate-400" />
+                              )}
+                            </button>
+                          </th>
+                          <th className="py-3 px-4">Establecimiento / Doctor</th>
+                          <th className="py-3 px-4">Especialidad</th>
+                          <th className="py-3 px-4">Ciudad / Teléfono</th>
+                          <th className="py-3 px-4">Presencia Digital</th>
+                          <th className="py-3 px-4">Estado</th>
+                          <th className="py-3 px-4 text-right">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {prospectPool.map((prospect: any) => {
+                          const isSelected = selectedPoolLeadIds.includes(prospect.id);
+                          const statusColor =
+                            prospect.status === "DEMO_SCHEDULED"
+                              ? "bg-purple-50 text-purple-700 border-purple-200 font-bold"
+                              : prospect.status === "REPLIED"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold"
+                              : prospect.status === "DELIVERED" || prospect.status === "SENT"
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-slate-100 text-slate-600 border-slate-200";
+
+                          return (
+                            <tr key={prospect.id} className={`hover:bg-slate-50/80 transition-colors ${isSelected ? "bg-indigo-50/30" : ""}`}>
+                              <td className="py-3 px-3">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => {
+                                    if (isSelected) {
+                                      setSelectedPoolLeadIds((prev) => prev.filter((id) => id !== prospect.id));
+                                    } else {
+                                      setSelectedPoolLeadIds((prev) => [...prev, prospect.id]);
+                                    }
+                                  }}
+                                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                />
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="font-bold text-slate-900 block">{prospect.name}</span>
+                                <span className="text-[10px] text-slate-400 line-clamp-1">{prospect.address}</span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                  {prospect.specialty || prospect.category || "Salud"}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="font-semibold text-slate-800 block">{prospect.city || scoutCity}</span>
+                                <span className="text-[10px] text-slate-500 font-mono">{prospect.formattedPhone || prospect.phone}</span>
+                              </td>
+                              <td className="py-3 px-4">
+                                {!prospect.hasWebsite ? (
+                                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1">
+                                    <Zap className="w-3 h-3 text-amber-600" /> Sin Web
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1">
+                                    <Globe className="w-3 h-3 text-blue-600" /> Con Web
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] border ${statusColor}`}>
+                                  {prospect.status}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    onClick={() => handlePreviewLeadMessage(prospect)}
+                                    className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-colors"
+                                    title="Previsualizar mensaje de IA con gancho clínico"
+                                  >
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                  </button>
+                                  {prospect.phone && (
+                                    <a
+                                      href={`https://wa.me/${prospect.phone.replace(/[^0-9]/g, "")}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors"
+                                      title="Abrir WhatsApp directo"
+                                    >
+                                      <WhatsAppIcon className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 🔍 SECCIÓN 4: Radar de Palabras Clave y Demanda en Google */}
+          {/* ========================================================================= */}
           {marketViewSection === "keywords" && (
             <div className="space-y-4">
               <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
@@ -2932,6 +3700,366 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 🛠️ MODAL 1: Creador de Campañas Outbound */}
+      {/* ========================================================================= */}
+      {showCreateCampaignModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                  <Megaphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Nueva Campaña Outbound B2B</h3>
+                  <p className="text-xs text-slate-500">Automatiza la prospección médica con Google Calendar y 1er Mes Gratis</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCreateCampaignModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCampaignSubmit} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700">Nombre de la Campaña *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: Pediatras Los Mochis - Lanzamiento NOM-004"
+                  value={newCampaignData.name}
+                  onChange={(e) => setNewCampaignData({ ...newCampaignData, name: e.target.value })}
+                  className="w-full mt-1.5 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700">Canal de Salida *</label>
+                  <select
+                    value={newCampaignData.channel}
+                    onChange={(e) => setNewCampaignData({ ...newCampaignData, channel: e.target.value })}
+                    className="w-full mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  >
+                    <option value="WHATSAPP">WhatsApp Cloud API (Oficial)</option>
+                    <option value="INSTAGRAM">Instagram Direct (DM)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700">Ciudad / Segmento</label>
+                  <input
+                    type="text"
+                    value={newCampaignData.targetCity}
+                    onChange={(e) => setNewCampaignData({ ...newCampaignData, targetCity: e.target.value })}
+                    placeholder="Ciudad objetivo..."
+                    className="w-full mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span>Enlace de Google Calendar (Demo / Onboarding) *</span>
+                  <span className="text-[10px] text-indigo-600 font-semibold">Oferta 1er Mes Gratis</span>
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://calendar.google.com/calendar/appointments/schedules/..."
+                  value={newCampaignData.calendarUrl}
+                  onChange={(e) => setNewCampaignData({ ...newCampaignData, calendarUrl: e.target.value })}
+                  className="w-full mt-1.5 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span>Plantilla Personalizada (Opcional)</span>
+                  <span className="text-[10px] text-slate-400">Dejar vacío para usar Inteligencia de Dolor Clínico</span>
+                </label>
+                <div className="flex flex-wrap gap-1 mt-1.5 mb-1.5">
+                  <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[10px] font-mono font-bold">{"{{doctor_name}}"}</span>
+                  <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[10px] font-mono font-bold">{"{{specialty}}"}</span>
+                  <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[10px] font-mono font-bold">{"{{city}}"}</span>
+                  <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[10px] font-mono font-bold">{"{{calendar_url}}"}</span>
+                </div>
+                <textarea
+                  rows={4}
+                  placeholder="Hola {{doctor_name}}, te invitamos a digitalizar tu consulta de {{specialty}} en {{city}} con Quhealthy. Agenda una demo con 1 mes gratis: {{calendar_url}}"
+                  value={newCampaignData.customTemplateBody}
+                  onChange={(e) => setNewCampaignData({ ...newCampaignData, customTemplateBody: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="p-3.5 bg-indigo-50/70 border border-indigo-100 rounded-2xl flex items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  id="launchImmediately"
+                  checked={newCampaignData.launchImmediately}
+                  onChange={(e) => setNewCampaignData({ ...newCampaignData, launchImmediately: e.target.checked })}
+                  className="rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                />
+                <label htmlFor="launchImmediately" className="text-xs font-semibold text-indigo-950 cursor-pointer">
+                  Iniciar despacho progresivo inmediatamente con cadencia anti-spam (1 mensaje cada 1.5 seg)
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateCampaignModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Crear y Lanzar Campaña</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 🌾 MODAL 2: Barrido Batch Sistemático de Google Places */}
+      {/* ========================================================================= */}
+      {showBatchHarvesterModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Barrido Batch de Google Places</h3>
+                  <p className="text-xs text-slate-500">Recolección masiva y automática de prospectos médicos para el Lead Pool</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowBatchHarvesterModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700">Estado *</label>
+                  <input
+                    type="text"
+                    value={batchHarvesterData.state}
+                    onChange={(e) => setBatchHarvesterData({ ...batchHarvesterData, state: e.target.value })}
+                    className="w-full mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700">Ciudad *</label>
+                  <input
+                    type="text"
+                    value={batchHarvesterData.city}
+                    onChange={(e) => setBatchHarvesterData({ ...batchHarvesterData, city: e.target.value })}
+                    className="w-full mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-2">Especialidades Sanitarias a Barrer *</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "MEDICOS", label: "Médicos Especialistas" },
+                    { id: "PEDIATRIA", label: "Pediatría" },
+                    { id: "GINECOLOGIA", label: "Ginecología & Obstetricia" },
+                    { id: "DENTISTAS", label: "Odontología / Dental" },
+                    { id: "CLINICAS", label: "Clínicas & Hospitales" },
+                    { id: "LABORATORIOS", label: "Laboratorios Clínicos" },
+                    { id: "FARMACIAS", label: "Farmacias" },
+                    { id: "OPTICAS", label: "Ópticas" },
+                  ].map((cat) => {
+                    const isChecked = batchHarvesterData.categories.includes(cat.id);
+                    return (
+                      <label
+                        key={cat.id}
+                        className={`flex items-center gap-2 p-2 rounded-xl border text-xs cursor-pointer transition-all ${
+                          isChecked ? "bg-amber-50 border-amber-300 font-bold text-amber-900" : "bg-slate-50 border-slate-200 text-slate-600"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBatchHarvesterData({
+                                ...batchHarvesterData,
+                                categories: [...batchHarvesterData.categories, cat.id],
+                              });
+                            } else {
+                              setBatchHarvesterData({
+                                ...batchHarvesterData,
+                                categories: batchHarvesterData.categories.filter((c) => c !== cat.id),
+                              });
+                            }
+                          }}
+                          className="rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                        />
+                        <span className="truncate">{cat.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                <label htmlFor="batchOnlyNoWeb" className="text-xs font-semibold text-slate-700 cursor-pointer">
+                  Filtrar únicamente lugares sin sitio web
+                </label>
+                <input
+                  type="checkbox"
+                  id="batchOnlyNoWeb"
+                  checked={batchHarvesterData.onlyWithoutWebsite}
+                  onChange={(e) => setBatchHarvesterData({ ...batchHarvesterData, onlyWithoutWebsite: e.target.checked })}
+                  className="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4"
+                />
+              </div>
+
+              {batchHarvestResult && (
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-1 text-xs text-emerald-900">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>¡Barrido Batch Finalizado con Éxito!</span>
+                  </div>
+                  <p>Total descubiertos en Google Places: <strong>{batchHarvestResult.totalFound}</strong></p>
+                  <p>Nuevos prospectos agregados al Pool: <strong>{batchHarvestResult.newAdded}</strong></p>
+                  <p>Duplicados omitidos: <strong>{batchHarvestResult.skippedDuplicates}</strong></p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowBatchHarvesterModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={handleRunBatchHarvest}
+                  disabled={harvestingBatch || batchHarvesterData.categories.length === 0}
+                  className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {harvestingBatch ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Barriendo Google Places...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>Iniciar Barrido Batch</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ✨ MODAL 3: Previsualización de Mensaje Outbound IA */}
+      {/* ========================================================================= */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Mensaje Outbound Ultra-Personalizado</h3>
+                  <p className="text-xs text-slate-500">Adaptado al dolor clínico, especialidad y presencia web</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {previewLoading ? (
+              <div className="p-12 text-center space-y-3">
+                <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
+                <p className="text-xs font-semibold text-slate-600">Generando mensaje con Inteligencia Clínica...</p>
+              </div>
+            ) : previewData ? (
+              <div className="space-y-4">
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-900">{previewData.recipientName}</span>
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      {previewData.specialty}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-indigo-900 font-medium">🎯 {previewData.detectedPainPoint}</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Copia del Mensaje (WhatsApp / DM)</label>
+                  <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl text-xs text-slate-800 whitespace-pre-wrap leading-relaxed font-sans shadow-inner">
+                    {previewData.renderedMessage}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(previewData.renderedMessage);
+                      setCopiedPreview(true);
+                      setTimeout(() => setCopiedPreview(false), 2500);
+                      toast.success("Mensaje copiado al portapapeles");
+                    }}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+                  >
+                    {copiedPreview ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedPreview ? "¡Copiado!" : "Copiar Texto"}</span>
+                  </button>
+
+                  {previewData.directWhatsappLink && (
+                    <a
+                      href={previewData.directWhatsappLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                    >
+                      <WhatsAppIcon className="w-4 h-4" />
+                      <span>Abrir en WhatsApp Web</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       )}
     </div>

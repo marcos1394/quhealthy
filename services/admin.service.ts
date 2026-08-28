@@ -635,5 +635,111 @@ export const adminService = {
     const response = await axiosInstance.post('/api/social/analytics/sync');
     return response.data;
   },
+
+  // =========================================================================
+  // 📢 OUTBOUND CAMPAIGNS & B2B LEAD HARVESTER (CMO INTEL)
+  // =========================================================================
+
+  createOutboundCampaign: async (data: {
+    name: string;
+    channel: string;
+    targetCity?: string;
+    targetState?: string;
+    targetCategory?: string;
+    calendarUrl: string;
+    customTemplateBody?: string;
+    prospectIds?: string[];
+    launchImmediately?: boolean;
+  }): Promise<any> => {
+    const response = await axiosInstance.post('/api/social/crm/outbound/campaigns', data);
+    return response.data;
+  },
+
+  getOutboundCampaigns: async (page = 0, size = 20): Promise<any> => {
+    const response = await axiosInstance.get(`/api/social/crm/outbound/campaigns?page=${page}&size=${size}`);
+    return response.data;
+  },
+
+  getOutboundCampaign: async (id: string): Promise<any> => {
+    const response = await axiosInstance.get(`/api/social/crm/outbound/campaigns/${id}`);
+    return response.data;
+  },
+
+  launchOutboundCampaign: async (id: string): Promise<any> => {
+    const response = await axiosInstance.post(`/api/social/crm/outbound/campaigns/${id}/launch`);
+    return response.data;
+  },
+
+  pauseOutboundCampaign: async (id: string): Promise<any> => {
+    const response = await axiosInstance.post(`/api/social/crm/outbound/campaigns/${id}/pause`);
+    return response.data;
+  },
+
+  harvestPlacesBatch: async (data: {
+    city: string;
+    state: string;
+    categories?: string[];
+    onlyWithoutWebsite?: boolean;
+    maxPagesPerCategory?: number;
+  }): Promise<{
+    totalFound: number;
+    newAdded: number;
+    skippedDuplicates: number;
+    withoutWebsiteCount: number;
+  }> => {
+    const response = await axiosInstance.post('/api/social/crm/outbound/prospects/harvest-batch', data);
+    return response.data;
+  },
+
+  importPlacesLeadsToPool: async (data: {
+    leads: any[];
+    targetCampaignId?: string;
+  }): Promise<any> => {
+    const response = await axiosInstance.post('/api/social/crm/outbound/prospects/import-from-places', data);
+    return response.data;
+  },
+
+  getProspectPool: async (params?: {
+    city?: string;
+    category?: string;
+    status?: string;
+    onlyWithoutWeb?: boolean;
+    page?: number;
+    size?: number;
+  }): Promise<any> => {
+    const query = new URLSearchParams();
+    if (params?.city) query.append('city', params.city);
+    if (params?.category) query.append('category', params.category);
+    if (params?.status) query.append('status', params.status);
+    if (params?.onlyWithoutWeb !== undefined) query.append('onlyWithoutWeb', String(params.onlyWithoutWeb));
+    if (params?.page !== undefined) query.append('page', String(params.page));
+    if (params?.size !== undefined) query.append('size', String(params.size));
+    const response = await axiosInstance.get(`/api/social/crm/outbound/prospects/pool?${query.toString()}`);
+    return response.data;
+  },
+
+  renderOutboundPreview: async (data: {
+    prospectId?: string;
+    doctorName?: string;
+    specialty?: string;
+    city?: string;
+    hasWebsite?: boolean;
+    calendarUrl: string;
+    customTemplate?: string;
+  }): Promise<{
+    recipientName: string;
+    specialty: string;
+    detectedPainPoint: string;
+    renderedMessage: string;
+    directWhatsappLink?: string;
+  }> => {
+    const response = await axiosInstance.post('/api/social/crm/outbound/templates/render-preview', data);
+    return response.data;
+  },
+
+  getOutboundMetrics: async (): Promise<any> => {
+    const response = await axiosInstance.get('/api/social/crm/outbound/metrics');
+    return response.data;
+  },
 };
 
