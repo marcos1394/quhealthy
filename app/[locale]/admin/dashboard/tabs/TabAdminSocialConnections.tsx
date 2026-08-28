@@ -2757,36 +2757,60 @@ export const TabAdminSocialConnections: React.FC = () => {
                 <div className="space-y-6">
                   {/* KPI Cards de Alcance */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-100">
-                      <span className="text-[11px] font-bold text-purple-700 block">Audiencia Médica Potencial</span>
-                      <span className="text-xl font-extrabold text-purple-950 mt-1 block">
-                        {marketIntel.marketReach.potentialMedicalAudience?.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-purple-600 mt-0.5 block">Profesionales y directivos</span>
+                    <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-bold text-emerald-700 block">Establecimientos en Google Maps</span>
+                        <span className="text-xl font-extrabold text-emerald-950 mt-1 block">
+                          {marketIntel.marketReach.activeClinicsOnGoogle?.toLocaleString() || 0}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-emerald-600 mt-1 block">Centros y consultorios mapeados en vivo</span>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100">
-                      <span className="text-[11px] font-bold text-blue-700 block">Médicos Activos en Meta</span>
-                      <span className="text-xl font-extrabold text-blue-950 mt-1 block">
-                        {marketIntel.marketReach.activeDoctorsOnMeta?.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-blue-600 mt-0.5 block">Alcanzables vía Facebook / Instagram</span>
+                    <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-100 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-bold text-amber-700 block">Adopción Digital en Zona</span>
+                        {marketIntel.marketReach.estimatedDigitalAdoptionRate != null ? (
+                          <span className="text-xl font-extrabold text-amber-950 mt-1 block">
+                            {marketIntel.marketReach.estimatedDigitalAdoptionRate}%
+                          </span>
+                        ) : (
+                          <span className="text-xs font-semibold text-amber-600 mt-2 block">N/A</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-amber-600 mt-1 block">Con presencia web registrada en Google</span>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                      <span className="text-[11px] font-bold text-emerald-700 block">Establecimientos en Google</span>
-                      <span className="text-xl font-extrabold text-emerald-950 mt-1 block">
-                        {marketIntel.marketReach.activeClinicsOnGoogle?.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-emerald-600 mt-0.5 block">Centros y consultorios mapeados</span>
+                    <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-100 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-bold text-purple-700 block">Audiencia Médica Potencial</span>
+                        {marketIntel.marketReach.potentialMedicalAudience != null ? (
+                          <span className="text-xl font-extrabold text-purple-950 mt-1 block">
+                            {marketIntel.marketReach.potentialMedicalAudience.toLocaleString()}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-semibold text-purple-700 mt-2 block">
+                            Vía Meta Marketing API
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-purple-500 mt-1 block">Segmentación publicitaria en Meta</span>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-100">
-                      <span className="text-[11px] font-bold text-amber-700 block">Adopción Digital Estimada</span>
-                      <span className="text-xl font-extrabold text-amber-950 mt-1 block">
-                        {marketIntel.marketReach.estimatedDigitalAdoptionRate}%
-                      </span>
-                      <span className="text-[10px] text-amber-600 mt-0.5 block">Con presencia web registrada</span>
+                    <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-bold text-blue-700 block">Médicos Activos en Meta</span>
+                        {marketIntel.marketReach.activeDoctorsOnMeta != null ? (
+                          <span className="text-xl font-extrabold text-blue-950 mt-1 block">
+                            {marketIntel.marketReach.activeDoctorsOnMeta.toLocaleString()}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-semibold text-blue-700 mt-2 block">
+                            Vía Meta Ads Account
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-blue-500 mt-1 block">Alcanzables vía Facebook / IG</span>
                     </div>
                   </div>
 
