@@ -42,6 +42,16 @@ import {
   Send,
   Database,
   Compass,
+  FlaskConical,
+  Pill,
+  HeartHandshake,
+  Stethoscope,
+  Package,
+  List,
+  LayoutGrid,
+  Map,
+  Navigation,
+  Download,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 import {
@@ -154,14 +164,20 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [syncingMeta, setSyncingMeta] = useState(false);
 
-  // 🔍 Inteligencia de Mercado B2B & Prospección de Médicos
+  // 🔍 Inteligencia de Mercado B2B & Prospección Integral de Salud
   const [marketIntel, setMarketIntel] = useState<any>(null);
   const [loadingMarketIntel, setLoadingMarketIntel] = useState(false);
+  const [loadingMoreLeads, setLoadingMoreLeads] = useState(false);
   const [scoutCity, setScoutCity] = useState("Los Mochis");
-  const [scoutQuery, setScoutQuery] = useState("médicos consultorios clínicas");
+  const [scoutQuery, setScoutQuery] = useState("");
   const [scoutState, setScoutState] = useState("Sinaloa");
+  const [scoutCategory, setScoutCategory] = useState<string>("ALL");
   const [scoutOnlyWithoutWeb, setScoutOnlyWithoutWeb] = useState(false);
   const [marketViewSection, setMarketViewSection] = useState<"leads" | "keywords" | "reach">("leads");
+  const [scoutDisplayMode, setScoutDisplayMode] = useState<"cards" | "table" | "map">("cards");
+  const [selectedLeadForMap, setSelectedLeadForMap] = useState<any>(null);
+  const [leadsPage, setLeadsPage] = useState<number>(1);
+  const LEADS_PER_PAGE = 9;
 
   // 🎯 Filtros interactivos de periodo, canal y visualización
   const [selectedPeriod, setSelectedPeriod] = useState<string>("30d");
@@ -222,18 +238,72 @@ export const TabAdminSocialConnections: React.FC = () => {
     query = scoutQuery,
     city = scoutCity,
     state = scoutState,
-    onlyWithoutWeb = scoutOnlyWithoutWeb
+    onlyWithoutWeb = scoutOnlyWithoutWeb,
+    category = scoutCategory,
+    pageToken?: string,
+    append = false
   ) => {
     try {
-      setLoadingMarketIntel(true);
-      const data = await adminService.getAdminMarketIntelligence(query, city, state, onlyWithoutWeb);
-      setMarketIntel(data);
+      if (append) {
+        setLoadingMoreLeads(true);
+      } else {
+        setLoadingMarketIntel(true);
+        setLeadsPage(1);
+      }
+      const data = await adminService.getAdminMarketIntelligence(query, city, state, onlyWithoutWeb, category, pageToken);
+      if (append) {
+        setMarketIntel((prev: any) => ({
+          ...data,
+          leads: [...(prev?.leads || []), ...(data.leads || [])],
+          totalLeadsFound: (prev?.leads?.length || 0) + (data.leads?.length || 0),
+          withoutWebsiteCount: (prev?.withoutWebsiteCount || 0) + (data.withoutWebsiteCount || 0),
+          withPhoneCount: (prev?.withPhoneCount || 0) + (data.withPhoneCount || 0)
+        }));
+      } else {
+        setMarketIntel(data);
+      }
     } catch (err) {
       console.error("Error al cargar inteligencia de mercado B2B", err);
     } finally {
       setLoadingMarketIntel(false);
+      setLoadingMoreLeads(false);
     }
-  }, [scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb]);
+  }, [scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, scoutCategory]);
+
+  const exportLeadsToCSV = () => {
+    if (!marketIntel?.leads || marketIntel.leads.length === 0) {
+      toast.info("No hay prospectos para exportar. Realiza una búsqueda primero.");
+      return;
+    }
+    const headers = ["ID", "Nombre", "Categoría", "Dirección", "Ciudad", "Estado", "Teléfono", "Tiene Web", "Sitio Web", "Rating Google", "Total Reseñas", "Nivel Oportunidad", "Razón Oportunidad", "URL WhatsApp"];
+    const rows = marketIntel.leads.map((l: any) => [
+      `"${(l.id || "").replace(/"/g, '""')}"`,
+      `"${(l.name || "").replace(/"/g, '""')}"`,
+      `"${(l.category || l.specialty || "").replace(/"/g, '""')}"`,
+      `"${(l.address || "").replace(/"/g, '""')}"`,
+      `"${(l.city || scoutCity).replace(/"/g, '""')}"`,
+      `"${(l.state || scoutState).replace(/"/g, '""')}"`,
+      `"${(l.phone || "").replace(/"/g, '""')}"`,
+      l.hasWebsite ? "SI" : "NO",
+      `"${(l.websiteUrl || "").replace(/"/g, '""')}"`,
+      l.rating || "",
+      l.userRatingsTotal || 0,
+      `"${(l.opportunityLevel || "").replace(/"/g, '""')}"`,
+      `"${(l.opportunityReason || "").replace(/"/g, '""')}"`,
+      `"${(l.whatsappUrl || "").replace(/"/g, '""')}"`,
+    ]);
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r: any[]) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `prospectos_salud_${scoutCity.toLowerCase().replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success(`Exportados ${marketIntel.leads.length} prospectos a CSV con éxito.`);
+  };
 
   useEffect(() => {
     if (selectedPlatform) {
@@ -1840,10 +1910,10 @@ export const TabAdminSocialConnections: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-slate-900">
-                      Scout de Médicos & Clínicas en México
+                      Scout de Actores de Salud & Prospección B2B en México
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Geolocalización con Google Places API & DENUE INEGI para prospección outbound por WhatsApp y Email.
+                      Búsqueda en vivo con Google Places API: Médicos, Clínicas, Laboratorios, Proveedores, Farmacias y Fundaciones.
                     </p>
                   </div>
                 </div>
@@ -1852,7 +1922,7 @@ export const TabAdminSocialConnections: React.FC = () => {
               {/* Botón de recarga */}
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb)}
+                  onClick={() => loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, scoutCategory)}
                   disabled={loadingMarketIntel}
                   className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
                 >
@@ -1862,76 +1932,144 @@ export const TabAdminSocialConnections: React.FC = () => {
               </div>
             </div>
 
-            {/* Formulario de Búsqueda */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Ciudad */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Ciudad Objetivo</label>
-                <select
-                  value={scoutCity}
-                  onChange={(e) => {
-                    const city = e.target.value;
-                    setScoutCity(city);
-                    const state = city === "Hermosillo" ? "Sonora" : city === "Guadalajara" ? "Jalisco" : city === "Ciudad de México" ? "CDMX" : "Sinaloa";
-                    setScoutState(state);
-                    loadMarketIntelligence(scoutQuery, city, state, scoutOnlyWithoutWeb);
-                  }}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                >
-                  <option value="Los Mochis">Los Mochis, Sinaloa</option>
-                  <option value="Culiacán">Culiacán, Sinaloa</option>
-                  <option value="Guasave">Guasave, Sinaloa</option>
-                  <option value="Mazatlán">Mazatlán, Sinaloa</option>
-                  <option value="Hermosillo">Hermosillo, Sonora</option>
-                  <option value="Guadalajara">Guadalajara, Jalisco</option>
-                  <option value="Ciudad de México">Ciudad de México (CDMX)</option>
-                </select>
+            {/* Selector de Categorías de Salud */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-bold text-slate-700">Tipo de Actor de Salud</label>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                {[
+                  { key: "ALL", label: "Todos", icon: Building2 },
+                  { key: "MEDICOS", label: "Médicos y Especialistas", icon: UserCheck },
+                  { key: "CLINICAS", label: "Clínicas y Hospitales", icon: Stethoscope },
+                  { key: "LABORATORIOS", label: "Laboratorios Clínicos", icon: FlaskConical },
+                  { key: "PROVEEDORES", label: "Proveedores e Insumos", icon: Package },
+                  { key: "FARMACIAS", label: "Farmacias", icon: Pill },
+                  { key: "FUNDACIONES", label: "Fundaciones e IAP", icon: HeartHandshake },
+                  { key: "DENTISTAS", label: "Odontología / Dental", icon: Sparkles },
+                  { key: "OPTICAS", label: "Oftalmología / Ópticas", icon: Eye },
+                ].map((cat) => {
+                  const Icon = cat.icon;
+                  const isSelected = scoutCategory === cat.key;
+                  return (
+                    <button
+                      key={cat.key}
+                      onClick={() => {
+                        setScoutCategory(cat.key);
+                        loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, cat.key);
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                        isSelected
+                          ? "bg-slate-900 text-white shadow-sm"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{cat.label}</span>
+                    </button>
+                  );
+                })}
               </div>
+            </div>
 
-              {/* Especialidad / Término */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Especialidad / Búsqueda</label>
-                <input
-                  type="text"
-                  value={scoutQuery}
-                  onChange={(e) => setScoutQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb);
-                    }
-                  }}
-                  placeholder="Ej: Pediatra, Ginecología, Clínicas..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                />
-              </div>
-
-              {/* Filtro: Solo sin sitio web */}
-              <div className="flex items-end pb-1">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 select-none">
+            {/* Formulario de Búsqueda Flexible & Dinámica */}
+            <div className="space-y-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {/* Ciudad / Municipio Libre */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Ciudad o Municipio (México)</label>
                   <input
-                    type="checkbox"
-                    checked={scoutOnlyWithoutWeb}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setScoutOnlyWithoutWeb(checked);
-                      loadMarketIntelligence(scoutQuery, scoutCity, scoutState, checked);
+                    type="text"
+                    value={scoutCity}
+                    onChange={(e) => setScoutCity(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, scoutCategory);
+                      }
                     }}
-                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                    placeholder="Ej: Los Mochis, Guadalajara, Monterrey..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
-                  <span className="flex items-center gap-1">
-                    <Zap className="w-3.5 h-3.5 text-amber-500" /> Solo sin Sitio Web (Alta Oportunidad)
-                  </span>
-                </label>
+                </div>
+
+                {/* Estado / Entidad */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Estado / Región</label>
+                  <input
+                    type="text"
+                    value={scoutState}
+                    onChange={(e) => setScoutState(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, scoutCategory);
+                      }
+                    }}
+                    placeholder="Ej: Sinaloa, Jalisco, Nuevo León, CDMX..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                </div>
+
+                {/* Especialidad / Término personalizado */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Búsqueda personalizada (opcional)</label>
+                  <input
+                    type="text"
+                    value={scoutQuery}
+                    onChange={(e) => setScoutQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, scoutCategory);
+                      }
+                    }}
+                    placeholder="Ej: Pediatra, Chopo, Ortopedia..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                </div>
+
+                {/* Botón Ejecutar & Filtro sin web */}
+                <div className="flex items-center gap-2 pt-5 sm:pt-0">
+                  <button
+                    onClick={() => loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, scoutCategory)}
+                    className="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+                  >
+                    <Search className="w-3.5 h-3.5" /> Explorar en Maps
+                  </button>
+                </div>
               </div>
 
-              {/* Botón Ejecutar */}
-              <div className="flex items-end">
-                <button
-                  onClick={() => loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb)}
-                  className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
-                >
-                  <Search className="w-3.5 h-3.5" /> Explorar Mercado
-                </button>
+              {/* Sugerencias Rápidas de Ciudades */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] text-slate-500 scrollbar-none">
+                <span className="font-bold text-slate-700 flex items-center gap-1 flex-shrink-0">
+                  <MapPin className="w-3 h-3 text-indigo-500" /> Accesos rápidos:
+                </span>
+                {[
+                  { city: "Los Mochis", state: "Sinaloa" },
+                  { city: "Culiacán", state: "Sinaloa" },
+                  { city: "Mazatlán", state: "Sinaloa" },
+                  { city: "Guasave", state: "Sinaloa" },
+                  { city: "Hermosillo", state: "Sonora" },
+                  { city: "Guadalajara", state: "Jalisco" },
+                  { city: "Monterrey", state: "Nuevo León" },
+                  { city: "Ciudad de México", state: "CDMX" },
+                  { city: "Puebla", state: "Puebla" },
+                  { city: "Querétaro", state: "Querétaro" },
+                  { city: "Tijuana", state: "Baja California" },
+                  { city: "Mérida", state: "Yucatán" },
+                ].map((item) => (
+                  <button
+                    key={item.city}
+                    onClick={() => {
+                      setScoutCity(item.city);
+                      setScoutState(item.state);
+                      loadMarketIntelligence(scoutQuery, item.city, item.state, scoutOnlyWithoutWeb, scoutCategory);
+                    }}
+                    className={`px-2 py-0.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+                      scoutCity.toLowerCase() === item.city.toLowerCase()
+                        ? "bg-indigo-100 text-indigo-800 font-bold"
+                        : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {item.city}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -1943,9 +2081,9 @@ export const TabAdminSocialConnections: React.FC = () => {
                 <Building2 className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-slate-500">Clínicas / Médicos Identificados</p>
+                <p className="text-[11px] font-semibold text-slate-500">Prospectos Encontrados</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <h4 className="text-lg font-bold text-slate-900">{marketIntel?.totalLeadsFound ?? 7}</h4>
+                  <h4 className="text-lg font-bold text-slate-900">{marketIntel?.totalLeadsFound ?? 0}</h4>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
                     en {marketIntel?.targetCity || scoutCity}
                   </span>
@@ -1958,11 +2096,11 @@ export const TabAdminSocialConnections: React.FC = () => {
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-slate-500">Sin Sitio Web (Alto Potencial)</p>
+                <p className="text-[11px] font-semibold text-slate-500">Sin Sitio Web (Alta Oportunidad)</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <h4 className="text-lg font-bold text-amber-600">{marketIntel?.withoutWebsiteCount ?? 5}</h4>
+                  <h4 className="text-lg font-bold text-amber-600">{marketIntel?.withoutWebsiteCount ?? 0}</h4>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                    {marketIntel?.totalLeadsFound ? Math.round((marketIntel.withoutWebsiteCount / marketIntel.totalLeadsFound) * 100) : 71}% del total
+                    {marketIntel?.totalLeadsFound ? Math.round((marketIntel.withoutWebsiteCount / marketIntel.totalLeadsFound) * 100) : 0}% del total
                   </span>
                 </div>
               </div>
@@ -1975,7 +2113,7 @@ export const TabAdminSocialConnections: React.FC = () => {
               <div>
                 <p className="text-[11px] font-semibold text-slate-500">Con Teléfono / WhatsApp</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <h4 className="text-lg font-bold text-emerald-600">{marketIntel?.withPhoneCount ?? 7}</h4>
+                  <h4 className="text-lg font-bold text-emerald-600">{marketIntel?.withPhoneCount ?? 0}</h4>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                     Listo para Outbound
                   </span>
@@ -1985,16 +2123,16 @@ export const TabAdminSocialConnections: React.FC = () => {
 
             <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600">
-                <Users className="w-5 h-5" />
+                <Star className="w-5 h-5 fill-purple-200" />
               </div>
               <div>
-                <p className="text-[11px] font-semibold text-slate-500">Mercado Médico en {marketIntel?.targetState || "Sinaloa"}</p>
+                <p className="text-[11px] font-semibold text-slate-500">Calificación Promedio Google</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <h4 className="text-lg font-bold text-purple-700">
-                    {marketIntel?.marketReach?.potentialMedicalAudience?.toLocaleString() ?? "38,500"}
+                    ⭐ {marketIntel?.averageRating ? marketIntel.averageRating.toFixed(1) : "N/A"}
                   </h4>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
-                    TAM Meta & Google
+                    Google Maps
                   </span>
                 </div>
               </div>
@@ -2002,49 +2140,98 @@ export const TabAdminSocialConnections: React.FC = () => {
           </div>
 
           {/* Sub-navegación interna */}
-          <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-            <button
-              onClick={() => setMarketViewSection("leads")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                marketViewSection === "leads"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              Directorio de Prospectos ({marketIntel?.leads?.length || 0})
-            </button>
-            <button
-              onClick={() => setMarketViewSection("keywords")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                marketViewSection === "keywords"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              Radar de Palabras Clave en Google
-            </button>
-            <button
-              onClick={() => setMarketViewSection("reach")}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                marketViewSection === "reach"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              <Target className="w-3.5 h-3.5" />
-              Estimador de Alcance & Especialidades
-            </button>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setMarketViewSection("leads")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  marketViewSection === "leads"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                Directorio de Prospectos ({marketIntel?.leads?.length || 0})
+              </button>
+              <button
+                onClick={() => setMarketViewSection("keywords")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  marketViewSection === "keywords"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                Radar de Palabras Clave en Google
+              </button>
+              <button
+                onClick={() => setMarketViewSection("reach")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  marketViewSection === "reach"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                <Target className="w-3.5 h-3.5" />
+                Estimador de Alcance & Especialidades
+              </button>
+            </div>
+
+            {/* Selector de Modo de Visualización (Cards | Tabla | Mapa) + Exportar CSV */}
+            {marketViewSection === "leads" && (marketIntel?.leads || []).length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+                  <button
+                    onClick={() => setScoutDisplayMode("cards")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                      scoutDisplayMode === "cards" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                    title="Vista de Tarjetas"
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                    <span>Cards</span>
+                  </button>
+                  <button
+                    onClick={() => setScoutDisplayMode("table")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                      scoutDisplayMode === "table" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                    title="Vista de Tabla"
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span>Lista</span>
+                  </button>
+                  <button
+                    onClick={() => setScoutDisplayMode("map")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                      scoutDisplayMode === "map" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                    title="Vista de Mapa Interactivo"
+                  >
+                    <Map className="w-3.5 h-3.5" />
+                    <span>Mapa</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={exportLeadsToCSV}
+                  className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1"
+                  title="Exportar directorio a CSV"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="hidden sm:inline">Exportar CSV</span>
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* SECCIÓN 1: Directorio de Médicos & Clínicas (Scout B2B) */}
+          {/* SECCIÓN 1: Directorio de Actores de Salud (Scout B2B) */}
           {marketViewSection === "leads" && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {loadingMarketIntel ? (
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-12 text-center space-y-3">
                   <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
-                  <p className="text-xs font-semibold text-slate-600">Consultando Google Places API (Google Maps Platform)...</p>
+                  <p className="text-xs font-semibold text-slate-600">Consultando Google Places API en {scoutCity}, {scoutState}...</p>
                 </div>
               ) : (marketIntel?.leads || []).length === 0 ? (
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-10 text-center space-y-3">
@@ -2056,111 +2243,405 @@ export const TabAdminSocialConnections: React.FC = () => {
                       Búsqueda en Google Maps Lista para Ejecutar
                     </h4>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                      Presiona <strong>"Explorar Mercado"</strong> para buscar consultorios y clínicas en vivo a través de la API oficial de Google Places.
+                      Presiona <strong>"Explorar en Maps"</strong> para buscar en vivo en {scoutCity}, {scoutState} a través de Google Places API.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {(marketIntel?.leads || []).map((lead: any) => (
-                    <div
-                      key={lead.id}
-                      className="bg-white border border-slate-200/90 hover:border-indigo-300 rounded-2xl p-4 shadow-sm transition-all flex flex-col justify-between space-y-3 group"
-                    >
-                      <div className="space-y-2.5">
-                        {/* Header de la tarjeta */}
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                            {lead.specialty || "Medicina General"}
-                          </span>
-                          {lead.rating ? (
-                            <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
-                              <Star className="w-3.5 h-3.5 fill-amber-400" />
-                              <span>{lead.rating}</span>
-                              <span className="text-[10px] text-slate-400 font-normal">({lead.userRatingsTotal || 0})</span>
-                            </div>
-                          ) : (
-                            <span className="text-[10px] text-slate-400">Google Maps</span>
-                          )}
-                        </div>
+                <>
+                  {/* MODO 1: CARDS */}
+                  {scoutDisplayMode === "cards" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {(() => {
+                        const allLeads = marketIntel?.leads || [];
+                        const startIndex = (leadsPage - 1) * LEADS_PER_PAGE;
+                        const paginatedLeads = allLeads.slice(startIndex, startIndex + LEADS_PER_PAGE);
 
-                        <div>
-                          <h4 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-                            {lead.name}
-                          </h4>
-                          <p className="text-xs text-slate-500 mt-1 flex items-start gap-1">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" />
-                            <span>{lead.address}</span>
-                          </p>
-                        </div>
+                        return paginatedLeads.map((lead: any) => {
+                          const mapsUrl = lead.latitude && lead.longitude
+                            ? `https://www.google.com/maps/search/?api=1&query=${lead.latitude},${lead.longitude}`
+                            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.name + ' ' + lead.address)}`;
 
-                        {/* Estado de Presencia Digital & Oportunidad */}
-                        <div
-                          className={`p-2.5 rounded-xl border text-[11px] leading-snug space-y-1 ${
-                            !lead.hasWebsite
-                              ? "bg-amber-50/70 border-amber-200 text-amber-900"
-                              : "bg-blue-50/70 border-blue-200 text-blue-900"
-                          }`}
-                        >
-                          <div className="flex items-center gap-1.5 font-bold">
-                            {!lead.hasWebsite ? (
-                              <>
-                                <Zap className="w-3.5 h-3.5 text-amber-600" />
-                                <span>Alta Oportunidad: Sin Sitio Web</span>
-                              </>
-                            ) : (
-                              <>
-                                <Globe className="w-3.5 h-3.5 text-blue-600" />
-                                <span>Presencia Web Detectada</span>
-                              </>
-                            )}
-                          </div>
-                          <p className="text-[10px] opacity-90">{lead.opportunityReason}</p>
-                          {lead.hasWebsite && lead.websiteUrl && (
-                            <a
-                              href={lead.websiteUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-[10px] font-bold text-blue-700 hover:underline inline-flex items-center gap-1"
+                          const catColor = lead.category?.includes("Laboratorio")
+                            ? "bg-cyan-50 text-cyan-700 border-cyan-200"
+                            : lead.category?.includes("Farmacia")
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : lead.category?.includes("Proveedor")
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : lead.category?.includes("Fundación")
+                            ? "bg-purple-50 text-purple-700 border-purple-200"
+                            : lead.category?.includes("Dental")
+                            ? "bg-teal-50 text-teal-700 border-teal-200"
+                            : lead.category?.includes("Hospital") || lead.category?.includes("Clínica")
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                            : "bg-indigo-50 text-indigo-700 border-indigo-100";
+
+                          return (
+                            <div
+                              key={lead.id}
+                              className="bg-white border border-slate-200/90 hover:border-indigo-300 rounded-2xl p-4 shadow-sm transition-all flex flex-col justify-between space-y-3 group"
                             >
-                              Visitar web <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
+                              <div className="space-y-2.5">
+                                {/* Header de la tarjeta */}
+                                <div className="flex items-start justify-between gap-2">
+                                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${catColor}`}>
+                                    {lead.category || lead.specialty || "Salud"}
+                                  </span>
+                                  {lead.rating ? (
+                                    <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                                      <span>{lead.rating}</span>
+                                      <span className="text-[10px] text-slate-400 font-normal">({lead.userRatingsTotal || 0})</span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-[10px] text-slate-400">Google Maps</span>
+                                  )}
+                                </div>
 
-                      {/* Footer con Acciones Directas de Contacto */}
-                      <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
-                        {lead.whatsappUrl ? (
-                          <a
-                            href={lead.whatsappUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
-                          >
-                            <WhatsAppIcon className="w-3.5 h-3.5" /> Enviar WhatsApp
-                          </a>
-                        ) : (
-                          <button
-                            disabled
-                            className="flex-1 py-2 px-3 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold"
-                          >
-                            Sin Teléfono
-                          </button>
-                        )}
-                        {lead.phone && (
-                          <a
-                            href={`tel:${lead.phone}`}
-                            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors"
-                            title={`Llamar a ${lead.phone}`}
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                          </a>
-                        )}
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                    {lead.name}
+                                  </h4>
+                                  <a
+                                    href={mapsUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-xs text-slate-500 hover:text-indigo-600 mt-1 flex items-start gap-1 group/map transition-colors"
+                                    title="Ver en Google Maps"
+                                  >
+                                    <MapPin className="w-3.5 h-3.5 text-slate-400 group-hover/map:text-indigo-600 flex-shrink-0 mt-0.5" />
+                                    <span>{lead.address}</span>
+                                  </a>
+                                </div>
+
+                                {/* Estado de Presencia Digital & Oportunidad */}
+                                <div
+                                  className={`p-2.5 rounded-xl border text-[11px] leading-snug space-y-1 ${
+                                    !lead.hasWebsite
+                                      ? "bg-amber-50/70 border-amber-200 text-amber-900"
+                                      : "bg-blue-50/70 border-blue-200 text-blue-900"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-1.5 font-bold">
+                                    {!lead.hasWebsite ? (
+                                      <>
+                                        <Zap className="w-3.5 h-3.5 text-amber-600" />
+                                        <span>Alta Oportunidad: Sin Sitio Web</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Globe className="w-3.5 h-3.5 text-blue-600" />
+                                        <span>Presencia Web Registrada</span>
+                                      </>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] opacity-90">{lead.opportunityReason}</p>
+                                  {lead.hasWebsite && lead.websiteUrl && (
+                                    <a
+                                      href={lead.websiteUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-[10px] font-bold text-blue-700 hover:underline inline-flex items-center gap-1"
+                                    >
+                                      Visitar web oficial <ExternalLink className="w-2.5 h-2.5" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Footer con Acciones Directas de Contacto */}
+                              <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+                                {lead.whatsappUrl ? (
+                                  <a
+                                    href={lead.whatsappUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+                                  >
+                                    <WhatsAppIcon className="w-3.5 h-3.5" /> Enviar WhatsApp
+                                  </a>
+                                ) : (
+                                  <button
+                                    disabled
+                                    className="flex-1 py-2 px-3 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold"
+                                  >
+                                    Sin Teléfono
+                                  </button>
+                                )}
+                                {lead.phone && (
+                                  <a
+                                    href={`tel:${lead.phone}`}
+                                    className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors"
+                                    title={`Llamar a ${lead.phone}`}
+                                  >
+                                    <Phone className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  )}
+
+                  {/* MODO 2: LISTA / TABLA */}
+                  {scoutDisplayMode === "table" && (
+                    <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                            <tr>
+                              <th className="py-3 px-4">Establecimiento / Actor</th>
+                              <th className="py-3 px-4">Categoría</th>
+                              <th className="py-3 px-4">Dirección & Mapa</th>
+                              <th className="py-3 px-4">Rating</th>
+                              <th className="py-3 px-4">Presencia Digital</th>
+                              <th className="py-3 px-4 text-right">Contacto & Outbound</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {(() => {
+                              const allLeads = marketIntel?.leads || [];
+                              const startIndex = (leadsPage - 1) * LEADS_PER_PAGE;
+                              const paginatedLeads = allLeads.slice(startIndex, startIndex + LEADS_PER_PAGE);
+
+                              return paginatedLeads.map((lead: any) => {
+                                const mapsUrl = lead.latitude && lead.longitude
+                                  ? `https://www.google.com/maps/search/?api=1&query=${lead.latitude},${lead.longitude}`
+                                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.name + ' ' + lead.address)}`;
+
+                                return (
+                                  <tr key={lead.id} className="hover:bg-slate-50/80 transition-colors">
+                                    <td className="py-3 px-4">
+                                      <span className="font-bold text-slate-900 block">{lead.name}</span>
+                                      <span className="text-[10px] text-slate-400">{lead.id}</span>
+                                    </td>
+                                    <td className="py-3 px-4">
+                                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700">
+                                        {lead.category || "Salud"}
+                                      </span>
+                                    </td>
+                                    <td className="py-3 px-4 max-w-xs">
+                                      <a
+                                        href={mapsUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-slate-600 hover:text-indigo-600 flex items-start gap-1 transition-colors group"
+                                      >
+                                        <MapPin className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 flex-shrink-0 mt-0.5" />
+                                        <span className="line-clamp-2">{lead.address}</span>
+                                      </a>
+                                    </td>
+                                    <td className="py-3 px-4">
+                                      {lead.rating ? (
+                                        <div className="flex items-center gap-1 font-bold text-amber-500">
+                                          <Star className="w-3.5 h-3.5 fill-amber-400" />
+                                          <span>{lead.rating}</span>
+                                          <span className="text-[10px] text-slate-400 font-normal">({lead.userRatingsTotal || 0})</span>
+                                        </div>
+                                      ) : (
+                                        <span className="text-slate-400 text-[10px]">Sin rating</span>
+                                      )}
+                                    </td>
+                                    <td className="py-3 px-4">
+                                      {!lead.hasWebsite ? (
+                                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 w-fit">
+                                          <Zap className="w-3 h-3 text-amber-600" /> Sin Sitio Web
+                                        </span>
+                                      ) : (
+                                        <a
+                                          href={lead.websiteUrl}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1 hover:underline w-fit"
+                                        >
+                                          <Globe className="w-3 h-3 text-blue-600" /> Web Oficial <ExternalLink className="w-2.5 h-2.5" />
+                                        </a>
+                                      )}
+                                    </td>
+                                    <td className="py-3 px-4 text-right">
+                                      <div className="flex items-center justify-end gap-1.5">
+                                        {lead.whatsappUrl && (
+                                          <a
+                                            href={lead.whatsappUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors"
+                                            title="Enviar WhatsApp Outbound"
+                                          >
+                                            <WhatsAppIcon className="w-4 h-4" />
+                                          </a>
+                                        )}
+                                        {lead.phone && (
+                                          <a
+                                            href={`tel:${lead.phone}`}
+                                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                                            title={`Llamar a ${lead.phone}`}
+                                          >
+                                            <Phone className="w-3.5 h-3.5" />
+                                          </a>
+                                        )}
+                                        <a
+                                          href={mapsUrl}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-colors"
+                                          title="Ver en Google Maps"
+                                        >
+                                          <Navigation className="w-3.5 h-3.5" />
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              });
+                            })()}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  )}
+
+                  {/* MODO 3: MAPA INTERACTIVO */}
+                  {scoutDisplayMode === "map" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      {/* Mapa Embebido Dinámico de Google Maps */}
+                      <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm h-[520px] relative">
+                        <iframe
+                          title="Google Maps Healthcare Scout"
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          allowFullScreen
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                            (selectedLeadForMap?.name || scoutQuery || "médicos clínicas laboratorios") +
+                              " en " +
+                              scoutCity +
+                              ", " +
+                              scoutState +
+                              ", Mexico"
+                          )}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                        />
+                        {selectedLeadForMap && (
+                          <div className="absolute top-3 left-3 right-3 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-3 shadow-lg flex items-center justify-between gap-2">
+                            <div>
+                              <h5 className="text-xs font-bold text-slate-900">{selectedLeadForMap.name}</h5>
+                              <p className="text-[11px] text-slate-500">{selectedLeadForMap.address}</p>
+                            </div>
+                            <button
+                              onClick={() => setSelectedLeadForMap(null)}
+                              className="text-xs font-bold text-slate-400 hover:text-slate-600 px-2 py-1"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Lista Lateral de Prospectos en el Mapa */}
+                      <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-sm h-[520px] flex flex-col space-y-2">
+                        <div className="flex items-center justify-between px-1 pb-2 border-b border-slate-100">
+                          <span className="text-xs font-bold text-slate-900">
+                            Pines en {scoutCity} ({marketIntel.leads.length})
+                          </span>
+                          <span className="text-[10px] text-slate-500">Haz clic para enfocar</span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                          {marketIntel.leads.map((lead: any) => (
+                            <div
+                              key={lead.id}
+                              onClick={() => setSelectedLeadForMap(lead)}
+                              className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                                selectedLeadForMap?.id === lead.id
+                                  ? "bg-indigo-50 border-indigo-300 shadow-sm"
+                                  : "bg-slate-50/70 border-slate-200 hover:border-slate-300"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-1">
+                                <span className="font-bold text-slate-900 line-clamp-1">{lead.name}</span>
+                                {lead.rating && (
+                                  <span className="text-[10px] font-bold text-amber-600 flex items-center gap-0.5">
+                                    ⭐ {lead.rating}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{lead.address}</p>
+                              <div className="flex items-center justify-between pt-2 mt-1 border-t border-slate-200/60">
+                                <span className="text-[10px] font-semibold text-slate-600">{lead.category || "Salud"}</span>
+                                {lead.whatsappUrl && (
+                                  <a
+                                    href={lead.whatsappUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-[10px] font-bold text-emerald-600 hover:underline flex items-center gap-1"
+                                  >
+                                    <WhatsAppIcon className="w-3 h-3" /> WhatsApp
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Barra de Paginación y Carga de Más Resultados de Google Maps */}
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                    <div className="text-xs text-slate-500 font-semibold">
+                      Mostrando {((leadsPage - 1) * LEADS_PER_PAGE) + 1} - {Math.min(leadsPage * LEADS_PER_PAGE, marketIntel.leads.length)} de <strong className="text-slate-900">{marketIntel.leads.length} prospectos</strong> en esta consulta
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {/* Paginación Frontend */}
+                      {Math.ceil(marketIntel.leads.length / LEADS_PER_PAGE) > 1 && (
+                        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                          <button
+                            onClick={() => setLeadsPage((p) => Math.max(1, p - 1))}
+                            disabled={leadsPage === 1}
+                            className="p-1.5 rounded-lg text-slate-700 hover:bg-white disabled:opacity-30 transition-all text-xs font-bold flex items-center gap-1"
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="px-2 text-xs font-bold text-slate-800">
+                            {leadsPage} / {Math.ceil(marketIntel.leads.length / LEADS_PER_PAGE)}
+                          </span>
+                          <button
+                            onClick={() => setLeadsPage((p) => Math.min(Math.ceil(marketIntel.leads.length / LEADS_PER_PAGE), p + 1))}
+                            disabled={leadsPage === Math.ceil(marketIntel.leads.length / LEADS_PER_PAGE)}
+                            className="p-1.5 rounded-lg text-slate-700 hover:bg-white disabled:opacity-30 transition-all text-xs font-bold flex items-center gap-1"
+                          >
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Botón Cargar Más desde Google Maps API */}
+                      {marketIntel.nextPageToken && (
+                        <button
+                          onClick={() => loadMarketIntelligence(scoutQuery, scoutCity, scoutState, scoutOnlyWithoutWeb, scoutCategory, marketIntel.nextPageToken, true)}
+                          disabled={loadingMoreLeads}
+                          className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          {loadingMoreLeads ? (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              <span>Cargando más de Google...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Compass className="w-3.5 h-3.5" />
+                              <span>Cargar más de Google Maps (+20)</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           )}

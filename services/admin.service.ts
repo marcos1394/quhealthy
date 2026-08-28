@@ -569,7 +569,9 @@ export const adminService = {
     query?: string,
     city?: string,
     state?: string,
-    onlyWithoutWebsite?: boolean
+    onlyWithoutWebsite?: boolean,
+    category?: string,
+    pageToken?: string
   ): Promise<{
     targetCity: string;
     targetState: string;
@@ -578,10 +580,12 @@ export const adminService = {
     withoutWebsiteCount: number;
     withPhoneCount: number;
     averageRating: number;
+    nextPageToken?: string;
     leads: Array<{
       id: string;
       name: string;
       specialty: string;
+      category?: string;
       phone: string;
       formattedPhone: string;
       whatsappUrl: string;
@@ -597,6 +601,7 @@ export const adminService = {
       source: string;
       latitude?: number;
       longitude?: number;
+      types?: string[];
     }>;
     keywordTrends: Array<{
       keyword: string;
@@ -620,6 +625,8 @@ export const adminService = {
     if (city) params.append('city', city);
     if (state) params.append('state', state);
     if (onlyWithoutWebsite !== undefined) params.append('onlyWithoutWebsite', String(onlyWithoutWebsite));
+    if (category) params.append('category', category);
+    if (pageToken) params.append('pageToken', pageToken);
     const response = await axiosInstance.get(`/api/social/analytics/market-intelligence?${params.toString()}`);
     return response.data;
   },
