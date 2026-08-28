@@ -2728,14 +2728,17 @@ export const TabAdminSocialConnections: React.FC = () => {
 
           {/* SECCIÓN 3: Estimador de Alcance & Especialidades */}
           {marketViewSection === "reach" && (
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <Target className="w-4 h-4 text-purple-600" />
                   <h4 className="text-sm font-bold text-slate-900">
-                    Estimador de Alcance Meta Marketing API & Audiencias
+                    Estimador de Alcance de Mercado & Audiencia en {marketIntel?.targetCity || scoutCity}, {marketIntel?.targetState || scoutState}
                   </h4>
                 </div>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                  Google Maps & Meta Marketing
+                </span>
               </div>
 
               {!marketIntel?.marketReach ? (
@@ -2744,23 +2747,73 @@ export const TabAdminSocialConnections: React.FC = () => {
                     <Target className="w-5 h-5" />
                   </div>
                   <div className="max-w-md mx-auto space-y-1">
-                    <h5 className="text-xs font-bold text-slate-800">Cálculo de Alcance con Meta Ads</h5>
+                    <h5 className="text-xs font-bold text-slate-800">Cálculo de Alcance de Mercado</h5>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                      El cálculo de alcance potencial de médicos por estado y ciudad se consulta en tiempo real mediante el endpoint <code>/reachestimate</code> de Meta Marketing API al vincular la cuenta publicitaria de Quhealthy.
+                      Ejecuta una búsqueda en el explorador para calcular en vivo el tamaño de mercado y penetración digital en la región.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div className="lg:col-span-2 space-y-3">
-                    {Object.entries(marketIntel.marketReach.breakdownBySpecialty || {}).map(([spec, count]: [string, any]) => (
-                      <div key={spec} className="space-y-1">
-                        <div className="flex justify-between text-xs font-semibold text-slate-700">
-                          <span>{spec}</span>
-                          <span className="font-bold text-slate-900">{Number(count).toLocaleString()}</span>
-                        </div>
-                      </div>
-                    ))}
+                <div className="space-y-6">
+                  {/* KPI Cards de Alcance */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-100">
+                      <span className="text-[11px] font-bold text-purple-700 block">Audiencia Médica Potencial</span>
+                      <span className="text-xl font-extrabold text-purple-950 mt-1 block">
+                        {marketIntel.marketReach.potentialMedicalAudience?.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-purple-600 mt-0.5 block">Profesionales y directivos</span>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100">
+                      <span className="text-[11px] font-bold text-blue-700 block">Médicos Activos en Meta</span>
+                      <span className="text-xl font-extrabold text-blue-950 mt-1 block">
+                        {marketIntel.marketReach.activeDoctorsOnMeta?.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-blue-600 mt-0.5 block">Alcanzables vía Facebook / Instagram</span>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                      <span className="text-[11px] font-bold text-emerald-700 block">Establecimientos en Google</span>
+                      <span className="text-xl font-extrabold text-emerald-950 mt-1 block">
+                        {marketIntel.marketReach.activeClinicsOnGoogle?.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-emerald-600 mt-0.5 block">Centros y consultorios mapeados</span>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-100">
+                      <span className="text-[11px] font-bold text-amber-700 block">Adopción Digital Estimada</span>
+                      <span className="text-xl font-extrabold text-amber-950 mt-1 block">
+                        {marketIntel.marketReach.estimatedDigitalAdoptionRate}%
+                      </span>
+                      <span className="text-[10px] text-amber-600 mt-0.5 block">Con presencia web registrada</span>
+                    </div>
+                  </div>
+
+                  {/* Desglose por Especialidad y Tipo de Actor */}
+                  <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl p-4 space-y-3">
+                    <h5 className="text-xs font-bold text-slate-800">Desglose de Actores Identificados por Categoría</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {Object.entries(marketIntel.marketReach.breakdownBySpecialty || {}).map(([spec, count]: [string, any]) => {
+                        const total = Object.values(marketIntel.marketReach.breakdownBySpecialty || {}).reduce((a: number, b: any) => a + Number(b), 0) as number;
+                        const pct = total > 0 ? Math.round((Number(count) / total) * 100) : 0;
+
+                        return (
+                          <div key={spec} className="p-3 bg-white border border-slate-200 rounded-xl space-y-1.5 shadow-sm">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="font-bold text-slate-900">{spec}</span>
+                              <span className="font-extrabold text-indigo-600">{Number(count).toLocaleString()} ({pct}%)</span>
+                            </div>
+                            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className="bg-indigo-600 h-1.5 rounded-full transition-all"
+                                style={{ width: `${Math.max(8, pct)}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
