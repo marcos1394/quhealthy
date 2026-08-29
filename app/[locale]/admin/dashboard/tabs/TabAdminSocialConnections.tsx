@@ -212,6 +212,12 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [showCreateCampaignModal, setShowCreateCampaignModal] = useState(false);
   const [showBatchHarvesterModal, setShowBatchHarvesterModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showLogsModal, setShowLogsModal] = useState(false);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [campaignLogs, setCampaignLogs] = useState<any[]>([]);
+  const [activeCampaignForLogs, setActiveCampaignForLogs] = useState<any>(null);
+  const [logsSearchText, setLogsSearchText] = useState("");
+  const [selectedLogMessageDetail, setSelectedLogMessageDetail] = useState<any>(null);
   
   const [newCampaignData, setNewCampaignData] = useState({
     name: "",
@@ -524,6 +530,35 @@ export const TabAdminSocialConnections: React.FC = () => {
       loadOutboundData();
     } catch (e: any) {
       toast.error("Error al pausar campaña");
+    }
+  };
+
+  const handleViewCampaignLogs = async (camp: any) => {
+    try {
+      setActiveCampaignForLogs(camp);
+      setShowLogsModal(true);
+      setLogsLoading(true);
+      setLogsSearchText("");
+      setSelectedLogMessageDetail(null);
+      const data = await adminService.getCampaignLogs(camp.id);
+      setCampaignLogs(data || []);
+    } catch (e) {
+      toast.error("Error al cargar los registros de la campaña");
+    } finally {
+      setLogsLoading(false);
+    }
+  };
+
+  const handleDeleteCampaign = async (campaignId: string, campaignName: string) => {
+    if (!confirm(`¿Estás seguro de eliminar la campaña "${campaignName}" y todo su historial de mensajes?`)) {
+      return;
+    }
+    try {
+      await adminService.deleteOutboundCampaign(campaignId);
+      toast.success("Campaña eliminada correctamente");
+      loadOutboundData();
+    } catch (e) {
+      toast.error("Error al eliminar la campaña");
     }
   };
 
@@ -3290,11 +3325,19 @@ export const TabAdminSocialConnections: React.FC = () => {
                                 <span className="text-[10px] text-slate-400"> ({camp.demoConversionRate || 0}%)</span>
                               </td>
                               <td className="py-3 px-4 text-right">
-                                <div className="flex items-center justify-end gap-1.5">
+                                <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                  <button
+                                    onClick={() => handleViewCampaignLogs(camp)}
+                                    className="px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-semibold flex items-center gap-1 transition-colors border border-teal-200/70"
+                                    title="Ver mensajes enviados y canal elegido por la IA"
+                                  >
+                                    <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                                    <span>Ver Mensajes</span>
+                                  </button>
                                   {camp.status === "RUNNING" ? (
                                     <button
                                       onClick={() => handlePauseCampaign(camp.id)}
-                                      className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors"
+                                      className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors border border-amber-200"
                                       title="Pausar Campaña"
                                     >
                                       <Pause className="w-3.5 h-3.5" />
@@ -3302,7 +3345,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                                   ) : (
                                     <button
                                       onClick={() => handleLaunchCampaign(camp.id)}
-                                      className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors"
+                                      className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors border border-emerald-200"
                                       title="Lanzar / Reanudar Campaña"
                                     >
                                       <Play className="w-3.5 h-3.5" />
@@ -3312,11 +3355,18 @@ export const TabAdminSocialConnections: React.FC = () => {
                                     href={camp.calendarUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-200"
                                     title="Ver enlace de calendario configurado"
                                   >
                                     <ExternalLink className="w-3.5 h-3.5" />
                                   </a>
+                                  <button
+                                    onClick={() => handleDeleteCampaign(camp.id, camp.name)}
+                                    className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors border border-red-200/80"
+                                    title="Eliminar campaña y registros de prueba"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -4412,6 +4462,206 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
               </div>
             ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 📊 MODAL DE LOGS Y MENSAJES ENVIADOS POR CAMPAÑA */}
+      {/* ========================================================================= */}
+      {showLogsModal && (
+        <div
+          onClick={() => setShowLogsModal(false)}
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl border border-slate-100 space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col"
+          >
+            {/* Header del Modal */}
+            <div className="flex items-start justify-between border-b border-slate-100 pb-4 shrink-0">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-teal-50 text-teal-700 rounded-xl">
+                    <Sparkles className="w-5 h-5" />
+                  </span>
+                  <h3 className="text-lg font-black text-slate-900">
+                    Registro de Mensajes & Envíos IA
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">
+                  Campaña: <strong className="text-slate-800">{activeCampaignForLogs?.name}</strong> · Canal: <span className="font-semibold text-teal-700">{activeCampaignForLogs?.channel}</span> · Total Enviados: <span className="font-bold text-slate-900">{campaignLogs.length}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLogsModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-colors"
+                title="Cerrar ventana"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Barra de Búsqueda / Filtro interno */}
+            <div className="shrink-0 flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Filtrar por nombre de médico, especialidad o teléfono..."
+                  value={logsSearchText}
+                  onChange={(e) => setLogsSearchText(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              {logsSearchText && (
+                <button
+                  onClick={() => setLogsSearchText("")}
+                  className="text-xs text-slate-500 hover:text-slate-700 font-semibold px-2 py-1"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+
+            {/* Contenido / Listado de Mensajes */}
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              {logsLoading ? (
+                <div className="p-12 text-center space-y-3">
+                  <RefreshCw className="w-8 h-8 text-teal-600 animate-spin mx-auto" />
+                  <p className="text-xs font-semibold text-slate-600">Cargando historial de mensajes enviados...</p>
+                </div>
+              ) : campaignLogs.length === 0 ? (
+                <div className="p-12 text-center bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+                  <Inbox className="w-8 h-8 text-slate-400 mx-auto" />
+                  <p className="text-xs font-bold text-slate-700">No se encontraron mensajes registrados para esta campaña.</p>
+                  <p className="text-[11px] text-slate-500">Si la campaña recién inició, los mensajes se irán registrando conforme el despachador procese a cada prospecto.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {campaignLogs
+                    .filter((l: any) => {
+                      if (!logsSearchText.trim()) return true;
+                      const q = logsSearchText.toLowerCase();
+                      return (
+                        (l.doctorName && l.doctorName.toLowerCase().includes(q)) ||
+                        (l.specialty && l.specialty.toLowerCase().includes(q)) ||
+                        (l.recipient && l.recipient.toLowerCase().includes(q)) ||
+                        (l.content && l.content.toLowerCase().includes(q))
+                      );
+                    })
+                    .map((logItem: any) => {
+                      const channelBadge =
+                        logItem.channel === "WHATSAPP" ? (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                            <WhatsAppIcon className="w-3 h-3" /> WhatsApp
+                          </span>
+                        ) : logItem.channel === "INSTAGRAM" ? (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-pink-50 text-pink-700 border border-pink-200 flex items-center gap-1">
+                            <InstagramIcon className="w-3 h-3" /> Instagram DM
+                          </span>
+                        ) : logItem.channel === "EMAIL" ? (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                            <Mail className="w-3 h-3" /> Email
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            {logItem.channel}
+                          </span>
+                        );
+
+                      const statusBadge =
+                        logItem.status === "DELIVERED" ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Entregado (API)
+                          </span>
+                        ) : logItem.status === "SENT" ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            Enviado / En cola
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
+                            {logItem.errorReason || "Error"}
+                          </span>
+                        );
+
+                      return (
+                        <div
+                          key={logItem.id}
+                          className="p-4 bg-slate-50/70 border border-slate-200 rounded-2xl space-y-2 hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-slate-900 text-xs">
+                                  {logItem.doctorName}
+                                </span>
+                                <span className="text-[10px] text-slate-500 font-medium">
+                                  · {logItem.specialty} {logItem.city ? `(${logItem.city})` : ""}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-slate-400 block mt-0.5">
+                                Destino: <strong className="text-slate-700">{logItem.recipient || "Sin contacto directo"}</strong> · {logItem.sentAt ? new Date(logItem.sentAt).toLocaleString("es-MX") : ""}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {channelBadge}
+                              {statusBadge}
+                            </div>
+                          </div>
+
+                          {/* Cuerpo del Mensaje Generado */}
+                          <div className="p-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 whitespace-pre-wrap font-sans leading-relaxed shadow-2xs">
+                            {logItem.content}
+                          </div>
+
+                          {/* Acciones de Mensaje */}
+                          <div className="flex items-center justify-end gap-2 pt-1">
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(logItem.content);
+                                toast.success("Mensaje copiado al portapapeles");
+                              }}
+                              className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>Copiar</span>
+                            </button>
+
+                            {logItem.directWhatsappLink && (
+                              <a
+                                href={logItem.directWhatsappLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 shadow-xs"
+                              >
+                                <WhatsAppIcon className="w-3.5 h-3.5" />
+                                <span>Abrir en WhatsApp</span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between border-t border-slate-100 pt-4 shrink-0">
+              <span className="text-[11px] text-slate-400">
+                Total de mensajes mostrados: {campaignLogs.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowLogsModal(false)}
+                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

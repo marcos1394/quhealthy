@@ -751,4 +751,14 @@ export const adminService = {
     const response = await axiosInstance.post('/api/social/crm/outbound/leads/re-enrich');
     return response.data;
   },
+
+  getCampaignLogs: async (campaignId: string): Promise<any[]> => {
+    const response = await axiosInstance.get(`/api/social/crm/outbound/campaigns/${campaignId}/logs`);
+    return response.data;
+  },
+
+  deleteOutboundCampaign: async (campaignId: string): Promise<any> => {
+    const response = await axiosInstance.delete(`/api/social/crm/outbound/campaigns/${campaignId}`);
+    return response.data;
+  },
 };
