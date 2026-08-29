@@ -4314,8 +4314,14 @@ export const TabAdminSocialConnections: React.FC = () => {
       {/* ✨ MODAL 3: Previsualización de Mensaje Outbound IA */}
       {/* ========================================================================= */}
       {showPreviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+        <div 
+          onClick={() => setShowPreviewModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto cursor-default relative"
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
@@ -4327,17 +4333,26 @@ export const TabAdminSocialConnections: React.FC = () => {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowPreviewModal(false)}
                 className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-colors"
+                title="Cerrar ventana"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {previewLoading ? (
-              <div className="p-12 text-center space-y-3">
+              <div className="p-10 text-center space-y-4">
                 <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
-                <p className="text-xs font-semibold text-slate-600">Generando mensaje con Inteligencia Clínica...</p>
+                <p className="text-xs font-semibold text-slate-600">Generando mensaje con Inteligencia Clínica (Gemini)...</p>
+                <button
+                  type="button"
+                  onClick={() => setShowPreviewModal(false)}
+                  className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl transition-all"
+                >
+                  Cancelar
+                </button>
               </div>
             ) : previewData ? (
               <div className="space-y-4">
@@ -4358,31 +4373,42 @@ export const TabAdminSocialConnections: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between flex-wrap gap-2 pt-3 border-t border-slate-100">
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(previewData.renderedMessage);
-                      setCopiedPreview(true);
-                      setTimeout(() => setCopiedPreview(false), 2500);
-                      toast.success("Mensaje copiado al portapapeles");
-                    }}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+                    type="button"
+                    onClick={() => setShowPreviewModal(false)}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all"
                   >
-                    {copiedPreview ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedPreview ? "¡Copiado!" : "Copiar Texto"}</span>
+                    Cerrar
                   </button>
 
-                  {previewData.directWhatsappLink && (
-                    <a
-                      href={previewData.directWhatsappLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(previewData.renderedMessage);
+                        setCopiedPreview(true);
+                        setTimeout(() => setCopiedPreview(false), 2500);
+                        toast.success("Mensaje copiado al portapapeles");
+                      }}
+                      className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
                     >
-                      <WhatsAppIcon className="w-4 h-4" />
-                      <span>Abrir en WhatsApp Web</span>
-                    </a>
-                  )}
+                      {copiedPreview ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedPreview ? "¡Copiado!" : "Copiar Texto"}</span>
+                    </button>
+
+                    {previewData.directWhatsappLink && (
+                      <a
+                        href={previewData.directWhatsappLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                      >
+                        <WhatsAppIcon className="w-4 h-4" />
+                        <span>Abrir en WhatsApp</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ) : null}
