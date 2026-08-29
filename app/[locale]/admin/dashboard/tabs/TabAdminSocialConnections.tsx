@@ -197,6 +197,7 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [prospectPool, setProspectPool] = useState<any[]>([]);
   const [loadingProspectPool, setLoadingProspectPool] = useState(false);
   const [prospectPoolPage, setProspectPoolPage] = useState<number>(0);
+  const [prospectPoolSize, setProspectPoolSize] = useState<number>(25);
   const [prospectPoolTotal, setProspectPoolTotal] = useState<number>(0);
   const [poolCityFilter, setPoolCityFilter] = useState<string>("");
   const [poolCategoryFilter, setPoolCategoryFilter] = useState<string>("ALL");
@@ -483,7 +484,7 @@ export const TabAdminSocialConnections: React.FC = () => {
     }
   }, []);
 
-  const loadProspectPool = useCallback(async (page = 0) => {
+  const loadProspectPool = useCallback(async (page = 0, size = prospectPoolSize) => {
     try {
       setLoadingProspectPool(true);
       const res = await adminService.getProspectPool({
@@ -492,7 +493,7 @@ export const TabAdminSocialConnections: React.FC = () => {
         status: poolStatusFilter !== "ALL" ? poolStatusFilter : undefined,
         onlyWithoutWeb: poolOnlyWithoutWeb ? true : undefined,
         page,
-        size: 20,
+        size: size > 0 ? size : 1000,
       });
       setProspectPool(res?.content || []);
       setProspectPoolTotal(res?.totalElements || 0);
@@ -502,7 +503,7 @@ export const TabAdminSocialConnections: React.FC = () => {
     } finally {
       setLoadingProspectPool(false);
     }
-  }, [poolCityFilter, poolCategoryFilter, poolStatusFilter, poolOnlyWithoutWeb]);
+  }, [poolCityFilter, poolCategoryFilter, poolStatusFilter, poolOnlyWithoutWeb, prospectPoolSize]);
 
   useEffect(() => {
     if (marketViewSection === "outbound") {
@@ -3814,6 +3815,98 @@ export const TabAdminSocialConnections: React.FC = () => {
                         })}
                       </tbody>
                     </table>
+                  </div>
+
+                  {/* Paginación & Selector de Tamaño */}
+                  <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4 text-xs text-slate-600">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span>
+                        Mostrando{" "}
+                        <strong className="text-slate-900 font-bold">
+                          {prospectPoolTotal > 0 ? prospectPoolPage * prospectPoolSize + 1 : 0}
+                        </strong>{" "}
+                        a{" "}
+                        <strong className="text-slate-900 font-bold">
+                          {Math.min((prospectPoolPage + 1) * prospectPoolSize, prospectPoolTotal)}
+                        </strong>{" "}
+                        de{" "}
+                        <strong className="text-slate-900 font-bold">{prospectPoolTotal}</strong> prospectos
+                      </span>
+
+                      <div className="flex items-center gap-1.5 pl-3 border-l border-slate-200">
+                        <span className="text-[11px] text-slate-500 font-medium">Ver:</span>
+                        <select
+                          value={prospectPoolSize}
+                          onChange={(e) => {
+                            const newSize = Number(e.target.value);
+                            setProspectPoolSize(newSize);
+                            loadProspectPool(0, newSize);
+                          }}
+                          className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-2xs"
+                        >
+                          <option value={20}>20 por pág.</option>
+                          <option value={50}>50 por pág.</option>
+                          <option value={100}>100 por pág.</option>
+                          <option value={1000}>Todos ({prospectPoolTotal})</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => loadProspectPool(prospectPoolPage - 1, prospectPoolSize)}
+                        disabled={prospectPoolPage === 0 || loadingProspectPool}
+                        className="px-3 py-1.5 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white text-slate-700 border border-slate-200 rounded-xl font-bold transition-all shadow-2xs flex items-center gap-1"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span>Anterior</span>
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from(
+                          { length: Math.ceil(prospectPoolTotal / prospectPoolSize) || 1 },
+                          (_, i) => i
+                        )
+                          .filter((i) => {
+                            const totalPages = Math.ceil(prospectPoolTotal / prospectPoolSize) || 1;
+                            if (totalPages <= 7) return true;
+                            if (i === 0 || i === totalPages - 1) return true;
+                            return Math.abs(i - prospectPoolPage) <= 1;
+                          })
+                          .map((i, idx, arr) => {
+                            const prev = arr[idx - 1];
+                            const isGap = prev !== undefined && i - prev > 1;
+                            return (
+                              <React.Fragment key={i}>
+                                {isGap && <span className="px-1 text-slate-400 font-bold">...</span>}
+                                <button
+                                  onClick={() => loadProspectPool(i, prospectPoolSize)}
+                                  disabled={loadingProspectPool}
+                                  className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
+                                    prospectPoolPage === i
+                                      ? "bg-indigo-600 text-white shadow-xs"
+                                      : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200"
+                                  }`}
+                                >
+                                  {i + 1}
+                                </button>
+                              </React.Fragment>
+                            );
+                          })}
+                      </div>
+
+                      <button
+                        onClick={() => loadProspectPool(prospectPoolPage + 1, prospectPoolSize)}
+                        disabled={
+                          (prospectPoolPage + 1) * prospectPoolSize >= prospectPoolTotal ||
+                          loadingProspectPool
+                        }
+                        className="px-3 py-1.5 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white text-slate-700 border border-slate-200 rounded-xl font-bold transition-all shadow-2xs flex items-center gap-1"
+                      >
+                        <span>Siguiente</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
