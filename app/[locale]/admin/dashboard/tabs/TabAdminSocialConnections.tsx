@@ -588,6 +588,7 @@ export const TabAdminSocialConnections: React.FC = () => {
       setShowPreviewModal(true);
       setCopiedPreview(false);
       const res = await adminService.renderOutboundPreview({
+        prospectId: lead.id,
         doctorName: lead.name,
         specialty: lead.specialty || lead.category,
         city: lead.city || scoutCity,
