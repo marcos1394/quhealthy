@@ -204,13 +204,18 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [poolOnlyWithoutWeb, setPoolOnlyWithoutWeb] = useState(false);
   const [selectedPoolLeadIds, setSelectedPoolLeadIds] = useState<string[]>([]);
   
+  const [poolSortField, setPoolSortField] = useState<"name" | "specialty" | "city" | "contacts" | "rating" | "status">("contacts");
+  const [poolSortOrder, setPoolSortOrder] = useState<"asc" | "desc">("desc");
+  const [poolSearchText, setPoolSearchText] = useState<string>("");
+  const [poolContactFilter, setPoolContactFilter] = useState<string>("ALL");
+  
   const [showCreateCampaignModal, setShowCreateCampaignModal] = useState(false);
   const [showBatchHarvesterModal, setShowBatchHarvesterModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   
   const [newCampaignData, setNewCampaignData] = useState({
     name: "",
-    channel: "WHATSAPP",
+    channel: "AI_OMNICHANNEL",
     targetCity: "Los Mochis",
     targetState: "Sinaloa",
     targetCategory: "ALL",
@@ -626,6 +631,66 @@ export const TabAdminSocialConnections: React.FC = () => {
       setReEnrichingPool(false);
     }
   };
+
+  const togglePoolSort = (field: "name" | "specialty" | "city" | "contacts" | "rating" | "status") => {
+    if (poolSortField === field) {
+      setPoolSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setPoolSortField(field);
+      setPoolSortOrder(field === "contacts" || field === "rating" ? "desc" : "asc");
+    }
+  };
+
+  const filteredAndSortedProspects = React.useMemo(() => {
+    let list = [...prospectPool];
+
+    if (poolSearchText.trim()) {
+      const q = poolSearchText.toLowerCase().trim();
+      list = list.filter((p) =>
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.specialty && p.specialty.toLowerCase().includes(q)) ||
+        (p.category && p.category.toLowerCase().includes(q)) ||
+        (p.address && p.address.toLowerCase().includes(q)) ||
+        (p.city && p.city.toLowerCase().includes(q)) ||
+        (p.phone && p.phone.includes(q)) ||
+        (p.email && p.email.toLowerCase().includes(q)) ||
+        (p.instagramHandle && p.instagramHandle.toLowerCase().includes(q)) ||
+        (p.facebookHandle && p.facebookHandle.toLowerCase().includes(q))
+      );
+    }
+
+    if (poolContactFilter === "WITH_EMAIL") {
+      list = list.filter((p) => p.email);
+    } else if (poolContactFilter === "WITH_INSTAGRAM") {
+      list = list.filter((p) => p.instagramUrl || p.instagramHandle);
+    } else if (poolContactFilter === "WITH_FACEBOOK") {
+      list = list.filter((p) => p.facebookUrl || p.facebookHandle);
+    } else if (poolContactFilter === "WITH_ANY_ENRICHED") {
+      list = list.filter((p) => p.email || p.instagramUrl || p.facebookUrl);
+    }
+
+    list.sort((a, b) => {
+      let comp = 0;
+      if (poolSortField === "name") {
+        comp = (a.name || "").localeCompare(b.name || "");
+      } else if (poolSortField === "specialty") {
+        comp = (a.specialty || a.category || "").localeCompare(b.specialty || b.category || "");
+      } else if (poolSortField === "city") {
+        comp = (a.city || "").localeCompare(b.city || "");
+      } else if (poolSortField === "status") {
+        comp = (a.status || "").localeCompare(b.status || "");
+      } else if (poolSortField === "rating") {
+        comp = (b.rating || 0) - (a.rating || 0);
+      } else if (poolSortField === "contacts") {
+        const countA = (a.phone ? 1 : 0) + (a.email ? 2 : 0) + (a.instagramUrl ? 2 : 0) + (a.facebookUrl ? 1 : 0);
+        const countB = (b.phone ? 1 : 0) + (b.email ? 2 : 0) + (b.instagramUrl ? 2 : 0) + (b.facebookUrl ? 1 : 0);
+        comp = countB - countA;
+      }
+      return poolSortOrder === "asc" ? comp : -comp;
+    });
+
+    return list;
+  }, [prospectPool, poolSearchText, poolContactFilter, poolSortField, poolSortOrder]);
 
   const officialChannels = [
     {
@@ -3319,56 +3384,96 @@ export const TabAdminSocialConnections: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Filtros del Pool */}
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 pt-2 border-t border-slate-100">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Ciudad</label>
-                    <input
-                      type="text"
-                      placeholder="Filtrar por ciudad..."
-                      value={poolCityFilter}
-                      onChange={(e) => setPoolCityFilter(e.target.value)}
-                      className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                {/* Filtros del Pool Avanzados (Estilo Excel) */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                    {/* Búsqueda libre en tiempo real */}
+                    <div className="sm:col-span-4">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                        <Search className="w-3 h-3 text-indigo-500" /> Búsqueda Rápida
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Buscar por nombre, clínica, email, @handle..."
+                        value={poolSearchText}
+                        onChange={(e) => setPoolSearchText(e.target.value)}
+                        className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
+                    {/* Ciudad */}
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Ciudad</label>
+                      <input
+                        type="text"
+                        placeholder="Filtrar por ciudad..."
+                        value={poolCityFilter}
+                        onChange={(e) => setPoolCityFilter(e.target.value)}
+                        className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
+                    {/* Especialidad Real */}
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Especialidad</label>
+                      <select
+                        value={poolCategoryFilter}
+                        onChange={(e) => setPoolCategoryFilter(e.target.value)}
+                        className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="ALL">Todas las Especialidades</option>
+                        <option value="Dermatol">Dermatología</option>
+                        <option value="Pediatr">Pediatría</option>
+                        <option value="Ginecolog">Ginecología & Obstetricia</option>
+                        <option value="Dent">Odontología / Dental</option>
+                        <option value="Cardiol">Cardiología</option>
+                        <option value="Oftalmol">Oftalmología</option>
+                        <option value="Traumatol">Traumatología & Ortopedia</option>
+                        <option value="Nutri">Nutrición & Bariatría</option>
+                        <option value="Psicol">Psicología & Psiquiatría</option>
+                        <option value="Clinic">Clínicas y Hospitales</option>
+                        <option value="Laborator">Laboratorios Clínicos</option>
+                        <option value="Farmacia">Farmacias</option>
+                      </select>
+                    </div>
+
+                    {/* Filtro de Canales Enriquecidos */}
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Canales Extraídos</label>
+                      <select
+                        value={poolContactFilter}
+                        onChange={(e) => setPoolContactFilter(e.target.value)}
+                        className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="ALL">Todos los Contactos</option>
+                        <option value="WITH_ANY_ENRICHED">✨ Con Email o Redes</option>
+                        <option value="WITH_EMAIL">✉️ Con Correo</option>
+                        <option value="WITH_INSTAGRAM">📸 Con Instagram</option>
+                        <option value="WITH_FACEBOOK">📘 Con Facebook</option>
+                      </select>
+                    </div>
+
+                    {/* Estado Outbound */}
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Estado Outbound</label>
+                      <select
+                        value={poolStatusFilter}
+                        onChange={(e) => setPoolStatusFilter(e.target.value)}
+                        className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="ALL">Todos los Estados</option>
+                        <option value="PENDING">PENDING (Sin contactar)</option>
+                        <option value="QUEUED">QUEUED (En cola)</option>
+                        <option value="SENT">SENT (Enviado)</option>
+                        <option value="DELIVERED">DELIVERED (Entregado)</option>
+                        <option value="REPLIED">REPLIED (Respondió)</option>
+                        <option value="DEMO_SCHEDULED">DEMO_SCHEDULED (Demo Agendada)</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Especialidad</label>
-                    <select
-                      value={poolCategoryFilter}
-                      onChange={(e) => setPoolCategoryFilter(e.target.value)}
-                      className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="ALL">Todas las Categorías</option>
-                      <option value="MEDICOS">Médicos Especialistas</option>
-                      <option value="PEDIATRIA">Pediatría</option>
-                      <option value="GINECOLOGIA">Ginecología</option>
-                      <option value="DENTISTAS">Odontología / Dental</option>
-                      <option value="CLINICAS">Clínicas y Hospitales</option>
-                      <option value="LABORATORIOS">Laboratorios Clínicos</option>
-                      <option value="FARMACIAS">Farmacias</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">Estado Outbound</label>
-                    <select
-                      value={poolStatusFilter}
-                      onChange={(e) => setPoolStatusFilter(e.target.value)}
-                      className="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="ALL">Todos los Estados</option>
-                      <option value="PENDING">PENDING (Sin contactar)</option>
-                      <option value="QUEUED">QUEUED (En cola)</option>
-                      <option value="SENT">SENT (Enviado)</option>
-                      <option value="DELIVERED">DELIVERED (Entregado)</option>
-                      <option value="REPLIED">REPLIED (Respondió)</option>
-                      <option value="DEMO_SCHEDULED">DEMO_SCHEDULED (Demo Agendada)</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-end">
-                    <label className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 cursor-pointer w-full">
+                  <div className="flex items-center justify-between pt-1">
+                    <label className="flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={poolOnlyWithoutWeb}
@@ -3377,6 +3482,10 @@ export const TabAdminSocialConnections: React.FC = () => {
                       />
                       <span>Solo Sin Sitio Web</span>
                     </label>
+
+                    <div className="text-[11px] text-slate-500 font-medium">
+                      Mostrando <strong className="text-slate-900">{filteredAndSortedProspects.length}</strong> de {prospectPoolTotal} prospectos
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3387,24 +3496,17 @@ export const TabAdminSocialConnections: React.FC = () => {
                   <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
                   <p className="text-xs font-semibold text-slate-600">Cargando prospectos del pool...</p>
                 </div>
-              ) : prospectPool.length === 0 ? (
+              ) : filteredAndSortedProspects.length === 0 ? (
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-10 text-center space-y-3">
                   <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-sm">
                     <Database className="w-6 h-6" />
                   </div>
                   <div className="max-w-md mx-auto space-y-1">
-                    <h4 className="text-sm font-bold text-slate-900">Lead Pool Vacío para estos filtros</h4>
+                    <h4 className="text-sm font-bold text-slate-900">No se encontraron prospectos</h4>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                      Ejecuta un barrido batch sistemático para llenar el pool automáticamente desde Google Places.
+                      Prueba ajustando los filtros de búsqueda o ejecuta un barrido batch.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setShowBatchHarvesterModal(true)}
-                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm inline-flex items-center gap-1.5"
-                  >
-                    <Zap className="w-4 h-4" />
-                    <span>Ejecutar Barrido Batch</span>
-                  </button>
                 </div>
               ) : (
                 <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm">
@@ -3415,31 +3517,81 @@ export const TabAdminSocialConnections: React.FC = () => {
                           <th className="py-3 px-3 w-8">
                             <button
                               onClick={() => {
-                                if (selectedPoolLeadIds.length === prospectPool.length) {
+                                if (selectedPoolLeadIds.length === filteredAndSortedProspects.length) {
                                   setSelectedPoolLeadIds([]);
                                 } else {
-                                  setSelectedPoolLeadIds(prospectPool.map((p) => p.id));
+                                  setSelectedPoolLeadIds(filteredAndSortedProspects.map((p) => p.id));
                                 }
                               }}
                               className="text-slate-500 hover:text-slate-900"
                             >
-                              {selectedPoolLeadIds.length > 0 && selectedPoolLeadIds.length === prospectPool.length ? (
+                              {selectedPoolLeadIds.length > 0 && selectedPoolLeadIds.length === filteredAndSortedProspects.length ? (
                                 <CheckSquare className="w-4 h-4 text-indigo-600" />
                               ) : (
                                 <Square className="w-4 h-4 text-slate-400" />
                               )}
                             </button>
                           </th>
-                          <th className="py-3 px-4">Establecimiento / Doctor</th>
-                          <th className="py-3 px-4">Especialidad</th>
-                          <th className="py-3 px-4">Ciudad / Teléfono</th>
-                          <th className="py-3 px-4">Presencia Digital</th>
-                          <th className="py-3 px-4">Estado</th>
+                          <th
+                            onClick={() => togglePoolSort("name")}
+                            className="py-3 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                          >
+                            <div className="flex items-center gap-1">
+                              <span>Establecimiento / Doctor</span>
+                              {poolSortField === "name" && (
+                                <span className="text-indigo-600">{poolSortOrder === "asc" ? "↑" : "↓"}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => togglePoolSort("specialty")}
+                            className="py-3 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                          >
+                            <div className="flex items-center gap-1">
+                              <span>Especialidad</span>
+                              {poolSortField === "specialty" && (
+                                <span className="text-indigo-600">{poolSortOrder === "asc" ? "↑" : "↓"}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => togglePoolSort("city")}
+                            className="py-3 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                          >
+                            <div className="flex items-center gap-1">
+                              <span>Ciudad / Teléfono</span>
+                              {poolSortField === "city" && (
+                                <span className="text-indigo-600">{poolSortOrder === "asc" ? "↑" : "↓"}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => togglePoolSort("contacts")}
+                            className="py-3 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                          >
+                            <div className="flex items-center gap-1">
+                              <span>Canales Enriquecidos</span>
+                              {poolSortField === "contacts" && (
+                                <span className="text-indigo-600">{poolSortOrder === "asc" ? "↑" : "↓"}</span>
+                              )}
+                            </div>
+                          </th>
+                          <th
+                            onClick={() => togglePoolSort("status")}
+                            className="py-3 px-4 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                          >
+                            <div className="flex items-center gap-1">
+                              <span>Estado</span>
+                              {poolSortField === "status" && (
+                                <span className="text-indigo-600">{poolSortOrder === "asc" ? "↑" : "↓"}</span>
+                              )}
+                            </div>
+                          </th>
                           <th className="py-3 px-4 text-right">Acciones</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {prospectPool.map((prospect: any) => {
+                        {filteredAndSortedProspects.map((prospect: any) => {
                           const isSelected = selectedPoolLeadIds.includes(prospect.id);
                           const statusColor =
                             prospect.status === "DEMO_SCHEDULED"
@@ -3918,8 +4070,9 @@ export const TabAdminSocialConnections: React.FC = () => {
                   <select
                     value={newCampaignData.channel}
                     onChange={(e) => setNewCampaignData({ ...newCampaignData, channel: e.target.value })}
-                    className="w-full mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full mt-1.5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
                   >
+                    <option value="AI_OMNICHANNEL">🧠 Cascada Inteligente por IA (Omnicanal)</option>
                     <option value="WHATSAPP">WhatsApp Cloud API (Oficial)</option>
                     <option value="INSTAGRAM">Instagram Direct (DM)</option>
                     <option value="EMAIL">Correo Electrónico (Google Workspace)</option>
