@@ -4618,7 +4618,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                           </div>
 
                           {/* Acciones de Mensaje */}
-                          <div className="flex items-center justify-end gap-2 pt-1">
+                          <div className="flex items-center justify-end gap-2 pt-1 flex-wrap">
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(logItem.content);
@@ -4639,6 +4639,28 @@ export const TabAdminSocialConnections: React.FC = () => {
                               >
                                 <WhatsAppIcon className="w-3.5 h-3.5" />
                                 <span>Abrir en WhatsApp</span>
+                              </a>
+                            )}
+
+                            {logItem.directInstagramLink && (
+                              <a
+                                href={logItem.directInstagramLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 shadow-xs"
+                              >
+                                <InstagramIcon className="w-3.5 h-3.5" />
+                                <span>Abrir en Instagram DM</span>
+                              </a>
+                            )}
+
+                            {logItem.directEmailLink && (
+                              <a
+                                href={logItem.directEmailLink}
+                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 shadow-xs"
+                              >
+                                <Mail className="w-3.5 h-3.5" />
+                                <span>Redactar Email</span>
                               </a>
                             )}
                           </div>
