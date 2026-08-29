@@ -62,6 +62,7 @@ import {
   X,
   Megaphone,
   Inbox,
+  Mail,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 import {
@@ -2622,14 +2623,44 @@ export const TabAdminSocialConnections: React.FC = () => {
                                   </div>
                                   <p className="text-[10px] opacity-90">{lead.opportunityReason}</p>
                                   {lead.hasWebsite && lead.websiteUrl && (
-                                    <a
-                                      href={lead.websiteUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="text-[10px] font-bold text-blue-700 hover:underline inline-flex items-center gap-1"
-                                    >
-                                      Visitar web oficial <ExternalLink className="w-2.5 h-2.5" />
-                                    </a>
+                                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                      <a
+                                        href={lead.websiteUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-[10px] font-bold text-blue-700 hover:underline inline-flex items-center gap-1"
+                                      >
+                                        Web oficial <ExternalLink className="w-2.5 h-2.5" />
+                                      </a>
+                                      {lead.email && (
+                                        <a
+                                          href={`mailto:${lead.email}`}
+                                          className="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1 hover:text-indigo-600"
+                                        >
+                                          <Mail className="w-2.5 h-2.5 text-indigo-500" /> {lead.email}
+                                        </a>
+                                      )}
+                                      {lead.instagramUrl && (
+                                        <a
+                                          href={lead.instagramUrl}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="text-[10px] font-semibold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1 hover:underline"
+                                        >
+                                          <InstagramIcon className="w-2.5 h-2.5" /> {lead.instagramHandle || "Instagram"}
+                                        </a>
+                                      )}
+                                      {lead.facebookUrl && (
+                                        <a
+                                          href={lead.facebookUrl}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1 hover:underline"
+                                        >
+                                          <FacebookIcon className="w-2.5 h-2.5" /> {lead.facebookHandle || "Facebook"}
+                                        </a>
+                                      )}
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -2652,6 +2683,37 @@ export const TabAdminSocialConnections: React.FC = () => {
                                   >
                                     Sin Teléfono
                                   </button>
+                                )}
+                                {lead.email && (
+                                  <a
+                                    href={`mailto:${lead.email}`}
+                                    className="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl transition-colors"
+                                    title={`Enviar email a ${lead.email}`}
+                                  >
+                                    <Mail className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                                {lead.instagramUrl && (
+                                  <a
+                                    href={lead.instagramUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl transition-colors"
+                                    title="Ver Instagram"
+                                  >
+                                    <InstagramIcon className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                                {lead.facebookUrl && (
+                                  <a
+                                    href={lead.facebookUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-colors"
+                                    title="Ver Facebook"
+                                  >
+                                    <FacebookIcon className="w-3.5 h-3.5" />
+                                  </a>
                                 )}
                                 {lead.phone && (
                                   <a
@@ -2756,6 +2818,37 @@ export const TabAdminSocialConnections: React.FC = () => {
                                             title="Enviar WhatsApp Outbound"
                                           >
                                             <WhatsAppIcon className="w-4 h-4" />
+                                          </a>
+                                        )}
+                                        {lead.email && (
+                                          <a
+                                            href={`mailto:${lead.email}`}
+                                            className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-colors"
+                                            title={`Enviar correo a ${lead.email}`}
+                                          >
+                                            <Mail className="w-3.5 h-3.5" />
+                                          </a>
+                                        )}
+                                        {lead.instagramUrl && (
+                                          <a
+                                            href={lead.instagramUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors"
+                                            title={`Ver Instagram (${lead.instagramHandle || ''})`}
+                                          >
+                                            <InstagramIcon className="w-3.5 h-3.5" />
+                                          </a>
+                                        )}
+                                        {lead.facebookUrl && (
+                                          <a
+                                            href={lead.facebookUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors"
+                                            title={`Ver Facebook (${lead.facebookHandle || ''})`}
+                                          >
+                                            <FacebookIcon className="w-3.5 h-3.5" />
                                           </a>
                                         )}
                                         {lead.phone && (
@@ -3396,6 +3489,37 @@ export const TabAdminSocialConnections: React.FC = () => {
                                       title="Abrir WhatsApp directo"
                                     >
                                       <WhatsAppIcon className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+                                  {prospect.email && (
+                                    <a
+                                      href={`mailto:${prospect.email}`}
+                                      className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-colors"
+                                      title={`Enviar correo a ${prospect.email}`}
+                                    >
+                                      <Mail className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+                                  {prospect.instagramUrl && (
+                                    <a
+                                      href={prospect.instagramUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors"
+                                      title={`Ver Instagram (${prospect.instagramHandle || ''})`}
+                                    >
+                                      <InstagramIcon className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+                                  {prospect.facebookUrl && (
+                                    <a
+                                      href={prospect.facebookUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors"
+                                      title={`Ver Facebook (${prospect.facebookHandle || ''})`}
+                                    >
+                                      <FacebookIcon className="w-3.5 h-3.5" />
                                     </a>
                                   )}
                                 </div>

@@ -594,6 +594,11 @@ export const adminService = {
       state: string;
       hasWebsite: boolean;
       websiteUrl?: string;
+      email?: string;
+      facebookUrl?: string;
+      facebookHandle?: string;
+      instagramUrl?: string;
+      instagramHandle?: string;
       rating?: number;
       userRatingsTotal?: number;
       opportunityLevel: string;
