@@ -3568,15 +3568,22 @@ export const TabAdminSocialConnections: React.FC = () => {
                           <th className="py-3 px-3 w-8">
                             <button
                               onClick={() => {
-                                if (selectedPoolLeadIds.length === filteredAndSortedProspects.length) {
+                                const pendingProspects = filteredAndSortedProspects.filter(
+                                  (p) => p.status === "PENDING" && !p.lastContactedAt
+                                );
+                                if (selectedPoolLeadIds.length > 0) {
                                   setSelectedPoolLeadIds([]);
                                 } else {
-                                  setSelectedPoolLeadIds(filteredAndSortedProspects.map((p) => p.id));
+                                  setSelectedPoolLeadIds(pendingProspects.map((p) => p.id));
+                                  if (pendingProspects.length === 0) {
+                                    toast.info("Todos los prospectos filtrados ya fueron contactados previamente.");
+                                  }
                                 }
                               }}
                               className="text-slate-500 hover:text-slate-900"
+                              title="Seleccionar todos los prospectos pendientes de contactar"
                             >
-                              {selectedPoolLeadIds.length > 0 && selectedPoolLeadIds.length === filteredAndSortedProspects.length ? (
+                              {selectedPoolLeadIds.length > 0 ? (
                                 <CheckSquare className="w-4 h-4 text-indigo-600" />
                               ) : (
                                 <Square className="w-4 h-4 text-slate-400" />
@@ -3644,17 +3651,24 @@ export const TabAdminSocialConnections: React.FC = () => {
                       <tbody className="divide-y divide-slate-100">
                         {filteredAndSortedProspects.map((prospect: any) => {
                           const isSelected = selectedPoolLeadIds.includes(prospect.id);
+                          const isAlreadyContacted =
+                            prospect.status === "SENT" ||
+                            prospect.status === "DELIVERED" ||
+                            prospect.status === "REPLIED" ||
+                            prospect.status === "DEMO_SCHEDULED" ||
+                            Boolean(prospect.lastContactedAt);
+
                           const statusColor =
                             prospect.status === "DEMO_SCHEDULED"
                               ? "bg-purple-50 text-purple-700 border-purple-200 font-bold"
                               : prospect.status === "REPLIED"
                               ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold"
-                              : prospect.status === "DELIVERED" || prospect.status === "SENT"
+                              : isAlreadyContacted
                               ? "bg-blue-50 text-blue-700 border-blue-200"
                               : "bg-slate-100 text-slate-600 border-slate-200";
 
                           return (
-                            <tr key={prospect.id} className={`hover:bg-slate-50/80 transition-colors ${isSelected ? "bg-indigo-50/30" : ""}`}>
+                            <tr key={prospect.id} className={`hover:bg-slate-50/80 transition-colors ${isSelected ? "bg-indigo-50/30" : isAlreadyContacted ? "bg-slate-50/40" : ""}`}>
                               <td className="py-3 px-3">
                                 <input
                                   type="checkbox"
@@ -3663,14 +3677,27 @@ export const TabAdminSocialConnections: React.FC = () => {
                                     if (isSelected) {
                                       setSelectedPoolLeadIds((prev) => prev.filter((id) => id !== prospect.id));
                                     } else {
+                                      if (isAlreadyContacted) {
+                                        if (!confirm(`Este médico ya fue contactado el ${prospect.lastContactedAt ? new Date(prospect.lastContactedAt).toLocaleDateString('es-MX') : 'previamente'}. ¿Deseas seleccionarlo de nuevo?`)) {
+                                          return;
+                                        }
+                                      }
                                       setSelectedPoolLeadIds((prev) => [...prev, prospect.id]);
                                     }
                                   }}
-                                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                  className={`rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 ${isAlreadyContacted ? "opacity-60" : ""}`}
+                                  title={isAlreadyContacted ? "Ya contactado en campaña previa (Haz clic para forzar re-selección)" : "Seleccionar para campaña"}
                                 />
                               </td>
                               <td className="py-3 px-4">
-                                <span className="font-bold text-slate-900 block">{prospect.name}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-bold text-slate-900 block">{prospect.name}</span>
+                                  {isAlreadyContacted && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200" title="Mensaje enviado previamente">
+                                      ✓ Contactado
+                                    </span>
+                                  )}
+                                </div>
                                 <span className="text-[10px] text-slate-400 line-clamp-1">{prospect.address}</span>
                               </td>
                               <td className="py-3 px-4">
@@ -3718,9 +3745,16 @@ export const TabAdminSocialConnections: React.FC = () => {
                                 </div>
                               </td>
                               <td className="py-3 px-4">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] border ${statusColor}`}>
-                                  {prospect.status}
-                                </span>
+                                <div className="space-y-0.5">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] border font-bold ${statusColor}`}>
+                                    {prospect.status === "PENDING" ? "PENDIENTE" : prospect.status}
+                                  </span>
+                                  {prospect.lastContactedAt && (
+                                    <span className="text-[9px] text-slate-400 block font-medium">
+                                      {new Date(prospect.lastContactedAt).toLocaleDateString("es-MX")}
+                                    </span>
+                                  )}
+                                </div>
                               </td>
                               <td className="py-3 px-4 text-right">
                                 <div className="flex items-center justify-end gap-1.5">
