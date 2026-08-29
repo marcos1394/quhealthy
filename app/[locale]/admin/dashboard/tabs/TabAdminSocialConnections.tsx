@@ -4680,7 +4680,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                               </a>
                             )}
 
-                            {logItem.directInstagramLink && (
+                            {logItem.directInstagramLink ? (
                               <a
                                 href={logItem.directInstagramLink}
                                 target="_blank"
@@ -4690,7 +4690,18 @@ export const TabAdminSocialConnections: React.FC = () => {
                                 <InstagramIcon className="w-3.5 h-3.5" />
                                 <span>Abrir en Instagram DM</span>
                               </a>
-                            )}
+                            ) : (logItem.channel === "INSTAGRAM" || logItem.channel === "AI_OMNICHANNEL") ? (
+                              <a
+                                href={`https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(logItem.doctorName)}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 shadow-xs"
+                                title="Buscar el perfil de este doctor en Instagram para enviarle el mensaje"
+                              >
+                                <InstagramIcon className="w-3.5 h-3.5" />
+                                <span>Buscar en Instagram</span>
+                              </a>
+                            ) : null}
 
                             {logItem.directEmailLink && (
                               <a
