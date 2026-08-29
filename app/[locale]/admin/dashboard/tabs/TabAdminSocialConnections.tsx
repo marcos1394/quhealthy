@@ -4606,17 +4606,21 @@ export const TabAdminSocialConnections: React.FC = () => {
                         );
 
                       const statusBadge =
-                        logItem.status === "DELIVERED" ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Entregado (API)
+                        logItem.status === "READ" ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200 flex items-center gap-1">
+                            <span>👀 Visto / Leído (✓✓)</span>
+                          </span>
+                        ) : logItem.status === "DELIVERED" ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                            <span>✓✓ Entregado a Dispositivo</span>
                           </span>
                         ) : logItem.status === "SENT" ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                            Enviado / En cola
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                            <span>✓ Enviado por Servidor</span>
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
-                            {logItem.errorReason || "Error"}
+                            {logItem.errorReason || "Error al enviar"}
                           </span>
                         );
 
