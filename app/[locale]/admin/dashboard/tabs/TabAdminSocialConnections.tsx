@@ -214,7 +214,7 @@ export const TabAdminSocialConnections: React.FC = () => {
     targetCity: "Los Mochis",
     targetState: "Sinaloa",
     targetCategory: "ALL",
-    calendarUrl: "https://quhealthy.org/demo",
+    calendarUrl: "https://calendar.app.google/4YNfwhfPLE8GXoFB6",
     customTemplateBody: "",
     launchImmediately: true,
   });
@@ -587,7 +587,7 @@ export const TabAdminSocialConnections: React.FC = () => {
         specialty: lead.specialty || lead.category,
         city: lead.city || scoutCity,
         hasWebsite: lead.hasWebsite,
-        calendarUrl: newCampaignData.calendarUrl || "https://quhealthy.org/demo",
+        calendarUrl: newCampaignData.calendarUrl || "https://calendar.app.google/4YNfwhfPLE8GXoFB6",
       });
       setPreviewData(res);
     } catch (e) {
@@ -3108,7 +3108,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                         targetCity: scoutCity,
                         targetState: scoutState,
                         targetCategory: "ALL",
-                        calendarUrl: "https://quhealthy.org/demo",
+                        calendarUrl: "https://calendar.app.google/4YNfwhfPLE8GXoFB6",
                         customTemplateBody: "",
                         launchImmediately: true,
                       });
@@ -3874,6 +3874,7 @@ export const TabAdminSocialConnections: React.FC = () => {
                   >
                     <option value="WHATSAPP">WhatsApp Cloud API (Oficial)</option>
                     <option value="INSTAGRAM">Instagram Direct (DM)</option>
+                    <option value="EMAIL">Correo Electrónico (Google Workspace)</option>
                   </select>
                 </div>
 
