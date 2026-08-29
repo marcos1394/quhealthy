@@ -671,11 +671,39 @@ export const TabAdminCrm: React.FC = () => {
                           >
                             <p className="whitespace-pre-wrap">{msg.content}</p>
                           </div>
-                          <span className="text-[9px] text-slate-400 mt-1 px-1">
-                            {new Date(msg.createdAt).toLocaleTimeString("es-MX", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                          <span className="text-[9px] text-slate-400 mt-1 px-1 flex items-center gap-1">
+                            <span>
+                              {(() => {
+                                const raw = msg.createdAt;
+                                const dateObj = typeof raw === "string" && !raw.endsWith("Z") && !raw.includes("+")
+                                  ? new Date(raw + "Z")
+                                  : new Date(raw);
+                                return dateObj.toLocaleTimeString("es-MX", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                });
+                              })()}
+                            </span>
+                            {isOutbound && (
+                              <span
+                                className="text-[10px] font-bold"
+                                title={
+                                  msg.status === "READ"
+                                    ? "Leído / Visto"
+                                    : msg.status === "DELIVERED"
+                                    ? "Entregado al dispositivo"
+                                    : "Enviado por servidor"
+                                }
+                              >
+                                {msg.status === "READ" ? (
+                                  <span className="text-sky-500">✓✓</span>
+                                ) : msg.status === "DELIVERED" ? (
+                                  <span className="text-slate-400">✓✓</span>
+                                ) : (
+                                  <span className="text-slate-400">✓</span>
+                                )}
+                              </span>
+                            )}
                           </span>
                         </div>
                       );
