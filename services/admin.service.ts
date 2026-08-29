@@ -746,5 +746,9 @@ export const adminService = {
     const response = await axiosInstance.get('/api/social/crm/outbound/metrics');
     return response.data;
   },
-};
 
+  reEnrichOutboundProspects: async (): Promise<{ providerId: number; reEnrichedCount: number; status: string }> => {
+    const response = await axiosInstance.post('/api/social/crm/outbound/leads/re-enrich');
+    return response.data;
+  },
+};
