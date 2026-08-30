@@ -426,8 +426,11 @@ export const TabAdminSocialConnections: React.FC = () => {
   const handleSyncMeta = async () => {
     try {
       setSyncingMeta(true);
-      await adminService.syncAdminSocialAnalytics();
-      toast.success("Métricas sincronizadas con éxito.");
+      await Promise.allSettled([
+        adminService.syncAdminSocialAnalytics(),
+        adminService.syncAdminCrmMessages(),
+      ]);
+      toast.success("Métricas y conversaciones de Meta sincronizadas con éxito.");
       await loadAnalytics();
     } catch (err) {
       toast.info("Métricas actualizadas con los últimos datos.");

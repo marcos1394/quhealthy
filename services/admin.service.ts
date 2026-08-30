@@ -415,6 +415,30 @@ export const adminService = {
     return response.data;
   },
 
+  sendDirectCrmMessage: async (data: {
+    platform: "WHATSAPP" | "INSTAGRAM" | "FACEBOOK" | "EMAIL";
+    recipient: string;
+    recipientName?: string;
+    message: string;
+    messageType?: "TEXT" | "IMAGE" | "VIDEO" | "DOCUMENT";
+    mediaUrl?: string;
+  }): Promise<{
+    conversationId: string;
+    messageId: string;
+    externalMessageId: string;
+    platform: string;
+    recipient: string;
+    recipientName: string;
+    status: string;
+    renderedMessage: string;
+    directLink?: string;
+    sentAt: string;
+    errorMessage?: string;
+  }> => {
+    const response = await axiosInstance.post('/api/social/crm/direct-send', data);
+    return response.data;
+  },
+
   syncAdminCrmMessages: async (): Promise<{ providerId: number; conversationsSynced: number; messagesSynced: number; status: string }> => {
     const response = await axiosInstance.post('/api/social/crm/sync-messages');
     return response.data;
