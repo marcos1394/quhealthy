@@ -89,13 +89,51 @@ export interface AdminDashboardDTO {
 export interface TransactionReportDTO {
   date: string;
   transactionId: string;
-  chargeId: string;
+  transactionType: 'MARKETPLACE' | 'SAAS_SUBSCRIPTION' | 'REFUND' | string;
+  description: string;
   grossAmount: number;
   stripeFee: number;
   quhealthyCommission: number;
   providerEarnings: number;
-  transactionType: string;
-  description: string;
+}
+
+export interface ProviderSubscriptionAuditDTO {
+  providerId: number;
+  providerName: string;
+  providerEmail: string;
+  businessName?: string;
+  planName: string;
+  planCode: string;
+  planPrice: number;
+  status: string; // ACTIVE, TRIALING, PAST_DUE, CANCELED, EXPIRED, NO_PLAN
+  gateway: string; // STRIPE, MERCADOPAGO, COURTESY, CASH
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
+  daysRemaining: number;
+  isExpired: boolean;
+  autoRenew: boolean;
+}
+
+export interface ClinicalAppointmentLedgerDTO {
+  appointmentId: number;
+  providerId: number;
+  providerName: string;
+  providerSpecialty?: string;
+  consumerId?: number;
+  patientName: string;
+  patientEmail?: string;
+  serviceName: string;
+  startTime: string;
+  endTime?: string;
+  appointmentType: string;
+  appointmentStatus: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  channel: 'ONLINE' | 'IN_CLINIC';
+  totalPrice: number;
+  amountPaid: number;
+  quhealthyFee: number;
+  providerNetEarnings: number;
 }
 
 export interface ModuleUsageDTO {
@@ -197,6 +235,28 @@ export const adminService = {
       `/api/payments/admin/transactions/report?limitDays=${limitDays}`
     );
     return response.data;
+  },
+
+  getProviderSubscriptionsAudit: async (): Promise<ProviderSubscriptionAuditDTO[]> => {
+    try {
+      const response = await axiosInstance.get<ProviderSubscriptionAuditDTO[]>(
+        '/api/payments/admin/providers/subscriptions-audit'
+      );
+      return response.data;
+    } catch {
+      return [];
+    }
+  },
+
+  getClinicalAppointmentsLedger: async (limit: number = 200): Promise<ClinicalAppointmentLedgerDTO[]> => {
+    try {
+      const response = await axiosInstance.get<ClinicalAppointmentLedgerDTO[]>(
+        `/api/payments/admin/appointments/ledger?limit=${limit}`
+      );
+      return response.data;
+    } catch {
+      return [];
+    }
   },
 
   getProductMetrics: async (days: number = 30): Promise<ProductMetricsDTO> => {
