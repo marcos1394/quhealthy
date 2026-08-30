@@ -36,8 +36,12 @@ class TelemetryClient {
   public init(userId?: number, role?: string) {
     if (typeof window === 'undefined') return;
 
-    this.currentUserId = userId;
-    this.currentRole = role;
+    if (userId !== undefined && userId !== null) {
+      this.currentUserId = userId;
+    }
+    if (role !== undefined && role !== null) {
+      this.currentRole = role;
+    }
 
     // Recuperar o generar Session ID
     let sid = sessionStorage.getItem('quhealthy_sid');
@@ -57,11 +61,11 @@ class TelemetryClient {
       window.addEventListener('keydown', this.markActive, { passive: true });
       window.addEventListener('click', this.markActive, { passive: true });
 
-      // Iniciar heartbeat cada 60 segundos
-      this.heartbeatTimer = setInterval(() => this.sendHeartbeat(), 60000);
+      // Iniciar heartbeat cada 45 segundos
+      this.heartbeatTimer = setInterval(() => this.sendHeartbeat(), 45000);
 
-      // Iniciar flush de eventos cada 15 segundos
-      this.flushTimer = setInterval(() => this.flushEvents(), 15000);
+      // Iniciar flush de eventos cada 10 segundos
+      this.flushTimer = setInterval(() => this.flushEvents(), 10000);
 
       // Enviar primer heartbeat inmediatamente
       this.sendHeartbeat();
@@ -75,10 +79,13 @@ class TelemetryClient {
   public setModule(moduleCode: string) {
     this.currentModule = moduleCode.toUpperCase();
     this.trackEvent(this.currentModule, 'VIEW', window.location.pathname);
+    // Flush inmediato al cambiar de módulo para capturar la navegación en vivo
+    this.flushEvents();
   }
 
   public trackAction(moduleCode: string, actionType: string, targetResource?: string) {
     this.trackEvent(moduleCode.toUpperCase(), actionType.toUpperCase(), targetResource);
+    this.flushEvents();
   }
 
   private trackEvent(moduleCode: string, actionType: string, targetResource?: string, durationMs?: number) {
@@ -101,7 +108,7 @@ class TelemetryClient {
 
     this.eventBuffer.push(event);
 
-    if (this.eventBuffer.length >= 10) {
+    if (this.eventBuffer.length >= 5) {
       this.flushEvents();
     }
   }

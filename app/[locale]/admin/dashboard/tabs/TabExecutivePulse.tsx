@@ -312,24 +312,30 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           </div>
 
           <div className="space-y-3">
-            {(productMetrics?.topModules || []).slice(0, 4).map((mod) => (
-              <div key={mod.moduleCode} className="space-y-1.5 p-3 bg-slate-50 rounded-xl">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-800">{mod.moduleName}</span>
-                  <span className="font-bold text-slate-900">{mod.percentageShare}%</span>
+            {(productMetrics?.topModules || []).length > 0 ? (
+              productMetrics!.topModules.slice(0, 4).map((mod) => (
+                <div key={mod.moduleCode} className="space-y-1.5 p-3 bg-slate-50 rounded-xl">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-800">{mod.moduleName}</span>
+                    <span className="font-bold text-slate-900">{mod.percentageShare}%</span>
+                  </div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-indigo-600 h-full rounded-full"
+                      style={{ width: `${Math.min(100, mod.percentageShare * 2.5)}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>{mod.totalEvents} eventos registrados</span>
+                    <span>{mod.uniqueUsers} médicos activos</span>
+                  </div>
                 </div>
-                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                  <div
-                    className="bg-indigo-600 h-full rounded-full"
-                    style={{ width: `${Math.min(100, mod.percentageShare * 2.5)}%` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
-                  <span>{mod.totalEvents} eventos registrados</span>
-                  <span>{mod.uniqueUsers} médicos activos</span>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-xs text-slate-400 py-6 text-center">
+                Esperando eventos de telemetría en vivo (0 eventos en los últimos 30 días).
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { CookieConsent } from '@/components/ui/CookieConsent';
 import { LocationPrompt } from '@/components/ui/LocationPrompt';
 import { AnalyticsManager } from '@/components/providers/AnalyticsManager';
+import { TelemetryTracker } from '@/components/providers/TelemetryTracker';
 import { PulsoFloatingAssistant } from '@/components/ai/PulsoFloatingAssistant';
 
 // Fuente
@@ -155,6 +156,7 @@ export default async function RootLayout({
             {/* Global Providers & UI */}
             <ToastProvider />
             <AnalyticsManager />
+            <TelemetryTracker />
             <CookieConsent />
             <LocationPrompt />
             <PulsoFloatingAssistant />
