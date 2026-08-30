@@ -24,6 +24,8 @@ export interface ProviderEarningsDTO {
   providerId: number;
   providerName: string;
   totalEarned: number;
+  onlineEarned?: number;
+  inClinicEarned?: number;
 }
 
 export interface PlanTierDistributionDTO {
@@ -39,6 +41,9 @@ export interface UnitEconomicsDTO {
   totalRevenue: number;
   totalSubscriptionsRevenue: number;
   totalCommissionsRevenue: number;
+  onlineRevenue?: number;
+  inClinicRevenue?: number;
+  totalGmv?: number;
   chartData?: ChartPointDTO[];
   
   // Costos Operativos Granulares

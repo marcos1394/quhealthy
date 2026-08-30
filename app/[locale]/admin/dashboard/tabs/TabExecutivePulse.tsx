@@ -68,10 +68,10 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
       {/* 🚀 Top Executive KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         <KpiCard
-          title="Ingreso Total (30D)"
-          value={formatCurrency(economics?.totalRevenue || 0)}
+          title="Volumen Clínico (30D)"
+          value={formatCurrency(economics?.totalGmv || economics?.totalRevenue || 0)}
           changePercent={0}
-          changePeriod="Ingreso total acumulado"
+          changePeriod={`En línea: ${formatCurrency(economics?.onlineRevenue || 0)} · Consultorio: ${formatCurrency(economics?.inClinicRevenue || 0)}`}
           icon={DollarSign}
           variant="emerald"
         />
@@ -268,7 +268,21 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                       <span className="font-semibold text-slate-800 text-sm block">
                         {prov.providerName || `Dr. #${prov.providerId}`}
                       </span>
-                      <span className="text-xs text-slate-400">Proveedor Verificado</span>
+                      <div className="flex items-center gap-1.5 flex-wrap text-xs mt-0.5">
+                        {prov.onlineEarned && prov.onlineEarned > 0 ? (
+                          <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium border border-emerald-200">
+                            💳 En línea: {formatCurrency(prov.onlineEarned)}
+                          </span>
+                        ) : null}
+                        {prov.inClinicEarned && prov.inClinicEarned > 0 ? (
+                          <span className="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md font-medium border border-amber-200">
+                            💵 Consultorio: {formatCurrency(prov.inClinicEarned)}
+                          </span>
+                        ) : null}
+                        {(!prov.onlineEarned || prov.onlineEarned === 0) && (!prov.inClinicEarned || prov.inClinicEarned === 0) ? (
+                          <span className="text-xs text-slate-400">Proveedor Verificado</span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                   <span className="font-bold text-slate-900 text-sm">
