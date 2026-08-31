@@ -481,7 +481,7 @@ export const TabAdminCrm: React.FC = () => {
         recipientName: directRecipientName.trim() || undefined,
         message: finalMessage,
         templateName: tplName,
-        templateLanguage: "es",
+        templateLanguage: "es_MX",
         templateParameters: tplParams,
       });
 
