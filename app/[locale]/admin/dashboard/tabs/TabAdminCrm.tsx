@@ -231,16 +231,14 @@ export const META_APPROVED_TEMPLATES: MetaTemplateDef[] = [
       { id: 2, label: "Nombre del Doctor(a)", placeholder: "Ej: Dr. Omar Avilés", defaultVal: "" },
       { id: 3, label: "Fecha", placeholder: "Ej: 15 de Octubre", defaultVal: "" },
       { id: 4, label: "Hora", placeholder: "Ej: 04:00 PM", defaultVal: "" },
-      { id: 5, label: "Lugar o Enlace", placeholder: "Ej: Consultorio Ginecológico / Enlace Meet", defaultVal: "Consultorio Quhealthy" },
-      { id: 6, label: "Enlace Portal Paciente", placeholder: "Ej: https://www.quhealthy.org/patient/dashboard/appointments", defaultVal: "https://www.quhealthy.org/patient/dashboard/appointments" },
+      { id: 5, label: "Lugar o Modalidad", placeholder: "Ej: Consultorio 102 / Videollamada", defaultVal: "Consultorio Quhealthy" },
     ],
     renderText: (p) =>
       `Hola ${p[1] || "{{1}}"}, su cita médica con ${p[2] || "{{2}}"} ha sido confirmada con éxito.\n\n` +
       `📅 Fecha: ${p[3] || "{{3}}"}\n` +
       `⏰ Hora: ${p[4] || "{{4}}"}\n` +
       `📍 Modalidad / Lugar: ${p[5] || "{{5}}"}\n\n` +
-      `Puede consultar los detalles de su cita y su historial médico en:\n` +
-      `${p[6] || "{{6}}"}\n\n` +
+      `Puede consultar los detalles de su cita y su historial médico en Quhealthy.\n\n` +
       `Gracias por confiar su salud en Quhealthy.`,
   },
   {
