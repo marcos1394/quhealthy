@@ -151,6 +151,118 @@ const FUNNEL_STAGES_CONFIG: Array<{
   { key: "LOST", label: "Perdidos / Descartados", color: "text-slate-600", bgColor: "bg-slate-100", borderColor: "border-slate-300" },
 ];
 
+export interface MetaTemplateDef {
+  key: string;
+  name: string;
+  category: "Marketing" | "Utilidad";
+  title: string;
+  badge: string;
+  description: string;
+  variables: Array<{ id: number; label: string; placeholder: string; defaultVal?: string }>;
+  renderText: (params: Record<number, string>) => string;
+}
+
+export const META_APPROVED_TEMPLATES: MetaTemplateDef[] = [
+  {
+    key: "prospeccion_salud_universal",
+    name: "prospeccion_salud_universal",
+    category: "Marketing",
+    title: "🚀 Prospección Universal en Salud",
+    badge: "Marketing / Outbound",
+    description: "Para contactar en frío a cualquier médico, especialista o clínica con enlace a tu calendario.",
+    variables: [
+      { id: 1, label: "Nombre / Título del Profesional", placeholder: "Ej: Dra. Amanda Fretes", defaultVal: "" },
+      { id: 2, label: "Especialidad / Negocio de Salud", placeholder: "Ej: Cirugía Plástica y Reconstructiva", defaultVal: "Cirugía Plástica y Reconstructiva" },
+      { id: 3, label: "Retos o Procesos Clave del Área", placeholder: "Ej: el seguimiento clínico, consentimientos y cobro de anticipos", defaultVal: "el seguimiento clínico pre y post operatorio, expedientes con consentimiento informado y cobro de anticipos" },
+    ],
+    renderText: (p) =>
+      `Hola ${p[1] || "{{1}}"}, un gusto saludarle. Le escribimos de parte del equipo de Quhealthy.\n\n` +
+      `Sabemos que la gestión y atención médica en ${p[2] || "{{2}}"} tiene requerimientos muy particulares, especialmente en temas como ${p[3] || "{{3}}"}.\n\n` +
+      `En Quhealthy contamos con un ecosistema digital de salud en producción, diseñado para adaptarse a los flujos de trabajo reales de su consulta y resolver sus principales cuellos de botella operativos y de atención.\n\n` +
+      `Más que ofrecer una plataforma genérica, nos gustaría conocer cómo operan actualmente y cómo podemos apoyar a su práctica o negocio de salud.\n\n` +
+      `Si le parece bien, le compartimos el enlace para agendar una breve videollamada de 15 minutos en el horario que mejor le acomode:\n` +
+      `https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ3AGnGDThJxLcWIh94-E41kDGV7N7XyGfscB7foMmNGhcDmMaUZsl0joYCUTQ9N_I_nedLDWSTx\n\n` +
+      `Quedamos a sus órdenes y que tenga un excelente día.`,
+  },
+  {
+    key: "oferta_mes_gratis_medico",
+    name: "oferta_mes_gratis_medico",
+    category: "Marketing",
+    title: "🎁 Oferta Mes Gratis Plan Premium ($1,800)",
+    badge: "Marketing / Cierre",
+    description: "Reactivación de prospectos médicos ofreciendo 30 días de prueba sin costo ni plazos.",
+    variables: [
+      { id: 1, label: "Nombre del Doctor(a)", placeholder: "Ej: Dr. Daniel Rodríguez", defaultVal: "" },
+    ],
+    renderText: (p) =>
+      `Hola ${p[1] || "{{1}}"}, un gusto saludarle de nuevo de parte de Quhealthy.\n\n` +
+      `Queremos obsequiarle su primer mes 100% gratis de nuestro Plan Premium ($1,800 MXN) para que pueda utilizar su consultorio digital activo: agenda en línea, recetas con firma electrónica y código QR verificable, y expediente clínico bajo la norma NOM-004.\n\n` +
+      `No requiere plazos forzosos ni comisiones ocultas.\n\n` +
+      `¿Le gustaría que le activemos su acceso sin costo o prefiere que le agendemos una breve llamada de orientación de 15 minutos?`,
+  },
+  {
+    key: "recordatorio_cita_paciente",
+    name: "recordatorio_cita_paciente",
+    category: "Utilidad",
+    title: "⏰ Recordatorio de Cita (Anti No-Show)",
+    badge: "Utilidad / Citas",
+    description: "Recordatorio 24h antes con botones interactivos de Confirmar y Reagendar.",
+    variables: [
+      { id: 1, label: "Nombre del Paciente", placeholder: "Ej: María González", defaultVal: "" },
+      { id: 2, label: "Nombre del Doctor(a)", placeholder: "Ej: Dra. Amanda Fretes", defaultVal: "" },
+      { id: 3, label: "Fecha de la Cita", placeholder: "Ej: 25 de Septiembre", defaultVal: "" },
+      { id: 4, label: "Hora", placeholder: "Ej: 10:30 AM", defaultVal: "" },
+      { id: 5, label: "Modalidad / Ubicación", placeholder: "Ej: Consultorio 402 / Videollamada", defaultVal: "Consultorio Principal" },
+    ],
+    renderText: (p) =>
+      `Hola ${p[1] || "{{1}}"}, le recordamos su cita médica programada con ${p[2] || "{{2}}"} para el día ${p[3] || "{{3}}"} a las ${p[4] || "{{4}}"}.\n\n` +
+      `📍 Modalidad / Ubicación: ${p[5] || "{{5}}"}\n\n` +
+      `Por favor, confirme su asistencia seleccionando una de las opciones a continuación.`,
+  },
+  {
+    key: "confirmacion_cita_paciente",
+    name: "confirmacion_cita_paciente",
+    category: "Utilidad",
+    title: "📅 Confirmación Inmediata de Reserva",
+    badge: "Utilidad / Citas",
+    description: "Envío automático al paciente en cuanto agenda o paga su cita médica.",
+    variables: [
+      { id: 1, label: "Nombre del Paciente", placeholder: "Ej: Carlos Sánchez", defaultVal: "" },
+      { id: 2, label: "Nombre del Doctor(a)", placeholder: "Ej: Dr. Omar Avilés", defaultVal: "" },
+      { id: 3, label: "Fecha", placeholder: "Ej: 15 de Octubre", defaultVal: "" },
+      { id: 4, label: "Hora", placeholder: "Ej: 04:00 PM", defaultVal: "" },
+      { id: 5, label: "Lugar o Enlace", placeholder: "Ej: Consultorio Ginecológico / Enlace Meet", defaultVal: "Consultorio Quhealthy" },
+      { id: 6, label: "Enlace Portal Paciente", placeholder: "Ej: https://www.quhealthy.org/patient/dashboard/appointments", defaultVal: "https://www.quhealthy.org/patient/dashboard/appointments" },
+    ],
+    renderText: (p) =>
+      `Hola ${p[1] || "{{1}}"}, su cita médica con ${p[2] || "{{2}}"} ha sido confirmada con éxito.\n\n` +
+      `📅 Fecha: ${p[3] || "{{3}}"}\n` +
+      `⏰ Hora: ${p[4] || "{{4}}"}\n` +
+      `📍 Modalidad / Lugar: ${p[5] || "{{5}}"}\n\n` +
+      `Puede consultar los detalles de su cita y su historial médico en:\n` +
+      `${p[6] || "{{6}}"}\n\n` +
+      `Gracias por confiar su salud en Quhealthy.`,
+  },
+  {
+    key: "receta_digital_expediente",
+    name: "receta_digital_expediente",
+    category: "Utilidad",
+    title: "💊 Receta Médica Digital & Expediente QR",
+    badge: "Utilidad / Salud",
+    description: "Entrega instantánea de receta con firma electrónica y código QR de validación.",
+    variables: [
+      { id: 1, label: "Nombre del Paciente", placeholder: "Ej: María González", defaultVal: "" },
+      { id: 2, label: "Nombre del Doctor(a)", placeholder: "Ej: Dr. Daniel Rodríguez", defaultVal: "" },
+      { id: 3, label: "URL de la Receta", placeholder: "Ej: https://www.quhealthy.org/patient/prescription/rec_123", defaultVal: "https://www.quhealthy.org/patient/prescription/" },
+    ],
+    renderText: (p) =>
+      `Hola ${p[1] || "{{1}}"}, ${p[2] || "{{2}}"} ha generado su receta médica digital y resumen de consulta oficial.\n\n` +
+      `Su receta cuenta con firma electrónica y código QR de validación médica. Puede visualizarla y descargarla en el siguiente enlace seguro:\n` +
+      `${p[3] || "{{3}}"}\n\n` +
+      `Quedamos a sus órdenes para el seguimiento de su salud.`,
+  },
+];
+
 export const TabAdminCrm: React.FC = () => {
   // Navigation
   const [activeTab, setActiveTab] = useState<"inbox" | "funnel" | "prospector">("inbox");
@@ -186,6 +298,14 @@ export const TabAdminCrm: React.FC = () => {
   const [directMessageText, setDirectMessageText] = useState<string>("");
   const [isSendingDirect, setIsSendingDirect] = useState<boolean>(false);
   const [directSuccessResult, setDirectSuccessResult] = useState<any | null>(null);
+
+  // 🚀 Meta WhatsApp Template Selection & Variables
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>("prospeccion_salud_universal");
+  const [templateParams, setTemplateParams] = useState<Record<number, string>>({
+    1: "",
+    2: "Cirugía Plástica y Reconstructiva",
+    3: "el seguimiento clínico pre y post operatorio, expedientes con consentimiento informado y cobro de anticipos",
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -330,24 +450,43 @@ export const TabAdminCrm: React.FC = () => {
       toast.warn("Ingresa el teléfono o nombre de usuario del destinatario.");
       return;
     }
-    if (!directMessageText.trim()) {
-      toast.warn("El contenido del mensaje no puede estar vacío.");
-      return;
-    }
 
     try {
       setIsSendingDirect(true);
       setDirectSuccessResult(null);
 
+      const activeMetaTpl = (directPlatform === "WHATSAPP" && selectedTemplateKey !== "custom")
+        ? META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)
+        : null;
+
+      let finalMessage = directMessageText.trim();
+      let tplName: string | undefined = undefined;
+      let tplParams: string[] | undefined = undefined;
+
+      if (activeMetaTpl) {
+        tplName = activeMetaTpl.name;
+        tplParams = activeMetaTpl.variables.map((v) => templateParams[v.id]?.trim() || v.defaultVal || "");
+        finalMessage = activeMetaTpl.renderText(templateParams);
+      }
+
+      if (!finalMessage) {
+        toast.warn("El contenido del mensaje o plantilla no puede estar vacío.");
+        setIsSendingDirect(false);
+        return;
+      }
+
       const res = await adminService.sendDirectCrmMessage({
         platform: directPlatform,
         recipient: directRecipient.trim(),
         recipientName: directRecipientName.trim() || undefined,
-        message: directMessageText.trim(),
+        message: finalMessage,
+        templateName: tplName,
+        templateLanguage: "es",
+        templateParameters: tplParams,
       });
 
       setDirectSuccessResult(res);
-      toast.success(`Mensaje enviado exitosamente por ${directPlatform}.`);
+      toast.success(`Mensaje enviado exitosamente por ${directPlatform}${tplName ? ` con plantilla oficial (${tplName})` : ""}.`);
 
       // Recargar conversaciones y seleccionar la recién creada/actualizada
       await loadConversations(false);
@@ -1428,55 +1567,172 @@ export const TabAdminCrm: React.FC = () => {
             </div>
 
             {/* Plantillas Rápidas */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-slate-600 block">Plantillas sugeridas de 1-Click:</span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => insertDirectTemplate("free_month")}
-                  className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[11px] font-semibold transition-colors flex items-center gap-1"
-                >
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  🎁 Mes Gratis ($1,800)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertDirectTemplate("demo")}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
-                >
-                  📅 Agendar Demo 15 min
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertDirectTemplate("nom004")}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
-                >
-                  📋 Expediente NOM-004 & QR
-                </button>
-                <button
-                  type="button"
-                  onClick={() => insertDirectTemplate("followup")}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
-                >
-                  ⚡ Seguimiento
-                </button>
-              </div>
-            </div>
+            {/* Selector de Plantilla Meta (Exclusivo para WhatsApp) */}
+            {directPlatform === "WHATSAPP" && (
+              <div className="space-y-3 p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <WhatsAppIcon className="w-4 h-4" />
+                    Plantilla Oficial Aprobada por Meta
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    Garantía Anti-Error 131047
+                  </span>
+                </div>
 
-            {/* Editor del Mensaje */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-700">Contenido del Mensaje Oficial</label>
-                <span className="text-[10px] text-slate-400">{directMessageText.length} caracteres</span>
+                {/* Grid de Plantillas */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {META_APPROVED_TEMPLATES.map((tpl) => (
+                    <button
+                      key={tpl.key}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTemplateKey(tpl.key);
+                        // Poblar defaults
+                        const initial: Record<number, string> = { ...templateParams };
+                        if (directRecipientName.trim() && !initial[1]) {
+                          initial[1] = directRecipientName.trim();
+                        }
+                        tpl.variables.forEach((v) => {
+                          if (!initial[v.id] && v.defaultVal) initial[v.id] = v.defaultVal;
+                        });
+                        setTemplateParams(initial);
+                      }}
+                      className={`text-left p-2.5 rounded-xl border text-xs transition-all flex flex-col justify-between ${
+                        selectedTemplateKey === tpl.key
+                          ? "bg-white border-emerald-500 shadow-xs ring-2 ring-emerald-500/20"
+                          : "bg-white/80 border-slate-200 hover:border-emerald-300 text-slate-700"
+                      }`}
+                    >
+                      <div className="space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[11px] text-slate-900">{tpl.title}</span>
+                          <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                            {tpl.category}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 line-clamp-1">{tpl.description}</p>
+                      </div>
+                    </button>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTemplateKey("custom")}
+                    className={`text-left p-2.5 rounded-xl border text-xs transition-all flex flex-col justify-between ${
+                      selectedTemplateKey === "custom"
+                        ? "bg-white border-indigo-500 shadow-xs ring-2 ring-indigo-500/20"
+                        : "bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700"
+                    }`}
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[11px] text-slate-900">💬 Texto Libre Arbitrario</span>
+                        <span className="text-[9px] font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">
+                          Ventana 24h
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 line-clamp-1">Solo si el destinatario ya te escribió.</p>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Campos de Variables de la Plantilla Seleccionada */}
+                {selectedTemplateKey !== "custom" && (
+                  <div className="space-y-2 pt-2 border-t border-emerald-200/60">
+                    <span className="text-[11px] font-bold text-emerald-900 block">
+                      Variables Dinámicas de la Plantilla:
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)?.variables.map((v) => (
+                        <div key={v.id} className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-600 flex items-center justify-between">
+                            <span>Variable &#123;&#123;{v.id}&#125;&#125; ({v.label})</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder={v.placeholder}
+                            value={templateParams[v.id] || ""}
+                            onChange={(e) =>
+                              setTemplateParams((prev) => ({ ...prev, [v.id]: e.target.value }))
+                            }
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <textarea
-                rows={5}
-                placeholder="Escribe el mensaje que recibirá el destinatario por el canal oficial..."
-                value={directMessageText}
-                onChange={(e) => setDirectMessageText(e.target.value)}
-                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none leading-relaxed"
-              />
-            </div>
+            )}
+
+            {/* Vista Previa del Mensaje (o Editor Libre si no es Template) */}
+            {directPlatform === "WHATSAPP" && selectedTemplateKey !== "custom" ? (
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span>Vista Previa del Mensaje a Enviar por WhatsApp</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Formato Aprobado
+                  </span>
+                </label>
+                <div className="p-3.5 bg-emerald-50/40 border border-emerald-200/70 rounded-2xl text-xs text-slate-800 whitespace-pre-line leading-relaxed font-sans shadow-2xs">
+                  {META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)?.renderText(templateParams)}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Plantillas Rápidas para Texto Libre */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-bold text-slate-600 block">Plantillas sugeridas de 1-Click:</span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => insertDirectTemplate("free_month")}
+                      className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[11px] font-semibold transition-colors flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      🎁 Mes Gratis ($1,800)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertDirectTemplate("demo")}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
+                    >
+                      📅 Agendar Demo 15 min
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertDirectTemplate("nom004")}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
+                    >
+                      📋 Expediente NOM-004 & QR
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertDirectTemplate("followup")}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
+                    >
+                      ⚡ Seguimiento
+                    </button>
+                  </div>
+                </div>
+
+                {/* Editor del Mensaje */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700">Contenido del Mensaje Oficial</label>
+                    <span className="text-[10px] text-slate-400">{directMessageText.length} caracteres</span>
+                  </div>
+                  <textarea
+                    rows={5}
+                    placeholder="Escribe el mensaje que recibirá el destinatario por el canal oficial..."
+                    value={directMessageText}
+                    onChange={(e) => setDirectMessageText(e.target.value)}
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none leading-relaxed"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Feedback de Éxito / Links Directos */}
             {directSuccessResult && (
@@ -1532,13 +1788,13 @@ export const TabAdminCrm: React.FC = () => {
               <button
                 type="button"
                 onClick={handleSendDirectMessage}
-                disabled={isSendingDirect || !directRecipient.trim() || !directMessageText.trim()}
+                disabled={isSendingDirect || !directRecipient.trim()}
                 className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
               >
                 {isSendingDirect ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Enviando...</span>
+                    <span>Enviando por Meta API...</span>
                   </>
                 ) : (
                   <>

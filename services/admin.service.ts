@@ -422,6 +422,9 @@ export const adminService = {
     message: string;
     messageType?: "TEXT" | "IMAGE" | "VIDEO" | "DOCUMENT";
     mediaUrl?: string;
+    templateName?: string;
+    templateLanguage?: string;
+    templateParameters?: string[];
   }): Promise<{
     conversationId: string;
     messageId: string;
