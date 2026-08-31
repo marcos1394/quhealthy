@@ -34,6 +34,8 @@ import {
   X,
   Copy,
   MessageCircle,
+  Trash2,
+  ChevronDown,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 
@@ -299,6 +301,7 @@ export const TabAdminCrm: React.FC = () => {
 
   // 🚀 Meta WhatsApp Template Selection & Variables
   const [selectedTemplateKey, setSelectedTemplateKey] = useState<string>("prospeccion_salud_universal");
+  const [showTemplatePreview, setShowTemplatePreview] = useState<boolean>(true);
   const [templateParams, setTemplateParams] = useState<Record<number, string>>({
     1: "",
     2: "Cirugía Plástica y Reconstructiva",
@@ -501,6 +504,30 @@ export const TabAdminCrm: React.FC = () => {
       toast.error(errMsg);
     } finally {
       setIsSendingDirect(false);
+    }
+  };
+
+  // 🚀 5.2 Eliminar Conversación del CRM
+  const handleDeleteConversation = async (conversationId: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este chat y todos sus mensajes del CRM?")) {
+      return;
+    }
+
+    try {
+      await adminService.deleteAdminCrmConversation(conversationId);
+      toast.success("Conversación eliminada del CRM.");
+      setConversations((prev) => prev.filter((c) => c.id !== conversationId));
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+        setMessages([]);
+      }
+      loadFunnelStats();
+    } catch (err: any) {
+      console.error("Error eliminando conversación", err);
+      toast.error(err?.response?.data?.message || "No se pudo eliminar la conversación.");
     }
   };
 
@@ -859,6 +886,14 @@ export const TabAdminCrm: React.FC = () => {
                               </span>
                             )}
                             {getPlatformBadge(conv.platform)}
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteConversation(conv.id, e)}
+                              className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded transition-colors"
+                              title="Eliminar chat del CRM"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
                           </div>
                         </div>
                         <p className="text-[11px] text-slate-500 truncate leading-relaxed">{preview}</p>
@@ -911,6 +946,15 @@ export const TabAdminCrm: React.FC = () => {
                     >
                       <Bot className="w-3 h-3" />
                       {selectedConversation.aiAutoResponderEnabled ? "Auto-IA ON" : "Auto-IA OFF"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteConversation(selectedConversation.id)}
+                      className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-xs transition-colors"
+                      title="Eliminar este chat"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
 
                     <button
@@ -1417,369 +1461,350 @@ export const TabAdminCrm: React.FC = () => {
       {showDirectModal && (
         <div
           onClick={() => setShowDirectModal(false)}
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 space-y-5 animate-in fade-in zoom-in-95 duration-200"
+            className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 flex flex-col max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
           >
-            {/* Header del Modal */}
-            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="p-2 bg-indigo-50 text-indigo-700 rounded-xl">
-                    <Send className="w-5 h-5" />
-                  </span>
-                  <h3 className="text-lg font-black text-slate-900">
-                    Detonar Envío Directo de Mensaje
+            {/* Header del Modal (Sticky) */}
+            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-indigo-50 text-indigo-700 rounded-lg">
+                  <Send className="w-4 h-4" />
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                    Detonar Envío Directo Oficial
                   </h3>
+                  <p className="text-[10px] text-slate-500">
+                    Mensaje por API oficial de Meta / Gmail
+                  </p>
                 </div>
-                <p className="text-xs text-slate-500 font-medium">
-                  Envía un mensaje oficial de Quhealthy a través de WhatsApp Cloud API, Instagram Direct o Facebook Messenger.
-                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowDirectModal(false)}
-                className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-colors"
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-700 transition-colors"
                 title="Cerrar ventana"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Selector de Canal Oficial */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-                Selecciona el Canal Oficial de Quhealthy
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setDirectPlatform("WHATSAPP")}
-                  className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all ${
-                    directPlatform === "WHATSAPP"
-                      ? "bg-emerald-50 border-emerald-300 text-emerald-900 ring-2 ring-emerald-500/20"
-                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  <WhatsAppIcon className="w-4 h-4" />
-                  <span>WhatsApp</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setDirectPlatform("INSTAGRAM")}
-                  className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all ${
-                    directPlatform === "INSTAGRAM"
-                      ? "bg-pink-50 border-pink-300 text-pink-900 ring-2 ring-pink-500/20"
-                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  <InstagramIcon className="w-4 h-4" />
-                  <span>Instagram DM</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setDirectPlatform("FACEBOOK")}
-                  className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all ${
-                    directPlatform === "FACEBOOK"
-                      ? "bg-blue-50 border-blue-300 text-blue-900 ring-2 ring-blue-500/20"
-                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  <FacebookIcon className="w-4 h-4" />
-                  <span>Messenger</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setDirectPlatform("EMAIL")}
-                  className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all ${
-                    directPlatform === "EMAIL"
-                      ? "bg-red-50 border-red-300 text-red-900 ring-2 ring-red-500/20"
-                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  <Mail className="w-4 h-4 text-red-600" />
-                  <span>Gmail / Email</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Formulario: Destinatario & Nombre */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                  <span>
-                    {directPlatform === "WHATSAPP"
-                      ? "Número de Teléfono (WhatsApp)"
-                      : directPlatform === "INSTAGRAM"
-                      ? "Usuario o ID de Instagram"
-                      : directPlatform === "FACEBOOK"
-                      ? "ID o Usuario de Facebook"
-                      : "Correo Electrónico"}
-                  </span>
-                  <span className="text-[10px] text-indigo-600 font-semibold">Obligatorio</span>
+            {/* Contenido Scrollable */}
+            <div className="p-4 overflow-y-auto space-y-3 flex-1 text-xs">
+              {/* Selector de Canal Oficial (Pills compactas) */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-700 block">
+                  Canal Oficial de Salida:
                 </label>
-                <div className="relative">
-                  {directPlatform === "WHATSAPP" && <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />}
-                  {directPlatform === "INSTAGRAM" && <span className="text-slate-400 font-bold text-sm absolute left-3.5 top-1/2 -translate-y-1/2">@</span>}
-                  {directPlatform === "FACEBOOK" && <MessageCircle className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />}
-                  {directPlatform === "EMAIL" && <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />}
-                  <input
-                    type="text"
-                    placeholder={
+                <div className="grid grid-cols-4 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setDirectPlatform("WHATSAPP")}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg border text-[11px] font-bold transition-all ${
                       directPlatform === "WHATSAPP"
-                        ? "Ej: 526688156888 o 6688156888"
-                        : directPlatform === "INSTAGRAM"
-                        ? "Ej: draluisareyna"
-                        : directPlatform === "FACEBOOK"
-                        ? "Ej: 10009283749281"
-                        : "Ej: contacto@doctor.com"
-                    }
-                    value={directRecipient}
-                    onChange={(e) => setDirectRecipient(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                  <span>Nombre / Razón Social</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Opcional</span>
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Ej: Dra. Luisa Reyna Armenta"
-                    value={directRecipientName}
-                    onChange={(e) => setDirectRecipientName(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Plantillas Rápidas */}
-            {/* Selector de Plantilla Meta (Exclusivo para WhatsApp) */}
-            {directPlatform === "WHATSAPP" && (
-              <div className="space-y-3 p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
-                    <WhatsAppIcon className="w-4 h-4" />
-                    Plantilla Oficial Aprobada por Meta
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                    Garantía Anti-Error 131047
-                  </span>
-                </div>
-
-                {/* Grid de Plantillas */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {META_APPROVED_TEMPLATES.map((tpl) => (
-                    <button
-                      key={tpl.key}
-                      type="button"
-                      onClick={() => {
-                        setSelectedTemplateKey(tpl.key);
-                        // Poblar defaults
-                        const initial: Record<number, string> = { ...templateParams };
-                        if (directRecipientName.trim() && !initial[1]) {
-                          initial[1] = directRecipientName.trim();
-                        }
-                        tpl.variables.forEach((v) => {
-                          if (!initial[v.id] && v.defaultVal) initial[v.id] = v.defaultVal;
-                        });
-                        setTemplateParams(initial);
-                      }}
-                      className={`text-left p-2.5 rounded-xl border text-xs transition-all flex flex-col justify-between ${
-                        selectedTemplateKey === tpl.key
-                          ? "bg-white border-emerald-500 shadow-xs ring-2 ring-emerald-500/20"
-                          : "bg-white/80 border-slate-200 hover:border-emerald-300 text-slate-700"
-                      }`}
-                    >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-[11px] text-slate-900">{tpl.title}</span>
-                          <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                            {tpl.category}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 line-clamp-1">{tpl.description}</p>
-                      </div>
-                    </button>
-                  ))}
+                        ? "bg-emerald-50 border-emerald-400 text-emerald-900 ring-1 ring-emerald-500/20"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <WhatsAppIcon className="w-3.5 h-3.5" />
+                    <span>WhatsApp</span>
+                  </button>
 
                   <button
                     type="button"
-                    onClick={() => setSelectedTemplateKey("custom")}
-                    className={`text-left p-2.5 rounded-xl border text-xs transition-all flex flex-col justify-between ${
-                      selectedTemplateKey === "custom"
-                        ? "bg-white border-indigo-500 shadow-xs ring-2 ring-indigo-500/20"
-                        : "bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700"
+                    onClick={() => setDirectPlatform("INSTAGRAM")}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg border text-[11px] font-bold transition-all ${
+                      directPlatform === "INSTAGRAM"
+                        ? "bg-pink-50 border-pink-400 text-pink-900 ring-1 ring-pink-500/20"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
-                    <div className="space-y-0.5">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[11px] text-slate-900">💬 Texto Libre Arbitrario</span>
-                        <span className="text-[9px] font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">
-                          Ventana 24h
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-slate-500 line-clamp-1">Solo si el destinatario ya te escribió.</p>
-                    </div>
+                    <InstagramIcon className="w-3.5 h-3.5" />
+                    <span>Instagram</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDirectPlatform("FACEBOOK")}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg border text-[11px] font-bold transition-all ${
+                      directPlatform === "FACEBOOK"
+                        ? "bg-blue-50 border-blue-400 text-blue-900 ring-1 ring-blue-500/20"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <FacebookIcon className="w-3.5 h-3.5" />
+                    <span>Messenger</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDirectPlatform("EMAIL")}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg border text-[11px] font-bold transition-all ${
+                      directPlatform === "EMAIL"
+                        ? "bg-red-50 border-red-400 text-red-900 ring-1 ring-red-500/20"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Mail className="w-3.5 h-3.5 text-red-600" />
+                    <span>Email</span>
                   </button>
                 </div>
-
-                {/* Campos de Variables de la Plantilla Seleccionada */}
-                {selectedTemplateKey !== "custom" && (
-                  <div className="space-y-2 pt-2 border-t border-emerald-200/60">
-                    <span className="text-[11px] font-bold text-emerald-900 block">
-                      Variables Dinámicas de la Plantilla:
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)?.variables.map((v) => (
-                        <div key={v.id} className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-600 flex items-center justify-between">
-                            <span>Variable &#123;&#123;{v.id}&#125;&#125; ({v.label})</span>
-                          </label>
-                          <input
-                            type="text"
-                            placeholder={v.placeholder}
-                            value={templateParams[v.id] || ""}
-                            onChange={(e) =>
-                              setTemplateParams((prev) => ({ ...prev, [v.id]: e.target.value }))
-                            }
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
-            )}
 
-            {/* Vista Previa del Mensaje (o Editor Libre si no es Template) */}
-            {directPlatform === "WHATSAPP" && selectedTemplateKey !== "custom" ? (
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                  <span>Vista Previa del Mensaje a Enviar por WhatsApp</span>
-                  <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Formato Aprobado
-                  </span>
-                </label>
-                <div className="p-3.5 bg-emerald-50/40 border border-emerald-200/70 rounded-2xl text-xs text-slate-800 whitespace-pre-line leading-relaxed font-sans shadow-2xs">
-                  {META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)?.renderText(templateParams)}
+              {/* Formulario: Destinatario & Nombre */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 flex items-center justify-between">
+                    <span>
+                      {directPlatform === "WHATSAPP"
+                        ? "Teléfono WhatsApp (con Lada)"
+                        : directPlatform === "INSTAGRAM"
+                        ? "Usuario Instagram"
+                        : directPlatform === "FACEBOOK"
+                        ? "ID Facebook"
+                        : "Correo"}
+                    </span>
+                    <span className="text-[9px] text-indigo-600 font-semibold">Obligatorio</span>
+                  </label>
+                  <div className="relative">
+                    {directPlatform === "WHATSAPP" && <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />}
+                    {directPlatform === "INSTAGRAM" && <span className="text-slate-400 font-bold text-xs absolute left-3 top-1/2 -translate-y-1/2">@</span>}
+                    {directPlatform === "FACEBOOK" && <MessageCircle className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />}
+                    {directPlatform === "EMAIL" && <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />}
+                    <input
+                      type="text"
+                      placeholder={
+                        directPlatform === "WHATSAPP"
+                          ? "Ej: 526688821862 o 595971959760"
+                          : directPlatform === "INSTAGRAM"
+                          ? "Ej: draluisareyna"
+                          : directPlatform === "FACEBOOK"
+                          ? "Ej: 10009283749281"
+                          : "Ej: contacto@doctor.com"
+                      }
+                      value={directRecipient}
+                      onChange={(e) => setDirectRecipient(e.target.value)}
+                      className="w-full pl-8 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 flex items-center justify-between">
+                    <span>Nombre / Doctor(a)</span>
+                    <span className="text-[9px] text-slate-400 font-normal">Opcional</span>
+                  </label>
+                  <div className="relative">
+                    <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Ej: Dra. Amanda Fretes"
+                      value={directRecipientName}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setDirectRecipientName(val);
+                        if (val && !templateParams[1]) {
+                          setTemplateParams((prev) => ({ ...prev, 1: val }));
+                        }
+                      }}
+                      className="w-full pl-8 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
                 </div>
               </div>
-            ) : (
-              <>
-                {/* Plantillas Rápidas para Texto Libre */}
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-slate-600 block">Plantillas sugeridas de 1-Click:</span>
-                  <div className="flex flex-wrap items-center gap-1.5">
+
+              {/* Selector de Plantilla WhatsApp Meta (Dropdown Compacto) */}
+              {directPlatform === "WHATSAPP" && (
+                <div className="space-y-2 p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-emerald-950 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <WhatsAppIcon className="w-3.5 h-3.5" />
+                        Plantilla Aprobada de Meta:
+                      </span>
+                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
+                        Garantía Anti 24h
+                      </span>
+                    </label>
+                    <select
+                      value={selectedTemplateKey}
+                      onChange={(e) => {
+                        const key = e.target.value;
+                        setSelectedTemplateKey(key);
+                        if (key !== "custom") {
+                          const tpl = META_APPROVED_TEMPLATES.find((t) => t.key === key);
+                          if (tpl) {
+                            const initial: Record<number, string> = { ...templateParams };
+                            if (directRecipientName.trim() && !initial[1]) initial[1] = directRecipientName.trim();
+                            tpl.variables.forEach((v) => {
+                              if (!initial[v.id] && v.defaultVal) initial[v.id] = v.defaultVal;
+                            });
+                            setTemplateParams(initial);
+                          }
+                        }
+                      }}
+                      className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    >
+                      <optgroup label="Plantillas Aprobadas Meta (Recomendado)">
+                        {META_APPROVED_TEMPLATES.map((tpl) => (
+                          <option key={tpl.key} value={tpl.key}>
+                            {tpl.title} ({tpl.badge})
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Otros">
+                        <option value="custom">💬 Texto Libre (Solo si ya te escribió)</option>
+                      </optgroup>
+                    </select>
+                  </div>
+
+                  {/* Variables dinámicas de la plantilla */}
+                  {selectedTemplateKey !== "custom" && (
+                    <div className="space-y-1.5 pt-1.5 border-t border-emerald-200/70">
+                      <span className="text-[10px] font-bold text-emerald-900 block">
+                        Variables de la Plantilla:
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)?.variables.map((v) => (
+                          <div key={v.id} className="space-y-0.5">
+                            <label className="text-[9px] font-bold text-slate-600 truncate block">
+                              &#123;&#123;{v.id}&#125;&#125; {v.label}
+                            </label>
+                            <input
+                              type="text"
+                              placeholder={v.placeholder}
+                              value={templateParams[v.id] || ""}
+                              onChange={(e) =>
+                                setTemplateParams((prev) => ({ ...prev, [v.id]: e.target.value }))
+                              }
+                              className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[11px] focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vista Previa Colapsable */}
+                  {selectedTemplateKey !== "custom" && (
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setShowTemplatePreview(!showTemplatePreview)}
+                        className="flex items-center justify-between w-full text-[10px] font-bold text-emerald-800 hover:text-emerald-950 py-1 transition-colors"
+                      >
+                        <span className="flex items-center gap-1">
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          {showTemplatePreview ? "Ocultar Vista Previa" : "Ver Vista Previa del Mensaje"}
+                        </span>
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showTemplatePreview ? "rotate-180" : ""}`} />
+                      </button>
+                      {showTemplatePreview && (
+                        <div className="mt-1 p-2.5 bg-white/90 border border-emerald-200 rounded-lg text-[11px] text-slate-800 whitespace-pre-line leading-relaxed max-h-32 overflow-y-auto">
+                          {META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)?.renderText(templateParams)}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Editor de Texto Libre (para Instagram/Facebook/Email o WhatsApp custom) */}
+              {(directPlatform !== "WHATSAPP" || selectedTemplateKey === "custom") && (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-500 mr-1">Chips:</span>
                     <button
                       type="button"
                       onClick={() => insertDirectTemplate("free_month")}
-                      className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[11px] font-semibold transition-colors flex items-center gap-1"
+                      className="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-[10px] font-semibold"
                     >
-                      <Sparkles className="w-3 h-3 text-amber-500" />
-                      🎁 Mes Gratis ($1,800)
+                      🎁 Mes Gratis
                     </button>
                     <button
                       type="button"
                       onClick={() => insertDirectTemplate("demo")}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
+                      className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-semibold"
                     >
-                      📅 Agendar Demo 15 min
+                      📅 Demo 15 min
                     </button>
                     <button
                       type="button"
                       onClick={() => insertDirectTemplate("nom004")}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
+                      className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-semibold"
                     >
-                      📋 Expediente NOM-004 & QR
+                      📋 NOM-004 & QR
                     </button>
                     <button
                       type="button"
                       onClick={() => insertDirectTemplate("followup")}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-semibold transition-colors"
+                      className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-semibold"
                     >
                       ⚡ Seguimiento
                     </button>
                   </div>
-                </div>
-
-                {/* Editor del Mensaje */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700">Contenido del Mensaje Oficial</label>
-                    <span className="text-[10px] text-slate-400">{directMessageText.length} caracteres</span>
-                  </div>
                   <textarea
-                    rows={5}
-                    placeholder="Escribe el mensaje que recibirá el destinatario por el canal oficial..."
+                    rows={3}
+                    placeholder="Escribe el mensaje oficial que recibirá el destinatario..."
                     value={directMessageText}
                     onChange={(e) => setDirectMessageText(e.target.value)}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none leading-relaxed"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none leading-relaxed"
                   />
                 </div>
-              </>
-            )}
+              )}
 
-            {/* Feedback de Éxito / Links Directos */}
-            {directSuccessResult && (
-              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-2 animate-in fade-in">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    ¡Mensaje registrado y despachado con éxito!
-                  </span>
-                  <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
-                    {directSuccessResult.status}
-                  </span>
+              {/* Feedback de Éxito */}
+              {directSuccessResult && (
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-emerald-900 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      ¡Mensaje despachado con éxito!
+                    </span>
+                    <span className="text-[9px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded">
+                      {directSuccessResult.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 pt-0.5">
+                    {directSuccessResult.directLink && directPlatform === "WHATSAPP" && (
+                      <a
+                        href={directSuccessResult.directLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold flex items-center gap-1"
+                      >
+                        <WhatsAppIcon className="w-3 h-3" />
+                        <span>Abrir WhatsApp Web</span>
+                      </a>
+                    )}
+                    {directSuccessResult.conversationId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowDirectModal(false);
+                          loadConversations(true);
+                          setActiveTab("inbox");
+                        }}
+                        className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[10px] font-bold flex items-center gap-1"
+                      >
+                        <MessageSquare className="w-3 h-3" />
+                        <span>Ver en Inbox</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  {directSuccessResult.directLink && directPlatform === "WHATSAPP" && (
-                    <a
-                      href={directSuccessResult.directLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5" />
-                      <span>Abrir en WhatsApp Web</span>
-                    </a>
-                  )}
-                  {directSuccessResult.conversationId && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowDirectModal(false);
-                        loadConversations(true);
-                        setActiveTab("inbox");
-                      }}
-                      className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>Ver Conversación en Inbox</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Botones de Acción Footer */}
-            <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+            {/* Footer del Modal (Sticky) */}
+            <div className="px-4 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowDirectModal(false)}
-                className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all"
+                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded-lg transition-all"
               >
                 Cerrar
               </button>
@@ -1787,17 +1812,17 @@ export const TabAdminCrm: React.FC = () => {
                 type="button"
                 onClick={handleSendDirectMessage}
                 disabled={isSendingDirect || !directRecipient.trim()}
-                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none active:scale-95"
               >
                 {isSendingDirect ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Enviando por Meta API...</span>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Enviando...</span>
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4" />
-                    <span>Detonar Envío Oficial</span>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Detonar Envío</span>
                   </>
                 )}
               </button>

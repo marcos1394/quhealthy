@@ -442,6 +442,11 @@ export const adminService = {
     return response.data;
   },
 
+  deleteAdminCrmConversation: async (conversationId: string): Promise<{ message: string; conversationId: string }> => {
+    const response = await axiosInstance.delete(`/api/social/crm/conversations/${conversationId}`);
+    return response.data;
+  },
+
   syncAdminCrmMessages: async (): Promise<{ providerId: number; conversationsSynced: number; messagesSynced: number; status: string }> => {
     const response = await axiosInstance.post('/api/social/crm/sync-messages');
     return response.data;
