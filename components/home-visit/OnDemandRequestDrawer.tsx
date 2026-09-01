@@ -60,8 +60,10 @@ export const OnDemandRequestDrawer: React.FC<OnDemandRequestDrawerProps> = ({
   );
 
   const [dispatchData, setDispatchData] = useState<HomeVisitDispatchResponse | null>(null);
+  const [bids, setBids] = useState<any[]>([]);
   const [searchTimer, setSearchTimer] = useState(45);
   const [submitting, setSubmitting] = useState(false);
+  const [acceptingBidId, setAcceptingBidId] = useState<number | null>(null);
 
   const { isLoaded } = useJsApiLoader({
     id: "on-demand-request-script",
@@ -70,22 +72,28 @@ export const OnDemandRequestDrawer: React.FC<OnDemandRequestDrawerProps> = ({
     language: "es",
   });
 
-  // Polling para simular asignación / tracking si está en SEARCHING o TRACKING
+  // Polling para status general y ofertas/contra-ofertas en SEARCHING
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (step === "SEARCHING" && dispatchData?.appointmentId) {
       interval = setInterval(async () => {
         try {
+          // 1. Consultar estado general del despacho
           const status = await homeVisitService.getDispatchStatus(dispatchData.appointmentId);
           if (status.dispatchStatus === "ACCEPTED" || status.dispatchStatus === "EN_ROUTE") {
             setDispatchData(status);
             setStep("TRACKING");
             toast.success("¡Médico asignado! Va en camino a tu domicilio");
+            return;
           }
+
+          // 2. Consultar ofertas / contra-ofertas recibidas de médicos (InDrive style)
+          const liveBids = await homeVisitService.getBids(dispatchData.appointmentId);
+          setBids(liveBids);
         } catch (e) {
           // Silent polling error
         }
-      }, 3000);
+      }, 2500);
     }
     return () => clearInterval(interval);
   }, [step, dispatchData?.appointmentId]);
@@ -118,12 +126,28 @@ export const OnDemandRequestDrawer: React.FC<OnDemandRequestDrawerProps> = ({
       });
 
       setDispatchData(res);
+      setBids([]);
       setStep(res.dispatchStatus === "ACCEPTED" ? "TRACKING" : "SEARCHING");
       setSearchTimer(45);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Error al solicitar médico a domicilio");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleAcceptBid = async (bidId: number) => {
+    if (!dispatchData?.appointmentId) return;
+    try {
+      setAcceptingBidId(bidId);
+      const updated = await homeVisitService.acceptBid(dispatchData.appointmentId, bidId);
+      setDispatchData(updated);
+      setStep("TRACKING");
+      toast.success("¡Oferta aceptada! El especialista va en camino");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Error al aceptar la oferta");
+    } finally {
+      setAcceptingBidId(null);
     }
   };
 
@@ -298,39 +322,134 @@ export const OnDemandRequestDrawer: React.FC<OnDemandRequestDrawerProps> = ({
             </div>
           )}
 
-          {/* PASO 2: RADAR DE BÚSQUEDA EN VIVO (Uber/DiDi style) */}
+          {/* PASO 2: RADAR DE BÚSQUEDA & SUBASTA EN VIVO (InDrive/Uber style) */}
           {step === "SEARCHING" && (
-            <div className="py-8 flex flex-col items-center justify-center text-center space-y-6">
-              {/* Animación de Radar Pulsante */}
-              <div className="relative flex items-center justify-center">
-                <div className="w-32 h-32 rounded-full bg-emerald-500/10 animate-ping absolute" />
-                <div className="w-24 h-24 rounded-full bg-emerald-500/20 animate-pulse absolute" />
-                <div className="w-16 h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xl shadow-emerald-600/30 z-10">
-                  <Stethoscope className="w-8 h-8 animate-bounce" />
+            <div className="py-4 space-y-6">
+              {/* Header con Radar y Timer */}
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 animate-ping absolute" />
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center z-10">
+                      <Stethoscope className="w-4 h-4 animate-bounce" />
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                      {bids.length > 0
+                        ? `¡${bids.length} propuesta${bids.length > 1 ? "s" : ""} recibida${bids.length > 1 ? "s" : ""}!`
+                        : "Buscando especialistas cerca de ti..."}
+                    </h4>
+                    <p className="text-[11px] text-gray-500">
+                      {bids.length > 0
+                        ? "Elige la oferta o contra-propuesta que más te convenga"
+                        : "Notificando a profesionales en tu zona"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  {searchTimer}s
                 </div>
               </div>
 
-              <div className="space-y-2 max-w-xs">
-                <h4 className="text-base font-bold text-gray-900 dark:text-white">
-                  Buscando médicos activos cerca de ti
-                </h4>
-                <p className="text-xs text-gray-500">
-                  Notificando a profesionales verificados en tu radio de cobertura...
-                </p>
-              </div>
+              {/* Lista de Ofertas / Contra-ofertas de Médicos (Estilo InDrive) */}
+              {bids.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                      Propuestas de Médicos Disponibles:
+                    </span>
+                    <span className="text-[11px] text-emerald-600 font-medium">En tiempo real ⚡</span>
+                  </div>
 
-              <div className="w-full max-w-xs p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300 flex items-center justify-between">
-                <span>Tiempo de respuesta de ola:</span>
-                <span>{searchTimer}s</span>
-              </div>
+                  <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                    {bids.map((bid: any) => (
+                      <motion.div
+                        key={bid.bidId}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3.5 rounded-2xl bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 shadow-sm hover:border-emerald-500 transition-all space-y-2.5"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-bold flex items-center justify-center text-sm">
+                              {bid.providerName?.substring(0, 2)?.toUpperCase() || "DR"}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h5 className="text-xs font-bold text-gray-900 dark:text-white">
+                                  {bid.providerName}
+                                </h5>
+                                {bid.quScore && (
+                                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-700 font-bold">
+                                    ★ {bid.quScore}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-gray-500 flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-emerald-600" />
+                                Llega en ~{bid.estimatedArrivalMinutes || 20} min
+                              </p>
+                            </div>
+                          </div>
 
-              <button
-                type="button"
-                onClick={() => setStep("FORM")}
-                className="text-xs font-bold text-red-500 hover:underline cursor-pointer"
-              >
-                Cancelar solicitud
-              </button>
+                          <div className="text-right">
+                            <span className="text-sm font-extrabold font-mono text-emerald-600 dark:text-emerald-400 block">
+                              ${bid.offeredPrice} MXN
+                            </span>
+                            {bid.isCounterOffer && (
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 uppercase">
+                                Contra-oferta 🏷️
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {bid.note && (
+                          <div className="p-2 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 text-[11px] text-emerald-900 dark:text-emerald-300">
+                            <span className="font-bold">Incluye: </span>
+                            {bid.note}
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleAcceptBid(bid.bidId)}
+                          disabled={acceptingBidId !== null}
+                          className="w-full h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>
+                            {acceptingBidId === bid.bidId
+                              ? "Confirmando..."
+                              : `Aceptar Oferta de ${bid.providerName?.split(" ")[0]} ($${bid.offeredPrice} MXN)`}
+                          </span>
+                        </button>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="py-6 flex flex-col items-center justify-center text-center space-y-3">
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center animate-pulse">
+                    <Sparkles className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <p className="text-xs text-gray-500 max-w-xs">
+                    Esperando respuestas y cotizaciones de los médicos disponibles en tu radio...
+                  </p>
+                </div>
+              )}
+
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setStep("FORM")}
+                  className="text-xs font-bold text-red-500 hover:underline cursor-pointer"
+                >
+                  Cancelar solicitud
+                </button>
+              </div>
             </div>
           )}
 

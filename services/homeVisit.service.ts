@@ -63,6 +63,22 @@ export interface HomeVisitDispatchResponse {
   createdAt: string;
 }
 
+export interface HomeVisitBid {
+  bidId: number;
+  appointmentId: number;
+  providerId: number;
+  providerName: string;
+  providerSpecialty?: string;
+  providerPhotoUrl?: string;
+  quScore?: number;
+  offeredPrice: number;
+  isCounterOffer: boolean;
+  note?: string;
+  estimatedArrivalMinutes: number;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
+  createdAt: string;
+}
+
 export const homeVisitService = {
   /**
    * 🏠 Obtener configuración del médico actual
@@ -119,7 +135,36 @@ export const homeVisitService = {
   },
 
   /**
-   * 🩺 Médico acepta la solicitud on-demand
+   * 🏷️ Médico envía una oferta o contra-oferta (InDrive Salud)
+   */
+  submitBid: async (
+    appointmentId: number,
+    payload: { offeredPrice?: number; note?: string; estimatedArrivalMinutes?: number }
+  ): Promise<HomeVisitBid> => {
+    const res = await axiosInstance.post<HomeVisitBid>(`/api/appointments/home-visit/${appointmentId}/bid`, payload);
+    return res.data;
+  },
+
+  /**
+   * 📋 Paciente lista las ofertas y contra-ofertas recibidas
+   */
+  getBids: async (appointmentId: number): Promise<HomeVisitBid[]> => {
+    const res = await axiosInstance.get<HomeVisitBid[]>(`/api/appointments/home-visit/${appointmentId}/bids`);
+    return res.data;
+  },
+
+  /**
+   * 🤝 Paciente acepta una oferta específica de un médico
+   */
+  acceptBid: async (appointmentId: number, bidId: number): Promise<HomeVisitDispatchResponse> => {
+    const res = await axiosInstance.post<HomeVisitDispatchResponse>(
+      `/api/appointments/home-visit/${appointmentId}/accept-bid/${bidId}`
+    );
+    return res.data;
+  },
+
+  /**
+   * 🩺 Médico acepta la solicitud on-demand directamente
    */
   acceptHomeVisit: async (appointmentId: number): Promise<HomeVisitDispatchResponse> => {
     const res = await axiosInstance.post<HomeVisitDispatchResponse>(`/api/appointments/home-visit/${appointmentId}/accept`);
