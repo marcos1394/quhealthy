@@ -8,6 +8,7 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
+  staticPageGenerationTimeout: 180,
 
   // === 1. CONFIGURACIÓN TURBOPACK ===
   turbopack: {},

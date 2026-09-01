@@ -3,6 +3,23 @@ import { MetadataRoute } from 'next';
 
 export const revalidate = 3600; // Revalida cada hora (mejor que force-dynamic)
 
+const fetchWithTimeout = async (url: string, timeoutMs = 5000): Promise<Response | null> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      next: { revalidate: 3600 },
+    });
+    return res;
+  } catch (error) {
+    console.warn(`[Sitemap] Fetch timeout or error for ${url}:`, error);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.quhealthy.org'; 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'https://api.quhealthy.org';
@@ -23,25 +40,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/en/como-funciona-el-quscore`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   ];
 
-  // 1. Obtener todas las Tiendas/Providers
+  // 1. Obtener Tiendas/Providers (con timeout y límite controlado)
   try {
-    let page = 0;
-    let hasMoreStores = true;
-    while (hasMoreStores && page < 10) { // Safety limit 10 pages
-      const res = await fetch(`${apiUrl}/api/catalog/storefront?size=100&page=${page}&radiusKm=999999`, {
-        next: { revalidate: 3600 },
-      });
-      if (!res.ok) break;
+    const res = await fetchWithTimeout(`${apiUrl}/api/catalog/storefront?size=100&page=0&radiusKm=999999`);
+    if (res && res.ok) {
       const data = await res.json();
       const allStores = [...(data.sponsored || []), ...(data.organic || [])];
       
-      if (allStores.length === 0) {
-        hasMoreStores = false;
-        break;
-      }
-
       for (const store of allStores) {
-        if (store.slug) {
+        if (store?.slug) {
           routes.push({
             url: `${baseUrl}/es/store/${store.slug}`,
             lastModified: new Date(),
@@ -56,75 +63,63 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           });
         }
       }
-      page++;
     }
   } catch (error) {
     console.error('Error generating stores for sitemap:', error);
   }
 
-  // 2. Obtener todos los items (productos, cursos, paquetes, servicios)
+  // 2. Obtener Items del catálogo (con timeout)
   try {
-    let page = 0;
-    let hasMoreItems = true;
-    while (hasMoreItems && page < 20) { // Safety limit 20 pages
-      const res = await fetch(`${apiUrl}/api/catalog/search/items?size=100&page=${page}&radiusKm=999999`, {
-        next: { revalidate: 3600 },
-      });
-
-      if (!res.ok) break;
+    const res = await fetchWithTimeout(`${apiUrl}/api/catalog/search/items?size=100&page=0&radiusKm=999999`);
+    if (res && res.ok) {
       const data = await res.json();
       const items = [...(data.sponsored || []), ...(data.organic || [])];
 
-      if (items.length === 0) {
-        hasMoreItems = false;
-        break;
-      }
-
       for (const item of items) {
-        const slug = `${item.id}-${generateSlug(item.name)}`;
+        if (item?.id && item?.name) {
+          const slug = `${item.id}-${generateSlug(item.name)}`;
 
-        routes.push({
-          url: `${baseUrl}/es/market/item/${slug}`,
-          lastModified: item.updatedAt ? new Date(item.updatedAt) : new Date(),
-          changeFrequency: 'daily',
-          priority: 0.7,
-        });
+          routes.push({
+            url: `${baseUrl}/es/market/item/${slug}`,
+            lastModified: item.updatedAt ? new Date(item.updatedAt) : new Date(),
+            changeFrequency: 'daily',
+            priority: 0.7,
+          });
 
-        routes.push({
-          url: `${baseUrl}/en/market/item/${slug}`,
-          lastModified: item.updatedAt ? new Date(item.updatedAt) : new Date(),
-          changeFrequency: 'daily',
-          priority: 0.7,
-        });
+          routes.push({
+            url: `${baseUrl}/en/market/item/${slug}`,
+            lastModified: item.updatedAt ? new Date(item.updatedAt) : new Date(),
+            changeFrequency: 'daily',
+            priority: 0.7,
+          });
+        }
       }
-      
-      page++;
     }
   } catch (error) {
     console.error('Error generating items for sitemap:', error);
   }
-  // 3. Obtener todos los blogs
-  try {
-    const res = await fetch(`${apiUrl}/api/intelligence/blog/posts`, {
-      next: { revalidate: 3600 },
-    });
 
-    if (res.ok) {
+  // 3. Obtener blogs
+  try {
+    const res = await fetchWithTimeout(`${apiUrl}/api/intelligence/blog/posts`);
+    if (res && res.ok) {
       const posts = await res.json();
-      for (const post of posts) {
-        if (post.slug) {
-          routes.push({
-            url: `${baseUrl}/es/blog/${post.slug}`,
-            lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt || new Date()),
-            changeFrequency: 'daily',
-            priority: 0.8,
-          });
-          routes.push({
-            url: `${baseUrl}/en/blog/${post.slug}`,
-            lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt || new Date()),
-            changeFrequency: 'daily',
-            priority: 0.8,
-          });
+      if (Array.isArray(posts)) {
+        for (const post of posts) {
+          if (post?.slug) {
+            routes.push({
+              url: `${baseUrl}/es/blog/${post.slug}`,
+              lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt || new Date()),
+              changeFrequency: 'daily',
+              priority: 0.8,
+            });
+            routes.push({
+              url: `${baseUrl}/en/blog/${post.slug}`,
+              lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt || new Date()),
+              changeFrequency: 'daily',
+              priority: 0.8,
+            });
+          }
         }
       }
     }
