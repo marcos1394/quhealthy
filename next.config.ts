@@ -63,6 +63,22 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // === 4.1 REDIRECCIONES CANÓNICAS ===
+  async redirects() {
+    return [
+      {
+        source: '/devoluciones',
+        destination: '/returns',
+        permanent: true,
+      },
+      {
+        source: '/:locale/devoluciones',
+        destination: '/:locale/returns',
+        permanent: true,
+      },
+    ];
+  },
+
   // === 5. OPTIMIZACIÓN DE IMÁGENES ===
   images: {
     remotePatterns: [
