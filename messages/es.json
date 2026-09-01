@@ -229,6 +229,7 @@
         "links": {
           "terms": "Términos y Condiciones",
           "privacy": "Aviso de Privacidad",
+          "returns": "Devoluciones y Garantía",
           "cookies": "Política de Cookies"
         }
       }
@@ -244,6 +245,7 @@
       "links": {
         "privacy": "Privacidad",
         "terms": "Términos",
+        "returns": "Devoluciones",
         "sitemap": "Mapa del sitio"
       }
     }
@@ -9241,6 +9243,46 @@
     "open_app_desc": "Siempre estamos buscando talento excepcional. Envíanos tu CV y cuéntanos por qué perteneces a QuHealthy.",
     "open_app_btn": "Enviar Aplicación Abierta",
     "eeo_statement": "QuHealthy es un espacio de igualdad de oportunidades. No discriminamos por raza, color, género, edad, discapacidad, religión, origen nacional, orientación sexual, identidad de género, ni ninguna otra característica protegida por la ley aplicable."
+  },
+  "PublicReturns": {
+    "breadcrumb": "Legal y Garantía",
+    "title": "Política de Devoluciones, Reembolsos y Cancelaciones",
+    "subtitle": "Lineamientos claros, transparentes y justos para la devolución de productos de salud, cancelación de consultas médicas y reembolsos en el ecosistema Quhealthy.",
+    "date": "Última actualización: 25 de Agosto de 2026",
+    "toc": "Tabla de Contenido",
+    "badges": {
+      "b1_title": "Garantía Protegida Quhealthy",
+      "b1_desc": "Protección integral para compradores y pacientes en todas las transacciones del marketplace.",
+      "b2_title": "Plazo de 30 Días",
+      "b2_desc": "30 días naturales para devoluciones de productos físicos elegibles.",
+      "b3_title": "Sin Cargos Ocultos (0% Restocking)",
+      "b3_desc": "$0 de comisión por reabastecimiento o tramitación de devolución."
+    },
+    "intro_title": "1. Modelo de Marketplace e Intermediación",
+    "intro_desc": "QuHealthy Inc. ('Quhealthy', 'la Plataforma') opera como un marketplace tecnológico de salud que conecta a usuarios y pacientes con Profesionales Médicos y Clínicas independientes (PROVIDER), Laboratorios y Farmacias, y Fabricantes y Distribuidores certificados de Insumos y Equipamiento Médico (SUPPLIER). Quhealthy no es el vendedor directo ni fabricante de los productos físicos ni presta directamente los servicios clínicos, sino que actúa como facilitador tecnológico y garante de la experiencia de compra a través de nuestro programa de Garantía Protegida Quhealthy.",
+    "physical_title": "2. Devolución de Productos Físicos y Equipamiento",
+    "physical_desc": "Para todos los productos físicos comercializados a través de Quhealthy (dispositivos biomédicos, suplementos sellados, accesorios de salud y equipo de consultorio), los compradores cuentan con un plazo de 30 días naturales a partir de la recepción del paquete para solicitar una devolución.",
+    "physical_cond_title": "Condiciones para la Aceptación:",
+    "physical_cond_1": "El artículo debe estar nuevo, sin uso y en perfectas condiciones estéticas y funcionales.",
+    "physical_cond_2": "Debe conservar su empaque original de fábrica, sellos de seguridad intactos, manuales, accesorios y pólizas de garantía.",
+    "physical_cond_3": "Los números de serie y etiquetas de lote deben coincidir exactamente con el registro de despacho del proveedor.",
+    "fees_title": "3. Gastos de Envío y Tarifas de Devolución",
+    "fees_desc": "Nuestras tarifas y costos de transporte se rigen bajo los siguientes lineamientos transparentes:\n• Producto Defectuoso, Dañado en Tránsito o Incorrecto: Costo de envío de retorno = $0.00 MXN / USD. Quhealthy o el proveedor emite una guía prepagada de mensajería sin costo para el comprador.\n• Devolución Voluntaria / Cambio de Opinión: El comprador cubre el costo del flete de retorno a la dirección del proveedor autorizado.\n• Tarifa de Reabastecimiento (Restocking Fee): $0.00 (0%). Quhealthy NO cobra penalizaciones, tarifas de reintegración de inventario ni comisiones administrativas.",
+    "exemptions_title": "4. Excepciones Sanitarias y Productos No Retornables",
+    "exemptions_desc": "En estricto apego a las regulaciones sanitarias aplicables (COFEPRIS, FDA y directrices internacionales de salud pública), NO son elegibles para devolución una vez entregados o abiertos:\n• Medicamentos de prescripción y fármacos con sellos de inviolabilidad rotos.\n• Insumos de higiene personal, mascarillas, cánulas, agujas, jeringas y material de curación abierto.\n• Dispositivos ortopédicos o prótesis fabricadas a la medida del paciente.\n• Reactivos de laboratorio o productos que requieran cadena de frío controlada una vez que hayan salido de la custodia de la paquetería especializada (salvo falla comprobable en el registro térmico IoT imputable al transportista).",
+    "services_title": "5. Cancelaciones y Reembolsos de Consultas y Citas Médicas",
+    "services_desc": "Las reservas de consultas médicas presenciales y teleconsultas en línea se rigen por la siguiente política:\n• Cancelación con más de 24 horas de antelación: Reembolso del 100% del importe pagado o reprogramación sin penalización.\n• Cancelación con menos de 24 horas o inasistencia (No-Show): El proveedor de salud podrá aplicar su política particular de cancelación informada en su perfil público.\n• Cancelación por parte del Médico o Falla Técnica de la Plataforma: Reembolso del 100% inmediato o reasignación prioritaria de horario.",
+    "refunds_title": "6. Métodos y Tiempos de Reembolso",
+    "refunds_desc": "Una vez recibido e inspeccionado el artículo por el equipo de control de calidad (plazo de 1 a 3 días hábiles tras la recepción), el reembolso se emitirá automáticamente al método de pago original:\n• Tarjetas de Crédito y Débito (Stripe / MercadoPago): Se reflejará en el estado de cuenta bancario en un plazo de 5 a 10 días hábiles, según las políticas del banco emisor.\n• Transferencia SPEI / Saldo Quhealthy Wallet: Acreditación en 24 a 48 horas hábiles.\n• Se notificará al comprador por correo electrónico en cuanto el reembolso sea procesado con su respectivo identificador de transacción.",
+    "process_title": "7. Proceso Paso a Paso para Devoluciones",
+    "process_step_1": "1. Inicia tu solicitud: Ingresa a tu panel en 'Mis Pedidos' y selecciona 'Solicitar Devolución', o escribe a soporte@quhealthy.org indicando tu Folio de Orden y motivo.",
+    "process_step_2": "2. Validación y Guía: En un plazo menor a 24 horas hábiles recibirás la aprobación y tu guía de paquetería prepagada (en casos elegibles) o las instrucciones de embalaje.",
+    "process_step_3": "3. Envío del Paquete: Entrega el artículo debidamente protegido en la sucursal de paquetería autorizada (DHL, FedEx o Estafeta).",
+    "process_step_4": "4. Inspección y Reembolso: Al recibir y verificar el producto, se efectúa el reembolso total de forma automática.",
+    "disputes_title": "8. Garantía Protegida Quhealthy y Mediación",
+    "disputes_desc": "Si un proveedor o vendedor externo no responde a una solicitud de devolución justificada en un plazo de 48 horas hábiles, el equipo de resolución de Quhealthy intervendrá de oficio para dictaminar la disputa y garantizar el reembolso correspondiente de conformidad con la Ley Federal de Protección al Consumidor (PROFECO) y las normas aplicables.",
+    "contact_title": "9. Canales Oficiales de Atención",
+    "contact_desc": "Para cualquier consulta sobre devoluciones, cancelaciones o disputas comerciales, nuestro equipo está a tu disposición:\n• Correo electrónico de devoluciones: devoluciones@quhealthy.org / soporte@quhealthy.org\n• WhatsApp de Asistencia: +52 668 184 2487\n• Centro de Ayuda: https://www.quhealthy.org/es/contact\n• Sede Institucional: QuHealthy Inc., Sinaloa, México."
   },
   "PublicTerms": {
     "breadcrumb": "Legal",

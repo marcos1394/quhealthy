@@ -234,6 +234,7 @@
         "links": {
           "terms": "Terms & Conditions",
           "privacy": "Privacy Notice",
+          "returns": "Returns & Guarantee",
           "cookies": "Cookie Policy"
         }
       }
@@ -249,6 +250,7 @@
       "links": {
         "privacy": "Privacy",
         "terms": "Terms",
+        "returns": "Returns",
         "sitemap": "Sitemap"
       }
     }
@@ -9201,6 +9203,46 @@
     "open_app_desc": "We are always looking for exceptional talent. Send us your resume and tell us why you belong at QuHealthy.",
     "open_app_btn": "Submit Open Application",
     "eeo_statement": "QuHealthy is an equal opportunity space. We do not discriminate on the basis of race, color, gender, age, disability, religion, national origin, sexual orientation, gender identity, or any other characteristic protected by applicable law."
+  },
+  "PublicReturns": {
+    "breadcrumb": "Legal & Guarantee",
+    "title": "Return, Refund, and Cancellation Policy",
+    "subtitle": "Clear, transparent, and fair policies for health product returns, medical appointment cancellations, and refunds across the Quhealthy ecosystem.",
+    "date": "Last updated: August 25, 2026",
+    "toc": "Table of Contents",
+    "badges": {
+      "b1_title": "Quhealthy Buyer Protection",
+      "b1_desc": "Comprehensive guarantee and mediation for buyers and patients across all marketplace transactions.",
+      "b2_title": "30-Day Return Window",
+      "b2_desc": "30 calendar days to initiate returns on eligible physical products.",
+      "b3_title": "No Restocking Fees (0%)",
+      "b3_desc": "$0 restocking fee or return processing penalties."
+    },
+    "intro_title": "1. Marketplace Model & Intermediation Role",
+    "intro_desc": "QuHealthy Inc. ('Quhealthy', 'the Platform') operates as a multi-vendor digital health marketplace connecting consumers and patients with independent Healthcare Providers and Clinics (PROVIDER), licensed Pharmacies and Diagnostic Laboratories, and certified Medical Suppliers and Device Manufacturers (SUPPLIER). Quhealthy acts as a technology intermediary and transaction guarantor under our Buyer Protection Program, establishing mandatory quality and return standards for all participating vendors.",
+    "physical_title": "2. Return Policy for Physical Products & Equipment",
+    "physical_desc": "For physical items ordered via Quhealthy (medical devices, unopened dietary supplements, wellness accessories, and clinical supplies), buyers have 30 calendar days from the confirmed delivery date to request a return.",
+    "physical_cond_title": "Eligibility Requirements:",
+    "physical_cond_1": "The item must be unused, unaltered, and in pristine aesthetic and operational condition.",
+    "physical_cond_2": "Must include original factory packaging, unbroken tamper-evident seals, instruction manuals, accessories, and warranty cards.",
+    "physical_cond_3": "Serial and batch/lot numbers must precisely match supplier fulfillment logs.",
+    "fees_title": "3. Return Shipping Costs & Fee Structure",
+    "fees_desc": "Our return fee policies are designed to be 100% transparent:\n• Defective, Damaged, or Incorrect Items: Return Shipping Cost = $0.00 USD / MXN. Quhealthy or the vendor provides a prepaid courier return label at no cost to the buyer.\n• Voluntary Returns / Customer Remorse: The buyer covers standard return courier shipping to the vendor's designated fulfillment center.\n• Restocking Fees: $0.00 (0%). Quhealthy does NOT charge restocking, restocking handling, or return penalty fees.",
+    "exemptions_title": "4. Sanitary Exemptions & Non-Returnable Items",
+    "exemptions_desc": "In compliance with health and sanitary safety regulations (COFEPRIS, FDA, and international public health directives), the following categories cannot be returned once opened or delivered:\n• Prescription pharmaceuticals and opened over-the-counter medications.\n• Personal hygiene items, face masks, needles, catheters, and opened sterile wound care dressings.\n• Custom-made orthopedic devices or personalized patient prosthetics.\n• Diagnostic reagents or temperature-sensitive cold chain items once transferred from specialized carrier custody (unless cold chain breach is proven via IoT temperature telemetry).",
+    "services_title": "5. Medical Consultation & Appointment Cancellations",
+    "services_desc": "In-person appointments and telehealth video consultations adhere to the following cancellation policy:\n• Cancellations >24 hours prior to appointment: 100% full refund or free rescheduling.\n• Cancellations <24 hours or Patient No-Show: The healthcare clinic's specific cancellation policy (as displayed on their profile) applies.\n• Practitioner Cancellation or Platform Technical Failure: Immediate 100% refund or priority rescheduling.",
+    "refunds_title": "6. Refund Methods and Processing Times",
+    "refunds_desc": "Upon item delivery and quality verification at the return facility (1 to 3 business days), refunds are automatically credited to the original payment method:\n• Credit & Debit Cards (Stripe / MercadoPago): Reflected on your bank statement within 5 to 10 business days depending on your financial institution.\n• SPEI Bank Wire / Quhealthy Wallet Balance: Processed within 24 to 48 business hours.\n• Email confirmation with transaction ID is dispatched immediately upon refund release.",
+    "process_title": "7. Step-by-Step Return Process",
+    "process_step_1": "1. Initiate Request: Go to 'My Orders' in your dashboard and click 'Request Return', or contact devoluciones@quhealthy.org with your Order Folio and reason.",
+    "process_step_2": "2. Authorization & Label: Within 24 business hours, you will receive return authorization and a prepaid shipping label (for eligible cases).",
+    "process_step_3": "3. Dispatch Package: Drop off the securely packaged item at the designated carrier branch (DHL, FedEx, or assigned carrier).",
+    "process_step_4": "4. Verification & Refund: Upon inspection, the refund is automatically disbursed.",
+    "disputes_title": "8. Quhealthy Protection & Dispute Mediation",
+    "disputes_desc": "If a third-party supplier fails to respond to a valid return request within 48 business hours, Quhealthy's mediation team steps in to arbitrate and enforce buyer protection and refunds in full compliance with consumer protection laws (PROFECO / FTC).",
+    "contact_title": "9. Official Customer Support & Legal Entity",
+    "contact_desc": "For assistance with returns, refunds, or order issues:\n• Returns Email: devoluciones@quhealthy.org / soporte@quhealthy.org\n• WhatsApp Support: +52 668 184 2487\n• Help Center: https://www.quhealthy.org/en/contact\n• Legal Entity: QuHealthy Inc., Sinaloa, Mexico."
   },
   "PublicTerms": {
     "breadcrumb": "Legal",

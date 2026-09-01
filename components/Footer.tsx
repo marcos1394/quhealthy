@@ -48,6 +48,7 @@ const Footer: React.FC = () => {
       links: [
         { name: t('columns.legal.links.terms'), href: "/terms" },
         { name: t('columns.legal.links.privacy'), href: "/privacy" },
+        { name: t('columns.legal.links.returns', { defaultValue: "Devoluciones y Garantía" }), href: "/devoluciones" },
         { name: t('columns.legal.links.cookies'), href: "/cookies" }
       ]
     }
@@ -196,6 +197,9 @@ const Footer: React.FC = () => {
               </Link>
               <Link href="/terms" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 {t('copyright.links.terms')}
+              </Link>
+              <Link href="/devoluciones" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                {t('copyright.links.returns', { defaultValue: "Devoluciones" })}
               </Link>
               <button 
                 type="button"
