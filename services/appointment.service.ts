@@ -116,7 +116,10 @@ export const appointmentService = {
    * ✅ Finaliza una cita (Solo para Providers)
    */
   completeAppointment: async (id: number, notes: string): Promise<AppointmentResponse> => {
-    const response = await axiosInstance.patch<AppointmentResponse>(`${BASE_URL}/${id}/complete`, { notes });
+    const response = await axiosInstance.patch<AppointmentResponse>(`${BASE_URL}/${id}/complete`, {
+      privateNotes: notes,
+      publicNotes: notes,
+    });
     return response.data;
   },
 

@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/dialog";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
+import { appointmentService } from "@/services/appointment.service";
+import { handleApiError } from "@/lib/handleApiError";
 
 interface Appointment {
   id: number;
@@ -77,7 +79,7 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
     setCompletionStep("processing");
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await appointmentService.completeAppointment(appointment.id, notes);
       setCompletionStep("success");
       toast.success(t("toast_success"));
 
@@ -85,7 +87,8 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({
         onComplete();
         onClose();
       }, 1000);
-    } catch {
+    } catch (error) {
+      handleApiError(error);
       setCompletionStep("idle");
       setIsLoading(false);
     }

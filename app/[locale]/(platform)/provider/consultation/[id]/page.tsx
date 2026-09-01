@@ -459,6 +459,14 @@ export default function ConsultationRoomPage() {
         const appointment =
           await appointmentService.getAppointmentById(appointmentId);
 
+        if (appointment.status === "SCHEDULED" || appointment.status === "WAITING_ROOM") {
+          try {
+            await appointmentService.updateStatus(appointmentId, "IN_PROGRESS");
+          } catch (err) {
+            console.warn("No se pudo actualizar el estado de la cita a IN_PROGRESS:", err);
+          }
+        }
+
         if (appointment.consumerId) {
           setConsumerId(appointment.consumerId);
           setIsOfflinePatient(false);
