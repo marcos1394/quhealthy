@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreatableSelect } from "@/components/ui/creatable-select";
 import { PatientDirectoryProfile } from "@/types/medicalHistory";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 

@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreatableSelect } from "@/components/ui/creatable-select";
 import { cn } from "@/lib/utils";
 import { usePatientDirectory } from "@/hooks/usePatientDirectory";
 import { PatientRegistrationPayload } from "@/types/patient";

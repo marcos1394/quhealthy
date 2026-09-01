@@ -34,74 +34,85 @@ export function CreatableSelect({
   const [open, setOpen] = React.useState(false)
   const [inputValue, setInputValue] = React.useState("")
 
-  // Filter options based on input value
+  const displayValue = options.find((opt) => opt.value === value)?.label || value;
+
   const filteredOptions = React.useMemo(() => {
     if (!inputValue) return options;
     const lowerInput = inputValue.toLowerCase();
-    return options.filter(opt => opt.label.toLowerCase().includes(lowerInput));
+    return options.filter(
+      (opt) =>
+        opt.label.toLowerCase().includes(lowerInput) ||
+        opt.value.toLowerCase().includes(lowerInput)
+    );
   }, [options, inputValue]);
 
-  // Determine if we should show the "Create" option
   const exactMatch = options.find(
-    (opt) => opt.label.toLowerCase() === inputValue.toLowerCase() || opt.value.toLowerCase() === inputValue.toLowerCase()
+    (opt) =>
+      opt.label.toLowerCase() === inputValue.toLowerCase() ||
+      opt.value.toLowerCase() === inputValue.toLowerCase()
   );
-  
+
   const showCreate = inputValue.trim().length > 0 && !exactMatch;
 
-  const displayValue = options.find((opt) => opt.value === value)?.label || value;
-
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={true}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          type="button"
           variant="outline"
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className="w-full h-12 px-4 justify-between bg-gray-50 dark:bg-[#050505] border border-black/20 dark:border-white/20 text-xs font-semibold uppercase rounded-none hover:bg-gray-100 dark:hover:bg-[#111]"
+          className="w-full h-11 px-4 justify-between bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-[#111] focus:ring-2 focus:ring-emerald-500/20"
         >
-          {displayValue || placeholder}
+          <span className="truncate">{displayValue || placeholder}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="z-[100] w-full p-0 bg-white dark:bg-[#0a0a0a] border border-black dark:border-white rounded-none">
-        <Command>
-          <CommandInput 
-            placeholder="Buscar o escribir nuevo..." 
-            className="text-xs font-semibold uppercase rounded-none"
+      <PopoverContent
+        align="start"
+        className="z-[9999] w-[var(--radix-popover-trigger-width)] p-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans"
+      >
+        <Command shouldFilter={false}>
+          <CommandInput
+            placeholder="Buscar o escribir..."
+            className="text-xs font-semibold h-9"
             value={inputValue}
             onValueChange={setInputValue}
           />
-          <CommandList className="rounded-none">
-            <CommandEmpty className="p-4 text-xs font-semibold uppercase text-center text-gray-500">
+          <CommandList className="max-h-56 overflow-y-auto p-1">
+            <CommandEmpty className="p-3 text-xs text-center text-gray-500">
               {inputValue ? (
-                <button 
-                  className="w-full text-left px-2 py-1.5 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
                   onClick={() => {
                     onChange(inputValue);
                     setOpen(false);
                     setInputValue("");
                   }}
                 >
-                  CREAR "{inputValue}"
+                  Usar "{inputValue}"
                 </button>
-              ) : "NO ENCONTRADO."}
+              ) : (
+                "No se encontraron opciones"
+              )}
             </CommandEmpty>
             <CommandGroup>
               {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={option.value}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : option.value)
-                    setOpen(false)
-                    setInputValue("")
+                  onSelect={() => {
+                    onChange(option.value);
+                    setOpen(false);
+                    setInputValue("");
                   }}
-                  className="text-[9px] font-bold uppercase tracking-widest cursor-pointer rounded-none aria-selected:bg-black aria-selected:text-white dark:aria-selected:bg-white dark:aria-selected:text-black"
+                  className="text-xs font-semibold px-3 py-2 cursor-pointer rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mr-2 h-4 w-4 text-emerald-600",
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />
@@ -111,15 +122,15 @@ export function CreatableSelect({
               {showCreate && (
                 <CommandItem
                   value={inputValue}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue);
+                  onSelect={() => {
+                    onChange(inputValue);
                     setOpen(false);
                     setInputValue("");
                   }}
-                  className="text-[9px] font-bold uppercase tracking-widest cursor-pointer rounded-none aria-selected:bg-black aria-selected:text-white dark:aria-selected:bg-white dark:aria-selected:text-black text-blue-600 dark:text-blue-400"
+                  className="text-xs font-bold px-3 py-2 cursor-pointer rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
                 >
                   <Check className="mr-2 h-4 w-4 opacity-0" />
-                  CREAR "{inputValue}"
+                  Crear "{inputValue}"
                 </CommandItem>
               )}
             </CommandGroup>
@@ -127,5 +138,5 @@ export function CreatableSelect({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

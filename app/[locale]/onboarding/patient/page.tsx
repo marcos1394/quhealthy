@@ -30,7 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreatableSelect } from "@/components/ui/creatable-select";
 import { WearablesStep } from "./WearablesStep";
 import { DependentsStep } from "./DependentsStep";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -232,19 +231,34 @@ export default function ConsumerOnboardingWizard() {
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                     {t("steps.identity.insurance_label")}
                   </label>
-                  <CreatableSelect
-                    options={[
-                      { label: t("steps.identity.insurance_options.imss"), value: "IMSS" },
-                      { label: t("steps.identity.insurance_options.issste"), value: "ISSSTE" },
-                      { label: t("steps.identity.insurance_options.insabi"), value: "INSABI" },
-                      { label: t("steps.identity.insurance_options.pemex"), value: "PEMEX" },
-                      { label: t("steps.identity.insurance_options.private"), value: "SEGURO_PRIVADO" },
-                      { label: t("steps.identity.insurance_options.none"), value: "NINGUNA" },
-                    ]}
+                  <Select
                     value={data.healthInsurance || ""}
-                    onChange={(val) => updateData({ healthInsurance: val })}
-                    placeholder={t("steps.identity.insurance_placeholder")}
-                  />
+                    onValueChange={(val) => updateData({ healthInsurance: val })}
+                  >
+                    <SelectTrigger className="w-full h-11 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold rounded-xl focus:ring-2 focus:ring-emerald-500/20">
+                      <SelectValue placeholder={t("steps.identity.insurance_placeholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
+                      <SelectItem className="text-xs font-semibold cursor-pointer" value="IMSS">
+                        {t("steps.identity.insurance_options.imss")}
+                      </SelectItem>
+                      <SelectItem className="text-xs font-semibold cursor-pointer" value="ISSSTE">
+                        {t("steps.identity.insurance_options.issste")}
+                      </SelectItem>
+                      <SelectItem className="text-xs font-semibold cursor-pointer" value="INSABI">
+                        {t("steps.identity.insurance_options.insabi")}
+                      </SelectItem>
+                      <SelectItem className="text-xs font-semibold cursor-pointer" value="PEMEX">
+                        {t("steps.identity.insurance_options.pemex")}
+                      </SelectItem>
+                      <SelectItem className="text-xs font-semibold cursor-pointer" value="SEGURO_PRIVADO">
+                        {t("steps.identity.insurance_options.private")}
+                      </SelectItem>
+                      <SelectItem className="text-xs font-semibold cursor-pointer" value="NINGUNA">
+                        {t("steps.identity.insurance_options.none")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
