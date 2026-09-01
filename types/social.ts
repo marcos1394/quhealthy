@@ -168,32 +168,103 @@ export interface ScheduledPostDTO {
 // 4. CRM OMNICANAL
 // =================================================================
 
+export type FunnelStage = string;
+
+export interface CustomFunnelStage {
+  id?: string;
+  stageKey: string;
+  name: string;
+  color: string;
+  orderIndex: number;
+  isDefault?: boolean;
+}
+
+export interface FunnelStats {
+  totalLeads: number;
+  newLeads: number;
+  contacted: number;
+  qualified: number;
+  demoScheduled: number;
+  proposalSent: number;
+  won: number;
+  lost: number;
+  conversionRate: number;
+  leadsByPlan?: Record<string, number>;
+  leadsBySource?: Record<string, number>;
+  leadsByStage?: Record<string, number>;
+}
+
 /** Alineado con ConversationResponse.java del backend */
 export interface ConversationDTO {
   id: string;
-  providerId: string;
+  providerId: number | string;
   platform: 'WHATSAPP' | 'INSTAGRAM' | 'FACEBOOK' | 'EMAIL';
   externalContactId: string;
   contactName: string;
   lastMessageAt: string;
-  lastMessage: string;
+  lastMessage?: string;
+  lastMessagePreview?: string;
   isRead: boolean;
   patientDirectoryId?: number;
   status?: string;
   unreadCount?: number;
+  funnelStage?: string;
+  leadSource?: string;
+  leadScore?: number;
+  interestedPlan?: string;
+  aiSummary?: string;
+  aiSuggestedAction?: string;
+  aiAutoResponderEnabled?: boolean;
+  contactEmail?: string;
+  contactPhone?: string;
 }
 
 export interface UpdateConversationRequest {
   patientDirectoryId?: number;
   status?: string;
+  contactName?: string;
+  isRead?: boolean;
+}
+
+export interface UpdateLeadStageRequest {
+  funnelStage?: string;
+  interestedPlan?: string;
+  leadScore?: number;
+  notes?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+}
+
+export interface DirectMessageRequest {
+  platform: 'WHATSAPP' | 'INSTAGRAM' | 'FACEBOOK' | 'EMAIL';
+  recipient: string;
+  message?: string;
+  templateName?: string;
+  templateLanguage?: string;
+  templateVariables?: string[];
+  parameters?: string[];
+  patientDirectoryId?: number;
+}
+
+export interface DirectMessageResponse {
+  success: boolean;
+  messageId?: string;
+  conversationId?: string;
+  platform: string;
+  recipient: string;
+  directLink?: string;
+  status: string;
+  errorMessage?: string;
 }
 
 /** Alineado con MessageResponse.java del backend */
 export interface MessageDTO {
   id: string;                    // UUID
+  conversationId?: string;
   direction: MessageDirection;
   type: MessageType;
   content: string;
+  mediaUrl?: string;
   status: MessageStatus;
   createdAt: string;             // ISO-8601
 }
@@ -209,7 +280,7 @@ export interface SendMessageRequest {
 /** Alineado con AiSuggestRequest.java */
 export interface AiSuggestRequest {
   conversationId: string;        // UUID
-  preferredTone?: AiSuggestionTone;
+  preferredTone?: string;
 }
 
 /** Alineado con AiSuggestResponse.java */
@@ -218,7 +289,7 @@ export interface AiSuggestResponse {
 }
 
 export interface AiSuggestion {
-  tone: AiSuggestionTone;
+  tone: string;
   text: string;
 }
 

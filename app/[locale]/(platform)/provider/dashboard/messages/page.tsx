@@ -2,7 +2,8 @@
 
 /* eslint-disable react-doctor/button-has-type */
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { MessageSquare, Users } from "lucide-react";
 
@@ -12,6 +13,17 @@ import { ClinicalMessagesView } from "./components/ClinicalMessagesView";
 
 export default function ProviderMessagesPage() {
   const t = useTranslations("DashboardMessages");
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<string>("clinical");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "social" || window.location.hash === "#social") {
+      setActiveTab("social");
+    } else if (tab === "clinical" || window.location.hash === "#clinical") {
+      setActiveTab("clinical");
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] w-full bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pt-6 px-4 md:px-10 pb-6 overflow-hidden">
@@ -36,7 +48,7 @@ export default function ProviderMessagesPage() {
 
         {/* ── CONTENEDOR PRINCIPAL DE PESTAÑAS Y VISTAS DE CHAT ──────────── */}
         <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 flex flex-col rounded-3xl shadow-sm overflow-hidden flex-1 min-h-0">
-          <Tabs defaultValue="clinical" className="flex flex-col flex-1 min-h-0 w-full rounded-none">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0 w-full rounded-none">
             
             {/* Barra de Selección (TabsList) */}
             <TabsList className="flex items-center bg-gray-50/50 dark:bg-[#050505] p-2 gap-2 border-b border-gray-100 dark:border-gray-800 shrink-0 h-auto rounded-none w-full justify-start overflow-x-auto custom-scrollbar">

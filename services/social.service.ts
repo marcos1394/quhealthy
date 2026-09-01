@@ -144,20 +144,54 @@ export const socialService = {
   // 4. CRM OMNICANAL
   // ============================================================
 
-  getConversations: async (page = 0, size = 20): Promise<SpringPage<ConversationDTO>> => {
-    const response = await axiosInstance.get(`${BASE}/conversations`, {
+  getConversations: async (page = 0, size = 50): Promise<SpringPage<ConversationDTO>> => {
+    const response = await axiosInstance.get(`${BASE}/crm/conversations`, {
       params: { page, size },
     });
     return response.data;
   },
 
-  updateConversation: async (id: string, data: Partial<ConversationDTO>): Promise<ConversationDTO> => {
-    const response = await axiosInstance.patch(`${BASE}/conversations/${id}`, data);
+  updateConversation: async (id: string, data: Partial<import('@/types/social').UpdateConversationRequest>): Promise<ConversationDTO> => {
+    const response = await axiosInstance.patch(`${BASE}/crm/conversations/${id}`, data);
     return response.data;
   },
 
-  syncEmails: async (): Promise<{message: string}> => {
-    const response = await axiosInstance.post(`${BASE}/crm/sync-emails`);
+  deleteConversation: async (id: string): Promise<{ message: string; conversationId: string }> => {
+    const response = await axiosInstance.delete(`${BASE}/crm/conversations/${id}`);
+    return response.data;
+  },
+
+  getFunnelStats: async (): Promise<import('@/types/social').FunnelStats> => {
+    const response = await axiosInstance.get(`${BASE}/crm/funnel/stats`);
+    return response.data;
+  },
+
+  getFunnelStages: async (): Promise<import('@/types/social').CustomFunnelStage[]> => {
+    const response = await axiosInstance.get(`${BASE}/crm/funnel/stages`);
+    return response.data;
+  },
+
+  saveFunnelStages: async (stages: import('@/types/social').CustomFunnelStage[]): Promise<import('@/types/social').CustomFunnelStage[]> => {
+    const response = await axiosInstance.put(`${BASE}/crm/funnel/stages`, { stages });
+    return response.data;
+  },
+
+  updateLeadStage: async (
+    conversationId: string,
+    data: import('@/types/social').UpdateLeadStageRequest
+  ): Promise<ConversationDTO> => {
+    const response = await axiosInstance.patch(`${BASE}/crm/conversations/${conversationId}/stage`, data);
+    return response.data;
+  },
+
+  toggleAutoResponder: async (
+    conversationId: string,
+    enabled: boolean
+  ): Promise<ConversationDTO> => {
+    const response = await axiosInstance.post(
+      `${BASE}/crm/conversations/${conversationId}/auto-responder`,
+      { isEnabled: enabled }
+    );
     return response.data;
   },
 
@@ -167,7 +201,7 @@ export const socialService = {
     size = 50
   ): Promise<SpringPage<MessageDTO>> => {
     const response = await axiosInstance.get(
-      `${BASE}/conversations/${conversationId}/messages`,
+      `${BASE}/crm/conversations/${conversationId}/messages`,
       { params: { page, size } }
     );
     return response.data;
@@ -178,17 +212,29 @@ export const socialService = {
     data: SendMessageRequest
   ): Promise<MessageDTO> => {
     const response = await axiosInstance.post(
-      `${BASE}/conversations/${conversationId}/messages`,
+      `${BASE}/crm/conversations/${conversationId}/messages`,
       data
     );
     return response.data;
   },
 
-  /**
-   * ✅ NUEVO: Genera 3 sugerencias de respuesta con IA
-   * basadas en el historial de la conversación.
-   * Endpoint: POST /api/social/crm/ai-suggest
-   */
+  sendDirectMessage: async (
+    data: import('@/types/social').DirectMessageRequest
+  ): Promise<import('@/types/social').DirectMessageResponse> => {
+    const response = await axiosInstance.post(`${BASE}/crm/direct-send`, data);
+    return response.data;
+  },
+
+  syncMessages: async (): Promise<{ message?: string; count?: number }> => {
+    const response = await axiosInstance.post(`${BASE}/crm/sync-messages`);
+    return response.data;
+  },
+
+  syncEmails: async (): Promise<{ message: string }> => {
+    const response = await axiosInstance.post(`${BASE}/crm/sync-emails`);
+    return response.data;
+  },
+
   getAiReplySuggestions: async (data: AiSuggestRequest): Promise<AiSuggestResponse> => {
     const response = await axiosInstance.post(`${BASE}/crm/ai-suggest`, data);
     return response.data;
