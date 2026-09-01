@@ -17,6 +17,7 @@ import { Building2, ExternalLink } from "lucide-react";
 
 import { useIntelligenceMap } from "@/hooks/useIntelligence";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { getMapMarkerIcon } from "@/lib/mapPins";
 
 interface HealthcareMapDto {
   clues: string;
@@ -220,15 +221,11 @@ export default function NationalHealthcareMap() {
                     position={{ lat: p.latitud, lng: p.longitud }}
                     clusterer={clusterer}
                     onClick={() => setSelectedPoint(p)}
-                    icon={{
-                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                      fillColor: "#059669", // Verde Esmeralda 600
-                      fillOpacity: 1,
-                      strokeWeight: 1.5,
-                      strokeColor: "#ffffff",
-                      scale: 1.3,
-                      anchor: new window.google.maps.Point(12, 24),
-                    }}
+                    icon={getMapMarkerIcon({
+                      role: (p.nombreTipoEstablecimiento || p.nivelAtencion || "").toUpperCase().includes("HOSPITAL") ? "HOSPITAL" : "CLINIC",
+                      specialty: p.nombreTipoEstablecimiento,
+                      isSelected: selectedPoint?.clues === p.clues,
+                    }, typeof window !== "undefined" && window.google ? window.google.maps : undefined)}
                   />
                 ) : null
               )}

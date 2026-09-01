@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { Star, MapPin, LayoutGrid, User, Award, HeartHandshake } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { getMapMarkerIcon } from "@/lib/mapPins";
 import { useDiscoverContext } from "./context/DiscoverContext";
 
 const libraries: ("places" | "geometry")[] = ["places"];
@@ -269,15 +270,13 @@ export const MarketplaceMap = () => {
                 }}
                 onMouseOver={() => setHoveredId(provider.id)}
                 onMouseOut={() => setHoveredId(null)}
-                icon={{
-                  path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                  fillColor: provider.color || "#059669",
-                  fillOpacity: isSelected || isHovered ? 1 : 0.85,
-                  strokeWeight: isSelected ? 3 : 2,
-                  strokeColor: "#ffffff",
-                  scale: isSelected ? 1.6 : 1.3,
-                  anchor: new google.maps.Point(12, 24),
-                }}
+                icon={getMapMarkerIcon({
+                  role: provider.role || (provider.isClinic ? "CLINIC" : "PROVIDER"),
+                  specialty: provider.category || provider.specialty,
+                  isPromoted: provider.isPromoted,
+                  isSelected: isPinActive || isSelected,
+                  isHovered,
+                }, typeof google !== "undefined" ? google.maps : undefined)}
                 zIndex={isSelected ? 50 : 10}
               >
                 {isPinActive && (
@@ -426,15 +425,11 @@ export const MarketplaceMap = () => {
               }}
               onMouseOver={() => setHoveredId(foundation.id)}
               onMouseOut={() => setHoveredId(null)}
-              icon={{
-                path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                fillColor: foundation.primaryColor || "#e11d48",
-                fillOpacity: isPinActive || isHovered ? 1 : 0.9,
-                strokeWeight: isPinActive ? 3 : 2,
-                strokeColor: "#ffffff",
-                scale: isPinActive ? 1.6 : 1.3,
-                anchor: new google.maps.Point(12, 24),
-              }}
+              icon={getMapMarkerIcon({
+                role: "FOUNDATION",
+                isSelected: isPinActive,
+                isHovered,
+              }, typeof google !== "undefined" ? google.maps : undefined)}
               zIndex={isPinActive ? 50 : 15}
             >
               {isPinActive && (
@@ -567,15 +562,13 @@ export const MarketplaceMap = () => {
               }}
               onMouseOver={() => setHoveredId(item.id)}
               onMouseOut={() => setHoveredId(null)}
-              icon={{
-                path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                fillColor: item.providerColor || "#059669",
-                fillOpacity: isSelected || isHovered ? 1 : 0.85,
-                strokeWeight: isSelected ? 3 : 2,
-                strokeColor: "#ffffff",
-                scale: isSelected ? 1.6 : 1.3,
-                anchor: new google.maps.Point(12, 24),
-              }}
+              icon={getMapMarkerIcon({
+                role: item.providerRole || "PROVIDER",
+                specialty: item.category,
+                isHomeVisit: item.modality === "HOME_VISIT",
+                isSelected,
+                isHovered,
+              }, typeof google !== "undefined" ? google.maps : undefined)}
               zIndex={isSelected ? 50 : 10}
             >
               {isSelected && (

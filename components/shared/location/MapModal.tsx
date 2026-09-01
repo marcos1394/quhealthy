@@ -26,6 +26,7 @@ import {
   Info,
   Search,
 } from "lucide-react";
+import { getMapMarkerIcon } from "@/lib/mapPins";
 import { useTheme } from "next-themes";
 
 import { Badge } from "@/components/ui/badge";
@@ -434,15 +435,10 @@ const MapWithAutocomplete: React.FC<LocationPickerProps> = ({
                   updateLocationDetails(e.latLng.lat(), e.latLng.lng())
                 }
                 animation={google.maps.Animation.DROP}
-                icon={{
-                  path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                  fillColor: "#059669",
-                  fillOpacity: 1,
-                  strokeWeight: 1.5,
-                  strokeColor: "#ffffff",
-                  scale: 1.4,
-                  anchor: new window.google.maps.Point(12, 24),
-                }}
+                icon={getMapMarkerIcon({
+                  role: "PROVIDER",
+                  isSelected: true,
+                }, typeof google !== "undefined" ? google.maps : undefined)}
               />
             )}
           </GoogleMap>
