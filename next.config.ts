@@ -9,6 +9,8 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   staticPageGenerationTimeout: 180,
+  compress: true,
+  poweredByHeader: false,
 
   // === 1. CONFIGURACIÓN TURBOPACK ===
   turbopack: {},
@@ -29,7 +31,7 @@ const nextConfig: NextConfig = {
   // los headers Set-Cookie del backend al navegador. Ahora el frontend habla
   // directamente al backend vía NEXT_PUBLIC_API_URL y el CORS ya lo permite.
 
-  // === 4. CABECERAS DE SEGURIDAD (CSP) ===
+  // === 4. CABECERAS DE SEGURIDAD Y RENDIMIENTO (CSP + CACHE) ===
   async headers() {
     const cspHeader = `
       default-src 'self';
@@ -57,14 +59,25 @@ const nextConfig: NextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
-          // 🚀 ADDED: Permite al popup de Google cerrarse y comunicarse con tu página
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/icons/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
       },
     ];
   },
 
-  // === 4.1 REDIRECCIONES CANÓNICAS ===
+  // === 4.1 REDIRECCIONES CANÓNICAS PERMANENTES (301) ===
   async redirects() {
     return [
       {
@@ -77,11 +90,35 @@ const nextConfig: NextConfig = {
         destination: '/:locale/returns',
         permanent: true,
       },
+      {
+        source: '/terminos',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
+        source: '/:locale/terminos',
+        destination: '/:locale/terms',
+        permanent: true,
+      },
+      {
+        source: '/privacidad',
+        destination: '/privacy',
+        permanent: true,
+      },
+      {
+        source: '/:locale/privacidad',
+        destination: '/:locale/privacy',
+        permanent: true,
+      },
     ];
   },
 
-  // === 5. OPTIMIZACIÓN DE IMÁGENES ===
+  // === 5. OPTIMIZACIÓN DE IMÁGENES (AVIF & WEBP + CACHING) ===
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 2592000,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https' as const,

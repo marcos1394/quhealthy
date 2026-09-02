@@ -70,12 +70,12 @@ export async function generateMetadata({
   const url = `https://www.quhealthy.org/${locale}/blog/${post.slug}`;
 
   return {
-    title: `${post.title} | QuHealthy Editorial`,
-    description: post.metaDescription || post.excerpt,
+    title: post.title.slice(0, 50),
+    description: post.metaDescription?.slice(0, 150) || post.excerpt?.slice(0, 150),
     keywords: post.keywords?.join(", "),
     openGraph: {
       title: post.title,
-      description: post.metaDescription,
+      description: post.metaDescription || post.excerpt,
       url: url,
       siteName: "QuHealthy",
       images: [
@@ -88,16 +88,21 @@ export async function generateMetadata({
       ],
       type: "article",
       publishedTime: post.createdAt,
-      authors: ["QuHealthy AI Editorial"],
+      authors: [post.author || "QuHealthy Editorial"],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
-      description: post.metaDescription,
+      description: post.metaDescription || post.excerpt,
       images: [post.imageUrl],
     },
     alternates: {
       canonical: url,
+      languages: {
+        es: `https://www.quhealthy.org/es/blog/${post.slug}`,
+        en: `https://www.quhealthy.org/en/blog/${post.slug}`,
+        "x-default": `https://www.quhealthy.org/es/blog/${post.slug}`,
+      },
     },
   };
 }

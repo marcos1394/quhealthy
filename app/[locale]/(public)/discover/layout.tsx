@@ -3,20 +3,20 @@ import React from "react";
 
 const discoverMeta = {
   es: {
-    title: "Descubre Especialistas | QuHealthy",
+    title: "Directorio Médico y Clínicas",
     description:
-      "Explora profesionales de salud, belleza y bienestar cerca de ti. Compara valoraciones, precios y agenda tu cita de forma rápida y segura en QuHealthy.",
-    ogTitle: "Descubre los Mejores Especialistas de Bienestar | QuHealthy",
+      "Encuentra especialistas de salud certificados, clínicas y servicios médicos cerca de ti. Compara precios, opiniones reales y agenda tu cita online.",
+    ogTitle: "Directorio de Especialistas y Clínicas de Salud | QuHealthy",
     ogDescription:
-      "Encuentra profesionales de salud y bienestar en tu zona con mapa interactivo, filtros avanzados y reservas en un solo lugar.",
+      "Encuentra especialistas de salud certificados, clínicas y servicios médicos con mapa interactivo y agenda online.",
   },
   en: {
-    title: "Discover Specialists | QuHealthy",
+    title: "Find Doctors and Medical Clinics",
     description:
-      "Explore health, beauty, and wellness specialists near you. Compare ratings, prices, and book appointments easily on QuHealthy.",
-    ogTitle: "Discover Top Wellness Specialists | QuHealthy",
+      "Explore certified healthcare specialists and clinics near you. Compare ratings, prices, and book instant medical appointments online.",
+    ogTitle: "Find Certified Doctors and Medical Clinics | QuHealthy",
     ogDescription:
-      "Find health and wellness professionals in your area with an interactive map, smart filters, and instant booking.",
+      "Explore certified healthcare specialists and clinics with smart filters and instant appointment booking.",
   },
 } as const;
 
@@ -28,7 +28,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const isEnglish = locale === "en";
   const content = discoverMeta[isEnglish ? "en" : "es"];
-  const siteUrl = "https://quhealthy.org"; // ← Sin www (recomendado)
+  const siteUrl = "https://www.quhealthy.org";
 
   return {
     metadataBase: new URL(siteUrl),

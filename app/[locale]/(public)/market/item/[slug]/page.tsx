@@ -131,10 +131,11 @@ export async function generateMetadata({
   const imageUrl = item.imageUrl || providerImage;
 
   const url = `https://www.quhealthy.org/${locale}/market/item/${slug}`;
-  const title = `${item.name} | QuHealthy Marketplace`;
+  const providerName = provider?.displayName ? ` - ${provider.displayName}` : '';
+  const title = `${item.name}${providerName}`.slice(0, 50);
   const description =
-    item.description ||
-    `Adquiere ${item.name} en QuHealthy Marketplace con garantía médica certificada.`;
+    item.description?.slice(0, 150) ||
+    `Adquiere ${item.name} en QuHealthy con garantía médica y profesionales certificados.`;
 
   return {
     title,

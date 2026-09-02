@@ -23,7 +23,7 @@ import { PulsoFloatingAssistant } from '@/components/ai/PulsoFloatingAssistant';
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 // ==================== METADATA ====================
-const siteUrl = 'https://quhealthy.org';
+const siteUrl = 'https://www.quhealthy.org';
 
 const metadataContent = {
   es: {
@@ -71,13 +71,20 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     metadataBase: new URL(siteUrl),
     title: {
       default: content.title,
-      template: '%s | QuHealthy',
+      template: '%s · QuHealthy',
     },
     description: content.description,
     keywords: [...content.keywords],
     authors: [{ name: 'QuHealthy' }],
     creator: 'QuHealthy',
-    publisher: 'QuHealthy',
+    alternates: {
+      canonical: `${siteUrl}/${locale}`,
+      languages: {
+        es: `${siteUrl}/es`,
+        en: `${siteUrl}/en`,
+        'x-default': `${siteUrl}/es`,
+      },
+    },
 
     openGraph: {
       title: content.ogTitle,
@@ -144,8 +151,53 @@ export default async function RootLayout({
   const { locale } = await params;
   const messages = await getMessages();
 
+  const jsonLdGlobal = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': 'https://www.quhealthy.org/#organization',
+        name: 'QuHealthy',
+        url: 'https://www.quhealthy.org',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://www.quhealthy.org/og-image.png',
+          caption: 'QuHealthy - Ecosistema de Salud y Bienestar Digital',
+        },
+        sameAs: [
+          'https://www.instagram.com/quhealthy',
+          'https://twitter.com/QuHealthyApp',
+        ],
+        description:
+          locale === 'en'
+            ? 'Intelligent Health and Medical Management Platform'
+            : 'Plataforma Inteligente de Salud, Citas y Gestión Médica',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.quhealthy.org/#website',
+        url: 'https://www.quhealthy.org',
+        name: 'QuHealthy',
+        publisher: {
+          '@id': 'https://www.quhealthy.org/#organization',
+        },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `https://www.quhealthy.org/${locale}/discover?query={search_term_string}`,
+          'query-input': 'required name=search_term_string',
+        },
+      },
+    ],
+  };
+
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGlobal) }}
+        />
+      </head>
       <body
         className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white antialiased flex flex-col min-h-screen transition-colors duration-300`}
       >
@@ -165,8 +217,8 @@ export default async function RootLayout({
             <Analytics />
             <SpeedInsights />
 
-            {/* Chatwoot Live Chat (Iniciado silenciosamente para activarse bajo demanda) */}
-            <Script id="chatwoot-widget" strategy="afterInteractive">
+            {/* Chatwoot Live Chat (Carga diferida para no bloquear LCP) */}
+            <Script id="chatwoot-widget" strategy="lazyOnload">
               {`
                 window.chatwootSettings = {
                   hideMessageBubble: true,
