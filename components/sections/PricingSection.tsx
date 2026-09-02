@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Sparkles, CheckCircle2, CreditCard, Tag } from "lucide-react";
+import { Check, ArrowRight, Sparkles, CheckCircle2, CreditCard, Tag, HeartHandshake, Truck, Building2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "next-intl";
 import { useSessionStore } from "@/stores/SessionStore";
@@ -303,6 +303,116 @@ const PricingSection: React.FC = () => {
 
           </div>
         )}
+
+        {/* ── PLANES A LA MEDIDA: FUNDACIONES Y PROVEEDORES DE INSUMOS ── */}
+        <div className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800">
+          <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+              {t('custom_plans.title', { defaultValue: "Planes Especializados a la Medida" })}
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              {t('custom_plans.subtitle', { defaultValue: "Soluciones institucionales adaptadas para organismos asistenciales y empresas del sector salud." })}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            {/* Tarjeta Fundaciones */}
+            <div className="p-7 sm:p-8 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-rose-500/30 transition-all shadow-xs flex flex-col justify-between space-y-6 group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-2xs">
+                    <HeartHandshake className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40 px-3 py-1 rounded-full">
+                    {t('custom_plans.foundations.badge', { defaultValue: "A la Medida / Subsidiado" })}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t('custom_plans.foundations.title', { defaultValue: "Para Fundaciones, OSCs y Asistencia Social" })}
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {t('custom_plans.foundations.description', { defaultValue: "Padrón de beneficiarios con CURP, jornadas de salud con IA, motor de vouchers sin custodia de fondos y medición de impacto SROI para donantes." })}
+                  </p>
+                </div>
+
+                <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-300">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                    <span>{t('custom_plans.foundations.f1', { defaultValue: "0% Comisión por donativos y recaudación" })}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                    <span>{t('custom_plans.foundations.f2', { defaultValue: "Reportes de transparencia y rendición fiscal SAT" })}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                    <span>{t('custom_plans.foundations.f3', { defaultValue: "Acompañamiento y onboarding institucional dedicado" })}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/foundations"
+                  className="w-full h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <span>{t('custom_plans.foundations.button', { defaultValue: "Conocer Solución para Fundaciones" })}</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Tarjeta Proveedores de Insumos */}
+            <div className="p-7 sm:p-8 rounded-3xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-blue-500/30 transition-all shadow-xs flex flex-col justify-between space-y-6 group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-2xs">
+                    <Truck className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40 px-3 py-1 rounded-full">
+                    {t('custom_plans.suppliers.badge', { defaultValue: "A la Medida por Volumen" })}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t('custom_plans.suppliers.title', { defaultValue: "Para Proveedores, Fabricantes y Farmacias" })}
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {t('custom_plans.suppliers.description', { defaultValue: "Canal B2B para abastecer a clínicas y médicos, catálogo sanitario con control de lotes COFEPRIS, cotizaciones formales y monitoreo de cadena de frío IoT." })}
+                  </p>
+                </div>
+
+                <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-300">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                    <span>{t('custom_plans.suppliers.f1', { defaultValue: "Multi-almacén, kardex y trazabilidad de lotes" })}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                    <span>{t('custom_plans.suppliers.f2', { defaultValue: "Cotizador formal B2B y órdenes de compra con IVA" })}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                    <span>{t('custom_plans.suppliers.f3', { defaultValue: "Integración técnica y asesoría comercial personalizada" })}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/suppliers"
+                  className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <span>{t('custom_plans.suppliers.button', { defaultValue: "Conocer Solución para Proveedores" })}</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Footer de la sección */}
         <div className="text-center mt-12">

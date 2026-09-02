@@ -445,7 +445,93 @@ export default function FoundationsLandingPage() {
         </div>
       </section>
 
-      {/* ❓ 6. FAQ ACCORDION SECTION */}
+      {/* 💎 6. PLANES Y MODELO INSTITUCIONAL (A LA MEDIDA) */}
+      <section className="py-20 lg:py-28 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-xs font-bold border border-rose-200 dark:border-rose-800">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{t("pricing.badge")}</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              {t("pricing.title")}
+            </h2>
+
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+              {t("pricing.subtitle")}
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950 rounded-3xl p-8 sm:p-12 text-white border border-slate-800 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-6">
+                <div className="inline-block px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold uppercase tracking-wider">
+                  {t("pricing.plan_tag")}
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl sm:text-3xl font-extrabold">
+                    {t("pricing.plan_title")}
+                  </h3>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-rose-400">{t("pricing.plan_price")}</span>
+                    <span className="text-xs text-slate-400">{t("pricing.plan_price_period")}</span>
+                  </div>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  {t("pricing.plan_description")}
+                </p>
+
+                <div className="pt-2">
+                  <Link href="/foundation/register">
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-8 py-5 rounded-2xl shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>{t("pricing.cta_button")}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-rose-300">
+                  {t("pricing.included_title")}
+                </h4>
+                <ul className="space-y-3 text-xs sm:text-sm text-slate-200">
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>{t("pricing.f1_title")}:</strong> {t("pricing.f1_desc")}</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>{t("pricing.f2_title")}:</strong> {t("pricing.f2_desc")}</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>{t("pricing.f3_title")}:</strong> {t("pricing.f3_desc")}</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>{t("pricing.f4_title")}:</strong> {t("pricing.f4_desc")}</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span><strong>{t("pricing.f5_title")}:</strong> {t("pricing.f5_desc")}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ❓ 7. FAQ ACCORDION SECTION */}
       <section className="py-20 bg-slate-100/70 dark:bg-slate-900/50 border-t border-slate-200/80 dark:border-slate-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center space-y-3">

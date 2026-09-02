@@ -183,6 +183,28 @@
         "button_text": "Contactar ventas"
       }
     },
+    "custom_plans": {
+      "title": "Planes Especializados a la Medida",
+      "subtitle": "Soluciones institucionales adaptadas para organismos asistenciales y empresas del sector salud.",
+      "foundations": {
+        "badge": "A la Medida / Subsidiado",
+        "title": "Para Fundaciones, OSCs y Asistencia Social",
+        "description": "Padrón de beneficiarios con CURP, jornadas de salud con IA, motor de vouchers sin custodia de fondos y medición de impacto SROI para donantes.",
+        "f1": "0% Comisión por donativos y recaudación",
+        "f2": "Reportes de transparencia y rendición fiscal SAT",
+        "f3": "Acompañamiento y onboarding institucional dedicado",
+        "button": "Conocer Solución para Fundaciones"
+      },
+      "suppliers": {
+        "badge": "A la Medida por Volumen",
+        "title": "Para Proveedores, Fabricantes y Farmacias",
+        "description": "Canal B2B para abastecer a clínicas y médicos, catálogo sanitario con control de lotes COFEPRIS, cotizaciones formales y monitoreo de cadena de frío IoT.",
+        "f1": "Multi-almacén, kardex y trazabilidad de lotes",
+        "f2": "Cotizador formal B2B y órdenes de compra con IVA",
+        "f3": "Integración técnica y asesoría comercial personalizada",
+        "button": "Conocer Solución para Proveedores"
+      }
+    },
     "footer": "Todos los planes incluyen 14 días de prueba gratis • Sin tarjeta requerida • Cancela cuando quieras"
   },
   "Cta": {
@@ -9558,11 +9580,21 @@
     "title_start": "Todo lo que necesitas para tu ",
     "title_highlight_provider": "práctica médica",
     "title_highlight_patient": "salud y bienestar",
+    "title_highlight_foundation": "organizaciones y fundaciones",
+    "title_highlight_supplier": "proveedores y farmacias",
     "description_provider": "Desde la agendación de la primera cita hasta la facturación. Una suite completa de módulos diseñados específicamente para hacer crecer tu consultorio.",
     "description_patient": "Encuentra especialistas, gestiona tus expedientes, compra productos y mejora tu bienestar desde una única plataforma inteligente.",
+    "description_foundation": "Infraestructura tecnológica para programas asistenciales, padrón de beneficiarios y rendición de cuentas con total transparencia.",
+    "description_supplier": "Canal de distribución B2B y B2C con gestión multi-almacén, cadena de frío IoT y cotizaciones formales para el sector salud.",
     "switch_provider": "Soy Médico",
     "switch_patient": "Soy Paciente",
+    "switch_foundation": "Fundaciones",
+    "switch_supplier": "Proveedores",
     "explore_all": "Explora todas las herramientas incluidas en nuestros planes.",
+    "cta_provider": "Conoce la solución para Médicos y Clínicas",
+    "cta_patient": "Explorar Directorio de Pacientes",
+    "cta_foundation": "Ver todas las funciones para Fundaciones",
+    "cta_supplier": "Ver todas las funciones para Proveedores",
     "view_plans": "Ver Planes y Precios",
     "categories": {
       "provider_clinic": {
@@ -9752,6 +9784,86 @@
           "courses": {
             "title": "Cursos de Bienestar",
             "description": "Accede a contenido exclusivo y Masterclasses sobre nutrición, fitness mental y cuidado personal impartidos por expertos."
+          }
+        }
+      },
+      "foundation_programs": {
+        "title": "Programas & Beneficiarios",
+        "description": "Gestión comunitaria de asistencia social, tamizajes masivos y subsidios.",
+        "modules": {
+          "roster": {
+            "title": "Padrón de Beneficiarios",
+            "description": "Validación de CURP a 18 dígitos, NSE y dictamen digital de Trabajo Social."
+          },
+          "vouchers": {
+            "title": "Motor de Subsidios (Vouchers)",
+            "description": "Emisión de FoundationVouchers sin custodia de fondos de terceros."
+          },
+          "screenings": {
+            "title": "Jornadas de Salud con IA",
+            "description": "Campañas comunitarias en campo con triaje asistido por IA."
+          },
+          "sharing": {
+            "title": "Health Data Sharing",
+            "description": "Acceso granular temporal al expediente médico conforme a NOM-004."
+          }
+        }
+      },
+      "foundation_impact": {
+        "title": "Impacto Social & Transparencia",
+        "description": "Medición de retorno social SROI y rendición de cuentas fiscal.",
+        "modules": {
+          "sroi": {
+            "title": "Social BI & Medición SROI",
+            "description": "Tableros de impacto y retorno social sobre la inversión de donantes."
+          },
+          "tax_reports": {
+            "title": "Reportes Fiscales SAT",
+            "description": "Evidencia documental para donatarias autorizadas y CLUNI."
+          },
+          "storefront": {
+            "title": "Tienda Institucional Pública",
+            "description": "Presencia en el marketplace para captación de beneficiarios."
+          }
+        }
+      },
+      "supplier_catalog": {
+        "title": "Catálogo B2B & Cotizaciones",
+        "description": "Venta mayorista a clínicas, hospitales y profesionales de la salud.",
+        "modules": {
+          "catalog": {
+            "title": "Catálogo Sanitario & Lotes",
+            "description": "Control por número de lote, semáforo de caducidad y registro COFEPRIS."
+          },
+          "b2b_pricing": {
+            "title": "Precios de Mayoreo Escalonados",
+            "description": "Tarifas diferenciadas por volumen de compra para clínicas y médicos."
+          },
+          "quotes": {
+            "title": "Cotizaciones Formales & PO",
+            "description": "Generación de cotizaciones membretadas con IVA y crédito comercial."
+          },
+          "rentals": {
+            "title": "Renta de Equipo Biomédico",
+            "description": "Arrendamiento por número de serie y gestión de depósito en garantía."
+          }
+        }
+      },
+      "supplier_logistics": {
+        "title": "Logística & Cadena de Frío",
+        "description": "Operación multi-almacén y trazabilidad técnica en ruta.",
+        "modules": {
+          "cold_chain": {
+            "title": "Cadena de Frío IoT (2°C - 8°C)",
+            "description": "Supervisión térmica en tiempo real para biológicos y fármacos."
+          },
+          "warehouses": {
+            "title": "Multi-Almacén & Kardex",
+            "description": "Gestión de inventario en múltiples bodegas con auditoría inmutable."
+          },
+          "compliance": {
+            "title": "Cumplimiento NOM-072 / COFEPRIS",
+            "description": "Diferenciación de insumos con registro y libre venta."
           }
         }
       }
@@ -10474,6 +10586,28 @@
       "q5": "¿Qué reportes genera el módulo de Social BI?",
       "a5": "Genera reportes de impacto social con índice SROI (Retorno Social de Inversión), desglose de vidas impactadas, distribución por vulnerabilidad socioeconómica y conciliación de apoyos canalizados con deslinde fiscal SAT."
     },
+    "pricing": {
+      "badge": "Planes Institucionales",
+      "title": "Planes y Acompañamiento a la Medida",
+      "subtitle": "En QuHealthy creemos en democratizar el acceso a la salud. Ofrecemos infraestructura tecnológica con esquemas flexibles y subsidiados para el tercer sector.",
+      "plan_tag": "Modelo para IAPs, A.C.s y ONGs",
+      "plan_title": "Plan Institucional Social",
+      "plan_price": "A la Medida",
+      "plan_price_period": "/ con subsidio tecnológico",
+      "plan_description": "Evaluamos la escala de tus programas y el número de beneficiarios para estructurar un plan personalizado con acompañamiento técnico integral.",
+      "cta_button": "Solicitar Plan Institucional",
+      "included_title": "Todo lo que incluye tu propuesta:",
+      "f1_title": "0% Comisión",
+      "f1_desc": "Sin retención de fondos ni comisiones sobre donativos.",
+      "f2_title": "Padrón Ilimitado",
+      "f2_desc": "Registro seguro con CURP y dictamen social.",
+      "f3_title": "Jornadas & Tamizajes",
+      "f3_desc": "Conexión con IA para detección en campo.",
+      "f4_title": "Social BI & SROI",
+      "f4_desc": "Métricas de impacto listas para donantes y SAT.",
+      "f5_title": "Onboarding Especializado",
+      "f5_desc": "Capacitación para trabajadores sociales."
+    },
     "cta": {
       "title": "¿Listo para llevar el impacto de tu fundación al siguiente nivel?",
       "subtitle": "Únete a la red institucional de QuHealthy y digitaliza tus programas asistenciales con total transparencia.",
@@ -10555,6 +10689,28 @@
       "a4": "Registras cada equipo por su número de serie físico, emites el contrato de arrendamiento con la tarifa mensual y el depósito en garantía. Al concluir la renta, puedes registrar deducciones por desgaste o devolver la garantía íntegra.",
       "q5": "¿Qué necesito para monitorear envíos refrigerados en cadena de frío?",
       "a5": "Puedes asignar un sensor o data logger IoT al despacho. El sistema registra las lecturas de temperatura en vivo, muestra la curva térmica y genera alertas preventivas si la temperatura sale del rango permitido."
+    },
+    "pricing": {
+      "badge": "Planes Comerciales B2B",
+      "title": "Planes Comerciales a la Medida",
+      "subtitle": "Esquemas flexibles estructurados según tu volumen de catálogo, número de almacenes y transacciones B2B con clínicas y hospitales.",
+      "plan_tag": "Distribuidores, Droguerías & Fabricantes",
+      "plan_title": "Plan Mayorista & Distribución",
+      "plan_price": "A la Medida",
+      "plan_price_period": "/ por volumen de operación",
+      "plan_description": "Ofrecemos integración personalizada con tus sistemas de facturación, almacenes y catálogo para maximizar tus ventas institucionales en la red médica.",
+      "cta_button": "Solicitar Propuesta B2B",
+      "included_title": "Ventajas del esquema a la medida:",
+      "f1_title": "Multi-Almacén",
+      "f1_desc": "Control de inventario en sucursales ilimitadas.",
+      "f2_title": "Cotizador B2B",
+      "f2_desc": "Órdenes de compra, fletes y crédito comercial.",
+      "f3_title": "Cadena de Frío IoT",
+      "f3_desc": "Monitoreo de temperatura 2°C - 8°C.",
+      "f4_title": "COFEPRIS",
+      "f4_desc": "Validación sanitaria y lotes con semáforo preventivo.",
+      "f5_title": "Ejecutivo de Cuenta",
+      "f5_desc": "Soporte preferencial y onboarding."
     },
     "cta": {
       "title": "¿Listo para expandir tu red de distribución médica?",

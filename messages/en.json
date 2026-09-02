@@ -188,6 +188,28 @@
         "button_text": "Contact sales"
       }
     },
+    "custom_plans": {
+      "title": "Tailor-Made Specialized Plans",
+      "subtitle": "Institutional solutions designed for social health organizations and medical enterprises.",
+      "foundations": {
+        "badge": "Custom / Subsidized",
+        "title": "For Foundations, NGOs & Non-Profits",
+        "description": "CURP beneficiary roster, AI-assisted health screening campaigns, non-custodial voucher engine, and SROI donor impact analytics.",
+        "f1": "0% Commission on donations and fundraising",
+        "f2": "Transparency and tax authority compliance reports",
+        "f3": "Dedicated institutional onboarding and technical support",
+        "button": "Explore Foundation Solutions"
+      },
+      "suppliers": {
+        "badge": "Volume-Based Custom",
+        "title": "For Medical Suppliers, Manufacturers & Pharmacies",
+        "description": "B2B channel supplying clinics and doctors, regulatory sanitary catalog, formal quotes with VAT, and IoT cold chain tracking.",
+        "f1": "Multi-warehouse, kardex and lot traceability",
+        "f2": "Formal B2B quotation generator with tax & credit terms",
+        "f3": "API integration and personalized commercial account manager",
+        "button": "Explore Supplier Solutions"
+      }
+    },
     "footer": "All plans include a 14-day free trial • No credit card required • Cancel anytime"
   },
   "Cta": {
@@ -9518,11 +9540,21 @@
     "title_start": "Everything you need for your ",
     "title_highlight_provider": "medical practice",
     "title_highlight_patient": "health & wellness",
+    "title_highlight_foundation": "organizations & foundations",
+    "title_highlight_supplier": "suppliers & pharmacies",
     "description_provider": "From scheduling the first appointment to billing. A complete suite of modules designed specifically to grow your clinic.",
     "description_patient": "Find specialists, manage your health records, buy products, and improve your wellness from a single smart platform.",
+    "description_foundation": "Technological infrastructure for assistance programs, beneficiary rosters, and transparent social impact accountability.",
+    "description_supplier": "B2B and B2C distribution channel with multi-warehouse management, IoT cold chain tracking, and formal healthcare quotations.",
     "switch_provider": "I'm a Provider",
     "switch_patient": "I'm a Patient",
+    "switch_foundation": "Foundations",
+    "switch_supplier": "Suppliers",
     "explore_all": "Explore all tools included in our plans.",
+    "cta_provider": "Explore the Doctor & Clinic solution",
+    "cta_patient": "Explore Medical Directory",
+    "cta_foundation": "Explore all Foundation features",
+    "cta_supplier": "Explore all Supplier features",
     "view_plans": "View Plans and Pricing",
     "categories": {
       "provider_clinic": {
@@ -9601,11 +9633,11 @@
       },
       "provider_growth": {
         "title": "Growth & Marketing",
-        "description": "Reach more patients, position your personal brand as a health expert, and grow your clinic exponentially.",
+        "description": "Reach more patients, position your brand as a health expert, and grow your clinic exponentially.",
         "modules": {
           "profile": {
             "title": "Premium Public Profile",
-            "description": "Stand out in our medical directory with an optimized professional profile to attract new patients."
+            "description": "Stand out in our medical directory with a professional profile optimized to attract new patients."
           },
           "marketing": {
             "title": "Marketing Campaigns",
@@ -9613,87 +9645,87 @@
           },
           "referrals": {
             "title": "Referral Network",
-            "description": "Collaborate closely with other QuHealthy network specialists and manage transparent referrals."
+            "description": "Collaborate with other network specialists and manage cross-referrals transparently."
           }
         }
       },
       "patient_health": {
-        "title": "Healthcare",
-        "description": "Find the ideal specialist, book instantly, and manage your health history from a unified ecosystem.",
+        "title": "Medical Care",
+        "description": "Find the ideal specialist, book instantly, and manage your health records in a unified ecosystem.",
         "modules": {
           "discover": {
             "title": "Smart Directory",
-            "description": "Filter by specialty, price, distance, and verified reviews to find the best doctor for you."
+            "description": "Filter by specialty, price, distance, and verified patient reviews."
           },
           "appointments": {
             "title": "Appointment Management",
-            "description": "Book, reschedule, or cancel your appointments 24/7 without phone calls or waiting times."
+            "description": "Book, reschedule, or cancel appointments 24/7 without phone calls or wait times."
           },
           "telemedicine": {
             "title": "HD Telemedicine",
-            "description": "Virtual consultations from home with certified healthcare specialists."
+            "description": "Virtual consultations from the comfort of home with certified doctors."
           },
           "reviews": {
             "title": "Verified Reviews",
-            "description": "Read experiences from other real patients before making decisions about your health."
+            "description": "Read genuine feedback from verified patients before making decisions."
           }
         }
       },
       "patient_records": {
-        "title": "Records & Family",
-        "description": "All your history, lab results, and your loved ones' health centralized and encrypted in one place.",
+        "title": "Health Records & Family",
+        "description": "All your health data, clinical tests, and family care encrypted in one vault.",
         "modules": {
           "vault": {
             "title": "Medical Vault",
-            "description": "Securely store lab results, medical prescriptions, and clinical studies for a lifetime."
+            "description": "Securely store lab results, digital prescriptions, and clinical tests for life."
           },
           "dependents": {
             "title": "Family Management",
-            "description": "Manage appointments, histories, and purchases for your children or parents from your same account."
+            "description": "Manage appointments, records, and prescriptions for your children or parents."
           },
           "messages": {
             "title": "Direct Contact",
-            "description": "Communicate with your specialists to follow up on your treatments quickly and safely."
+            "description": "Stay in touch with your specialists for agile and secure treatment follow-ups."
           },
           "treatments": {
-            "title": "Smart Pillbox & Treatments",
-            "description": "Reminders for dosage, schedules, and adherence to your doctor's prescriptions."
+            "title": "Smart Pillbox",
+            "description": "Dosage, schedule, and treatment adherence reminders for your prescriptions."
           }
         }
       },
       "patient_specialized": {
         "title": "Specialized Care",
-        "description": "Continuous monitoring for every stage and condition of your life.",
+        "description": "Continuous monitoring for every stage and condition in life.",
         "modules": {
           "womens": {
             "title": "Women's Health & Pregnancy",
-            "description": "Menstrual cycle, AI ovulation predictions, pregnancy tracking, and postpartum care."
+            "description": "Menstrual cycle, AI ovulation tracking, pregnancy and postpartum support."
           },
           "diabetes": {
             "title": "Diabetes & Metabolism",
-            "description": "Blood glucose tracking, HbA1c curves, and nutritional traffic light."
+            "description": "Blood glucose tracking, HbA1c log, and personalized nutritional guidance."
           },
           "oncology": {
             "title": "Oncology & Chronic Care",
-            "description": "TNM staging, cycle tracking, and comprehensive care companion."
+            "description": "TNM staging, cycle monitoring, and comprehensive compassionate support."
           },
           "nutrition": {
             "title": "AI Nutrition",
-            "description": "Instant food analysis via photo and macronutrient tracking."
+            "description": "Instant food analysis via photo and automatic macro counting."
           }
         }
       },
       "patient_commerce": {
         "title": "E-commerce & Wallet",
-        "description": "A simplified shopping experience for your wellness needs, with flexible payment options.",
+        "description": "Streamlined shopping experience for all your healthcare and wellness needs.",
         "modules": {
           "store": {
             "title": "QuMarket",
-            "description": "Buy products, vitamins, and dermocosmetics directly recommended by your trusted doctors."
+            "description": "Purchase vitamins, supplements, and skincare recommended by your doctors."
           },
           "wallet": {
             "title": "Digital Wallet",
-            "description": "Pay for your consultations and products quickly and safely, using cards, cash, or accumulated balance."
+            "description": "Pay for appointments and products quickly and securely using cards or balance."
           },
           "packages": {
             "title": "Plans & Subscriptions",
@@ -9714,11 +9746,90 @@
             "description": "Access exclusive content and Masterclasses on nutrition, mental fitness, and personal care taught by experts."
           }
         }
+      },
+      "foundation_programs": {
+        "title": "Programs & Beneficiaries",
+        "description": "Community social assistance management, mass screenings, and non-custodial subsidies.",
+        "modules": {
+          "roster": {
+            "title": "Beneficiary Roster",
+            "description": "CURP validation, socioeconomic profiling (NSE), and digital social work reviews."
+          },
+          "vouchers": {
+            "title": "Subsidy Engine (Vouchers)",
+            "description": "Issue FoundationVouchers without third-party fund custody."
+          },
+          "screenings": {
+            "title": "AI Health Screening Days",
+            "description": "Community field campaigns with AI-assisted clinical triage."
+          },
+          "sharing": {
+            "title": "Health Data Sharing",
+            "description": "Time-limited, granular access to patient medical records under strict privacy."
+          }
+        }
+      },
+      "foundation_impact": {
+        "title": "Social Impact & Transparency",
+        "description": "SROI social return measurement and audit-ready fiscal accountability.",
+        "modules": {
+          "sroi": {
+            "title": "Social BI & SROI Analytics",
+            "description": "Impact dashboards and social return on investment calculations for donors."
+          },
+          "tax_reports": {
+            "title": "Fiscal Transparency Reports",
+            "description": "Documentary evidence for tax-exempt non-profits and regulatory audits."
+          },
+          "storefront": {
+            "title": "Public Storefront",
+            "description": "Marketplace presence for program visibility and beneficiary intake."
+          }
+        }
+      },
+      "supplier_catalog": {
+        "title": "B2B Catalog & Quotations",
+        "description": "Wholesale distribution for clinics, hospitals, and healthcare professionals.",
+        "modules": {
+          "catalog": {
+            "title": "Sanitary Catalog & Lots",
+            "description": "Lot tracking, expiration date warnings, and sanitary regulatory verification."
+          },
+          "b2b_pricing": {
+            "title": "Tiered Wholesale Pricing",
+            "description": "Volume-based automatic discounts for clinical and institutional buyers."
+          },
+          "quotes": {
+            "title": "Formal Quotes & Purchase Orders",
+            "description": "Issue quotes with VAT breakdown, freight costs, and commercial credit terms."
+          },
+          "rentals": {
+            "title": "Biomedical Equipment Leasing",
+            "description": "Manage serial-number rentals, maintenance logs, and security deposit returns."
+          }
+        }
+      },
+      "supplier_logistics": {
+        "title": "Logistics & Cold Chain",
+        "description": "Multi-warehouse operations and certified pharmaceutical tracking.",
+        "modules": {
+          "cold_chain": {
+            "title": "IoT Cold Chain (2°C - 8°C)",
+            "description": "Real-time thermal monitoring and quality alerts for temperature-sensitive drugs."
+          },
+          "warehouses": {
+            "title": "Multi-Warehouse & Kardex",
+            "description": "Stock management across multiple branches with immutable audit logs."
+          },
+          "compliance": {
+            "title": "Regulatory Compliance",
+            "description": "Clear distinction between prescription-only and OTC medical supplies."
+          }
+        }
       }
     }
   },
   "LocationPrompt": {
-    "title": "Improve your experience",
     "description": "Allow access to your location so we can show you the best specialists and services near you.",
     "activate_btn": "Enable Location",
     "dismiss_btn": "Not now",
@@ -10435,6 +10546,28 @@
       "q5": "What reports are generated by the Social BI module?",
       "a5": "Social Return on Investment (SROI) metrics, total lives impacted, socioeconomic distribution, and audit-ready fiscal reconciliation reports."
     },
+    "pricing": {
+      "badge": "Institutional Plans",
+      "title": "Tailor-Made Institutional Plans",
+      "subtitle": "At QuHealthy, we believe in democratizing healthcare access. We provide technological infrastructure with flexible and subsidized schemes for the non-profit sector.",
+      "plan_tag": "Model for Non-profits, NGOs & Foundations",
+      "plan_title": "Social Institutional Plan",
+      "plan_price": "Custom Quote",
+      "plan_price_period": "/ with technology subsidy",
+      "plan_description": "We assess your program scale and beneficiary volume to structure a tailored plan with dedicated technical onboarding.",
+      "cta_button": "Request Institutional Plan",
+      "included_title": "Everything included in your proposal:",
+      "f1_title": "0% Commission",
+      "f1_desc": "No fund retention or fees on donations and subsidies.",
+      "f2_title": "Unlimited Roster",
+      "f2_desc": "Secure CURP validation and social work assessments.",
+      "f3_title": "Campaigns & AI Screenings",
+      "f3_desc": "AI triage workflows for community field operations.",
+      "f4_title": "Social BI & SROI",
+      "f4_desc": "Impact and social return metrics ready for donors and audits.",
+      "f5_title": "Dedicated Onboarding",
+      "f5_desc": "Specialized training for social workers and program managers."
+    },
     "cta": {
       "title": "Ready to scale your foundation's healthcare impact?",
       "subtitle": "Join the QuHealthy institutional network and digitize your assistance programs with complete transparency.",
@@ -10516,6 +10649,28 @@
       "a4": "You track each physical unit by serial number, issue rental contracts with monthly rates and deposit amounts, and process deductions or full returns upon machine return.",
       "q5": "What is required to monitor refrigerated cold chain shipments?",
       "a5": "You assign an IoT data logger ID to the shipment. The platform receives live temperature pings, plots thermal curves, and alerts QA teams if excursions occur."
+    },
+    "pricing": {
+      "badge": "B2B Commercial Plans",
+      "title": "Tailored Commercial Plans",
+      "subtitle": "Flexible plans structured according to your catalog size, number of distribution hubs, and B2B volume with clinics and hospitals.",
+      "plan_tag": "Wholesalers, Distributors & Manufacturers",
+      "plan_title": "Wholesale & Distribution Plan",
+      "plan_price": "Custom Quote",
+      "plan_price_period": "/ based on operational volume",
+      "plan_description": "We offer custom integration with your ERP, warehouse management, and catalog to maximize your institutional sales across the medical network.",
+      "cta_button": "Request B2B Proposal",
+      "included_title": "Key advantages of custom plans:",
+      "f1_title": "Multi-Warehouse",
+      "f1_desc": "Inventory management across unlimited branches.",
+      "f2_title": "B2B Quotations",
+      "f2_desc": "Purchase orders, freight calculations, and credit terms.",
+      "f3_title": "IoT Cold Chain",
+      "f3_desc": "Real-time 2°C - 8°C temperature telemetry.",
+      "f4_title": "COFEPRIS Compliance",
+      "f4_desc": "Sanitary validations and batch expiration alerts.",
+      "f5_title": "Account Executive",
+      "f5_desc": "Dedicated support and assisted onboarding."
     },
     "cta": {
       "title": "Ready to scale your medical distribution network?",
