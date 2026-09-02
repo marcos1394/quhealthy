@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       ? "Sign in, create an account or recover your password on QuHealthy." 
       : "Inicia sesión, regístrate o recupera tu cuenta en QuHealthy.",
     robots: {
-      index: false, // No indexar páginas de autenticación/registro
-      follow: true,
+      index: false,
+      follow: false,
     },
   };
 }
