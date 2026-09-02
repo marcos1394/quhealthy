@@ -155,7 +155,7 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
 
             <span className="text-gray-300 dark:text-gray-700">•</span>
 
-            {/* Insegnea QuScore */}
+            {/* Insignia QuScore */}
             {scoreData && (
               <>
                 <button
@@ -169,6 +169,27 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
                   />
                   <span>QuScore: {scoreData.score}</span>
                 </button>
+
+                <span className="text-gray-300 dark:text-gray-700">•</span>
+              </>
+            )}
+
+            {/* Cédula Profesional Verificada */}
+            {store.doctorLicense && (
+              <>
+                <a
+                  href={`https://cedulaprofesional.sep.gob.mx/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50 px-3 py-1 rounded-full hover:bg-blue-100 transition-all cursor-pointer shadow-2xs"
+                  title="Verificar cédula en el Registro Nacional de Profesionistas"
+                >
+                  <ShieldCheck
+                    className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0"
+                    strokeWidth={2}
+                  />
+                  <span>{t("license_verified")}: {store.doctorLicense}</span>
+                </a>
 
                 <span className="text-gray-300 dark:text-gray-700">•</span>
               </>

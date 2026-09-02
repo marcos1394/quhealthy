@@ -35,6 +35,7 @@ import { LocationSelector } from "@/components/booking/LocationSelector";
 import { ServiceCheckoutModal } from "@/components/booking/ServiceCheckoutModal";
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
 import { PackageMultiScheduler } from "@/components/booking/PackageMultiScheduler";
+import { BookingProgressBar } from "@/components/booking/BookingProgressBar";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
 
@@ -83,6 +84,7 @@ export default function BookingPage({
 
   const searchParams = useSearchParams();
   const serviceIdParam = searchParams?.get("serviceId");
+  const locationIdParam = searchParams?.get("locationId");
 
   // Storefront para obtener información del servicio si es necesario
   const { store, isLoading: isStoreLoading } = useStorefront(slug);
@@ -97,7 +99,15 @@ export default function BookingPage({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
+    locationIdParam ? Number(locationIdParam) : null
+  );
+
+  useEffect(() => {
+    if (locationIdParam) {
+      setSelectedLocationId(Number(locationIdParam));
+    }
+  }, [locationIdParam]);
 
   // --- ESTADOS DE E-COMMERCE ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -330,6 +340,20 @@ export default function BookingPage({
   const weekdaysList: string[] = t.raw("weekdays");
   let stepCounter = 1;
 
+  const hasLocationOrStaff = Boolean(
+    (store?.locations && store.locations.length > 0) || (relevantStaff && relevantStaff.length > 0)
+  );
+
+  const currentStep = useMemo(() => {
+    if (hasLocationOrStaff && !selectedLocationId && store?.locations && store.locations.length > 0) {
+      return 1;
+    }
+    if (requiresScheduling && scheduleNow && (!selectedDate || !selectedTime)) {
+      return hasLocationOrStaff ? 2 : 1;
+    }
+    return hasLocationOrStaff ? 3 : 2;
+  }, [hasLocationOrStaff, selectedLocationId, store?.locations, requiresScheduling, scheduleNow, selectedDate, selectedTime]);
+
   return (
     <div 
       className="min-h-screen bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white pb-32 font-sans selection:bg-store-100 dark:selection:bg-store-950/30 transition-colors duration-500"
@@ -341,7 +365,7 @@ export default function BookingPage({
       
       {/* ── HEADER ARQUITECTÓNICO HOMOLOGADO ───────────────────────────── */}
       <div className="sticky top-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 transition-colors">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 sm:h-20 flex items-center justify-between">
           <button
             onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
@@ -362,6 +386,20 @@ export default function BookingPage({
             </p>
           </div>
         </div>
+
+        {/* ── BARRA DE PROGRESO DE PASOS ── */}
+        <BookingProgressBar
+          currentStep={currentStep}
+          hasLocationOrStaff={hasLocationOrStaff}
+          requiresScheduling={requiresScheduling}
+          safeColor={safeColor}
+          labels={{
+            locationStaff: t("step_progress_location_staff"),
+            dateTime: t("step_progress_datetime"),
+            patient: t("step_progress_patient"),
+            payment: t("step_progress_payment"),
+          }}
+        />
       </div>
 
       <ActiveCreditsBanner

@@ -3385,7 +3385,9 @@
       "city_search_soon": "City search — coming soon"
     },
     "MarketplaceHeader": {
-      "search_placeholder": "Search specialists, clinics, or services...",
+      "search_placeholder": "Search by symptom (e.g. headache, gastritis) or specialist...",
+      "symptom_suggestion_title": "Suggested medical specialties:",
+      "quick_specialties_title": "Frequent specialties:",
       "type_store": "Clinics & Specialists",
       "type_service": "Consultations & Procedures",
       "type_package": "Health Packages",
@@ -3406,17 +3408,27 @@
       "btn_not_now": "Not now"
     },
     "MarketplaceList": {
-      "no_results_title": "No matches found",
-      "no_results_desc": "Try broadening your search parameters or removing some filters.",
-      "loading": "Loading...",
+      "no_results_title": "No nearby matches found",
+      "no_results_desc": "No specialists found with these exact filters in your area.",
+      "no_results_radius_btn": "Expand search radius to 50 km",
+      "no_results_clear_btn": "Reset filters",
+      "telemedicine_banner_title": "Need medical care today?",
+      "telemedicine_banner_desc": "Consult with board-certified physicians via video consultation from anywhere.",
+      "btn_explore_telemedicine": "Explore Online Video Visits",
+      "loading": "Loading healthcare options...",
       "load_more": "Load more options"
     },
     "MarketplaceMap": {
       "sponsored": "Sponsored",
+      "recommended": "Recommended",
       "clinic_default": "Clinic / Specialty",
       "new_badge": "New",
+      "telemedicine_badge": "Video visits online",
+      "available_today_badge": "Appointments available today",
+      "map_unavailable_title": "Map currently unavailable",
+      "map_unavailable_desc": "Browsing healthcare providers in list view.",
       "from": "From",
-      "view_store": "View Store",
+      "view_store": "View Profile & Slots",
       "view_details": "View Details",
       "show_ui": "Show Interface"
     },
@@ -5082,14 +5094,25 @@
     "add_to_cart": "Book Appointment",
     "filter_search_placeholder": "Search service or treatment...",
     "locations_title": "Our Locations",
-    "main_location": "Main Location",
-    "copied_toast": "Link copied to clipboard.",
+    "license_verified": "Verified Medical License",
+    "category_consultations": "Medical Consultations",
+    "category_procedures": "Clinical Procedures",
+    "category_studies": "Diagnostics & Lab Tests",
+    "category_all": "All Services",
+    "search_services_placeholder": "Search consultation, test or procedure...",
+    "Locations": {
+      "title": "Practice Locations & Clinics",
+      "subtitle": "{count, plural, =1 {1 location available} other {{count} locations available}}",
+      "main_badge": "Main Clinic",
+      "address_not_specified": "Address available upon booking confirmation",
+      "get_directions": "Get Directions"
+    },
     "GlobalCartBar": {
-      "cart_summary": "Resumen del Pedido",
-      "items_count": "{count, plural, =1 {1 Ítem} other {{count} Ítems}}",
-      "clear_cart": "Vaciar",
-      "btn_continue": "Continuar con la Compra",
-      "verifying": "Verificando..."
+      "cart_summary": "Order Summary",
+      "items_count": "{count, plural, =1 {1 Item} other {{count} Items}}",
+      "clear_cart": "Clear",
+      "btn_continue": "Proceed to Checkout",
+      "verifying": "Verifying..."
     }
   },
 
@@ -6116,11 +6139,18 @@
     "wallet_balance": "Available balance: {amount} MXN",
     "insufficient_balance": "Insufficient balance",
     "empty_directory_btn": "Empty Directory",
-    "select_time_btn": "Select date & time to continue",
     "confirm_package_btn": "Confirm Appointment (Credit Applied)",
     "checkout_btn": "Proceed to Secure Payment",
+    "accept_telemedicine_btn": "Please accept the telemedicine consent to proceed",
     "processing_transaction": "Processing transaction...",
-    "encrypted_protocol": "Encrypted payment protocol with medical-grade security"
+    "encrypted_protocol": "Encrypted payment protocol with medical-grade security",
+    "telemedicine_consent_title": "Telemedicine Consultation Consent",
+    "telemedicine_consent_desc": "I agree to receive digital medical care under NOM-004-SSA3-2012 and NOM-024 standards, and authorize the secure use of the platform.",
+    "cancellation_policy_notice": "Flexible cancellation or rescheduling up to 24 hours prior to appointment.",
+    "step_progress_location_staff": "Location & Staff",
+    "step_progress_datetime": "Date & Time",
+    "step_progress_patient": "Patient",
+    "step_progress_payment": "Payment & Confirmation"
   },
 
   "BookingTimeStep": {

@@ -2916,7 +2916,9 @@
       "city_search_soon": "Búsqueda por ciudad — próximamente"
     },
     "MarketplaceHeader": {
-      "search_placeholder": "Busca especialistas, clínicas o servicios...",
+      "search_placeholder": "Busca por síntoma (ej. dolor de cabeza, gastritis) o especialista...",
+      "symptom_suggestion_title": "Especialidades sugeridas para tus síntomas:",
+      "quick_specialties_title": "Especialidades frecuentes:",
       "type_store": "Clínicas y Especialistas",
       "type_service": "Consultas y Procedimientos",
       "type_package": "Paquetes de Salud",
@@ -2937,17 +2939,27 @@
       "btn_not_now": "Ahora no"
     },
     "MarketplaceList": {
-      "no_results_title": "No encontramos coincidencias",
-      "no_results_desc": "Intenta ampliando los parámetros de tu búsqueda o eliminando algunos filtros.",
-      "loading": "Cargando...",
+      "no_results_title": "No encontramos coincidencias cercanas",
+      "no_results_desc": "No hay especialistas con estos filtros exactos en tu zona.",
+      "no_results_radius_btn": "Ampliar radio de búsqueda a 50 km",
+      "no_results_clear_btn": "Restablecer filtros",
+      "telemedicine_banner_title": "¿Necesitas atención médica hoy?",
+      "telemedicine_banner_desc": "Consulta con médicos certificados por videoconsulta desde cualquier lugar sin traslados.",
+      "btn_explore_telemedicine": "Explorar Videoconsultas Online",
+      "loading": "Cargando opciones de salud...",
       "load_more": "Cargar más opciones"
     },
     "MarketplaceMap": {
       "sponsored": "Patrocinado",
+      "recommended": "Recomendado",
       "clinic_default": "Clínica / Especialidad",
       "new_badge": "Nuevo",
+      "telemedicine_badge": "Videoconsulta online",
+      "available_today_badge": "Citas disponibles hoy",
+      "map_unavailable_title": "Mapa no disponible",
+      "map_unavailable_desc": "Explora el directorio en vista de lista.",
       "from": "Desde",
-      "view_store": "Ver Tienda",
+      "view_store": "Ver Perfil y Horarios",
       "view_details": "Ver Detalles",
       "show_ui": "Mostrar Interfaz"
     },
@@ -4813,8 +4825,19 @@
     "add_to_cart": "Agendar Cita",
     "filter_search_placeholder": "Buscar servicio o tratamiento...",
     "locations_title": "Nuestras Ubicaciones",
-    "main_location": "Sede Principal",
-    "copied_toast": "Enlace copiado al portapapeles.",
+    "license_verified": "Cédula Profesional Verificada",
+    "category_consultations": "Consultas Médicas",
+    "category_procedures": "Procedimientos Clínicos",
+    "category_studies": "Estudios y Diagnóstico",
+    "category_all": "Todos los Servicios",
+    "search_services_placeholder": "Buscar consulta, estudio o procedimiento...",
+    "Locations": {
+      "title": "Sedes y Consultorios de Atención",
+      "subtitle": "{count, plural, =1 {1 ubicación disponible} other {{count} ubicaciones disponibles}}",
+      "main_badge": "Principal",
+      "address_not_specified": "Dirección disponible al confirmar cita",
+      "get_directions": "Cómo llegar"
+    },
     "GlobalCartBar": {
       "cart_summary": "Resumen del Pedido",
       "items_count": "{count, plural, =1 {1 Ítem} other {{count} Ítems}}",
@@ -5793,11 +5816,18 @@
     "wallet_balance": "Saldo disponible: {amount} MXN",
     "insufficient_balance": "Saldo insuficiente",
     "empty_directory_btn": "Directorio Vacío",
-    "select_time_btn": "Selecciona fecha y hora para continuar",
     "confirm_package_btn": "Confirmar Cita (Crédito Aplicado)",
     "checkout_btn": "Proceder al Pago Seguro",
+    "accept_telemedicine_btn": "Acepta el consentimiento de videoconsulta",
     "processing_transaction": "Procesando transacción...",
-    "encrypted_protocol": "Protocolo de pago cifrado con seguridad de grado médico"
+    "encrypted_protocol": "Protocolo de pago cifrado con seguridad de grado médico",
+    "telemedicine_consent_title": "Consentimiento de Videoconsulta Médica",
+    "telemedicine_consent_desc": "Acepto recibir atención médica por medios digitales conforme a las normas NOM-004-SSA3-2012 y NOM-024, y autorizo el uso seguro de la plataforma.",
+    "cancellation_policy_notice": "Cancelación o reprogramación flexible hasta 24 hrs antes de tu cita.",
+    "step_progress_location_staff": "Sede y Staff",
+    "step_progress_datetime": "Fecha y Hora",
+    "step_progress_patient": "Paciente",
+    "step_progress_payment": "Confirmación y Pago"
   },
 
  

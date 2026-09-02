@@ -4,11 +4,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useMemo } from "react";
-import { Search } from "lucide-react";
+import { Search, Navigation, Video, RotateCcw, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 import { useDiscoverContext } from "./context/DiscoverContext";
+import { useDiscoverFilters } from "@/hooks/useDiscoverFilters";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { useProviderScore } from "@/hooks/useProviderScore";
@@ -163,6 +164,22 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
       ? enrichedProviders.length === 0
       : items.length === 0;
 
+  const { filters, setFilter, clearFilters } = useDiscoverFilters();
+  const { setSearchQuery } = useDiscoverContext();
+
+  const handleResetFilters = () => {
+    clearFilters();
+    setSearchQuery("");
+  };
+
+  const handleExpandRadius = () => {
+    setFilter("radiusKm", 50);
+  };
+
+  const handleTelemedicineFilter = () => {
+    setFilter("modality", "ONLINE");
+  };
+
   return (
     <div
       className={cn(
@@ -178,18 +195,63 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
       )}
     >
       {hasNoResults ? (
-        /* ── ESTADO SIN RESULTADOS ─────────────────────────────────── */
-        <div className="w-[92%] md:w-full mx-auto bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-8 sm:p-10 text-center pointer-events-auto shadow-sm rounded-3xl flex flex-col items-center justify-center min-h-[300px] space-y-3">
+        /* ── ESTADO SIN RESULTADOS INTELIGENTE ─────────────────────── */
+        <div className="w-[92%] md:w-full mx-auto bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-6 sm:p-8 text-center pointer-events-auto shadow-md rounded-3xl flex flex-col items-center justify-center space-y-4 max-w-lg">
           <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs shrink-0">
             <Search className="w-7 h-7" strokeWidth={2} />
           </div>
-          <div className="space-y-1">
+          
+          <div className="space-y-1 text-center">
             <h3 className="text-gray-900 dark:text-white font-bold text-base sm:text-lg tracking-tight">
               {t("no_results_title")}
             </h3>
-            <p className="text-gray-500 dark:text-gray-400 text-xs font-medium max-w-sm mx-auto leading-relaxed">
+            <p className="text-gray-500 dark:text-gray-400 text-xs font-medium max-w-xs sm:max-w-sm mx-auto leading-relaxed">
               {t("no_results_desc")}
             </p>
+          </div>
+
+          {/* Botones de Acción Rápida */}
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full pt-1">
+            <button
+              type="button"
+              onClick={handleExpandRadius}
+              className="w-full sm:flex-1 h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>{t("no_results_radius_btn")}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="w-full sm:w-auto h-10 px-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] text-gray-700 dark:text-gray-300 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-gray-400" />
+              <span>{t("no_results_clear_btn")}</span>
+            </button>
+          </div>
+
+          {/* Tarjeta de Sugerencia de Telemedicina Nacional */}
+          <div className="w-full p-4 rounded-2xl bg-gradient-to-br from-emerald-50/60 to-teal-50/40 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-100/80 dark:border-emerald-900/30 text-left flex items-start gap-3 mt-2">
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Video className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                <span>{t("telemedicine_banner_title")}</span>
+                <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              </p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
+                {t("telemedicine_banner_desc")}
+              </p>
+              <button
+                type="button"
+                onClick={handleTelemedicineFilter}
+                className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                <span>{t("btn_explore_telemedicine")}</span>
+                <span>→</span>
+              </button>
+            </div>
           </div>
         </div>
       ) : (

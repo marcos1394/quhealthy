@@ -143,6 +143,14 @@ export function BookingSummary({
   const [walletBalance, setWalletBalance] = useState(0);
   const [isLoadingWallet, setIsLoadingWallet] = useState(false);
 
+  // Consentimiento de Telemedicina (NOM-004 / NOM-024)
+  const isOnlineConsultation = useMemo(() => {
+    return cart.some(
+      (item) => item.type === "SERVICE" && item.modality === "ONLINE"
+    );
+  }, [cart]);
+  const [telemedicineConsent, setTelemedicineConsent] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     const fetchWallet = async () => {
@@ -215,9 +223,10 @@ export function BookingSummary({
     const paymentOk =
       selectedPaymentMethod === "CREDIT_CARD" ||
       (selectedPaymentMethod === "WALLET_BALANCE" && walletBalance >= total);
-    const isReady = isTimeValid && !cartAnalysis.isEmpty && paymentOk;
+    const isConsentOk = !isOnlineConsultation || telemedicineConsent;
+    const isReady = isTimeValid && !cartAnalysis.isEmpty && paymentOk && isConsentOk;
 
-    return { isTimeValid, isReady };
+    return { isTimeValid, isReady, isConsentOk };
   }, [
     cartAnalysis,
     selectedDate,
@@ -226,6 +235,8 @@ export function BookingSummary({
     selectedPaymentMethod,
     walletBalance,
     total,
+    isOnlineConsultation,
+    telemedicineConsent,
   ]);
 
   const packageDetails = useMemo(() => {
@@ -707,6 +718,33 @@ export function BookingSummary({
                 )}
               </div>
             )}
+
+            {/* 🔒 CONSENTIMIENTO DE TELEMEDICINA (NOM-004 / NOM-024) */}
+            {isOnlineConsultation && (
+              <div className="p-4 rounded-2xl border border-blue-200 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 space-y-2">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <Checkbox
+                    checked={telemedicineConsent}
+                    onCheckedChange={(checked) => setTelemedicineConsent(Boolean(checked))}
+                    className="mt-0.5"
+                  />
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-gray-900 dark:text-white">
+                      {t("telemedicine_consent_title")}
+                    </p>
+                    <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {t("telemedicine_consent_desc")}
+                    </p>
+                  </div>
+                </label>
+              </div>
+            )}
+
+            {/* Banner de Política de Cancelación */}
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-gray-800 text-[11px] text-gray-600 dark:text-gray-400">
+              <Info className="w-4 h-4 text-store-600 dark:text-store-400 shrink-0" />
+              <span>{t("cancellation_policy_notice")}</span>
+            </div>
 
             {/* 🚀 BOTÓN DE CHECKOUT */}
             <div className="pt-2">

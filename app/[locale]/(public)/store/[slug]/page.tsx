@@ -55,6 +55,8 @@ import { StorefrontHero } from "@/components/store/StorefrontHero";
 import { StickyBookingBar } from "@/components/store/StickyBookingBar";
 import { StorefrontReviews } from "@/components/store/StorefrontReviews";
 import { StorefrontNavigation } from "@/components/store/StorefrontNavigation";
+import { StoreStructuredData } from "@/components/store/StoreStructuredData";
+import { MultiLocationSelector } from "@/components/store/MultiLocationSelector";
 
 type TabType = "servicios" | "paquetes" | "productos" | "cursos";
 
@@ -77,6 +79,7 @@ export default function PublicStorePage() {
   const [activeTab, setActiveTab] = useState<TabType>("servicios");
   const [selectedServiceCategory, setSelectedServiceCategory] = useState<string>("ALL");
   const [serviceSearchQuery, setServiceSearchQuery] = useState<string>("");
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
   const [visibleProducts, setVisibleProducts] = useState(12);
   const { cart, addToCart, removeFromCart, setProvider, updateQuantity } =
     useBookingStore();
@@ -244,6 +247,7 @@ export default function PublicStorePage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+      <StoreStructuredData store={store} />
       <StorefrontNavigation storeName={store.displayName} category={store.tags?.[0]} />
       
       {/* --- BANNER DE CRÉDITOS ACTIVOS --- */}
@@ -394,6 +398,29 @@ export default function PublicStorePage() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-6"
             >
+              {/* --- BUSCADOR RÁPIDO DE SERVICIOS Y TRATAMIENTOS --- */}
+              {store.services && store.services.length > 3 && (
+                <div className="relative w-full max-w-md">
+                  <input
+                    type="text"
+                    value={serviceSearchQuery}
+                    onChange={(e) => setServiceSearchQuery(e.target.value)}
+                    placeholder={t("search_services_placeholder", { defaultValue: "Buscar consulta, estudio o procedimiento..." })}
+                    className="w-full h-11 pl-10 pr-8 rounded-2xl bg-gray-50/80 dark:bg-[#111] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                  />
+                  <Clock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  {serviceSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setServiceSearchQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-sm font-bold"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* --- FILTRO RÁPIDO DE CATEGORÍAS DE SERVICIO --- */}
               {(() => {
                 const categories = Array.from(
@@ -441,15 +468,21 @@ export default function PublicStorePage() {
               {store.services && store.services.length > 0 ? (
                 (() => {
                   const filteredServices = store.services.filter((s) => {
-                    if (selectedServiceCategory === "ALL") return true;
-                    return s.category === selectedServiceCategory;
+                    const matchesCategory =
+                      selectedServiceCategory === "ALL" || s.category === selectedServiceCategory;
+                    const matchesSearch =
+                      !serviceSearchQuery.trim() ||
+                      s.name.toLowerCase().includes(serviceSearchQuery.toLowerCase()) ||
+                      (s.description &&
+                        s.description.toLowerCase().includes(serviceSearchQuery.toLowerCase()));
+                    return matchesCategory && matchesSearch;
                   });
 
                   if (filteredServices.length === 0) {
                     return (
                       <div className="text-center py-12 border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl bg-gray-50/50 dark:bg-[#050505]">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                          No hay servicios en esta categoría.
+                          No encontramos servicios que coincidan con tu búsqueda.
                         </p>
                       </div>
                     );
@@ -1204,6 +1237,18 @@ export default function PublicStorePage() {
                 <CertificationGrid images={store.galleryImages} />
               </div>
             )}
+          </div>
+        )}
+
+        {/* --- SEDES Y CONSULTORIOS DE ATENCIÓN (MULTI-SEDE) --- */}
+        {store.locations && store.locations.length > 0 && (
+          <div className="mt-14">
+            <MultiLocationSelector
+              locations={store.locations}
+              primaryColor={safePrimaryColor}
+              selectedLocationId={selectedLocationId}
+              onSelectLocation={(loc) => setSelectedLocationId(loc.id)}
+            />
           </div>
         )}
 

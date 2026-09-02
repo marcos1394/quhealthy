@@ -2,7 +2,7 @@
 
 /* eslint-disable react-doctor/button-has-type */
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Search,
   Map as MapIcon,
@@ -10,8 +10,11 @@ import {
   SlidersHorizontal,
   MapPin,
   CheckCircle2,
+  Sparkles,
+  Stethoscope,
+  X,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +31,17 @@ import { cn } from "@/lib/utils";
 import { useDiscoverContext } from "./context/DiscoverContext";
 import { SortDropdown } from "@/components/discover/SortDropdown";
 import { FilterPanel } from "@/components/discover/FilterPanel";
+import { findSymptomMatches } from "./SymptomSuggestions";
+
+const QUICK_SPECIALTIES = [
+  { es: "Medicina General", en: "General Medicine" },
+  { es: "Pediatría", en: "Pediatrics" },
+  { es: "Ginecología", en: "Gynecology" },
+  { es: "Dermatología", en: "Dermatology" },
+  { es: "Psicología", en: "Psychology" },
+  { es: "Nutrición", en: "Nutrition" },
+  { es: "Odontología", en: "Dentistry" },
+];
 
 export const MarketplaceHeader = ({
   locationDeclined,
@@ -41,6 +55,8 @@ export const MarketplaceHeader = ({
   requestLocation: () => void;
 }) => {
   const t = useTranslations("Discover.MarketplaceHeader");
+  const locale = useLocale();
+  const isEn = locale === "en";
 
   const {
     searchQuery,
@@ -53,6 +69,24 @@ export const MarketplaceHeader = ({
     isValidating,
     coordinates,
   } = useDiscoverContext();
+
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  const symptomMatches = findSymptomMatches(searchQuery, isEn);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const isGeoLoading = false;
   const geoError = false;
@@ -67,77 +101,94 @@ export const MarketplaceHeader = ({
       )}
     >
       <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
-        {/* ── BARRA DE BÚSQUEDA Y NAVEGACIÓN ─────────────────────────── */}
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="pointer-events-auto w-full md:w-[500px] lg:w-[480px] xl:w-[500px] shrink-0 flex items-center bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 transition-shadow focus-within:shadow-lg overflow-hidden h-12 sm:h-14"
+        {/* ── BARRA DE BÚSQUEDA Y NAVEGACIÓN CON SUGERENCIAS CLÍNICAS ── */}
+        <div
+          ref={searchContainerRef}
+          className="relative pointer-events-auto w-full md:w-[520px] lg:w-[500px] xl:w-[540px] shrink-0"
         >
-          <div className="flex-1 flex items-center px-4 h-full relative">
-            {isValidating ? (
-              <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400 mr-3 shrink-0" />
-            ) : (
-              <Search
-                className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-3 shrink-0"
-                strokeWidth={2}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setIsSearchFocused(false);
+            }}
+            className="w-full flex items-center bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 transition-shadow focus-within:shadow-lg overflow-hidden h-12 sm:h-14"
+          >
+            <div className="flex-1 flex items-center px-4 h-full relative">
+              {isValidating ? (
+                <QhSpinner size="sm" className="text-emerald-600 dark:text-emerald-400 mr-3 shrink-0" />
+              ) : (
+                <Search
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-3 shrink-0"
+                  strokeWidth={2}
+                />
+              )}
+              <Input
+                placeholder={t("search_placeholder")}
+                className="bg-transparent border-none p-0 h-full text-xs sm:text-sm font-semibold text-gray-900 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+                value={searchQuery}
+                onFocus={() => setIsSearchFocused(true)}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-            )}
-            <Input
-              placeholder={t("search_placeholder")}
-              className="bg-transparent border-none p-0 h-full text-xs sm:text-sm font-semibold text-gray-900 dark:text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          {/* Selector de Vista (Mapa vs Grid) */}
-          <div className="hidden md:flex items-center gap-1 px-2 border-l border-gray-100 dark:border-gray-800/80 h-8">
-            <Button
-              type="button"
-              variant="ghost"
-              className={cn(
-                "rounded-xl h-9 w-9 p-0 transition-colors cursor-pointer",
-                viewMode === "MAP"
-                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 shadow-2xs"
-                  : "text-gray-400 hover:bg-gray-50 dark:hover:bg-[#111]"
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors mr-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
-              onClick={() => setViewMode("MAP")}
-            >
-              <MapIcon className="w-4 h-4" strokeWidth={2} />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className={cn(
-                "rounded-xl h-9 w-9 p-0 transition-colors cursor-pointer",
-                viewMode === "GRID"
-                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 shadow-2xs"
-                  : "text-gray-400 hover:bg-gray-50 dark:hover:bg-[#111]"
-              )}
-              onClick={() => setViewMode("GRID")}
-            >
-              <LayoutGrid className="w-4 h-4" strokeWidth={2} />
-            </Button>
-          </div>
+            </div>
 
-          {/* Filtro por Tipo de Entidad */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            {/* Selector de Vista (Mapa vs Grid) */}
+            <div className="hidden md:flex items-center gap-1 px-2 border-l border-gray-100 dark:border-gray-800/80 h-8">
               <Button
                 type="button"
                 variant="ghost"
                 className={cn(
-                  "rounded-none border-l border-gray-100 dark:border-gray-800/80 h-12 sm:h-14 w-12 sm:w-14 hover:bg-gray-50 dark:hover:bg-[#111] p-0 shrink-0 transition-colors cursor-pointer",
-                  searchType !== "STORE"
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  "rounded-xl h-9 w-9 p-0 transition-colors cursor-pointer",
+                  viewMode === "MAP"
+                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 shadow-2xs"
+                    : "text-gray-400 hover:bg-gray-50 dark:hover:bg-[#111]"
                 )}
+                onClick={() => setViewMode("MAP")}
               >
-                <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
+                <MapIcon className="w-4 h-4" strokeWidth={2} />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl p-1.5 font-sans"
+              <Button
+                type="button"
+                variant="ghost"
+                className={cn(
+                  "rounded-xl h-9 w-9 p-0 transition-colors cursor-pointer",
+                  viewMode === "GRID"
+                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 shadow-2xs"
+                    : "text-gray-400 hover:bg-gray-50 dark:hover:bg-[#111]"
+                )}
+                onClick={() => setViewMode("GRID")}
+              >
+                <LayoutGrid className="w-4 h-4" strokeWidth={2} />
+              </Button>
+            </div>
+
+            {/* Filtro por Tipo de Entidad */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={cn(
+                    "rounded-none border-l border-gray-100 dark:border-gray-800/80 h-12 sm:h-14 w-12 sm:w-14 hover:bg-gray-50 dark:hover:bg-[#111] p-0 shrink-0 transition-colors cursor-pointer",
+                    searchType !== "STORE"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  )}
+                >
+                  <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-56 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl p-1.5 font-sans"
             >
               <DropdownMenuItem
                 onClick={() => setSearchType("STORE")}
@@ -202,6 +253,74 @@ export const MarketplaceHeader = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </form>
+
+        {/* Menú Desplegable de Sugerencias Clínicas y Especialidades */}
+        {isSearchFocused && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            {/* Sugerencias basadas en síntomas */}
+            {symptomMatches.length > 0 && (
+              <div className="mb-3">
+                <div className="flex items-center gap-1.5 px-2 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{t("symptom_suggestion_title")}</span>
+                </div>
+                <div className="space-y-1 mt-1">
+                  {symptomMatches.map((m, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery(isEn ? m.specialtyEn : m.specialtyEs);
+                        setIsSearchFocused(false);
+                      }}
+                      className="w-full text-left flex items-center justify-between p-2 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 text-xs transition-colors group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                          <Stethoscope className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                            {isEn ? m.specialtyEn : m.specialtyEs}
+                          </p>
+                          <p className="text-[10px] text-gray-400">
+                            {isEn ? m.symptomEn : m.symptomEs}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full">
+                        {isEn ? "Specialist" : "Especialista"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Especialidades frecuentes */}
+            <div>
+              <p className="px-2 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                {t("quick_specialties_title")}
+              </p>
+              <div className="flex flex-wrap gap-1.5 p-1">
+                {QUICK_SPECIALTIES.map((spec, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery(isEn ? spec.en : spec.es);
+                      setIsSearchFocused(false);
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-gray-50 dark:bg-[#111] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 text-xs font-semibold border border-gray-100 dark:border-gray-800 transition-colors cursor-pointer"
+                  >
+                    {isEn ? spec.en : spec.es}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
         {/* Trigger de Filtros para Móviles */}
         <div className="shrink-0 pointer-events-auto flex gap-2 overflow-x-auto md:flex-wrap no-scrollbar py-0.5 px-1 -mx-1 flex-1">

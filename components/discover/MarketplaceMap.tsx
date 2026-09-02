@@ -14,7 +14,7 @@ import {
 } from "@react-google-maps/api";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { Star, MapPin, LayoutGrid, User, Award, HeartHandshake } from "lucide-react";
+import { Star, MapPin, LayoutGrid, User, Award, HeartHandshake, Video, CheckCircle2, AlertCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getMapMarkerIcon } from "@/lib/mapPins";
@@ -98,7 +98,7 @@ export const MarketplaceMap = () => {
     calculateDistance,
   } = useDiscoverContext();
 
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries,
@@ -156,9 +156,9 @@ export const MarketplaceMap = () => {
   const enrichedFoundations = useMemo(() => {
     if (!foundations) return [];
     return foundations.map((f: any) => {
-      let distance = undefined;
       const fLat = f.lat || f.latitude;
       const fLng = f.lng || f.longitude;
+      let distance = undefined;
       if (coordinates && fLat && fLng) {
         distance = calculateDistance(
           coordinates.lat,
@@ -172,34 +172,48 @@ export const MarketplaceMap = () => {
   }, [foundations, coordinates, calculateDistance]);
 
   useEffect(() => {
-    if (!selectedId) {
-      setActivePinKey(null);
-      return;
-    }
-
-    if (searchType === "FOUNDATION") {
-      setActivePinKey(`foundation-${selectedId}`);
-      const found = (enrichedFoundations || []).find((f: any) => f.id === selectedId);
-      if (map && found?.lat && found?.lng) {
-        map.panTo({ lat: found.lat, lng: found.lng });
-        map.setZoom(15);
-      }
-    } else if (searchType === "STORE") {
-      setActivePinKey(`store-${selectedId}-main`);
-      const prov = (enrichedProviders || []).find((p: any) => p.id === selectedId);
-      if (map && prov?.lat && prov?.lng) {
-        map.panTo({ lat: prov.lat, lng: prov.lng });
-        map.setZoom(15);
-      }
-    } else {
-      setActivePinKey(`item-${selectedId}`);
-      const item = (items || []).find((i: any) => i.id === selectedId);
-      if (map && item?.providerLat && item?.providerLng) {
-        map.panTo({ lat: item.providerLat, lng: item.providerLng });
-        map.setZoom(15);
+    if (selectedId && map) {
+      if (searchType === "FOUNDATION") {
+        const found = enrichedFoundations.find((f: any) => f.id === selectedId);
+        const lat = found?.lat || found?.latitude;
+        const lng = found?.lng || found?.longitude;
+        if (lat && lng) {
+          map.panTo({ lat, lng });
+          map.setZoom(15);
+        }
+      } else if (searchType === "STORE") {
+        const prov = enrichedProviders.find((p) => p.id === selectedId);
+        if (prov && prov.lat && prov.lng) {
+          map.panTo({ lat: prov.lat, lng: prov.lng });
+          map.setZoom(15);
+        }
+      } else {
+        const item = items.find((i) => i.id === selectedId);
+        if (item && item.providerLat && item.providerLng) {
+          map.panTo({ lat: item.providerLat, lng: item.providerLng });
+          map.setZoom(15);
+        }
       }
     }
   }, [selectedId, searchType, enrichedFoundations, enrichedProviders, items, map]);
+
+  if (loadError) {
+    return (
+      <div className="absolute inset-0 z-0 flex items-center justify-center p-6 bg-gray-50 dark:bg-[#050505] font-sans">
+        <div className="max-w-md p-6 bg-white dark:bg-[#0a0a0a] rounded-3xl border border-gray-100 dark:border-gray-800 text-center shadow-lg space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-2xs">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <h3 className="font-bold text-sm text-gray-900 dark:text-white">
+            {t("map_unavailable_title")}
+          </h3>
+          <p className="text-xs text-gray-500">
+            {t("map_unavailable_desc")}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isLoaded)
     return <div className="w-full h-full bg-gray-50 dark:bg-[#050505]" />;
@@ -374,6 +388,22 @@ export const MarketplaceMap = () => {
                               </span>
                             </div>
                           )}
+
+                          {/* Badges de Disponibilidad y Telemedicina */}
+                          <div className="flex flex-wrap gap-1.5 pt-0.5">
+                            {(provider.offersTelemedicine || provider.hasTelemedicine || provider.modalities?.includes("ONLINE")) && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 text-[9px] font-bold border border-blue-100 dark:border-blue-900/40">
+                                <Video className="w-2.5 h-2.5" />
+                                <span>{t("telemedicine_badge")}</span>
+                              </span>
+                            )}
+                            {provider.availableToday && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-[9px] font-bold border border-emerald-100 dark:border-emerald-900/40">
+                                <CheckCircle2 className="w-2.5 h-2.5" />
+                                <span>{t("available_today_badge")}</span>
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <button
