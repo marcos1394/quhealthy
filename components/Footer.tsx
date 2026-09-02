@@ -4,7 +4,7 @@
 /* eslint-disable react-doctor/prefer-module-scope-static-value */
 
 import React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { Instagram, Twitter, Facebook, Mail, MapPin, Heart, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";

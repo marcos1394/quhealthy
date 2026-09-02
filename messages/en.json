@@ -208,7 +208,8 @@
         "f2": "Formal B2B quotation generator with tax & credit terms",
         "f3": "API integration and personalized commercial account manager",
         "button": "Explore Supplier Solutions"
-      }
+      },
+      "contact_button": "Contact"
     },
     "footer": "All plans include a 14-day free trial • No credit card required • Cancel anytime"
   },
@@ -324,6 +325,27 @@
       "login": "Log In",
       "register": "Get Started",
       "create_account": "Create Account"
+    },
+    "registration_dropdown": {
+      "provider_title": "Professional / Clinic",
+      "provider_desc": "Practice, scheduling & e-prescriptions",
+      "patient_title": "Patient",
+      "patient_desc": "Book appointments & manage health",
+      "foundation_title": "Foundation / NGO",
+      "foundation_desc": "Social assistance & voucher programs",
+      "supplier_title": "Medical Supplier",
+      "supplier_desc": "B2B catalog, warehouse & equipment"
+    },
+    "preferences": "Preferences:",
+    "roles": {
+      "provider": "Professional",
+      "patient": "Patient",
+      "foundation": "Foundation",
+      "supplier": "Supplier"
+    },
+    "aria": {
+      "open_menu": "Open menu",
+      "close_menu": "Close menu"
     },
     "toast": {
       "logout": "See you soon 👋"
@@ -9189,8 +9211,12 @@
   },
   "PublicContact": {
     "breadcrumb": "Contact",
-    "title": "We are here to help.",
-    "subtitle": "Our medical and technical support team responds in less than 2 business hours.",
+    "help_badge": "We Are Here To Help",
+    "title": "Get in Touch with Us",
+    "subtitle": "Have questions, an institutional proposal, or inquiries regarding our platform? Send us a message and we'll reply promptly.",
+    "direct_email": "Direct Email",
+    "main_office": "Headquarters",
+    "support_line": "Support Line",
     "cards": {
       "sales_title": "Clinic Sales",
       "sales_desc": "Do you represent a hospital or clinic looking to digitize processes? Talk to a specialist.",
@@ -9202,25 +9228,35 @@
       "press_desc": "For press releases, brand assets or strategic partnership proposals.",
       "press_btn": "Contact PR"
     },
-    "form_title": "Send us a message",
-    "form_subtitle": "Fill out the form and we will contact you shortly.",
+    "form_title": "Send Us a Message",
+    "form_description": "Fill out the following form to route your inquiry to the appropriate department.",
+    "form_company": "Company / Clinic (Optional)",
+    "form_company_ph": "e.g. Specialty Clinic",
     "form": {
       "name": "Full Name",
-      "name_ph": "e.g. John Doe",
+      "name_ph": "e.g. Dr. Jane Smith",
       "email": "Email Address",
-      "email_ph": "you@email.com",
-      "topic": "Topic",
+      "email_ph": "doctor@example.com",
+      "topic": "Topic or Reason",
       "topic_ph": "Select a topic...",
       "topics": {
-        "support": "Technical Support",
-        "billing": "Billing",
-        "careers": "Careers / Jobs",
-        "other": "Other"
+        "foundation": "Institutional Plan for Foundations & NGOs",
+        "supplier": "Wholesale Plan for Medical Suppliers",
+        "enterprise": "Enterprise Plan for Clinics & Hospitals",
+        "billing": "B2B Sales & Subscriptions",
+        "support": "Technical Support & Help",
+        "careers": "Careers & Talent",
+        "other": "Other Reason"
       },
       "message": "Message",
-      "message_ph": "How can we help you?",
-      "submit": "Send Message"
-    }
+      "message_ph": "Write your detailed inquiry here...",
+      "submit": "Send Message",
+      "submitting": "Sending message...",
+      "privacy_notice": "By submitting this form, you confirm that you accept our",
+      "privacy_link": "Privacy Policy"
+    },
+    "toast_success": "Message sent successfully! We will contact you soon.",
+    "toast_error": "An error occurred. Please try again."
   },
   "PublicBlog": {
     "breadcrumb": "Blog",
@@ -10491,12 +10527,16 @@
       "lives": "Lives Impacted in Network",
       "programs": "Assistance Programs",
       "coverage": "Social Coverage Rate",
-      "sroi": "Social Return on Investment"
+      "sroi": "Social Return on Investment",
+      "commission": "0% Commission",
+      "commission_desc": "Zero Fund Custody",
+      "confidentiality": "Sovereignty & Privacy"
     },
     "capabilities": {
       "badge": "Institutional Capabilities",
       "title": "Everything your foundation needs to operate and report impact",
       "subtitle": "Tailor-made for Non-profits, Civil Associations, Foundations, and Social Health Institutions.",
+      "accredited": "QuHealthy Accredited",
       "c1_title": "Beneficiary Roster & Social Work Review",
       "c1_desc": "Official 18-digit CURP validation, socioeconomic classification (NSE), and vulnerability scoring with a dedicated digital desk for social work case decisions.",
       "c2_title": "Administrative Subsidy Engine",

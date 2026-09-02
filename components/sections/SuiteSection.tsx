@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 // ── MOCKUPS CONCEPTUALES EN ESTILO GLASSMORPHISM & ESMERALDA ───────────────
 
@@ -187,6 +187,7 @@ const SuiteSection: React.FC = () => {
       name: "QuHealthy",
       description: t('products.quhealthy.description'),
       icon: Lightbulb,
+      href: "/business",
       features: [
         t('products.quhealthy.features.0'),
         t('products.quhealthy.features.1'),
@@ -200,6 +201,7 @@ const SuiteSection: React.FC = () => {
       name: "QuMarket",
       description: t('products.qumarket.description'),
       icon: ShoppingBag,
+      href: "/market",
       features: [
         t('products.qumarket.features.0'),
         t('products.qumarket.features.1'),
@@ -213,6 +215,7 @@ const SuiteSection: React.FC = () => {
       name: "QuBlocks",
       description: t('products.qublocks.description'),
       icon: BookOpen,
+      href: "/academy",
       features: [
         t('products.qublocks.features.0'),
         t('products.qublocks.features.1'),
@@ -297,7 +300,7 @@ const SuiteSection: React.FC = () => {
                   {/* Link Explorar */}
                   <div className="pt-4">
                     <Link 
-                      href="/discover" 
+                      href={product.href} 
                       className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:bg-emerald-50/50 hover:border-emerald-500/30 dark:hover:bg-emerald-950/20 transition-all shadow-xs group"
                     >
                       <span>{product.explore}</span>

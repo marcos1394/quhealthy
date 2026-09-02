@@ -4,11 +4,11 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Sparkles, CheckCircle2, CreditCard, Tag, HeartHandshake, Truck, Building2, ShieldCheck } from "lucide-react";
+import { Check, ArrowRight, Sparkles, CheckCircle2, CreditCard, Tag, HeartHandshake, Truck, Building2, ShieldCheck, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations, useLocale } from "next-intl";
 import { useSessionStore } from "@/stores/SessionStore";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import axiosInstance from "@/lib/axios";
 import { BackendPlan, buildFeaturesForPlan } from "@/lib/subscriptionUtils";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -353,13 +353,20 @@ const PricingSection: React.FC = () => {
                 </ul>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
                 <Link
                   href="/foundations"
-                  className="w-full h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <span>{t('custom_plans.foundations.button', { defaultValue: "Conocer Solución para Fundaciones" })}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/contact?topic=foundation"
+                  className="h-11 px-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>{t('custom_plans.contact_button', { defaultValue: "Contacto" })}</span>
                 </Link>
               </div>
             </div>
@@ -401,13 +408,20 @@ const PricingSection: React.FC = () => {
                 </ul>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
                 <Link
                   href="/suppliers"
-                  className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="flex-1 h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <span>{t('custom_plans.suppliers.button', { defaultValue: "Conocer Solución para Proveedores" })}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/contact?topic=supplier"
+                  className="h-11 px-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>{t('custom_plans.contact_button', { defaultValue: "Contacto" })}</span>
                 </Link>
               </div>
             </div>

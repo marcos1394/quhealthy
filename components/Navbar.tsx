@@ -509,10 +509,10 @@ export const Navbar: React.FC = () => {
                       </div>
                       <div className="flex flex-col space-y-0.5">
                         <span className="font-bold text-xs text-gray-900 dark:text-white">
-                          Profesional / Clínica
+                          {t("registration_dropdown.provider_title", { defaultValue: "Profesional / Clínica" })}
                         </span>
                         <span className="text-[10px] font-medium text-gray-400">
-                          Consultorio, agenda y recetas
+                          {t("registration_dropdown.provider_desc", { defaultValue: "Consultorio, agenda y recetas" })}
                         </span>
                       </div>
                     </Link>
@@ -528,10 +528,10 @@ export const Navbar: React.FC = () => {
                       </div>
                       <div className="flex flex-col space-y-0.5">
                         <span className="font-bold text-xs text-gray-900 dark:text-white">
-                          Paciente
+                          {t("registration_dropdown.patient_title", { defaultValue: "Paciente" })}
                         </span>
                         <span className="text-[10px] font-medium text-gray-400">
-                          Agenda citas y cuida tu salud
+                          {t("registration_dropdown.patient_desc", { defaultValue: "Agenda citas y cuida tu salud" })}
                         </span>
                       </div>
                     </Link>
@@ -547,10 +547,10 @@ export const Navbar: React.FC = () => {
                       </div>
                       <div className="flex flex-col space-y-0.5">
                         <span className="font-bold text-xs text-gray-900 dark:text-white">
-                          Fundación / ONG
+                          {t("registration_dropdown.foundation_title", { defaultValue: "Fundación / ONG" })}
                         </span>
                         <span className="text-[10px] font-medium text-gray-400">
-                          Programas de asistencia social
+                          {t("registration_dropdown.foundation_desc", { defaultValue: "Programas de asistencia social" })}
                         </span>
                       </div>
                     </Link>
@@ -566,10 +566,10 @@ export const Navbar: React.FC = () => {
                       </div>
                       <div className="flex flex-col space-y-0.5">
                         <span className="font-bold text-xs text-gray-900 dark:text-white">
-                          Proveedor de Insumos
+                          {t("registration_dropdown.supplier_title", { defaultValue: "Proveedor de Insumos" })}
                         </span>
                         <span className="text-[10px] font-medium text-gray-400">
-                          Venta B2B, almacenes y equipo
+                          {t("registration_dropdown.supplier_desc", { defaultValue: "Venta B2B, almacenes y equipo" })}
                         </span>
                       </div>
                     </Link>
@@ -583,7 +583,7 @@ export const Navbar: React.FC = () => {
         {/* TOGGLE MENÚ MÓVIL */}
         <button
           type="button"
-          aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-label={mobileMenuOpen ? t("aria.close_menu", { defaultValue: "Cerrar menú" }) : t("aria.open_menu", { defaultValue: "Abrir menú" })}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="md:hidden w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 flex items-center justify-center text-gray-800 dark:text-white transition-colors z-50"
         >
@@ -685,7 +685,9 @@ export const Navbar: React.FC = () => {
 
               <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
                 <div className="flex items-center justify-between pb-2">
-                  <span className="text-xs font-semibold text-gray-400">Preferencias:</span>
+                  <span className="text-xs font-semibold text-gray-400">
+                    {t("preferences", { defaultValue: "Preferencias:" })}
+                  </span>
                   <div className="flex items-center gap-2">
                     {!isLandingPage && (
                       <Button
@@ -755,7 +757,9 @@ export const Navbar: React.FC = () => {
                       >
                         <Button className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex-col gap-0.5">
                           <Store size={14} />
-                          <span className="text-[10px]">Profesional</span>
+                          <span className="text-[10px]">
+                            {t("roles.provider", { defaultValue: "Profesional" })}
+                          </span>
                         </Button>
                       </Link>
 
@@ -765,7 +769,9 @@ export const Navbar: React.FC = () => {
                       >
                         <Button className="w-full h-12 rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 font-bold text-xs flex-col gap-0.5">
                           <UserIcon size={14} />
-                          <span className="text-[10px]">Paciente</span>
+                          <span className="text-[10px]">
+                            {t("roles.patient", { defaultValue: "Paciente" })}
+                          </span>
                         </Button>
                       </Link>
 
@@ -775,7 +781,9 @@ export const Navbar: React.FC = () => {
                       >
                         <Button className="w-full h-12 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex-col gap-0.5">
                           <HeartHandshake size={14} />
-                          <span className="text-[10px]">Fundación</span>
+                          <span className="text-[10px]">
+                            {t("roles.foundation", { defaultValue: "Fundación" })}
+                          </span>
                         </Button>
                       </Link>
 
@@ -785,7 +793,9 @@ export const Navbar: React.FC = () => {
                       >
                         <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex-col gap-0.5">
                           <Truck size={14} />
-                          <span className="text-[10px]">Proveedor</span>
+                          <span className="text-[10px]">
+                            {t("roles.supplier", { defaultValue: "Proveedor" })}
+                          </span>
                         </Button>
                       </Link>
                     </div>

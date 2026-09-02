@@ -3,7 +3,7 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable react-doctor/prefer-module-scope-static-value */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   ArrowRight, 
@@ -14,8 +14,9 @@ import {
   Sparkles, 
   Send 
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { sendContactEmail } from "@/app/actions/contact";
@@ -24,7 +25,22 @@ import { cn } from "@/lib/utils";
 
 export default function ContactPage() {
   const t = useTranslations("PublicContact");
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState("billing");
+
+  useEffect(() => {
+    const topicParam = searchParams.get("topic") || searchParams.get("type");
+    if (topicParam === "foundation" || topicParam === "fundacion") {
+      setSelectedTopic("foundation");
+    } else if (topicParam === "supplier" || topicParam === "proveedor") {
+      setSelectedTopic("supplier");
+    } else if (topicParam === "enterprise" || topicParam === "clinica") {
+      setSelectedTopic("enterprise");
+    } else if (topicParam === "support" || topicParam === "soporte") {
+      setSelectedTopic("support");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,10 +50,10 @@ export default function ContactPage() {
     const res = await sendContactEmail(formData);
 
     if (res.success) {
-      toast.success("¡Mensaje enviado correctamente! Te contactaremos pronto.");
+      toast.success(t("toast_success", { defaultValue: "¡Mensaje enviado correctamente! Te contactaremos pronto." }));
       (e.target as HTMLFormElement).reset();
     } else {
-      toast.error(res.error || "Hubo un error. Por favor intenta nuevamente.");
+      toast.error(res.error || t("toast_error", { defaultValue: "Hubo un error. Por favor intenta nuevamente." }));
     }
 
     setIsSubmitting(false);
@@ -93,7 +109,7 @@ export default function ContactPage() {
               <div className="space-y-3">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
                   <MessageSquare className="w-3.5 h-3.5" strokeWidth={2} />
-                  <span>Estamos para Ayudarte</span>
+                  <span>{t("help_badge", { defaultValue: "Estamos para Ayudarte" })}</span>
                 </span>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.15]">
@@ -115,7 +131,7 @@ export default function ContactPage() {
                   </div>
                   <div className="space-y-1 min-w-0">
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      Correo Electrónico Directo
+                      {t("direct_email", { defaultValue: "Correo Electrónico Directo" })}
                     </h3>
                     <a
                       href="mailto:founders@quhealthy.org"
@@ -133,7 +149,7 @@ export default function ContactPage() {
                   </div>
                   <div className="space-y-1">
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      Sede Principal
+                      {t("main_office", { defaultValue: "Sede Principal" })}
                     </h3>
                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
                       Quhealthy S.A.S<br/>
@@ -150,7 +166,7 @@ export default function ContactPage() {
                   </div>
                   <div className="space-y-1">
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      Línea de Atención
+                      {t("support_line", { defaultValue: "Línea de Atención" })}
                     </h3>
                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
                       668 184 2487
@@ -175,7 +191,7 @@ export default function ContactPage() {
                     {t("form_title", { defaultValue: "Envíanos un Mensaje" })}
                   </h2>
                   <p className="text-xs font-medium text-gray-500">
-                    Completa el siguiente formulario para canalizar tu solicitud al área correspondiente.
+                    {t("form_description", { defaultValue: "Completa el siguiente formulario para canalizar tu solicitud al área correspondiente." })}
                   </p>
                 </div>
 
@@ -198,13 +214,13 @@ export default function ContactPage() {
 
                     <motion.div variants={itemVariants} className="space-y-1.5">
                       <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                        Empresa / Clínica (Opcional)
+                        {t("form_company", { defaultValue: "Empresa / Clínica (Opcional)" })}
                       </label>
                       <input
                         type="text"
                         name="company"
                         className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm transition-all"
-                        placeholder="Ej. Clínica Especialidades"
+                        placeholder={t("form_company_ph", { defaultValue: "Ej. Clínica Especialidades" })}
                       />
                     </motion.div>
                   </div>
@@ -230,18 +246,29 @@ export default function ContactPage() {
                     </label>
                     <select
                       name="topic"
+                      value={selectedTopic}
+                      onChange={(e) => setSelectedTopic(e.target.value)}
                       className="w-full h-12 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm transition-all cursor-pointer"
                     >
-                      <option value="Soporte Técnico" className="bg-white dark:bg-[#0a0a0a]">
-                        {t("form.topics.support", { defaultValue: "Soporte Técnico y Ayuda" })}
+                      <option value="foundation" className="bg-white dark:bg-[#0a0a0a]">
+                        {t("form.topics.foundation", { defaultValue: "Plan Institucional para Fundaciones & ONGs" })}
                       </option>
-                      <option value="Planes y Facturación" className="bg-white dark:bg-[#0a0a0a]">
+                      <option value="supplier" className="bg-white dark:bg-[#0a0a0a]">
+                        {t("form.topics.supplier", { defaultValue: "Plan Mayorista para Proveedores de Insumos" })}
+                      </option>
+                      <option value="enterprise" className="bg-white dark:bg-[#0a0a0a]">
+                        {t("form.topics.enterprise", { defaultValue: "Plan Enterprise para Clínicas & Hospitales" })}
+                      </option>
+                      <option value="billing" className="bg-white dark:bg-[#0a0a0a]">
                         {t("form.topics.billing", { defaultValue: "Ventas y Suscripciones B2B" })}
                       </option>
-                      <option value="Carreras y Empleo" className="bg-white dark:bg-[#0a0a0a]">
+                      <option value="support" className="bg-white dark:bg-[#0a0a0a]">
+                        {t("form.topics.support", { defaultValue: "Soporte Técnico y Ayuda" })}
+                      </option>
+                      <option value="careers" className="bg-white dark:bg-[#0a0a0a]">
                         {t("form.topics.careers", { defaultValue: "Carreras y Talento" })}
                       </option>
-                      <option value="Otro" className="bg-white dark:bg-[#0a0a0a]">
+                      <option value="other" className="bg-white dark:bg-[#0a0a0a]">
                         {t("form.topics.other", { defaultValue: "Otro asunto" })}
                       </option>
                     </select>
@@ -271,7 +298,7 @@ export default function ContactPage() {
                       {isSubmitting ? (
                         <>
                           <QhSpinner size="sm" className="text-current" />
-                          <span>Enviando mensaje...</span>
+                          <span>{t("form.submitting", { defaultValue: "Enviando mensaje..." })}</span>
                         </>
                       ) : (
                         <>
@@ -282,12 +309,12 @@ export default function ContactPage() {
                     </button>
 
                     <p className="text-[11px] text-gray-400 font-medium text-center leading-relaxed">
-                      Al enviar este formulario, confirmas que aceptas nuestra{" "}
+                      {t("form.privacy_notice", { defaultValue: "Al enviar este formulario, confirmas que aceptas nuestra" })}{" "}
                       <Link
                         href="/privacy"
                         className="text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
                       >
-                        Política de Privacidad
+                        {t("form.privacy_link", { defaultValue: "Política de Privacidad" })}
                       </Link>
                       .
                     </p>

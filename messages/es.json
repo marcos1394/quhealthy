@@ -203,7 +203,8 @@
         "f2": "Cotizador formal B2B y órdenes de compra con IVA",
         "f3": "Integración técnica y asesoría comercial personalizada",
         "button": "Conocer Solución para Proveedores"
-      }
+      },
+      "contact_button": "Contacto"
     },
     "footer": "Todos los planes incluyen 14 días de prueba gratis • Sin tarjeta requerida • Cancela cuando quieras"
   },
@@ -319,6 +320,27 @@
       "login": "Ingresar",
       "register": "Comenzar",
       "create_account": "Crear Cuenta"
+    },
+    "registration_dropdown": {
+      "provider_title": "Profesional / Clínica",
+      "provider_desc": "Consultorio, agenda y recetas",
+      "patient_title": "Paciente",
+      "patient_desc": "Agenda citas y cuida tu salud",
+      "foundation_title": "Fundación / ONG",
+      "foundation_desc": "Programas de asistencia social",
+      "supplier_title": "Proveedor de Insumos",
+      "supplier_desc": "Venta B2B, almacenes y equipo"
+    },
+    "preferences": "Preferencias:",
+    "roles": {
+      "provider": "Profesional",
+      "patient": "Paciente",
+      "foundation": "Fundación",
+      "supplier": "Proveedor"
+    },
+    "aria": {
+      "open_menu": "Abrir menú",
+      "close_menu": "Cerrar menú"
     },
     "toast": {
       "logout": "Hasta pronto 👋"
@@ -9229,8 +9251,12 @@
   },
   "PublicContact": {
     "breadcrumb": "Contacto",
-    "title": "Estamos aquí para ayudarte.",
-    "subtitle": "Nuestro equipo de soporte médico y técnico responde en menos de 2 horas laborables.",
+    "help_badge": "Estamos para Ayudarte",
+    "title": "Ponte en Contacto con Nosotros",
+    "subtitle": "¿Tienes alguna duda, propuesta institucional o inquietud sobre nuestra plataforma? Envíanos un mensaje y te responderemos a la brevedad.",
+    "direct_email": "Correo Electrónico Directo",
+    "main_office": "Sede Principal",
+    "support_line": "Línea de Atención",
     "cards": {
       "sales_title": "Ventas a Clínicas",
       "sales_desc": "¿Representas un hospital o clínica buscando digitalizar sus procesos? Habla con un especialista.",
@@ -9242,25 +9268,35 @@
       "press_desc": "Para notas de prensa, assets de marca o propuestas de asociaciones estratégicas.",
       "press_btn": "Contactar PR"
     },
-    "form_title": "Envíanos un mensaje",
-    "form_subtitle": "Llena el formulario y te contactaremos a la brevedad.",
+    "form_title": "Envíanos un Mensaje",
+    "form_description": "Completa el siguiente formulario para canalizar tu solicitud al área correspondiente.",
+    "form_company": "Empresa / Clínica (Opcional)",
+    "form_company_ph": "Ej. Clínica Especialidades",
     "form": {
       "name": "Nombre Completo",
-      "name_ph": "Ej. Juan Pérez",
+      "name_ph": "Ej. Dra. María Elena",
       "email": "Correo Electrónico",
-      "email_ph": "tu@correo.com",
-      "topic": "Tema",
+      "email_ph": "doctora@ejemplo.com",
+      "topic": "Asunto o Motivo",
       "topic_ph": "Selecciona el motivo...",
       "topics": {
-        "support": "Soporte Técnico",
-        "billing": "Facturación",
-        "careers": "Carreras / Empleos",
-        "other": "Otro"
+        "foundation": "Plan Institucional para Fundaciones & ONGs",
+        "supplier": "Plan Mayorista para Proveedores de Insumos",
+        "enterprise": "Plan Enterprise para Clínicas & Hospitales",
+        "billing": "Ventas y Suscripciones B2B",
+        "support": "Soporte Técnico y Ayuda",
+        "careers": "Carreras y Talento",
+        "other": "Otro asunto"
       },
       "message": "Mensaje",
-      "message_ph": "¿En qué podemos ayudarte?",
-      "submit": "Enviar Mensaje"
-    }
+      "message_ph": "Escribe aquí los detalles de tu consulta...",
+      "submit": "Enviar Mensaje",
+      "submitting": "Enviando mensaje...",
+      "privacy_notice": "Al enviar este formulario, confirmas que aceptas nuestra",
+      "privacy_link": "Política de Privacidad"
+    },
+    "toast_success": "¡Mensaje enviado correctamente! Te contactaremos pronto.",
+    "toast_error": "Hubo un error. Por favor intenta nuevamente."
   },
   "PublicBlog": {
     "breadcrumb": "Blog",
@@ -10531,12 +10567,16 @@
       "lives": "Vidas Impactadas en Red",
       "programs": "Programas Asistenciales",
       "coverage": "Tasa de Cobertura Social",
-      "sroi": "Retorno Social de Inversión"
+      "sroi": "Retorno Social de Inversión",
+      "commission": "0% Comisión",
+      "commission_desc": "Sin Custodia de Fondos",
+      "confidentiality": "Soberanía & Confidencialidad"
     },
     "capabilities": {
       "badge": "Capacidades Institucionales",
       "title": "Todo lo que tu fundación necesita para operar y rendir cuentas",
       "subtitle": "Diseñado específicamente para IAPs, Asociaciones Civiles (A.C.), ONGs y organismos asistenciales de salud en México.",
+      "accredited": "Acreditado QuHealthy",
       "c1_title": "Padrón de Beneficiarios & Dictamen Social",
       "c1_desc": "Registro validado con CURP a 18 dígitos, clasificación por nivel socioeconómico (NSE) y vulnerabilidad, junto a una bandeja digital para que Trabajo Social dictamine expedientes.",
       "c2_title": "Motor de Subsidios Administrativos",

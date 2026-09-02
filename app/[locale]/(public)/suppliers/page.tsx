@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Truck,
@@ -445,14 +445,24 @@ export default function SuppliersLandingPage() {
                   {t("pricing.plan_description")}
                 </p>
 
-                <div className="pt-2">
-                  <Link href="/supplier/register">
+                <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                  <Link href="/contact?topic=supplier">
                     <Button
                       size="lg"
                       className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-8 py-5 rounded-2xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>{t("pricing.cta_button")}</span>
                       <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+
+                  <Link href="/supplier/register">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full sm:w-auto border-white/20 hover:bg-white/10 text-white font-bold text-xs px-6 py-5 rounded-2xl cursor-pointer"
+                    >
+                      <span>{t("hero.cta_onboarding")}</span>
                     </Button>
                   </Link>
                 </div>
@@ -561,7 +571,7 @@ export default function SuppliersLandingPage() {
               </Button>
             </Link>
 
-            <Link href="/contact">
+            <Link href="/contact?topic=supplier">
               <Button
                 size="lg"
                 variant="outline"

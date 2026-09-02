@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Building2,
@@ -247,10 +247,10 @@ export default function FoundationsLandingPage() {
 
             <div className="space-y-1">
               <h3 className="text-3xl sm:text-4xl font-extrabold text-rose-600">
-                0% Comisión
+                {t("stats.commission", { defaultValue: "0% Comisión" })}
               </h3>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Sin Custodia de Fondos
+                {t("stats.commission_desc", { defaultValue: "Sin Custodia de Fondos" })}
               </p>
             </div>
 
@@ -268,7 +268,7 @@ export default function FoundationsLandingPage() {
                 NOM-004
               </h3>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Soberanía & Confidencialidad
+                {t("stats.confidentiality", { defaultValue: "Soberanía & Confidencialidad" })}
               </p>
             </div>
           </div>
@@ -330,7 +330,7 @@ export default function FoundationsLandingPage() {
                   </div>
 
                   <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800 flex items-center text-xs font-bold text-slate-400 group-hover:text-rose-600 transition-colors">
-                    <span>Acreditado QuHealthy</span>
+                    <span>{t("capabilities.accredited", { defaultValue: "Acreditado QuHealthy" })}</span>
                     <CheckCircle2 className="w-4 h-4 ml-auto text-emerald-500" />
                   </div>
                 </motion.div>
@@ -486,14 +486,24 @@ export default function FoundationsLandingPage() {
                   {t("pricing.plan_description")}
                 </p>
 
-                <div className="pt-2">
-                  <Link href="/foundation/register">
+                <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                  <Link href="/contact?topic=foundation">
                     <Button
                       size="lg"
                       className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-8 py-5 rounded-2xl shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>{t("pricing.cta_button")}</span>
                       <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+
+                  <Link href="/foundation/register">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full sm:w-auto border-white/20 hover:bg-white/10 text-white font-bold text-xs px-6 py-5 rounded-2xl cursor-pointer"
+                    >
+                      <span>{t("hero.cta_onboarding")}</span>
                     </Button>
                   </Link>
                 </div>
@@ -609,7 +619,7 @@ export default function FoundationsLandingPage() {
               </Button>
             </Link>
 
-            <Link href="/contact">
+            <Link href="/contact?topic=foundation">
               <Button
                 size="lg"
                 variant="outline"
