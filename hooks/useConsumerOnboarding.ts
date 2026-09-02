@@ -11,6 +11,7 @@ export function useConsumerOnboarding(stepsLength: number) {
   const [data, setData] = useState<ConsumerOnboardingData>(INITIAL_CONSUMER_ONBOARDING_DATA);
   const [loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -38,6 +39,11 @@ export function useConsumerOnboarding(stepsLength: number) {
             // Agregamos métricas biométricas al estado inicial para que no se pierdan
             weightKg: profile.weightKg?.toString() ?? prev.weightKg,
             heightCm: profile.heightCm?.toString() ?? prev.heightCm,
+            restingHeartRate: profile.restingHeartRate?.toString() ?? prev.restingHeartRate,
+            averageBloodPressureSystolic: profile.averageBloodPressureSystolic?.toString() ?? prev.averageBloodPressureSystolic,
+            averageBloodPressureDiastolic: profile.averageBloodPressureDiastolic?.toString() ?? prev.averageBloodPressureDiastolic,
+            isSmoker: profile.isSmoker ?? prev.isSmoker,
+            alcoholUnitsWeek: profile.alcoholUnitsWeek?.toString() ?? prev.alcoholUnitsWeek,
             stressLevel: profile.stressLevel ?? prev.stressLevel,
             sleepHoursAvg: profile.sleepHoursAvg?.toString() ?? prev.sleepHoursAvg,
             // --- NOM-024 ---
@@ -47,6 +53,7 @@ export function useConsumerOnboarding(stepsLength: number) {
             emergencyContactName: profile.emergencyContactName ?? prev.emergencyContactName,
             emergencyContactPhone: profile.emergencyContactPhone ?? prev.emergencyContactPhone,
             address: profile.address ?? prev.address,
+            consentAcceptedAt: profile.consentAcceptedAt ?? prev.consentAcceptedAt,
           }));
         }
       } catch (err) {
@@ -59,22 +66,44 @@ export function useConsumerOnboarding(stepsLength: number) {
     loadProfile();
   }, [stepsLength, router]);
 
-  // Auto-save debounce effect
+  // Auto-save debounce effect with visual feedback
   useEffect(() => {
     if (initialLoading) return;
     
+    setSaveStatus('saving');
     const handler = setTimeout(async () => {
       try {
         await consumerProfileService.updateProfile(data as any);
+        setSaveStatus('saved');
+        const resetPill = setTimeout(() => setSaveStatus('idle'), 3000);
+        return () => clearTimeout(resetPill);
       } catch (err) {
         console.error("Auto-save failed", err);
+        setSaveStatus('error');
       }
-    }, 1500);
+    }, 1200);
 
     return () => clearTimeout(handler);
   }, [data, initialLoading]);
 
+  // Cálculo en tiempo real del porcentaje de completitud del expediente
+  const completionPercentage = (() => {
+    let score = 0;
+    if (data.algorithmicConsentAccepted) score += 10;
+    if (data.biologicalSex) score += 10;
+    if (data.curp && data.curp.length === 18) score += 15;
+    if (data.emergencyContactPhone) score += 10;
+    if (data.weightKg && data.heightCm) score += 20;
+    if (data.dietaryPreference || data.sleepHoursAvg) score += 10;
+    if (data.healthGoals && data.healthGoals.length > 0) score += 15;
+    if (data.medicalConditions && data.medicalConditions.length > 0) score += 10;
+    return Math.min(100, Math.max(10, score));
+  })();
+
   const updateData = (fields: Partial<ConsumerOnboardingData>) => {
+    if (fields.algorithmicConsentAccepted && !data.consentAcceptedAt) {
+      fields.consentAcceptedAt = new Date().toISOString();
+    }
     setData((prev) => ({ ...prev, ...fields }));
   };
 
@@ -149,7 +178,6 @@ export function useConsumerOnboarding(stepsLength: number) {
     } catch (error) {
       console.error(error);
       toast.error("Hubo un error al guardar tu progreso. Intenta de nuevo.");
-      // Lanza el error para que la UI pueda manejar o loggear fallos específicos
       throw error;
     } finally {
       setLoading(false);
@@ -191,6 +219,8 @@ export function useConsumerOnboarding(stepsLength: number) {
     handleNext,
     handleSkip,
     handleBack,
-    initialLoading
+    initialLoading,
+    saveStatus,
+    completionPercentage,
   };
 }

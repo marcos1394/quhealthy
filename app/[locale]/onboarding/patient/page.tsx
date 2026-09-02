@@ -19,9 +19,17 @@ import {
   ArrowRight,
   Check,
   Shield,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  Scale,
+  Info,
+  Flame,
+  Moon,
 } from "lucide-react";
 
 import { useConsumerOnboarding } from "@/hooks/useConsumerOnboarding";
+import { calculateBmi, isValidCurp } from "@/types/consumerOnboarding";
 import { Icd10Autocomplete } from "@/components/ui/Icd10Autocomplete";
 import {
   Select,
@@ -59,6 +67,8 @@ export default function ConsumerOnboardingWizard() {
     handleNext,
     handleSkip,
     handleBack,
+    saveStatus,
+    completionPercentage,
   } = useConsumerOnboarding(STEPS.length);
 
   // ── ESTADO: CARGA INICIAL DE EXPEDIENTE ───────────────────────────────────
@@ -72,6 +82,10 @@ export default function ConsumerOnboardingWizard() {
       </div>
     );
   }
+
+  const bmiAnalysis = calculateBmi(data.weightKg, data.heightCm);
+  const curpValid = data.curp ? isValidCurp(data.curp) : false;
+  const weeklyExerciseMins = (Number(data.exerciseDaysPerWeek) || 0) * (Number(data.exerciseMinutesPerDay) || 0);
 
   // ── RENDERIZADO CONTENIDO DE CADA PASO ────────────────────────────────────
   const renderStepContent = () => {
@@ -170,37 +184,40 @@ export default function ConsumerOnboardingWizard() {
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                 {t("steps.identity.blood_type_label")}
               </label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                 {[
-                  { id: "O+", label: "O+" },
-                  { id: "O-", label: "O-" },
-                  { id: "A+", label: "A+" },
-                  { id: "A-", label: "A-" },
-                  { id: "B+", label: "B+" },
-                  { id: "B-", label: "B-" },
-                  { id: "AB+", label: "AB+" },
-                  { id: "AB-", label: "AB-" },
-                  { id: "", label: t("steps.identity.blood_type_unknown") },
-                ].map((option) => (
-                  <button
-                    key={option.id || "unknown"}
-                    type="button"
-                    onClick={() => updateData({ bloodType: option.id })}
-                    className={cn(
-                      "h-11 rounded-xl border text-xs font-bold transition-all",
-                      data.bloodType === option.id
-                        ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                        : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50",
-                      option.id === "" && "col-span-4"
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+                  "A+",
+                  "A-",
+                  "B+",
+                  "B-",
+                  "AB+",
+                  "AB-",
+                  "O+",
+                  "O-",
+                  { id: "UNKNOWN", label: t("steps.identity.blood_type_unknown") },
+                ].map((type) => {
+                  const id = typeof type === "string" ? type : type.id;
+                  const label = typeof type === "string" ? type : type.label;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => updateData({ bloodType: id })}
+                      className={cn(
+                        "h-10 rounded-xl border text-xs font-bold transition-all px-1.5",
+                        data.bloodType === id
+                          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                          : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50"
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* SECCIÓN IDENTIFICACIÓN ADICIONAL */}
+            {/* SECCIÓN IDENTIFICACIÓN ADICIONAL & NOM-024 */}
             <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
               <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 space-y-1">
                 <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
@@ -214,17 +231,47 @@ export default function ConsumerOnboardingWizard() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("steps.identity.curp_label")}
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                      {t("steps.identity.curp_label")}
+                    </label>
+                    {data.curp && (
+                      <span className={cn(
+                        "text-[10px] font-bold flex items-center gap-1",
+                        curpValid ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"
+                      )}>
+                        {curpValid ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>{t("steps.identity.curp_valid")}</span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="w-3 h-3" />
+                            <span>{data.curp.length}/18</span>
+                          </>
+                        )}
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
                     placeholder={t("steps.identity.curp_placeholder")}
-                    className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-bold font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 uppercase transition-all"
+                    className={cn(
+                      "w-full h-11 rounded-xl border bg-gray-50/50 dark:bg-[#050505] text-xs font-bold font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 px-4 uppercase transition-all",
+                      data.curp && curpValid
+                        ? "border-emerald-500/50 focus:ring-emerald-500/20"
+                        : data.curp && !curpValid
+                        ? "border-amber-400/60 focus:ring-amber-500/20"
+                        : "border-gray-200 dark:border-gray-800 focus:ring-emerald-500/20"
+                    )}
                     value={data.curp || ""}
                     onChange={(e) => updateData({ curp: e.target.value.toUpperCase() })}
                     maxLength={18}
                   />
+                  <p className="text-[10px] text-gray-400 leading-tight">
+                    {t("steps.identity.curp_helper")}
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -282,10 +329,10 @@ export default function ConsumerOnboardingWizard() {
                   value={data.ethnicGroup || ""}
                   onValueChange={(val) => updateData({ ethnicGroup: val })}
                 >
-                  <SelectTrigger className="w-full h-12 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold rounded-xl focus:ring-2 focus:ring-emerald-500/20">
+                  <SelectTrigger className="w-full h-11 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold rounded-xl focus:ring-2 focus:ring-emerald-500/20">
                     <SelectValue placeholder={t("steps.identity.ethnic_placeholder")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
                     <SelectItem value="Ninguno">Ninguno</SelectItem>
                     <SelectItem value="Náhuatl">Náhuatl</SelectItem>
                     <SelectItem value="Maya">Maya</SelectItem>
@@ -338,7 +385,7 @@ export default function ConsumerOnboardingWizard() {
           </div>
         );
 
-      // ── PASO 2: MEDIDAS Y SIGNOS VITALES ─────────────────────────────────
+      // ── PASO 2: MEDIDAS Y SIGNOS VITALES CON IMC INTERACTIVO OMS ─────────
       case 2:
         return (
           <div className="space-y-6">
@@ -385,27 +432,48 @@ export default function ConsumerOnboardingWizard() {
               </div>
             </div>
 
-            {/* Cálculo de IMC */}
-            {data.weightKg && data.heightCm && (
+            {/* Cálculo Avanzado de IMC con Clasificación OMS */}
+            {bmiAnalysis && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="p-5 rounded-2xl bg-emerald-600 text-white shadow-md flex items-center justify-between"
+                className="p-5 rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-lg space-y-4 border border-gray-800"
               >
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-100 block">
-                    {t("steps.vitals.bmi_title")}
-                  </span>
-                  <span className="text-xs font-medium text-emerald-50">
-                    {t("steps.vitals.bmi_desc")}
-                  </span>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                      <Scale className="w-3.5 h-3.5" />
+                      <span>{t("steps.vitals.bmi_title")}</span>
+                    </span>
+                    <span className="text-xs font-medium text-gray-300">
+                      {t("steps.vitals.bmi_desc")}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold font-mono tracking-tight text-white">
+                      {bmiAnalysis.bmi}
+                    </span>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-emerald-300">
+                      {bmiAnalysis.labelEs}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-3xl font-bold font-mono tracking-tight">
-                  {(
-                    Number(data.weightKg) /
-                    Math.pow(Number(data.heightCm) / 100, 2)
-                  ).toFixed(1)}
-                </span>
+
+                {/* Visual Segmented Gauge Bar */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="grid grid-cols-4 gap-1.5 h-2 rounded-full overflow-hidden bg-white/5">
+                    <div className={cn("h-full rounded-full transition-all", bmiAnalysis.category === "underweight" ? "bg-sky-400 shadow-sm shadow-sky-400/50" : "bg-sky-400/30")} />
+                    <div className={cn("h-full rounded-full transition-all", bmiAnalysis.category === "normal" ? "bg-emerald-400 shadow-sm shadow-emerald-400/50" : "bg-emerald-400/30")} />
+                    <div className={cn("h-full rounded-full transition-all", bmiAnalysis.category === "overweight" ? "bg-amber-400 shadow-sm shadow-amber-400/50" : "bg-amber-400/30")} />
+                    <div className={cn("h-full rounded-full transition-all", bmiAnalysis.category === "obesity" ? "bg-rose-400 shadow-sm shadow-rose-400/50" : "bg-rose-400/30")} />
+                  </div>
+                  <div className="flex justify-between text-[9px] font-semibold text-gray-400 pt-0.5">
+                    <span className={bmiAnalysis.category === "underweight" ? "text-sky-300 font-bold" : ""}>&lt; 18.5</span>
+                    <span className={bmiAnalysis.category === "normal" ? "text-emerald-300 font-bold" : ""}>18.5 - 24.9</span>
+                    <span className={bmiAnalysis.category === "overweight" ? "text-amber-300 font-bold" : ""}>25 - 29.9</span>
+                    <span className={bmiAnalysis.category === "obesity" ? "text-rose-300 font-bold" : ""}>≥ 30</span>
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -516,58 +584,94 @@ export default function ConsumerOnboardingWizard() {
               </div>
             </div>
 
-            {/* Ejercicio */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  {t("steps.lifestyle.exercise_days_label")}
-                </label>
-                <input
-                  type="number"
-                  placeholder={t("steps.lifestyle.exercise_days_placeholder")}
-                  className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
-                  value={data.exerciseDaysPerWeek}
-                  onChange={(e) =>
-                    updateData({
-                      exerciseDaysPerWeek: e.target.value
-                        ? Number(e.target.value)
-                        : "",
-                    })
-                  }
-                />
+            {/* Ejercicio con Comparador OMS */}
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("steps.lifestyle.exercise_days_label")}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder={t("steps.lifestyle.exercise_days_placeholder")}
+                    className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
+                    value={data.exerciseDaysPerWeek}
+                    onChange={(e) =>
+                      updateData({
+                        exerciseDaysPerWeek: e.target.value
+                          ? Number(e.target.value)
+                          : "",
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("steps.lifestyle.exercise_mins_label")}
+                  </label>
+                  <input
+                    type="number"
+                    placeholder={t("steps.lifestyle.exercise_mins_placeholder")}
+                    className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
+                    value={data.exerciseMinutesPerDay}
+                    onChange={(e) =>
+                      updateData({
+                        exerciseMinutesPerDay: e.target.value
+                          ? Number(e.target.value)
+                          : "",
+                      })
+                    }
+                  />
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  {t("steps.lifestyle.exercise_mins_label")}
-                </label>
-                <input
-                  type="number"
-                  placeholder={t("steps.lifestyle.exercise_mins_placeholder")}
-                  className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
-                  value={data.exerciseMinutesPerDay}
-                  onChange={(e) =>
-                    updateData({
-                      exerciseMinutesPerDay: e.target.value
-                        ? Number(e.target.value)
-                        : "",
-                    })
-                  }
-                />
-              </div>
+              {/* Badge Dinámico OMS */}
+              {weeklyExerciseMins > 0 && (
+                <div className={cn(
+                  "p-3 rounded-xl text-xs font-semibold flex items-center gap-2 border transition-all",
+                  weeklyExerciseMins >= 150
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/40"
+                    : "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/40"
+                )}>
+                  <Flame className={cn("w-4 h-4 shrink-0", weeklyExerciseMins >= 150 ? "text-emerald-600" : "text-amber-600")} />
+                  <span>
+                    {weeklyExerciseMins >= 150
+                      ? t("steps.lifestyle.who_exercise_goal_met", { mins: weeklyExerciseMins })
+                      : t("steps.lifestyle.who_exercise_goal_pending")}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Sueño y Estrés */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                   {t("steps.lifestyle.sleep_hours_label")}
                 </label>
+                <div className="flex items-center gap-1.5">
+                  {["6", "7", "8", "9+"].map((hrs) => (
+                    <button
+                      key={hrs}
+                      type="button"
+                      onClick={() => updateData({ sleepHoursAvg: hrs === "9+" ? 9 : Number(hrs) })}
+                      className={cn(
+                        "flex-1 h-9 rounded-lg border text-xs font-bold transition-all",
+                        (hrs === "9+" && Number(data.sleepHoursAvg) >= 9) || Number(data.sleepHoursAvg) === Number(hrs)
+                          ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                          : "bg-gray-50/50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/50"
+                      )}
+                    >
+                      {hrs}h
+                    </button>
+                  ))}
+                </div>
                 <input
                   type="number"
                   step="0.5"
                   placeholder={t("steps.lifestyle.sleep_hours_placeholder")}
-                  className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
+                  className="w-full h-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-4 transition-all"
                   value={data.sleepHoursAvg}
                   onChange={(e) =>
                     updateData({
@@ -579,13 +683,26 @@ export default function ConsumerOnboardingWizard() {
                 />
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
                     {t("steps.lifestyle.stress_label")}
                   </label>
-                  <span className="text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                    {t("steps.lifestyle.stress_value", { value: data.stressLevel })}
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-0.5 rounded-full border",
+                    Number(data.stressLevel) <= 3
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400"
+                      : Number(data.stressLevel) <= 6
+                      ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400"
+                      : "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400"
+                  )}>
+                    {Number(data.stressLevel) <= 3
+                      ? t("steps.lifestyle.stress_level_1_3")
+                      : Number(data.stressLevel) <= 6
+                      ? t("steps.lifestyle.stress_level_4_6")
+                      : Number(data.stressLevel) <= 8
+                      ? t("steps.lifestyle.stress_level_7_8")
+                      : t("steps.lifestyle.stress_level_9_10")}
                   </span>
                 </div>
                 <input
@@ -599,10 +716,6 @@ export default function ConsumerOnboardingWizard() {
                     updateData({ stressLevel: Number(e.target.value) })
                   }
                 />
-                <div className="flex justify-between text-[10px] font-semibold text-gray-400 pt-0.5">
-                  <span>{t("steps.lifestyle.stress_low")}</span>
-                  <span>{t("steps.lifestyle.stress_high")}</span>
-                </div>
               </div>
             </div>
 
@@ -767,30 +880,77 @@ export default function ConsumerOnboardingWizard() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pb-20">
-      {/* ── HEADER DE PROGRESO FLOTANTE ────────────────────────────────────── */}
-      <header className="bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 p-5 sm:p-6 sticky top-0 z-50 transition-all">
-        <div className="max-w-3xl mx-auto space-y-4">
+      {/* ── HEADER DE PROGRESO FLOTANTE CON AUTO-GUARDADO Y METRICA DE COMPLETITUD ── */}
+      <header className="bg-white/85 dark:bg-[#0a0a0a]/85 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 sticky top-0 z-50 transition-all">
+        <div className="max-w-3xl mx-auto space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
-              <span>{t("header_brand")}</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">•</span>
-              <span className="text-xs font-semibold text-gray-400">{t("header_sub")}</span>
-            </span>
-
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
-              <span>
-                {t("step_progress", {
-                  current: currentStep + 1,
-                  total: STEPS.length,
-                })}
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
+                <span>{t("header_brand")}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">•</span>
+                <span className="text-xs font-semibold text-gray-400">{t("header_sub")}</span>
               </span>
-            </span>
+
+              {/* Auto-Save Live Status Pill */}
+              <AnimatePresence>
+                {saveStatus !== 'idle' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className={cn(
+                      "hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-colors",
+                      saveStatus === 'saving' && "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900/40",
+                      saveStatus === 'saved' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/40",
+                      saveStatus === 'error' && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900/40"
+                    )}
+                  >
+                    {saveStatus === 'saving' && (
+                      <>
+                        <QhSpinner size="sm" className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                        <span>{t("autosave.saving")}</span>
+                      </>
+                    )}
+                    {saveStatus === 'saved' && (
+                      <>
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <span>{t("autosave.saved")}</span>
+                      </>
+                    )}
+                    {saveStatus === 'error' && (
+                      <>
+                        <AlertCircle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                        <span>{t("autosave.error")}</span>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Completeness percentage */}
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">
+                <Sparkles className="w-3 h-3" />
+                <span>{t("completeness_label", { percent: completionPercentage })}</span>
+              </span>
+
+              {/* Step counter badge */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-900/40">
+                <span>
+                  {t("step_progress", {
+                    current: currentStep + 1,
+                    total: STEPS.length,
+                  })}
+                </span>
+              </span>
+            </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+          {/* Progress Bar with Completeness Gradient */}
+          <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
             <motion.div
-              className="h-full bg-emerald-600 rounded-full"
+              className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
               initial={{ width: 0 }}
               animate={{
                 width: `${((currentStep + 1) / STEPS.length) * 100}%`,
