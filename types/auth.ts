@@ -3,7 +3,7 @@
 // ================================
 // ENUMS & TYPES
 // ================================
-export type UserRole = 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF';
+export type UserRole = 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF' | 'ROLE_FOUNDATION' | 'ROLE_SUPPLIER';
 export type ServiceType = 'HEALTH' | 'WELLNESS'; // Mantener si se usaba
 
 // ================================
@@ -61,7 +61,7 @@ export interface AuthUser {
   lastName: string;
   email: string;
   profileImageUrl: string | null;
-  role?: 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF';
+  role?: UserRole;
   permissions?: string[];           // módulos que el provider le otorgó al staff
   parentProviderId?: number;        // ID del proveedor al que pertenece (solo ROLE_STAFF)
   staffRole?: string;               // ej: "RECEPTIONIST", "NURSE", "ASSISTANT"
@@ -97,7 +97,7 @@ export interface LoginRequest {
   email: string;
   password: string;
   captchaToken: string;
-  role?: 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_STAFF' | 'ROLE_ADMIN';
+  role?: UserRole;
 }
 
 export interface SocialLoginRequest {

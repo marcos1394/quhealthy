@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
-import { AuthResponse, AuthUser, AuthStatus } from '@/types/auth';
+import { AuthResponse, AuthUser, AuthStatus, UserRole } from '@/types/auth';
 
 // 🚀 FIX BUG-5: Mutex compartido con axios.ts para prevenir race condition en token rotation
 // Exportamos este flag para que el interceptor de axios sepa si initializeSession ya está en progreso
@@ -43,7 +43,7 @@ interface SessionState {
   // Estado
   token: string | null;
   user: AuthUser | null;
-  role: 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF' | null;
+  role: UserRole | null;
   status: AuthStatus | null;
   isAuthenticated: boolean;
   isLoading: boolean;

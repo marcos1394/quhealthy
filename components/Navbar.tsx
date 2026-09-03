@@ -105,6 +105,50 @@ const LINKS: Record<string, NavItem[]> = {
     { name: "links.admin.panel", href: "/admin", icon: LayoutDashboard },
     { name: "links.admin.users", href: "/admin/users", icon: UserIcon },
   ],
+  FOUNDATION: [
+    {
+      name: "links.foundation.dashboard",
+      href: "/foundation/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "links.foundation.programs",
+      href: "/foundation/programs",
+      icon: HeartHandshake,
+    },
+    {
+      name: "links.foundation.beneficiaries",
+      href: "/foundation/beneficiaries",
+      icon: UserIcon,
+    },
+    {
+      name: "links.foundation.campaigns",
+      href: "/foundation/campaigns",
+      icon: Calendar,
+    },
+  ],
+  SUPPLIER: [
+    {
+      name: "links.supplier.dashboard",
+      href: "/supplier/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "links.supplier.inventory",
+      href: "/supplier/inventory",
+      icon: Store,
+    },
+    {
+      name: "links.supplier.orders",
+      href: "/supplier/orders",
+      icon: ShoppingBag,
+    },
+    {
+      name: "links.supplier.quotes",
+      href: "/supplier/quotes",
+      icon: Truck,
+    },
+  ],
 };
 
 export const Navbar: React.FC = () => {
@@ -257,6 +301,105 @@ export const Navbar: React.FC = () => {
                 </Link>
               </DropdownMenuItem>
             </>
+          ) : role === "ROLE_FOUNDATION" ? (
+            <>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-rose-50/50 dark:focus:bg-rose-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link
+                  href="/foundation/dashboard"
+                  className="flex items-center gap-2.5 w-full"
+                >
+                  <LayoutDashboard size={15} className="text-rose-600 dark:text-rose-400" />
+                  <span>{t("links.foundation.dashboard", { defaultValue: "Panel Institucional" })}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-rose-50/50 dark:focus:bg-rose-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link
+                  href="/foundation/programs"
+                  className="flex items-center gap-2.5 w-full"
+                >
+                  <HeartHandshake size={15} className="text-rose-600 dark:text-rose-400" />
+                  <span>{t("links.foundation.programs", { defaultValue: "Programas" })}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-rose-50/50 dark:focus:bg-rose-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link
+                  href="/foundation/beneficiaries"
+                  className="flex items-center gap-2.5 w-full"
+                >
+                  <UserIcon size={15} className="text-rose-600 dark:text-rose-400" />
+                  <span>{t("links.foundation.beneficiaries", { defaultValue: "Beneficiarios" })}</span>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          ) : role === "ROLE_SUPPLIER" ? (
+            <>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-blue-50/50 dark:focus:bg-blue-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link
+                  href="/supplier/dashboard"
+                  className="flex items-center gap-2.5 w-full"
+                >
+                  <LayoutDashboard size={15} className="text-blue-600 dark:text-blue-400" />
+                  <span>{t("links.supplier.dashboard", { defaultValue: "Panel Proveedor" })}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-blue-50/50 dark:focus:bg-blue-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link
+                  href="/supplier/inventory"
+                  className="flex items-center gap-2.5 w-full"
+                >
+                  <Store size={15} className="text-blue-600 dark:text-blue-400" />
+                  <span>{t("links.supplier.inventory", { defaultValue: "Inventario" })}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-blue-50/50 dark:focus:bg-blue-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link
+                  href="/supplier/orders"
+                  className="flex items-center gap-2.5 w-full"
+                >
+                  <ShoppingBag size={15} className="text-blue-600 dark:text-blue-400" />
+                  <span>{t("links.supplier.orders", { defaultValue: "Pedidos" })}</span>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          ) : role === "ROLE_ADMIN" ? (
+            <>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link href="/admin" className="flex items-center gap-2.5 w-full">
+                  <LayoutDashboard size={15} className="text-emerald-600 dark:text-emerald-400" />
+                  <span>{t("links.admin.panel")}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5 text-xs font-semibold text-gray-700 dark:text-gray-300"
+              >
+                <Link href="/admin/users" className="flex items-center gap-2.5 w-full">
+                  <UserIcon size={15} className="text-emerald-600 dark:text-emerald-400" />
+                  <span>{t("links.admin.users")}</span>
+                </Link>
+              </DropdownMenuItem>
+            </>
           ) : (
             <>
               <DropdownMenuItem
@@ -303,6 +446,12 @@ export const Navbar: React.FC = () => {
               href={
                 role === "ROLE_PROVIDER" || role === "ROLE_STAFF"
                   ? "/provider/settings"
+                  : role === "ROLE_FOUNDATION"
+                  ? "/foundation/settings"
+                  : role === "ROLE_SUPPLIER"
+                  ? "/supplier/dashboard"
+                  : role === "ROLE_ADMIN"
+                  ? "/admin"
                   : "/patient/dashboard/settings"
               }
               className="flex items-center gap-2.5 w-full"
@@ -718,6 +867,12 @@ export const Navbar: React.FC = () => {
                       href={
                         role === "ROLE_PROVIDER" || role === "ROLE_STAFF"
                           ? "/provider/settings"
+                          : role === "ROLE_FOUNDATION"
+                          ? "/foundation/settings"
+                          : role === "ROLE_SUPPLIER"
+                          ? "/supplier/dashboard"
+                          : role === "ROLE_ADMIN"
+                          ? "/admin"
                           : "/patient/dashboard/settings"
                       }
                       onClick={() => setMobileMenuOpen(false)}

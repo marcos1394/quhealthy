@@ -353,21 +353,33 @@ const PricingSection: React.FC = () => {
                 </ul>
               </div>
 
-              <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
-                <Link
-                  href="/foundations"
-                  className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  <span>{t('custom_plans.foundations.button', { defaultValue: "Conocer Solución para Fundaciones" })}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/contact?topic=foundation"
-                  className="h-11 px-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>{t('custom_plans.contact_button', { defaultValue: "Contacto" })}</span>
-                </Link>
+              <div className="pt-2 flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <Link
+                    href="/foundation/register"
+                    className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <span>{t('custom_plans.foundations.register_button', { defaultValue: "Registrar Fundación" })}</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link
+                    href="/foundations"
+                    className="h-11 px-4 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-950/40 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>{t('custom_plans.foundations.features_button', { defaultValue: "Ver Características" })}</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-[11px] font-medium text-gray-400">{t('custom_plans.contact_question', { defaultValue: "¿Dudas o plan a la medida?" })}</span>
+                  <Link
+                    href="/contact?topic=foundation"
+                    className="font-bold text-[11px] text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Mail className="w-3 h-3" />
+                    <span>{t('custom_plans.contact_link', { defaultValue: "Hablar con un asesor" })}</span>
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -408,21 +420,33 @@ const PricingSection: React.FC = () => {
                 </ul>
               </div>
 
-              <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
-                <Link
-                  href="/suppliers"
-                  className="flex-1 h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  <span>{t('custom_plans.suppliers.button', { defaultValue: "Conocer Solución para Proveedores" })}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/contact?topic=supplier"
-                  className="h-11 px-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>{t('custom_plans.contact_button', { defaultValue: "Contacto" })}</span>
-                </Link>
+              <div className="pt-2 flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <Link
+                    href="/supplier/register"
+                    className="flex-1 h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <span>{t('custom_plans.suppliers.register_button', { defaultValue: "Registrar como Proveedor" })}</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link
+                    href="/suppliers"
+                    className="h-11 px-4 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-950/40 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>{t('custom_plans.suppliers.features_button', { defaultValue: "Ver Características" })}</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-[11px] font-medium text-gray-400">{t('custom_plans.contact_question', { defaultValue: "¿Dudas o plan a la medida?" })}</span>
+                  <Link
+                    href="/contact?topic=supplier"
+                    className="font-bold text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Mail className="w-3 h-3" />
+                    <span>{t('custom_plans.contact_link', { defaultValue: "Hablar con un asesor" })}</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

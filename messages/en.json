@@ -14,6 +14,8 @@
     "search_button": "Get Started",
     "quick_patient": "For Patients: Find Doctors & Book",
     "quick_provider": "For Doctors: Digitize Clinic & EHR",
+    "quick_foundation": "For Foundations: Programs & SROI",
+    "quick_supplier": "For Suppliers: Catalog & B2B",
     "dynamic_words": [
       "Health",
       "Wellness",
@@ -191,6 +193,8 @@
     "custom_plans": {
       "title": "Tailor-Made Specialized Plans",
       "subtitle": "Institutional solutions designed for social health organizations and medical enterprises.",
+      "contact_question": "Do you have specific questions or need a custom enterprise plan?",
+      "contact_link": "Talk to an advisor",
       "foundations": {
         "badge": "Custom / Subsidized",
         "title": "For Foundations, NGOs & Non-Profits",
@@ -198,6 +202,8 @@
         "f1": "0% Commission on donations and fundraising",
         "f2": "Transparency and tax authority compliance reports",
         "f3": "Dedicated institutional onboarding and technical support",
+        "register_button": "Register Foundation",
+        "features_button": "View Features",
         "button": "Explore Foundation Solutions"
       },
       "suppliers": {
@@ -207,6 +213,8 @@
         "f1": "Multi-warehouse, kardex and lot traceability",
         "f2": "Formal B2B quotation generator with tax & credit terms",
         "f3": "API integration and personalized commercial account manager",
+        "register_button": "Register as Supplier",
+        "features_button": "View Features",
         "button": "Explore Supplier Solutions"
       },
       "contact_button": "Contact"
@@ -225,7 +233,10 @@
     ],
     "button_primary": "Start for Free",
     "button_secondary": "Talk to Sales",
-    "trust_indicator": "🔒 No credit card required • Cancel anytime"
+    "trust_indicator": "🔒 No credit card required • Cancel anytime",
+    "institutional_prompt": "Do you represent a Foundation or Medical Supply Company?",
+    "foundation_link": "Solutions for Foundations",
+    "supplier_link": "Channel for Suppliers"
   },
   "Footer": {
     "brand_description": "The comprehensive operating system for health and wellness. We connect patients with the best certified specialists in LATAM.",
@@ -315,6 +326,20 @@
       "admin": {
         "panel": "Admin Panel",
         "users": "Users"
+      },
+      "foundation": {
+        "dashboard": "Foundation Portal",
+        "beneficiaries": "Beneficiaries",
+        "programs": "Programs",
+        "campaigns": "Campaigns",
+        "subsidies": "Subsidies"
+      },
+      "supplier": {
+        "dashboard": "Supplier Portal",
+        "inventory": "Inventory",
+        "orders": "Orders",
+        "quotes": "Quotes",
+        "cold_chain": "Cold Chain"
       }
     },
     "user_menu": {

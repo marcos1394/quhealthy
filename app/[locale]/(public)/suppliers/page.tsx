@@ -446,23 +446,23 @@ export default function SuppliersLandingPage() {
                 </p>
 
                 <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                  <Link href="/contact?topic=supplier">
+                  <Link href="/supplier/register">
                     <Button
                       size="lg"
                       className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-8 py-5 rounded-2xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <span>{t("pricing.cta_button")}</span>
+                      <span>{t("hero.cta_onboarding")}</span>
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
 
-                  <Link href="/supplier/register">
+                  <Link href="/contact?topic=supplier">
                     <Button
                       size="lg"
                       variant="outline"
                       className="w-full sm:w-auto border-white/20 hover:bg-white/10 text-white font-bold text-xs px-6 py-5 rounded-2xl cursor-pointer"
                     >
-                      <span>{t("hero.cta_onboarding")}</span>
+                      <span>{t("pricing.cta_button")}</span>
                     </Button>
                   </Link>
                 </div>

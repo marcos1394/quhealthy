@@ -20,14 +20,15 @@ import {
   Navigation,
   Sparkles,
   ArrowRight,
-  Stethoscope
+  Stethoscope,
+  HeartHandshake,
+  Truck
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { LogoCarousel } from "@/components/sections/LogoCarousel";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: string }) => {
   const [index, setIndex] = useState(0);
@@ -203,24 +204,42 @@ const HeroSection: React.FC = () => {
               </div>
             </div>
 
-            {/* Acceso Rápido Dual */}
-            <div className="flex flex-wrap items-center gap-3 pt-1">
+            {/* Acceso Rápido por Rol */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
               <Link
                 href="/discover"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all shadow-xs group"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all shadow-2xs group"
               >
                 <Heart className="w-3.5 h-3.5 text-pink-500" />
-                <span>{t("quick_patient", { defaultValue: "Para Pacientes: Buscar Médicos & Agendar" })}</span>
+                <span>{t("quick_patient", { defaultValue: "Pacientes" })}</span>
                 <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
               </Link>
 
               <Link
-                href="/provider/signup"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all shadow-xs group"
+                href="/business"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all shadow-2xs group"
               >
                 <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{t("quick_provider", { defaultValue: "Para Médicos: Digitalizar Consultorio & ECE" })}</span>
+                <span>{t("quick_provider", { defaultValue: "Médicos & Clínicas" })}</span>
                 <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              <Link
+                href="/foundations"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-rose-500/50 hover:bg-rose-50/30 dark:hover:bg-rose-950/20 transition-all shadow-2xs group"
+              >
+                <HeartHandshake className="w-3.5 h-3.5 text-rose-600" />
+                <span>{t("quick_foundation", { defaultValue: "Fundaciones & ONGs" })}</span>
+                <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              <Link
+                href="/suppliers"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-900 dark:text-white hover:border-blue-500/50 hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-all shadow-2xs group"
+              >
+                <Truck className="w-3.5 h-3.5 text-blue-600" />
+                <span>{t("quick_supplier", { defaultValue: "Proveedores B2B" })}</span>
+                <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
               </Link>
             </div>
 

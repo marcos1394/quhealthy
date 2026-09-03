@@ -14,6 +14,8 @@
     "search_button": "Empezar",
     "quick_patient": "Para Pacientes: Buscar Médicos & Agendar",
     "quick_provider": "Para Médicos: Digitalizar Consultorio & ECE",
+    "quick_foundation": "Para Fundaciones: Programas & SROI",
+    "quick_supplier": "Para Proveedores: Catálogo & B2B",
     "dynamic_words": [
       "Salud",
       "Bienestar",
@@ -186,6 +188,8 @@
     "custom_plans": {
       "title": "Planes Especializados a la Medida",
       "subtitle": "Soluciones institucionales adaptadas para organismos asistenciales y empresas del sector salud.",
+      "contact_question": "¿Tienes dudas específicas o requieres un plan a la medida?",
+      "contact_link": "Hablar con un asesor",
       "foundations": {
         "badge": "A la Medida / Subsidiado",
         "title": "Para Fundaciones, OSCs y Asistencia Social",
@@ -193,6 +197,8 @@
         "f1": "0% Comisión por donativos y recaudación",
         "f2": "Reportes de transparencia y rendición fiscal SAT",
         "f3": "Acompañamiento y onboarding institucional dedicado",
+        "register_button": "Registrar Fundación",
+        "features_button": "Ver Características",
         "button": "Conocer Solución para Fundaciones"
       },
       "suppliers": {
@@ -202,6 +208,8 @@
         "f1": "Multi-almacén, kardex y trazabilidad de lotes",
         "f2": "Cotizador formal B2B y órdenes de compra con IVA",
         "f3": "Integración técnica y asesoría comercial personalizada",
+        "register_button": "Registrar como Proveedor",
+        "features_button": "Ver Características",
         "button": "Conocer Solución para Proveedores"
       },
       "contact_button": "Contacto"
@@ -220,7 +228,10 @@
     ],
     "button_primary": "Comenzar Gratis",
     "button_secondary": "Hablar con Ventas",
-    "trust_indicator": "🔒 No se requiere tarjeta de crédito • Cancela cuando quieras"
+    "trust_indicator": "🔒 No se requiere tarjeta de crédito • Cancela cuando quieras",
+    "institutional_prompt": "¿Representas una Fundación o Empresa de Insumos?",
+    "foundation_link": "Solución para Fundaciones",
+    "supplier_link": "Canal para Proveedores"
   },
   "Footer": {
     "brand_description": "El sistema operativo integral para la salud y el bienestar. Conectamos pacientes con los mejores especialistas certificados en LATAM.",
@@ -310,6 +321,20 @@
       "admin": {
         "panel": "Panel Admin",
         "users": "Usuarios"
+      },
+      "foundation": {
+        "dashboard": "Panel Institucional",
+        "beneficiaries": "Beneficiarios",
+        "programs": "Programas",
+        "campaigns": "Jornadas",
+        "subsidies": "Subsidios"
+      },
+      "supplier": {
+        "dashboard": "Panel Proveedor",
+        "inventory": "Inventario",
+        "orders": "Pedidos",
+        "quotes": "Cotizaciones",
+        "cold_chain": "Cadena de Frío"
       }
     },
     "user_menu": {

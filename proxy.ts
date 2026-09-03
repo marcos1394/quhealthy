@@ -58,13 +58,21 @@ export function proxy(request: NextRequest) {
   // 🚀 Identificamos la ruta de login de admin para excluirla de las protegidas
   const isAdminLoginRoute = /^\/([a-zA-Z]{2}\/)?admin\/login/.test(pathname);
 
+  // 🚀 Identificamos las páginas públicas de fundaciones y proveedores de insumos
+  const isPublicFoundationsRoute = /^\/([a-zA-Z]{2}\/)?foundations(\/|$)/.test(pathname);
+  const isPublicSuppliersRoute = /^\/([a-zA-Z]{2}\/)?suppliers(\/|$)/.test(pathname);
+  const isPublicFoundationProfile = /^\/([a-zA-Z]{2}\/)?foundation\/\d+(\/|$)/.test(pathname);
+
   // Todo bajo /patient, /provider, /supplier, /foundation o /admin está protegido
-  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|supplier|foundation|admin)/.test(pathname) 
+  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|supplier|foundation|admin)(\/|$)/.test(pathname) 
     && !isProviderRegisterRoute 
     && !isSupplierRegisterRoute
     && !isFoundationRegisterRoute
     && !isPublicPrescriptionRoute
-    && !isAdminLoginRoute;
+    && !isAdminLoginRoute
+    && !isPublicFoundationsRoute
+    && !isPublicSuppliersRoute
+    && !isPublicFoundationProfile;
   
   const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register|supplier\/register|foundation\/register|admin\/login)/.test(pathname);
 

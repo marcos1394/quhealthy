@@ -2,8 +2,8 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { ArrowRight, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
+import { Link } from "@/i18n/routing";
+import { ArrowRight, CheckCircle2, Sparkles, ShieldCheck, HeartHandshake, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSessionStore } from "@/stores/SessionStore";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,22 @@ const CtaSection: React.FC = () => {
     t('benefits.1'),
     t('benefits.2')
   ];
+
+  const getDashboardHref = () => {
+    if (role === 'ROLE_PROVIDER' || role === 'ROLE_STAFF') return '/provider/dashboard';
+    if (role === 'ROLE_FOUNDATION') return '/foundation/dashboard';
+    if (role === 'ROLE_SUPPLIER') return '/supplier/dashboard';
+    if (role === 'ROLE_ADMIN') return '/admin';
+    return '/patient/dashboard';
+  };
+
+  const getDashboardLabel = () => {
+    if (role === 'ROLE_PROVIDER' || role === 'ROLE_STAFF') return "Ir a Panel Médico";
+    if (role === 'ROLE_FOUNDATION') return "Ir a Panel Institucional";
+    if (role === 'ROLE_SUPPLIER') return "Ir a Panel Proveedor";
+    if (role === 'ROLE_ADMIN') return "Ir a Panel Admin";
+    return "Ir a Mi Salud";
+  };
 
   return (
     <section className="py-20 md:py-28 bg-gray-50/50 dark:bg-[#050505] transition-colors duration-500 font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30">
@@ -68,22 +84,44 @@ const CtaSection: React.FC = () => {
           {/* Botones de Acción / CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full sm:w-auto relative z-10 pt-4">
             <Link
-              href={isAuthenticated ? (role === 'ROLE_PROVIDER' ? '/provider/dashboard' : '/patient/dashboard') : '/discover'}
+              href={isAuthenticated ? getDashboardHref() : '/discover'}
               className="h-12 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 group w-full sm:w-auto cursor-pointer"
             >
-              <span>{isAuthenticated ? (role === 'ROLE_PROVIDER' ? "Ir a Panel Médico" : "Ir a Mi Salud") : "Buscar Médicos y Agendar Cita"}</span>
+              <span>{isAuthenticated ? getDashboardLabel() : "Buscar Médicos y Agendar Cita"}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
             </Link>
 
             {!isAuthenticated && (
               <Link
-                href="/provider/signup"
+                href="/provider/register"
                 className="h-12 px-8 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/15 transition-all flex items-center justify-center w-full sm:w-auto cursor-pointer"
               >
                 <span>Registrarme como Médico / Clínica</span>
               </Link>
             )}
           </div>
+
+          {/* Opciones para Fundaciones y Proveedores */}
+          {!isAuthenticated && (
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-400 relative z-10">
+              <span>{t('institutional_prompt', { defaultValue: "¿Representas una Fundación o Empresa de Insumos?" })}</span>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/foundations"
+                  className="font-bold text-rose-400 hover:text-rose-300 transition-colors underline underline-offset-4"
+                >
+                  {t('foundation_link', { defaultValue: "Solución para Fundaciones" })}
+                </Link>
+                <span>•</span>
+                <Link
+                  href="/suppliers"
+                  className="font-bold text-blue-400 hover:text-blue-300 transition-colors underline underline-offset-4"
+                >
+                  {t('supplier_link', { defaultValue: "Canal para Proveedores" })}
+                </Link>
+              </div>
+            </div>
+          )}
 
           {/* Indicador de Confianza / Seguridad */}
           <div className="pt-8 border-t border-white/10 max-w-md mx-auto relative z-10">
