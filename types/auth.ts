@@ -3,7 +3,7 @@
 // ================================
 // ENUMS & TYPES
 // ================================
-export type UserRole = 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF' | 'ROLE_FOUNDATION' | 'ROLE_SUPPLIER';
+export type UserRole = 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_ADMIN' | 'ROLE_STAFF' | 'ROLE_FOUNDATION' | 'ROLE_SUPPLIER' | 'ROLE_LABORATORY';
 export type ServiceType = 'HEALTH' | 'WELLNESS'; // Mantener si se usaba
 
 // ================================
