@@ -94,7 +94,7 @@ const CtaSection: React.FC = () => {
             {!isAuthenticated && (
               <Link
                 href="/provider/register"
-                className="h-12 px-8 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/15 transition-all flex items-center justify-center w-full sm:w-auto cursor-pointer"
+                className="h-12 px-8 rounded-xl bg-white text-gray-900 hover:bg-gray-100 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 font-bold text-xs shadow-md transition-all flex items-center justify-center w-full sm:w-auto cursor-pointer"
               >
                 <span>Registrarme como Médico / Clínica</span>
               </Link>

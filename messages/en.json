@@ -10638,6 +10638,17 @@
       "subtitle": "Join the QuHealthy institutional network and digitize your assistance programs with complete transparency.",
       "button_onboarding": "Start Foundation Registration",
       "button_contact": "Talk to an Institutional Specialist"
+    },
+    "mockup": {
+      "beneficiary_name": "Maria Elena Ramos Ortiz",
+      "curp_verified": "CURP Verified RENAPO",
+      "campaign_title": "Ophthalmic & Cardiometabolic Campaign",
+      "campaign_progress": "84% of community goal reached",
+      "sroi_title": "Social Return (SROI)",
+      "sroi_val": "$3.80 MXN",
+      "sroi_sub": "social return per $1 MXN invested",
+      "voucher_status": "Voucher Redeemed",
+      "voucher_clinic": "San Angel Clinic • Folio #VCH-4892"
     }
   },
   "PublicSuppliers": {
@@ -10742,6 +10753,16 @@
       "subtitle": "Join the leading healthcare platform and supply thousands of verified clinics and doctors nationwide.",
       "button_onboarding": "Register my Supplier Company",
       "button_contact": "Talk to a Commercial Advisor"
+    },
+    "mockup": {
+      "temp_status": "Cold Chain Active",
+      "temp_value": "3.8°C",
+      "temp_range": "Optimal range (2°C - 8°C)",
+      "license_badge": "COFEPRIS Validated",
+      "rfq_title": "B2B Quote #COT-2026-89",
+      "rfq_client": "Hospital Angeles Lomas • Itemized VAT",
+      "stock_status": "Verified Stock",
+      "warehouse_name": "Central Hub CDMX • 450 units"
     }
   },
   "Cart": {

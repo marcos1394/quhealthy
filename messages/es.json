@@ -10678,6 +10678,17 @@
       "subtitle": "Únete a la red institucional de QuHealthy y digitaliza tus programas asistenciales con total transparencia.",
       "button_onboarding": "Comenzar Registro Institucional",
       "button_contact": "Hablar con un Especialista"
+    },
+    "mockup": {
+      "beneficiary_name": "María Elena Ramos Ortiz",
+      "curp_verified": "CURP Validado RENAPO",
+      "campaign_title": "Jornada Oftalmológica & Metabólica",
+      "campaign_progress": "84% de la meta comunitaria",
+      "sroi_title": "Retorno Social (SROI)",
+      "sroi_val": "$3.80 MXN",
+      "sroi_sub": "retorno por cada $1 MXN invertido",
+      "voucher_status": "Voucher Canjeado",
+      "voucher_clinic": "Clínica San Ángel • Folio #VCH-4892"
     }
   },
   "PublicSuppliers": {
@@ -10782,6 +10793,16 @@
       "subtitle": "Únete a la plataforma de salud líder y abastece a miles de profesionales y clínicas en todo el país.",
       "button_onboarding": "Registrar mi Empresa Proveedora",
       "button_contact": "Hablar con un Asesor Comercial"
+    },
+    "mockup": {
+      "temp_status": "Cadena de Frío Activa",
+      "temp_value": "3.8°C",
+      "temp_range": "Rango óptimo (2°C - 8°C)",
+      "license_badge": "COFEPRIS Validado",
+      "rfq_title": "Cotización B2B #COT-2026-89",
+      "rfq_client": "Hospital Ángeles Lomas • IVA desglosado",
+      "stock_status": "Stock Verificado",
+      "warehouse_name": "Almacén Central CDMX • 450 cajas"
     }
   },
   "Cart": {
