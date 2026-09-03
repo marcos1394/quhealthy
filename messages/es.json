@@ -30,7 +30,7 @@
       "reviews": "Reseñas reales"
     },
     "metrics": {
-      "m1": "+2.5k Especialistas",
+      "m1": "Cédula Profesional Verificada",
       "m2": "Atención Inmediata",
       "m3": "Privacidad Total"
     }
@@ -74,28 +74,34 @@
     ]
   },
   "Testimonials": {
-    "badge": "Historias Reales",
-    "title_start": "Lo que dicen ",
-    "title_highlight": "nuestros pacientes",
-    "description": "Descubre cómo profesionales como tú están transformando su práctica diaria",
-    "cta_text": "¿Quieres ser parte de estas historias de éxito?",
-    "cta_button": "Comenzar mi historia",
+    "badge": "Rigor Clínico & Seguridad Jurídica",
+    "title_start": "El Estándar Clínico ",
+    "title_highlight": "QuHealthy",
+    "description": "Diseñado bajo el marco legal y sanitario de México. Una plataforma construida para respaldar tu práctica médica con total tranquilidad regulatoria y seguridad para tus pacientes.",
+    "cta_text": "¿Buscas digitalizar tu consultorio con acompañamiento real?",
+    "cta_button": "Unirme como Médico Fundador",
     "items": {
       "1": {
-        "name": "María López",
-        "role": "Paciente",
-        "text": "QuHealthy ha cambiado completamente mi experiencia con la atención médica. Encontré a un especialista excelente en minutos y pude reservar una cita para el mismo día."
+        "name": "Cédula Profesional DGP/SEP",
+        "role": "Validación Oficial de Credenciales",
+        "text": "Verificación automatizada de cédula profesional federal y especialidad ante la Dirección General de Profesiones. Garantía total contra perfiles no acreditados."
       },
       "2": {
-        "name": "Dr. Carlos Mendoza",
-        "role": "Dermatólogo",
-        "text": "Como profesional, la plataforma me ha permitido gestionar mejor mi tiempo y conectar con pacientes que realmente necesitan mis servicios específicos."
+        "name": "Expediente Clínico NOM-004",
+        "role": "Cumplimiento SSA & COFEPRIS",
+        "text": "Custodia estructurada de historia clínica, notas de evolución SOAP, consentimientos informados y recetas electrónicas con código QR de autenticidad."
       },
       "3": {
-        "name": "Laura Sánchez",
-        "role": "Directora",
-        "text": "Desde que integramos QuHealthy en nuestro centro, hemos aumentado las reservas en un 40% y mejorado significativamente la satisfacción de nuestros clientes."
+        "name": "Cifrado Grado Bancario AES-256",
+        "role": "Privacidad y Custodia Segura",
+        "text": "Cifrado de extremo a extremo en reposo y tránsito conforme a la LFPDPPP. Tus datos y los de tus pacientes jamás son compartidos ni comercializados a terceros."
       }
+    },
+    "founder_banner": {
+      "badge": "Convocatoria Abierta • Grupo Pionero 2026",
+      "title": "Programa de Médicos y Clínicas Fundadoras",
+      "description": "Estamos seleccionando a los primeros profesionales de la salud en México para co-diseñar el futuro de la práctica médica digital. Recibe onboarding prioritario 1-a-1, personalización de formatos clínicos y beneficios preferenciales vitalicios.",
+      "button": "Comenzar como Médico Fundador"
     }
   },
   "Pricing": {
@@ -217,10 +223,10 @@
     "footer": "Todos los planes incluyen 14 días de prueba gratis • Sin tarjeta requerida • Cancela cuando quieras"
   },
   "Cta": {
-    "badge": "Únete a +2,500 profesionales",
+    "badge": "Software Médico para México",
     "title_start": "Potencia tu Práctica",
     "title_highlight": "Comienza Hoy Mismo",
-    "description": "Únete a miles de profesionales que ya están transformando su práctica. Prueba todas las funciones premium sin riesgos.",
+    "description": "Moderniza tu consultorio, agenda y expediente clínico con herramientas seguras, recetas electrónicas y tecnología diseñada para México. Prueba todas las funciones premium sin riesgos.",
     "benefits": [
       "14 días de prueba gratis",
       "Todas las funciones premium",
@@ -291,7 +297,7 @@
     "satisfaction": "Satisfacción"
   },
   "TrustBadge": {
-    "text": "+2,500 profesionales verificados"
+    "text": "Profesionales con Cédula SEP • Cumplimiento NOM-004"
   },
   "Navbar": {
     "links": {
@@ -4222,10 +4228,10 @@
     "PlansHeader": {
       "role_patient_title": "Tu bienestar, al siguiente nivel",
       "role_patient_subtitle": "Accede a descuentos exclusivos y funcionalidades premium para cuidar tu salud",
-      "role_patient_highlight": "Miles de pacientes confían en nosotros",
+      "role_patient_highlight": "Salud integral, citas y recetas en un solo lugar",
       "role_provider_title": "Escala tu práctica médica",
       "role_provider_subtitle": "Herramientas profesionales diseñadas para gestionar más pacientes y aumentar tus ingresos",
-      "role_provider_highlight": "Únete a +500 profesionales de la salud",
+      "role_provider_highlight": "Digitaliza tu práctica médica en minutos",
       "savings_yearly": "¡Ahorra ${amount} al año con el plan anual!",
       "toggle_monthly": "Mensual",
       "toggle_yearly": "Anual",

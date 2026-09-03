@@ -60,13 +60,13 @@ export const TrustBadge: React.FC = () => {
  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors">
  {t('text')}
  </span>
+          {/* Acreditación Oficial DGP */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/20 transition-colors duration-300">
+            <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">SEP • DGP</span>
+          </div>
  </div>
 
- {/* Rating - PRUEBA SOCIAL inmediata */}
- <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 group-hover:bg-amber-100 dark:group-hover:bg-amber-500/20 transition-colors duration-300">
- <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
- <span className="text-xs font-bold text-amber-600 dark:text-amber-400">4.9</span>
- </div>
  </div>
 
  {/* Subtle shine effect - Atracción visual */}

@@ -30,7 +30,7 @@
       "reviews": "Real reviews"
     },
     "metrics": {
-      "m1": "2.5k+ Specialists",
+      "m1": "Verified Medical License",
       "m2": "Immediate Care",
       "m3": "Total Privacy"
     }
@@ -74,28 +74,34 @@
     ]
   },
   "Testimonials": {
-    "badge": "Real Stories",
-    "title_start": "What ",
-    "title_highlight": "our patients say",
-    "description": "Discover how professionals like you are transforming their daily practice",
-    "cta_text": "Do you want to be part of these success stories?",
-    "cta_button": "Start my story",
+    "badge": "Clinical Rigor & Legal Safety",
+    "title_start": "The Clinical Standard of ",
+    "title_highlight": "QuHealthy",
+    "description": "Engineered under the regulatory and health framework of Mexico. Built to back your medical practice with full compliance, confidentiality, and patient trust.",
+    "cta_text": "Looking to digitalize your clinic with real human support?",
+    "cta_button": "Join as a Founding Doctor",
     "items": {
       "1": {
-        "name": "Maria Lopez",
-        "role": "Patient",
-        "text": "QuHealthy has completely changed my healthcare experience. I found an excellent specialist in minutes and was able to book a same-day appointment."
+        "name": "DGP / SEP License Verification",
+        "role": "Official Credential Validation",
+        "text": "Automated verification of federal professional licenses and medical specialties directly with the Directorate General of Professions. Zero unaccredited profiles."
       },
       "2": {
-        "name": "Dr. Carlos Mendoza",
-        "role": "Dermatologist",
-        "text": "As a professional, the platform has allowed me to better manage my time and connect with patients who truly need my specific services."
+        "name": "NOM-004 Electronic Health Record",
+        "role": "SSA & COFEPRIS Compliance",
+        "text": "Structured medical records, SOAP progress notes, informed consents, and QR-authenticated electronic prescriptions compliant with NOM-004-SSA3-2012."
       },
       "3": {
-        "name": "Laura Sanchez",
-        "role": "Director",
-        "text": "Since integrating QuHealthy into our center, we have increased bookings by 40% and significantly improved patient satisfaction."
+        "name": "AES-256 Bank-Grade Encryption",
+        "role": "Confidentiality & Secure Custody",
+        "text": "End-to-end encryption at rest and in transit compliant with data privacy laws. Your clinical data and your patients' files are never sold or shared with third parties."
       }
+    },
+    "founder_banner": {
+      "badge": "Open Application • Pioneer Group 2026",
+      "title": "Founding Doctors & Clinics Program",
+      "description": "We are onboarding the first generation of forward-thinking doctors in Mexico to co-design the future of digital health. Enjoy 1-on-1 onboarding, custom clinical note templates, and lifetime preferred rates.",
+      "button": "Join as a Founding Doctor"
     }
   },
   "Pricing": {
@@ -222,10 +228,10 @@
     "footer": "All plans include a 14-day free trial • No credit card required • Cancel anytime"
   },
   "Cta": {
-    "badge": "Join +2,500 professionals",
+    "badge": "Medical Software for Mexico",
     "title_start": "Boost your Practice",
     "title_highlight": "Start Today",
-    "description": "Join thousands of professionals who are already transforming their practice. Try all premium features risk-free.",
+    "description": "Modernize your clinic, scheduling, and electronic health records with secure tools, e-prescriptions, and technology designed for Mexico. Try all premium features risk-free.",
     "benefits": [
       "14-day free trial",
       "All premium features",
@@ -296,7 +302,7 @@
     "satisfaction": "Satisfaction"
   },
   "TrustBadge": {
-    "text": "+2,500 verified professionals"
+    "text": "SEP Licensed Professionals • NOM-004 Compliant"
   },
   "Navbar": {
     "links": {
@@ -4636,10 +4642,10 @@
     "PlansHeader": {
       "role_patient_title": "Your wellbeing, to the next level",
       "role_patient_subtitle": "Access exclusive discounts and premium features for your health",
-      "role_patient_highlight": "Thousands of patients trust us",
+      "role_patient_highlight": "Comprehensive health, visits, and prescriptions in one place",
       "role_provider_title": "Scale your medical practice",
       "role_provider_subtitle": "Professional tools designed to manage more patients and increase income",
-      "role_provider_highlight": "Join +500 health professionals",
+      "role_provider_highlight": "Digitalize your medical practice in minutes",
       "savings_yearly": "Save ${amount} a year with the annual plan!",
       "toggle_monthly": "Monthly",
       "toggle_yearly": "Yearly",

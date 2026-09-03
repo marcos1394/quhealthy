@@ -64,7 +64,7 @@ export default function Home() {
       {/* 6. Seguridad, Privacidad y Cumplimiento Normativo (NOM-004, NOM-024, COFEPRIS, SEP, AES-256) */}
       <SecurityTrustSection />
 
-      {/* 7. Testimonios Reales */}
+      {/* 7. El Estándar Clínico QuHealthy & Programa de Médicos Fundadores */}
       <TestimonialsSection />
 
       {/* 8. Planes y Precios */}
