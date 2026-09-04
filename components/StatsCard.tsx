@@ -38,44 +38,44 @@ import { useTranslations } from "next-intl";
 
 export const StatsCard: React.FC = () => {
  const t = useTranslations('Stats');
- const stats = [
- {
- icon: Users,
- value: "2.5K+",
- label: t('professionals'),
- gradient: "from-medical-400 to-teal-400",
- iconColor: "text-medical-400",
- bgColor: "bg-medical-500/10",
- delay: 0
- },
- {
- icon: MapPin,
- value: "28",
- label: t('cities'),
- gradient: "from-teal-400 to-emerald-400",
- iconColor: "text-teal-400",
- bgColor: "bg-teal-500/10",
- delay: 0.1
- },
- {
- icon: Calendar,
- value: "15K+",
- label: t('appointments'),
- gradient: "from-emerald-400 to-cyan-400",
- iconColor: "text-emerald-400",
- bgColor: "bg-emerald-500/10",
- delay: 0.2
- },
- {
- icon: TrendingUp,
- value: "98%",
- label: t('satisfaction'),
- gradient: "from-amber-400 to-orange-400",
- iconColor: "text-amber-400",
- bgColor: "bg-amber-500/10",
- delay: 0.3
- }
- ];
+  const stats = [
+    {
+      icon: Users,
+      value: "100%",
+      label: "Cédulas SEP Verificadas",
+      gradient: "from-medical-400 to-teal-400",
+      iconColor: "text-medical-400",
+      bgColor: "bg-medical-500/10",
+      delay: 0
+    },
+    {
+      icon: MapPin,
+      value: "NOM-004",
+      label: "Expediente Clínico Electrónico",
+      gradient: "from-teal-400 to-emerald-400",
+      iconColor: "text-teal-400",
+      bgColor: "bg-teal-500/10",
+      delay: 0.1
+    },
+    {
+      icon: Calendar,
+      value: "CFDI 4.0",
+      label: "Facturación SAT Exenta IVA",
+      gradient: "from-emerald-400 to-cyan-400",
+      iconColor: "text-emerald-400",
+      bgColor: "bg-emerald-500/10",
+      delay: 0.2
+    },
+    {
+      icon: TrendingUp,
+      value: "256-bit",
+      label: "Cifrado Grado Bancario",
+      gradient: "from-amber-400 to-orange-400",
+      iconColor: "text-amber-400",
+      bgColor: "bg-amber-500/10",
+      delay: 0.3
+    }
+  ];
 
  return (
  <motion.div

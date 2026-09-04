@@ -22,7 +22,8 @@ import {
   ArrowRight,
   Stethoscope,
   HeartHandshake,
-  Truck
+  Truck,
+  Lock
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
@@ -99,7 +100,7 @@ const HeroSection: React.FC = () => {
   const metrics = [
     { label: t('metrics.m1'), icon: ShieldCheck },
     { label: t('metrics.m2'), icon: Check },
-    { label: t('metrics.m3'), icon: Star },
+    { label: t('metrics.m3'), icon: Lock },
   ];
 
   const dynamicWords = [
@@ -114,7 +115,6 @@ const HeroSection: React.FC = () => {
     updated: t('widgets.updated'),
     appointment: t('widgets.appointment'),
     specialty: t('widgets.specialty'),
-    reviews: t('widgets.reviews'),
   };
 
   return (
@@ -307,21 +307,21 @@ const HeroSection: React.FC = () => {
                 </div>
               </motion.div>
 
-              {/* Floating Card 2: Mini Stat */}
+              {/* Floating Card 2: Mini Stat (Copiloto IA) */}
               <motion.div
                 animate={{ x: [0, 8, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                className="absolute right-6 top-16 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-lg z-20 space-y-2 min-w-[130px]"
+                className="absolute right-6 top-16 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-lg z-20 space-y-2 min-w-[135px]"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                    <TrendingUp className="w-3.5 h-3.5" strokeWidth={2.5} />
+                    <Sparkles className="w-3.5 h-3.5" strokeWidth={2.5} />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">+24%</span>
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">IA Clínica</span>
                 </div>
                 <div>
-                  <p className="text-xl font-bold font-mono text-gray-900 dark:text-white leading-tight">14.2k</p>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Consultas</p>
+                  <p className="text-base font-bold text-gray-900 dark:text-white leading-tight">Notas SOAP</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Automatizadas</p>
                 </div>
               </motion.div>
 
@@ -348,34 +348,37 @@ const HeroSection: React.FC = () => {
                 </div>
               </motion.div>
 
-              {/* Floating Footer Reviews */}
+              {/* Floating Footer: Acreditación Oficial & Seguridad Normativa */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
-                className="w-full bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-4 flex items-center justify-between shadow-sm relative z-30"
+                className="w-full bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl p-3.5 flex items-center justify-between shadow-sm relative z-30"
               >
-                <div className="flex -space-x-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-8 h-8 rounded-full border-2 border-white dark:border-[#0a0a0a] bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-[10px] font-bold text-emerald-800 dark:text-emerald-300 shadow-xs"
-                    >
-                      U{i}
-                    </div>
-                  ))}
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                    <ShieldCheck className="w-4 h-4" strokeWidth={2} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[11px] font-bold text-gray-900 dark:text-white leading-none">
+                      Expediente & Receta Digital
+                    </p>
+                    <p className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 mt-0.5">
+                      NOM-004-SSA3 • Firma SEP
+                    </p>
+                  </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="flex items-center justify-end gap-0.5 mb-0.5">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    ))}
+                <div className="flex items-center gap-1.5 pl-3 border-l border-gray-100 dark:border-gray-800 text-right">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-900 dark:text-white leading-tight">
+                      Validación DGP
+                    </p>
+                    <p className="text-[9px] font-medium text-gray-400">
+                      Cifrado AES-256
+                    </p>
                   </div>
-                  <p className="text-[10px] font-bold text-gray-500">
-                    <span className="text-gray-900 dark:text-white font-mono mr-1">+2.5K</span> 
-                    {widgetT.reviews}
-                  </p>
                 </div>
               </motion.div>
 
