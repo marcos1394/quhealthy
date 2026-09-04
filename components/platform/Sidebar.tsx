@@ -51,6 +51,8 @@ import {
   Building2,
   PanelLeftClose,
   PanelLeftOpen,
+  Truck,
+  ShieldCheck,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -126,6 +128,25 @@ const supplierSettingsLinks = [
   { key: "settings", href: "/provider/dashboard/settings", icon: Settings, badge: null },
 ];
 
+const laboratoryLinks = [
+  { key: "dashboard", href: "/laboratory/dashboard", icon: LayoutDashboard, badge: null },
+  { key: "store", href: "/laboratory/store", icon: Store, badge: { count: "Market" } },
+  { key: "orders", href: "/laboratory/orders", icon: ClipboardIcon, badge: { count: "LIS" } },
+  { key: "results", href: "/laboratory/results", icon: FileText, badge: null },
+  { key: "phlebotomy", href: "/laboratory/phlebotomy", icon: Truck, badge: null },
+  { key: "branches", href: "/laboratory/branches", icon: Building2, badge: null },
+  { key: "compliance", href: "/laboratory/compliance", icon: ShieldCheck, badge: { count: "NOM-007" } },
+  { key: "cash_register", href: "/laboratory/cash-register", icon: Calculator, badge: null },
+  { key: "billing", href: "/laboratory/billing", icon: CreditCard, badge: null },
+  { key: "referrals", href: "/laboratory/referrals", icon: Handshake, badge: null },
+  { key: "messages", href: "/laboratory/messages", icon: MessageCircle, badge: null },
+];
+
+const laboratorySettingsLinks = [
+  { key: "public_profile", href: "/laboratory/store/identity", icon: UserCircle, badge: null },
+  { key: "settings", href: "/laboratory/settings", icon: Settings, badge: null },
+];
+
 const patientLinks = [
   { key: "dashboard", href: "/patient/dashboard", icon: LayoutDashboard, badge: null },
   { key: "copilot", href: "/copilot", icon: BrainCircuit, badge: { count: "IA" } },
@@ -178,6 +199,7 @@ const NavItem = ({
         href !== "/patient/dashboard" &&
         href !== "/foundation/dashboard" &&
         href !== "/supplier/dashboard" &&
+        href !== "/laboratory/dashboard" &&
         pathname?.startsWith(href))
   );
 
@@ -191,16 +213,18 @@ const NavItem = ({
     if (["messages"].includes(key)) return "text-sky-500";
     if (["packages"].includes(key)) return "text-amber-500";
     if (["orders", "inventory", "products"].includes(key)) return "text-purple-500";
-    if (["patients", "dependents", "public_profile", "profile", "team", "beneficiaries", "quotes", "onboarding"].includes(key))
+    if (["patients", "dependents", "public_profile", "profile", "team", "beneficiaries", "quotes", "onboarding", "branches"].includes(key))
       return "text-indigo-500";
-    if (["calendar", "appointments", "campaigns"].includes(key)) return "text-orange-500";
+    if (["calendar", "appointments", "campaigns", "phlebotomy"].includes(key)) return "text-orange-500";
     if (["womens_health", "oncology", "diabetes", "programs"].includes(key)) return "text-pink-500";
     if (["discover"].includes(key)) return "text-fuchsia-500";
     if (["emergencies"].includes(key)) return "text-rose-500";
-    if (["nutrition", "social_bi"].includes(key)) return "text-emerald-500";
+    if (["nutrition", "social_bi", "compliance"].includes(key)) return "text-emerald-500";
     if (["subsidies", "rentals"].includes(key)) return "text-amber-500";
-    if (["treatments"].includes(key)) return "text-cyan-500";
+    if (["treatments", "results"].includes(key)) return "text-cyan-500";
     if (["cold_chain"].includes(key)) return "text-sky-500";
+    if (["store"].includes(key)) return "text-emerald-600 dark:text-emerald-400";
+    if (["referrals"].includes(key)) return "text-indigo-500";
 
     return "text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors";
   };
@@ -293,17 +317,25 @@ export const Sidebar = ({
   // Carga los módulos activos del paciente según sus diagnósticos CIE-10
   useActiveModules();
 
+  const isLaboratory =
+    pathname?.includes("/laboratory") ||
+    (role as string) === "ROLE_LABORATORY" ||
+    (role as string) === "LABORATORY";
   const isSupplier =
-    pathname?.includes("/supplier") ||
-    (role as string) === "ROLE_SUPPLIER" ||
-    (role as string) === "SUPPLIER";
+    !isLaboratory &&
+    (pathname?.includes("/supplier") ||
+      (role as string) === "ROLE_SUPPLIER" ||
+      (role as string) === "SUPPLIER");
   const isFoundation =
-    pathname?.includes("/foundation") ||
-    (role as string) === "ROLE_FOUNDATION" ||
-    (role as string) === "FOUNDATION";
-  const isConsumer = !isFoundation && !isSupplier && role === "ROLE_CONSUMER";
+    !isLaboratory &&
+    (pathname?.includes("/foundation") ||
+      (role as string) === "ROLE_FOUNDATION" ||
+      (role as string) === "FOUNDATION");
+  const isConsumer = !isLaboratory && !isFoundation && !isSupplier && role === "ROLE_CONSUMER";
   const isStaff = role === "ROLE_STAFF";
-  const homeLink = isSupplier
+  const homeLink = isLaboratory
+    ? "/laboratory/dashboard"
+    : isSupplier
     ? "/supplier/dashboard"
     : isFoundation
     ? "/foundation/dashboard"
@@ -312,6 +344,9 @@ export const Sidebar = ({
     : "/provider/dashboard";
 
   const currentLinks = useMemo(() => {
+    if (isLaboratory) {
+      return laboratoryLinks;
+    }
     if (isSupplier) {
       return supplierLinks;
     }
@@ -333,9 +368,11 @@ export const Sidebar = ({
       );
     }
     return links;
-  }, [isSupplier, isFoundation, isConsumer, isStaff, user?.permissions, activeModules, isModuleActive]);
+  }, [isLaboratory, isSupplier, isFoundation, isConsumer, isStaff, user?.permissions, activeModules, isModuleActive]);
 
-  const currentSettingsLinks = isSupplier
+  const currentSettingsLinks = isLaboratory
+    ? laboratorySettingsLinks
+    : isSupplier
     ? supplierSettingsLinks
     : isFoundation
     ? foundationSettingsLinks
@@ -344,13 +381,13 @@ export const Sidebar = ({
     : providerSettingsLinks;
 
   useEffect(() => {
-    if (!isConsumer && !isFoundation && !isSupplier) {
+    if (!isConsumer && !isFoundation && !isSupplier && !isLaboratory) {
       subscriptionService
         .getCurrentSubscription()
         .then(setSubscription)
         .catch(() => setSubscription(null));
     }
-  }, [isConsumer, isFoundation, isSupplier]);
+  }, [isConsumer, isFoundation, isSupplier, isLaboratory]);
 
   const handleSwitchProfile = async () => {
     setIsSwitchingProfile(true);
@@ -429,7 +466,9 @@ export const Sidebar = ({
                   QuHealthy<span className="text-emerald-600 dark:text-emerald-400">.</span>
                 </span>
                 <span className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-[#181818] border border-gray-200/60 dark:border-gray-800 text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
-                  {isSupplier
+                  {isLaboratory
+                    ? t("role_laboratory")
+                    : isSupplier
                     ? t("role_supplier")
                     : isFoundation
                     ? t("role_foundation")
@@ -467,7 +506,7 @@ export const Sidebar = ({
       </div>
 
       {/* ── BANNER DE PLAN DE SUSCRIPCIÓN (PROVEEDORES) ───────────────── */}
-      {!isCollapsed && !isConsumer && !isFoundation && !isSupplier && (
+      {!isCollapsed && !isConsumer && !isFoundation && !isSupplier && !isLaboratory && (
         <div className="p-3 border-b border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a]">
           <Link href="/provider/dashboard/settings#subscription">
             <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 p-2.5 flex items-start gap-2.5 hover:border-emerald-500/40 transition-all shadow-2xs group cursor-pointer">
@@ -567,7 +606,7 @@ export const Sidebar = ({
 
           <LanguageToggle showText={false} />
 
-          {!isFoundation && !isSupplier && (
+          {!isFoundation && !isSupplier && !isLaboratory && (
             <button
               type="button"
               onClick={handleSwitchProfile}
@@ -626,7 +665,7 @@ export const Sidebar = ({
 
           {/* ── ACCIONES DE PERFIL, SOPORTE Y SALIDA ───────────────────── */}
           <div className="space-y-0.5">
-            {!isFoundation && !isSupplier && (
+            {!isFoundation && !isSupplier && !isLaboratory && (
               <button
                 type="button"
                 onClick={handleSwitchProfile}

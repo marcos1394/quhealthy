@@ -53,6 +53,11 @@ export default function SocialAuthButtons({
       return;
     }
 
+    if (userRole === "ROLE_LABORATORY") {
+      router.push("/laboratory/dashboard");
+      return;
+    }
+
     if (!status.onboardingComplete) {
       if (userRole === "ROLE_PROVIDER") {
         router.push("/provider/onboarding");
@@ -74,7 +79,7 @@ export default function SocialAuthButtons({
         const response = await loginWithGoogle({
           provider: "GOOGLE",
           token: tokenResponse.access_token,
-          role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
+          role: accountRole as any,
         });
 
         if (onSuccess) {
@@ -100,7 +105,7 @@ export default function SocialAuthButtons({
       const response = await loginWithGoogle({
         provider: "APPLE",
         token: appleToken,
-        role: accountRole as "ROLE_CONSUMER" | "ROLE_PROVIDER",
+        role: accountRole as any,
       });
 
       if (onSuccess) {

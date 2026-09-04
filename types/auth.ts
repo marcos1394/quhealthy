@@ -41,6 +41,7 @@ export interface RegisterProviderRequest {
   privacyPolicyVersion: string;
   referralCode?: string;
   captchaToken: string;
+  role?: UserRole | 'LABORATORY' | 'PROVIDER' | 'FOUNDATION' | 'SUPPLIER';
 }
 
 export interface ProviderRegistrationResponse {
@@ -103,7 +104,7 @@ export interface LoginRequest {
 export interface SocialLoginRequest {
   token: string;      // id_token de Google o Apple
   provider: 'GOOGLE' | 'APPLE';
-  role: 'ROLE_CONSUMER' | 'ROLE_PROVIDER';  // ROLE_ADMIN nunca desde este flujo
+  role: 'ROLE_CONSUMER' | 'ROLE_PROVIDER' | 'ROLE_LABORATORY' | 'ROLE_FOUNDATION' | 'ROLE_SUPPLIER';  // ROLE_ADMIN nunca desde este flujo
 }
 
 // ==========================================================

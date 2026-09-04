@@ -165,3 +165,232 @@ export interface LaboratoryOrganizationDto {
   readinessTier: ReadinessTier;
   commercialStatus: CommercialFollowupStatus;
 }
+
+// ==========================================
+// OPERACIONES LIS (NOM-007) & QU-MARKET STORE
+// ==========================================
+
+export type LaboratoryOrderStatus =
+  | 'RECEIVED'
+  | 'PRE_ANALYTICAL'
+  | 'PROCESSING'
+  | 'VALIDATION_PENDING'
+  | 'COMPLETED'
+  | 'DELIVERED'
+  | 'CANCELLED';
+
+export type LaboratoryOrderOrigin =
+  | 'DESK_WALKIN'
+  | 'MARKETPLACE_ORDER'
+  | 'HOME_PHLEBOTOMY'
+  | 'PHYSICIAN_REFERRAL';
+
+export type LaboratoryServiceType =
+  | 'BRANCH_SAMPLE'
+  | 'HOME_PHLEBOTOMY'
+  | 'EXTERNAL_DELIVERY';
+
+export type LaboratoryPaymentStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'INVOICED'
+  | 'REFUNDED';
+
+export type LaboratoryRpbiWasteType =
+  | 'PUNZOCORTANTES'
+  | 'NO_ANATOMICOS'
+  | 'PATOLOGICOS'
+  | 'SANGRE_LIQUIDA'
+  | 'CULTIVOS_CEPAS';
+
+export interface LaboratoryResultEntry {
+  id: number;
+  orderItemId: number;
+  parameterCode?: string;
+  parameterName: string;
+  measuredValue: string;
+  unit?: string;
+  referenceMin?: number;
+  referenceMax?: number;
+  referenceRangeText?: string;
+  isOutOfRange?: boolean;
+  isCriticalAlert?: boolean;
+  methodology?: string;
+  notes?: string;
+  validatedByLicense?: string;
+  createdAt: string;
+}
+
+export interface LaboratoryOrderItem {
+  id: number;
+  orderId: number;
+  studyCatalogId?: number;
+  studyCode: string;
+  studyName: string;
+  category: LaboratoryStudyCategory;
+  priceMxn: number;
+  status: string;
+  resultsCaptured: boolean;
+  resultEntries?: LaboratoryResultEntry[];
+  createdAt: string;
+}
+
+export interface LaboratoryOrder {
+  id: number;
+  laboratoryId: number;
+  orderFolio: string;
+  patientUserId?: number;
+  patientFullName: string;
+  patientEmail?: string;
+  patientPhone?: string;
+  patientAge?: number;
+  patientGender?: string;
+  referringPhysicianId?: number;
+  referringPhysicianName?: string;
+  branchId?: number;
+  serviceType: LaboratoryServiceType;
+  deliveryAddress?: string;
+  scheduledAt?: string;
+  fastingHoursDeclared: number;
+  fastingVerified: boolean;
+  sampleNotes?: string;
+  status: LaboratoryOrderStatus;
+  origin: LaboratoryOrderOrigin;
+  totalAmountMxn: number;
+  paymentStatus: LaboratoryPaymentStatus;
+  hasCriticalAlert: boolean;
+  validatedByUserId?: number;
+  validatedAt?: string;
+  items: LaboratoryOrderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LaboratoryDashboardMetrics {
+  todaySamplesReceived: number;
+  pendingAnalysis: number;
+  pendingValidation: number;
+  criticalAlertsCount: number;
+  completedToday: number;
+  marketplaceOrdersCount: number;
+  marketplaceRevenueMxn: number;
+  homeSamplingActive: number;
+}
+
+export interface LaboratoryStoreMetrics {
+  totalPublishedStudies: number;
+  totalMarketplaceOrders: number;
+  totalMarketplaceRevenue: number;
+  homeSamplingEnabled: boolean;
+  storeActive: boolean;
+}
+
+export interface LaboratoryStudyCatalogItem {
+  id: number;
+  laboratoryId: number;
+  studyCode: string;
+  studyName: string;
+  category: LaboratoryStudyCategory;
+  patientPreparation?: string;
+  basePrice?: number;
+  turnaroundHours?: number;
+  sampleType?: string;
+  isActive: boolean;
+  isPublishedInMarketplace: boolean;
+  marketplacePromoPrice?: number;
+  homeSamplingAvailable: boolean;
+  popularBadge?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateLaboratoryOrderItemPayload {
+  studyCatalogId?: number;
+  studyCode: string;
+  studyName: string;
+  category: LaboratoryStudyCategory;
+  priceMxn?: number;
+}
+
+export interface CreateLaboratoryOrderPayload {
+  patientFullName: string;
+  patientUserId?: number;
+  patientEmail?: string;
+  patientPhone?: string;
+  patientAge?: number;
+  patientGender?: string;
+  referringPhysicianId?: number;
+  referringPhysicianName?: string;
+  branchId?: number;
+  serviceType?: LaboratoryServiceType;
+  deliveryAddress?: string;
+  scheduledAt?: string;
+  fastingHoursDeclared?: number;
+  fastingVerified?: boolean;
+  sampleNotes?: string;
+  origin?: LaboratoryOrderOrigin;
+  items: CreateLaboratoryOrderItemPayload[];
+}
+
+export interface ResultParameterEntryPayload {
+  parameterCode?: string;
+  parameterName: string;
+  measuredValue: string;
+  unit?: string;
+  referenceMin?: number;
+  referenceMax?: number;
+  referenceRangeText?: string;
+  isOutOfRange?: boolean;
+  isCriticalAlert?: boolean;
+  methodology?: string;
+  notes?: string;
+}
+
+export interface CaptureLaboratoryResultPayload {
+  results: ResultParameterEntryPayload[];
+  methodology?: string;
+  notes?: string;
+  validatedByLicense?: string;
+  markValidated?: boolean;
+}
+
+export interface UpdateStudyMarketplacePayload {
+  isPublishedInMarketplace?: boolean;
+  marketplacePromoPrice?: number;
+  homeSamplingAvailable?: boolean;
+  popularBadge?: string;
+  basePrice?: number;
+  turnaroundHours?: number;
+  patientPreparation?: string;
+}
+
+export interface LaboratoryRpbiLog {
+  id: number;
+  laboratoryId: number;
+  branchId?: number;
+  wasteType: LaboratoryRpbiWasteType;
+  weightKg: number;
+  manifestFolio: string;
+  authorizedDisposalCompany: string;
+  pickupDate: string;
+  responsibleName?: string;
+  createdAt: string;
+}
+
+export interface CreateRpbiLogPayload {
+  branchId?: number;
+  wasteType: LaboratoryRpbiWasteType;
+  weightKg: number;
+  manifestFolio: string;
+  authorizedDisposalCompany: string;
+  pickupDate: string;
+  responsibleName?: string;
+}
+
+export interface PaginatedLaboratoryOrders {
+  content: LaboratoryOrder[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}

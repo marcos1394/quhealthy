@@ -24,6 +24,7 @@ import {
   AlertCircle,
   KeyRound,
   Sparkles,
+  FlaskConical,
 } from "lucide-react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { toast } from "react-toastify";
@@ -42,8 +43,9 @@ import { nukeCookies } from "@/stores/SessionStore";
 import { consumerProfileService } from "@/services/consumerProfile.service";
 import { foundationOnboardingService } from "@/services/foundation-onboarding.service";
 import { supplierService } from "@/services/supplier.service";
+import { laboratoryOnboardingService } from "@/services/laboratory-onboarding.service";
 
-type AuthUserType = "consumer" | "provider" | "foundation" | "supplier";
+type AuthUserType = "consumer" | "provider" | "foundation" | "supplier" | "laboratory";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -86,7 +88,9 @@ export default function LoginPage() {
     const redirect = searchParams.get("redirect");
     const roleParam = searchParams.get("role");
 
-    if (roleParam === "foundation" || redirect?.includes("foundation")) {
+    if (roleParam === "laboratory" || redirect?.includes("laboratory")) {
+      setUserType("laboratory");
+    } else if (roleParam === "foundation" || redirect?.includes("foundation")) {
       setUserType("foundation");
     } else if (roleParam === "supplier" || redirect?.includes("supplier")) {
       setUserType("supplier");
@@ -173,7 +177,23 @@ export default function LoginPage() {
       return;
     }
 
-    // 🩺 3. RUTA PARA PROFESIONALES DE LA SALUD
+    // 🔬 3. RUTA PARA LABORATORIOS CLÍNICOS
+    if (userType === "laboratory" || (role as string) === "ROLE_LABORATORY" || (role as string) === "LABORATORY") {
+      toast.success(t("login_success"), { theme: "colored" });
+      try {
+        const labStatus = await laboratoryOnboardingService.getStatus();
+        if (labStatus.isRegistered && (labStatus.canExploreDashboard || labStatus.currentStep >= 5)) {
+          router.push("/laboratory/dashboard");
+        } else {
+          router.push("/onboarding/laboratory");
+        }
+      } catch {
+        router.push("/laboratory/dashboard");
+      }
+      return;
+    }
+
+    // 🩺 4. RUTA PARA PROFESIONALES DE LA SALUD
     if (role === "ROLE_PROVIDER" || role === "ROLE_STAFF") {
       toast.success(t("login_success"), { theme: "colored" });
       
@@ -197,6 +217,18 @@ export default function LoginPage() {
             router.push("/supplier/dashboard");
           } else {
             router.push("/onboarding/supplier");
+          }
+          return;
+        }
+      } catch {}
+
+      try {
+        const labStatus = await laboratoryOnboardingService.getStatus();
+        if (labStatus.isRegistered) {
+          if (labStatus.canExploreDashboard || labStatus.currentStep >= 5) {
+            router.push("/laboratory/dashboard");
+          } else {
+            router.push("/onboarding/laboratory");
           }
           return;
         }
@@ -236,7 +268,12 @@ export default function LoginPage() {
 
   const processLogin = async (token: string) => {
     try {
-      const roleToSend = userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER";
+      const roleToSend =
+        userType === "consumer"
+          ? "ROLE_CONSUMER"
+          : userType === "laboratory"
+          ? "ROLE_LABORATORY"
+          : "ROLE_PROVIDER";
       const response = await login({
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
@@ -301,6 +338,8 @@ export default function LoginPage() {
 
   const getBenefitsKey = () => {
     switch (userType) {
+      case "laboratory":
+        return "laboratory_benefits";
       case "foundation":
         return "foundation_benefits";
       case "supplier":
@@ -314,6 +353,8 @@ export default function LoginPage() {
 
   const getAreaTitleKey = () => {
     switch (userType) {
+      case "laboratory":
+        return "laboratory_area";
       case "foundation":
         return "foundation_area";
       case "supplier":
@@ -327,6 +368,8 @@ export default function LoginPage() {
 
   const getHeroImage = () => {
     switch (userType) {
+      case "laboratory":
+        return "/hero_medical_lifestyle.png";
       case "foundation":
         return "/hero_foundation_lifestyle.jpg";
       case "supplier":
@@ -340,6 +383,8 @@ export default function LoginPage() {
 
   const getEmailPlaceholder = () => {
     switch (userType) {
+      case "laboratory":
+        return t("email_placeholder_laboratory");
       case "foundation":
         return t("email_placeholder_foundation");
       case "supplier":
@@ -353,6 +398,8 @@ export default function LoginPage() {
 
   const getSignupLink = () => {
     switch (userType) {
+      case "laboratory":
+        return "/laboratory/register";
       case "foundation":
         return "/foundation/register";
       case "supplier":
@@ -474,14 +521,14 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Selector de Rol en 4 Pestañas */}
+            {/* Selector de Rol en 5 Pestañas */}
             <Tabs
               defaultValue="consumer"
               value={userType}
               onValueChange={handleTabChange}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-4 bg-gray-100 dark:bg-gray-800/50 h-12 p-1 rounded-2xl gap-1">
+              <TabsList className="grid w-full grid-cols-5 bg-gray-100 dark:bg-gray-800/50 h-12 p-1 rounded-2xl gap-1">
                 <TabsTrigger
                   value="consumer"
                   className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 px-1 truncate"
@@ -496,6 +543,14 @@ export default function LoginPage() {
                 >
                   <Stethoscope className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
                   <span className="truncate">{t("provider_tab")}</span>
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="laboratory"
+                  className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0a0a0a] data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-sm text-gray-500 h-full rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 px-1 truncate"
+                >
+                  <FlaskConical className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{t("laboratory_tab")}</span>
                 </TabsTrigger>
 
                 <TabsTrigger
@@ -521,7 +576,11 @@ export default function LoginPage() {
               {/* Social Login */}
               <SocialAuthButtons
                 accountRole={
-                  userType === "consumer" ? "ROLE_CONSUMER" : "ROLE_PROVIDER"
+                  userType === "consumer"
+                    ? "ROLE_CONSUMER"
+                    : userType === "laboratory"
+                    ? "ROLE_LABORATORY"
+                    : "ROLE_PROVIDER"
                 }
                 onSuccess={handleAuthNavigation}
               />

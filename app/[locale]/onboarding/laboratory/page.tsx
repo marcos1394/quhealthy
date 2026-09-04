@@ -47,7 +47,7 @@ export default function LaboratoryOnboardingPage() {
         }
       } catch (error: any) {
         if (error?.response?.status === 401) {
-          router.push("/provider/register");
+          router.push("/laboratory/register");
         }
         console.error("Error al cargar estado de onboarding del laboratorio:", error);
       } finally {
@@ -200,7 +200,7 @@ export default function LaboratoryOnboardingPage() {
   // ===================== PASO 5 =====================
   const handleFinish = () => {
     toast.success("¡Onboarding de laboratorio finalizado!");
-    router.push("/provider/dashboard");
+    router.push("/laboratory/dashboard");
   };
 
   if (isLoading) {

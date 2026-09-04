@@ -50,7 +50,10 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
     coordinates,
     calculateDistance,
     map,
+    setSearchQuery,
   } = useDiscoverContext();
+
+  const { filters, setFilter, clearFilters } = useDiscoverFilters();
 
   const {
     isAuthenticated,
@@ -136,6 +139,19 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
     });
   }, [foundations, coordinates, calculateDistance]);
 
+  const handleResetFilters = () => {
+    clearFilters();
+    setSearchQuery("");
+  };
+
+  const handleExpandRadius = () => {
+    setFilter("radiusKm", 50);
+  };
+
+  const handleTelemedicineFilter = () => {
+    setFilter("modality", "ONLINE");
+  };
+
   // ── ESTADO CARGANDO (SKELETON) ───────────────────────────────────────
   if (isLoading) {
     return (
@@ -163,22 +179,6 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
       : searchType === "STORE"
       ? enrichedProviders.length === 0
       : items.length === 0;
-
-  const { filters, setFilter, clearFilters } = useDiscoverFilters();
-  const { setSearchQuery } = useDiscoverContext();
-
-  const handleResetFilters = () => {
-    clearFilters();
-    setSearchQuery("");
-  };
-
-  const handleExpandRadius = () => {
-    setFilter("radiusKm", 50);
-  };
-
-  const handleTelemedicineFilter = () => {
-    setFilter("modality", "ONLINE");
-  };
 
   return (
     <div
