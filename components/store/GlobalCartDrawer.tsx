@@ -59,6 +59,17 @@ export function GlobalCartDrawer() {
     }
   }, [isCartOpen]);
 
+  // Soporte de tecla Escape para cerrar el drawer inmediatamente
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isCartOpen) {
+        closeCart();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isCartOpen, closeCart]);
+
   const totalItems = getTotalItemCount();
   const totalPrice = getTotalPrice();
   const containsServices = hasServices();
@@ -83,6 +94,9 @@ export function GlobalCartDrawer() {
 
   const handleRemoveItem = (item: CartItem) => {
     removeFromCart(item.id);
+    if (cart.length <= 1) {
+      closeCart();
+    }
     toast.info(
       <div className="flex items-center justify-between gap-2 text-xs font-medium">
         <span>{item.name} {t("item_removed")}</span>
@@ -108,6 +122,7 @@ export function GlobalCartDrawer() {
   const handleClearAll = () => {
     const previousCart = [...cart];
     clearCart();
+    closeCart();
     setIsConfirmingClear(false);
     toast.info(
       <div className="flex items-center justify-between gap-2 text-xs font-medium">
@@ -171,13 +186,15 @@ export function GlobalCartDrawer() {
   return (
     <AnimatePresence>
       {isCartOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-end font-sans select-none">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[100] flex justify-end font-sans select-none"
+        >
           {/* ── BACKDROP CON BLUR SUAVE ──────────────────────────────── */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+          <div
             className="fixed inset-0 bg-black/50 backdrop-blur-xs"
             onClick={closeCart}
           />
@@ -502,7 +519,7 @@ export function GlobalCartDrawer() {
               </div>
             )}
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

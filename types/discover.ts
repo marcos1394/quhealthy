@@ -27,6 +27,14 @@ export interface DiscoverProvider {
   schedules?: { day: string; hours: string; }[]; // Horarios detallados
   locationsCount?: number; // Para mostrar "+X sucursales"
   additionalLocations?: { lat: number; lng: number; }[]; // Pines adicionales
+  specialty?: string;
+  role?: string;
+  isClinic?: boolean;
+  isVerified?: boolean;
+  offersTelemedicine?: boolean;
+  hasTelemedicine?: boolean;
+  modalities?: string[];
+  availableToday?: boolean;
 }
 
 export interface DiscoverProviderWrapperResponse {

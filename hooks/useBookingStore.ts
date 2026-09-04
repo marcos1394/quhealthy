@@ -103,14 +103,21 @@ export const useBookingStore = create<BookingState>()(
         })),
 
       removeFromCart: (itemId) =>
-        set((state) => ({ cart: state.cart.filter((i) => i.id !== itemId) })),
+        set((state) => {
+          const nextCart = state.cart.filter((i) => i.id !== itemId);
+          return {
+            cart: nextCart,
+            isCartOpen: nextCart.length === 0 ? false : state.isCartOpen,
+          };
+        }),
 
       setDependentId: (id) => set({ dependentId: id }),
 
       clearCart: () =>
         set({
           cart: [],
-          dependentId: null
+          dependentId: null,
+          isCartOpen: false,
         }),
 
       getTotalPrice: () => {

@@ -14,10 +14,13 @@ import {
   ChevronRight,
   User,
   ChevronLeft,
+  Video,
+  CheckCircle2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { DiscoverProvider } from "@/types/discover";
+import { getSpecialtyTheme } from "@/lib/mapPins";
 import { ProviderScoreBadge } from "@/components/provider/ProviderScoreBadge";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { ProviderScoreResponse } from "@/types/providerScore";
@@ -49,6 +52,11 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 }) => {
   const t = useTranslations("Discover.ProviderCard");
   const router = useRouter();
+
+  const specTheme = getSpecialtyTheme(
+    provider.category || provider.specialty,
+    provider.role
+  );
 
   const [isHovered, setIsHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -261,13 +269,33 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
       {/* ── CUERPO Y DETALLES ───────────────────────────────────────── */}
       <div className="p-4 sm:p-5 flex flex-col justify-between grow space-y-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-col min-w-0 space-y-0.5">
+          <div className="flex flex-col min-w-0 space-y-1.5">
             <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white leading-snug line-clamp-2 tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
               {provider.name}
             </h3>
-            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 capitalize truncate">
-              {(provider.category || t("specialist_default")).toLowerCase()}
-            </span>
+            <div
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-tight w-fit transition-colors shadow-2xs"
+              style={{
+                backgroundColor: `${specTheme.primaryColor}14`,
+                color: specTheme.primaryColor,
+                border: `1px solid ${specTheme.primaryColor}28`,
+              }}
+            >
+              <svg
+                className="w-3 h-3 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d={specTheme.iconSvgPath} />
+              </svg>
+              <span className="capitalize truncate max-w-[160px]">
+                {(provider.category || specTheme.label).toLowerCase()}
+              </span>
+            </div>
           </div>
 
           <div className="w-11 h-11 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-1 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
@@ -284,6 +312,29 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
           </div>
         </div>
 
+        {/* Modalidades y Disponibilidad */}
+        {((provider.offersTelemedicine ||
+          provider.hasTelemedicine ||
+          provider.modalities?.includes("ONLINE")) ||
+          provider.availableToday) && (
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
+            {(provider.offersTelemedicine ||
+              provider.hasTelemedicine ||
+              provider.modalities?.includes("ONLINE")) && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-900/40">
+                <Video className="w-2.5 h-2.5" />
+                <span>En línea</span>
+              </span>
+            )}
+            {provider.availableToday && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/40">
+                <CheckCircle2 className="w-2.5 h-2.5" />
+                <span>Hoy disponible</span>
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="w-full h-px bg-gray-100 dark:bg-gray-800/80" />
 
         {/* Datos de Tarifa y Ubicación */}
@@ -298,9 +349,10 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
                   <span className="text-sm sm:text-base font-bold font-mono text-gray-900 dark:text-white leading-none">
                     ${provider.basePrice.toLocaleString()}
                   </span>
+                  <span className="text-[10px] font-bold text-gray-400">MXN</span>
                   {provider.compareAtPrice &&
                     provider.compareAtPrice > provider.basePrice && (
-                      <span className="text-[10px] font-mono text-gray-400 line-through">
+                      <span className="text-[10px] font-mono text-gray-400 line-through ml-1">
                         ${provider.compareAtPrice.toLocaleString()}
                       </span>
                     )}
@@ -347,10 +399,14 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
             e.stopPropagation();
             router.push(`/store/${provider.slug}`);
           }}
-          className="w-full rounded-xl h-11 text-xs font-bold transition-all text-white shadow-xs hover:shadow-md hover:opacity-95 cursor-pointer border-0 flex justify-center items-center gap-2"
-          style={{ backgroundColor: provider.color || "#059669" }}
+          className="w-full rounded-xl h-11 text-xs font-bold transition-all text-white shadow-xs hover:shadow-md hover:opacity-95 cursor-pointer border-0 flex justify-center items-center gap-2 group/btn"
+          style={{
+            backgroundColor:
+              provider.color || specTheme.primaryColor || "#059669",
+          }}
         >
           <span>{t("view_profile")}</span>
+          <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
         </button>
       </div>
     </div>
