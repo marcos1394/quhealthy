@@ -26,6 +26,7 @@ import {
   HeartHandshake,
   Truck,
   Building2,
+  Stethoscope,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTranslations, useLocale } from "next-intl";
@@ -723,6 +724,27 @@ export const Navbar: React.FC = () => {
                       </div>
                     </Link>
                   </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="my-1 bg-gray-100 dark:bg-gray-800" />
+
+                  <DropdownMenuItem
+                    asChild
+                    className="rounded-xl cursor-pointer focus:bg-emerald-50/50 dark:focus:bg-emerald-950/30 p-2.5"
+                  >
+                    <Link href="/provider/login?clear_session=true" className="flex items-center gap-3 w-full">
+                      <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/30 border border-teal-100 dark:border-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0 shadow-2xs">
+                        <Stethoscope size={15} strokeWidth={2} />
+                      </div>
+                      <div className="flex flex-col space-y-0.5">
+                        <span className="font-bold text-xs text-gray-900 dark:text-white">
+                          {t("registration_dropdown.pro_login_title", { defaultValue: "Acceso Profesionales" })}
+                        </span>
+                        <span className="text-[10px] font-medium text-gray-400">
+                          {t("registration_dropdown.pro_login_desc", { defaultValue: "Portal institucional y clínico" })}
+                        </span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -893,17 +915,32 @@ export const Navbar: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-2 pt-1">
-                    <Link
-                      href="/login?clear_session=true"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Button
-                        variant="outline"
-                        className="w-full h-11 rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-800 dark:text-gray-200"
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link
+                        href="/login?clear_session=true"
+                        onClick={() => setMobileMenuOpen(false)}
                       >
-                        {t("buttons.login")}
-                      </Button>
-                    </Link>
+                        <Button
+                          variant="outline"
+                          className="w-full h-11 rounded-xl border-gray-200 dark:border-gray-800 text-xs font-bold text-gray-800 dark:text-gray-200"
+                        >
+                          {t("buttons.login")}
+                        </Button>
+                      </Link>
+
+                      <Link
+                        href="/provider/login?clear_session=true"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Button
+                          variant="outline"
+                          className="w-full h-11 rounded-xl border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-center gap-1.5"
+                        >
+                          <Stethoscope size={14} className="shrink-0" />
+                          <span>{t("buttons.pro_login", { defaultValue: "Acceso Pro" })}</span>
+                        </Button>
+                      </Link>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <Link

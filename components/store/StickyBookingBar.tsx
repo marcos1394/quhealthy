@@ -13,11 +13,15 @@ import { useBookingStore } from "@/hooks/useBookingStore";
 interface StickyBookingBarProps {
   providerSlug: string;
   brandColor?: string;
+  selectedLocationId?: number | null;
+  locationName?: string;
 }
 
 export const StickyBookingBar: React.FC<StickyBookingBarProps> = ({
   providerSlug,
   brandColor = "#059669",
+  selectedLocationId,
+  locationName,
 }) => {
   const t = useTranslations("StickyBookingBar");
   const router = useRouter();
@@ -47,7 +51,8 @@ export const StickyBookingBar: React.FC<StickyBookingBarProps> = ({
 
   const handleAction = () => {
     if (hasServices) {
-      router.push(`/${locale}/patient/booking/${providerSlug}`);
+      const query = selectedLocationId ? `?locationId=${selectedLocationId}` : "";
+      router.push(`/${locale}/patient/booking/${providerSlug}${query}`);
     } else {
       router.push(`/${locale}/checkout`);
     }
@@ -70,8 +75,8 @@ export const StickyBookingBar: React.FC<StickyBookingBarProps> = ({
           </div>
 
           <div className="space-y-0.5">
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-              {t("selection_label")}
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider truncate max-w-[200px] sm:max-w-xs">
+              {locationName ? `${locationName} • ${t("selection_label")}` : t("selection_label")}
             </p>
             <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-none">
               <span>{t("items_count", { count: totalItems })}</span>

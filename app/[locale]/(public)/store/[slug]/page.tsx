@@ -57,6 +57,8 @@ import { StorefrontReviews } from "@/components/store/StorefrontReviews";
 import { StorefrontNavigation } from "@/components/store/StorefrontNavigation";
 import { StoreStructuredData } from "@/components/store/StoreStructuredData";
 import { MultiLocationSelector } from "@/components/store/MultiLocationSelector";
+import { StorefrontStickyBookingCard } from "@/components/store/StorefrontStickyBookingCard";
+import { toast } from "react-toastify";
 
 type TabType = "servicios" | "paquetes" | "productos" | "cursos";
 
@@ -111,6 +113,15 @@ export default function PublicStorePage() {
         else if (hasCourses) setActiveTab("cursos");
       }
 
+      // Inicializar ubicación seleccionada si existe
+      if (store.locations && store.locations.length > 0) {
+        setSelectedLocationId((prev) => {
+          if (prev) return prev;
+          const mainLoc = store.locations?.find((l) => l.isMain) || store.locations?.[0];
+          return mainLoc ? mainLoc.id : null;
+        });
+      }
+
       setProvider(
         store.providerId,
         slug,
@@ -138,6 +149,7 @@ export default function PublicStorePage() {
     store?.providerId,
     store?.displayName,
     store?.primaryColor,
+    store?.locations,
     slug,
     setProvider,
     fetchSingleScore,
@@ -161,7 +173,8 @@ export default function PublicStorePage() {
           store.primaryColor || "#000000",
         );
         addToCart(serviceToBook, slug, store.displayName, store.primaryColor || "#000000");
-        router.replace(`/${locale}/patient/booking/${slug}`);
+        const query = selectedLocationId ? `?locationId=${selectedLocationId}` : "";
+        router.replace(`/${locale}/patient/booking/${slug}${query}`);
       }
     }
   }, [
@@ -170,6 +183,7 @@ export default function PublicStorePage() {
     isLoading,
     locale,
     slug,
+    selectedLocationId,
     addToCart,
     setProvider,
     router,
@@ -177,6 +191,30 @@ export default function PublicStorePage() {
 
   const handleAddToCart = (item: StorefrontItem) => {
     addToCart(item, slug, store?.displayName, store?.primaryColor || "#000000");
+    toast.success(
+      <div className="flex items-center justify-between gap-3 text-xs font-semibold">
+        <span className="truncate">{item.name} {t("added_to_selection", { defaultValue: "agregado" })}</span>
+        <button
+          type="button"
+          onClick={() => {
+            const query = selectedLocationId ? `?locationId=${selectedLocationId}` : "";
+            router.push(`/${locale}/patient/booking/${slug}${query}`);
+          }}
+          className="font-bold underline text-white hover:text-emerald-200 shrink-0 cursor-pointer"
+        >
+          {item.type === "SERVICE" || item.type === "PACKAGE" ? "Agendar →" : "Ver Selección →"}
+        </button>
+      </div>,
+      { autoClose: 3500 }
+    );
+  };
+
+  const handleSelectQuickSlot = (slotTime: string, locId?: number) => {
+    const targetLocId = locId || selectedLocationId;
+    const queryParams = new URLSearchParams();
+    if (targetLocId) queryParams.set("locationId", String(targetLocId));
+    if (slotTime) queryParams.set("timeSlot", slotTime);
+    router.push(`/${locale}/patient/booking/${slug}?${queryParams.toString()}`);
   };
 
   if (isLoading) {
@@ -261,133 +299,150 @@ export default function PublicStorePage() {
         store={store}
         scoreData={singleScore}
         isFavorited={favoriteProviderIds.has(store.providerId)}
+        selectedLocationId={selectedLocationId}
+        onSelectSlot={handleSelectQuickSlot}
       />
 
-      {/* --- NAVEGACIÓN TABULAR MODERNA CON SEGMENTED PILLS --- */}
-      <div className="sticky top-0 z-40 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 py-3 shadow-2xs">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            {/* SERVICIOS */}
-            <button
-              onClick={() => setActiveTab("servicios")}
-              className={cn(
-                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
-                activeTab === "servicios"
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
-                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
-              )}
-              style={
-                activeTab === "servicios" && hasValidPrimaryColor
-                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
-                  : undefined
-              }
-            >
-              <Clock className="w-3.5 h-3.5" strokeWidth={2} />
-              <span>{t("tab_services", { defaultValue: "Servicios" })}</span>
-              <span
-                className={cn(
-                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
-                  activeTab === "servicios"
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
-                )}
-              >
-                {store.services?.length || 0}
-              </span>
-            </button>
-
-            {/* PRODUCTOS */}
-            <button
-              onClick={() => setActiveTab("productos")}
-              className={cn(
-                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
-                activeTab === "productos"
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
-                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
-              )}
-              style={
-                activeTab === "productos" && hasValidPrimaryColor
-                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
-                  : undefined
-              }
-            >
-              <ShoppingBag className="w-3.5 h-3.5" strokeWidth={2} />
-              <span>{t("tab_products", { defaultValue: "Productos" })}</span>
-              <span
-                className={cn(
-                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
-                  activeTab === "productos"
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
-                )}
-              >
-                {store.products?.length || 0}
-              </span>
-            </button>
-
-            {/* PAQUETES */}
-            <button
-              onClick={() => setActiveTab("paquetes")}
-              className={cn(
-                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
-                activeTab === "paquetes"
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
-                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
-              )}
-              style={
-                activeTab === "paquetes" && hasValidPrimaryColor
-                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
-                  : undefined
-              }
-            >
-              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
-              <span>{t("tab_packages", { defaultValue: "Paquetes" })}</span>
-              <span
-                className={cn(
-                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
-                  activeTab === "paquetes"
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
-                )}
-              >
-                {store.packages?.length || 0}
-              </span>
-            </button>
-
-            {/* CURSOS */}
-            <button
-              onClick={() => setActiveTab("cursos")}
-              className={cn(
-                "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
-                activeTab === "cursos"
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
-                  : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
-              )}
-              style={
-                activeTab === "cursos" && hasValidPrimaryColor
-                  ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
-                  : undefined
-              }
-            >
-              <GraduationCap className="w-3.5 h-3.5" strokeWidth={2} />
-              <span>{t("tab_courses", { defaultValue: "Cursos" })}</span>
-              <span
-                className={cn(
-                  "text-[10px] font-black px-1.5 py-0.5 rounded-full",
-                  activeTab === "cursos"
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
-                )}
-              >
-                {store.courses?.length || 0}
-              </span>
-            </button>
-          </div>
+      {/* --- SEDES Y CONSULTORIOS DE ATENCIÓN (TOP-FOLD) --- */}
+      {store.locations && store.locations.length > 0 && (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-8">
+          <MultiLocationSelector
+            locations={store.locations}
+            primaryColor={safePrimaryColor}
+            selectedLocationId={selectedLocationId}
+            onSelectLocation={(loc) => setSelectedLocationId(loc.id)}
+          />
         </div>
-      </div>
+      )}
 
-      {/* --- CONTENIDO PRINCIPAL --- */}
-      <div className="max-w-5xl mx-auto px-6 mt-10">
+      {/* --- CONTENIDO PRINCIPAL EN 2 COLUMNAS (DESKTOP) --- */}
+      <div id="catalog-section" className="max-w-6xl mx-auto px-4 sm:px-6 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* COLUMNA PRINCIPAL (8 COLS) */}
+          <div className="lg:col-span-8 space-y-8 min-w-0">
+            {/* NAVEGACIÓN TABULAR MODERNA CON SEGMENTED PILLS */}
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 py-3 shadow-2xs rounded-2xl px-2">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                {/* SERVICIOS */}
+                <button
+                  onClick={() => setActiveTab("servicios")}
+                  className={cn(
+                    "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
+                    activeTab === "servicios"
+                      ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                      : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
+                  )}
+                  style={
+                    activeTab === "servicios" && hasValidPrimaryColor
+                      ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                      : undefined
+                  }
+                >
+                  <Clock className="w-3.5 h-3.5" strokeWidth={2} />
+                  <span>{t("tab_services", { defaultValue: "Servicios" })}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                      activeTab === "servicios"
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                    )}
+                  >
+                    {store.services?.length || 0}
+                  </span>
+                </button>
+
+                {/* PRODUCTOS */}
+                <button
+                  onClick={() => setActiveTab("productos")}
+                  className={cn(
+                    "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
+                    activeTab === "productos"
+                      ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                      : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
+                  )}
+                  style={
+                    activeTab === "productos" && hasValidPrimaryColor
+                      ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                      : undefined
+                  }
+                >
+                  <ShoppingBag className="w-3.5 h-3.5" strokeWidth={2} />
+                  <span>{t("tab_products", { defaultValue: "Productos" })}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                      activeTab === "productos"
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                    )}
+                  >
+                    {store.products?.length || 0}
+                  </span>
+                </button>
+
+                {/* PAQUETES */}
+                <button
+                  onClick={() => setActiveTab("paquetes")}
+                  className={cn(
+                    "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
+                    activeTab === "paquetes"
+                      ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                      : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
+                  )}
+                  style={
+                    activeTab === "paquetes" && hasValidPrimaryColor
+                      ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                      : undefined
+                  }
+                >
+                  <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+                  <span>{t("tab_packages", { defaultValue: "Paquetes" })}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                      activeTab === "paquetes"
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                    )}
+                  >
+                    {store.packages?.length || 0}
+                  </span>
+                </button>
+
+                {/* CURSOS */}
+                <button
+                  onClick={() => setActiveTab("cursos")}
+                  className={cn(
+                    "h-11 px-4 sm:px-5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2.5 whitespace-nowrap cursor-pointer shrink-0 border border-transparent",
+                    activeTab === "cursos"
+                      ? "bg-gray-900 text-white dark:bg-white dark:text-black shadow-sm"
+                      : "bg-gray-100/80 dark:bg-[#141414] text-gray-600 dark:text-gray-400 hover:bg-gray-200/80 dark:hover:bg-[#1e1e1e] hover:text-gray-900 dark:hover:text-white"
+                  )}
+                  style={
+                    activeTab === "cursos" && hasValidPrimaryColor
+                      ? { backgroundColor: safePrimaryColor, color: "#ffffff" }
+                      : undefined
+                  }
+                >
+                  <GraduationCap className="w-3.5 h-3.5" strokeWidth={2} />
+                  <span>{t("tab_courses", { defaultValue: "Cursos" })}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-black px-1.5 py-0.5 rounded-full",
+                      activeTab === "cursos"
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-200/80 dark:bg-[#252525] text-gray-600 dark:text-gray-300"
+                    )}
+                  >
+                    {store.courses?.length || 0}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* --- CONTENIDO DE PESTAÑAS Y CATÁLOGO --- */}
+            <div>
         <AnimatePresence mode="wait">
           {/* VISTA 1: SERVICIOS CORREGIDA Y REDISEÑADA */}
           {activeTab === "servicios" && (
@@ -691,10 +746,10 @@ export default function PublicStorePage() {
                   >
                     <div className="flex-1 flex flex-col gap-4">
                       <div className="flex items-start justify-between gap-4 w-full">
-                        <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit">
+                        <span className="border border-black dark:border-white px-2.5 py-1 text-[10px] font-bold tracking-wide rounded-lg flex items-center gap-1.5 w-fit">
                           <Sparkles className="w-3 h-3" strokeWidth={2} />{" "}
                           {t("badge_special", {
-                            defaultValue: "OFERTA ESTRUCTURAL",
+                            defaultValue: "Paquete Especial",
                           })}
                         </span>
                         <FavoriteButton
@@ -815,9 +870,9 @@ export default function PublicStorePage() {
                             }
                           >
                             {isInCart
-                              ? "REMOVER"
+                              ? t("remove_from_cart", { defaultValue: "Quitar" })
                               : t("btn_promo", {
-                                  defaultValue: "ADQUIRIR PAQUETE",
+                                  defaultValue: "Elegir Paquete",
                                 })}
                           </Button>
                         );
@@ -891,8 +946,8 @@ export default function PublicStorePage() {
 
                             {isOutOfStock && (
                               <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
-                                <span className="border border-red-500 bg-red-50 text-red-600 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
-                                  INVENTARIO AGOTADO
+                                <span className="border border-red-500 bg-red-50 text-red-600 px-3 py-1 text-xs font-bold rounded-lg">
+                                  Agotado
                                 </span>
                               </div>
                             )}
@@ -902,7 +957,7 @@ export default function PublicStorePage() {
                             <div className="flex justify-between items-start gap-4 mb-4">
                               <span
                                 className={cn(
-                                  "border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-transparent",
+                                  "border px-2.5 py-0.5 text-[10px] font-bold rounded-md tracking-wide bg-transparent",
                                   !hasValidPrimaryColor &&
                                     "border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400",
                                 )}
@@ -915,7 +970,7 @@ export default function PublicStorePage() {
                                     : {}
                                 }
                               >
-                                {product.category || "BIEN FÍSICO"}
+                                {product.category || "Producto"}
                               </span>
 
                               {/* Botón integrado de forma segura en la esquina superior del bloque de datos */}
@@ -932,12 +987,12 @@ export default function PublicStorePage() {
                             </div>
 
                             {isLowStock && (
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-amber-600 mb-3 flex items-center">
+                              <span className="text-[10px] font-bold tracking-wide text-amber-600 dark:text-amber-400 mb-3 flex items-center">
                                 <AlertCircle
-                                  className="w-3 h-3 mr-1"
+                                  className="w-3.5 h-3.5 mr-1"
                                   strokeWidth={2}
                                 />{" "}
-                                STOCK ACTUAL: {product.stockQuantity}
+                                Últimas {product.stockQuantity} piezas
                               </span>
                             )}
 
@@ -945,11 +1000,11 @@ export default function PublicStorePage() {
                               href={`/${locale}/market/item/${product.id}-${generateSlug(product.name)}`}
                               className="hover:underline"
                             >
-                              <h3 className="font-bold text-sm uppercase tracking-wider text-black dark:text-white line-clamp-1 mb-2">
+                              <h3 className="font-bold text-sm text-black dark:text-white line-clamp-1 mb-2">
                                 {product.name}
                               </h3>
                             </Link>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 line-clamp-2 mb-6 flex-1 leading-relaxed">
+                            <p className="text-xs font-medium text-gray-500 line-clamp-2 mb-6 flex-1 leading-relaxed">
                               {product.description}
                             </p>
 
@@ -957,11 +1012,11 @@ export default function PublicStorePage() {
                               <div className="flex flex-col">
                                 {product.compareAtPrice &&
                                   product.compareAtPrice > product.price && (
-                                    <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">
+                                    <span className="text-xs font-bold text-gray-400 line-through mb-0.5">
                                       ${formatPrice(product.compareAtPrice)}
                                     </span>
                                   )}
-                                <span className="text-xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                                <span className="text-xl font-bold tracking-tight text-black dark:text-white leading-none">
                                   ${formatPrice(product.price)}
                                 </span>
                               </div>
@@ -995,7 +1050,7 @@ export default function PublicStorePage() {
                                       >
                                         -
                                       </button>
-                                      <span className="w-10 text-center text-[10px] font-bold text-black dark:text-white">
+                                      <span className="w-10 text-center text-xs font-bold text-black dark:text-white">
                                         {cartItem.cartQuantity || 1}
                                       </span>
                                       <button
@@ -1018,7 +1073,7 @@ export default function PublicStorePage() {
                                     disabled={isOutOfStock}
                                     onClick={() => handleAddToCart(product)}
                                     className={cn(
-                                      "rounded-xl h-10 px-6 text-[9px] font-bold uppercase tracking-widest border-0 transition-colors",
+                                      "rounded-xl h-10 px-6 text-xs font-bold border-0 transition-colors cursor-pointer",
                                       isOutOfStock
                                         ? "bg-gray-100 text-gray-400 dark:bg-[#111] dark:text-gray-600 cursor-not-allowed"
                                         : "text-white",
@@ -1029,7 +1084,7 @@ export default function PublicStorePage() {
                                         : {}
                                     }
                                   >
-                                    {isOutOfStock ? "AGOTADO" : "AGREGAR"}
+                                    {isOutOfStock ? "Agotado" : "Agregar"}
                                   </Button>
                                 );
                               })()}
@@ -1109,12 +1164,12 @@ export default function PublicStorePage() {
                     <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
                       <div>
                         <div className="flex items-start justify-between gap-4 mb-4">
-                          <span className="border border-black dark:border-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 w-fit text-black dark:text-white">
+                          <span className="border border-black dark:border-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5 w-fit text-black dark:text-white rounded-full">
                             <GraduationCap
-                              className="w-3 h-3"
+                              className="w-3.5 h-3.5"
                               strokeWidth={1.5}
                             />{" "}
-                            ACTIVO INTANGIBLE
+                            Curso Online
                           </span>
                           <FavoriteButton
                             entityType="COURSE"
@@ -1127,11 +1182,11 @@ export default function PublicStorePage() {
                           href={`/${locale}/market/item/${course.id}-${generateSlug(course.name)}`}
                           className="hover:underline"
                         >
-                          <h3 className="font-bold text-lg uppercase tracking-wider text-black dark:text-white mb-2">
+                          <h3 className="font-semibold text-lg text-black dark:text-white mb-2 tracking-tight">
                             {course.name}
                           </h3>
                         </Link>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 leading-relaxed mb-6 max-w-xl">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-6 max-w-xl line-clamp-3">
                           {course.description}
                         </p>
                         <CourseCurriculumView catalogItemId={course.id} />
@@ -1152,10 +1207,10 @@ export default function PublicStorePage() {
                                   : handleAddToCart(course)
                               }
                               className={cn(
-                                "rounded-none w-full sm:w-auto h-12 px-8 text-[10px] font-bold uppercase tracking-widest transition-colors border-0",
+                                "rounded-full w-full sm:w-auto h-11 px-6 text-xs font-semibold tracking-wide transition-colors border-0",
                                 isInCart
                                   ? "bg-gray-100 text-black dark:bg-[#111] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800"
-                                  : "text-white",
+                                  : "text-white shadow-sm",
                               )}
                               style={
                                 !isInCart
@@ -1164,8 +1219,8 @@ export default function PublicStorePage() {
                               }
                             >
                               {isInCart
-                                ? "REMOVER DE SELECCIÓN"
-                                : "ADQUIRIR ACCESO DIGITAL"}
+                                ? "Quitar de selección"
+                                : "Inscribirme al curso"}
                             </Button>
                           );
                         })()}
@@ -1240,23 +1295,11 @@ export default function PublicStorePage() {
           </div>
         )}
 
-        {/* --- SEDES Y CONSULTORIOS DE ATENCIÓN (MULTI-SEDE) --- */}
-        {store.locations && store.locations.length > 0 && (
-          <div className="mt-14">
-            <MultiLocationSelector
-              locations={store.locations}
-              primaryColor={safePrimaryColor}
-              selectedLocationId={selectedLocationId}
-              onSelectLocation={(loc) => setSelectedLocationId(loc.id)}
-            />
-          </div>
-        )}
-
         {/* 🚀 RESEÑAS (FASE 4) */}
         <StorefrontReviews providerId={store.providerId} />
 
         {/* 🚀 CARRUSELES DE CROSS-SELLING (FASE 1) */}
-        <div className="mt-12 px-6 lg:px-0">
+        <div className="mt-12">
           <CrossSellingCarousel
             itemType="COURSE"
             title="Sugerencias Académicas"
@@ -1268,6 +1311,20 @@ export default function PublicStorePage() {
           />
         </div>
       </div>
+    </div>
+
+          {/* COLUMNA STICKY LATERAL (4 COLS EN DESKTOP) */}
+          <div className="hidden lg:block lg:col-span-4">
+            <StorefrontStickyBookingCard
+              store={store}
+              scoreData={singleScore}
+              selectedLocationId={selectedLocationId}
+              onSelectLocation={(loc) => setSelectedLocationId(loc.id)}
+              brandColor={safePrimaryColor}
+            />
+          </div>
+        </div>
+      </div>
 
       <QuScoreModal
         isOpen={showQuScoreModal}
@@ -1275,7 +1332,12 @@ export default function PublicStorePage() {
         scoreData={singleScore}
       />
 
-      <StickyBookingBar providerSlug={slug} brandColor={safePrimaryColor} />
+      <StickyBookingBar
+        providerSlug={slug}
+        brandColor={safePrimaryColor}
+        selectedLocationId={selectedLocationId}
+        locationName={store.locations?.find((l) => l.id === selectedLocationId)?.name}
+      />
     </div>
   );
 }

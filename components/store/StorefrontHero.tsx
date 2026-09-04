@@ -35,6 +35,8 @@ interface StorefrontHeroProps {
   store: StorefrontData;
   scoreData?: ProviderScoreResponse | null;
   isFavorited: boolean;
+  selectedLocationId?: number | null;
+  onSelectSlot?: (slot: string, locationId?: number) => void;
 }
 
 const isPlaceholder = (val?: string | null) => {
@@ -74,6 +76,8 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
   store,
   scoreData,
   isFavorited,
+  selectedLocationId,
+  onSelectSlot,
 }) => {
   const t = useTranslations("StorePublic");
   const [showQuScoreModal, setShowQuScoreModal] = useState(false);
@@ -488,7 +492,12 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
 
           {/* Componente de Disponibilidad Rápida (ÚNICAMENTE si tiene servicios para agendar) */}
           {store.services && store.services.length > 0 && (
-            <QuickAvailability providerId={store.providerId} locations={store.locations} />
+            <QuickAvailability
+              providerId={store.providerId}
+              locations={store.locations}
+              selectedLocationId={selectedLocationId}
+              onSelectSlot={onSelectSlot}
+            />
           )}
 
           {/* Biografía y Contacto (Solo si tiene bio real o teléfono/redes) */}

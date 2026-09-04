@@ -13,14 +13,17 @@ import {
   Lock,
   Eye,
   EyeOff,
-  User,
+  Stethoscope,
   ArrowRight,
   Shield,
   Check,
   AlertTriangle,
   AlertCircle,
-  KeyRound,
   Sparkles,
+  Building2,
+  FlaskConical,
+  HeartHandshake,
+  ShieldCheck,
 } from "lucide-react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { toast } from "react-toastify";
@@ -35,12 +38,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthResponse } from "@/types/auth";
 import { handleApiError } from "@/lib/handleApiError";
 import { nukeCookies } from "@/stores/SessionStore";
-import { consumerProfileService } from "@/services/consumerProfile.service";
 import { foundationOnboardingService } from "@/services/foundation-onboarding.service";
 import { supplierService } from "@/services/supplier.service";
 import { laboratoryOnboardingService } from "@/services/laboratory-onboarding.service";
 
-export default function LoginPage() {
+export default function ProviderLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("Auth");
@@ -75,25 +77,7 @@ export default function LoginPage() {
       url.searchParams.delete("expired");
       window.history.replaceState({}, "", url.pathname);
     }
-
-    const redirect = searchParams.get("redirect");
-    const roleParam = searchParams.get("role");
-
-    // Si detecta un rol institucional en la query, redirige suavemente a la página dedicada de profesionales
-    if (
-      roleParam === "provider" ||
-      roleParam === "laboratory" ||
-      roleParam === "foundation" ||
-      roleParam === "supplier" ||
-      redirect?.includes("provider") ||
-      redirect?.includes("laboratory") ||
-      redirect?.includes("foundation") ||
-      redirect?.includes("supplier")
-    ) {
-      const q = searchParams.toString();
-      router.replace(`/provider/login${q ? `?${q}` : ""}`);
-    }
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -106,7 +90,7 @@ export default function LoginPage() {
   };
 
   const isFormValid = (): boolean => {
-    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+    const isEmailValid = /^[^s@]+@[^s@]+.[^s@]+$/.test(formData.email);
     return isEmailValid && formData.password.length >= 6;
   };
 
@@ -134,18 +118,7 @@ export default function LoginPage() {
       return;
     }
 
-    // Si una cuenta profesional ingresó por aquí, redirigir a su panel correspondiente
-    if (role === "ROLE_PROVIDER" || role === "ROLE_STAFF") {
-      toast.success(t("login_success"), { theme: "colored" });
-      const isOnboardingComplete = response.status?.onboardingComplete;
-      if (isOnboardingComplete) {
-        router.push("/provider/dashboard");
-      } else {
-        router.push("/onboarding");
-      }
-      return;
-    }
-
+    // 🔬 1. LABORATORIOS CLÍNICOS
     if ((role as string) === "ROLE_LABORATORY" || (role as string) === "LABORATORY") {
       toast.success(t("login_success"), { theme: "colored" });
       try {
@@ -161,6 +134,7 @@ export default function LoginPage() {
       return;
     }
 
+    // 🤝 2. FUNDACIONES & ONGs
     if ((role as string) === "ROLE_FOUNDATION" || (role as string) === "FOUNDATION") {
       toast.success(t("login_success"), { theme: "colored" });
       try {
@@ -176,6 +150,7 @@ export default function LoginPage() {
       return;
     }
 
+    // 📦 3. PROVEEDORES DE INSUMOS
     if ((role as string) === "ROLE_SUPPLIER" || (role as string) === "SUPPLIER") {
       toast.success(t("login_success"), { theme: "colored" });
       try {
@@ -191,27 +166,65 @@ export default function LoginPage() {
       return;
     }
 
-    // Ruta estándar para Pacientes / Consumidores
-    if (role === "ROLE_CONSUMER") {
+    // 🩺 4. PROFESIONALES DE LA SALUD & CLÍNICAS & STAFF
+    if (role === "ROLE_PROVIDER" || role === "ROLE_STAFF") {
       toast.success(t("login_success"), { theme: "colored" });
-      try {
-        const profile: any = await consumerProfileService.getProfile();
-        const step = profile?.onboardingStep || 0;
-        const stepsLength = 8;
 
-        if (step >= stepsLength) {
-          router.push("/patient/dashboard");
-        } else {
-          router.push("/onboarding/patient");
+      // Verificación cruzada si es laboratorio, fundación o proveedor registrado con cuenta de prestador
+      try {
+        const labStatus = await laboratoryOnboardingService.getStatus();
+        if (labStatus.isRegistered) {
+          if (labStatus.canExploreDashboard || labStatus.currentStep >= 5) {
+            router.push("/laboratory/dashboard");
+          } else {
+            router.push("/onboarding/laboratory");
+          }
+          return;
         }
-      } catch (err) {
-        router.push("/onboarding/patient");
+      } catch {}
+
+      try {
+        const fStatus = await foundationOnboardingService.getStatus();
+        if (fStatus.profile && fStatus.profile.legalName) {
+          if (fStatus.isCompleted || (fStatus.currentStep && fStatus.currentStep >= 5)) {
+            router.push("/foundation/dashboard");
+          } else {
+            router.push("/onboarding/foundation");
+          }
+          return;
+        }
+      } catch {}
+
+      try {
+        const sStatus = await supplierService.getOnboardingStatus();
+        if (sStatus.organizationId || sStatus.legalName) {
+          if (sStatus.currentStep >= 5) {
+            router.push("/supplier/dashboard");
+          } else {
+            router.push("/onboarding/supplier");
+          }
+          return;
+        }
+      } catch {}
+
+      const isOnboardingComplete = response.status?.onboardingComplete;
+      if (isOnboardingComplete) {
+        router.push("/provider/dashboard");
+      } else {
+        router.push("/onboarding");
       }
       return;
     }
 
+    // Si es paciente que entró al portal institucional, redirigir amistosamente a su dashboard
+    if (role === "ROLE_CONSUMER") {
+      toast.success(t("login_success"), { theme: "colored" });
+      router.push("/patient/dashboard");
+      return;
+    }
+
     toast.success(t("login_success"), { theme: "colored" });
-    router.push("/discover");
+    router.push("/provider/dashboard");
   };
 
   const processLogin = async (token: string) => {
@@ -220,7 +233,7 @@ export default function LoginPage() {
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         captchaToken: token,
-        role: "ROLE_CONSUMER",
+        role: "ROLE_PROVIDER",
       });
 
       await handleAuthNavigation(response);
@@ -278,7 +291,12 @@ export default function LoginPage() {
     }
   };
 
-  const benefits: string[] = t.raw("consumer_benefits");
+  const proHighlights = [
+    "Agenda médica inteligente, recordatorios y videoconsultas HD",
+    "Expediente Clínico Digital bajo norma oficial NOM-004-SSA3",
+    "Cobro automatizado y dispersión segura de ingresos",
+    "Red de derivaciones con clínicas, laboratorios y aseguradoras",
+  ];
 
   return (
     <GoogleOAuthProvider
@@ -286,17 +304,17 @@ export default function LoginPage() {
     >
       <div className="flex min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
         
-        {/* ── PANEL IZQUIERDO (HERO VISUAL & BENEFICIOS PACIENTE) ────────── */}
+        {/* ── PANEL IZQUIERDO (HERO B2B & BENEFICIOS CLÍNICOS) ───────────── */}
         <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 p-12 flex-col justify-between overflow-hidden m-4 rounded-3xl border border-gray-800 shadow-2xl">
           <motion.img
             initial={{ opacity: 0.4, scale: 1.05 }}
             animate={{ opacity: 0.7, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            src="/suite_patient_app.png"
+            src="/hero_medical_lifestyle.png"
             alt={t("hero_img_alt")}
-            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-50"
+            className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-40"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-gray-950/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/65 to-gray-950/25" />
 
           {/* Header Marca */}
           <div className="relative z-10 flex items-center justify-between">
@@ -304,23 +322,35 @@ export default function LoginPage() {
               <span className="text-2xl font-bold tracking-tight text-white">
                 QuHealthy<span className="text-emerald-400">.</span>
               </span>
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-300 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-md">
+                Pro
+              </span>
             </Link>
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>{t("badge_secure_login")}</span>
             </span>
           </div>
 
-          {/* Área de Beneficios Paciente */}
+          {/* Área de Beneficios B2B */}
           <div className="relative z-10 space-y-8 max-w-lg">
             <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
+                <Stethoscope className="w-3.5 h-3.5" />
+                <span>Ecosistema Clínico & Empresarial</span>
+              </div>
+
               <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight leading-[1.15]">
-                {t("consumer_area")}
+                {t("pro_title")}
               </h2>
 
+              <p className="text-sm text-gray-300 font-normal leading-relaxed">
+                {t("pro_subtitle")}
+              </p>
+
               <div className="space-y-3 pt-2">
-                {benefits.map((benefit, index) => (
+                {proHighlights.map((highlight, index) => (
                   <div
                     key={index}
                     className="flex items-center gap-3 text-gray-200 text-xs sm:text-sm font-medium"
@@ -328,37 +358,40 @@ export default function LoginPage() {
                     <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
                       <Check className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2.5} />
                     </div>
-                    <span>{benefit}</span>
+                    <span>{highlight}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Shield Card */}
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-5 shadow-xl space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                  <Shield className="w-5 h-5 text-emerald-400" strokeWidth={2} />
-                </div>
-                <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                    {t("secure_connection")}
-                  </h3>
-                  <p className="text-[11px] text-gray-300 font-medium mt-0.5">
-                    {t("secure_desc")}
-                  </p>
-                </div>
+            {/* Badges de Roles Atendidos */}
+            <div className="grid grid-cols-2 gap-2.5 pt-2">
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-3 flex items-center gap-2.5">
+                <Stethoscope className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="text-xs text-gray-200 font-semibold">Médicos y Clínicas</span>
+              </div>
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-3 flex items-center gap-2.5">
+                <FlaskConical className="w-4 h-4 text-teal-400 shrink-0" />
+                <span className="text-xs text-gray-200 font-semibold">Laboratorios Clínicos</span>
+              </div>
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-3 flex items-center gap-2.5">
+                <HeartHandshake className="w-4 h-4 text-rose-400 shrink-0" />
+                <span className="text-xs text-gray-200 font-semibold">Fundaciones & ONGs</span>
+              </div>
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-3 flex items-center gap-2.5">
+                <Building2 className="w-4 h-4 text-sky-400 shrink-0" />
+                <span className="text-xs text-gray-200 font-semibold">Proveedores de Salud</span>
               </div>
             </div>
           </div>
           
           {/* Footer Card */}
           <div className="relative z-10 text-[11px] text-gray-400 font-medium">
-            © {new Date().getFullYear()} QuHealthy Inc. Plataforma Integral de Salud.
+            © {new Date().getFullYear()} QuHealthy Inc. Entorno Profesional y Clínico Seguro.
           </div>
         </div>
 
-        {/* ── PANEL DERECHO (FORMULARIO PACIENTE LIMPIO) ─────────────────── */}
+        {/* ── PANEL DERECHO (FORMULARIO B2B PROFESIONAL) ─────────────────── */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -366,42 +399,45 @@ export default function LoginPage() {
             transition={{ duration: 0.4 }}
             className="w-full max-w-md space-y-6"
           >
-            {/* Header & Logo Mobile */}
+            {/* Header & Retorno a Pacientes */}
             <div className="text-center lg:text-left space-y-2">
               <div className="flex items-center justify-between">
                 <Link href="/" className="inline-block mb-2">
                   <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                     QuHealthy<span className="text-emerald-600 dark:text-emerald-400">.</span>
                   </span>
+                  <span className="ml-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded-md">
+                    Pro
+                  </span>
                 </Link>
 
                 <Link
-                  href="/provider/login"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline transition-all group"
+                  href="/login"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-emerald-600 dark:text-gray-400 dark:hover:text-emerald-400 transition-colors group"
                 >
-                  <span>{t("switch_to_pro")}</span>
+                  <span>{t("switch_to_consumer")}</span>
                   <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
 
               <div className="flex items-center justify-center lg:justify-start gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                <KeyRound className="w-4 h-4" strokeWidth={2} />
-                <span>{t("tagline")}</span>
+                <Sparkles className="w-4 h-4" strokeWidth={2} />
+                <span>{t("pro_tagline")}</span>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                {t("title")}
+                {t("pro_title")}
               </h1>
               <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
-                {t("subtitle")}
+                Ingresa con tu correo institucional para acceder a tu panel de gestión.
               </p>
             </div>
 
             <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
               
-              {/* Social Login Pacientes */}
+              {/* Social Login Institucional */}
               <SocialAuthButtons
-                accountRole="ROLE_CONSUMER"
+                accountRole="ROLE_PROVIDER"
                 onSuccess={handleAuthNavigation}
               />
 
@@ -470,7 +506,7 @@ export default function LoginPage() {
                 {/* Email Field */}
                 <div className="space-y-1.5">
                   <label htmlFor="email" className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                    {t("email_label")}
+                    Correo Profesional o Institucional
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" strokeWidth={2} />
@@ -478,7 +514,7 @@ export default function LoginPage() {
                       id="email"
                       name="email"
                       type="email"
-                      placeholder={t("email_placeholder_consumer")}
+                      placeholder={t("email_placeholder_pro")}
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -579,7 +615,7 @@ export default function LoginPage() {
                     </>
                   ) : (
                     <>
-                      <span>{t("submit_button")}</span>
+                      <span>Acceder a QuHealthy Pro</span>
                       <ArrowRight className="w-4 h-4" strokeWidth={2} />
                     </>
                   )}
@@ -588,18 +624,38 @@ export default function LoginPage() {
 
             </div>
 
-            {/* Signup Link */}
-            <div className="text-center pt-2">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3">
-                {t("no_account")}
+            {/* Enlaces de Registro Institucional */}
+            <div className="bg-gray-50/80 dark:bg-gray-900/30 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 text-center space-y-2.5">
+              <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                ¿Aún no formas parte de nuestra red de aliados?
               </p>
-
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center w-full h-11 text-xs font-bold rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all shadow-sm"
-              >
-                {t("create_account")}
-              </Link>
+              
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+                <Link
+                  href="/provider/register"
+                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-emerald-700 dark:text-emerald-300 font-semibold hover:border-emerald-500/40 transition-colors"
+                >
+                  Médico / Clínica
+                </Link>
+                <Link
+                  href="/laboratory/register"
+                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-teal-700 dark:text-teal-300 font-semibold hover:border-teal-500/40 transition-colors"
+                >
+                  Laboratorio
+                </Link>
+                <Link
+                  href="/foundation/register"
+                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-rose-700 dark:text-rose-300 font-semibold hover:border-rose-500/40 transition-colors"
+                >
+                  Fundación
+                </Link>
+                <Link
+                  href="/supplier/register"
+                  className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-sky-700 dark:text-sky-300 font-semibold hover:border-sky-500/40 transition-colors"
+                >
+                  Proveedor
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -629,7 +685,7 @@ export default function LoginPage() {
                   Verificación de 2 Pasos
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  Ingresa el código de 6 dígitos generado por tu aplicación autenticadora (Google Authenticator, Authy, etc).
+                  Ingresa el código de 6 dígitos generado por tu aplicación autenticadora.
                 </p>
               </div>
               
@@ -642,7 +698,7 @@ export default function LoginPage() {
                     type="text"
                     maxLength={6}
                     value={mfaCode}
-                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+                    onChange={(e) => setMfaCode(e.target.value.replace(/D/g, ""))}
                     className="w-full text-center tracking-[0.5em] text-3xl h-14 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl px-4 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none font-mono"
                     placeholder="000000"
                     required

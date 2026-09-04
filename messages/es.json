@@ -348,6 +348,7 @@
     },
     "buttons": {
       "login": "Ingresar",
+      "pro_login": "Acceso Pro",
       "register": "Comenzar",
       "create_account": "Crear Cuenta"
     },
@@ -359,7 +360,9 @@
       "foundation_title": "Fundación / ONG",
       "foundation_desc": "Programas de asistencia social",
       "supplier_title": "Proveedor de Insumos",
-      "supplier_desc": "Venta B2B, almacenes y equipo"
+      "supplier_desc": "Venta B2B, almacenes y equipo",
+      "pro_login_title": "Acceso Profesionales",
+      "pro_login_desc": "Portal institucional y clínico"
     },
     "preferences": "Preferencias:",
     "roles": {
@@ -429,6 +432,12 @@
     "foundation_tab": "Fundación",
     "supplier_tab": "Proveedor",
     "laboratory_tab": "Laboratorio",
+    "switch_to_pro": "¿Eres especialista o institución de salud? Acceso Pro →",
+    "switch_to_consumer": "¿Eres paciente? Inicia sesión aquí →",
+    "pro_title": "Portal de Profesionales y Aliados",
+    "pro_subtitle": "Accede a tu suite médica, clínica, laboratorio o institución",
+    "pro_tagline": "Plataforma Profesional QuHealthy",
+    "email_placeholder_pro": "correo@institucion-o-clinica.com",
     "email_label": "Correo Electrónico",
     "email_placeholder_consumer": "tu@email.com",
     "email_placeholder_provider": "contacto@clinica.com",

@@ -12,6 +12,7 @@ interface MultiLocationSelectorProps {
   primaryColor?: string;
   onSelectLocation?: (location: StorefrontLocation) => void;
   selectedLocationId?: number | null;
+  className?: string;
 }
 
 export const MultiLocationSelector: React.FC<MultiLocationSelectorProps> = ({
@@ -19,6 +20,7 @@ export const MultiLocationSelector: React.FC<MultiLocationSelectorProps> = ({
   primaryColor = "#059669",
   onSelectLocation,
   selectedLocationId,
+  className,
 }) => {
   const t = useTranslations("StorePublic.Locations");
 
@@ -27,6 +29,12 @@ export const MultiLocationSelector: React.FC<MultiLocationSelectorProps> = ({
   const [activeLocId, setActiveLocId] = useState<number>(
     selectedLocationId || locations[0].id
   );
+
+  React.useEffect(() => {
+    if (selectedLocationId && selectedLocationId !== activeLocId) {
+      setActiveLocId(selectedLocationId);
+    }
+  }, [selectedLocationId]);
 
   const selectedLoc = locations.find((l) => l.id === activeLocId) || locations[0];
 
@@ -40,7 +48,7 @@ export const MultiLocationSelector: React.FC<MultiLocationSelectorProps> = ({
   const mapsUrl = buildGoogleMapsUrl(selectedLoc);
 
   return (
-    <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm space-y-5 font-sans">
+    <div className={cn("bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 font-sans", className)}>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div

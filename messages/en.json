@@ -353,6 +353,7 @@
     },
     "buttons": {
       "login": "Log In",
+      "pro_login": "Pro Access",
       "register": "Get Started",
       "create_account": "Create Account"
     },
@@ -364,7 +365,9 @@
       "foundation_title": "Foundation / NGO",
       "foundation_desc": "Social assistance & voucher programs",
       "supplier_title": "Medical Supplier",
-      "supplier_desc": "B2B catalog, warehouse & equipment"
+      "supplier_desc": "B2B catalog, warehouse & equipment",
+      "pro_login_title": "Professional Access",
+      "pro_login_desc": "Clinical & partner portal"
     },
     "preferences": "Preferences:",
     "roles": {
@@ -434,6 +437,12 @@
     "foundation_tab": "Foundation",
     "supplier_tab": "Supplier",
     "laboratory_tab": "Laboratory",
+    "switch_to_pro": "Are you a healthcare specialist or institution? Pro Access →",
+    "switch_to_consumer": "Are you a patient? Log in here →",
+    "pro_title": "Healthcare Professionals & Partners Portal",
+    "pro_subtitle": "Manage your medical practice, clinic, laboratory, or organization",
+    "pro_tagline": "QuHealthy Professional Suite",
+    "email_placeholder_pro": "contact@institution-or-clinic.com",
     "email_label": "Email Address",
     "email_placeholder_consumer": "you@email.com",
     "email_placeholder_provider": "contact@clinic.com",

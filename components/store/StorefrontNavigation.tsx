@@ -3,7 +3,7 @@
 /* eslint-disable react-doctor/button-has-type */
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Share } from "lucide-react";
 import { toast } from "react-toastify";
@@ -57,7 +57,7 @@ export const StorefrontNavigation: React.FC<StorefrontNavigationProps> = ({
       <div className="hidden md:flex max-w-7xl mx-auto px-6 py-4 items-center text-xs font-semibold text-gray-500 font-sans select-none">
         <button
           type="button"
-          onClick={() => router.push("/es/discover")}
+          onClick={() => router.push("/discover")}
           className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
         >
           {t("discover")}

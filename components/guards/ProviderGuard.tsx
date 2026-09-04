@@ -32,7 +32,7 @@ export function ProviderGuard({ children }: { children: React.ReactNode }) {
       (role !== "ROLE_PROVIDER" && role !== "ROLE_STAFF")
     ) {
       console.warn("⛔ Acceso denegado: Área exclusiva para especialistas");
-      router.replace("/login");
+      router.replace("/provider/login");
       return;
     }
 
