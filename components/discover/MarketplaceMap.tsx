@@ -261,7 +261,7 @@ export const MarketplaceMap = () => {
             zIndex={100}
           />
         )}        {/* ── MARCADORES DE TIENDAS / PROVEEDORES ─────────────────────────── */}
-        {(enrichedProviders || []).flatMap((provider) => {
+        {(searchType === "STORE" || !searchType) && (enrichedProviders || []).flatMap((provider) => {
           const isSelected = selectedId === provider.id;
           const isHovered = hoveredId === provider.id;
 
@@ -299,6 +299,9 @@ export const MarketplaceMap = () => {
                 icon={getMapMarkerIcon({
                   role: provider.role || (provider.isClinic ? "CLINIC" : "PROVIDER"),
                   specialty: provider.category || provider.specialty,
+                  name: provider.name,
+                  category: provider.category,
+                  isClinic: provider.isClinic,
                   isPromoted: provider.isPromoted,
                   isSelected: isPinActive || isSelected,
                   isHovered,
@@ -308,7 +311,9 @@ export const MarketplaceMap = () => {
                 {isPinActive && (() => {
                   const specTheme = getSpecialtyTheme(
                     provider.category || provider.specialty,
-                    provider.role
+                    provider.role,
+                    provider.name,
+                    provider.isClinic
                   );
 
                   return (
@@ -320,7 +325,7 @@ export const MarketplaceMap = () => {
                       }}
                       options={{ pixelOffset: new google.maps.Size(0, -40) }}
                     >
-                      <div className="p-0 min-w-[270px] max-w-[300px] font-sans -m-1 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-2xl border border-gray-100 dark:border-gray-800">
+                      <div className="p-0 w-[285px] max-w-[285px] font-sans rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-2xl border border-gray-100 dark:border-gray-800">
                         {/* Banner Superior con Gradiente */}
                         <div className="relative h-28 w-full bg-gray-100 dark:bg-[#050505] overflow-hidden">
                           {provider.imageUrl ? (
@@ -351,10 +356,12 @@ export const MarketplaceMap = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                               >
-                                <path d={specTheme.iconSvgPath} />
+                                <path d={specTheme.iconSvgPath || "M12 4v16m-8-8h16"} />
                               </svg>
                               <span className="truncate max-w-[130px]">
-                                {provider.category || specTheme.label}
+                                {provider.category && provider.category !== "Salud y Bienestar"
+                                  ? provider.category
+                                  : specTheme.label}
                               </span>
                             </div>
 
@@ -493,7 +500,7 @@ export const MarketplaceMap = () => {
         })}
 
         {/* ── MARCADORES DE FUNDACIONES & ONGS ───────────────────────────── */}
-        {(enrichedFoundations || []).map((foundation: any) => {
+        {searchType === "FOUNDATION" && (enrichedFoundations || []).map((foundation: any) => {
           const lat = foundation.lat || foundation.latitude;
           const lng = foundation.lng || foundation.longitude;
 
@@ -521,6 +528,8 @@ export const MarketplaceMap = () => {
               onMouseOut={() => setHoveredId(null)}
               icon={getMapMarkerIcon({
                 role: "FOUNDATION",
+                name: foundation.brandName || foundation.legalName,
+                category: foundation.primaryCauses?.[0] || foundation.organizationType,
                 isSelected: isPinActive,
                 isHovered,
               }, typeof google !== "undefined" ? google.maps : undefined)}
@@ -535,7 +544,7 @@ export const MarketplaceMap = () => {
                   }}
                   options={{ pixelOffset: new google.maps.Size(0, -40) }}
                 >
-                  <div className="p-0 min-w-[240px] max-w-[280px] font-sans -m-1 rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800">
+                  <div className="p-0 w-[285px] max-w-[285px] font-sans rounded-2xl overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800">
                     {/* Banner Superior */}
                     <div className="relative h-24 w-full bg-gray-50 dark:bg-[#050505] overflow-hidden">
                       {foundation.bannerUrl ? (
@@ -659,6 +668,8 @@ export const MarketplaceMap = () => {
               icon={getMapMarkerIcon({
                 role: item.providerRole || "PROVIDER",
                 specialty: item.category,
+                name: item.name,
+                category: item.category,
                 isHomeVisit: item.modality === "HOME_VISIT",
                 isSelected,
                 isHovered,
@@ -674,7 +685,7 @@ export const MarketplaceMap = () => {
                   onCloseClick={() => setSelectedId(null)}
                   options={{ pixelOffset: new google.maps.Size(0, -40) }}
                 >
-                  <div className="p-3.5 min-w-[220px] max-w-[260px] font-sans -m-1 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800 space-y-3">
+                  <div className="p-3.5 w-[260px] max-w-[260px] font-sans rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border border-gray-100 dark:border-gray-800 space-y-3">
                     <div className="flex gap-3 items-start">
                       <div className="w-11 h-11 rounded-xl bg-white dark:bg-[#050505] p-0.5 flex items-center justify-center border border-gray-100 dark:border-gray-800 shrink-0 overflow-hidden shadow-2xs">
                         {item.imageUrl || item.providerLogoUrl ? (

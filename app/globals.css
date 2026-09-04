@@ -38,3 +38,60 @@
   }
 }
 
+/* Google Maps InfoWindow Overrides - Clean Google Maps UI style without scrollbars */
+.gm-style .gm-style-iw-c {
+  padding: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden !important;
+  max-width: 310px !important;
+  background-color: transparent !important;
+}
+
+.gm-style .gm-style-iw-d {
+  overflow: hidden !important;
+  max-height: none !important;
+  padding: 0 !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.gm-style .gm-style-iw-d::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.gm-style .gm-style-iw-tc::after {
+  background: #ffffff !important;
+}
+
+.dark .gm-style .gm-style-iw-tc::after {
+  background: #0a0a0a !important;
+}
+
+/* Close button styling */
+.gm-style button.gm-ui-hover-effect {
+  top: 8px !important;
+  right: 8px !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 9999px !important;
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+  z-index: 30 !important;
+}
+
+.gm-style button.gm-ui-hover-effect:hover {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.gm-style button.gm-ui-hover-effect > span {
+  background-color: #ffffff !important;
+  margin: 0 !important;
+}
+
+

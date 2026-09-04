@@ -1,12 +1,15 @@
 // src/lib/mapPins.ts
 
 /**
- * 🗺️ Configuración visual de pines de mapa según Rol y Especialidad Médica
+ * 🗺️ Configuración visual de pines de mapa según Rol, Especialidad Médica y Nombre de Proveedor/Institución
  */
 
 export interface MapPinOptions {
   role?: string;
   specialty?: string;
+  name?: string;
+  category?: string;
+  isClinic?: boolean;
   isHomeVisit?: boolean;
   isPromoted?: boolean;
   isSelected?: boolean;
@@ -17,13 +20,14 @@ export interface MapPinOptions {
 export interface MapPinTheme {
   primaryColor: string;
   secondaryColor: string;
-  iconSvgPath: string;
+  iconSvgPath?: string;
+  customSvgHtml?: string;
   label: string;
   categoryKey: string;
 }
 
 /**
- * Normaliza cualquier string clínico para comparación tolerante a acentos y mayúsculas
+ * Normaliza cualquier string clínico o comercial para comparación tolerante a acentos y mayúsculas
  */
 export function normalizeSpecialty(str: string): string {
   if (!str) return '';
@@ -58,7 +62,7 @@ const CLINICAL_SPECIALTY_GROUPS: Record<string, SpecialtyGroupConfig> = {
     // Diente / Odontología
     svgPath: 'M7 3C5 3 4 5 4 8c0 3 1.5 6 2 9 0 2 1 4 2.5 4s2-2 2-4c0-2 .5-4 1.5-6 1 2 1.5 4 1.5 6 0 2 .5 4 2 4s2.5-2 2.5-4c.5-3 2-6 2-9 0-3-1-5-3-5s-3 1-4.5 2C10 4 9 3 7 3z',
     label: 'Odontología',
-    keywords: ['ODONTO', 'DENT', 'ORTODON', 'PERIODON', 'ENDODON', 'MAXILO', 'DIENTE', 'BUCAL'],
+    keywords: ['ODONTO', 'DENT', 'ORTODON', 'PERIODON', 'ENDODON', 'MAXILO', 'DIENTE', 'BUCAL', 'SONRISA'],
   },
   PEDIATRICS: {
     primary: '#F59E0B', // Amber 500
@@ -82,7 +86,7 @@ const CLINICAL_SPECIALTY_GROUPS: Record<string, SpecialtyGroupConfig> = {
     // Cerebro / Salud mental
     svgPath: 'M9.5 3A2.5 2.5 0 007 5.5V7a3 3 0 00-2 2.8V11a3 3 0 001.5 2.6A3 3 0 006 15.5a3 3 0 003 3h.5v2.5a2 2 0 004 0V18.5h.5a3 3 0 003-3 3 3 0 00-.5-1.9A3 3 0 0018 11V9.8A3 3 0 0016 7V5.5A2.5 2.5 0 0013.5 3h-4z',
     label: 'Salud Mental',
-    keywords: ['PSICO', 'PSIQUIAT', 'MENTAL', 'TERAPIA', 'CONDUCTUAL', 'EMOCIONAL', 'NEUROPSICO'],
+    keywords: ['PSICO', 'PSIQUIAT', 'MENTAL', 'TERAPIA_PSIC', 'CONDUCTUAL', 'EMOCIONAL', 'NEUROPSICO'],
   },
   OPHTHALMOLOGY: {
     primary: '#0284C7', // Sky 600
@@ -90,7 +94,7 @@ const CLINICAL_SPECIALTY_GROUPS: Record<string, SpecialtyGroupConfig> = {
     // Ojo / Visión
     svgPath: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7zm10 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z',
     label: 'Oftalmología',
-    keywords: ['OFTALMO', 'OPTOMETR', 'OCULISTA', 'VISION', 'OJOS', 'RETINA'],
+    keywords: ['OFTALMO', 'OPTOMETR', 'OCULISTA', 'VISION', 'OJOS', 'RETINA', 'OPTICA'],
   },
   GYNECOLOGY: {
     primary: '#DB2777', // Pink 600
@@ -130,7 +134,7 @@ const CLINICAL_SPECIALTY_GROUPS: Record<string, SpecialtyGroupConfig> = {
     // Matraz / Laboratorio clínico
     svgPath: 'M10 2v7.3M14 2v7.3M8.5 2h7M14 9.3a6.5 6.5 0 11-4 0L10 2h4l.5 7.3z',
     label: 'Laboratorio',
-    keywords: ['LABORATORIO', 'ANALISIS', 'PATOLOG', 'QFB', 'BIOQUIM', 'MUESTRAS', 'CLINICOS', 'SANGRE'],
+    keywords: ['LABORATORIO', 'ANALISIS_CLINICO', 'PATOLOG', 'QFB', 'BIOQUIM', 'MUESTRAS', 'CLINICOS', 'SANGRE'],
   },
   ENT: {
     primary: '#0F766E', // Dark Teal
@@ -175,15 +179,15 @@ const CLINICAL_SPECIALTY_GROUPS: Record<string, SpecialtyGroupConfig> = {
   GENERAL_PRACTICE: {
     primary: '#059669', // Esmeralda QuHealthy
     secondary: '#D1FAE5',
-    // Estetoscopio
+    // Estetoscopio (Solo para medicina general/familiar explícita)
     svgPath: 'M4.8 2.3A.3.3 0 104.2 2a2 2 0 00-2 2v5a6 6 0 006 6v0a6 6 0 006-6V4a2 2 0 00-2-2 .3.3 0 10-.6.3A1 1 0 0113 3v6a5 5 0 01-5 5 5 5 0 01-5-5V3a1 1 0 011.8-.7zM14 18v3a2 2 0 002 2h0a2 2 0 002-2v-3a2 2 0 00-4 0z',
     label: 'Medicina General',
-    keywords: ['MEDICINA', 'GENERAL', 'FAMILIAR', 'INTERNA', 'SALUD', 'CONSULTA', 'MEDICO'],
+    keywords: ['MEDICINA_GENERAL', 'MEDICO_GENERAL', 'MEDICINA_FAMILIAR', 'MEDICO_FAMILIAR', 'MEDICINA_INTERNA', 'INTERNISTA', 'MEDICO_DE_CABECERA'],
   },
 };
 
 // 🎨 Paletas y SVG Paths por Rol Institucional
-const ROLE_THEMES: Record<string, { primary: string; secondary: string; svgPath: string; label: string }> = {
+const ROLE_THEMES: Record<string, { primary: string; secondary: string; svgPath?: string; customSvgHtml?: string; label: string }> = {
   CLINIC: {
     primary: '#1E40AF', // Azul hospitalario
     secondary: '#DBEAFE',
@@ -197,10 +201,15 @@ const ROLE_THEMES: Record<string, { primary: string; secondary: string; svgPath:
     label: 'Hospital',
   },
   FOUNDATION: {
-    primary: '#059669', // Verde esmeralda
-    secondary: '#D1FAE5',
-    svgPath: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0016.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 002 8.5c0 2.3 1.5 4.05 3 5.5l7 7z',
-    label: 'Fundación',
+    primary: '#E11D48', // Carmesí / Rose distintivo para Fundaciones (nunca verde ni estetoscopio)
+    secondary: '#FFE4E6',
+    customSvgHtml: `
+      <g transform="translate(6.5, 5) scale(0.62)">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E11D48"/>
+        <path d="M12 7.5v6m-3-3h6" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+      </g>
+    `,
+    label: 'Fundación / ONG',
   },
   PHARMACY: {
     primary: '#D97706', // Ámbar
@@ -218,65 +227,120 @@ const ROLE_THEMES: Record<string, { primary: string; secondary: string; svgPath:
     primary: '#0D9488', // Teal
     secondary: '#CCFBF1',
     svgPath: 'M10 2v7.3M14 2v7.3M8.5 2h7M14 9.3a6.5 6.5 0 11-4 0L10 2h4l.5 7.3z',
-    label: 'Laboratorio de Análisis Clínicos',
+    label: 'Laboratorio Clínico',
   },
 };
 
-// 🚗 Ícono de Visita a Domicilio
-const HOME_VISIT_ICON_PATH = 'M5 17h14M5 17a2 2 0 01-2-2V9a2 2 0 012-2h10a2 2 0 012 2v6a2 2 0 01-2 2M5 17h14m-12 0v2m10-2v2M9 7l2-4h4l2 4';
+// 🏥 Tema Default: Cruz Médica Universal (NUNCA un estetoscopio como fallback genérico)
+const DEFAULT_CLINICAL_THEME: MapPinTheme = {
+  primaryColor: '#0D9488', // Teal profesional
+  secondaryColor: '#CCFBF1',
+  iconSvgPath: 'M12 4v16m-8-8h16', // Cruz médica universal limpia
+  label: 'Profesional de la Salud',
+  categoryKey: 'GENERAL_HEALTH',
+};
 
 /**
- * Determina el tema visual (color, ícono, etiqueta) según la especialidad y el rol
+ * Determina el tema visual (color, ícono, etiqueta) según la especialidad, el rol, y el nombre comercial
  */
 export function resolvePinTheme(options: MapPinOptions): MapPinTheme {
+  const normRole = (options.role || '').toUpperCase().trim();
+  const normCategory = normalizeSpecialty(options.category || '');
   const normSpecialty = normalizeSpecialty(options.specialty || '');
+  const normName = normalizeSpecialty(options.name || '');
 
-  if (normSpecialty) {
-    for (const [key, group] of Object.entries(CLINICAL_SPECIALTY_GROUPS)) {
-      if (group.keywords.some((kw) => normSpecialty.includes(kw))) {
-        return {
-          primaryColor: group.primary,
-          secondaryColor: group.secondary,
-          iconSvgPath: group.svgPath,
-          label: group.label,
-          categoryKey: key,
-        };
-      }
+  // 1. Detección prioritaria de Fundaciones / ONGs
+  if (
+    normRole === 'FOUNDATION' ||
+    normRole === 'ONG' ||
+    normRole === 'IAP' ||
+    normCategory.includes('FUNDACION') ||
+    normCategory.includes('ASOCIACION') ||
+    normName.includes('FUNDACION') ||
+    normName.includes('IAP')
+  ) {
+    const fTheme = ROLE_THEMES.FOUNDATION;
+    return {
+      primaryColor: fTheme.primary,
+      secondaryColor: fTheme.secondary,
+      customSvgHtml: fTheme.customSvgHtml,
+      label: fTheme.label,
+      categoryKey: 'FOUNDATION',
+    };
+  }
+
+  // 2. Detección exhaustiva por texto acumulado (Especialidad, Categoría y Nombre comercial)
+  const combinedClinicalText = `${normSpecialty} ${normCategory} ${normName}`;
+
+  // Comprobar primero especialidades específicas (excluyendo medicina general)
+  for (const [key, group] of Object.entries(CLINICAL_SPECIALTY_GROUPS)) {
+    if (key === 'GENERAL_PRACTICE') continue;
+    if (group.keywords.some((kw) => combinedClinicalText.includes(kw))) {
+      return {
+        primaryColor: group.primary,
+        secondaryColor: group.secondary,
+        iconSvgPath: group.svgPath,
+        label: group.label,
+        categoryKey: key,
+      };
     }
   }
 
-  const normRole = (options.role || '').toUpperCase().trim();
+  // 3. Comprobar Medicina General explícita
+  const generalGroup = CLINICAL_SPECIALTY_GROUPS.GENERAL_PRACTICE;
+  if (generalGroup.keywords.some((kw) => combinedClinicalText.includes(kw))) {
+    return {
+      primaryColor: generalGroup.primary,
+      secondaryColor: generalGroup.secondary,
+      iconSvgPath: generalGroup.svgPath,
+      label: generalGroup.label,
+      categoryKey: 'GENERAL_PRACTICE',
+    };
+  }
+
+  // 4. Roles institucionales (Clínica, Hospital, Farmacia, Laboratorio, Proveedor)
+  if (options.isClinic || normName.includes('CLINICA') || normName.includes('HOSPITAL') || normRole === 'CLINIC' || normRole === 'HOSPITAL') {
+    const cTheme = ROLE_THEMES.CLINIC;
+    return {
+      primaryColor: cTheme.primary,
+      secondaryColor: cTheme.secondary,
+      iconSvgPath: cTheme.svgPath,
+      label: cTheme.label,
+      categoryKey: 'CLINIC',
+    };
+  }
+
   if (normRole && ROLE_THEMES[normRole]) {
     const roleTheme = ROLE_THEMES[normRole];
     return {
       primaryColor: roleTheme.primary,
       secondaryColor: roleTheme.secondary,
       iconSvgPath: roleTheme.svgPath,
+      customSvgHtml: roleTheme.customSvgHtml,
       label: roleTheme.label,
       categoryKey: normRole,
     };
   }
 
-  const defaultGroup = CLINICAL_SPECIALTY_GROUPS.GENERAL_PRACTICE;
-  return {
-    primaryColor: defaultGroup.primary,
-    secondaryColor: defaultGroup.secondary,
-    iconSvgPath: defaultGroup.svgPath,
-    label: defaultGroup.label,
-    categoryKey: 'GENERAL_PRACTICE',
-  };
+  // 5. Fallback Universal: Cruz Médica QuHealthy (No estetoscopio)
+  return DEFAULT_CLINICAL_THEME;
 }
 
 /**
- * Obtiene el tema visual a partir de una especialidad y/o rol clínico
+ * Obtiene el tema visual a partir de una especialidad, rol clínico, nombre o indicador de clínica
  */
-export function getSpecialtyTheme(specialty?: string, role?: string): MapPinTheme {
-  return resolvePinTheme({ specialty, role });
+export function getSpecialtyTheme(
+  specialty?: string,
+  role?: string,
+  name?: string,
+  isClinic?: boolean
+): MapPinTheme {
+  return resolvePinTheme({ specialty, role, name, isClinic });
 }
 
 /**
  * Genera el SVG completo del Pin para Google Maps
- * Optimizado a tamaños compactos (28x36 en estado normal)
+ * Optimizado a tamaños compactos (26x34 en estado normal) con IDs únicos por color
  */
 export function generateMapPinSvg(options: MapPinOptions): string {
   const theme = resolvePinTheme(options);
@@ -284,39 +348,48 @@ export function generateMapPinSvg(options: MapPinOptions): string {
   const isHovered = !!options.isHovered;
   const isPromoted = !!options.isPromoted;
 
-  // 📐 Dimensiones compactas y proporcionadas
-  const width = isSelected ? 38 : isHovered ? 34 : 28;
-  const height = isSelected ? 48 : isHovered ? 43 : 36;
+  // 📐 Dimensiones compactas tipo Google Maps (26x34px base)
+  const width = isSelected ? 36 : isHovered ? 32 : 26;
+  const height = isSelected ? 46 : isHovered ? 41 : 34;
   const strokeColor = '#FFFFFF';
-  const strokeWidth = isSelected ? 2.5 : 1.8;
+  const strokeWidth = isSelected ? 2.2 : 1.6;
+
+  // Safe unique IDs preventing browser cache collision across pins of different themes
+  const safeId = theme.primaryColor.replace('#', '');
+  const filterId = `ps_${safeId}`;
+  const gradId = `pg_${safeId}`;
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 28 36" fill="none">
       <defs>
-        <filter id="pinShadow" x="0" y="0" width="28" height="36" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="${theme.primaryColor}" flood-opacity="0.32"/>
+        <filter id="${filterId}" x="0" y="0" width="28" height="36" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="${theme.primaryColor}" flood-opacity="0.35"/>
         </filter>
-        <linearGradient id="pinGrad" x1="14" y1="1.5" x2="14" y2="33" gradientUnits="userSpaceOnUse">
+        <linearGradient id="${gradId}" x1="14" y1="1.5" x2="14" y2="33" gradientUnits="userSpaceOnUse">
           <stop stop-color="${theme.primaryColor}"/>
           <stop offset="1" stop-color="${theme.primaryColor}" stop-opacity="0.92"/>
         </linearGradient>
       </defs>
 
       <!-- Pin Teardrop Body -->
-      <g filter="url(#pinShadow)">
+      <g filter="url(#${filterId})">
         <path d="M14 1.5C7.6 1.5 2.5 6.6 2.5 13c0 8.5 11.5 20.2 11.5 20.2S25.5 21.5 25.5 13c0-6.4-5.1-11.5-11.5-11.5z" 
-              fill="url(#pinGrad)" 
+              fill="url(#${gradId})" 
               stroke="${strokeColor}" 
               stroke-width="${strokeWidth}"/>
       </g>
 
       <!-- Círculo interior blanco de contraste -->
-      <circle cx="14" cy="12.5" r="8.5" fill="#FFFFFF"/>
+      <circle cx="14" cy="12.5" r="8.2" fill="#FFFFFF"/>
 
-      <!-- Ícono de la Especialidad / Rol -->
-      <g transform="translate(6, 4.5) scale(0.67)" stroke="${theme.primaryColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
-        <path d="${theme.iconSvgPath}"/>
-      </g>
+      ${
+        theme.customSvgHtml
+          ? theme.customSvgHtml
+          : `<!-- Ícono de la Especialidad / Rol -->
+             <g transform="translate(6, 4.5) scale(0.67)" stroke="${theme.primaryColor}" stroke-width="${theme.categoryKey === 'GENERAL_HEALTH' ? '3' : '2.2'}" stroke-linecap="round" stroke-linejoin="round" fill="none">
+               <path d="${theme.iconSvgPath || 'M12 4v16m-8-8h16'}"/>
+             </g>`
+      }
 
       ${
         isPromoted
@@ -350,8 +423,8 @@ export function getMapMarkerIcon(
   const isSelected = !!options.isSelected;
   const isHovered = !!options.isHovered;
 
-  const width = isSelected ? 38 : isHovered ? 34 : 28;
-  const height = isSelected ? 48 : isHovered ? 43 : 36;
+  const width = isSelected ? 36 : isHovered ? 32 : 26;
+  const height = isSelected ? 46 : isHovered ? 41 : 34;
 
   if (googleMaps) {
     return {

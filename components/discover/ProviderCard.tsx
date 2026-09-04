@@ -55,7 +55,9 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 
   const specTheme = getSpecialtyTheme(
     provider.category || provider.specialty,
-    provider.role
+    provider.role,
+    provider.name,
+    provider.isClinic
   );
 
   const [isHovered, setIsHovered] = useState(false);
@@ -286,14 +288,17 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.2"
+                strokeWidth={specTheme.categoryKey === "GENERAL_HEALTH" ? "3" : "2.2"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d={specTheme.iconSvgPath} />
+                <path d={specTheme.iconSvgPath || "M12 4v16m-8-8h16"} />
               </svg>
               <span className="capitalize truncate max-w-[160px]">
-                {(provider.category || specTheme.label).toLowerCase()}
+                {(provider.category && provider.category !== "Salud y Bienestar"
+                  ? provider.category
+                  : specTheme.label
+                ).toLowerCase()}
               </span>
             </div>
           </div>
