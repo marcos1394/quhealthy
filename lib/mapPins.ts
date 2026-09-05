@@ -15,6 +15,145 @@ export interface MapPinOptions {
   isSelected?: boolean;
   isHovered?: boolean;
   logoUrl?: string;
+  isHub?: boolean;
+  clusterCount?: number;
+}
+
+export interface HasCoordinates {
+  lat: number;
+  lng: number;
+  [key: string]: any;
+}
+
+export interface DispersedItem<T extends HasCoordinates> {
+  item: T;
+  lat: number;         // Coordenada dispersada para el marcador en mapa
+  lng: number;         // Coordenada dispersada para el marcador en mapa
+  originalLat: number; // Coordenada geográfica original del consultorio/edificio
+  originalLng: number; // Coordenada geográfica original del consultorio/edificio
+  clusterKey: string;
+  clusterIndex: number;
+  clusterSize: number;
+  isCluster: boolean;
+  coworkers: T[];      // Otros especialistas en este mismo edificio
+}
+
+/**
+ * Calcula la distancia aproximada en metros entre dos coordenadas geográficas
+ */
+export function calculateApproxDistanceMeters(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const dLat = (lat2 - lat1) * 111320;
+  const avgLat = ((lat1 + lat2) / 2) * (Math.PI / 180);
+  const dLng = (lng2 - lng1) * (111320 * Math.cos(avgLat));
+  return Math.sqrt(dLat * dLat + dLng * dLng);
+}
+
+/**
+ * 🌸 Algoritmo Spiderfier determinista:
+ * Agrupa coordenadas que pertenecen al mismo edificio (distancia < 22 metros)
+ * y aplica una dispersión radial en roseta para evitar que los pines se superpongan entre sí.
+ *
+ * @param items Lista de elementos con propiedades lat y lng
+ * @param radiusMeters Radio de dispersión en metros (default: 24 metros, tamaño típico de huella de torre médica)
+ */
+export function disperseCoordinates<T extends HasCoordinates>(
+  items: T[],
+  radiusMeters: number = 24
+): DispersedItem<T>[] {
+  if (!items || items.length === 0) return [];
+
+  // 1. Agrupar elementos por cercanía geográfica (< 22 metros)
+  const clusters: T[][] = [];
+
+  for (const item of items) {
+    if (
+      typeof item.lat !== 'number' ||
+      typeof item.lng !== 'number' ||
+      isNaN(item.lat) ||
+      isNaN(item.lng)
+    ) {
+      continue;
+    }
+
+    let placed = false;
+    for (const cluster of clusters) {
+      const rep = cluster[0];
+      const dist = calculateApproxDistanceMeters(item.lat, item.lng, rep.lat, rep.lng);
+      if (dist < 22) {
+        cluster.push(item);
+        placed = true;
+        break;
+      }
+    }
+
+    if (!placed) {
+      clusters.push([item]);
+    }
+  }
+
+  // 2. Dispersar elementos dentro de cada clúster
+  const result: DispersedItem<T>[] = [];
+
+  for (let cIdx = 0; cIdx < clusters.length; cIdx++) {
+    const cluster = clusters[cIdx];
+    const clusterSize = cluster.length;
+    const centerLat = cluster[0].lat;
+    const centerLng = cluster[0].lng;
+    const clusterKey = `cluster_${centerLat.toFixed(5)}_${centerLng.toFixed(5)}`;
+
+    if (clusterSize === 1) {
+      result.push({
+        item: cluster[0],
+        lat: centerLat,
+        lng: centerLng,
+        originalLat: centerLat,
+        originalLng: centerLng,
+        clusterKey,
+        clusterIndex: 0,
+        clusterSize: 1,
+        isCluster: false,
+        coworkers: [],
+      });
+      continue;
+    }
+
+    // Conversión métrica a desplazamientos en grados
+    const latOffsetRad = radiusMeters / 111320;
+    const cosLat = Math.cos(centerLat * (Math.PI / 180));
+    const lngOffsetRad = radiusMeters / (111320 * (cosLat === 0 ? 1 : Math.abs(cosLat)));
+
+    // Dispersión radial determinista:
+    // Los puntos se distribuyen uniformemente a lo largo de una circunferencia
+    // iniciando desde las 12 en punto (-π/2) en sentido de las manecillas del reloj
+    cluster.forEach((item, idx) => {
+      const angle = (2 * Math.PI * idx) / clusterSize - Math.PI / 2;
+
+      const dispersedLat = centerLat + latOffsetRad * Math.cos(angle);
+      const dispersedLng = centerLng + lngOffsetRad * Math.sin(angle);
+
+      const coworkers = cluster.filter((_, i) => i !== idx);
+
+      result.push({
+        item,
+        lat: dispersedLat,
+        lng: dispersedLng,
+        originalLat: centerLat,
+        originalLng: centerLng,
+        clusterKey,
+        clusterIndex: idx,
+        clusterSize,
+        isCluster: true,
+        coworkers,
+      });
+    });
+  }
+
+  return result;
 }
 
 export interface MapPinTheme {
@@ -229,6 +368,12 @@ const ROLE_THEMES: Record<string, { primary: string; secondary: string; svgPath?
     svgPath: 'M10 2v7.3M14 2v7.3M8.5 2h7M14 9.3a6.5 6.5 0 11-4 0L10 2h4l.5 7.3z',
     label: 'Laboratorio Clínico',
   },
+  MEDICAL_HUB: {
+    primary: '#0F766E', // Deep medical Teal 700
+    secondary: '#CCFBF1',
+    svgPath: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+    label: 'Torre Médica',
+  },
 };
 
 // 🏥 Tema Default: Cruz Médica Universal (NUNCA un estetoscopio como fallback genérico)
@@ -244,6 +389,18 @@ const DEFAULT_CLINICAL_THEME: MapPinTheme = {
  * Determina el tema visual (color, ícono, etiqueta) según la especialidad, el rol, y el nombre comercial
  */
 export function resolvePinTheme(options: MapPinOptions): MapPinTheme {
+  // 0. Pin Hub de Torre Médica / Edificio Compartido
+  if (options.isHub) {
+    const hubTheme = ROLE_THEMES.MEDICAL_HUB;
+    return {
+      primaryColor: hubTheme.primary,
+      secondaryColor: hubTheme.secondary,
+      iconSvgPath: hubTheme.svgPath,
+      label: 'Torre Médica',
+      categoryKey: 'MEDICAL_HUB',
+    };
+  }
+
   const normRole = (options.role || '').toUpperCase().trim();
   const normCategory = normalizeSpecialty(options.category || '');
   const normSpecialty = normalizeSpecialty(options.specialty || '');
@@ -392,7 +549,11 @@ export function generateMapPinSvg(options: MapPinOptions): string {
       }
 
       ${
-        isPromoted
+        options.clusterCount && options.clusterCount > 1
+          ? `<!-- Badge Torre / Clúster (+N) -->
+             <circle cx="21.5" cy="5.5" r="4.6" fill="${theme.primaryColor}" stroke="#FFFFFF" stroke-width="1.2"/>
+             <text x="21.5" y="7.5" text-anchor="middle" font-size="5.5" font-family="system-ui, -apple-system, sans-serif" font-weight="900" fill="#FFFFFF">+${options.clusterCount > 9 ? '9' : options.clusterCount}</text>`
+          : isPromoted
           ? `<!-- Badge Promocionado (Estrella) -->
              <circle cx="22" cy="6" r="3.5" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.2"/>
              <path d="M22 4.2l.6 1.2 1.3.2-1 .9.2 1.3-1.1-.6-1.1.6.2-1.3-1-.9 1.3-.2z" fill="#FFFFFF"/>`

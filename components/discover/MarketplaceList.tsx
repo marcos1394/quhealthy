@@ -260,7 +260,7 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
           className={cn(
             "w-full pointer-events-auto h-full",
             viewMode === "MAP"
-              ? "flex overflow-x-auto overflow-y-hidden gap-3.5 pb-4 md:flex-col md:flex-1 md:overflow-x-hidden md:overflow-y-auto md:gap-3.5 md:pb-6 px-4 md:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              ? "flex overflow-x-auto overflow-y-hidden gap-3.5 pb-4 px-4 no-scrollbar md:flex-col md:flex-1 md:min-h-0 md:overflow-x-hidden md:overflow-y-auto md:custom-scrollbar md:gap-3.5 md:pb-6 md:px-0 md:pr-2"
               : "custom-scrollbar overflow-y-auto pb-20 md:pb-0 flex items-start gap-6 max-w-7xl mx-auto"
           )}
         >

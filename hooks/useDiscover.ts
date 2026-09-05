@@ -14,7 +14,7 @@ export const useDiscover = (q?: string, type?: string) => {
   // Solo buscar proveedores si el tipo es STORE o indefinido
   const shouldFetch = !type || type === 'STORE';
   
-  const city = searchParams.get('city') || undefined;
+  const city = searchParams.get('city') || searchParams.get('loc') || undefined;
   const hasDiscountStr = searchParams.get('hasDiscount');
   const hasDiscount = hasDiscountStr === 'true';
   const maxPriceStr = searchParams.get('maxPrice');

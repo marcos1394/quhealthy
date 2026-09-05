@@ -29,18 +29,18 @@ const DiscoverMapContent = () => {
     <DiscoverProvider>
       <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-gray-100 dark:bg-[#111]">
         
-        <MarketplaceHeader 
-          locationDeclined={locationDeclined}
-          setLocationDeclined={setLocationDeclined}
-          showSuccess={showSuccess}
-          requestLocation={requestLocation}
-        />
-
         <MarketplaceMap />
 
         <MarketplaceList 
           setAuthGateContext={setAuthGateContext}
           setAuthGateOpen={setAuthGateOpen}
+        />
+
+        <MarketplaceHeader 
+          locationDeclined={locationDeclined}
+          setLocationDeclined={setLocationDeclined}
+          showSuccess={showSuccess}
+          requestLocation={requestLocation}
         />
 
       </div>

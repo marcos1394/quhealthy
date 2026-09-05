@@ -94,7 +94,8 @@ export const MarketplaceHeader = ({
   return (
     <div
       className={cn(
-        "absolute top-6 left-4 right-4 md:left-8 md:right-8 z-20 flex flex-col gap-3 pointer-events-none transition-all duration-300 font-sans",
+        "absolute top-6 left-4 right-4 md:left-8 md:right-8 flex flex-col gap-3 pointer-events-none transition-all duration-300 font-sans",
+        isSearchFocused ? "z-50" : "z-40",
         isMapImmersive
           ? "-translate-y-[150%] opacity-0"
           : "translate-y-0 opacity-100"
@@ -256,7 +257,7 @@ export const MarketplaceHeader = ({
 
         {/* Menú Desplegable de Sugerencias Clínicas y Especialidades */}
         {isSearchFocused && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[min(480px,calc(100vh-140px))] overflow-y-auto custom-scrollbar">
             {/* Sugerencias basadas en síntomas */}
             {symptomMatches.length > 0 && (
               <div className="mb-3">
