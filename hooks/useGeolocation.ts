@@ -10,8 +10,22 @@ interface Coordinates {
 export const useGeolocation = () => {
   const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Inicializamos en false, porque ya no disparamos la petición a ciegas
-  const [isLoading, setIsLoading] = useState<boolean>(false); 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Restaurar coordenadas en caché de sesión tras montar en cliente para evitar mismatch de hidratación
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem('quhealthy_user_coords');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed.lat === 'number' && typeof parsed.lng === 'number') {
+            setCoordinates(parsed);
+          }
+        }
+      } catch {}
+    }
+  }, []);
 
   const getErrorMessage = (error: GeolocationPositionError) => {
     switch (error.code) {
@@ -26,66 +40,80 @@ export const useGeolocation = () => {
     }
   };
 
-  const requestLocation = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
+  const requestLocation = useCallback(
+    (onSuccess?: (coords: Coordinates) => void, onError?: (errMsg: string) => void) => {
+      if (typeof window === 'undefined') return;
 
-    if (!navigator.geolocation) {
-      setError('La geolocalización no es soportada por tu navegador.');
-      setIsLoading(false);
+      if (!navigator.geolocation) {
+        const msg = 'La geolocalización no es soportada por tu navegador.';
+        setError(msg);
+        onError?.(msg);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords: Coordinates = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setCoordinates(coords);
+          setIsLoading(false);
+          try {
+            sessionStorage.setItem('quhealthy_user_coords', JSON.stringify(coords));
+          } catch {}
+          onSuccess?.(coords);
+        },
+        (err) => {
+          const msg = getErrorMessage(err);
+          setError(msg);
+          setIsLoading(false);
+          onError?.(msg);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        }
+      );
+    },
+    []
+  );
+
+  // Efecto inteligente con Permissions API: solo solicita coordenadas si el permiso ya fue concedido
+  useEffect(() => {
+    if (typeof window === 'undefined' || !navigator.permissions || !navigator.permissions.query) {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCoordinates({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setIsLoading(false);
-      },
-      (err) => {
-        setError(getErrorMessage(err));
-        setIsLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
-  }, []);
+    let isMounted = true;
 
-  // Efecto inteligente con Permissions API
-  useEffect(() => {
-    const checkPermission = async () => {
-      try {
-        if (!navigator.permissions || !navigator.permissions.query) {
-          // Fallback para navegadores antiguos
-          requestLocation();
-          return;
-        }
-        
-        const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-        
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then((permissionStatus) => {
+        if (!isMounted) return;
+
         if (permissionStatus.state === 'granted') {
-          // ✅ El usuario ya confía en nosotros: pedimos coordenadas en silencio
+          // El usuario ya concedió permisos previamente: obtenemos coordenadas en silencio
           requestLocation();
         }
 
-        // Si cambia de opinión desde la barra de direcciones, reaccionamos
         permissionStatus.onchange = () => {
           if (permissionStatus.state === 'granted') {
             requestLocation();
           }
         };
-      } catch {
-        // Fallback si la API falla por alguna restricción del sistema
-        requestLocation();
-      }
+      })
+      .catch(() => {
+        // En navegadores que no soportan la query 'geolocation' o lanzan error, no forzar llamada en carga
+      });
+
+    return () => {
+      isMounted = false;
     };
-    
-    checkPermission();
   }, [requestLocation]);
 
   const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number) => {

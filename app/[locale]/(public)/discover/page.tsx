@@ -13,17 +13,8 @@ import { QhSpinner } from '@/components/ui/QhSpinner';
 const libraries: ("places" | "geometry")[] = ["places"];
 
 const DiscoverMapContent = () => {
-  const [locationDeclined, setLocationDeclined] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const [authGateContext, setAuthGateContext] = useState<'favorite' | 'booking'>('favorite');
-
-  const requestLocation = () => {
-    // Aquí podemos invocar la lógica manual si es necesario
-    // Para simplificar, location ya lo maneja useGeolocation en el contexto
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
-  };
 
   return (
     <DiscoverProvider>
@@ -36,12 +27,7 @@ const DiscoverMapContent = () => {
           setAuthGateOpen={setAuthGateOpen}
         />
 
-        <MarketplaceHeader 
-          locationDeclined={locationDeclined}
-          setLocationDeclined={setLocationDeclined}
-          showSuccess={showSuccess}
-          requestLocation={requestLocation}
-        />
+        <MarketplaceHeader />
 
       </div>
 

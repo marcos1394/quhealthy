@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useDiscover } from '@/hooks/useDiscover';
 import { useDiscoverItems } from '@/hooks/useDiscoverItems';
@@ -81,6 +81,12 @@ interface DiscoverContextProps extends DiscoverState {
   
   coordinates: { lat: number; lng: number } | null;
   calculateDistance: (lat1: number, lon1: number, lat2: number, lon2: number) => number | undefined;
+  isGeoLoading: boolean;
+  geoError: string | null;
+  locationDeclined: boolean;
+  setLocationDeclined: (declined: boolean) => void;
+  showSuccess: boolean;
+  requestLocation: () => void;
 }
 
 const DiscoverContext = createContext<DiscoverContextProps | undefined>(undefined);
@@ -112,12 +118,54 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const { coordinates, calculateDistance, isLoading: isGeoLoading } = useGeolocation();
+  const {
+    coordinates,
+    calculateDistance,
+    isLoading: isGeoLoading,
+    error: geoError,
+    requestLocation,
+  } = useGeolocation();
+
+  const [locationDeclined, setLocationDeclinedState] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
+
+  // Restaurar preferencia guardada en sesión tras montar en cliente
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const declined = sessionStorage.getItem('quhealthy_location_declined') === 'true';
+      if (declined) {
+        setLocationDeclinedState(true);
+      }
+    }
+  }, []);
+
+  const setLocationDeclined = useCallback((val: boolean) => {
+    setLocationDeclinedState(val);
+    if (typeof window !== 'undefined') {
+      if (val) {
+        sessionStorage.setItem('quhealthy_location_declined', 'true');
+      } else {
+        sessionStorage.removeItem('quhealthy_location_declined');
+      }
+    }
+  }, []);
+
+  const handleRequestLocation = useCallback(() => {
+    requestLocation(
+      () => {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 2500);
+      },
+      () => {
+        // En caso de denegación o fallo, geoError se propaga automáticamente
+      }
+    );
+  }, [requestLocation]);
 
   const isFoundation = state.searchType === 'FOUNDATION';
   const isStore = state.searchType === 'STORE';
 
-  // Cargar siempre proveedores y fundaciones para que el mapa muestre todos los puntos
+  // Cargar siempre proveedores y fundaciones con coordenadas reactivas
   const { 
     providers, 
     isLoading: isLoadingProviders, 
@@ -126,7 +174,12 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     setSize: setProviderSize,
     isReachingEnd: isReachingEndProviders,
     isLoadingMore: isLoadingMoreProviders
-  } = useDiscover(debouncedSearchQuery, isFoundation ? 'STORE' : state.searchType);
+  } = useDiscover(
+    debouncedSearchQuery, 
+    isFoundation ? 'STORE' : state.searchType,
+    coordinates,
+    isGeoLoading
+  );
 
   const {
     items,
@@ -204,7 +257,30 @@ export const DiscoverProvider = ({ children }: { children: React.ReactNode }) =>
     
     coordinates,
     calculateDistance,
-  }), [state, providers, items, foundations, isLoading, isValidating, isLoadingMore, isReachingEnd, coordinates, calculateDistance]);
+    isGeoLoading,
+    geoError,
+    locationDeclined,
+    setLocationDeclined,
+    showSuccess,
+    requestLocation: handleRequestLocation,
+  }), [
+    state,
+    providers,
+    items,
+    foundations,
+    isLoading,
+    isValidating,
+    isLoadingMore,
+    isReachingEnd,
+    coordinates,
+    calculateDistance,
+    isGeoLoading,
+    geoError,
+    locationDeclined,
+    setLocationDeclined,
+    showSuccess,
+    handleRequestLocation,
+  ]);
 
   return (
     <DiscoverContext.Provider value={contextValue}>

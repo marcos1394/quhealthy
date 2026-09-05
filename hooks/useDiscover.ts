@@ -8,9 +8,17 @@ import { handleApiError } from '@/lib/handleApiError';
 import { useSearchParams } from 'next/navigation';
 import { useGeolocation } from '@/hooks/useGeolocation';
 
-export const useDiscover = (q?: string, type?: string) => {
+export const useDiscover = (
+  q?: string,
+  type?: string,
+  externalCoords?: { lat: number; lng: number } | null,
+  externalGeoLoading?: boolean
+) => {
   const searchParams = useSearchParams();
-  const { coordinates, isLoading: isGeoLoading } = useGeolocation();
+  const { coordinates: internalCoords, isLoading: internalGeoLoading } = useGeolocation();
+  
+  const coordinates = externalCoords !== undefined ? externalCoords : internalCoords;
+  const isGeoLoading = externalGeoLoading !== undefined ? externalGeoLoading : internalGeoLoading;
   // Solo buscar proveedores si el tipo es STORE o indefinido
   const shouldFetch = !type || type === 'STORE';
   

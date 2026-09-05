@@ -44,16 +44,16 @@ const QUICK_SPECIALTIES = [
 ];
 
 export const MarketplaceHeader = ({
-  locationDeclined,
-  setLocationDeclined,
-  showSuccess,
-  requestLocation,
+  locationDeclined: propLocationDeclined,
+  setLocationDeclined: propSetLocationDeclined,
+  showSuccess: propShowSuccess,
+  requestLocation: propRequestLocation,
 }: {
-  locationDeclined: boolean;
-  setLocationDeclined: (val: boolean) => void;
-  showSuccess: boolean;
-  requestLocation: () => void;
-}) => {
+  locationDeclined?: boolean;
+  setLocationDeclined?: (val: boolean) => void;
+  showSuccess?: boolean;
+  requestLocation?: () => void;
+} = {}) => {
   const t = useTranslations("Discover.MarketplaceHeader");
   const locale = useLocale();
   const isEn = locale === "en";
@@ -68,7 +68,20 @@ export const MarketplaceHeader = ({
     isMapImmersive,
     isValidating,
     coordinates,
+    isGeoLoading: ctxGeoLoading,
+    geoError: ctxGeoError,
+    locationDeclined: ctxLocationDeclined,
+    setLocationDeclined: ctxSetLocationDeclined,
+    showSuccess: ctxShowSuccess,
+    requestLocation: ctxRequestLocation,
   } = useDiscoverContext();
+
+  const locationDeclined = propLocationDeclined !== undefined ? propLocationDeclined : ctxLocationDeclined;
+  const setLocationDeclined = propSetLocationDeclined || ctxSetLocationDeclined;
+  const showSuccess = propShowSuccess !== undefined ? propShowSuccess : ctxShowSuccess;
+  const requestLocation = propRequestLocation || ctxRequestLocation;
+  const isGeoLoading = ctxGeoLoading;
+  const geoError = ctxGeoError;
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -87,9 +100,6 @@ export const MarketplaceHeader = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const isGeoLoading = false;
-  const geoError = false;
 
   return (
     <div

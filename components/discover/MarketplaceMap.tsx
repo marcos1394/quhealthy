@@ -289,6 +289,14 @@ export const MarketplaceMap = () => {
     }
   }, [selectedId, searchType, enrichedFoundations, enrichedProviders, dispersedProviderPins, items, map]);
 
+  // Auto-centrar mapa en la ubicación del usuario cuando se obtienen las coordenadas
+  useEffect(() => {
+    if (coordinates && map && !selectedId) {
+      map.panTo({ lat: coordinates.lat, lng: coordinates.lng });
+      map.setZoom(13);
+    }
+  }, [coordinates, map, selectedId]);
+
   if (loadError) {
     return (
       <div className="absolute inset-0 z-0 flex items-center justify-center p-6 bg-gray-50 dark:bg-[#050505] font-sans">
