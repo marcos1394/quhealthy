@@ -11,6 +11,7 @@ import {
   useJsApiLoader,
   MarkerF,
   InfoWindowF,
+  PolylineF,
 } from "@react-google-maps/api";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -130,6 +131,7 @@ export const MarketplaceMap = () => {
   );
 
   const [activePinKey, setActivePinKey] = useState<string | null>(null);
+  const [currentZoom, setCurrentZoom] = useState<number>(coordinates ? 13 : 11);
 
   const mapCenter = useMemo(() => {
     if (coordinates) return { lat: coordinates.lat, lng: coordinates.lng };
@@ -217,10 +219,10 @@ export const MarketplaceMap = () => {
     });
   }, [enrichedProviders]);
 
-  // 2. Dispersar ubicaciones compartidas (Spiderfier determinista en roseta)
+  // 2. Dispersar ubicaciones compartidas (Spiderfier determinista y adaptativo por nivel de zoom)
   const dispersedProviderPins = useMemo(() => {
-    return disperseCoordinates(rawProviderLocations);
-  }, [rawProviderLocations]);
+    return disperseCoordinates(rawProviderLocations, currentZoom, 38);
+  }, [rawProviderLocations, currentZoom]);
 
   // 3. Separar pines individuales (< 6) de hubs consolidados (>= 6 en la misma torre)
   const { individualPins, hubClusters } = useMemo(() => {
@@ -332,6 +334,14 @@ export const MarketplaceMap = () => {
         center={mapCenter}
         onLoad={onMapLoad}
         onClick={handleMapClick}
+        onZoomChanged={() => {
+          if (map) {
+            const z = map.getZoom();
+            if (typeof z === "number" && z !== currentZoom) {
+              setCurrentZoom(z);
+            }
+          }
+        }}
         options={dynamicMapOptions}
       >
         {/* Marcador de Ubicación del Usuario */}
@@ -361,9 +371,44 @@ export const MarketplaceMap = () => {
                 (isSelected && (activePinKey === null || activePinKey.startsWith("store-")));
 
               return (
-                <MarkerF
-                  key={pin.item.locKey}
-                  position={{ lat: pin.lat, lng: pin.lng }}
+                <React.Fragment key={pin.item.locKey}>
+                  {pin.isCluster && (
+                    <>
+                      {/* Pata del Spiderfier conectando el centro del edificio con el pin */}
+                      <PolylineF
+                        path={[
+                          { lat: pin.originalLat, lng: pin.originalLng },
+                          { lat: pin.lat, lng: pin.lng },
+                        ]}
+                        options={{
+                          strokeColor: isSelected || isPinActive ? "#059669" : "#10B981",
+                          strokeOpacity: isSelected || isPinActive ? 0.9 : 0.45,
+                          strokeWeight: isSelected || isPinActive ? 2 : 1.5,
+                          clickable: false,
+                          zIndex: 5,
+                        }}
+                      />
+                      {/* Punto ancla central de la torre/edificio */}
+                      {pin.clusterIndex === 0 && (
+                        <MarkerF
+                          key={`anchor-${pin.clusterKey}`}
+                          position={{ lat: pin.originalLat, lng: pin.originalLng }}
+                          icon={{
+                            path: typeof google !== "undefined" ? google.maps.SymbolPath.CIRCLE : 0,
+                            fillColor: "#059669",
+                            fillOpacity: 0.85,
+                            strokeWeight: 2,
+                            strokeColor: "#ffffff",
+                            scale: 4,
+                          }}
+                          zIndex={6}
+                          title="Torre / Edificio Médico"
+                        />
+                      )}
+                    </>
+                  )}
+                  <MarkerF
+                    position={{ lat: pin.lat, lng: pin.lng }}
                   onClick={(e) => {
                     if (e.domEvent) {
                       e.domEvent.stopPropagation();
@@ -380,9 +425,10 @@ export const MarketplaceMap = () => {
                   icon={getMapMarkerIcon(
                     {
                       role: provider.role || (provider.isClinic ? "CLINIC" : "PROVIDER"),
-                      specialty: provider.category || provider.specialty,
+                      specialty: provider.specialty || provider.category,
                       name: provider.name,
                       category: provider.category,
+                      subcategory: provider.subcategory,
                       isClinic: provider.isClinic,
                       isPromoted: provider.isPromoted,
                       isSelected: isPinActive || isSelected,
@@ -395,10 +441,11 @@ export const MarketplaceMap = () => {
                 >
                   {isPinActive && (() => {
                     const specTheme = getSpecialtyTheme(
-                      provider.category || provider.specialty,
+                      provider.specialty || provider.category,
                       provider.role,
                       provider.name,
-                      provider.isClinic
+                      provider.isClinic,
+                      provider.subcategory
                     );
 
                     return (
@@ -444,9 +491,10 @@ export const MarketplaceMap = () => {
                                   <path d={specTheme.iconSvgPath || "M12 4v16m-8-8h16"} />
                                 </svg>
                                 <span className="truncate max-w-[130px]">
-                                  {provider.category && provider.category !== "Salud y Bienestar"
-                                    ? provider.category
-                                    : specTheme.label}
+                                  {provider.subcategory ||
+                                    (provider.category && provider.category !== "Salud y Bienestar"
+                                      ? provider.category
+                                      : specTheme.label)}
                                 </span>
                               </div>
 
@@ -553,10 +601,11 @@ export const MarketplaceMap = () => {
                                 <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto custom-scrollbar pt-0.5">
                                   {pin.coworkers.map((cw, cwIdx) => {
                                     const cwTheme = getSpecialtyTheme(
-                                      cw.provider.category || cw.provider.specialty,
+                                      cw.provider.specialty || cw.provider.category,
                                       cw.provider.role,
                                       cw.provider.name,
-                                      cw.provider.isClinic
+                                      cw.provider.isClinic,
+                                      cw.provider.subcategory
                                     );
                                     return (
                                       <button
@@ -626,8 +675,9 @@ export const MarketplaceMap = () => {
                     );
                   })()}
                 </MarkerF>
-              );
-            })}
+              </React.Fragment>
+            );
+          })}
 
             {/* ── PINES HUB: TORRES MÉDICAS CON 6+ ESPECIALISTAS ── */}
             {hubClusters.map((hub) => {
@@ -691,10 +741,11 @@ export const MarketplaceMap = () => {
                           {hub.items.map((entry, idx) => {
                             const prov = entry.provider;
                             const specTheme = getSpecialtyTheme(
-                              prov.category || prov.specialty,
+                              prov.specialty || prov.category,
                               prov.role,
                               prov.name,
-                              prov.isClinic
+                              prov.isClinic,
+                              prov.subcategory
                             );
 
                             return (
@@ -729,9 +780,10 @@ export const MarketplaceMap = () => {
                                         color: specTheme.primaryColor,
                                       }}
                                     >
-                                      {prov.category && prov.category !== "Salud y Bienestar"
-                                        ? prov.category
-                                        : specTheme.label}
+                                      {prov.subcategory ||
+                                        (prov.category && prov.category !== "Salud y Bienestar"
+                                          ? prov.category
+                                          : specTheme.label)}
                                     </span>
                                   </div>
                                 </div>

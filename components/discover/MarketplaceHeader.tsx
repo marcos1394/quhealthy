@@ -152,7 +152,7 @@ export const MarketplaceHeader = ({
             </div>
 
             {/* Selector de Vista (Mapa vs Grid) */}
-            <div className="hidden md:flex items-center gap-1 px-2 border-l border-gray-100 dark:border-gray-800/80 h-8">
+            <div className="flex items-center gap-1 px-2 border-l border-gray-100 dark:border-gray-800/80 h-8">
               <Button
                 type="button"
                 variant="ghost"

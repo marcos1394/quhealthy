@@ -75,6 +75,44 @@
   .dark .md\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.35);
   }
+
+  /* Barra de desplazamiento de alta visibilidad para la lista de tarjetas en Discover */
+  .discover-cards-scrollbar,
+  .md\:discover-cards-scrollbar {
+    scrollbar-width: thin !important;
+    scrollbar-color: #10b981 rgba(0, 0, 0, 0.08) !important;
+  }
+  .dark .discover-cards-scrollbar,
+  .dark .md\:discover-cards-scrollbar {
+    scrollbar-color: #10b981 rgba(255, 255, 255, 0.12) !important;
+  }
+  .discover-cards-scrollbar::-webkit-scrollbar,
+  .md\:discover-cards-scrollbar::-webkit-scrollbar {
+    display: block !important;
+    width: 8px !important;
+    height: 8px !important;
+  }
+  .discover-cards-scrollbar::-webkit-scrollbar-track,
+  .md\:discover-cards-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.06) !important;
+    border-radius: 9999px !important;
+    margin: 4px 0 !important;
+  }
+  .dark .discover-cards-scrollbar::-webkit-scrollbar-track,
+  .dark .md\:discover-cards-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+  .discover-cards-scrollbar::-webkit-scrollbar-thumb,
+  .md\:discover-cards-scrollbar::-webkit-scrollbar-thumb {
+    background: #10b981 !important;
+    border-radius: 9999px !important;
+    border: 1.5px solid transparent !important;
+    background-clip: padding-box !important;
+  }
+  .discover-cards-scrollbar::-webkit-scrollbar-thumb:hover,
+  .md\:discover-cards-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #059669 !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

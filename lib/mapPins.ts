@@ -9,6 +9,7 @@ export interface MapPinOptions {
   specialty?: string;
   name?: string;
   category?: string;
+  subcategory?: string;
   isClinic?: boolean;
   isHomeVisit?: boolean;
   isPromoted?: boolean;
@@ -54,20 +55,23 @@ export function calculateApproxDistanceMeters(
 }
 
 /**
- * 🌸 Algoritmo Spiderfier determinista:
- * Agrupa coordenadas que pertenecen al mismo edificio (distancia < 22 metros)
- * y aplica una dispersión radial en roseta para evitar que los pines se superpongan entre sí.
+ * 🌸 Algoritmo Spiderfier determinista y adaptativo por nivel de zoom:
+ * Agrupa coordenadas que pertenecen al mismo edificio (distancia < 40 metros)
+ * y aplica una dispersión radial en roseta manteniendo una separación visual constante
+ * en pantalla (~38 a 48 píxeles) para garantizar que los pines JAMÁS se superpongan entre sí.
  *
  * @param items Lista de elementos con propiedades lat y lng
- * @param radiusMeters Radio de dispersión en metros (default: 24 metros, tamaño típico de huella de torre médica)
+ * @param zoomLevel Nivel de zoom actual del mapa (default: 13)
+ * @param pixelSeparation Separación visual deseada en pantalla en píxeles (default: 38px)
  */
 export function disperseCoordinates<T extends HasCoordinates>(
   items: T[],
-  radiusMeters: number = 24
+  zoomLevel: number = 13,
+  pixelSeparation: number = 38
 ): DispersedItem<T>[] {
   if (!items || items.length === 0) return [];
 
-  // 1. Agrupar elementos por cercanía geográfica (< 22 metros)
+  // 1. Agrupar elementos por cercanía geográfica (< 40 metros)
   const clusters: T[][] = [];
 
   for (const item of items) {
@@ -84,7 +88,7 @@ export function disperseCoordinates<T extends HasCoordinates>(
     for (const cluster of clusters) {
       const rep = cluster[0];
       const dist = calculateApproxDistanceMeters(item.lat, item.lng, rep.lat, rep.lng);
-      if (dist < 22) {
+      if (dist < 40) {
         cluster.push(item);
         placed = true;
         break;
@@ -122,10 +126,22 @@ export function disperseCoordinates<T extends HasCoordinates>(
       continue;
     }
 
+    // Calcular la resolución métrica de Google Maps según el zoom actual y latitud
+    // metersPerPixel = (156543.03392 * cos(lat)) / 2^zoom
+    const clampedZoom = Math.max(9, Math.min(zoomLevel || 13, 20));
+    const cosLat = Math.cos(centerLat * (Math.PI / 180));
+    const absCosLat = Math.max(0.2, Math.abs(cosLat));
+    const metersPerPixel = (156543.03392 * absCosLat) / Math.pow(2, clampedZoom);
+
+    // Ajustar el radio en píxeles según la cantidad de especialistas en el clúster
+    // Para 2 especialistas: 38px (76px de separación total de centro a centro)
+    // Para 3-5 especialistas: 42px - 48px para dar holgura perimetral
+    const dynamicPixelRadius = pixelSeparation + (clusterSize > 2 ? (clusterSize - 2) * 5 : 0);
+    const radiusMeters = Math.max(25, dynamicPixelRadius * metersPerPixel);
+
     // Conversión métrica a desplazamientos en grados
     const latOffsetRad = radiusMeters / 111320;
-    const cosLat = Math.cos(centerLat * (Math.PI / 180));
-    const lngOffsetRad = radiusMeters / (111320 * (cosLat === 0 ? 1 : Math.abs(cosLat)));
+    const lngOffsetRad = radiusMeters / (111320 * absCosLat);
 
     // Dispersión radial determinista:
     // Los puntos se distribuyen uniformemente a lo largo de una circunferencia
@@ -187,13 +203,37 @@ interface SpecialtyGroupConfig {
 }
 
 const CLINICAL_SPECIALTY_GROUPS: Record<string, SpecialtyGroupConfig> = {
+  ANGIOLOGY: {
+    primary: '#7C3AED', // Violet 600 - Distintivo, elegante y de alta visibilidad médica
+    secondary: '#EDE9FE',
+    // Sistema vascular y circulación sanguínea (vasos y ramificación arterial/venosa)
+    svgPath: 'M12 22v-9c0-3-4-4-5-9m5 9c0-3 4-4 5-9M5 4h4m6 0h4',
+    label: 'Angiología y Cirugía Vascular',
+    keywords: [
+      'ANGIOLOG',
+      'CIRUGIA_VASCULAR',
+      'VASCULAR',
+      'FLEBOLOG',
+      'VARICES',
+      'ENDOVASCULAR',
+      'CIRCULATORIO',
+      'SISTEMA_CIRCULATORIO',
+      'LINFATICO',
+      'ISQUEMIA',
+      'TROMBOSIS',
+      'ARTERIAL',
+      'VENOSO',
+      'PIE_DIABETICO',
+      'ULCERA_VENOSA',
+    ],
+  },
   CARDIOLOGY: {
     primary: '#E11D48', // Rose / Carmesí
     secondary: '#FFE4E6',
     // Corazón con línea de pulso
     svgPath: 'M3 12h3l2-4 4 8 2-4h4m2 0a5 5 0 00-5-5c-1.8 0-3 .8-4 2-1-1.2-2.2-2-4-2a5 5 0 00-5 5c0 4.5 9 10 9 10s9-5.5 9-10z',
     label: 'Cardiología',
-    keywords: ['CARDIO', 'VASCULAR', 'CORAZON', 'ANGIOLOG', 'HEMODINAMIA'],
+    keywords: ['CARDIO', 'CORAZON', 'HEMODINAMIA', 'ARRITMI', 'ELECTROFISIOLOG', 'MARCAPASO', 'VALVULOPATIA'],
   },
   DENTISTRY: {
     primary: '#0891B2', // Cyan 600
@@ -315,6 +355,34 @@ const CLINICAL_SPECIALTY_GROUPS: Record<string, SpecialtyGroupConfig> = {
     label: 'Cirugía',
     keywords: ['CIRUG', 'SURGER', 'QUIRURG', 'OPERACION'],
   },
+  PULMONOLOGY: {
+    primary: '#0284C7', // Sky 600
+    secondary: '#E0F2FE',
+    svgPath: 'M12 4v16m0-12a4 4 0 00-4 4v4a4 4 0 008 0v-4a4 4 0 00-4-4z',
+    label: 'Neumología',
+    keywords: ['NEUMO', 'PULMON', 'RESPIRATOR', 'BRONC', 'ASMA'],
+  },
+  ENDOCRINOLOGY: {
+    primary: '#D97706', // Amber 600
+    secondary: '#FEF3C7',
+    svgPath: 'M12 3v18m-4-14h8m-6 5h4m-5 5h6',
+    label: 'Endocrinología',
+    keywords: ['ENDOCRIN', 'TIROIDES', 'METABOLIS', 'DIABETES', 'HORMON'],
+  },
+  NEUROLOGY: {
+    primary: '#4F46E5', // Indigo 600
+    secondary: '#EEF2FF',
+    svgPath: 'M9.5 3A2.5 2.5 0 007 5.5V7a3 3 0 00-2 2.8V11a3 3 0 001.5 2.6A3 3 0 006 15.5a3 3 0 003 3h.5v2.5a2 2 0 004 0V18.5h.5a3 3 0 003-3 3 3 0 00-.5-1.9A3 3 0 0018 11V9.8A3 3 0 0016 7V5.5A2.5 2.5 0 0013.5 3h-4z',
+    label: 'Neurología',
+    keywords: ['NEUROLOG', 'CEREBRO', 'EPILEPSIA', 'NEURO', 'CEFALEA', 'PARKINSON'],
+  },
+  RHEUMATOLOGY: {
+    primary: '#B45309', // Amber 700
+    secondary: '#FEF3C7',
+    svgPath: 'M18 4a2 2 0 00-2 2v1h-8V6a2 2 0 00-4 0v1a2 2 0 002 2h1v6H6a2 2 0 00-2 2v1a2 2 0 004 0v-1h8v1a2 2 0 004 0v-1a2 2 0 00-2-2h-1V9h1a2 2 0 002-2V6a2 2 0 00-2-2z',
+    label: 'Reumatología',
+    keywords: ['REUMAT', 'ARTRITIS', 'LUPUS', 'FIBROMIALGIA', 'GOTA'],
+  },
   GENERAL_PRACTICE: {
     primary: '#059669', // Esmeralda QuHealthy
     secondary: '#D1FAE5',
@@ -402,9 +470,19 @@ export function resolvePinTheme(options: MapPinOptions): MapPinTheme {
   }
 
   const normRole = (options.role || '').toUpperCase().trim();
-  const normCategory = normalizeSpecialty(options.category || '');
+  const rawCategory = options.category || '';
+  const normCategory = normalizeSpecialty(rawCategory);
   const normSpecialty = normalizeSpecialty(options.specialty || '');
+  const normSubcategory = normalizeSpecialty(options.subcategory || '');
   const normName = normalizeSpecialty(options.name || '');
+
+  // Detectar si la categoría es un paraguas genérico sin especialidad concreta
+  const isGenericCategory =
+    !normCategory ||
+    normCategory === 'SALUD_Y_BIENESTAR' ||
+    normCategory === 'SALUD' ||
+    normCategory === 'BIENESTAR' ||
+    normCategory === 'GENERAL';
 
   // 1. Detección prioritaria de Fundaciones / ONGs
   if (
@@ -426,26 +504,59 @@ export function resolvePinTheme(options: MapPinOptions): MapPinTheme {
     };
   }
 
-  // 2. Detección exhaustiva por texto acumulado (Especialidad, Categoría y Nombre comercial)
-  const combinedClinicalText = `${normSpecialty} ${normCategory} ${normName}`;
-
-  // Comprobar primero especialidades específicas (excluyendo medicina general)
-  for (const [key, group] of Object.entries(CLINICAL_SPECIALTY_GROUPS)) {
-    if (key === 'GENERAL_PRACTICE') continue;
-    if (group.keywords.some((kw) => combinedClinicalText.includes(kw))) {
-      return {
-        primaryColor: group.primary,
-        secondaryColor: group.secondary,
-        iconSvgPath: group.svgPath,
-        label: group.label,
-        categoryKey: key,
-      };
+  // 2. Prioridad Máxima: Subcategoría Clínica específica elegida por el médico (ej. "Cirugía Vascular", "Flebología", "Ortodoncia")
+  if (normSubcategory) {
+    for (const [key, group] of Object.entries(CLINICAL_SPECIALTY_GROUPS)) {
+      if (key === 'GENERAL_PRACTICE') continue;
+      if (group.keywords.some((kw) => normSubcategory.includes(kw))) {
+        return {
+          primaryColor: group.primary,
+          secondaryColor: group.secondary,
+          iconSvgPath: group.svgPath,
+          label: options.subcategory || group.label,
+          categoryKey: key,
+        };
+      }
     }
   }
 
-  // 3. Comprobar Medicina General explícita
+  // 3. Segunda Prioridad: Categoría o Especialidad explícita elegida (descartando "Salud y Bienestar")
+  const specificCategoryText = `${!isGenericCategory ? normCategory : ''} ${normSpecialty}`.trim();
+  if (specificCategoryText) {
+    for (const [key, group] of Object.entries(CLINICAL_SPECIALTY_GROUPS)) {
+      if (key === 'GENERAL_PRACTICE') continue;
+      if (group.keywords.some((kw) => specificCategoryText.includes(kw))) {
+        return {
+          primaryColor: group.primary,
+          secondaryColor: group.secondary,
+          iconSvgPath: group.svgPath,
+          label: (!isGenericCategory && options.category) ? options.category : group.label,
+          categoryKey: key,
+        };
+      }
+    }
+  }
+
+  // 4. Tercera Prioridad: Nombre comercial o Título profesional (cuando la categoría viene genérica del backend)
+  if (normName) {
+    for (const [key, group] of Object.entries(CLINICAL_SPECIALTY_GROUPS)) {
+      if (key === 'GENERAL_PRACTICE') continue;
+      if (group.keywords.some((kw) => normName.includes(kw))) {
+        return {
+          primaryColor: group.primary,
+          secondaryColor: group.secondary,
+          iconSvgPath: group.svgPath,
+          label: group.label,
+          categoryKey: key,
+        };
+      }
+    }
+  }
+
+  // 5. Comprobar Medicina General explícita
   const generalGroup = CLINICAL_SPECIALTY_GROUPS.GENERAL_PRACTICE;
-  if (generalGroup.keywords.some((kw) => combinedClinicalText.includes(kw))) {
+  const allClinicalText = `${normSubcategory} ${!isGenericCategory ? normCategory : ''} ${normSpecialty} ${normName}`;
+  if (generalGroup.keywords.some((kw) => allClinicalText.includes(kw))) {
     return {
       primaryColor: generalGroup.primary,
       secondaryColor: generalGroup.secondary,
@@ -455,7 +566,7 @@ export function resolvePinTheme(options: MapPinOptions): MapPinTheme {
     };
   }
 
-  // 4. Roles institucionales (Clínica, Hospital, Farmacia, Laboratorio, Proveedor)
+  // 6. Roles institucionales (Clínica, Hospital, Farmacia, Laboratorio, Proveedor)
   if (options.isClinic || normName.includes('CLINICA') || normName.includes('HOSPITAL') || normRole === 'CLINIC' || normRole === 'HOSPITAL') {
     const cTheme = ROLE_THEMES.CLINIC;
     return {
@@ -479,7 +590,7 @@ export function resolvePinTheme(options: MapPinOptions): MapPinTheme {
     };
   }
 
-  // 5. Fallback Universal: Cruz Médica QuHealthy (No estetoscopio)
+  // 7. Fallback Universal: Cruz Médica QuHealthy (No estetoscopio)
   return DEFAULT_CLINICAL_THEME;
 }
 
@@ -490,9 +601,10 @@ export function getSpecialtyTheme(
   specialty?: string,
   role?: string,
   name?: string,
-  isClinic?: boolean
+  isClinic?: boolean,
+  subcategory?: string
 ): MapPinTheme {
-  return resolvePinTheme({ specialty, role, name, isClinic });
+  return resolvePinTheme({ specialty, role, name, isClinic, subcategory });
 }
 
 /**

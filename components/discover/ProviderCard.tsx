@@ -54,10 +54,11 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const router = useRouter();
 
   const specTheme = getSpecialtyTheme(
-    provider.category || provider.specialty,
+    provider.specialty || provider.category,
     provider.role,
     provider.name,
-    provider.isClinic
+    provider.isClinic,
+    provider.subcategory
   );
 
   const [isHovered, setIsHovered] = useState(false);
@@ -295,9 +296,11 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
                 <path d={specTheme.iconSvgPath || "M12 4v16m-8-8h16"} />
               </svg>
               <span className="capitalize truncate max-w-[160px]">
-                {(provider.category && provider.category !== "Salud y Bienestar"
-                  ? provider.category
-                  : specTheme.label
+                {(
+                  provider.subcategory ||
+                  (provider.category && provider.category !== "Salud y Bienestar"
+                    ? provider.category
+                    : specTheme.label)
                 ).toLowerCase()}
               </span>
             </div>

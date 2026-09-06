@@ -260,10 +260,26 @@ export const MarketplaceList: React.FC<MarketplaceListProps> = ({
           className={cn(
             "w-full pointer-events-auto h-full",
             viewMode === "MAP"
-              ? "flex overflow-x-auto overflow-y-hidden gap-3.5 pb-4 px-4 no-scrollbar md:flex-col md:flex-1 md:min-h-0 md:overflow-x-hidden md:overflow-y-auto md:custom-scrollbar md:gap-3.5 md:pb-6 md:px-0 md:pr-2"
-              : "custom-scrollbar overflow-y-auto pb-20 md:pb-0 flex items-start gap-6 max-w-7xl mx-auto"
+              ? "flex overflow-x-auto overflow-y-hidden gap-3.5 pb-4 px-4 max-md:no-scrollbar md:flex-col md:flex-1 md:min-h-0 md:overflow-x-hidden md:overflow-y-scroll md:discover-cards-scrollbar md:gap-3.5 md:pb-8 md:px-0 md:pr-2"
+              : "discover-cards-scrollbar overflow-y-scroll pb-20 md:pb-0 flex items-start gap-6 max-w-7xl mx-auto"
           )}
         >
+          {/* Encabezado con Contador y Guía de Desplazamiento (Vista MAP) */}
+          {viewMode === "MAP" && (
+            <div className="hidden md:flex items-center justify-between px-1 pb-1 shrink-0 select-none">
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                {searchType === "FOUNDATION"
+                  ? `${foundations.length} fundaciones`
+                  : searchType === "STORE"
+                  ? `${enrichedProviders.length} especialistas`
+                  : `${items.length} servicios`}
+              </span>
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-1 shadow-2xs">
+                Desplaza hacia abajo ↓
+              </span>
+            </div>
+          )}
+
           {/* Panel Lateral de Filtros (Vista GRID) */}
           {viewMode === "GRID" && (
             <aside

@@ -6,6 +6,7 @@ export interface DiscoverProvider {
   id: number;
   name: string;
   category: string;
+  subcategory?: string;
   lat: number;
   lng: number;
   rating: number;
