@@ -10996,6 +10996,13 @@
     "prompt_my_appointments": "Consultar mis próximas citas",
     "prompt_explain_rx": "Explicar una receta o estudio médico",
     "input_placeholder_store": "Pregunta sobre esta tienda o especialista...",
-    "input_placeholder_general": "Escribe o habla con Pulso..."
+    "input_placeholder_general": "Escribe o habla con Pulso...",
+    "drag_to_move": "Arrastra para mover",
+    "hide_pulso": "Ocultar Pulso",
+    "restore_pulso": "Abrir Pulso AI",
+    "pulso_hidden_toast": "Pulso se ha ocultado. Puedes reactivarlo desde la pestaña lateral.",
+    "undo": "Deshacer",
+    "reset_position": "Restablecer posición",
+    "position_reset": "Posición de Pulso restablecida"
   }
 }

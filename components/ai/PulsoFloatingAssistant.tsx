@@ -5,9 +5,10 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useState, useEffect, useRef, useTransition } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, animate } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "react-toastify";
 import {
   Send,
   Sparkles,
@@ -21,6 +22,8 @@ import {
   Maximize2,
   Minimize2,
   ChevronDown,
+  EyeOff,
+  Move,
 } from "lucide-react";
 
 import { PulsoMascot, PulsoState, PulsoPalette } from "@/components/ai/PulsoMascot";
@@ -51,7 +54,9 @@ export function PulsoFloatingAssistant() {
   const pathname = usePathname();
   const { user } = useSessionStore();
 
+  const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [mascotState, setMascotState] = useState<PulsoState>("idle");
@@ -61,6 +66,13 @@ export function PulsoFloatingAssistant() {
   const [attachments, setAttachments] = useState<AttachmentData[]>([]);
   const [messages, setMessages] = useState<FloatingChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Posicionamiento libre y arrastrable
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
+  const isDraggingRef = useRef(false);
+  const [rawPosition, setRawPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [windowDimensions, setWindowDimensions] = useState({ width: 1200, height: 800 });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -84,6 +96,112 @@ export function PulsoFloatingAssistant() {
         }
       },
     });
+
+  // Carga inicial y persistencia de posición y estado oculto
+  useEffect(() => {
+    setIsMounted(true);
+
+    const updateDimensions = () => {
+      setWindowDimensions({
+        width: typeof window !== "undefined" ? window.innerWidth : 1200,
+        height: typeof window !== "undefined" ? window.innerHeight : 800,
+      });
+    };
+
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+
+    try {
+      const savedPos = localStorage.getItem("quhealthy_pulso_position");
+      if (savedPos) {
+        const parsed = JSON.parse(savedPos);
+        if (typeof parsed.x === "number" && typeof parsed.y === "number") {
+          const maxLeft = -(window.innerWidth - 88);
+          const maxTop = -(window.innerHeight - 96);
+          const clampedX = Math.max(maxLeft, Math.min(0, parsed.x));
+          const clampedY = Math.max(maxTop, Math.min(0, parsed.y));
+          dragX.set(clampedX);
+          dragY.set(clampedY);
+          setRawPosition({ x: clampedX, y: clampedY });
+        }
+      }
+
+      const savedDismissed = localStorage.getItem("quhealthy_pulso_dismissed");
+      if (savedDismissed === "true") {
+        setIsDismissed(true);
+      }
+    } catch (e) {
+      console.warn("Error reading Pulso state:", e);
+    }
+
+    const handleGlobalOpen = () => {
+      setIsDismissed(false);
+      setIsOpen(true);
+      try {
+        localStorage.removeItem("quhealthy_pulso_dismissed");
+      } catch {}
+    };
+
+    window.addEventListener("open-pulso-assistant", handleGlobalOpen);
+    window.addEventListener("restore-pulso", handleGlobalOpen);
+
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      window.removeEventListener("open-pulso-assistant", handleGlobalOpen);
+      window.removeEventListener("restore-pulso", handleGlobalOpen);
+    };
+  }, [dragX, dragY]);
+
+  // Ocultar Pulso con opción de deshacer
+  const handleDismissPulso = () => {
+    setIsDismissed(true);
+    setIsOpen(false);
+    try {
+      localStorage.setItem("quhealthy_pulso_dismissed", "true");
+    } catch {}
+
+    toast.info(
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <span>{t("pulso_hidden_toast", { defaultValue: "Pulso se ha ocultado. Puedes reactivarlo desde la pestaña lateral." })}</span>
+        <button
+          type="button"
+          onClick={() => handleRestorePulso(false)}
+          className="font-bold underline text-[#1D9E75] hover:text-[#178563] shrink-0"
+        >
+          {t("undo", { defaultValue: "Deshacer" })}
+        </button>
+      </div>,
+      { autoClose: 5000 }
+    );
+  };
+
+  // Restaurar Pulso
+  const handleRestorePulso = (openImmediately = false) => {
+    setIsDismissed(false);
+    if (openImmediately) {
+      setIsOpen(true);
+    }
+    try {
+      localStorage.removeItem("quhealthy_pulso_dismissed");
+    } catch {}
+  };
+
+  // Restablecer posición a esquina inferior derecha
+  const handleResetPosition = () => {
+    animate(dragX, 0, { duration: 0.35, ease: [0.16, 1, 0.3, 1] });
+    animate(dragY, 0, { duration: 0.35, ease: [0.16, 1, 0.3, 1] });
+    setRawPosition({ x: 0, y: 0 });
+    try {
+      localStorage.removeItem("quhealthy_pulso_position");
+      toast.info(t("position_reset", { defaultValue: "Posición de Pulso restablecida" }), {
+        autoClose: 2500,
+      });
+    } catch {}
+  };
+
+  const hasMoved = rawPosition.x !== 0 || rawPosition.y !== 0;
+  const isPositionedLeft = rawPosition.x < -(windowDimensions.width / 2);
+  const isPositionedTop = rawPosition.y < -(windowDimensions.height * 0.55);
 
   // Auto-scroll suave
   useEffect(() => {
@@ -238,59 +356,163 @@ export function PulsoFloatingAssistant() {
         t("prompt_explain_rx", { defaultValue: "Explicar una receta o estudio médico" }),
       ];
 
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <>
-      {/* ── 1. BOTÓN FLOTANTE TRIGGER (PULSO / FAB) ──────────────────── */}
-      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 select-none">
-        {/* Tooltip flotante con aviso cuando está cerrado */}
-        {!isOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: 10, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ delay: 0.8 }}
-            onClick={() => setIsOpen(true)}
-            className="hidden md:flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/95 dark:bg-[#111]/95 backdrop-blur-md border border-[#5DCAA5]/40 shadow-xl text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:border-[#1D9E75] hover:scale-105 transition-all group"
-          >
-            <Sparkles className="w-4 h-4 text-[#1D9E75] dark:text-[#5DCAA5] group-hover:rotate-12 transition-transform" />
-            <span>
-              {isStorePage
-                ? t("ask_about_store", { defaultValue: "Preguntar sobre esta tienda" })
-                : t("ask_pulso", { defaultValue: "Pregúntale a Pulso" })}
-            </span>
-          </motion.div>
-        )}
-
-        {/* Botón Circular de Pulso */}
-        <motion.button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
-          className={cn(
-            "relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all border-2 cursor-pointer bg-white dark:bg-[#111]",
-            isOpen
-              ? "border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white"
-              : "border-[#5DCAA5] hover:border-[#1D9E75] shadow-[0_4px_20px_rgba(29,158,117,0.3)]"
-          )}
-          aria-label="Abrir asistente de salud Pulso AI"
+      {/* ── 1. BOTÓN FLOTANTE TRIGGER (PULSO / FAB) ARRASTRABLE ──────── */}
+      {!isDismissed && (
+        <motion.div
+          drag
+          dragMomentum={false}
+          dragElastic={0.08}
+          dragConstraints={{
+            left: -(windowDimensions.width - 88),
+            right: 0,
+            top: -(windowDimensions.height - 96),
+            bottom: 0,
+          }}
+          style={{ x: dragX, y: dragY }}
+          onDragStart={() => {
+            isDraggingRef.current = false;
+          }}
+          onDrag={(_event, info) => {
+            if (Math.hypot(info.offset.x, info.offset.y) > 5) {
+              isDraggingRef.current = true;
+            }
+          }}
+          onDragEnd={() => {
+            const currentX = dragX.get();
+            const currentY = dragY.get();
+            setRawPosition({ x: currentX, y: currentY });
+            try {
+              localStorage.setItem(
+                "quhealthy_pulso_position",
+                JSON.stringify({ x: currentX, y: currentY })
+              );
+            } catch {}
+            setTimeout(() => {
+              isDraggingRef.current = false;
+            }, 60);
+          }}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-3 select-none touch-none cursor-grab active:cursor-grabbing group/fab"
         >
-          {/* Anillo de pulso sutil cuando está cerrado */}
+          {/* Tooltip flotante con aviso cuando está cerrado */}
           {!isOpen && (
-            <span
-              className="absolute inset-0 rounded-full animate-ping opacity-25 pointer-events-none"
-              style={{ backgroundColor: PulsoPalette.body }}
-            />
+            <motion.div
+              initial={{ opacity: 0, x: 10, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 0.8 }}
+              onClick={() => {
+                if (isDraggingRef.current) return;
+                setIsOpen(true);
+              }}
+              className="hidden md:flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/95 dark:bg-[#111]/95 backdrop-blur-md border border-[#5DCAA5]/40 shadow-xl text-xs font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:border-[#1D9E75] hover:scale-105 transition-all group"
+            >
+              <Sparkles className="w-4 h-4 text-[#1D9E75] dark:text-[#5DCAA5] group-hover:rotate-12 transition-transform shrink-0" />
+              <span>
+                {isStorePage
+                  ? t("ask_about_store", { defaultValue: "Preguntar sobre esta tienda" })
+                  : t("ask_pulso", { defaultValue: "Pregúntale a Pulso" })}
+              </span>
+              {/* Botón cerrar / ocultar dentro del tooltip */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDismissPulso();
+                }}
+                className="ml-1 p-0.5 rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title={t("hide_pulso", { defaultValue: "Ocultar Pulso" })}
+                aria-label={t("hide_pulso", { defaultValue: "Ocultar Pulso" })}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
           )}
 
-          {isOpen ? (
-            <X className="w-6 h-6 text-gray-700 dark:text-gray-300" strokeWidth={2.5} />
-          ) : (
-            <PulsoMascot state={mascotState} size={42} />
-          )}
-        </motion.button>
-      </div>
+          {/* Botón Circular de Pulso con indicador de arrastre y control para ocultar */}
+          <div className="relative group/btn">
+            {/* Pill informativo de arrastre al hacer hover */}
+            <div className="absolute -top-7 left-1/2 -translate-x-1/2 hidden group-hover/fab:flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-900/90 dark:bg-black/90 text-white text-[9px] font-medium tracking-wide shadow-md whitespace-nowrap pointer-events-none transition-opacity">
+              <Move className="w-2.5 h-2.5" />
+              <span>{t("drag_to_move", { defaultValue: "Arrastra para mover" })}</span>
+            </div>
 
-      {/* ── 2. VENTANA DE CHAT EXPANDIDA (ESTILO IOS HOMOLOGADO) ──────── */}
+            {/* Botón sutil para ocultar Pulso en esquina superior */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDismissPulso();
+              }}
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gray-800/90 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover/btn:opacity-100 transition-opacity shadow-md z-10 cursor-pointer"
+              title={t("hide_pulso", { defaultValue: "Ocultar Pulso" })}
+              aria-label={t("hide_pulso", { defaultValue: "Ocultar Pulso" })}
+            >
+              <X className="w-3 h-3" />
+            </button>
+
+            <motion.button
+              type="button"
+              onClick={() => {
+                if (isDraggingRef.current) return;
+                setIsOpen(!isOpen);
+              }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.92 }}
+              className={cn(
+                "relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all border-2 bg-white dark:bg-[#111]",
+                isOpen
+                  ? "border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white"
+                  : "border-[#5DCAA5] hover:border-[#1D9E75] shadow-[0_4px_20px_rgba(29,158,117,0.3)]"
+              )}
+              aria-label="Abrir asistente de salud Pulso AI"
+            >
+              {/* Anillo de pulso sutil cuando está cerrado */}
+              {!isOpen && (
+                <span
+                  className="absolute inset-0 rounded-full animate-ping opacity-25 pointer-events-none"
+                  style={{ backgroundColor: PulsoPalette.body }}
+                />
+              )}
+
+              {isOpen ? (
+                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" strokeWidth={2.5} />
+              ) : (
+                <PulsoMascot state={mascotState} size={42} />
+              )}
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── 1b. PESTAÑA LATERAL DISCRETA PARA RESTAURAR PULSO SI ESTÁ OCULTO ────── */}
+      <AnimatePresence>
+        {isDismissed && (
+          <motion.button
+            type="button"
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 0.95 }}
+            exit={{ x: 50, opacity: 0 }}
+            whileHover={{ x: -4, opacity: 1, scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleRestorePulso(true)}
+            className="fixed bottom-6 right-0 z-40 bg-gradient-to-l from-[#178563] to-[#1D9E75] text-white shadow-[0_4px_16px_rgba(29,158,117,0.35)] rounded-l-full pl-3 pr-2.5 py-2 flex items-center gap-2 cursor-pointer border-y border-l border-emerald-300/30 backdrop-blur-md transition-all group"
+            title={t("restore_pulso", { defaultValue: "Abrir Pulso AI" })}
+            aria-label={t("restore_pulso", { defaultValue: "Abrir Pulso AI" })}
+          >
+            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
+            </div>
+            <span className="text-xs font-bold tracking-tight pr-1">Pulso</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* ── 2. VENTANA DE CHAT EXPANDIDA (ADAPTATIVA SEGÚN POSICIÓN DEL FAB) ──── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -299,7 +521,9 @@ export function PulsoFloatingAssistant() {
             exit={{ opacity: 0, y: 24, scale: 0.94 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "fixed bottom-24 right-4 sm:right-6 z-50 bg-white dark:bg-[#0d0d0d] border border-gray-200/90 dark:border-gray-800 rounded-[28px] shadow-2xl flex flex-col font-sans transition-all duration-300 overflow-hidden",
+              "fixed z-50 bg-white dark:bg-[#0d0d0d] border border-gray-200/90 dark:border-gray-800 rounded-[28px] shadow-2xl flex flex-col font-sans transition-all duration-300 overflow-hidden",
+              isPositionedTop ? "top-20" : "bottom-24",
+              isPositionedLeft ? "left-4 sm:left-6" : "right-4 sm:right-6",
               isExpanded
                 ? "w-[calc(100vw-32px)] sm:w-[640px] h-[calc(100vh-120px)] max-h-[820px]"
                 : "w-[calc(100vw-32px)] sm:w-[410px] h-[580px] sm:h-[620px] max-h-[85vh]"
@@ -336,6 +560,18 @@ export function PulsoFloatingAssistant() {
 
               {/* Botones de Control de Cabecera */}
               <div className="flex items-center gap-1 shrink-0">
+                {/* Restablecer posición si fue movido */}
+                {hasMoved && (
+                  <button
+                    type="button"
+                    onClick={handleResetPosition}
+                    className="p-2 rounded-full text-gray-500 hover:text-[#1D9E75] dark:text-gray-400 dark:hover:text-[#5DCAA5] hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors"
+                    title={t("reset_position", { defaultValue: "Restablecer posición" })}
+                  >
+                    <Move className="w-4 h-4" />
+                  </button>
+                )}
+
                 {/* Audio TTS Toggle */}
                 <button
                   type="button"
@@ -360,6 +596,16 @@ export function PulsoFloatingAssistant() {
                   <RotateCcw className="w-4 h-4" />
                 </button>
 
+                {/* Ocultar Pulso */}
+                <button
+                  type="button"
+                  onClick={handleDismissPulso}
+                  className="p-2 rounded-full text-gray-500 hover:text-rose-500 dark:text-gray-400 dark:hover:text-rose-400 hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors"
+                  title={t("hide_pulso", { defaultValue: "Ocultar Pulso" })}
+                >
+                  <EyeOff className="w-4 h-4" />
+                </button>
+
                 {/* Expand / Minimize */}
                 <button
                   type="button"
@@ -370,7 +616,7 @@ export function PulsoFloatingAssistant() {
                   {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                 </button>
 
-                {/* Cerrar */}
+                {/* Minimizar / Cerrar ventana */}
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}

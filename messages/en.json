@@ -10956,6 +10956,13 @@
     "prompt_my_appointments": "Check my upcoming appointments",
     "prompt_explain_rx": "Explain a prescription or lab report",
     "input_placeholder_store": "Ask about this store or specialist...",
-    "input_placeholder_general": "Type or speak with Pulso..."
+    "input_placeholder_general": "Type or speak with Pulso...",
+    "drag_to_move": "Drag to move",
+    "hide_pulso": "Hide Pulso",
+    "restore_pulso": "Open Pulso AI",
+    "pulso_hidden_toast": "Pulso has been hidden. You can reactivate it anytime from the side tab.",
+    "undo": "Undo",
+    "reset_position": "Reset position",
+    "position_reset": "Pulso position reset"
   }
 }

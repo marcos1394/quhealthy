@@ -1,0 +1,5 @@
+# Copiar como terraform.tfvars solo si se requiere cambiar los valores por defecto.
+project_id          = "quhealthy-backend"
+region              = "us-central1"
+api_domain          = "api.quhealthy.org"
+enable_cloud_armor  = false
