@@ -1,5 +1,6 @@
 // src/services/appointment.service.ts
 import axiosInstance from '@/lib/axios';
+import { idempotencyHeaders } from '@/lib/idempotency';
 import { 
   AppointmentResponse, 
   ProviderAppointment, 
@@ -77,8 +78,10 @@ export const appointmentService = {
    * Flujo de paciente (Consumer) -> POST /api/appointments/create
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createAppointment: async (payload: any): Promise<AppointmentResponse> => {
-    const response = await axiosInstance.post<AppointmentResponse>(`${BASE_URL}/create`, payload);
+  createAppointment: async (payload: any, idempotencyKey?: string): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.post<AppointmentResponse>(
+      `${BASE_URL}/create`, payload, { headers: idempotencyHeaders(idempotencyKey) }
+    );
     return response.data;
   },
 

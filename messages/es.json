@@ -10005,6 +10005,7 @@
   },
   "LocationPrompt": {
     "title": "Mejora tu experiencia",
+    "badge": "CERCA DE TI",
     "description": "Permite el acceso a tu ubicación para mostrarte los mejores especialistas y servicios cerca de ti.",
     "activate_btn": "Activar Ubicación",
     "dismiss_btn": "Ahora no",

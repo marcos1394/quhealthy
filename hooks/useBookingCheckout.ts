@@ -8,6 +8,7 @@ import { CheckoutParams, CartItemRequest } from '@/types/booking';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
+import { createIdempotencyKey } from '@/lib/idempotency';
 
 export const useBookingCheckout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -73,7 +74,8 @@ export const useBookingCheckout = () => {
         };
 
         // 1. Crear Cita Normal (Backend Java: /api/appointments/create)
-        const createdResponse = await appointmentService.createAppointment(appointmentPayload);
+        const appointmentIdempotencyKey = createIdempotencyKey();
+        const createdResponse = await appointmentService.createAppointment(appointmentPayload, appointmentIdempotencyKey);
 
         // 🚀 FIX EXACTO: Como el backend responde con una lista [ {id: 44} ], sacamos el primer elemento.
         // Lo hacemos con un ternario por seguridad, por si en algún momento el backend devuelve un objeto directo.
@@ -100,7 +102,7 @@ export const useBookingCheckout = () => {
            return;
         }
 
-        const checkoutUrl = await paymentService.createCheckoutSession(appointmentId);
+        const checkoutUrl = await paymentService.createCheckoutSession(appointmentId, createIdempotencyKey());
 
         // 3. Redirigir a Stripe
         if (checkoutUrl) {
@@ -214,7 +216,7 @@ export const useBookingCheckout = () => {
            return;
         }
 
-        const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload);
+        const checkoutUrl = await paymentService.createHybridCheckout(paymentPayload, createIdempotencyKey());
 
         if (checkoutUrl) {
           window.location.href = checkoutUrl;

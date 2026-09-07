@@ -9964,6 +9964,8 @@
     }
   },
   "LocationPrompt": {
+    "title": "Improve your experience",
+    "badge": "NEAR YOU",
     "description": "Allow access to your location so we can show you the best specialists and services near you.",
     "activate_btn": "Enable Location",
     "dismiss_btn": "Not now",

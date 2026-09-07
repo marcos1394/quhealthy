@@ -3,6 +3,7 @@ import axiosInstance from '@/lib/axios';
 import { StripeCheckoutResponse } from '@/types/booking';
 // 🚀 NUEVO: Importamos los tipos
 import { TransactionHistory, PageResponse } from '@/types/payment';
+import { idempotencyHeaders } from '@/lib/idempotency';
 
 const BASE_URL = '/api/payments';
 
@@ -10,10 +11,11 @@ export const paymentService = {
   /**
    * Genera una sesión de Stripe Checkout para una cita específica.
    */
-  createCheckoutSession: async (appointmentId: number): Promise<string> => {
+  createCheckoutSession: async (appointmentId: number, idempotencyKey?: string): Promise<string> => {
     const response = await axiosInstance.post<StripeCheckoutResponse>(
       `${BASE_URL}/checkout/appointment`, 
-      { appointmentId }
+      { appointmentId },
+      { headers: idempotencyHeaders(idempotencyKey) }
     );
     return response.data.url;
   },
@@ -28,19 +30,21 @@ export const paymentService = {
 
   // 🚀 NUEVO: Método para cobrar el carrito híbrido
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createHybridCheckout: async (payload: any): Promise<string> => {
+  createHybridCheckout: async (payload: any, idempotencyKey?: string): Promise<string> => {
     const response = await axiosInstance.post<{checkoutUrl: string}>(
       `${BASE_URL}/hybrid-checkout`, 
-      payload
+      payload,
+      { headers: idempotencyHeaders(idempotencyKey) }
     );
     return response.data.checkoutUrl;
   },
 
   // 🚀 NUEVO: Método para el Global Checkout (Multi-Provider)
-  createGlobalCartCheckout: async (payload: any): Promise<{ sessionId: string, checkoutUrl: string }> => {
+  createGlobalCartCheckout: async (payload: any, idempotencyKey?: string): Promise<{ sessionId: string, checkoutUrl: string }> => {
     const response = await axiosInstance.post<{ sessionId: string, checkoutUrl: string }>(
       `${BASE_URL}/checkout/cart`, 
-      payload
+      payload,
+      { headers: idempotencyHeaders(idempotencyKey) }
     );
     return response.data;
   },

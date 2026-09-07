@@ -98,10 +98,13 @@ export const useActionEngine = () => {
         if (payload?.referenceId) {
           try {
             const axiosInstance = (await import('@/lib/axios')).default;
+            const { idempotencyHeaders } = await import('@/lib/idempotency');
             const response = await axiosInstance.post('/api/payments/checkout/appointment', {
               appointmentId: payload.referenceId,
               requestBnpl: false,
               qupointsDiscountMxn: 0
+            }, {
+              headers: idempotencyHeaders()
             });
             
             if (response.data && response.data.url) {
