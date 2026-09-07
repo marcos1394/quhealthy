@@ -48,6 +48,7 @@ export function proxy(request: NextRequest) {
 
   // 🛡️ 4. 🌐 MATCHERS A PRUEBA DE IDIOMAS Y LÓGICA DE SEGURIDAD
   // =========================================================================
+  const isProviderLoginRoute = /^\/([a-zA-Z]{2}\/)?provider\/login(\/|$)/.test(pathname);
   const isProviderRegisterRoute = /^\/([a-zA-Z]{2}\/)?provider\/register/.test(pathname);
   const isSupplierRegisterRoute = /^\/([a-zA-Z]{2}\/)?supplier\/register/.test(pathname);
   const isFoundationRegisterRoute = /^\/([a-zA-Z]{2}\/)?foundation\/register/.test(pathname);
@@ -63,8 +64,9 @@ export function proxy(request: NextRequest) {
   const isPublicSuppliersRoute = /^\/([a-zA-Z]{2}\/)?suppliers(\/|$)/.test(pathname);
   const isPublicFoundationProfile = /^\/([a-zA-Z]{2}\/)?foundation\/\d+(\/|$)/.test(pathname);
 
-  // Todo bajo /patient, /provider, /supplier, /foundation o /admin está protegido
+  // Todo bajo /patient, /provider, /supplier, /foundation o /admin está protegido (salvo portales públicos de acceso)
   const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|supplier|foundation|admin)(\/|$)/.test(pathname) 
+    && !isProviderLoginRoute
     && !isProviderRegisterRoute 
     && !isSupplierRegisterRoute
     && !isFoundationRegisterRoute
@@ -74,14 +76,16 @@ export function proxy(request: NextRequest) {
     && !isPublicSuppliersRoute
     && !isPublicFoundationProfile;
   
-  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/register|supplier\/register|foundation\/register|admin\/login)/.test(pathname);
+  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/login|provider\/register|supplier\/register|foundation\/register|admin\/login)(\/|$)/.test(pathname);
 
   const localeMatch = pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
   const currentLocale = localeMatch ? `/${localeMatch[1]}` : '';
 
-  // 🛡️ Lógica de Protección (Sin token -> a Login)
+  // 🛡️ Lógica de Protección (Sin token -> a Login correspondiente)
   if (isProtectedRoute && !isTokenPresent) {
-    const url = new URL(`${currentLocale}/login`, request.url);
+    const isProviderArea = /^\/([a-zA-Z]{2}\/)?(provider|supplier|foundation|laboratory)(\/|$)/.test(pathname);
+    const loginTarget = isProviderArea ? `${currentLocale}/provider/login` : `${currentLocale}/login`;
+    const url = new URL(loginTarget, request.url);
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
   }
@@ -98,6 +102,9 @@ export function proxy(request: NextRequest) {
     }
     if (userRole === 'ROLE_FOUNDATION' || userRole === 'FOUNDATION') {
       return NextResponse.redirect(new URL(`${currentLocale}/foundation/dashboard`, request.url));
+    }
+    if (userRole === 'ROLE_LABORATORY' || userRole === 'LABORATORY') {
+      return NextResponse.redirect(new URL(`${currentLocale}/laboratory/dashboard`, request.url));
     }
     if (userRole === 'ROLE_PROVIDER' || userRole === 'ROLE_STAFF') {
       return NextResponse.redirect(new URL(`${currentLocale}/provider/dashboard`, request.url));

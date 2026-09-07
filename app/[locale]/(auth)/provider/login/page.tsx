@@ -4,8 +4,7 @@
 /* eslint-disable react-doctor/no-giant-component */
 
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -90,7 +89,7 @@ export default function ProviderLoginPage() {
   };
 
   const isFormValid = (): boolean => {
-    const isEmailValid = /^[^s@]+@[^s@]+.[^s@]+$/.test(formData.email);
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
     return isEmailValid && formData.password.length >= 6;
   };
 
@@ -103,7 +102,7 @@ export default function ProviderLoginPage() {
       return;
     }
 
-    const redirectParam = searchParams.get("redirect");
+    const redirectParam = searchParams.get("redirect") || searchParams.get("callbackUrl");
     if (redirectParam && redirectParam.startsWith("/")) {
       toast.success(t("login_success"), { theme: "colored" });
       router.push(redirectParam);

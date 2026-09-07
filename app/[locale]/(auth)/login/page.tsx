@@ -4,8 +4,7 @@
 /* eslint-disable react-doctor/no-giant-component */
 
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -76,7 +75,7 @@ export default function LoginPage() {
       window.history.replaceState({}, "", url.pathname);
     }
 
-    const redirect = searchParams.get("redirect");
+    const redirectTarget = searchParams.get("redirect") || searchParams.get("callbackUrl");
     const roleParam = searchParams.get("role");
 
     // Si detecta un rol institucional en la query, redirige suavemente a la página dedicada de profesionales
@@ -85,10 +84,10 @@ export default function LoginPage() {
       roleParam === "laboratory" ||
       roleParam === "foundation" ||
       roleParam === "supplier" ||
-      redirect?.includes("provider") ||
-      redirect?.includes("laboratory") ||
-      redirect?.includes("foundation") ||
-      redirect?.includes("supplier")
+      redirectTarget?.includes("provider") ||
+      redirectTarget?.includes("laboratory") ||
+      redirectTarget?.includes("foundation") ||
+      redirectTarget?.includes("supplier")
     ) {
       const q = searchParams.toString();
       router.replace(`/provider/login${q ? `?${q}` : ""}`);
@@ -119,7 +118,7 @@ export default function LoginPage() {
       return;
     }
 
-    const redirectParam = searchParams.get("redirect");
+    const redirectParam = searchParams.get("redirect") || searchParams.get("callbackUrl");
     if (redirectParam && redirectParam.startsWith("/")) {
       toast.success(t("login_success"), { theme: "colored" });
       router.push(redirectParam);
