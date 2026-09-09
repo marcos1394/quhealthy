@@ -198,7 +198,8 @@ export const authService = {
         `${BASE_AUTH}/forgot-password`, 
         { 
           email: data.email, 
-          deliveryMethod: data.deliveryMethod 
+          deliveryMethod: data.deliveryMethod,
+          captchaToken: data.captchaToken,
         }
       );
       return response.data;
