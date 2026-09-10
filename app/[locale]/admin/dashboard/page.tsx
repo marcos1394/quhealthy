@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { clearAuthCookies } from "@/app/actions/auth-cookies";
 import { useSessionStore } from "@/stores/SessionStore";
@@ -27,13 +27,76 @@ import { TabMedicalOperations } from "./tabs/TabMedicalOperations";
 import { TabFoundations } from "./tabs/TabFoundations";
 import { TabSystemHealth } from "./tabs/TabSystemHealth";
 
+const VALID_TABS: AdminTab[] = [
+  "pulse",
+  "crm",
+  "channels",
+  "finances",
+  "economics",
+  "analytics",
+  "operations",
+  "foundations",
+  "health",
+];
+
+const VALID_PERIODS = ["24h", "7d", "30d", "month", "90d"] as const;
+type AdminPeriod = typeof VALID_PERIODS[number];
+
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Inicialización sincronizada con URL query string (ADMIN-UX-01)
+  const tabParam = searchParams.get("tab") as AdminTab | null;
+  const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "pulse";
+
+  const periodParam = searchParams.get("period") as AdminPeriod | null;
+  const initialPeriod = periodParam && VALID_PERIODS.includes(periodParam) ? periodParam : "30d";
+
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<AdminTab>("pulse");
-  const [selectedPeriod, setSelectedPeriod] = useState<"24h" | "7d" | "30d" | "month" | "90d">("30d");
+  const [activeTab, setActiveTabState] = useState<AdminTab>(initialTab);
+  const [selectedPeriod, setSelectedPeriodState] = useState<AdminPeriod>(initialPeriod);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Sincronización bidireccional con URL
+  const handleTabChange = useCallback(
+    (newTab: AdminTab) => {
+      setActiveTabState(newTab);
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        params.set("tab", newTab);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    },
+    [pathname, router]
+  );
+
+  const handlePeriodChange = useCallback(
+    (newPeriod: AdminPeriod) => {
+      setSelectedPeriodState(newPeriod);
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        params.set("period", newPeriod);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    },
+    [pathname, router]
+  );
+
+  // Reacciona a cambios en historial del navegador
+  useEffect(() => {
+    if (tabParam && VALID_TABS.includes(tabParam) && tabParam !== activeTab) {
+      setActiveTabState(tabParam);
+    }
+  }, [tabParam, activeTab]);
+
+  useEffect(() => {
+    if (periodParam && VALID_PERIODS.includes(periodParam) && periodParam !== selectedPeriod) {
+      setSelectedPeriodState(periodParam);
+    }
+  }, [periodParam, selectedPeriod]);
 
   // State data
   const [economics, setEconomics] = useState<UnitEconomicsDTO | null>(null);
@@ -165,18 +228,19 @@ export default function AdminDashboardPage() {
       {/* 🚀 Header */}
       <AdminHeader
         selectedPeriod={selectedPeriod}
-        onSelectPeriod={setSelectedPeriod}
+        onSelectPeriod={handlePeriodChange}
         onRefresh={loadAllData}
         isRefreshing={isRefreshing}
         onLogout={handleLogout}
         onToggleMobileMenu={() => setMobileSidebarOpen((prev) => !prev)}
+        isMobileOpen={mobileSidebarOpen}
       />
 
       {/* 🧭 Master Body with Sidebar + Content */}
       <div className="flex-1 flex flex-col lg:flex-row">
         <AdminSidebar
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           pendingKycCount={pendingKycCount}
           unhealthyServicesCount={unhealthyServicesCount}
           isMobileOpen={mobileSidebarOpen}
@@ -184,66 +248,74 @@ export default function AdminDashboardPage() {
         />
 
         <main className="flex-1 p-3 sm:p-5 lg:p-6 max-w-7xl mx-auto w-full space-y-5">
-          {activeTab === "pulse" && (
-            <TabExecutivePulse
-              economics={economics}
-              dashboard={dashboard}
-              productMetrics={productMetrics}
-              providers={providers}
-              formatCurrency={formatCurrency}
-              onNavigateTab={setActiveTab}
-            />
-          )}
+          <div
+            role="tabpanel"
+            id={`admin-panel-${activeTab}`}
+            aria-labelledby={`admin-tab-${activeTab}`}
+            tabIndex={0}
+            className="focus-visible:outline-none"
+          >
+            {activeTab === "pulse" && (
+              <TabExecutivePulse
+                economics={economics}
+                dashboard={dashboard}
+                productMetrics={productMetrics}
+                providers={providers}
+                formatCurrency={formatCurrency}
+                onNavigateTab={handleTabChange}
+              />
+            )}
 
-          {activeTab === "crm" && (
-            <TabAdminCrm />
-          )}
+            {activeTab === "crm" && (
+              <TabAdminCrm />
+            )}
 
-          {activeTab === "channels" && (
-            <TabAdminSocialConnections />
-          )}
+            {activeTab === "channels" && (
+              <TabAdminSocialConnections />
+            )}
 
-          {activeTab === "finances" && (
-            <TabFinances
-              economics={economics}
-              transactions={transactions}
-              isLoadingTransactions={isLoadingTransactions}
-              formatCurrency={formatCurrency}
-              formatDate={formatDate}
-            />
-          )}
+            {activeTab === "finances" && (
+              <TabFinances
+                economics={economics}
+                transactions={transactions}
+                isLoadingTransactions={isLoadingTransactions}
+                formatCurrency={formatCurrency}
+                formatDate={formatDate}
+              />
+            )}
 
-          {activeTab === "economics" && (
-            <TabUnitEconomics
-              economics={economics}
-              formatCurrency={formatCurrency}
-            />
-          )}
+            {activeTab === "economics" && (
+              <TabUnitEconomics
+                economics={economics}
+                formatCurrency={formatCurrency}
+              />
+            )}
 
-          {activeTab === "analytics" && (
-            <TabProductAnalytics productMetrics={productMetrics} />
-          )}
+            {activeTab === "analytics" && (
+              <TabProductAnalytics productMetrics={productMetrics} />
+            )}
 
-          {activeTab === "operations" && (
-            <TabMedicalOperations
-              dashboard={dashboard}
-              providers={providers}
-              onRefreshProviders={loadAllData}
-            />
-          )}
+            {activeTab === "operations" && (
+              <TabMedicalOperations
+                dashboard={dashboard}
+                providers={providers}
+                onRefreshProviders={loadAllData}
+              />
+            )}
 
-          {activeTab === "foundations" && (
-            <TabFoundations />
-          )}
+            {activeTab === "foundations" && (
+              <TabFoundations />
+            )}
 
-          {activeTab === "health" && (
-            <TabSystemHealth
-              services={services}
-              auditLogs={auditLogs}
-              formatDate={formatDate}
-              onRefreshHealth={loadAllData}
-            />
-          )}
+            {activeTab === "health" && (
+              <TabSystemHealth
+                services={services}
+                auditLogs={auditLogs}
+                formatDate={formatDate}
+                onRefreshHealth={loadAllData}
+              />
+            )}
+          </div>
         </main>
       </div>
     </div>

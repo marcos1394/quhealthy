@@ -60,6 +60,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     }
   }, []);
 
+  // Cierre accesible con tecla Escape en drawer móvil (ADMIN-UX-01)
+  useEffect(() => {
+    if (!isMobileOpen || !onCloseMobile) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onCloseMobile();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileOpen, onCloseMobile]);
+
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed;
 
   const toggleCollapse = () => {
@@ -158,7 +170,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   };
 
   const renderNavItems = (collapsed: boolean) => (
-    <div className="space-y-1.5 w-full">
+    <div
+      role="tablist"
+      aria-orientation="vertical"
+      aria-label="Pestañas de navegación administrativa"
+      className="space-y-1.5 w-full"
+    >
       {menuItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeTab === item.id;
@@ -166,8 +183,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         return (
           <div key={item.id} className="relative group w-full">
             <button
+              role="tab"
+              id={`admin-tab-${item.id}`}
+              aria-selected={isActive}
+              aria-controls={`admin-panel-${item.id}`}
+              aria-label={`${item.label}${item.badge ? ` (${item.badge})` : ''} - ${item.description}`}
+              tabIndex={0}
               onClick={() => handleSelectTab(item.id)}
-              className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all duration-150 relative ${
+              className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all duration-150 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 ${
                 collapsed ? "justify-center" : "justify-start"
               } ${
                 isActive
@@ -182,7 +205,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     : "bg-slate-100 text-slate-600 group-hover:bg-slate-200/70"
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4" aria-hidden="true" />
               </div>
 
               {!collapsed && (
@@ -249,8 +272,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <div
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
             onClick={onCloseMobile}
+            aria-hidden="true"
           />
-          <div className="relative w-72 max-w-[85vw] bg-white h-full p-4 flex flex-col justify-between shadow-2xl z-10 overflow-y-auto">
+          <div
+            id="admin-mobile-sidebar"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menú lateral de navegación"
+            className="relative w-72 max-w-[85vw] bg-white h-full p-4 flex flex-col justify-between shadow-2xl z-10 overflow-y-auto"
+          >
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -258,7 +288,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 </span>
                 <button
                   onClick={onCloseMobile}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  aria-label="Cerrar menú lateral"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
                 >
                   ✕
                 </button>
@@ -300,13 +331,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             <button
               onClick={toggleCollapse}
               title={isCollapsed ? "Expandir menú lateral" : "Colapsar menú lateral"}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
               aria-label={isCollapsed ? "Expandir menú lateral" : "Colapsar menú lateral"}
+              aria-expanded={!isCollapsed}
             >
               {isCollapsed ? (
-                <PanelLeftOpen className="w-4 h-4 text-slate-600" />
+                <PanelLeftOpen className="w-4 h-4 text-slate-600" aria-hidden="true" />
               ) : (
-                <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+                <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-slate-600" aria-hidden="true" />
               )}
             </button>
           </div>

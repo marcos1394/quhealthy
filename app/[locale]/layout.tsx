@@ -8,16 +8,11 @@ import { getMessages } from 'next-intl/server';
 // Vercel Analytics & Speed Insights
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import Script from "next/script";
 
-// Providers y componentes globales
+// Providers globales y límite de plataforma
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import 'react-toastify/dist/ReactToastify.css';
-import { CookieConsent } from '@/components/ui/CookieConsent';
-import { LocationPrompt } from '@/components/ui/LocationPrompt';
-import { AnalyticsManager } from '@/components/providers/AnalyticsManager';
-import { TelemetryTracker } from '@/components/providers/TelemetryTracker';
-import { PulsoFloatingAssistant } from '@/components/ai/PulsoFloatingAssistant';
+import { ConsumerPlatformBoundary } from '@/components/layout/ConsumerPlatformBoundary';
 
 // Fuente
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -205,66 +200,15 @@ export default async function RootLayout({
           <CustomProvider>
             {children}
 
-            {/* Global Providers & UI */}
+            {/* Global Providers */}
             <ToastProvider />
-            <AnalyticsManager />
-            <TelemetryTracker />
-            <CookieConsent />
-            <LocationPrompt />
-            <PulsoFloatingAssistant />
+
+            {/* Límite de integración de consumidor (excluido en rutas /admin - ADMIN-UX-01) */}
+            <ConsumerPlatformBoundary />
 
             {/* Vercel Analytics */}
             <Analytics />
             <SpeedInsights />
-
-            {/* Chatwoot Live Chat (Carga diferida para no bloquear LCP) */}
-            <Script id="chatwoot-widget" strategy="lazyOnload">
-              {`
-                window.chatwootSettings = {
-                  hideMessageBubble: true,
-                  position: 'right',
-                  type: 'standard'
-                };
-                (function(d,t) {
-                  var BASE_URL="https://app.chatwoot.com";
-                  var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-                  g.src=BASE_URL+"/packs/js/sdk.js";
-                  g.async = true;
-                  s.parentNode.insertBefore(g,s);
-                  g.onload=function(){
-                    window.chatwootSDK.run({
-                      websiteToken: '8NAP7B6kCJdHWj4S3vemxeJb',
-                      baseUrl: BASE_URL
-                    })
-                  }
-                })(document,"script");
-              `}
-            </Script>
-
-            {/* Google Customer Reviews Badge */}
-            <Script
-              id="merchantWidgetScript"
-              src="https://www.gstatic.com/shopping/merchant/merchantwidget.js"
-              strategy="lazyOnload"
-            />
-            <Script id="merchantWidgetInit" strategy="lazyOnload">
-              {`
-                (function initGoogleMerchant(retries) {
-                  if (typeof window !== 'undefined' && window.merchantwidget) {
-                    try {
-                      window.merchantwidget.start({
-                        merchant_id: 5836869157,
-                        position: "BOTTOM_LEFT"
-                      });
-                    } catch (e) {
-                      console.warn("Merchant widget init error:", e);
-                    }
-                  } else if (retries > 0) {
-                    setTimeout(function() { initGoogleMerchant(retries - 1); }, 500);
-                  }
-                })(20);
-              `}
-            </Script>
           </CustomProvider>
         </NextIntlClientProvider>
       </body>
