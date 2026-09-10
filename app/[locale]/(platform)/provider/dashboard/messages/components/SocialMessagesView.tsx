@@ -311,13 +311,26 @@ export function SocialMessagesView() {
     }
   }, [messages]);
 
-  // 3. Conexión SSE en Tiempo Real
+  // 3. Conexión SSE en Tiempo Real (STREAM-SEC-01: Ephemeral Stream Ticket)
   useEffect(() => {
     let eventSource: EventSource | null = null;
-    try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("qh_auth_token") : null;
-      if (token) {
-        eventSource = new EventSource(`/api/social/crm/stream?token=${encodeURIComponent(token)}`);
+    let isCancelled = false;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+    let retryCount = 0;
+    const maxRetries = 5;
+
+    const connect = async () => {
+      if (isCancelled) return;
+      try {
+        const { ticket } = await socialService.getStreamTicket();
+        if (isCancelled) return;
+
+        const baseUrl = process.env.NEXT_PUBLIC_SOCIAL_SERVICE_URL?.replace(/\/$/, '') ||
+                        process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ||
+                        '';
+        const streamUrl = `${baseUrl}/api/social/crm/stream?ticket=${encodeURIComponent(ticket)}`;
+
+        eventSource = new EventSource(streamUrl);
         eventSource.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
@@ -331,12 +344,33 @@ export function SocialMessagesView() {
             console.error("Error parseando evento SSE:", e);
           }
         };
+
+        eventSource.onerror = () => {
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+          if (!isCancelled && retryCount < maxRetries) {
+            const delay = Math.min(1000 * Math.pow(2, retryCount), 15000);
+            retryCount++;
+            reconnectTimeout = setTimeout(connect, delay);
+          }
+        };
+      } catch (err) {
+        console.error("Error inicializando SSE con ticket:", err);
+        if (!isCancelled && retryCount < maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 15000);
+          retryCount++;
+          reconnectTimeout = setTimeout(connect, delay);
+        }
       }
-    } catch (err) {
-      console.error("Error inicializando SSE:", err);
-    }
+    };
+
+    connect();
 
     return () => {
+      isCancelled = true;
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
       if (eventSource) eventSource.close();
     };
   }, [selectedConversation?.id, loadCrmData, loadConversationMessages]);
