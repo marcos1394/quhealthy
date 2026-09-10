@@ -36,6 +36,7 @@ import {
   MessageCircle,
   Trash2,
   ChevronDown,
+  ShieldAlert,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 
@@ -287,6 +288,8 @@ export const TabAdminCrm: React.FC = () => {
   const [filterStage, setFilterStage] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [inputText, setInputText] = useState("");
+  const [draftSource, setDraftSource] = useState<{ type: "ai" | "manual"; tone?: string } | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [aiSuggestions, setAiSuggestions] = useState<Array<{ tone: string; text: string }>>([]);
   const [showLeadDetails, setShowLeadDetails] = useState(true);
 
@@ -311,7 +314,9 @@ export const TabAdminCrm: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (typeof messagesEndRef.current?.scrollIntoView === "function") {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   // 1. Cargar Conversaciones
@@ -414,6 +419,7 @@ export const TabAdminCrm: React.FC = () => {
     if (!text.trim() || !selectedConversation) return;
 
     setInputText("");
+    setDraftSource(null);
 
     try {
       setSendingMessage(true);
@@ -445,90 +451,42 @@ export const TabAdminCrm: React.FC = () => {
     }
   };
 
-  // 🚀 5.1 Enviar Mensaje Directo Oficial (Modal)
-  const handleSendDirectMessage = async () => {
-    if (!directRecipient.trim()) {
-      toast.warn("Ingresa el teléfono o nombre de usuario del destinatario.");
-      return;
-    }
-
-    try {
-      setIsSendingDirect(true);
-      setDirectSuccessResult(null);
-
-      const activeMetaTpl = (directPlatform === "WHATSAPP" && selectedTemplateKey !== "custom")
-        ? META_APPROVED_TEMPLATES.find((t) => t.key === selectedTemplateKey)
-        : null;
-
-      let finalMessage = directMessageText.trim();
-      let tplName: string | undefined = undefined;
-      let tplParams: string[] | undefined = undefined;
-
-      if (activeMetaTpl) {
-        tplName = activeMetaTpl.name;
-        tplParams = activeMetaTpl.variables.map((v) => templateParams[v.id]?.trim() || v.defaultVal || "");
-        finalMessage = activeMetaTpl.renderText(templateParams);
-      }
-
-      if (!finalMessage) {
-        toast.warn("El contenido del mensaje o plantilla no puede estar vacío.");
-        setIsSendingDirect(false);
-        return;
-      }
-
-      const res = await adminService.sendDirectCrmMessage({
-        platform: directPlatform,
-        recipient: directRecipient.trim(),
-        recipientName: directRecipientName.trim() || undefined,
-        message: finalMessage,
-        templateName: tplName,
-        templateLanguage: "es_MX",
-        templateParameters: tplParams,
-      });
-
-      setDirectSuccessResult(res);
-      toast.success(`Mensaje enviado exitosamente por ${directPlatform}${tplName ? ` con plantilla oficial (${tplName})` : ""}.`);
-
-      // Recargar conversaciones y seleccionar la recién creada/actualizada
-      await loadConversations(false);
-      if (res.conversationId) {
-        const found = conversations.find((c) => c.id === res.conversationId);
-        if (found) {
-          setSelectedConversation(found);
-        }
-      }
-      loadFunnelStats();
-    } catch (err: any) {
-      console.error("Error al enviar mensaje directo", err);
-      const errMsg = err?.response?.data?.message || err?.message || "Error al enviar mensaje por canal oficial.";
-      toast.error(errMsg);
-    } finally {
-      setIsSendingDirect(false);
-    }
+  // 5.0 Cargar Sugerencia IA como Borrador Editable (CRM-GOV-01: Cero despacho automático)
+  const handleApplySuggestionDraft = (text: string, tone?: string) => {
+    setInputText(text);
+    setDraftSource({ type: "ai", tone });
+    toast.info("Borrador cargado desde sugerencia IA. Revise y edite antes de enviar.");
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
   };
 
-  // 🚀 5.2 Eliminar Conversación del CRM
+  // 🚀 5.1 Enviar Mensaje Directo Oficial (Modal - Bloqueado por CRM-GOV-01 en P0)
+  const handleSendDirectMessage = async () => {
+    toast.warn(
+      "El envío directo outbound no aprobado está deshabilitado por política de gobierno (CRM-GOV-01). Se requiere un Approval Command corporativo aprobado previamente."
+    );
+  };
+
+  // 🚀 5.2 Archivar Conversación del CRM (Gobernado bajo CRM-GOV-01: Prohibido borrado destructivo)
   const handleDeleteConversation = async (conversationId: string, event?: React.MouseEvent) => {
     if (event) {
       event.stopPropagation();
     }
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este chat y todos sus mensajes del CRM?")) {
+    if (
+      !window.confirm(
+        "¿Deseas archivar esta conversación para ocultarla de la bandeja activa? Por política de gobernanza y retención (CRM-GOV-01), los datos se preservan en auditoría y no se eliminan físicamente."
+      )
+    ) {
       return;
     }
 
-    try {
-      await adminService.deleteAdminCrmConversation(conversationId);
-      toast.success("Conversación eliminada del CRM.");
-      setConversations((prev) => prev.filter((c) => c.id !== conversationId));
-      if (selectedConversation?.id === conversationId) {
-        setSelectedConversation(null);
-        setMessages([]);
-      }
-      loadFunnelStats();
-    } catch (err: any) {
-      console.error("Error eliminando conversación", err);
-      toast.error(err?.response?.data?.message || "No se pudo eliminar la conversación.");
+    setConversations((prev) => prev.filter((c) => c.id !== conversationId));
+    if (selectedConversation?.id === conversationId) {
+      setSelectedConversation(null);
+      setMessages([]);
     }
+    toast.success("Conversación archivada correctamente (preservada en auditoría).");
   };
 
   // 🚀 Inserción de Plantillas de Mensajes
@@ -583,24 +541,11 @@ export const TabAdminCrm: React.FC = () => {
     }
   };
 
-  // 7. Toggle Auto-Responder IA
+  // 7. Toggle Auto-Responder IA (Gobernado bajo CRM-GOV-01: Bloqueado en P0)
   const handleToggleAutoResponder = async () => {
-    if (!selectedConversation) return;
-    const newState = !selectedConversation.aiAutoResponderEnabled;
-    try {
-      const updated = await adminService.toggleAdminAutoResponder(selectedConversation.id, newState);
-      setSelectedConversation((prev) => (prev ? { ...prev, aiAutoResponderEnabled: newState } : null));
-      setConversations((prev) =>
-        prev.map((c) => (c.id === selectedConversation.id ? { ...c, aiAutoResponderEnabled: newState } : c))
-      );
-      toast.success(
-        newState
-          ? "🤖 Piloto Automático IA activado para este chat."
-          : "⏹️ Piloto Automático IA desactivado."
-      );
-    } catch (err) {
-      toast.error("No se pudo actualizar el modo auto-responder.");
-    }
+    toast.warn(
+      "La auto-respuesta corporativa autónoma está bloqueada por política de gobierno del CEO (CRM-GOV-01). Toda respuesta requiere aprobación humana."
+    );
   };
 
   // 8. Actualizar Etapa de Funnel
@@ -890,7 +835,7 @@ export const TabAdminCrm: React.FC = () => {
                               type="button"
                               onClick={(e) => handleDeleteConversation(conv.id, e)}
                               className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded transition-colors"
-                              title="Eliminar chat del CRM"
+                              title="Archivar chat del CRM"
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
@@ -935,24 +880,22 @@ export const TabAdminCrm: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Switch Auto-Responder */}
+                    {/* Switch Auto-Responder - Gobernado CRM-GOV-01 */}
                     <button
+                      type="button"
                       onClick={handleToggleAutoResponder}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
-                        selectedConversation.aiAutoResponderEnabled
-                          ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                          : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
-                      }`}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-slate-100 border border-slate-200 text-slate-500 hover:bg-slate-200 transition-colors"
+                      title="Auto-respuesta corporativa bloqueada por política de gobierno del CEO (CRM-GOV-01)"
                     >
-                      <Bot className="w-3 h-3" />
-                      {selectedConversation.aiAutoResponderEnabled ? "Auto-IA ON" : "Auto-IA OFF"}
+                      <Bot className="w-3 h-3 text-slate-400" />
+                      <span>Auto-IA Bloqueado</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleDeleteConversation(selectedConversation.id)}
-                      className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-xs transition-colors"
-                      title="Eliminar este chat"
+                      className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-xs transition-colors"
+                      title="Archivar conversación (retención gobernada CRM-GOV-01)"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -1052,16 +995,26 @@ export const TabAdminCrm: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 gap-1.5">
                       {aiSuggestions.map((s, idx) => (
-                        <button
+                        <div
                           key={idx}
-                          onClick={() => handleSendMessage(s.text)}
-                          className="p-2 text-left bg-white border border-indigo-200/80 rounded-xl hover:border-indigo-500 hover:shadow-xs transition-all text-[11px] text-slate-700 leading-snug flex items-start justify-between gap-2 group"
+                          className="p-2.5 bg-white border border-indigo-200/80 rounded-xl hover:border-indigo-400 transition-all text-[11px] text-slate-700 leading-snug flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"
                         >
-                          <span className="flex-1">{s.text}</span>
-                          <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 font-bold text-[9px] rounded uppercase shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                            {s.tone} • Enviar
-                          </span>
-                        </button>
+                          <span className="flex-1 font-normal">{s.text}</span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 font-semibold text-[9px] rounded uppercase">
+                              {s.tone}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleApplySuggestionDraft(s.text, s.tone)}
+                              className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-[10px] rounded-lg transition-colors flex items-center gap-1"
+                              title="Copiar texto al borrador para revisión humana"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>Usar como Borrador</span>
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -1079,7 +1032,29 @@ export const TabAdminCrm: React.FC = () => {
                       <Sparkles className={`w-3.5 h-3.5 ${generatingAi ? "animate-spin" : "text-amber-500"}`} />
                       {generatingAi ? "Consultando contexto..." : "Generar Sugerencia IA"}
                     </button>
+                    {draftSource?.type === "ai" && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                        <Sparkles className="w-3 h-3 text-amber-600" />
+                        Borrador IA cargado ({draftSource.tone}) — Revisión requerida
+                      </span>
+                    )}
                   </div>
+
+                  {draftSource?.type === "ai" && (
+                    <div className="flex items-center justify-between px-2.5 py-1 bg-amber-50/80 border border-amber-200/60 rounded-lg text-[10px] text-amber-800">
+                      <span>Edite el texto libremente antes de aprobar y presionar Enviar.</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDraftSource(null);
+                          setInputText("");
+                        }}
+                        className="text-amber-700 hover:text-amber-900 underline font-semibold text-[9px]"
+                      >
+                        Limpiar borrador
+                      </button>
+                    </div>
+                  )}
 
                   <form
                     onSubmit={(e) => {
@@ -1089,8 +1064,9 @@ export const TabAdminCrm: React.FC = () => {
                     className="flex items-center gap-2"
                   >
                     <input
+                      ref={inputRef}
                       type="text"
-                      placeholder="Escribe una respuesta institucional..."
+                      placeholder="Escribe una respuesta institucional revisada..."
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
@@ -1099,6 +1075,7 @@ export const TabAdminCrm: React.FC = () => {
                       type="submit"
                       disabled={sendingMessage || !inputText.trim()}
                       className="p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-xs active:scale-95 disabled:opacity-50"
+                      title="Aprobar y enviar mensaje"
                     >
                       <Send className="w-4 h-4" />
                     </button>
@@ -1494,6 +1471,17 @@ export const TabAdminCrm: React.FC = () => {
 
             {/* Contenido Scrollable */}
             <div className="p-4 overflow-y-auto space-y-3 flex-1 text-xs">
+              {/* Banner de Gobernanza CRM-GOV-01 */}
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <div className="text-xs">
+                  <p className="font-semibold text-amber-900">Acción Restringida por Política de Gobierno (CRM-GOV-01)</p>
+                  <p className="text-amber-700 text-[11px] mt-0.5 leading-relaxed">
+                    El despacho directo no interactivo hacia canales oficiales externos requiere un comando de aprobación corporativo (Approval Token). En P0, la detonación autónoma no aprobada está bloqueada.
+                  </p>
+                </div>
+              </div>
+
               {/* Selector de Canal Oficial (Pills compactas) */}
               <div className="space-y-1">
                 <label className="text-[11px] font-bold text-slate-700 block">
@@ -1800,32 +1788,30 @@ export const TabAdminCrm: React.FC = () => {
             </div>
 
             {/* Footer del Modal (Sticky) */}
-            <div className="px-4 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowDirectModal(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded-lg transition-all"
-              >
-                Cerrar
-              </button>
-              <button
-                type="button"
-                onClick={handleSendDirectMessage}
-                disabled={isSendingDirect || !directRecipient.trim()}
-                className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none active:scale-95"
-              >
-                {isSendingDirect ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Enviando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Detonar Envío</span>
-                  </>
-                )}
-              </button>
+            <div className="px-4 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2 shrink-0">
+              <span className="text-[11px] font-medium text-amber-700 flex items-center gap-1">
+                <ShieldAlert className="w-3.5 h-3.5" />
+                Despacho bloqueado en P0
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDirectModal(false)}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded-lg transition-all"
+                >
+                  Cerrar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendDirectMessage}
+                  disabled={true}
+                  className="px-4 py-1.5 bg-slate-200 text-slate-400 text-xs font-bold rounded-lg shadow-none cursor-not-allowed flex items-center gap-1.5"
+                  title="Bloqueado por política CRM-GOV-01: Requiere Approval Command corporativo"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Despacho Bloqueado por Gobierno</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
