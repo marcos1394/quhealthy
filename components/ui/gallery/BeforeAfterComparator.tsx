@@ -14,6 +14,16 @@ export function BeforeAfterComparator({ imagePair, className }: BeforeAfterCompa
  const [isDragging, setIsDragging] = useState(false);
  const containerRef = useRef<HTMLDivElement>(null);
 
+ useEffect(() => {
+ const handleMouseUp = () => setIsDragging(false);
+ window.addEventListener('mouseup', handleMouseUp);
+ window.addEventListener('touchend', handleMouseUp);
+ return () => {
+ window.removeEventListener('mouseup', handleMouseUp);
+ window.removeEventListener('touchend', handleMouseUp);
+ };
+ }, []);
+
  if (imagePair.galleryType !== 'BEFORE_AFTER' || !imagePair.beforeImageUrl || !imagePair.afterImageUrl) {
  return null;
  }
@@ -42,16 +52,6 @@ export function BeforeAfterComparator({ imagePair, className }: BeforeAfterCompa
  const handleInteractionEnd = () => {
  setIsDragging(false);
  };
-
- useEffect(() => {
- const handleMouseUp = () => setIsDragging(false);
- window.addEventListener('mouseup', handleMouseUp);
- window.addEventListener('touchend', handleMouseUp);
- return () => {
- window.removeEventListener('mouseup', handleMouseUp);
- window.removeEventListener('touchend', handleMouseUp);
- };
- }, []);
 
  return (
  <div className={cn("flex flex-col space-y-3", className)}>
