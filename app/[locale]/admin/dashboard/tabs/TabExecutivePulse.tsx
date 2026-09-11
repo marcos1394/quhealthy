@@ -28,6 +28,7 @@ import {
   AdminDashboardDTO,
   ProductMetricsDTO,
   ProviderAdminDTO,
+  MicroserviceHealthDTO,
 } from "@/services/admin.service";
 
 interface TabExecutivePulseProps {
@@ -35,6 +36,8 @@ interface TabExecutivePulseProps {
   dashboard: AdminDashboardDTO | null;
   productMetrics: ProductMetricsDTO | null;
   providers: ProviderAdminDTO[];
+  services?: MicroserviceHealthDTO[];
+  selectedPeriod?: string;
   formatCurrency: (val: number) => string;
   onNavigateTab: (tab: any) => void;
 }
@@ -44,10 +47,19 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
   dashboard,
   productMetrics,
   providers,
+  services = [],
+  selectedPeriod = "30d",
   formatCurrency,
   onNavigateTab,
 }) => {
   const pendingKyc = providers.filter((p) => !p.onboardingComplete || p.status === "INACTIVE");
+
+  const totalServices = services.length;
+  const upCount = services.filter((s) => s.status === "UP").length;
+  const upServices = services.filter((s) => s.status === "UP" && s.latencyMs !== undefined);
+  const avgLatency = upServices.length > 0
+    ? Math.round(upServices.reduce((acc, s) => acc + (s.latencyMs || 0), 0) / upServices.length)
+    : 0;
 
   const revenueData = economics?.chartData && economics.chartData.length > 0
     ? economics.chartData.map((d) => ({
@@ -56,24 +68,26 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
         comisiones: d.commissions,
         total: d.subscriptions + d.commissions,
       }))
-    : [
-        { name: "Sem 1", suscripciones: 0, comisiones: 0, total: 0 },
-        { name: "Sem 2", suscripciones: 0, comisiones: 0, total: 0 },
-        { name: "Sem 3", suscripciones: 0, comisiones: 0, total: 0 },
-        { name: "Sem 4", suscripciones: economics?.totalSubscriptionsRevenue || 0, comisiones: economics?.totalCommissionsRevenue || 0, total: economics?.totalRevenue || 0 },
-      ];
+    : [];
 
   return (
     <div className="space-y-6">
       {/* 🚀 Top Executive KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         <KpiCard
-          title="Volumen Clínico (30D)"
+          title={`Volumen Clínico (${selectedPeriod.toUpperCase()})`}
           value={formatCurrency(economics?.totalGmv || economics?.totalRevenue || 0)}
           changePercent={0}
           changePeriod={`En línea: ${formatCurrency(economics?.onlineRevenue || 0)} · Consultorio: ${formatCurrency(economics?.inClinicRevenue || 0)}`}
           icon={DollarSign}
           variant="emerald"
+          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Stripe Connect API"
+          owner="Finanzas"
+          asOf={economics?.asOf || new Date().toISOString()}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Volumen bruto transaccionado a través de pasarelas de pago y conciliado con Stripe."
         />
         <KpiCard
           title="SaaS MRR (Planes Médicos)"
@@ -82,21 +96,42 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           changePeriod={`${economics?.activeSubscriptions || 0} suscripciones`}
           icon={Zap}
           variant="blue"
+          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Stripe Billing API"
+          owner="Finanzas"
+          asOf={economics?.asOf || new Date().toISOString()}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Ingresos recurrentes mensuales certificados de suscripciones profesionales activas."
         />
         <KpiCard
           title="Usuarios Activos (MAU)"
-          value={productMetrics?.mau || 0}
+          value={productMetrics?.mau ?? 0}
           changePercent={0}
           changePeriod={`${productMetrics?.activeProvidersMonth || 0} Médicos / ${productMetrics?.activePatientsMonth || 0} Pacientes`}
           icon={Users}
           variant="indigo"
+          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Telemetry Event Stream"
+          owner="Growth / Producto"
+          asOf={new Date().toISOString()}
+          period={selectedPeriod}
+          isFilterable={true}
+          explanation="Usuarios únicos (médicos y pacientes) con sesiones activas en el periodo."
         />
         <KpiCard
           title="Citas Hoy"
-          value={dashboard?.appointmentsToday || 0}
+          value={dashboard?.appointmentsToday ?? 0}
           subtext={`${dashboard?.appointmentsThisMonth || 0} este mes`}
           icon={CalendarCheck}
           variant="purple"
+          quality={dashboard ? "CERTIFIED" : "UNAVAILABLE"}
+          source="PostgreSQL Clinical Cluster"
+          owner="Operaciones Médicas"
+          asOf={new Date().toISOString()}
+          period="24h"
+          isFilterable={false}
+          explanation="Citas agendadas y atendidas en el día calendario actual en base de datos primaria."
         />
       </div>
 
@@ -122,42 +157,50 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           </div>
 
           <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorSaaS" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
-                  </linearGradient>
-                  <linearGradient id="colorComm" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `$${v / 1000}k`} />
-                <RechartsTooltip formatter={(v: number) => formatCurrency(v)} />
-                <Area
-                  type="monotone"
-                  dataKey="suscripciones"
-                  name="SaaS (Suscripciones)"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorSaaS)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="comisiones"
-                  name="Comisiones Marketplace"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorComm)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {revenueData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorSaaS" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                    </linearGradient>
+                    <linearGradient id="colorComm" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+                  <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `$${v / 1000}k`} />
+                  <RechartsTooltip formatter={(v: number) => formatCurrency(v)} />
+                  <Area
+                    type="monotone"
+                    dataKey="suscripciones"
+                    name="SaaS (Suscripciones)"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorSaaS)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="comisiones"
+                    name="Comisiones Marketplace"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorComm)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full w-full flex flex-col items-center justify-center bg-slate-50/60 border border-dashed border-slate-200 rounded-xl text-center p-6 space-y-2">
+                <Activity className="w-8 h-8 text-slate-300" />
+                <p className="text-sm font-semibold text-slate-700">Sin datos de velocidad de ingresos para este periodo</p>
+                <p className="text-xs text-slate-400">Los datos históricos se sincronizarán con los cortes de facturación de Stripe.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -189,15 +232,27 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold text-sm text-slate-800">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <ShieldCheck className={`w-4 h-4 ${totalServices > 0 && upCount === totalServices ? "text-emerald-600" : totalServices === 0 ? "text-slate-400" : "text-amber-600"}`} />
                 Infraestructura
               </div>
-              <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded-full border border-emerald-200">
-                14/14 UP
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+                totalServices === 0
+                  ? "bg-slate-50 text-slate-600 border-slate-200"
+                  : upCount === totalServices
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : upCount > 0
+                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  : "bg-rose-50 text-rose-700 border-rose-200"
+              }`}>
+                {totalServices > 0 ? `${upCount}/${totalServices} UP` : "Sin telemetría"}
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Todos los microservicios y agentes IA respondiendo con latencia promedio de 28ms.
+              {totalServices === 0
+                ? "No se pudo consultar el estado del clúster de microservicios."
+                : upCount === totalServices
+                ? `Todos los microservicios (${totalServices}) respondiendo con latencia promedio de ${avgLatency}ms.`
+                : `${upCount} de ${totalServices} microservicios en línea. Latencia promedio: ${avgLatency}ms.`}
             </p>
             <button
               onClick={() => onNavigateTab("health")}

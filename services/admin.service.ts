@@ -1,4 +1,5 @@
 import axiosInstance from '@/lib/axios';
+import { SignalQuality } from '@/types/admin-signal';
 
 export interface ChartPointDTO {
   date: string;
@@ -72,6 +73,14 @@ export interface UnitEconomicsDTO {
   costPerUser: number;
   grossMargin: number;
   netProfit: number;
+
+  // Veracidad & Auditoría (ADMIN-TRUST-01)
+  asOf?: string;
+  period?: string;
+  isEstimatedScenario?: boolean;
+  reconciliationQuality?: SignalQuality;
+  reconciliationNotes?: string;
+  costsQuality?: Record<string, SignalQuality>;
 }
 
 export interface AdminDashboardDTO {
@@ -194,11 +203,13 @@ export interface MicroserviceHealthDTO {
   name: string;
   serviceKey: string;
   port: number;
-  status: 'UP' | 'DOWN' | 'DEGRADED';
+  status: 'UP' | 'DOWN' | 'UNAVAILABLE' | 'DEGRADED';
   latencyMs: number;
   version: string;
   uptime: string;
   lastChecked: string;
+  quality?: SignalQuality;
+  errorDetail?: string;
 }
 
 export interface ProviderAdminDTO {
@@ -220,8 +231,8 @@ export const adminService = {
     return response.data;
   },
 
-  getUnitEconomics: async (): Promise<UnitEconomicsDTO> => {
-    const response = await axiosInstance.get<UnitEconomicsDTO>('/api/payments/admin/economics');
+  getUnitEconomics: async (period: string = '30d'): Promise<UnitEconomicsDTO> => {
+    const response = await axiosInstance.get<UnitEconomicsDTO>(`/api/payments/admin/economics?period=${period}`);
     return response.data;
   },
 
@@ -260,30 +271,12 @@ export const adminService = {
   },
 
   getProductMetrics: async (days: number = 30): Promise<ProductMetricsDTO> => {
-    try {
-      const response = await axiosInstance.get<ProductMetricsDTO>(
-        `/api/intelligence/admin/product-metrics?days=${days}`
-      );
-      return response.data;
-    } catch {
-      // Estado vacío limpio si el microservicio de inteligencia no tiene datos en el periodo
-      return {
-        dau: 0,
-        wau: 0,
-        mau: 0,
-        stickinessRatio: 0,
-        totalSessionsMonth: 0,
-        activeProvidersMonth: 0,
-        activePatientsMonth: 0,
-        avgSessionDurationMinutes: 0,
-        avgProviderSessionDurationMinutes: 0,
-        avgPatientSessionDurationMinutes: 0,
-        topModules: [],
-        dauTrends: [],
-        providerOnboardingFunnel: [],
-        patientBookingFunnel: []
-      };
-    }
+    // ADMIN-TRUST-01: Erradicación de fallbacks a cero falso.
+    // Si la llamada falla, se propaga para que la UI reporte estado UNAVAILABLE o ERROR.
+    const response = await axiosInstance.get<ProductMetricsDTO>(
+      `/api/intelligence/admin/product-metrics?days=${days}`
+    );
+    return response.data;
   },
 
   getAuditLogs: async (page: number = 0, size: number = 20): Promise<{ content: AuditLogDTO[]; totalElements: number }> => {
@@ -325,32 +318,76 @@ export const adminService = {
 
   getSystemHealthList: async (): Promise<MicroserviceHealthDTO[]> => {
     const services = [
-      { name: 'API Gateway', serviceKey: 'api-gateway', port: 8080 },
-      { name: 'Auth Service', serviceKey: 'auth-service', port: 8081 },
-      { name: 'Appointment Service', serviceKey: 'appointment-service', port: 8082 },
-      { name: 'Payment Service', serviceKey: 'payment-service', port: 8083 },
-      { name: 'Catalog Service', serviceKey: 'catalog-service', port: 8084 },
-      { name: 'Onboarding Service', serviceKey: 'onboarding-service', port: 8085 },
-      { name: 'Notification Service', serviceKey: 'notification-service', port: 8086 },
-      { name: 'Analytics Service', serviceKey: 'analytics-service', port: 8087 },
-      { name: 'Health Agent AI', serviceKey: 'health-agent-service', port: 8088 },
-      { name: 'Teleconsultation Audio', serviceKey: 'teleconsultation-audio-agent', port: 8089 },
-      { name: 'Admin Master Server', serviceKey: 'admin-service', port: 8090 },
-      { name: 'Referral Service', serviceKey: 'referral-service', port: 8091 },
-      { name: 'Review Service', serviceKey: 'review-service', port: 8092 },
-      { name: 'Social Service', serviceKey: 'social-service', port: 8093 },
+      { name: 'API Gateway', serviceKey: 'api-gateway', port: 8080, path: '/api/health' },
+      { name: 'Auth Service', serviceKey: 'auth-service', port: 8081, path: '/api/auth/health' },
+      { name: 'Appointment Service', serviceKey: 'appointment-service', port: 8082, path: '/api/appointments/health' },
+      { name: 'Payment Service', serviceKey: 'payment-service', port: 8083, path: '/api/payments/health' },
+      { name: 'Catalog Service', serviceKey: 'catalog-service', port: 8084, path: '/api/catalog/health' },
+      { name: 'Onboarding Service', serviceKey: 'onboarding-service', port: 8085, path: '/api/onboarding/health' },
+      { name: 'Notification Service', serviceKey: 'notification-service', port: 8086, path: '/api/notifications/health' },
+      { name: 'Analytics Service', serviceKey: 'analytics-service', port: 8087, path: '/api/analytics/health' },
+      { name: 'Health Agent AI', serviceKey: 'health-agent-service', port: 8088, path: '/api/v1/health-agent/health' },
+      { name: 'Teleconsultation Audio', serviceKey: 'teleconsultation-audio-agent', port: 8089, path: '/api/teleconsultation/health' },
+      { name: 'Admin Master Server', serviceKey: 'admin-service', port: 8090, path: '/api/admin/health' },
+      { name: 'Referral Service', serviceKey: 'referral-service', port: 8091, path: '/api/referrals/health' },
+      { name: 'Review Service', serviceKey: 'review-service', port: 8092, path: '/api/reviews/health' },
+      { name: 'Social Service', serviceKey: 'social-service', port: 8093, path: '/api/social/health' },
     ];
 
-    return services.map(s => ({
-      name: s.name,
-      serviceKey: s.serviceKey,
-      port: s.port,
-      status: 'UP',
-      latencyMs: 0,
-      version: '1.0.0',
-      uptime: 'Activo',
-      lastChecked: new Date().toISOString()
-    }));
+    // ADMIN-TRUST-01: Sondeo real sin fabricar estados UP
+    const results = await Promise.allSettled(
+      services.map(async (s) => {
+        const start = Date.now();
+        try {
+          const res = await axiosInstance.get(s.path, { timeout: 2500 });
+          const latency = Date.now() - start;
+          const isUp = res.status >= 200 && res.status < 400;
+          return {
+            name: s.name,
+            serviceKey: s.serviceKey,
+            port: s.port,
+            status: (isUp ? 'UP' : 'DEGRADED') as 'UP' | 'DEGRADED',
+            latencyMs: latency,
+            version: '1.0.0',
+            uptime: isUp ? 'Activo' : 'Degradado',
+            lastChecked: new Date().toISOString(),
+            quality: 'CERTIFIED' as SignalQuality,
+          };
+        } catch (err: any) {
+          const latency = Date.now() - start;
+          const isDown = err.response && err.response.status >= 500;
+          return {
+            name: s.name,
+            serviceKey: s.serviceKey,
+            port: s.port,
+            status: (isDown ? 'DOWN' : 'UNAVAILABLE') as 'DOWN' | 'UNAVAILABLE',
+            latencyMs: latency < 2500 ? latency : 0,
+            version: '1.0.0',
+            uptime: 'No disponible',
+            lastChecked: new Date().toISOString(),
+            quality: 'UNAVAILABLE' as SignalQuality,
+            errorDetail: err.message || 'Sin respuesta',
+          };
+        }
+      })
+    );
+
+    return results.map((r, idx) => {
+      if (r.status === 'fulfilled') {
+        return r.value;
+      }
+      return {
+        name: services[idx].name,
+        serviceKey: services[idx].serviceKey,
+        port: services[idx].port,
+        status: 'UNAVAILABLE' as const,
+        latencyMs: 0,
+        version: '1.0.0',
+        uptime: 'No disponible',
+        lastChecked: new Date().toISOString(),
+        quality: 'UNAVAILABLE' as SignalQuality,
+      };
+    });
   },
 
   // --- SUPERVISIÓN INSTITUCIONAL DE FUNDACIONES ---

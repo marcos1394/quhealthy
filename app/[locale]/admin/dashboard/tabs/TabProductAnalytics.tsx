@@ -51,6 +51,16 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
     GENERAL: "bg-slate-50 text-slate-700 border-slate-200",
   };
 
+  const providerConversion =
+    providerFunnel.length > 0 && providerFunnel[0]?.count > 0
+      ? `${((providerFunnel[providerFunnel.length - 1].count / providerFunnel[0].count) * 100).toFixed(1)}%`
+      : "Sin datos";
+
+  const patientConversion =
+    patientFunnel.length > 0 && patientFunnel[0]?.count > 0
+      ? `${((patientFunnel[patientFunnel.length - 1].count / patientFunnel[0].count) * 100).toFixed(1)}%`
+      : "Sin datos";
+
   return (
     <div className="space-y-6">
       {/* Product Engagement KPIs */}
@@ -62,6 +72,13 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
           changePeriod="Usuarios diarios"
           icon={Flame}
           variant="orange"
+          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Motor de Telemetría"
+          owner="Producto & Analítica"
+          asOf={new Date().toISOString()}
+          period="24h"
+          isFilterable={false}
+          explanation="Usuarios únicos activos en las últimas 24 horas."
         />
         <KpiCard
           title="MAU (Usuarios Activos Mes)"
@@ -70,6 +87,13 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
           changePeriod={`${productMetrics?.activeProvidersMonth || 0} Médicos / ${productMetrics?.activePatientsMonth || 0} Pacientes`}
           icon={Users}
           variant="indigo"
+          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Motor de Telemetría"
+          owner="Producto & Analítica"
+          asOf={new Date().toISOString()}
+          period="30d"
+          isFilterable={true}
+          explanation="Usuarios activos registrados en los últimos 30 días."
         />
         <KpiCard
           title="Stickiness (DAU / MAU)"
@@ -77,13 +101,27 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
           subtext="Ratio de retención diaria"
           icon={Activity}
           variant="emerald"
+          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Motor de Telemetría"
+          owner="Producto & Analítica"
+          asOf={new Date().toISOString()}
+          period="30d"
+          isFilterable={true}
+          explanation="Ratio de retención diaria frente a mensual (DAU / MAU)."
         />
         <KpiCard
           title="Duración Media de Sesión"
           value={`${productMetrics?.avgSessionDurationMinutes || 0}m`}
-          subtext={`${productMetrics?.totalSessionsMonth || 0} sesiones totales`}
+          subtext={productMetrics ? `${productMetrics.totalSessionsMonth} sesiones totales` : "Sin sesiones registradas"}
           icon={Clock}
           variant="blue"
+          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Motor de Telemetría"
+          owner="Producto & Analítica"
+          asOf={new Date().toISOString()}
+          period="30d"
+          isFilterable={true}
+          explanation="Tiempo promedio de sesión activa por usuario."
         />
       </div>
 
@@ -99,34 +137,42 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
             </p>
           </div>
           <span className="text-xs font-semibold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200">
-            {productMetrics?.totalSessionsMonth || 2150} sesiones este mes
+            {productMetrics ? `${productMetrics.totalSessionsMonth} sesiones este mes` : "Sin telemetría"}
           </span>
         </div>
 
         <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={dauTrends} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorDau" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} />
-              <YAxis stroke="#94a3b8" fontSize={11} />
-              <RechartsTooltip />
-              <Area
-                type="monotone"
-                dataKey="activeUsers"
-                name="Usuarios Activos (DAU)"
-                stroke="#6366f1"
-                strokeWidth={2.5}
-                fillOpacity={1}
-                fill="url(#colorDau)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {dauTrends.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={dauTrends} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorDau" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} />
+                <YAxis stroke="#94a3b8" fontSize={11} />
+                <RechartsTooltip />
+                <Area
+                  type="monotone"
+                  dataKey="activeUsers"
+                  name="Usuarios Activos (DAU)"
+                  stroke="#6366f1"
+                  strokeWidth={2.5}
+                  fillOpacity={1}
+                  fill="url(#colorDau)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full w-full flex flex-col items-center justify-center bg-slate-50/60 border border-dashed border-slate-200 rounded-xl text-center p-6 space-y-2">
+              <Activity className="w-8 h-8 text-slate-300" />
+              <p className="text-sm font-semibold text-slate-700">Sin datos de tendencia diaria registrados</p>
+              <p className="text-xs text-slate-400">Las métricas de DAU se actualizarán cuando los usuarios interactúen con el sistema.</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -218,7 +264,7 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
               Embudo de Activación de Médicos
             </h3>
             <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
-              Conversión Final: 32.8%
+              Conversión Final: {providerConversion}
             </span>
           </div>
           <div className="space-y-3">
@@ -255,7 +301,7 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
               Embudo de Agendamiento de Pacientes
             </h3>
             <span className="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
-              Conversión Final: 30.4%
+              Conversión Final: {patientConversion}
             </span>
           </div>
           <div className="space-y-3">

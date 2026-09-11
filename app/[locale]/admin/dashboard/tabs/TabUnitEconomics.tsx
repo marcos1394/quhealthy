@@ -24,14 +24,17 @@ import {
 } from "recharts";
 import { KpiCard } from "../components/KpiCard";
 import { UnitEconomicsDTO } from "@/services/admin.service";
+import { SignalQuality } from "@/types/admin-signal";
 
 interface TabUnitEconomicsProps {
   economics: UnitEconomicsDTO | null;
+  selectedPeriod?: string;
   formatCurrency: (val: number) => string;
 }
 
 export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
   economics,
+  selectedPeriod = "30d",
   formatCurrency,
 }) => {
   const gcpCost = economics?.cloudCosts || 0;
@@ -43,15 +46,81 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
     economics?.totalCosts || gcpCost + aiCost + satCost + commsCost + stripeCost;
 
   const costBreakdown = [
-    { name: "Pasarela Stripe", cost: stripeCost, color: "#f97316", icon: CreditCard, desc: "Comisión fija + 3.6%" },
-    { name: "Infraestructura GCP", cost: gcpCost, color: "#f43f5e", icon: Cloud, desc: "Cloud Run, Cloud SQL, Storage" },
-    { name: "Inteligencia Artificial (Gemini)", cost: aiCost, color: "#8b5cf6", icon: Cpu, desc: "Health Agent & Copilot Tokens" },
-    { name: "Facturación SAT (Facturama)", cost: satCost, color: "#3b82f6", icon: Receipt, desc: "Timbres fiscales CFDI 4.0" },
-    { name: "Comunicaciones (SMS/Resend)", cost: commsCost, color: "#06b6d4", icon: Mail, desc: "Notificaciones y OTPs" },
+    {
+      name: "Pasarela Stripe",
+      cost: stripeCost,
+      color: "#f97316",
+      icon: CreditCard,
+      desc: "Comisión fija + 3.6%",
+      quality: "CERTIFIED" as SignalQuality,
+      source: "Stripe Balance API",
+    },
+    {
+      name: "Infraestructura GCP",
+      cost: gcpCost,
+      color: "#f43f5e",
+      icon: Cloud,
+      desc: gcpCost > 0 ? "Cloud Run, Cloud SQL, Storage" : "Sin exportación BigQuery activa",
+      quality: (gcpCost > 0 ? "CERTIFIED" : "UNAVAILABLE") as SignalQuality,
+      source: "GCP Billing Export",
+    },
+    {
+      name: "Inteligencia Artificial (Gemini)",
+      cost: aiCost,
+      color: "#8b5cf6",
+      icon: Cpu,
+      desc: "Health Agent & Copilot Tokens (Estimación teórica)",
+      quality: "PROVISIONAL" as SignalQuality,
+      source: "Modelo Teórico por Consulta",
+    },
+    {
+      name: "Facturación SAT (Facturama)",
+      cost: satCost,
+      color: "#3b82f6",
+      icon: Receipt,
+      desc: "Timbres fiscales CFDI 4.0 (Estimación por cita)",
+      quality: "PROVISIONAL" as SignalQuality,
+      source: "Modelo Teórico por CFDI",
+    },
+    {
+      name: "Comunicaciones (SMS/Resend)",
+      cost: commsCost,
+      color: "#06b6d4",
+      icon: Mail,
+      desc: "Notificaciones y OTPs (Estimación por evento)",
+      quality: "PROVISIONAL" as SignalQuality,
+      source: "Modelo Teórico por Notificación",
+    },
   ];
+
+  const hasArpu = economics && economics.arpu !== undefined && economics.arpu !== null;
+  const contributionMargin = hasArpu ? economics.arpu - (economics.costPerUser || 0) : 0;
+  const contributionMarginPct = hasArpu && economics.arpu > 0
+    ? Math.round((contributionMargin / economics.arpu) * 100)
+    : 0;
 
   return (
     <div className="space-y-6">
+      {/* ⚠️ Aviso de Escenario Estimado & Veracidad de Señales */}
+      {economics?.isEstimatedScenario && (
+        <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+          <div className="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0">
+            <TrendingUp className="w-4 h-4" />
+          </div>
+          <div className="text-xs text-amber-900 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-amber-950">Escenario Estimado (Señal Provisional)</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                {economics.reconciliationQuality || "PROVISIONAL"}
+              </span>
+            </div>
+            <p className="text-amber-800 leading-relaxed">
+              {economics.reconciliationNotes || "Los costos de infraestructura IA, timbrado SAT y mensajería se calculan en base a modelos teóricos de consumo. Conciliación bancaria en proceso."}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Top Unit Economics KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
@@ -60,6 +129,13 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           subtext="Promedio global por usuario activo"
           icon={DollarSign}
           variant="emerald"
+          quality={economics ? "PROVISIONAL" : "UNAVAILABLE"}
+          source="Modelo Financiero Unificado"
+          owner="Finanzas & FinOps"
+          asOf={economics?.asOf || new Date().toISOString()}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Ingreso promedio mensual por usuario activo (GMV comisiones + suscripciones SaaS / MAU)."
         />
         <KpiCard
           title="Costo por Usuario (CPAU)"
@@ -67,6 +143,13 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           subtext="Nube + IA + Pasarelas / Activo"
           icon={TrendingUp}
           variant="rose"
+          quality={(economics?.costsQuality?.["cpau"] as SignalQuality) || (economics ? "PROVISIONAL" : "UNAVAILABLE")}
+          source="FinOps Aggregator"
+          owner="FinOps & Infraestructura"
+          asOf={economics?.asOf || new Date().toISOString()}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Suma de pasarelas Stripe, GCP, tokens IA, timbrado SAT y SMS dividida entre MAU."
         />
         <KpiCard
           title="Costo Operativo Total"
@@ -74,6 +157,13 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           subtext="Gastos directos del mes"
           icon={Layers}
           variant="orange"
+          quality={(economics?.costsQuality?.["total"] as SignalQuality) || (economics ? "PROVISIONAL" : "UNAVAILABLE")}
+          source="Stripe + GCP BigQuery + Estimaciones"
+          owner="Finanzas & Infraestructura"
+          asOf={economics?.asOf || new Date().toISOString()}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Costos totales de operación del periodo."
         />
         <KpiCard
           title="Margen Neto Global"
@@ -82,6 +172,13 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           changePeriod="Utilidad neta real"
           icon={Percent}
           variant="indigo"
+          quality={economics ? "PROVISIONAL" : "UNAVAILABLE"}
+          source="Modelo de Conciliación Preliminar"
+          owner="Dirección Financiera"
+          asOf={economics?.asOf || new Date().toISOString()}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Utilidad neta calculada antes de conciliación bancaria definitiva."
         />
       </div>
 
@@ -120,10 +217,10 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
               Margen de Contribución
             </span>
             <span className="text-2xl font-extrabold text-indigo-950 mt-1 block">
-              {formatCurrency((economics?.arpu || 280) - (economics?.costPerUser || 18.5))}
+              {formatCurrency(contributionMargin)}
             </span>
             <span className="text-[11px] text-indigo-600 mt-1 block">
-              {Math.round((((economics?.arpu || 280) - (economics?.costPerUser || 18.5)) / (economics?.arpu || 280)) * 100)}% de margen unitario
+              {contributionMarginPct}% de margen unitario
             </span>
           </div>
         </div>
@@ -153,10 +250,21 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-semibold text-slate-800 text-sm block">
-                        {item.name}
-                      </span>
-                      <span className="text-xs text-slate-400">{item.desc}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-slate-800 text-sm">
+                          {item.name}
+                        </span>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${
+                          item.quality === "CERTIFIED"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : item.quality === "PROVISIONAL"
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : "bg-slate-100 text-slate-600 border-slate-200"
+                        }`}>
+                          {item.quality === "CERTIFIED" ? "CERTIFICADO" : item.quality === "PROVISIONAL" ? "PROVISIONAL" : "NO DISPONIBLE"}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-400 block mt-0.5">{item.desc}</span>
                     </div>
                   </div>
 
