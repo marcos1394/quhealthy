@@ -60,6 +60,74 @@ export default function AdminDashboardPage() {
   const [selectedPeriod, setSelectedPeriodState] = useState<AdminPeriod>(initialPeriod);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  const getPeriodDays = (period: AdminPeriod): number => {
+    switch (period) {
+      case "24h":
+        return 1;
+      case "7d":
+        return 7;
+      case "90d":
+        return 90;
+      case "30d":
+      case "month":
+      default:
+        return 30;
+    }
+  };
+
+  // State data
+  const [economics, setEconomics] = useState<UnitEconomicsDTO | null>(null);
+  const [dashboard, setDashboard] = useState<AdminDashboardDTO | null>(null);
+  const [transactions, setTransactions] = useState<TransactionReportDTO[]>([]);
+  const [productMetrics, setProductMetrics] = useState<ProductMetricsDTO | null>(null);
+  const [providers, setProviders] = useState<ProviderAdminDTO[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLogDTO[]>([]);
+  const [services, setServices] = useState<MicroserviceHealthDTO[]>([]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+
+  const loadAllData = useCallback(async (periodToLoad?: AdminPeriod) => {
+    const period = periodToLoad || selectedPeriod;
+    try {
+      setIsRefreshing(true);
+      const days = getPeriodDays(period);
+      const results = await Promise.allSettled([
+        adminService.getUnitEconomics(period),
+        adminService.getDashboardMetrics(),
+        adminService.getProductMetrics(days),
+        adminService.getProviders(),
+        adminService.getAuditLogs(0, 20),
+        adminService.getSystemHealthList(),
+      ]);
+
+      if (results[0].status === "fulfilled") setEconomics(results[0].value);
+      else console.error("Error cargando Unit Economics", results[0].reason);
+
+      if (results[1].status === "fulfilled") setDashboard(results[1].value);
+      else console.error("Error cargando Dashboard Metrics", results[1].reason);
+
+      if (results[2].status === "fulfilled") setProductMetrics(results[2].value);
+      else {
+        console.error("Error cargando Product Metrics", results[2].reason);
+        setProductMetrics(null);
+      }
+
+      if (results[3].status === "fulfilled") setProviders(results[3].value.content);
+      else console.error("Error cargando Providers", results[3].reason);
+
+      if (results[4].status === "fulfilled") setAuditLogs(results[4].value.content);
+      else console.error("Error cargando Audit Logs", results[4].reason);
+
+      if (results[5].status === "fulfilled") setServices(results[5].value);
+      else console.error("Error cargando Health List", results[5].reason);
+    } catch (err) {
+      console.error("Error cargando métricas maestras", err);
+      toast.error("Error al sincronizar datos del panel administrativo.");
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [selectedPeriod]);
+
   // Sincronización bidireccional con URL
   const handleTabChange = useCallback(
     (newTab: AdminTab) => {
@@ -81,8 +149,9 @@ export default function AdminDashboardPage() {
         params.set("period", newPeriod);
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
       }
+      loadAllData(newPeriod);
     },
-    [pathname, router]
+    [pathname, router, loadAllData]
   );
 
   // Reacciona a cambios en historial del navegador
@@ -95,52 +164,9 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (periodParam && VALID_PERIODS.includes(periodParam) && periodParam !== selectedPeriod) {
       setSelectedPeriodState(periodParam);
+      loadAllData(periodParam);
     }
-  }, [periodParam, selectedPeriod]);
-
-  // State data
-  const [economics, setEconomics] = useState<UnitEconomicsDTO | null>(null);
-  const [dashboard, setDashboard] = useState<AdminDashboardDTO | null>(null);
-  const [transactions, setTransactions] = useState<TransactionReportDTO[]>([]);
-  const [productMetrics, setProductMetrics] = useState<ProductMetricsDTO | null>(null);
-  const [providers, setProviders] = useState<ProviderAdminDTO[]>([]);
-  const [auditLogs, setAuditLogs] = useState<AuditLogDTO[]>([]);
-  const [services, setServices] = useState<MicroserviceHealthDTO[]>([]);
-  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
-
-  const loadAllData = useCallback(async () => {
-    try {
-      setIsRefreshing(true);
-      const [
-        econData,
-        dashData,
-        prodData,
-        provData,
-        logsData,
-        srvData,
-      ] = await Promise.all([
-        adminService.getUnitEconomics(),
-        adminService.getDashboardMetrics(),
-        adminService.getProductMetrics(30),
-        adminService.getProviders(),
-        adminService.getAuditLogs(0, 20),
-        adminService.getSystemHealthList(),
-      ]);
-
-      setEconomics(econData);
-      setDashboard(dashData);
-      setProductMetrics(prodData);
-      setProviders(provData.content);
-      setAuditLogs(logsData.content);
-      setServices(srvData);
-    } catch (err) {
-      console.error("Error cargando métricas maestras", err);
-      toast.error("Error al sincronizar datos del panel administrativo.");
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, []);
+  }, [periodParam, selectedPeriod, loadAllData]);
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -261,6 +287,8 @@ export default function AdminDashboardPage() {
                 dashboard={dashboard}
                 productMetrics={productMetrics}
                 providers={providers}
+                services={services}
+                selectedPeriod={selectedPeriod}
                 formatCurrency={formatCurrency}
                 onNavigateTab={handleTabChange}
               />
@@ -287,6 +315,7 @@ export default function AdminDashboardPage() {
             {activeTab === "economics" && (
               <TabUnitEconomics
                 economics={economics}
+                selectedPeriod={selectedPeriod}
                 formatCurrency={formatCurrency}
               />
             )}

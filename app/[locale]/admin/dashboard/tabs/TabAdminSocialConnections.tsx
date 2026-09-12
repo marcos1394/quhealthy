@@ -877,22 +877,12 @@ export const TabAdminSocialConnections: React.FC = () => {
     || {
       platform: demoPlatformTab,
       totalAudience: (analytics?.totalFollowers || (fbMetrics.followersCount || 0) + (igMetrics.followersCount || 0) + (waMetrics.postsCount || waMetrics.activeConversations || 0)) || 0,
-      genderDistribution: { Femenino: 63.4, Masculino: 36.6 },
-      ageDistribution: { "18-24": 14.5, "25-34": 42.8, "35-44": 26.2, "45-54": 11.5, "55+": 5.0 },
-      topCities: [
-        { name: "Los Mochis, Sinaloa", percentage: 54.0, count: 28 },
-        { name: "Culiacán, Sinaloa", percentage: 22.5, count: 12 },
-        { name: "Guasave, Sinaloa", percentage: 11.0, count: 6 },
-        { name: "Mazatlán, Sinaloa", percentage: 7.5, count: 4 },
-        { name: "Ciudad de México", percentage: 5.0, count: 2 },
-      ],
-      topCountries: [
-        { name: "México", code: "MX", percentage: 94.5, count: 50 },
-        { name: "Estados Unidos", code: "US", percentage: 4.2, count: 2 },
-        { name: "Colombia", code: "CO", percentage: 1.3, count: 1 },
-      ],
-      privacyThresholdMet: true,
-      privacyNotice: null,
+      genderDistribution: undefined,
+      ageDistribution: undefined,
+      topCities: [],
+      topCountries: [],
+      privacyThresholdMet: false,
+      privacyNotice: "Audiencia menor al umbral de privacidad de Meta o canal sin conectar.",
     };
 
   // Helper para renderizar badge de crecimiento porcentual
@@ -1909,28 +1899,28 @@ export const TabAdminSocialConnections: React.FC = () => {
                   {
                     key: "ALL",
                     label: "Consolidado",
-                    count: demographics?.consolidated?.totalAudience || analytics?.totalFollowers || 312,
+                    count: demographics?.consolidated?.totalAudience ?? analytics?.totalFollowers ?? 0,
                     icon: <Globe className="w-3.5 h-3.5 text-indigo-600" />,
                     color: "text-indigo-700 font-bold",
                   },
                   {
                     key: "FACEBOOK",
                     label: "Facebook",
-                    count: demographics?.byPlatform?.FACEBOOK?.totalAudience ?? fbMetrics.followersCount ?? 6,
+                    count: demographics?.byPlatform?.FACEBOOK?.totalAudience ?? fbMetrics.followersCount ?? 0,
                     icon: <FacebookIcon className="w-3.5 h-3.5 text-blue-600" />,
                     color: "text-blue-700 font-bold",
                   },
                   {
                     key: "INSTAGRAM",
                     label: "Instagram",
-                    count: demographics?.byPlatform?.INSTAGRAM?.totalAudience ?? igMetrics.followersCount ?? 304,
+                    count: demographics?.byPlatform?.INSTAGRAM?.totalAudience ?? igMetrics.followersCount ?? 0,
                     icon: <InstagramIcon className="w-3.5 h-3.5 text-pink-600" />,
                     color: "text-pink-700 font-bold",
                   },
                   {
                     key: "WHATSAPP",
                     label: "WhatsApp",
-                    count: demographics?.byPlatform?.WHATSAPP?.totalAudience ?? 2,
+                    count: demographics?.byPlatform?.WHATSAPP?.totalAudience ?? waMetrics.activeConversations ?? 0,
                     icon: <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />,
                     color: "text-emerald-700 font-bold",
                   },
@@ -1955,7 +1945,7 @@ export const TabAdminSocialConnections: React.FC = () => {
             </div>
 
             {/* Si Meta restringe por umbral de privacidad (< 100 seguidores) y no hay desglose oficial */}
-            {!activeAudience.privacyThresholdMet && (!activeAudience.topCities || activeAudience.topCities.length === 0) ? (
+            {!activeAudience.privacyThresholdMet || activeAudience.totalAudience < 100 || !activeAudience.genderDistribution ? (
               <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 text-center space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
                   <ShieldCheck className="w-6 h-6" />
@@ -1993,16 +1983,16 @@ export const TabAdminSocialConnections: React.FC = () => {
                           👩 Femenino
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <span className="text-slate-900">{activeAudience.genderDistribution?.Femenino || 63.4}%</span>
+                          <span className="text-slate-900">{activeAudience.genderDistribution?.Femenino ?? 0}%</span>
                           <span className="text-[10px] font-semibold text-slate-500">
-                            ({Math.round(((activeAudience.genderDistribution?.Femenino || 63.4) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
+                            ({Math.round(((activeAudience.genderDistribution?.Femenino ?? 0) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
                           </span>
                         </span>
                       </div>
                       <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                         <div
                           className="bg-pink-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${activeAudience.genderDistribution?.Femenino || 63.4}%` }}
+                          style={{ width: `${activeAudience.genderDistribution?.Femenino ?? 0}%` }}
                         />
                       </div>
                     </div>
@@ -2013,16 +2003,16 @@ export const TabAdminSocialConnections: React.FC = () => {
                           👨 Masculino
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <span className="text-slate-900">{activeAudience.genderDistribution?.Masculino || 36.6}%</span>
+                          <span className="text-slate-900">{activeAudience.genderDistribution?.Masculino ?? 0}%</span>
                           <span className="text-[10px] font-semibold text-slate-500">
-                            ({Math.round(((activeAudience.genderDistribution?.Masculino || 36.6) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
+                            ({Math.round(((activeAudience.genderDistribution?.Masculino ?? 0) / 100) * (activeAudience.totalAudience || 1))} {demoPlatformTab === "WHATSAPP" ? "pacientes" : "seg."})
                           </span>
                         </span>
                       </div>
                       <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                         <div
                           className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${activeAudience.genderDistribution?.Masculino || 36.6}%` }}
+                          style={{ width: `${activeAudience.genderDistribution?.Masculino ?? 0}%` }}
                         />
                       </div>
                     </div>

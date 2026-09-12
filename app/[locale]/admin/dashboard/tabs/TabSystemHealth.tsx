@@ -83,7 +83,7 @@ export const TabSystemHealth: React.FC<TabSystemHealthProps> = ({
               </div>
               <div>
                 <h3 className="text-xl lg:text-2xl font-bold text-white tracking-tight">
-                  Estado del Clúster de Microservicios (14 Servicios)
+                  Estado del Clúster de Microservicios ({services.length} Servicios)
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Monitoreo activo de endpoints Spring Boot Actuator, JVM y latencias.
@@ -113,35 +113,59 @@ export const TabSystemHealth: React.FC<TabSystemHealthProps> = ({
           </div>
         </div>
 
-        {/* Grid of 14 Microservices */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
-          {services.map((srv) => (
-            <div
-              key={srv.serviceKey}
-              className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 hover:border-slate-600 transition-all flex flex-col justify-between space-y-3"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="font-bold text-slate-100 text-sm block">
-                    {srv.name}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    Port :{srv.port} • v{srv.version}
-                  </span>
+        {/* Grid of Microservices */}
+        {services.length === 0 ? (
+          <div className="p-8 text-center text-slate-400 border border-dashed border-slate-700 rounded-2xl">
+            <Server className="w-8 h-8 mx-auto mb-2 text-slate-500" />
+            <p className="text-sm font-semibold">No se detectaron microservicios</p>
+            <p className="text-xs text-slate-500 mt-1">Haz clic en &quot;Ping Actuators&quot; para consultar el estado del clúster.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+            {services.map((srv) => (
+              <div
+                key={srv.serviceKey}
+                className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 hover:border-slate-600 transition-all flex flex-col justify-between space-y-3"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="font-bold text-slate-100 text-sm block">
+                      {srv.name}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      Port :{srv.port} • {srv.version ? `v${srv.version}` : "v— (No expuesta)"}
+                    </span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${
+                    srv.status === "UP"
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                      : srv.status === "DEGRADED"
+                      ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                      : srv.status === "UNAVAILABLE"
+                      ? "bg-slate-500/10 border-slate-500/30 text-slate-400"
+                      : "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${
+                      srv.status === "UP"
+                        ? "bg-emerald-400 animate-pulse"
+                        : srv.status === "DEGRADED"
+                        ? "bg-amber-400"
+                        : srv.status === "UNAVAILABLE"
+                        ? "bg-slate-400"
+                        : "bg-rose-400 animate-ping"
+                    }`}></span>
+                    <span className="text-[10px] font-bold">{srv.status || "UNAVAILABLE"}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span className="text-[10px] font-bold text-emerald-400">UP</span>
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-700/60 font-mono">
-                <span>Latencia: <strong className="text-slate-200">{srv.latencyMs}ms</strong></span>
-                <span>Uptime: <strong className="text-slate-200">{srv.uptime}</strong></span>
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-700/60 font-mono">
+                  <span>Latencia: <strong className="text-slate-200">{srv.latencyMs !== undefined && srv.latencyMs !== null && srv.latencyMs > 0 ? `${srv.latencyMs}ms` : "N/D"}</strong></span>
+                  <span>Uptime: <strong className="text-slate-200">{srv.uptime || "N/D"}</strong></span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 🛡️ LFPDPPP & Security Audit Trail */}
