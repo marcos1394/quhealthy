@@ -13,6 +13,7 @@ vi.mock("@/services/admin.service", () => ({
     getAdminAiSuggestedReply: vi.fn(),
     sendAdminCrmMessage: vi.fn(),
     deleteAdminCrmConversation: vi.fn(),
+    archiveAdminCrmConversation: vi.fn(),
     sendDirectCrmMessage: vi.fn(),
     updateAdminLeadStage: vi.fn(),
     toggleAdminAutoResponder: vi.fn(),
@@ -87,6 +88,10 @@ describe("CRM-GOV-01: Material Actions Governance in TabAdminCrm", () => {
       conversationId: "conv-101",
       content: "Mensaje aprobado",
     } as any);
+    vi.mocked(adminService.archiveAdminCrmConversation).mockResolvedValue({
+      id: "conv-101",
+      status: "ARCHIVED",
+    } as any);
   });
 
   it("RULE 1: Selecting an AI suggestion ONLY copies text to draft and NEVER dispatches external message", async () => {
@@ -128,7 +133,7 @@ describe("CRM-GOV-01: Material Actions Governance in TabAdminCrm", () => {
     ).toBeInTheDocument();
   });
 
-  it("RULE 2: Message dispatch requires explicit human review and deliberate submit action", async () => {
+  it("RULE 2: Message dispatch separates Draft -> Approval -> Execution lifecycle", async () => {
     render(<TabAdminCrm />);
 
     await waitFor(() => {
@@ -153,9 +158,22 @@ describe("CRM-GOV-01: Material Actions Governance in TabAdminCrm", () => {
       },
     });
 
-    // Human operator clicks Send
+    // Human operator clicks Send/Review button (Initiating Step 2: Approval Review)
     const sendBtn = screen.getByTitle("Aprobar y enviar mensaje");
     fireEvent.click(sendBtn);
+
+    // CRITICAL: At this point, network dispatch has NOT occurred! (Zero dispatch before approval)
+    expect(adminService.sendAdminCrmMessage).not.toHaveBeenCalled();
+
+    // The Approval Confirmation Modal is visible with exact payload and channel
+    expect(screen.getByText("Aprobación Requerida para Despacho Oficial (CRM-GOV-01)")).toBeInTheDocument();
+    expect(
+      screen.getByText("Estimada Dra. Elena, Quhealthy cumple 100% con la NOM-004. ¿Tiene disponibilidad el jueves a las 4pm?")
+    ).toBeInTheDocument();
+
+    // Operator confirms approval (Step 3: Execution)
+    const confirmBtn = screen.getByTitle("Confirmar y Despachar Mensaje");
+    fireEvent.click(confirmBtn);
 
     // Now sendAdminCrmMessage should be called with the reviewed and edited message
     await waitFor(() => {
@@ -166,7 +184,59 @@ describe("CRM-GOV-01: Material Actions Governance in TabAdminCrm", () => {
     });
   });
 
-  it("RULE 3: Auto-Responder toggle is blocked with governance warning in P0", async () => {
+  it("RULE 3: Double-click or rapid replay does NOT produce duplicate dispatches", async () => {
+    render(<TabAdminCrm />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Dra. Elena Ruiz")[0]).toBeInTheDocument();
+    });
+
+    const input = screen.getByPlaceholderText("Escribe una respuesta institucional revisada...");
+    fireEvent.change(input, {
+      target: { value: "Mensaje único con protección de doble clic" },
+    });
+
+    // Open approval modal
+    fireEvent.click(screen.getByTitle("Aprobar y enviar mensaje"));
+    expect(screen.getByText("Aprobación Requerida para Despacho Oficial (CRM-GOV-01)")).toBeInTheDocument();
+
+    const confirmBtn = screen.getByTitle("Confirmar y Despachar Mensaje");
+
+    // Simulate rapid double click
+    fireEvent.click(confirmBtn);
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      expect(adminService.sendAdminCrmMessage).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("RULE 4: Archiving a conversation calls backend archiving and does NOT call destructive physical deletion", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(<TabAdminCrm />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Dra. Elena Ruiz")[0]).toBeInTheDocument();
+    });
+
+    // Click archive button
+    const archiveBtn = screen.getByTitle("Archivar conversación (retención gobernada CRM-GOV-01)");
+    fireEvent.click(archiveBtn);
+
+    // Verify backend archiving endpoint was called to persist status
+    await waitFor(() => {
+      expect(adminService.archiveAdminCrmConversation).toHaveBeenCalledWith("conv-101");
+    });
+
+    // Physical deletion is NEVER called; retention policy preserves audit
+    expect(adminService.deleteAdminCrmConversation).not.toHaveBeenCalled();
+    expect(toast.success).toHaveBeenCalledWith(
+      expect.stringContaining("Conversación archivada correctamente (preservada en auditoría)")
+    );
+  });
+
+  it("RULE 5: Auto-Responder toggle is blocked with governance warning in P0", async () => {
     render(<TabAdminCrm />);
 
     await waitFor(() => {
@@ -184,7 +254,7 @@ describe("CRM-GOV-01: Material Actions Governance in TabAdminCrm", () => {
     expect(adminService.toggleAdminAutoResponder).not.toHaveBeenCalled();
   });
 
-  it("RULE 4: Direct Outbound modal is locked and prevents unapproved external dispatch", async () => {
+  it("RULE 6: Direct Outbound modal is locked and prevents unapproved external dispatch", async () => {
     render(<TabAdminCrm />);
 
     await waitFor(() => {
@@ -209,26 +279,5 @@ describe("CRM-GOV-01: Material Actions Governance in TabAdminCrm", () => {
       fireEvent.click(dispatchBtn);
     }
     expect(adminService.sendDirectCrmMessage).not.toHaveBeenCalled();
-  });
-
-  it("RULE 5: Archiving a conversation does NOT call destructive physical deletion", async () => {
-    // Mock window.confirm to return true
-    vi.spyOn(window, "confirm").mockReturnValue(true);
-
-    render(<TabAdminCrm />);
-
-    await waitFor(() => {
-      expect(screen.getAllByText("Dra. Elena Ruiz")[0]).toBeInTheDocument();
-    });
-
-    // Click archive/delete button
-    const archiveBtn = screen.getByTitle("Archivar conversación (retención gobernada CRM-GOV-01)");
-    fireEvent.click(archiveBtn);
-
-    // Physical deletion is NEVER called; retention policy preserves audit
-    expect(adminService.deleteAdminCrmConversation).not.toHaveBeenCalled();
-    expect(toast.success).toHaveBeenCalledWith(
-      expect.stringContaining("Conversación archivada correctamente (preservada en auditoría)")
-    );
   });
 });

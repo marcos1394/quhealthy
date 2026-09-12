@@ -447,6 +447,13 @@ export const adminService = {
     return response.data;
   },
 
+  archiveAdminCrmConversation: async (conversationId: string): Promise<{ id: string; status: string }> => {
+    const response = await axiosInstance.patch(`/api/social/crm/conversations/${conversationId}`, {
+      status: 'ARCHIVED',
+    });
+    return response.data;
+  },
+
   syncAdminCrmMessages: async (): Promise<{ providerId: number; conversationsSynced: number; messagesSynced: number; status: string }> => {
     const response = await axiosInstance.post('/api/social/crm/sync-messages');
     return response.data;

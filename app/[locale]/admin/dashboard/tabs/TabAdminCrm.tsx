@@ -289,6 +289,8 @@ export const TabAdminCrm: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [inputText, setInputText] = useState("");
   const [draftSource, setDraftSource] = useState<{ type: "ai" | "manual"; tone?: string } | null>(null);
+  const [showApprovalModal, setShowApprovalModal] = useState<boolean>(false);
+  const [pendingMessageText, setPendingMessageText] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
   const [aiSuggestions, setAiSuggestions] = useState<Array<{ tone: string; text: string }>>([]);
   const [showLeadDetails, setShowLeadDetails] = useState(true);
@@ -413,18 +415,24 @@ export const TabAdminCrm: React.FC = () => {
     }
   }, [selectedConversation?.id, loadMessages]);
 
-  // 5. Enviar Mensaje
-  const handleSendMessage = async (textToSend?: string) => {
-    const text = textToSend || inputText;
-    if (!text.trim() || !selectedConversation) return;
+  // 5. Iniciar Revisión de Envío de Mensaje (Paso 1 Borrador -> Paso 2 Aprobación Humana)
+  const handleInitiateSendReview = (textToSend?: string) => {
+    const text = (textToSend || inputText).trim();
+    if (!text || !selectedConversation) return;
+    setPendingMessageText(text);
+    setShowApprovalModal(true);
+  };
 
-    setInputText("");
-    setDraftSource(null);
+  // 🚀 5.1 Confirmar y Ejecutar Despacho Oficial (Paso 2 Aprobación -> Paso 3 Ejecución, con protección anti-replay/doble clic)
+  const handleConfirmExecuteSend = async () => {
+    if (!pendingMessageText.trim() || !selectedConversation || sendingMessage) return;
+
+    const text = pendingMessageText.trim();
+    setSendingMessage(true);
 
     try {
-      setSendingMessage(true);
       const newMsg = await adminService.sendAdminCrmMessage(selectedConversation.id, {
-        text: text.trim(),
+        text,
       });
 
       setMessages((prev) => [
@@ -435,14 +443,19 @@ export const TabAdminCrm: React.FC = () => {
           direction: "OUTBOUND",
           senderType: "AGENT",
           senderName: "Quhealthy",
-          content: text.trim(),
+          content: text,
           createdAt: new Date().toISOString(),
         },
       ]);
+      setInputText("");
+      setDraftSource(null);
+      setShowApprovalModal(false);
+      setPendingMessageText("");
       setAiSuggestions([]);
       setTimeout(scrollToBottom, 100);
       loadConversations(false);
       loadFunnelStats();
+      toast.success("Mensaje oficial aprobado y despachado correctamente.");
     } catch (err) {
       console.error("Error enviando mensaje", err);
       toast.error("No se pudo enviar el mensaje a través del canal oficial.");
@@ -468,8 +481,8 @@ export const TabAdminCrm: React.FC = () => {
     );
   };
 
-  // 🚀 5.2 Archivar Conversación del CRM (Gobernado bajo CRM-GOV-01: Prohibido borrado destructivo)
-  const handleDeleteConversation = async (conversationId: string, event?: React.MouseEvent) => {
+  // 🚀 5.2 Archivar Conversación del CRM (Gobernado bajo CRM-GOV-01: Persistido en servidor, recuperable y auditable)
+  const handleArchiveConversation = async (conversationId: string, event?: React.MouseEvent) => {
     if (event) {
       event.stopPropagation();
     }
@@ -481,12 +494,18 @@ export const TabAdminCrm: React.FC = () => {
       return;
     }
 
-    setConversations((prev) => prev.filter((c) => c.id !== conversationId));
-    if (selectedConversation?.id === conversationId) {
-      setSelectedConversation(null);
-      setMessages([]);
+    try {
+      await adminService.archiveAdminCrmConversation(conversationId);
+      setConversations((prev) => prev.filter((c) => c.id !== conversationId));
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+        setMessages([]);
+      }
+      toast.success("Conversación archivada correctamente (preservada en auditoría).");
+    } catch (err) {
+      console.error("Error archivando conversación en servidor", err);
+      toast.error("No se pudo archivar la conversación en el servidor.");
     }
-    toast.success("Conversación archivada correctamente (preservada en auditoría).");
   };
 
   // 🚀 Inserción de Plantillas de Mensajes
@@ -808,10 +827,18 @@ export const TabAdminCrm: React.FC = () => {
                   const preview = conv.lastMessagePreview || conv.lastMessage || "Sin mensajes";
 
                   return (
-                    <button
+                    <div
                       key={conv.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedConversation(conv)}
-                      className={`w-full p-3.5 text-left transition-all flex items-start gap-3 border-l-4 ${
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedConversation(conv);
+                        }
+                      }}
+                      className={`w-full p-3.5 text-left transition-all flex items-start gap-3 border-l-4 cursor-pointer ${
                         isSelected
                           ? "bg-indigo-50/70 border-indigo-600"
                           : "border-transparent hover:bg-slate-50"
@@ -833,7 +860,7 @@ export const TabAdminCrm: React.FC = () => {
                             {getPlatformBadge(conv.platform)}
                             <button
                               type="button"
-                              onClick={(e) => handleDeleteConversation(conv.id, e)}
+                              onClick={(e) => handleArchiveConversation(conv.id, e)}
                               className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded transition-colors"
                               title="Archivar chat del CRM"
                             >
@@ -851,7 +878,7 @@ export const TabAdminCrm: React.FC = () => {
                           )}
                         </div>
                       </div>
-                    </button>
+                    </div>
                   );
                 })
               )}
@@ -893,7 +920,7 @@ export const TabAdminCrm: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => handleDeleteConversation(selectedConversation.id)}
+                      onClick={() => handleArchiveConversation(selectedConversation.id)}
                       className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-lg text-xs transition-colors"
                       title="Archivar conversación (retención gobernada CRM-GOV-01)"
                     >
@@ -1059,7 +1086,7 @@ export const TabAdminCrm: React.FC = () => {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
-                      handleSendMessage();
+                      handleInitiateSendReview();
                     }}
                     className="flex items-center gap-2"
                   >
@@ -1429,6 +1456,100 @@ export const TabAdminCrm: React.FC = () => {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 🚀 MODAL: APROBACIÓN DE MENSAJE OFICIAL (CRM-GOV-01: CICLO DE 3 PASOS) */}
+      {/* ========================================================================= */}
+      {showApprovalModal && selectedConversation && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="approval-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-4 animate-in fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150"
+          >
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+              <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 id="approval-modal-title" className="text-sm font-bold text-slate-900">
+                  Aprobación Requerida para Despacho Oficial (CRM-GOV-01)
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Revisión y confirmación humana antes de ejecutar envío en canal en vivo
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3 mb-5">
+              <div className="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200/60">
+                <span className="text-slate-500 font-medium">Destinatario:</span>
+                <span className="font-bold text-slate-800">
+                  {selectedConversation.contactName || selectedConversation.senderName || "Contacto"}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200/60">
+                <span className="text-slate-500 font-medium">Canal oficial:</span>
+                <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                  {getPlatformBadge(selectedConversation.platform)}
+                  <span>{selectedConversation.externalContactId}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[11px] font-medium text-slate-500 block mb-1">
+                  Texto aprobado para despacho:
+                </span>
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto">
+                  {pendingMessageText}
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>Caracteres: {pendingMessageText.length}</span>
+                  <span className="text-amber-600 font-medium">Acción material: efecto irreversible</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                disabled={sendingMessage}
+                onClick={() => {
+                  setShowApprovalModal(false);
+                  setPendingMessageText("");
+                }}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              >
+                Volver a Editar Borrador
+              </button>
+              <button
+                type="button"
+                title="Confirmar y Despachar Mensaje"
+                disabled={sendingMessage}
+                onClick={handleConfirmExecuteSend}
+                className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all shadow-xs flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {sendingMessage ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Despachando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Confirmar y Despachar Mensaje</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
