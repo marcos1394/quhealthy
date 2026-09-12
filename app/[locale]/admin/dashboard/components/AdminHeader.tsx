@@ -11,6 +11,7 @@ interface AdminHeaderProps {
   onLogout: () => void;
   adminEmail?: string;
   onToggleMobileMenu?: () => void;
+  isMobileOpen?: boolean;
 }
 
 export const AdminHeader: React.FC<AdminHeaderProps> = ({
@@ -20,6 +21,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   isRefreshing,
   onLogout,
   onToggleMobileMenu,
+  isMobileOpen = false,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -29,8 +31,10 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           {/* Mobile menu trigger */}
           <button
             onClick={onToggleMobileMenu}
-            className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200"
-            aria-label="Abrir menú de navegación"
+            className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none transition-all"
+            aria-label={isMobileOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+            aria-expanded={isMobileOpen}
+            aria-controls="admin-mobile-sidebar"
           >
             <Menu className="w-4 h-4" />
           </button>
@@ -58,54 +62,68 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
       {/* Date filter, Refresh & Actions */}
       <div className="flex items-center flex-wrap gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
         {/* Date pills */}
-        <div className="bg-slate-100/90 p-1 rounded-xl flex items-center border border-slate-200/60 text-xs font-semibold text-slate-600">
-          <button
-            onClick={() => onSelectPeriod("24h")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              selectedPeriod === "24h"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            24h
-          </button>
-          <button
-            onClick={() => onSelectPeriod("7d")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              selectedPeriod === "7d"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            7D
-          </button>
-          <button
-            onClick={() => onSelectPeriod("30d")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              selectedPeriod === "30d"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            30D
-          </button>
-          <button
-            onClick={() => onSelectPeriod("month")}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              selectedPeriod === "month"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            Este Mes
-          </button>
+        <div
+          role="tablist"
+          aria-label="Filtro de período de tiempo"
+          className="bg-slate-100/90 p-1 rounded-xl flex items-center border border-slate-200/60 text-xs font-semibold text-slate-600"
+        >
+          {([
+            { id: "24h" as const, label: "24h", ariaLabel: "Filtrar por últimas 24 horas" },
+            { id: "7d" as const, label: "7D", ariaLabel: "Filtrar por últimos 7 días" },
+            { id: "30d" as const, label: "30D", ariaLabel: "Filtrar por últimos 30 días" },
+            { id: "month" as const, label: "Este Mes", ariaLabel: "Filtrar por este mes" },
+          ]).map((option, idx, arr) => {
+            const isSelected = selectedPeriod === option.id;
+            return (
+              <button
+                key={option.id}
+                role="tab"
+                aria-selected={isSelected}
+                aria-label={option.ariaLabel}
+                tabIndex={isSelected ? 0 : -1}
+                onClick={() => onSelectPeriod(option.id)}
+                onKeyDown={(e) => {
+                  let targetIdx = -1;
+                  if (e.key === "ArrowRight") {
+                    e.preventDefault();
+                    targetIdx = (idx + 1) % arr.length;
+                  } else if (e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    targetIdx = (idx - 1 + arr.length) % arr.length;
+                  } else if (e.key === "Home") {
+                    e.preventDefault();
+                    targetIdx = 0;
+                  } else if (e.key === "End") {
+                    e.preventDefault();
+                    targetIdx = arr.length - 1;
+                  }
+                  if (targetIdx >= 0) {
+                    onSelectPeriod(arr[targetIdx].id);
+                    const buttons = e.currentTarget.closest('[role="tablist"]')?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                    if (buttons && buttons[targetIdx]) {
+                      buttons[targetIdx].focus();
+                    }
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
+                  isSelected
+                    ? "bg-white text-slate-900 shadow-sm font-bold"
+                    : "hover:text-slate-900"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Sync Button */}
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all border border-slate-200/80 bg-white"
+          className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all border border-slate-200/80 bg-white focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none disabled:opacity-50"
+          aria-label="Actualizar datos"
+          aria-busy={isRefreshing}
           title="Actualizar datos"
         >
           <RefreshCw
@@ -116,7 +134,8 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
         {/* Logout */}
         <button
           onClick={onLogout}
-          className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm"
+          className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 focus-visible:outline-none"
+          aria-label="Cerrar sesión"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Cerrar Sesión</span>

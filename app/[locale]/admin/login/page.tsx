@@ -14,6 +14,7 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -23,6 +24,7 @@ export default function AdminLoginPage() {
 
   const processLogin = async (token: string) => {
     try {
+      setLoginError(null);
       const response = await apiClient.post("/api/auth/admin/login", {
         email,
         password,
@@ -53,6 +55,7 @@ export default function AdminLoginPage() {
       const msg =
         error.response?.data?.message ||
         "Credenciales inválidas o sin permisos.";
+      setLoginError(msg);
       toast.error(msg);
       // Reset state on error
       turnstileRef.current?.reset();
@@ -95,35 +98,72 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl backdrop-blur-xl">
-          <form onSubmit={handleLoginSubmit} className="space-y-6">
+          <form onSubmit={handleLoginSubmit} className="space-y-6" noValidate>
+            {/* Anuncio accesible de errores para lectores de pantalla */}
+            {loginError && (
+              <div
+                id="admin-login-error"
+                role="alert"
+                aria-live="polite"
+                className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs font-semibold flex items-center gap-2.5"
+              >
+                <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" aria-hidden="true" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-slate-700 ml-1">
+              <label
+                htmlFor="admin-email"
+                className="text-sm font-semibold text-slate-700 ml-1 block"
+              >
                 Correo Corporativo
               </label>
               <input
+                id="admin-email"
+                name="email"
                 type="email"
+                autoComplete="username"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (loginError) setLoginError(null);
+                }}
                 placeholder="admin@quhealthy.org"
-                className="w-full h-14 bg-white border border-slate-300 rounded-2xl px-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 transition-all"
+                aria-required="true"
+                aria-invalid={Boolean(loginError)}
+                aria-describedby={loginError ? "admin-login-error" : undefined}
+                className="w-full h-14 bg-white border border-slate-300 rounded-2xl px-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 transition-all"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-slate-700 ml-1">
+              <label
+                htmlFor="admin-password"
+                className="text-sm font-semibold text-slate-700 ml-1 block"
+              >
                 Contraseña
               </label>
               <div className="relative">
                 <input
+                  id="admin-password"
+                  name="password"
                   type="password"
+                  autoComplete="current-password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (loginError) setLoginError(null);
+                  }}
                   placeholder="••••••••"
-                  className="w-full h-14 bg-white border border-slate-300 rounded-2xl pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 transition-all"
+                  aria-required="true"
+                  aria-invalid={Boolean(loginError)}
+                  aria-describedby={loginError ? "admin-login-error" : undefined}
+                  className="w-full h-14 bg-white border border-slate-300 rounded-2xl pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 transition-all"
                 />
-                <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <LockKeyhole aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               </div>
             </div>
 
@@ -138,9 +178,9 @@ export default function AdminLoginPage() {
               }}
               onError={(errorCode) => {
                 console.error("Turnstile error code:", errorCode);
-                toast.error(
-                  "Error al validar la seguridad. Por favor, intenta de nuevo.",
-                );
+                const turnstileMsg = "Error al validar la seguridad. Por favor, intenta de nuevo.";
+                setLoginError(turnstileMsg);
+                toast.error(turnstileMsg);
                 setIsLoading(false);
                 isIntentionalSubmitRef.current = false;
                 turnstileRef.current?.reset();
@@ -155,14 +195,19 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading || !email || !password}
-              className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:hover:bg-slate-900 shadow-md"
+              aria-label={isLoading ? "Iniciando sesión..." : "Ingresar al Dashboard"}
+              aria-busy={isLoading}
+              className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:hover:bg-slate-900 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <>
+                  <Loader2 aria-hidden="true" className="w-5 h-5 animate-spin" />
+                  <span className="sr-only">Iniciando sesión...</span>
+                </>
               ) : (
                 <>
-                  Ingresar al Dashboard
-                  <ArrowRight className="w-5 h-5" />
+                  <span>Ingresar al Dashboard</span>
+                  <ArrowRight aria-hidden="true" className="w-5 h-5" />
                 </>
               )}
             </button>

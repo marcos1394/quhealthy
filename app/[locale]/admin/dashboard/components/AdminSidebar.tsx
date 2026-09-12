@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   DollarSign,
@@ -48,6 +48,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onCloseMobile,
 }) => {
   const [internalCollapsed, setInternalCollapsed] = useState<boolean>(false);
+  const mobileDialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     try {
@@ -59,6 +62,56 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       // Ignorar errores de storage
     }
   }, []);
+
+  // Foco inicial y restauración de foco al abrir/cerrar drawer móvil (ADMIN-UX-01)
+  useEffect(() => {
+    if (isMobileOpen) {
+      triggerRef.current = document.activeElement as HTMLElement | null;
+      const timer = setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    } else if (triggerRef.current) {
+      triggerRef.current.focus();
+      triggerRef.current = null;
+    }
+  }, [isMobileOpen]);
+
+  // Atrapamiento de foco (Focus Trap) y Escape en drawer móvil (ADMIN-UX-01)
+  useEffect(() => {
+    if (!isMobileOpen || !onCloseMobile) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCloseMobile();
+        return;
+      }
+
+      if (e.key === "Tab" && mobileDialogRef.current) {
+        const focusableElements = mobileDialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileOpen, onCloseMobile]);
 
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed;
 
@@ -157,17 +210,63 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     }
   };
 
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+    let targetIndex = -1;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        targetIndex = (currentIndex + 1) % menuItems.length;
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        targetIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
+        break;
+      case "Home":
+        e.preventDefault();
+        targetIndex = 0;
+        break;
+      case "End":
+        e.preventDefault();
+        targetIndex = menuItems.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    if (targetIndex >= 0) {
+      const targetItem = menuItems[targetIndex];
+      handleSelectTab(targetItem.id);
+      const buttons = e.currentTarget.closest('[role="tablist"]')?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+      if (buttons && buttons[targetIndex]) {
+        buttons[targetIndex].focus();
+      }
+    }
+  };
+
   const renderNavItems = (collapsed: boolean) => (
-    <div className="space-y-1.5 w-full">
-      {menuItems.map((item) => {
+    <div
+      role="tablist"
+      aria-orientation="vertical"
+      aria-label="Pestañas de navegación administrativa"
+      className="space-y-1.5 w-full"
+    >
+      {menuItems.map((item, idx) => {
         const Icon = item.icon;
         const isActive = activeTab === item.id;
 
         return (
           <div key={item.id} className="relative group w-full">
             <button
+              role="tab"
+              id={`admin-tab-${item.id}`}
+              aria-selected={isActive}
+              aria-controls={`admin-panel-${item.id}`}
+              aria-label={`${item.label}${item.badge ? ` (${item.badge})` : ''} - ${item.description}`}
+              tabIndex={isActive ? 0 : -1}
+              onKeyDown={(e) => handleTabKeyDown(e, idx)}
               onClick={() => handleSelectTab(item.id)}
-              className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all duration-150 relative ${
+              className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left transition-all duration-150 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-1 ${
                 collapsed ? "justify-center" : "justify-start"
               } ${
                 isActive
@@ -182,7 +281,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     : "bg-slate-100 text-slate-600 group-hover:bg-slate-200/70"
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4" aria-hidden="true" />
               </div>
 
               {!collapsed && (
@@ -249,16 +348,26 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           <div
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
             onClick={onCloseMobile}
+            aria-hidden="true"
           />
-          <div className="relative w-72 max-w-[85vw] bg-white h-full p-4 flex flex-col justify-between shadow-2xl z-10 overflow-y-auto">
+          <div
+            ref={mobileDialogRef}
+            id="admin-mobile-sidebar"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menú lateral de navegación"
+            className="relative w-72 max-w-[85vw] bg-white h-full p-4 flex flex-col justify-between shadow-2xl z-10 overflow-y-auto"
+          >
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
                   Navegación
                 </span>
                 <button
+                  ref={closeButtonRef}
                   onClick={onCloseMobile}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  aria-label="Cerrar menú lateral"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
                 >
                   ✕
                 </button>
@@ -300,13 +409,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             <button
               onClick={toggleCollapse}
               title={isCollapsed ? "Expandir menú lateral" : "Colapsar menú lateral"}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
               aria-label={isCollapsed ? "Expandir menú lateral" : "Colapsar menú lateral"}
+              aria-expanded={!isCollapsed}
             >
               {isCollapsed ? (
-                <PanelLeftOpen className="w-4 h-4 text-slate-600" />
+                <PanelLeftOpen className="w-4 h-4 text-slate-600" aria-hidden="true" />
               ) : (
-                <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+                <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-slate-600" aria-hidden="true" />
               )}
             </button>
           </div>
