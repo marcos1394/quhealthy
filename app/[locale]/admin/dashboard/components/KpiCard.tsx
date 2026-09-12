@@ -23,6 +23,7 @@ interface KpiCardProps {
   asOf?: string;
   period?: string;
   isFilterable?: boolean;
+  isLive?: boolean;
   explanation?: string;
 }
 
@@ -78,6 +79,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   asOf,
   period,
   isFilterable = true,
+  isLive = false,
   explanation,
 }) => {
   const colors = colorMap[variant];
@@ -210,22 +212,33 @@ export const KpiCard: React.FC<KpiCardProps> = ({
           {renderQualityBadge()}
         </div>
 
-        {/* Linaje de señal: Fuente, Corte y Filtro de período */}
-        {(source || !isFilterable) && (
-          <div className="flex items-center justify-between text-[10px] text-slate-400">
+        {/* Linaje de señal: Fuente, Corte y Filtro de período (ADMIN-TRUST-01) */}
+        {(source || !isFilterable || isLive) && (
+          <div className="flex items-center justify-between text-[10px] text-slate-400 gap-2">
             {source && (
-              <span className="truncate max-w-[180px]" title={`Fuente: ${source}${owner ? ` · Dueño: ${owner}` : ''}`}>
+              <span
+                className="truncate max-w-[180px]"
+                title={`Fuente: ${source}${owner ? ` · Dueño: ${owner}` : ""}${asOf ? ` · Corte: ${asOf}` : ""}`}
+              >
                 Fuente: {source}
               </span>
             )}
-            {!isFilterable && (
+            {isLive ? (
               <span
-                className="bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-medium ml-auto"
-                title="Esta métrica representa un snapshot actual en tiempo real y no varía con el selector de rango temporal"
+                className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.2 rounded font-medium ml-auto flex items-center gap-1"
+                title="Transmisión activa en vivo confirmada por protocolo SSE/WebSocket"
               >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 En vivo
               </span>
-            )}
+            ) : !isFilterable ? (
+              <span
+                className="bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-medium ml-auto"
+                title="Esta métrica representa un snapshot acumulado y no varía con el selector de rango temporal"
+              >
+                Snapshot acumulado
+              </span>
+            ) : null}
           </div>
         )}
       </div>

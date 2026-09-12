@@ -17,6 +17,7 @@ export interface AdminSignal<T> {
   asOf: string;
   period?: string;
   isFilterable?: boolean;
+  isLive?: boolean;
   explanation?: string;
 }
 
@@ -26,16 +27,19 @@ export function createCertifiedSignal<T>(
   owner: string,
   period?: string,
   isFilterable: boolean = true,
-  explanation?: string
+  explanation?: string,
+  asOf?: string,
+  isLive?: boolean
 ): AdminSignal<T> {
   return {
     value,
     quality: "CERTIFIED",
     source,
     owner,
-    asOf: new Date().toISOString(),
+    asOf: asOf || new Date().toISOString(),
     period,
     isFilterable,
+    isLive: isLive ?? false,
     explanation,
   };
 }
@@ -45,16 +49,18 @@ export function createProvisionalSignal<T>(
   source: string,
   owner: string,
   period?: string,
-  explanation?: string
+  explanation?: string,
+  asOf?: string
 ): AdminSignal<T> {
   return {
     value,
     quality: "PROVISIONAL",
     source,
     owner,
-    asOf: new Date().toISOString(),
+    asOf: asOf || new Date().toISOString(),
     period,
     isFilterable: true,
+    isLive: false,
     explanation,
   };
 }
@@ -63,16 +69,18 @@ export function createUnavailableSignal<T>(
   source: string,
   owner: string,
   explanation: string,
-  period?: string
+  period?: string,
+  asOf?: string
 ): AdminSignal<T> {
   return {
     value: null,
     quality: "UNAVAILABLE",
     source,
     owner,
-    asOf: new Date().toISOString(),
+    asOf: asOf || new Date().toISOString(),
     period,
     isFilterable: false,
+    isLive: false,
     explanation,
   };
 }
@@ -81,16 +89,18 @@ export function createErrorSignal<T>(
   source: string,
   owner: string,
   errorMessage: string,
-  period?: string
+  period?: string,
+  asOf?: string
 ): AdminSignal<T> {
   return {
     value: null,
     quality: "ERROR",
     source,
     owner,
-    asOf: new Date().toISOString(),
+    asOf: asOf || new Date().toISOString(),
     period,
     isFilterable: false,
+    isLive: false,
     explanation: errorMessage,
   };
 }

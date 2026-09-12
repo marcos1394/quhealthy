@@ -72,63 +72,62 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 🚀 Top Executive KPIs */}
+      {/* 🚀 Top Executive KPIs (ADMIN-TRUST-01: Cero fallbacks a cero falso, linaje fidedigno) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         <KpiCard
           title={`Volumen Clínico (${selectedPeriod.toUpperCase()})`}
-          value={formatCurrency(economics?.totalGmv || economics?.totalRevenue || 0)}
+          value={economics ? formatCurrency(economics.totalGmv || economics.totalRevenue || 0) : null}
           changePercent={0}
-          changePeriod={`En línea: ${formatCurrency(economics?.onlineRevenue || 0)} · Consultorio: ${formatCurrency(economics?.inClinicRevenue || 0)}`}
+          changePeriod={economics ? `En línea: ${formatCurrency(economics.onlineRevenue || 0)} · Consultorio: ${formatCurrency(economics.inClinicRevenue || 0)}` : undefined}
           icon={DollarSign}
           variant="emerald"
           quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
           source="Stripe Connect API"
           owner="Finanzas"
-          asOf={economics?.asOf || new Date().toISOString()}
+          asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
           explanation="Volumen bruto transaccionado a través de pasarelas de pago y conciliado con Stripe."
         />
         <KpiCard
           title="SaaS MRR (Planes Médicos)"
-          value={formatCurrency(economics?.mrr || economics?.totalSubscriptionsRevenue || 0)}
+          value={economics ? formatCurrency(economics.mrr || economics.totalSubscriptionsRevenue || 0) : null}
           changePercent={0}
-          changePeriod={`${economics?.activeSubscriptions || 0} suscripciones`}
+          changePeriod={economics ? `${economics.activeSubscriptions || 0} suscripciones` : undefined}
           icon={Zap}
           variant="blue"
           quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
           source="Stripe Billing API"
           owner="Finanzas"
-          asOf={economics?.asOf || new Date().toISOString()}
+          asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
           explanation="Ingresos recurrentes mensuales certificados de suscripciones profesionales activas."
         />
         <KpiCard
           title="Usuarios Activos (MAU)"
-          value={productMetrics?.mau ?? 0}
+          value={productMetrics ? productMetrics.mau : null}
           changePercent={0}
-          changePeriod={`${productMetrics?.activeProvidersMonth || 0} Médicos / ${productMetrics?.activePatientsMonth || 0} Pacientes`}
+          changePeriod={productMetrics ? `${productMetrics.activeProvidersMonth || 0} Médicos / ${productMetrics.activePatientsMonth || 0} Pacientes` : undefined}
           icon={Users}
           variant="indigo"
           quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
           source="Telemetry Event Stream"
           owner="Growth / Producto"
-          asOf={new Date().toISOString()}
           period={selectedPeriod}
           isFilterable={true}
           explanation="Usuarios únicos (médicos y pacientes) con sesiones activas en el periodo."
         />
         <KpiCard
           title="Citas Hoy"
-          value={dashboard?.appointmentsToday ?? 0}
-          subtext={`${dashboard?.appointmentsThisMonth || 0} este mes`}
+          value={dashboard ? dashboard.appointmentsToday : null}
+          subtext={dashboard ? `${dashboard.appointmentsThisMonth || 0} este mes` : undefined}
           icon={CalendarCheck}
           variant="purple"
           quality={dashboard ? "CERTIFIED" : "UNAVAILABLE"}
           source="PostgreSQL Clinical Cluster"
           owner="Operaciones Médicas"
-          asOf={new Date().toISOString()}
+          asOf={dashboard?.generatedAt}
           period="24h"
           isFilterable={false}
           explanation="Citas agendadas y atendidas en el día calendario actual en base de datos primaria."
@@ -267,13 +266,13 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
             <div className="flex items-center justify-between text-xs text-slate-500 font-semibold uppercase">
               <span>Margen Neto Real</span>
               <span className="text-emerald-600 font-bold">
-                {economics?.totalRevenue && economics.totalRevenue > 0
+                {economics && economics.totalRevenue && economics.totalRevenue > 0
                   ? `${Math.round((economics.netProfit / economics.totalRevenue) * 100)}%`
-                  : "0%"}
+                  : "N/D"}
               </span>
             </div>
             <div className="text-2xl font-extrabold text-slate-900">
-              {formatCurrency(economics?.netProfit || 0)}
+              {economics ? formatCurrency(economics.netProfit) : "No disponible"}
             </div>
             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
               <div

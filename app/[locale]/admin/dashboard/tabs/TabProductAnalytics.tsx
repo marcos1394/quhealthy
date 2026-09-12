@@ -63,62 +63,62 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Product Engagement KPIs */}
+      {/* Product Engagement KPIs (ADMIN-TRUST-01) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="DAU (Usuarios Activos Hoy)"
-          value={dau}
+          value={productMetrics ? dau : null}
           changePercent={0}
-          changePeriod="Usuarios diarios"
+          changePeriod={productMetrics ? "Usuarios diarios" : undefined}
           icon={Flame}
           variant="orange"
           quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
           source="Motor de Telemetría"
           owner="Producto & Analítica"
-          asOf={new Date().toISOString()}
+          asOf={productMetrics?.asOf}
           period="24h"
           isFilterable={false}
           explanation="Usuarios únicos activos en las últimas 24 horas."
         />
         <KpiCard
           title="MAU (Usuarios Activos Mes)"
-          value={mau}
+          value={productMetrics ? mau : null}
           changePercent={0}
-          changePeriod={`${productMetrics?.activeProvidersMonth || 0} Médicos / ${productMetrics?.activePatientsMonth || 0} Pacientes`}
+          changePeriod={productMetrics ? `${productMetrics.activeProvidersMonth || 0} Médicos / ${productMetrics.activePatientsMonth || 0} Pacientes` : undefined}
           icon={Users}
           variant="indigo"
           quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
           source="Motor de Telemetría"
           owner="Producto & Analítica"
-          asOf={new Date().toISOString()}
+          asOf={productMetrics?.asOf}
           period="30d"
           isFilterable={true}
           explanation="Usuarios activos registrados en los últimos 30 días."
         />
         <KpiCard
           title="Stickiness (DAU / MAU)"
-          value={`${stickiness}%`}
-          subtext="Ratio de retención diaria"
+          value={productMetrics ? `${stickiness}%` : null}
+          subtext={productMetrics ? "Ratio de retención diaria" : undefined}
           icon={Activity}
           variant="emerald"
           quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
           source="Motor de Telemetría"
           owner="Producto & Analítica"
-          asOf={new Date().toISOString()}
+          asOf={productMetrics?.asOf}
           period="30d"
           isFilterable={true}
           explanation="Ratio de retención diaria frente a mensual (DAU / MAU)."
         />
         <KpiCard
           title="Duración Media de Sesión"
-          value={`${productMetrics?.avgSessionDurationMinutes || 0}m`}
+          value={productMetrics ? `${productMetrics.avgSessionDurationMinutes || 0}m` : null}
           subtext={productMetrics ? `${productMetrics.totalSessionsMonth} sesiones totales` : "Sin sesiones registradas"}
           icon={Clock}
           variant="blue"
           quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
           source="Motor de Telemetría"
           owner="Producto & Analítica"
-          asOf={new Date().toISOString()}
+          asOf={productMetrics?.asOf}
           period="30d"
           isFilterable={true}
           explanation="Tiempo promedio de sesión activa por usuario."

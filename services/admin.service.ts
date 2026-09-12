@@ -169,6 +169,7 @@ export interface FunnelStepDTO {
 }
 
 export interface ProductMetricsDTO {
+  asOf?: string;
   dau: number;
   wau: number;
   mau: number;
@@ -204,9 +205,9 @@ export interface MicroserviceHealthDTO {
   serviceKey: string;
   port: number;
   status: 'UP' | 'DOWN' | 'UNAVAILABLE' | 'DEGRADED';
-  latencyMs: number;
-  version: string;
-  uptime: string;
+  latencyMs?: number | null;
+  version?: string | null;
+  uptime?: string | null;
   lastChecked: string;
   quality?: SignalQuality;
   errorDetail?: string;
@@ -249,25 +250,17 @@ export const adminService = {
   },
 
   getProviderSubscriptionsAudit: async (): Promise<ProviderSubscriptionAuditDTO[]> => {
-    try {
-      const response = await axiosInstance.get<ProviderSubscriptionAuditDTO[]>(
-        '/api/payments/admin/providers/subscriptions-audit'
-      );
-      return response.data;
-    } catch {
-      return [];
-    }
+    const response = await axiosInstance.get<ProviderSubscriptionAuditDTO[]>(
+      '/api/payments/admin/providers/subscriptions-audit'
+    );
+    return response.data;
   },
 
   getClinicalAppointmentsLedger: async (limit: number = 200): Promise<ClinicalAppointmentLedgerDTO[]> => {
-    try {
-      const response = await axiosInstance.get<ClinicalAppointmentLedgerDTO[]>(
-        `/api/payments/admin/appointments/ledger?limit=${limit}`
-      );
-      return response.data;
-    } catch {
-      return [];
-    }
+    const response = await axiosInstance.get<ClinicalAppointmentLedgerDTO[]>(
+      `/api/payments/admin/appointments/ledger?limit=${limit}`
+    );
+    return response.data;
   },
 
   getProductMetrics: async (days: number = 30): Promise<ProductMetricsDTO> => {
@@ -280,30 +273,16 @@ export const adminService = {
   },
 
   getAuditLogs: async (page: number = 0, size: number = 20): Promise<{ content: AuditLogDTO[]; totalElements: number }> => {
-    try {
-      const response = await axiosInstance.get<{ content: AuditLogDTO[]; totalElements: number }>(
-        `/api/auth/admin/audit-log?page=${page}&size=${size}`
-      );
-      return response.data;
-    } catch {
-      return {
-        content: [],
-        totalElements: 0
-      };
-    }
+    const response = await axiosInstance.get<{ content: AuditLogDTO[]; totalElements: number }>(
+      `/api/auth/admin/audit-log?page=${page}&size=${size}`
+    );
+    return response.data;
   },
 
   getProviders: async (status?: string): Promise<{ content: ProviderAdminDTO[]; totalElements: number }> => {
-    try {
-      const url = status ? `/api/auth/admin/providers?status=${status}` : '/api/auth/admin/providers';
-      const response = await axiosInstance.get<{ content: ProviderAdminDTO[]; totalElements: number }>(url);
-      return response.data;
-    } catch {
-      return {
-        content: [],
-        totalElements: 0
-      };
-    }
+    const url = status ? `/api/auth/admin/providers?status=${status}` : '/api/auth/admin/providers';
+    const response = await axiosInstance.get<{ content: ProviderAdminDTO[]; totalElements: number }>(url);
+    return response.data;
   },
 
   fixProviderStatus: async (providerId: number, action: 'COMPLETE_ONBOARDING' | 'ACTIVATE' | 'SUSPEND' | 'DELETE'): Promise<any> => {
@@ -317,77 +296,9 @@ export const adminService = {
   },
 
   getSystemHealthList: async (): Promise<MicroserviceHealthDTO[]> => {
-    const services = [
-      { name: 'API Gateway', serviceKey: 'api-gateway', port: 8080, path: '/api/health' },
-      { name: 'Auth Service', serviceKey: 'auth-service', port: 8081, path: '/api/auth/health' },
-      { name: 'Appointment Service', serviceKey: 'appointment-service', port: 8082, path: '/api/appointments/health' },
-      { name: 'Payment Service', serviceKey: 'payment-service', port: 8083, path: '/api/payments/health' },
-      { name: 'Catalog Service', serviceKey: 'catalog-service', port: 8084, path: '/api/catalog/health' },
-      { name: 'Onboarding Service', serviceKey: 'onboarding-service', port: 8085, path: '/api/onboarding/health' },
-      { name: 'Notification Service', serviceKey: 'notification-service', port: 8086, path: '/api/notifications/health' },
-      { name: 'Analytics Service', serviceKey: 'analytics-service', port: 8087, path: '/api/analytics/health' },
-      { name: 'Health Agent AI', serviceKey: 'health-agent-service', port: 8088, path: '/api/v1/health-agent/health' },
-      { name: 'Teleconsultation Audio', serviceKey: 'teleconsultation-audio-agent', port: 8089, path: '/api/teleconsultation/health' },
-      { name: 'Admin Master Server', serviceKey: 'admin-service', port: 8090, path: '/api/admin/health' },
-      { name: 'Referral Service', serviceKey: 'referral-service', port: 8091, path: '/api/referrals/health' },
-      { name: 'Review Service', serviceKey: 'review-service', port: 8092, path: '/api/reviews/health' },
-      { name: 'Social Service', serviceKey: 'social-service', port: 8093, path: '/api/social/health' },
-    ];
-
-    // ADMIN-TRUST-01: Sondeo real sin fabricar estados UP
-    const results = await Promise.allSettled(
-      services.map(async (s) => {
-        const start = Date.now();
-        try {
-          const res = await axiosInstance.get(s.path, { timeout: 2500 });
-          const latency = Date.now() - start;
-          const isUp = res.status >= 200 && res.status < 400;
-          return {
-            name: s.name,
-            serviceKey: s.serviceKey,
-            port: s.port,
-            status: (isUp ? 'UP' : 'DEGRADED') as 'UP' | 'DEGRADED',
-            latencyMs: latency,
-            version: '1.0.0',
-            uptime: isUp ? 'Activo' : 'Degradado',
-            lastChecked: new Date().toISOString(),
-            quality: 'CERTIFIED' as SignalQuality,
-          };
-        } catch (err: any) {
-          const latency = Date.now() - start;
-          const isDown = err.response && err.response.status >= 500;
-          return {
-            name: s.name,
-            serviceKey: s.serviceKey,
-            port: s.port,
-            status: (isDown ? 'DOWN' : 'UNAVAILABLE') as 'DOWN' | 'UNAVAILABLE',
-            latencyMs: latency < 2500 ? latency : 0,
-            version: '1.0.0',
-            uptime: 'No disponible',
-            lastChecked: new Date().toISOString(),
-            quality: 'UNAVAILABLE' as SignalQuality,
-            errorDetail: err.message || 'Sin respuesta',
-          };
-        }
-      })
-    );
-
-    return results.map((r, idx) => {
-      if (r.status === 'fulfilled') {
-        return r.value;
-      }
-      return {
-        name: services[idx].name,
-        serviceKey: services[idx].serviceKey,
-        port: services[idx].port,
-        status: 'UNAVAILABLE' as const,
-        latencyMs: 0,
-        version: '1.0.0',
-        uptime: 'No disponible',
-        lastChecked: new Date().toISOString(),
-        quality: 'UNAVAILABLE' as SignalQuality,
-      };
-    });
+    // ADMIN-TRUST-01: Consulta al agregador server-side de salud en lugar de sondeo fraudulento desde el navegador
+    const response = await axiosInstance.get<MicroserviceHealthDTO[]>('/api/payments/admin/system-health');
+    return response.data;
   },
 
   // --- SUPERVISIÓN INSTITUCIONAL DE FUNDACIONES ---

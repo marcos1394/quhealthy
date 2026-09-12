@@ -37,13 +37,13 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
   selectedPeriod = "30d",
   formatCurrency,
 }) => {
-  const gcpCost = economics?.cloudCosts || 0;
-  const aiCost = economics?.aiCosts || 0;
-  const satCost = economics?.satFacturamaCosts || 0;
-  const commsCost = economics?.communicationsCosts || 0;
+  const gcpCost = economics?.cloudCosts ?? null;
+  const aiCost = economics?.aiCosts ?? null;
+  const satCost = economics?.satFacturamaCosts ?? null;
+  const commsCost = economics?.communicationsCosts ?? null;
   const stripeCost = economics?.stripeFees || 0;
   const totalOperatingCosts =
-    economics?.totalCosts || gcpCost + aiCost + satCost + commsCost + stripeCost;
+    economics?.totalCosts ?? (stripeCost + (gcpCost || 0));
 
   const costBreakdown = [
     {
@@ -51,7 +51,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       cost: stripeCost,
       color: "#f97316",
       icon: CreditCard,
-      desc: "Comisión fija + 3.6%",
+      desc: "Comisión fija + 3.6% por transacción",
       quality: "CERTIFIED" as SignalQuality,
       source: "Stripe Balance API",
     },
@@ -60,8 +60,8 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       cost: gcpCost,
       color: "#f43f5e",
       icon: Cloud,
-      desc: gcpCost > 0 ? "Cloud Run, Cloud SQL, Storage" : "Sin exportación BigQuery activa",
-      quality: (gcpCost > 0 ? "CERTIFIED" : "UNAVAILABLE") as SignalQuality,
+      desc: gcpCost && gcpCost > 0 ? "Cloud Run, Cloud SQL, Storage" : "Sin exportación BigQuery activa",
+      quality: (gcpCost && gcpCost > 0 ? "CERTIFIED" : "UNAVAILABLE") as SignalQuality,
       source: "GCP Billing Export",
     },
     {
@@ -69,27 +69,27 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       cost: aiCost,
       color: "#8b5cf6",
       icon: Cpu,
-      desc: "Health Agent & Copilot Tokens (Estimación teórica)",
-      quality: "PROVISIONAL" as SignalQuality,
-      source: "Modelo Teórico por Consulta",
+      desc: aiCost !== null ? "Health Agent & Copilot Tokens" : "API de facturación Gemini no conectada",
+      quality: (aiCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      source: "Gemini Billing API",
     },
     {
       name: "Facturación SAT (Facturama)",
       cost: satCost,
       color: "#3b82f6",
       icon: Receipt,
-      desc: "Timbres fiscales CFDI 4.0 (Estimación por cita)",
-      quality: "PROVISIONAL" as SignalQuality,
-      source: "Modelo Teórico por CFDI",
+      desc: satCost !== null ? "Timbres fiscales CFDI 4.0" : "API de timbrado Facturama no conectada",
+      quality: (satCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      source: "Facturama API",
     },
     {
       name: "Comunicaciones (SMS/Resend)",
       cost: commsCost,
       color: "#06b6d4",
       icon: Mail,
-      desc: "Notificaciones y OTPs (Estimación por evento)",
-      quality: "PROVISIONAL" as SignalQuality,
-      source: "Modelo Teórico por Notificación",
+      desc: commsCost !== null ? "Notificaciones y OTPs" : "API de mensajería no conectada",
+      quality: (commsCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      source: "Resend / Twilio API",
     },
   ];
 
@@ -121,53 +121,53 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
         </div>
       )}
 
-      {/* Top Unit Economics KPIs */}
+      {/* Top Unit Economics KPIs (ADMIN-TRUST-01) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="ARPU (Ingreso / Usuario)"
-          value={formatCurrency(economics?.arpu || 0)}
+          value={economics && hasArpu ? formatCurrency(economics.arpu) : null}
           subtext="Promedio global por usuario activo"
           icon={DollarSign}
           variant="emerald"
-          quality={economics ? "PROVISIONAL" : "UNAVAILABLE"}
+          quality={economics ? (hasArpu ? "CERTIFIED" : "UNAVAILABLE") : "UNAVAILABLE"}
           source="Modelo Financiero Unificado"
           owner="Finanzas & FinOps"
-          asOf={economics?.asOf || new Date().toISOString()}
+          asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
           explanation="Ingreso promedio mensual por usuario activo (GMV comisiones + suscripciones SaaS / MAU)."
         />
         <KpiCard
           title="Costo por Usuario (CPAU)"
-          value={formatCurrency(economics?.costPerUser || 0)}
-          subtext="Nube + IA + Pasarelas / Activo"
+          value={economics && economics.costPerUser !== undefined ? formatCurrency(economics.costPerUser) : null}
+          subtext="Nube + Pasarelas / Activo"
           icon={TrendingUp}
           variant="rose"
-          quality={(economics?.costsQuality?.["cpau"] as SignalQuality) || (economics ? "PROVISIONAL" : "UNAVAILABLE")}
+          quality={(economics?.costsQuality?.["cpau"] as SignalQuality) || (economics ? "CERTIFIED" : "UNAVAILABLE")}
           source="FinOps Aggregator"
           owner="FinOps & Infraestructura"
-          asOf={economics?.asOf || new Date().toISOString()}
+          asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Suma de pasarelas Stripe, GCP, tokens IA, timbrado SAT y SMS dividida entre MAU."
+          explanation="Suma de pasarelas Stripe y GCP dividida entre MAU."
         />
         <KpiCard
           title="Costo Operativo Total"
-          value={formatCurrency(totalOperatingCosts)}
+          value={economics ? formatCurrency(totalOperatingCosts) : null}
           subtext="Gastos directos del mes"
           icon={Layers}
           variant="orange"
-          quality={(economics?.costsQuality?.["total"] as SignalQuality) || (economics ? "PROVISIONAL" : "UNAVAILABLE")}
-          source="Stripe + GCP BigQuery + Estimaciones"
+          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Stripe + GCP BigQuery"
           owner="Finanzas & Infraestructura"
-          asOf={economics?.asOf || new Date().toISOString()}
+          asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Costos totales de operación del periodo."
+          explanation="Costos totales certificados de operación del periodo."
         />
         <KpiCard
           title="Margen Neto Global"
-          value={formatCurrency(economics?.netProfit || 0)}
+          value={economics && economics.netProfit !== undefined ? formatCurrency(economics.netProfit) : null}
           changePercent={0}
           changePeriod="Utilidad neta real"
           icon={Percent}
@@ -175,7 +175,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           quality={economics ? "PROVISIONAL" : "UNAVAILABLE"}
           source="Modelo de Conciliación Preliminar"
           owner="Dirección Financiera"
-          asOf={economics?.asOf || new Date().toISOString()}
+          asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
           explanation="Utilidad neta calculada antes de conciliación bancaria definitiva."
@@ -236,7 +236,10 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           <div className="space-y-3">
             {costBreakdown.map((item) => {
               const Icon = item.icon;
-              const percent = totalOperatingCosts > 0 ? Math.round((item.cost / totalOperatingCosts) * 100) : 0;
+              const isCostAvailable = item.cost !== null && item.cost !== undefined;
+              const percent = item.cost !== null && item.cost !== undefined && totalOperatingCosts > 0 
+                ? Math.round(((item.cost ?? 0) / totalOperatingCosts) * 100) 
+                : 0;
               return (
                 <div
                   key={item.name}
@@ -270,10 +273,10 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
 
                   <div className="text-right">
                     <span className="font-bold text-slate-900 text-base block">
-                      {formatCurrency(item.cost)}
+                      {item.cost !== null && item.cost !== undefined ? formatCurrency(item.cost) : "No disponible"}
                     </span>
                     <span className="text-xs font-semibold text-slate-500">
-                      {percent}% del total
+                      {item.cost !== null && item.cost !== undefined ? `${percent}% del total` : "—"}
                     </span>
                   </div>
                 </div>
@@ -295,12 +298,16 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={costBreakdown} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+              <BarChart
+                data={costBreakdown.map((c) => ({ ...c, chartCost: c.cost ?? 0 }))}
+                layout="vertical"
+                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                 <XAxis type="number" stroke="#94a3b8" fontSize={11} tickFormatter={(v) => `$${v}`} />
                 <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={10} width={100} />
-                <RechartsTooltip formatter={(v: number) => formatCurrency(v)} />
-                <Bar dataKey="cost" radius={[0, 6, 6, 0]}>
+                <RechartsTooltip formatter={(v: number, name: string, item: any) => item?.payload?.cost !== null && item?.payload?.cost !== undefined ? formatCurrency(v) : "No disponible"} />
+                <Bar dataKey="chartCost" radius={[0, 6, 6, 0]}>
                   {costBreakdown.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}

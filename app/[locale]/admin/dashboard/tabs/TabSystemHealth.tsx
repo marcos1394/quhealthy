@@ -133,7 +133,7 @@ export const TabSystemHealth: React.FC<TabSystemHealthProps> = ({
                       {srv.name}
                     </span>
                     <span className="text-[11px] text-slate-400 font-mono">
-                      Port :{srv.port} • v{srv.version}
+                      Port :{srv.port} • {srv.version ? `v${srv.version}` : "v— (No expuesta)"}
                     </span>
                   </div>
                   <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${
@@ -159,8 +159,8 @@ export const TabSystemHealth: React.FC<TabSystemHealthProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-700/60 font-mono">
-                  <span>Latencia: <strong className="text-slate-200">{srv.latencyMs !== undefined && srv.latencyMs > 0 ? `${srv.latencyMs}ms` : "N/D"}</strong></span>
-                  <span>Uptime: <strong className="text-slate-200">{srv.uptime || "Inalcanzable"}</strong></span>
+                  <span>Latencia: <strong className="text-slate-200">{srv.latencyMs !== undefined && srv.latencyMs !== null && srv.latencyMs > 0 ? `${srv.latencyMs}ms` : "N/D"}</strong></span>
+                  <span>Uptime: <strong className="text-slate-200">{srv.uptime || "N/D"}</strong></span>
                 </div>
               </div>
             ))}

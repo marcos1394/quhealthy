@@ -158,5 +158,110 @@ describe("Admin Trust Signals & Veracity", () => {
       expect(screen.getByText("Error de fuente")).toBeInTheDocument();
       expect(screen.getByText("Error de consulta")).toBeInTheDocument();
     });
+
+    it("does not render 'En vivo' merely because isFilterable is false", () => {
+      render(
+        <KpiCard
+          title="Total Usuarios Registrados"
+          value={1250}
+          icon={Activity}
+          quality="CERTIFIED"
+          source="PostgreSQL primary"
+          owner="Operaciones"
+          isFilterable={false}
+          isLive={false}
+        />
+      );
+
+      // No debe decir "En vivo" cuando sólo es un snapshot acumulado
+      expect(screen.queryByText("En vivo")).not.toBeInTheDocument();
+      expect(screen.getByText("Snapshot acumulado")).toBeInTheDocument();
+    });
+
+    it("renders 'En vivo' with pulse indicator ONLY when isLive is explicitly true", () => {
+      render(
+        <KpiCard
+          title="Conexiones Activas SSE"
+          value={14}
+          icon={Activity}
+          quality="CERTIFIED"
+          source="Redis SSE Ticket Store"
+          owner="Plataforma"
+          isFilterable={false}
+          isLive={true}
+        />
+      );
+
+      expect(screen.getByText("En vivo")).toBeInTheDocument();
+      expect(screen.queryByText("Snapshot acumulado")).not.toBeInTheDocument();
+    });
+
+    it("renders source asOf timestamp without fabricating current render time", () => {
+      const sourceAsOf = "2026-09-11T14:30:00.000Z";
+      render(
+        <KpiCard
+          title="MRR Stripe"
+          value="$12,000"
+          icon={Activity}
+          quality="CERTIFIED"
+          source="Stripe Invoicing"
+          owner="Finanzas"
+          asOf={sourceAsOf}
+        />
+      );
+
+      const sourceElement = screen.getByText(/Fuente: Stripe Invoicing/i);
+      expect(sourceElement).toHaveAttribute(
+        "title",
+        expect.stringContaining(sourceAsOf)
+      );
+    });
+  });
+
+  describe("Server-Side Health Aggregator", () => {
+    it("getSystemHealthList delegates to server-side endpoint rather than probing browser ports", async () => {
+      const { adminService } = await import("@/services/admin.service");
+      const axiosInstance = (await import("@/lib/axios")).default;
+      const vi = (await import("vitest")).vi;
+
+      const mockResponse = {
+        data: [
+          {
+            name: "Payment Service",
+            serviceKey: "payment-service",
+            port: 8083,
+            status: "UP",
+            latencyMs: 1,
+            version: "2026.1",
+            uptime: "JVM Activa",
+            lastChecked: "2026-09-11T18:00:00Z",
+            quality: "CERTIFIED",
+          },
+          {
+            name: "Catalog Service",
+            serviceKey: "catalog-service",
+            port: 8084,
+            status: "UNAVAILABLE",
+            latencyMs: null,
+            version: null,
+            uptime: null,
+            lastChecked: "2026-09-11T18:00:00Z",
+            quality: "UNAVAILABLE",
+          },
+        ],
+      };
+
+      const getSpy = vi.spyOn(axiosInstance, "get").mockResolvedValueOnce(mockResponse as any);
+
+      const result = await adminService.getSystemHealthList();
+
+      expect(getSpy).toHaveBeenCalledWith("/api/payments/admin/system-health");
+      expect(result).toHaveLength(2);
+      expect(result[0].status).toBe("UP");
+      expect(result[0].quality).toBe("CERTIFIED");
+      expect(result[1].status).toBe("UNAVAILABLE");
+      expect(result[1].version).toBeNull();
+      expect(result[1].uptime).toBeNull();
+    });
   });
 });
