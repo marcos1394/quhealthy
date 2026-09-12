@@ -143,8 +143,8 @@ class TelemetryClient {
   public async flushEvents() {
     if (this.eventBuffer.length === 0) return;
 
-    const eventsToSend = [...this.eventBuffer];
-    this.eventBuffer = [];
+    // 🛡️ INTEL-SEC-01: Máximo 50 eventos por lote para cumplir límites del backend
+    const eventsToSend = this.eventBuffer.splice(0, 50);
 
     try {
       await axiosInstance.post(`${TELEMETRY_ENDPOINT}/events`, eventsToSend, {
