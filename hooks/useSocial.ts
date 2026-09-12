@@ -77,19 +77,13 @@ export interface UseSocialReturn {
   getAnalyticsDashboard: () => Promise<AnalyticsDashboardDTO>;
 }
 
+import { useCrmStream, getStreamBaseUrl } from './useCrmStream';
+
 // =================================================================
 // CONSTANTES Y HELPERS SSE (STREAM-SEC-01)
 // =================================================================
 
-export const getStreamBaseUrl = (): string => {
-  const customUrl = process.env.NEXT_PUBLIC_SOCIAL_SERVICE_URL;
-  if (customUrl) return customUrl.replace(/\/$/, '');
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (apiUrl) return apiUrl.replace(/\/$/, '');
-  return '';
-};
-
-const MAX_RETRIES = 5;
+export { getStreamBaseUrl } from './useCrmStream';
 
 // =================================================================
 // HOOK
@@ -111,8 +105,6 @@ export const useSocial = (): UseSocialReturn => {
 
   // ── SSE ─────────────────────────────────────────────────────────
   const [sseVideoUrl, setSseVideoUrl]               = useState<string | null>(null);
-  const [isStreamConnected, setIsStreamConnected]   = useState(false);
-  const [isStreamDegraded, setIsStreamDegraded]     = useState(false);
   const clearSseVideoUrl = useCallback(() => setSseVideoUrl(null), []);
 
   // ── Zustand ─────────────────────────────────────────────────────
@@ -390,143 +382,60 @@ export const useSocial = (): UseSocialReturn => {
 
   // =================================================================
   // 🔌 TIEMPO REAL (SSE - STREAM-SEC-01)
-  // Conexión segura mediante Tickets Efímeros de un solo uso (30s TTL).
+  // Conexión compartida segura mediante Tickets Efímeros de un solo uso (useCrmStream).
   // Se erradican tokens JWT en query params (?token=) y logs.
   // =================================================================
 
+  const { isStreamConnected, isStreamDegraded } = useCrmStream({
+    onConnected: () => {
+      console.log('🟢 Túnel SSE CRM Activo (Ticket Efímero)');
+    },
+    onNewMessage: (incomingMsg) => {
+      // Añadir al chat si es la conversación activa
+      setMessages((prev) => {
+        if (incomingMsg.conversationId === activeConversationIdRef.current) {
+          return [...prev, incomingMsg];
+        }
+        return prev;
+      });
+
+      // Actualizar inbox
+      setConversations((prev) => {
+        let found = false;
+        const updated = prev.map((conv) => {
+          if (conv.id === incomingMsg.conversationId) {
+            found = true;
+            return {
+              ...conv,
+              lastMessageAt: incomingMsg.createdAt,
+              lastMessage: incomingMsg.content,
+              isRead: incomingMsg.conversationId === activeConversationIdRef.current,
+            };
+          }
+          return conv;
+        });
+
+        // Si es una conversación nueva que no está en el inbox, recargamos
+        if (!found) loadConversationsRef.current(0, 20);
+
+        return updated.sort(
+          (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+        );
+      });
+    },
+    onVideoReady: (data) => {
+      console.log('🎬 VIDEO_READY recibido:', data);
+      if (data.videoUrl) setSseVideoUrl(data.videoUrl);
+    },
+    onVideoError: (data) => {
+      console.warn('❌ VIDEO_ERROR recibido:', data);
+      setSseVideoUrl(null);
+    },
+  });
+
+  // 🔍 Recovery: videos pendientes que se generaron con el SSE caído
   useEffect(() => {
     if (!token) return;
-
-    let retryCount = 0;
-    let currentEventSource: EventSource | null = null;
-    let reconnectTimeout: NodeJS.Timeout | null = null;
-    let isCancelled = false;
-
-    const connectSSE = async () => {
-      if (isCancelled) return;
-
-      try {
-        // 🎟️ Adquirir ticket efímero de un solo uso (TTL: 30s)
-        const { ticket } = await socialService.getStreamTicket();
-        if (isCancelled) return;
-
-        const baseUrl = getStreamBaseUrl();
-        const sseUrl = `${baseUrl}/api/social/crm/stream?ticket=${encodeURIComponent(ticket)}`;
-
-        const es = new EventSource(sseUrl);
-        currentEventSource = es;
-
-        // ✅ Handshake confirmado
-        es.addEventListener('CONNECTED', () => {
-          console.log('🟢 Túnel SSE CRM Activo (Ticket Efímero)');
-          retryCount = 0;
-          setIsStreamConnected(true);
-          setIsStreamDegraded(false);
-        });
-
-        // 💬 Nuevo mensaje entrante en el CRM
-        es.addEventListener('NEW_MESSAGE', (event) => {
-          try {
-            const incomingMsg: MessageDTO & { conversationId?: string } = JSON.parse(event.data);
-
-            // Añadir al chat si es la conversación activa
-            setMessages((prev) => {
-              if (incomingMsg.conversationId === activeConversationIdRef.current) {
-                return [...prev, incomingMsg];
-              }
-              return prev;
-            });
-
-            // Actualizar inbox
-            setConversations((prev) => {
-              let found = false;
-              const updated = prev.map((conv) => {
-                if (conv.id === incomingMsg.conversationId) {
-                  found = true;
-                  return {
-                    ...conv,
-                    lastMessageAt: incomingMsg.createdAt,
-                    lastMessage: incomingMsg.content,
-                    isRead: incomingMsg.conversationId === activeConversationIdRef.current,
-                  };
-                }
-                return conv;
-              });
-
-              // Si es una conversación nueva que no está en el inbox, recargamos
-              if (!found) loadConversationsRef.current(0, 20);
-
-              return updated.sort(
-                (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
-              );
-            });
-          } catch (e) {
-            console.warn('[SSE] Error parsing NEW_MESSAGE:', e);
-          }
-        });
-
-        // 🎬 Video listo — llega cuando Veo terminó de renderizar
-        es.addEventListener('VIDEO_READY', (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            console.log('🎬 VIDEO_READY recibido:', data);
-            if (data.videoUrl) setSseVideoUrl(data.videoUrl);
-          } catch (e) {
-            console.warn('[SSE] Error parsing VIDEO_READY:', e);
-          }
-        });
-
-        // ❌ Error en la generación del video
-        es.addEventListener('VIDEO_ERROR', (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            console.warn('❌ VIDEO_ERROR recibido:', data);
-            setSseVideoUrl(null);
-          } catch (e) {
-            console.warn('[SSE] Error parsing VIDEO_ERROR:', e);
-          }
-        });
-
-        // 🔄 Reconexión automática con backoff exponencial solicitando un nuevo ticket
-        es.onerror = () => {
-          es.close();
-          currentEventSource = null;
-          setIsStreamConnected(false);
-          setIsStreamDegraded(true);
-
-          if (isCancelled) return;
-
-          retryCount++;
-          if (retryCount >= MAX_RETRIES) {
-            console.warn('🔴 SSE CRM: Máximo de reintentos alcanzado. Modo degradado.');
-            return;
-          }
-
-          const backoffDelay = Math.min(1000 * Math.pow(2, retryCount), 15000);
-          console.warn(
-            `🟡 SSE caído (intento ${retryCount}/${MAX_RETRIES}). Reintentando con nuevo ticket en ${backoffDelay / 1000}s...`
-          );
-          reconnectTimeout = setTimeout(connectSSE, backoffDelay);
-        };
-      } catch (ticketErr) {
-        console.warn('🟡 Error al solicitar ticket efímero para SSE:', ticketErr);
-        setIsStreamConnected(false);
-        setIsStreamDegraded(true);
-
-        if (isCancelled) return;
-
-        retryCount++;
-        if (retryCount < MAX_RETRIES) {
-          const backoffDelay = Math.min(1000 * Math.pow(2, retryCount), 15000);
-          reconnectTimeout = setTimeout(connectSSE, backoffDelay);
-        }
-      }
-    };
-
-    // 🚀 Iniciar conexión SSE
-    connectSSE();
-
-    // 🔍 Recovery: videos pendientes que se generaron con el SSE caído
     const checkPendingVideo = async () => {
       try {
         const baseUrl = getStreamBaseUrl();
@@ -546,12 +455,6 @@ export const useSocial = (): UseSocialReturn => {
       }
     };
     checkPendingVideo();
-
-    return () => {
-      isCancelled = true;
-      if (reconnectTimeout) clearTimeout(reconnectTimeout);
-      currentEventSource?.close();
-    };
   }, [token]);
 
   // =================================================================
