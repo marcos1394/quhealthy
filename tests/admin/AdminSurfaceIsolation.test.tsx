@@ -65,6 +65,24 @@ vi.mock("react-toastify", () => ({
   },
 }));
 
+// Mock Vercel Analytics & Speed Insights
+vi.mock("@vercel/analytics/react", () => ({
+  Analytics: () => <div data-testid="vercel-analytics" />,
+}));
+vi.mock("@vercel/speed-insights/next", () => ({
+  SpeedInsights: () => <div data-testid="vercel-speed-insights" />,
+}));
+
+// Mock PublicLayoutShell
+vi.mock("@/components/layout/PublicLayoutShell", () => ({
+  PublicLayoutShell: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="public-layout-shell">{children}</div>
+  ),
+}));
+
+import PublicLayout from "@/app/[locale]/(public)/layout";
+import AdminLayout from "@/app/[locale]/admin/layout";
+
 describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -101,7 +119,7 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
   });
 
   describe("2. Consumer Platform Boundary Isolation (<ConsumerPlatformBoundary>)", () => {
-    it("renders consumer elements when accessed from public consumer routes", () => {
+    it("renders consumer elements, Vercel Analytics and SpeedInsights when accessed from public consumer routes", () => {
       mockPathname = "/es/doctors";
 
       render(<ConsumerPlatformBoundary />);
@@ -110,9 +128,13 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
       expect(
         screen.getByRole("button", { name: /abrir asistente de salud pulso ai/i })
       ).toBeInTheDocument();
+
+      // Vercel Analytics & SpeedInsights are loaded on consumer surface
+      expect(screen.getByTestId("vercel-analytics")).toBeInTheDocument();
+      expect(screen.getByTestId("vercel-speed-insights")).toBeInTheDocument();
     });
 
-    it("renders NOTHING (null) and isolates surface when accessed from admin routes", () => {
+    it("renders NOTHING (null) and isolates surface (blocking Analytics & SpeedInsights) when accessed from admin routes", () => {
       mockPathname = "/admin/dashboard";
 
       const { container } = render(<ConsumerPlatformBoundary />);
@@ -121,6 +143,8 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
       expect(
         screen.queryByRole("button", { name: /abrir asistente de salud pulso ai/i })
       ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("vercel-analytics")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("vercel-speed-insights")).not.toBeInTheDocument();
     });
 
     it("renders NOTHING (null) when accessed from localized admin routes", () => {
@@ -132,6 +156,8 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
       expect(
         screen.queryByRole("button", { name: /abrir asistente de salud pulso ai/i })
       ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("vercel-analytics")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("vercel-speed-insights")).not.toBeInTheDocument();
     });
   });
 
@@ -286,6 +312,197 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
 
       const mobileMenuBtn = screen.getByRole("button", { name: /cerrar menú de navegación/i });
       expect(mobileMenuBtn).toHaveAttribute("aria-expanded", "true");
+    });
+
+    it("implements WAI-ARIA roving tabindex on AdminSidebar tabs (only active tab has tabIndex=0)", () => {
+      render(
+        <AdminSidebar
+          activeTab="crm"
+          onTabChange={vi.fn()}
+          pendingKycCount={0}
+          unhealthyServicesCount={0}
+        />
+      );
+
+      const crmTab = screen.getByRole("tab", { name: /Admin CRM & Leads/i });
+      expect(crmTab).toHaveAttribute("tabindex", "0");
+
+      const pulseTab = screen.getByRole("tab", { name: /Executive Pulse/i });
+      expect(pulseTab).toHaveAttribute("tabindex", "-1");
+
+      const financesTab = screen.getByRole("tab", { name: /Finanzas & SaaS/i });
+      expect(financesTab).toHaveAttribute("tabindex", "-1");
+    });
+
+    it("navigates AdminSidebar tabs using vertical arrow keys (ArrowDown, ArrowUp, Home, End)", () => {
+      const onTabChange = vi.fn();
+      render(
+        <AdminSidebar
+          activeTab="pulse"
+          onTabChange={onTabChange}
+          pendingKycCount={0}
+          unhealthyServicesCount={0}
+        />
+      );
+
+      const pulseTab = screen.getByRole("tab", { name: /Executive Pulse/i });
+
+      // ArrowDown -> next tab (crm)
+      fireEvent.keyDown(pulseTab, { key: "ArrowDown" });
+      expect(onTabChange).toHaveBeenCalledWith("crm");
+
+      // ArrowUp from pulse -> wraps around to last tab (health)
+      fireEvent.keyDown(pulseTab, { key: "ArrowUp" });
+      expect(onTabChange).toHaveBeenCalledWith("health");
+
+      // End -> last tab (health)
+      fireEvent.keyDown(pulseTab, { key: "End" });
+      expect(onTabChange).toHaveBeenCalledWith("health");
+
+      // Home -> first tab (pulse)
+      fireEvent.keyDown(pulseTab, { key: "Home" });
+      expect(onTabChange).toHaveBeenCalledWith("pulse");
+    });
+
+    it("implements roving tabindex and horizontal arrow navigation on AdminHeader period tabs", () => {
+      const onSelectPeriod = vi.fn();
+      render(
+        <AdminHeader
+          selectedPeriod="24h"
+          onSelectPeriod={onSelectPeriod}
+          onRefresh={vi.fn()}
+          isRefreshing={false}
+          onLogout={vi.fn()}
+          isMobileOpen={false}
+        />
+      );
+
+      const tab24h = screen.getByRole("tab", { name: /filtrar por últimas 24 horas/i });
+      const tab7d = screen.getByRole("tab", { name: /filtrar por últimos 7 días/i });
+
+      expect(tab24h).toHaveAttribute("tabindex", "0");
+      expect(tab7d).toHaveAttribute("tabindex", "-1");
+
+      // ArrowRight -> next period (7d)
+      fireEvent.keyDown(tab24h, { key: "ArrowRight" });
+      expect(onSelectPeriod).toHaveBeenCalledWith("7d");
+
+      // ArrowLeft from 24h -> wraps to last period (month)
+      fireEvent.keyDown(tab24h, { key: "ArrowLeft" });
+      expect(onSelectPeriod).toHaveBeenCalledWith("month");
+    });
+  });
+
+  describe("5. Mobile Drawer Focus Management & Accessibility", () => {
+    it("focuses the close button initially when the mobile drawer opens", async () => {
+      render(
+        <AdminSidebar
+          activeTab="pulse"
+          onTabChange={vi.fn()}
+          isMobileOpen={true}
+          onCloseMobile={vi.fn()}
+        />
+      );
+
+      const closeBtn = screen.getByRole("button", { name: /cerrar menú lateral/i });
+      await waitFor(() => {
+        expect(document.activeElement).toBe(closeBtn);
+      });
+    });
+
+    it("traps focus inside the mobile drawer on Tab and Shift+Tab", async () => {
+      render(
+        <AdminSidebar
+          activeTab="pulse"
+          onTabChange={vi.fn()}
+          isMobileOpen={true}
+          onCloseMobile={vi.fn()}
+        />
+      );
+
+      const closeBtn = screen.getByRole("button", { name: /cerrar menú lateral/i });
+      const mobileDialog = document.getElementById("admin-mobile-sidebar")!;
+      const mobileTabs = mobileDialog.querySelectorAll<HTMLElement>('[role="tab"]');
+      const lastInteractive = mobileTabs[mobileTabs.length - 1];
+
+      // Shift+Tab from close button (first interactive element) wraps to last interactive element
+      closeBtn.focus();
+      expect(document.activeElement).toBe(closeBtn);
+      fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
+      expect(document.activeElement).toBe(lastInteractive);
+
+      // Tab from last interactive element wraps back to close button
+      lastInteractive.focus();
+      expect(document.activeElement).toBe(lastInteractive);
+      fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
+      expect(document.activeElement).toBe(closeBtn);
+    });
+
+    it("closes mobile drawer on Escape and restores focus to previous element", async () => {
+      const onCloseMobile = vi.fn();
+
+      // Create an outside trigger button and focus it
+      const triggerBtn = document.createElement("button");
+      triggerBtn.textContent = "Open Menu";
+      document.body.appendChild(triggerBtn);
+      triggerBtn.focus();
+      expect(document.activeElement).toBe(triggerBtn);
+
+      const { rerender } = render(
+        <AdminSidebar
+          activeTab="pulse"
+          onTabChange={vi.fn()}
+          isMobileOpen={true}
+          onCloseMobile={onCloseMobile}
+        />
+      );
+
+      // Press Escape
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(onCloseMobile).toHaveBeenCalled();
+
+      // Rerender as closed
+      rerender(
+        <AdminSidebar
+          activeTab="pulse"
+          onTabChange={vi.fn()}
+          isMobileOpen={false}
+          onCloseMobile={onCloseMobile}
+        />
+      );
+
+      // Focus should be restored to trigger button
+      expect(document.activeElement).toBe(triggerBtn);
+      document.body.removeChild(triggerBtn);
+    });
+  });
+
+  describe("6. Layout Tree Isolation & Metadata", () => {
+    it("PublicLayout injects Schema.org JSON-LD for consumer search engines", async () => {
+      const publicContent = await PublicLayout({
+        children: <div data-testid="child-page">Public Page</div>,
+        params: Promise.resolve({ locale: "es" }),
+      });
+
+      const { container } = render(publicContent);
+
+      const script = container.querySelector('script[type="application/ld+json"]');
+      expect(script).toBeInTheDocument();
+      expect(script?.innerHTML).toContain("https://schema.org");
+      expect(script?.innerHTML).toContain("QuHealthy");
+      expect(screen.getByTestId("child-page")).toBeInTheDocument();
+    });
+
+    it("AdminLayout does NOT contain any Schema.org JSON-LD or consumer scripts", () => {
+      const { container } = render(
+        <AdminLayout>
+          <div data-testid="admin-page">Admin Dashboard</div>
+        </AdminLayout>
+      );
+
+      const script = container.querySelector('script[type="application/ld+json"]');
+      expect(script).toBeNull();
+      expect(screen.getByTestId("admin-page")).toBeInTheDocument();
     });
   });
 });

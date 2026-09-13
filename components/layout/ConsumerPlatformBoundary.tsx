@@ -8,6 +8,8 @@ import { LocationPrompt } from "@/components/ui/LocationPrompt";
 import { AnalyticsManager } from "@/components/providers/AnalyticsManager";
 import { TelemetryTracker } from "@/components/providers/TelemetryTracker";
 import { PulsoFloatingAssistant } from "@/components/ai/PulsoFloatingAssistant";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 /**
  * Helper para verificar si una ruta o hostname pertenece a la superficie administrativa (ADMIN-UX-01).
@@ -123,6 +125,10 @@ export function ConsumerPlatformBoundary() {
           })(20);
         `}
       </Script>
+
+      {/* Vercel Analytics & Speed Insights para Superficie de Consumidor */}
+      <Analytics />
+      <SpeedInsights />
     </>
   );
 }

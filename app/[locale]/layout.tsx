@@ -5,10 +5,6 @@ import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 
-// Vercel Analytics & Speed Insights
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-
 // Providers globales y límite de plataforma
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import 'react-toastify/dist/ReactToastify.css';
@@ -146,53 +142,8 @@ export default async function RootLayout({
   const { locale } = await params;
   const messages = await getMessages();
 
-  const jsonLdGlobal = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Organization',
-        '@id': 'https://www.quhealthy.org/#organization',
-        name: 'QuHealthy',
-        url: 'https://www.quhealthy.org',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://www.quhealthy.org/og-image.png',
-          caption: 'QuHealthy - Ecosistema de Salud y Bienestar Digital',
-        },
-        sameAs: [
-          'https://www.instagram.com/quhealthy',
-          'https://twitter.com/QuHealthyApp',
-        ],
-        description:
-          locale === 'en'
-            ? 'Intelligent Health and Medical Management Platform'
-            : 'Plataforma Inteligente de Salud, Citas y Gestión Médica',
-      },
-      {
-        '@type': 'WebSite',
-        '@id': 'https://www.quhealthy.org/#website',
-        url: 'https://www.quhealthy.org',
-        name: 'QuHealthy',
-        publisher: {
-          '@id': 'https://www.quhealthy.org/#organization',
-        },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `https://www.quhealthy.org/${locale}/discover?query={search_term_string}`,
-          'query-input': 'required name=search_term_string',
-        },
-      },
-    ],
-  };
-
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGlobal) }}
-        />
-      </head>
       <body
         className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white antialiased flex flex-col min-h-screen transition-colors duration-300`}
       >
@@ -205,10 +156,6 @@ export default async function RootLayout({
 
             {/* Límite de integración de consumidor (excluido en rutas /admin - ADMIN-UX-01) */}
             <ConsumerPlatformBoundary />
-
-            {/* Vercel Analytics */}
-            <Analytics />
-            <SpeedInsights />
           </CustomProvider>
         </NextIntlClientProvider>
       </body>

@@ -67,58 +67,54 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           aria-label="Filtro de período de tiempo"
           className="bg-slate-100/90 p-1 rounded-xl flex items-center border border-slate-200/60 text-xs font-semibold text-slate-600"
         >
-          <button
-            role="tab"
-            aria-selected={selectedPeriod === "24h"}
-            aria-label="Filtrar por últimas 24 horas"
-            onClick={() => onSelectPeriod("24h")}
-            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
-              selectedPeriod === "24h"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            24h
-          </button>
-          <button
-            role="tab"
-            aria-selected={selectedPeriod === "7d"}
-            aria-label="Filtrar por últimos 7 días"
-            onClick={() => onSelectPeriod("7d")}
-            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
-              selectedPeriod === "7d"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            7D
-          </button>
-          <button
-            role="tab"
-            aria-selected={selectedPeriod === "30d"}
-            aria-label="Filtrar por últimos 30 días"
-            onClick={() => onSelectPeriod("30d")}
-            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
-              selectedPeriod === "30d"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            30D
-          </button>
-          <button
-            role="tab"
-            aria-selected={selectedPeriod === "month"}
-            aria-label="Filtrar por este mes"
-            onClick={() => onSelectPeriod("month")}
-            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
-              selectedPeriod === "month"
-                ? "bg-white text-slate-900 shadow-sm font-bold"
-                : "hover:text-slate-900"
-            }`}
-          >
-            Este Mes
-          </button>
+          {([
+            { id: "24h" as const, label: "24h", ariaLabel: "Filtrar por últimas 24 horas" },
+            { id: "7d" as const, label: "7D", ariaLabel: "Filtrar por últimos 7 días" },
+            { id: "30d" as const, label: "30D", ariaLabel: "Filtrar por últimos 30 días" },
+            { id: "month" as const, label: "Este Mes", ariaLabel: "Filtrar por este mes" },
+          ]).map((option, idx, arr) => {
+            const isSelected = selectedPeriod === option.id;
+            return (
+              <button
+                key={option.id}
+                role="tab"
+                aria-selected={isSelected}
+                aria-label={option.ariaLabel}
+                tabIndex={isSelected ? 0 : -1}
+                onClick={() => onSelectPeriod(option.id)}
+                onKeyDown={(e) => {
+                  let targetIdx = -1;
+                  if (e.key === "ArrowRight") {
+                    e.preventDefault();
+                    targetIdx = (idx + 1) % arr.length;
+                  } else if (e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    targetIdx = (idx - 1 + arr.length) % arr.length;
+                  } else if (e.key === "Home") {
+                    e.preventDefault();
+                    targetIdx = 0;
+                  } else if (e.key === "End") {
+                    e.preventDefault();
+                    targetIdx = arr.length - 1;
+                  }
+                  if (targetIdx >= 0) {
+                    onSelectPeriod(arr[targetIdx].id);
+                    const buttons = e.currentTarget.closest('[role="tablist"]')?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                    if (buttons && buttons[targetIdx]) {
+                      buttons[targetIdx].focus();
+                    }
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
+                  isSelected
+                    ? "bg-white text-slate-900 shadow-sm font-bold"
+                    : "hover:text-slate-900"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Sync Button */}
