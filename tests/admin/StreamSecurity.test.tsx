@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useSocial, getStreamBaseUrl } from "@/hooks/useSocial";
+import { useCrmStream } from "@/hooks/useCrmStream";
 import { socialService } from "@/services/social.service";
 import { useSessionStore } from "@/stores/SessionStore";
 
@@ -43,6 +44,12 @@ describe("STREAM-SEC-01: Administrative Streaming Without Persistent URL Tokens"
     simulateEvent(event: string, data: any) {
       if (this.listeners[event]) {
         this.listeners[event].forEach((cb) => cb({ data: JSON.stringify(data) }));
+      }
+    }
+
+    simulateRawMessage(data: any) {
+      if (this.onmessage) {
+        this.onmessage(new MessageEvent("message", { data: JSON.stringify(data) }));
       }
     }
 
@@ -186,6 +193,39 @@ describe("STREAM-SEC-01: Administrative Streaming Without Persistent URL Tokens"
 
     unmount();
 
+    expect(es.closed).toBe(true);
+  });
+
+  it("RULE 6: Shared useCrmStream hook dispatches events and maintains independent lifecycle", async () => {
+    const onNewMessageMock = vi.fn();
+    const onConnectedMock = vi.fn();
+
+    const { result, unmount } = renderHook(() =>
+      useCrmStream({
+        onNewMessage: onNewMessageMock,
+        onConnected: onConnectedMock,
+      })
+    );
+
+    await vi.waitFor(() => {
+      expect(mockEventSourceInstances.length).toBe(1);
+    });
+
+    const es = mockEventSourceInstances[0];
+    expect(es.url).toContain("?ticket=sst_abc1234567890");
+
+    act(() => {
+      es.simulateEvent("CONNECTED", {});
+      es.simulateEvent("NEW_MESSAGE", { id: "msg-123", content: "Hola doctor" });
+    });
+
+    expect(onConnectedMock).toHaveBeenCalledTimes(1);
+    expect(onNewMessageMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "msg-123", content: "Hola doctor" })
+    );
+    expect(result.current.isStreamConnected).toBe(true);
+
+    unmount();
     expect(es.closed).toBe(true);
   });
 });
