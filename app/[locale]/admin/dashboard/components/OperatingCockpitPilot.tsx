@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   GitCommit,
   ShieldCheck,
@@ -39,12 +39,9 @@ export const OperatingCockpitPilot: React.FC<OperatingCockpitPilotProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isFeatureEnabled =
-    typeof process !== 'undefined' &&
-    (process.env.NEXT_PUBLIC_FEATURE_INTEL_PILOT === 'true' ||
-      process.env.NEXT_PUBLIC_FEATURE_INTEL_PILOT === undefined); // Permite visualización en dev/staging
+  const isFeatureEnabled = process.env.NEXT_PUBLIC_FEATURE_INTEL_PILOT === 'true';
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -66,11 +63,17 @@ export const OperatingCockpitPilot: React.FC<OperatingCockpitPilotProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (isFeatureEnabled) {
+      void loadData();
+    }
+  }, [isFeatureEnabled, loadData]);
+
+  if (!isFeatureEnabled) {
+    return null;
+  }
 
   return (
     <div className="space-y-6">

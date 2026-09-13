@@ -26,6 +26,7 @@ import { TabProductAnalytics } from "./tabs/TabProductAnalytics";
 import { TabMedicalOperations } from "./tabs/TabMedicalOperations";
 import { TabFoundations } from "./tabs/TabFoundations";
 import { TabSystemHealth } from "./tabs/TabSystemHealth";
+import { OperatingCockpitPilot } from "./components/OperatingCockpitPilot";
 
 const VALID_TABS: AdminTab[] = [
   "pulse",
@@ -282,16 +283,19 @@ export default function AdminDashboardPage() {
             className="focus-visible:outline-none"
           >
             {activeTab === "pulse" && (
-              <TabExecutivePulse
-                economics={economics}
-                dashboard={dashboard}
-                productMetrics={productMetrics}
-                providers={providers}
-                services={services}
-                selectedPeriod={selectedPeriod}
-                formatCurrency={formatCurrency}
-                onNavigateTab={handleTabChange}
-              />
+              <>
+                <OperatingCockpitPilot />
+                <TabExecutivePulse
+                  economics={economics}
+                  dashboard={dashboard}
+                  productMetrics={productMetrics}
+                  providers={providers}
+                  services={services}
+                  selectedPeriod={selectedPeriod}
+                  formatCurrency={formatCurrency}
+                  onNavigateTab={handleTabChange}
+                />
+              </>
             )}
 
             {activeTab === "crm" && (

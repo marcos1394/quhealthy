@@ -26,7 +26,7 @@ export interface PagedContractResponse<T> {
  * Consume la API corporativa privada v1 (/api/v1/intelligence) usando el interceptor de sesión y JWT.
  */
 class CorporateIntelligenceService {
-  private readonly baseUrl = '/api/v1/intelligence';
+  private readonly baseUrl = '/api/admin/intelligence';
 
   /**
    * Obtiene el catálogo canónico paginado de definiciones de KPIs.
