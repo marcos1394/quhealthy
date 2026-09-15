@@ -1,8 +1,5 @@
 "use client";
 
-/* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/no-giant-component */
-/* eslint-disable react-doctor/prefer-useReducer */
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { motion, AnimatePresence } from "framer-motion";

@@ -1,6 +1,6 @@
 // Ubicación: next.config.ts
 import type { NextConfig } from "next";
-import withPWAInit from "next-pwa";
+import withSerwistInit from "@serwist/next";
 import withBundleAnalyzerInit from "@next/bundle-analyzer";
 import createNextIntlPlugin from "next-intl/plugin";
 
@@ -164,13 +164,12 @@ const withBundleAnalyzer = withBundleAnalyzerInit({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const withPWA = withPWAInit({
-  dest: "public",
+const withSerwist = withSerwistInit({
+  swSrc: "app/sw.ts",
+  swDest: "public/sw.js",
   disable: process.env.NODE_ENV === 'development',
   register: true,
-  skipWaiting: true,
 });
 
 // Exportación final
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default withNextIntl(withBundleAnalyzer(withPWA(nextConfig as unknown as any) as any));
+export default withNextIntl(withBundleAnalyzer(withSerwist(nextConfig)));
