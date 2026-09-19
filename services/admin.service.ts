@@ -36,6 +36,13 @@ export interface PlanTierDistributionDTO {
   percentageShare: number;
 }
 
+export interface CloudServiceCostDTO {
+  service: string;
+  grossCost: number;
+  credits: number;
+  netCost: number;
+}
+
 export interface UnitEconomicsDTO {
   totalUsers: number;
   activeSubscriptions: number;
@@ -48,12 +55,20 @@ export interface UnitEconomicsDTO {
   chartData?: ChartPointDTO[];
   
   // Costos Operativos Granulares
-  cloudCosts: number;
+  cloudCosts?: number;
+  cloudGrossCosts?: number;
+  cloudCredits?: number;
+  cloudCostCurrency?: string;
+  cloudCostPeriodStart?: string;
+  cloudCostPeriodEnd?: string;
+  cloudCostObservedAt?: string;
+  cloudCostSource?: string;
+  cloudCostBreakdown?: CloudServiceCostDTO[];
   aiCosts?: number;
   satFacturamaCosts?: number;
   communicationsCosts?: number;
-  stripeFees: number;
-  marketingCosts: number;
+  stripeFees?: number;
+  marketingCosts?: number;
   totalCosts?: number;
 
   // SaaS
