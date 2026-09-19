@@ -41,9 +41,8 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
   const aiCost = economics?.aiCosts ?? null;
   const satCost = economics?.satFacturamaCosts ?? null;
   const commsCost = economics?.communicationsCosts ?? null;
-  const stripeCost = economics?.stripeFees || 0;
-  const totalOperatingCosts =
-    economics?.totalCosts ?? (stripeCost + (gcpCost || 0));
+  const stripeCost = economics?.stripeFees ?? null;
+  const totalOperatingCosts = economics?.totalCosts ?? null;
 
   const costBreakdown = [
     {
@@ -52,7 +51,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       color: "#f97316",
       icon: CreditCard,
       desc: "Comisión fija + 3.6% por transacción",
-      quality: "CERTIFIED" as SignalQuality,
+      quality: (economics?.costsQuality?.["stripeFees"] || "UNAVAILABLE") as SignalQuality,
       source: "Stripe Balance API",
     },
     {
@@ -60,9 +59,11 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       cost: gcpCost,
       color: "#f43f5e",
       icon: Cloud,
-      desc: gcpCost && gcpCost > 0 ? "Cloud Run, Cloud SQL, Storage" : "Sin exportación BigQuery activa",
-      quality: (gcpCost && gcpCost > 0 ? "CERTIFIED" : "UNAVAILABLE") as SignalQuality,
-      source: "GCP Billing Export",
+      desc: gcpCost !== null
+        ? `${economics?.cloudCostCurrency || "Moneda no disponible"} · uso hasta ${economics?.cloudCostPeriodEnd || "corte no disponible"}`
+        : "Exportación de Billing no disponible",
+      quality: (economics?.costsQuality?.["cloudCosts"] || "UNAVAILABLE") as SignalQuality,
+      source: economics?.cloudCostSource || "GCP Billing Export",
     },
     {
       name: "Inteligencia Artificial (Gemini)",
@@ -92,6 +93,11 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       source: "Resend / Twilio API",
     },
   ];
+
+  const observedCostSubtotal = costBreakdown.reduce(
+    (sum, item) => sum + (item.cost ?? 0),
+    0,
+  );
 
   const hasArpu = economics && economics.arpu !== undefined && economics.arpu !== null;
   const contributionMargin = hasArpu ? economics.arpu - (economics.costPerUser || 0) : 0;
@@ -153,17 +159,17 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
         />
         <KpiCard
           title="Costo Operativo Total"
-          value={economics ? formatCurrency(totalOperatingCosts) : null}
-          subtext="Gastos directos del mes"
+          value={totalOperatingCosts !== null ? formatCurrency(totalOperatingCosts) : null}
+          subtext="Pendiente de integrar todas las fuentes materiales"
           icon={Layers}
           variant="orange"
-          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
+          quality={totalOperatingCosts !== null ? "PROVISIONAL" : "UNAVAILABLE"}
           source="Stripe + GCP BigQuery"
           owner="Finanzas & Infraestructura"
           asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Costos totales certificados de operación del periodo."
+          explanation="Sólo se publica cuando todas las fuentes materiales están conciliadas; GCP por sí solo no representa el costo operativo total."
         />
         <KpiCard
           title="Margen Neto Global"
@@ -237,8 +243,8 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
             {costBreakdown.map((item) => {
               const Icon = item.icon;
               const isCostAvailable = item.cost !== null && item.cost !== undefined;
-              const percent = item.cost !== null && item.cost !== undefined && totalOperatingCosts > 0 
-                ? Math.round(((item.cost ?? 0) / totalOperatingCosts) * 100) 
+              const percent = item.cost !== null && item.cost !== undefined && observedCostSubtotal > 0
+                ? Math.round(((item.cost ?? 0) / observedCostSubtotal) * 100)
                 : 0;
               return (
                 <div
@@ -276,7 +282,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
                       {item.cost !== null && item.cost !== undefined ? formatCurrency(item.cost) : "No disponible"}
                     </span>
                     <span className="text-xs font-semibold text-slate-500">
-                      {item.cost !== null && item.cost !== undefined ? `${percent}% del total` : "—"}
+                      {item.cost !== null && item.cost !== undefined ? `${percent}% del subtotal observado` : "—"}
                     </span>
                   </div>
                 </div>
@@ -317,6 +323,40 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           </div>
         </div>
       </div>
+
+      {economics?.cloudCostBreakdown && economics.cloudCostBreakdown.length > 0 && (
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-4">
+            <div>
+              <h3 className="font-bold text-slate-900 text-base">Costo GCP por servicio</h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Mes calendario · costo neto después de créditos · fuente con retraso de exportación
+              </p>
+            </div>
+            <div className="text-xs text-slate-500 sm:text-right">
+              <div>Observado: {economics.cloudCostObservedAt || "No disponible"}</div>
+              <div>Moneda: {economics.cloudCostCurrency || "No disponible"}</div>
+            </div>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {economics.cloudCostBreakdown.slice(0, 10).map((item) => (
+              <div key={item.service} className="flex items-center justify-between gap-4 py-3">
+                <span className="text-sm font-medium text-slate-700">{item.service}</span>
+                <div className="text-right">
+                  <span className="text-sm font-bold text-slate-900 block">
+                    {formatCurrency(item.netCost)}
+                  </span>
+                  {item.credits < 0 && (
+                    <span className="text-[11px] text-emerald-700">
+                      Créditos: {formatCurrency(item.credits)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
