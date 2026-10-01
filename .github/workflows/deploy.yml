@@ -1,5 +1,8 @@
 name: Enterprise Frontend CI/CD
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ master ] # Producción
@@ -11,15 +14,16 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-  # Job 1: Verificación de Calidad (Se ejecuta en paralelo para ahorrar tiempo)
+  # Job 1: Verificación de Calidad (Puerta obligatoria de bloqueo)
   quality-assurance:
     name: Code Quality Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
           cache: 'npm'
@@ -27,22 +31,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-   
+      - name: Type Check
+        run: npm run type-check
 
-      # Test Unitarios (Preparado para cuando agreguemos Vitest/Jest)
-      # - name: Unit Testss
-      #   run: npm run test
+      - name: Lint Check
+        run: npm run lint
 
-  # Job 2: Construcción y Despliegue
+      - name: Unit Tests
+        run: npm run test
+
+      - name: Build Check
+        run: npm run build
+
+  # Job 2: Construcción y Despliegue (Bloqueado estrictamente si falla quality-assurance)
   deploy:
     name: Build & Deploy
     needs: quality-assurance # Solo despliega si pasa el control de calidad
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
           cache: 'npm'
@@ -50,8 +62,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      - name: Install Vercel CLI (pinned)
+        run: npm install --global vercel@59.15.1
 
       - name: Pull Vercel Environment Information
         run: |

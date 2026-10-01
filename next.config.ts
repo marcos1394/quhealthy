@@ -1,6 +1,6 @@
 // Ubicación: next.config.ts
 import type { NextConfig } from "next";
-import withPWAInit from "next-pwa";
+import withSerwistInit from "@serwist/next";
 import withBundleAnalyzerInit from "@next/bundle-analyzer";
 import createNextIntlPlugin from "next-intl/plugin";
 
@@ -36,16 +36,16 @@ const nextConfig: NextConfig = {
     const cspHeader = `
       default-src 'self';
       
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com https://app.chatwoot.com https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com; 
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com https://app.chatwoot.com https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com https://vercel.live https://*.vercel.live; 
       
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com https://app.chatwoot.com; 
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com https://app.chatwoot.com https://vercel.live; 
       
       img-src * data: blob: 'unsafe-inline';      
-      font-src 'self' data: https://fonts.gstatic.com;
+      font-src 'self' data: https://fonts.gstatic.com https://vercel.live https://assets.vercel.com;
 
       media-src 'self' https://storage.googleapis.com https://cdn.plyr.io blob:;
       
-      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com https://www.google.com https://maps.google.com https://*.google.com https://maps.googleapis.com;
+      frame-src 'self' https://*.stripe.com https://js.stripe.com https://accounts.google.com https://app.chatwoot.com https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com https://www.google.com https://maps.google.com https://*.google.com https://maps.googleapis.com https://vercel.live;
       
       connect-src *;
     `.replace(/\s{2,}/g, ' ').trim();
@@ -60,6 +60,20 @@ const nextConfig: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+        ],
+      },
+      {
+        source: '/:locale/admin/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          { key: 'Cache-Control', value: 'no-store, max-age=0, must-revalidate' },
+        ],
+      },
+      {
+        source: '/admin/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          { key: 'Cache-Control', value: 'no-store, max-age=0, must-revalidate' },
         ],
       },
       {
@@ -150,13 +164,12 @@ const withBundleAnalyzer = withBundleAnalyzerInit({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const withPWA = withPWAInit({
-  dest: "public",
+const withSerwist = withSerwistInit({
+  swSrc: "app/sw.ts",
+  swDest: "public/sw.js",
   disable: process.env.NODE_ENV === 'development',
   register: true,
-  skipWaiting: true,
 });
 
 // Exportación final
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default withNextIntl(withBundleAnalyzer(withPWA(nextConfig as unknown as any) as any));
+export default withNextIntl(withBundleAnalyzer(withSerwist(nextConfig)));

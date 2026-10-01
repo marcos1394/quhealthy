@@ -344,15 +344,11 @@ export default function BookingPage({
     (store?.locations && store.locations.length > 0) || (relevantStaff && relevantStaff.length > 0)
   );
 
-  const currentStep = useMemo(() => {
-    if (hasLocationOrStaff && !selectedLocationId && store?.locations && store.locations.length > 0) {
-      return 1;
-    }
-    if (requiresScheduling && scheduleNow && (!selectedDate || !selectedTime)) {
-      return hasLocationOrStaff ? 2 : 1;
-    }
-    return hasLocationOrStaff ? 3 : 2;
-  }, [hasLocationOrStaff, selectedLocationId, store?.locations, requiresScheduling, scheduleNow, selectedDate, selectedTime]);
+  const currentStep = (hasLocationOrStaff && !selectedLocationId && store?.locations && store.locations.length > 0)
+    ? 1
+    : (requiresScheduling && scheduleNow && (!selectedDate || !selectedTime))
+      ? (hasLocationOrStaff ? 2 : 1)
+      : (hasLocationOrStaff ? 3 : 2);
 
   return (
     <div 

@@ -24,10 +24,8 @@ export const MultiLocationSelector: React.FC<MultiLocationSelectorProps> = ({
 }) => {
   const t = useTranslations("StorePublic.Locations");
 
-  if (!locations || locations.length === 0) return null;
-
-  const [activeLocId, setActiveLocId] = useState<number>(
-    selectedLocationId || locations[0].id
+  const [activeLocId, setActiveLocId] = useState<number | undefined>(
+    selectedLocationId || (locations && locations.length > 0 ? locations[0].id : undefined)
   );
 
   React.useEffect(() => {
@@ -35,6 +33,8 @@ export const MultiLocationSelector: React.FC<MultiLocationSelectorProps> = ({
       setActiveLocId(selectedLocationId);
     }
   }, [selectedLocationId]);
+
+  if (!locations || locations.length === 0) return null;
 
   const selectedLoc = locations.find((l) => l.id === activeLocId) || locations[0];
 

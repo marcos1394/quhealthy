@@ -5,19 +5,10 @@ import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 
-// Vercel Analytics & Speed Insights
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import Script from "next/script";
-
-// Providers y componentes globales
+// Providers globales y límite de plataforma
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import 'react-toastify/dist/ReactToastify.css';
-import { CookieConsent } from '@/components/ui/CookieConsent';
-import { LocationPrompt } from '@/components/ui/LocationPrompt';
-import { AnalyticsManager } from '@/components/providers/AnalyticsManager';
-import { TelemetryTracker } from '@/components/providers/TelemetryTracker';
-import { PulsoFloatingAssistant } from '@/components/ai/PulsoFloatingAssistant';
+import { ConsumerPlatformBoundary } from '@/components/layout/ConsumerPlatformBoundary';
 
 // Fuente
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -151,53 +142,8 @@ export default async function RootLayout({
   const { locale } = await params;
   const messages = await getMessages();
 
-  const jsonLdGlobal = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Organization',
-        '@id': 'https://www.quhealthy.org/#organization',
-        name: 'QuHealthy',
-        url: 'https://www.quhealthy.org',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://www.quhealthy.org/og-image.png',
-          caption: 'QuHealthy - Ecosistema de Salud y Bienestar Digital',
-        },
-        sameAs: [
-          'https://www.instagram.com/quhealthy',
-          'https://twitter.com/QuHealthyApp',
-        ],
-        description:
-          locale === 'en'
-            ? 'Intelligent Health and Medical Management Platform'
-            : 'Plataforma Inteligente de Salud, Citas y Gestión Médica',
-      },
-      {
-        '@type': 'WebSite',
-        '@id': 'https://www.quhealthy.org/#website',
-        url: 'https://www.quhealthy.org',
-        name: 'QuHealthy',
-        publisher: {
-          '@id': 'https://www.quhealthy.org/#organization',
-        },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `https://www.quhealthy.org/${locale}/discover?query={search_term_string}`,
-          'query-input': 'required name=search_term_string',
-        },
-      },
-    ],
-  };
-
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGlobal) }}
-        />
-      </head>
       <body
         className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white antialiased flex flex-col min-h-screen transition-colors duration-300`}
       >
@@ -205,66 +151,11 @@ export default async function RootLayout({
           <CustomProvider>
             {children}
 
-            {/* Global Providers & UI */}
+            {/* Global Providers */}
             <ToastProvider />
-            <AnalyticsManager />
-            <TelemetryTracker />
-            <CookieConsent />
-            <LocationPrompt />
-            <PulsoFloatingAssistant />
 
-            {/* Vercel Analytics */}
-            <Analytics />
-            <SpeedInsights />
-
-            {/* Chatwoot Live Chat (Carga diferida para no bloquear LCP) */}
-            <Script id="chatwoot-widget" strategy="lazyOnload">
-              {`
-                window.chatwootSettings = {
-                  hideMessageBubble: true,
-                  position: 'right',
-                  type: 'standard'
-                };
-                (function(d,t) {
-                  var BASE_URL="https://app.chatwoot.com";
-                  var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-                  g.src=BASE_URL+"/packs/js/sdk.js";
-                  g.async = true;
-                  s.parentNode.insertBefore(g,s);
-                  g.onload=function(){
-                    window.chatwootSDK.run({
-                      websiteToken: '8NAP7B6kCJdHWj4S3vemxeJb',
-                      baseUrl: BASE_URL
-                    })
-                  }
-                })(document,"script");
-              `}
-            </Script>
-
-            {/* Google Customer Reviews Badge */}
-            <Script
-              id="merchantWidgetScript"
-              src="https://www.gstatic.com/shopping/merchant/merchantwidget.js"
-              strategy="lazyOnload"
-            />
-            <Script id="merchantWidgetInit" strategy="lazyOnload">
-              {`
-                (function initGoogleMerchant(retries) {
-                  if (typeof window !== 'undefined' && window.merchantwidget) {
-                    try {
-                      window.merchantwidget.start({
-                        merchant_id: 5836869157,
-                        position: "BOTTOM_LEFT"
-                      });
-                    } catch (e) {
-                      console.warn("Merchant widget init error:", e);
-                    }
-                  } else if (retries > 0) {
-                    setTimeout(function() { initGoogleMerchant(retries - 1); }, 500);
-                  }
-                })(20);
-              `}
-            </Script>
+            {/* Límite de integración de consumidor (excluido en rutas /admin - ADMIN-UX-01) */}
+            <ConsumerPlatformBoundary />
           </CustomProvider>
         </NextIntlClientProvider>
       </body>

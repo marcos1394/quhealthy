@@ -312,3 +312,12 @@ export interface AnalyticsDashboardDTO {
   totalShares: number;
   chartData: DailyMetricDTO[];
 }
+
+// =================================================================
+// 6. STREAMING SSE SEGURO (STREAM-SEC-01)
+// =================================================================
+
+export interface StreamTicketResponse {
+  ticket: string;
+  expiresInSeconds: number;
+}
