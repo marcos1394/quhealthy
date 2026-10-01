@@ -70,7 +70,11 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setIsLoading(true);
     isIntentionalSubmitRef.current = true;
-    turnstileRef.current?.execute();
+    if (captchaToken) {
+      processLogin(captchaToken);
+    } else {
+      turnstileRef.current?.execute();
+    }
   };
 
   return (
@@ -175,6 +179,9 @@ export default function AdminLoginPage() {
                 if (isIntentionalSubmitRef.current) {
                   processLogin(token);
                 }
+              }}
+              onExpire={() => {
+                setCaptchaToken("");
               }}
               onError={(errorCode) => {
                 console.error("Turnstile error code:", errorCode);
