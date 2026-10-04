@@ -3,7 +3,7 @@ main = "worker.js"
 compatibility_date = "2026-10-01"
 
 routes = [
-  { pattern = "api-staging.quhealthy.org/*", zone_name = "quhealthy.org" }
+  { pattern = "api-staging.quhealthy.org", custom_domain = true }
 ]
 
 [observability]
