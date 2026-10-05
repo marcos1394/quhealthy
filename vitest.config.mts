@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, configDefaults } from "vitest/config";
 import path from "path";
 
 export default defineConfig({
@@ -7,6 +7,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
+    exclude: [...configDefaults.exclude, "e2e/**"],
   },
   resolve: {
     alias: {
