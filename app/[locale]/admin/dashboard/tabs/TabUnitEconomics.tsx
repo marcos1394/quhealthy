@@ -24,64 +24,161 @@ import {
 } from "recharts";
 import { KpiCard } from "../components/KpiCard";
 import { UnitEconomicsDTO } from "@/services/admin.service";
+import { SignalQuality } from "@/types/admin-signal";
 
 interface TabUnitEconomicsProps {
   economics: UnitEconomicsDTO | null;
+  selectedPeriod?: string;
   formatCurrency: (val: number) => string;
 }
 
 export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
   economics,
+  selectedPeriod = "30d",
   formatCurrency,
 }) => {
-  const gcpCost = economics?.cloudCosts || 0;
-  const aiCost = economics?.aiCosts || 0;
-  const satCost = economics?.satFacturamaCosts || 0;
-  const commsCost = economics?.communicationsCosts || 0;
+  const gcpCost = economics?.cloudCosts ?? null;
+  const aiCost = economics?.aiCosts ?? null;
+  const satCost = economics?.satFacturamaCosts ?? null;
+  const commsCost = economics?.communicationsCosts ?? null;
   const stripeCost = economics?.stripeFees || 0;
   const totalOperatingCosts =
-    economics?.totalCosts || gcpCost + aiCost + satCost + commsCost + stripeCost;
+    economics?.totalCosts ?? (stripeCost + (gcpCost || 0));
 
   const costBreakdown = [
-    { name: "Pasarela Stripe", cost: stripeCost, color: "#f97316", icon: CreditCard, desc: "Comisión fija + 3.6%" },
-    { name: "Infraestructura GCP", cost: gcpCost, color: "#f43f5e", icon: Cloud, desc: "Cloud Run, Cloud SQL, Storage" },
-    { name: "Inteligencia Artificial (Gemini)", cost: aiCost, color: "#8b5cf6", icon: Cpu, desc: "Health Agent & Copilot Tokens" },
-    { name: "Facturación SAT (Facturama)", cost: satCost, color: "#3b82f6", icon: Receipt, desc: "Timbres fiscales CFDI 4.0" },
-    { name: "Comunicaciones (SMS/Resend)", cost: commsCost, color: "#06b6d4", icon: Mail, desc: "Notificaciones y OTPs" },
+    {
+      name: "Pasarela Stripe",
+      cost: stripeCost,
+      color: "#f97316",
+      icon: CreditCard,
+      desc: "Comisión fija + 3.6% por transacción",
+      quality: "CERTIFIED" as SignalQuality,
+      source: "Stripe Balance API",
+    },
+    {
+      name: "Infraestructura GCP",
+      cost: gcpCost,
+      color: "#f43f5e",
+      icon: Cloud,
+      desc: gcpCost && gcpCost > 0 ? "Cloud Run, Cloud SQL, Storage" : "Sin exportación BigQuery activa",
+      quality: (gcpCost && gcpCost > 0 ? "CERTIFIED" : "UNAVAILABLE") as SignalQuality,
+      source: "GCP Billing Export",
+    },
+    {
+      name: "Inteligencia Artificial (Gemini)",
+      cost: aiCost,
+      color: "#8b5cf6",
+      icon: Cpu,
+      desc: aiCost !== null ? "Health Agent & Copilot Tokens" : "API de facturación Gemini no conectada",
+      quality: (aiCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      source: "Gemini Billing API",
+    },
+    {
+      name: "Facturación SAT (Facturama)",
+      cost: satCost,
+      color: "#3b82f6",
+      icon: Receipt,
+      desc: satCost !== null ? "Timbres fiscales CFDI 4.0" : "API de timbrado Facturama no conectada",
+      quality: (satCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      source: "Facturama API",
+    },
+    {
+      name: "Comunicaciones (SMS/Resend)",
+      cost: commsCost,
+      color: "#06b6d4",
+      icon: Mail,
+      desc: commsCost !== null ? "Notificaciones y OTPs" : "API de mensajería no conectada",
+      quality: (commsCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      source: "Resend / Twilio API",
+    },
   ];
+
+  const hasArpu = economics && economics.arpu !== undefined && economics.arpu !== null;
+  const contributionMargin = hasArpu ? economics.arpu - (economics.costPerUser || 0) : 0;
+  const contributionMarginPct = hasArpu && economics.arpu > 0
+    ? Math.round((contributionMargin / economics.arpu) * 100)
+    : 0;
 
   return (
     <div className="space-y-6">
-      {/* Top Unit Economics KPIs */}
+      {/* ⚠️ Aviso de Escenario Estimado & Veracidad de Señales */}
+      {economics?.isEstimatedScenario && (
+        <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+          <div className="p-2 rounded-xl bg-amber-100 text-amber-700 shrink-0">
+            <TrendingUp className="w-4 h-4" />
+          </div>
+          <div className="text-xs text-amber-900 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-amber-950">Escenario Estimado (Señal Provisional)</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                {economics.reconciliationQuality || "PROVISIONAL"}
+              </span>
+            </div>
+            <p className="text-amber-800 leading-relaxed">
+              {economics.reconciliationNotes || "Los costos de infraestructura IA, timbrado SAT y mensajería se calculan en base a modelos teóricos de consumo. Conciliación bancaria en proceso."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Top Unit Economics KPIs (ADMIN-TRUST-01) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="ARPU (Ingreso / Usuario)"
-          value={formatCurrency(economics?.arpu || 0)}
+          value={economics && hasArpu ? formatCurrency(economics.arpu) : null}
           subtext="Promedio global por usuario activo"
           icon={DollarSign}
           variant="emerald"
+          quality={economics ? (hasArpu ? "CERTIFIED" : "UNAVAILABLE") : "UNAVAILABLE"}
+          source="Modelo Financiero Unificado"
+          owner="Finanzas & FinOps"
+          asOf={economics?.asOf}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Ingreso promedio mensual por usuario activo (GMV comisiones + suscripciones SaaS / MAU)."
         />
         <KpiCard
           title="Costo por Usuario (CPAU)"
-          value={formatCurrency(economics?.costPerUser || 0)}
-          subtext="Nube + IA + Pasarelas / Activo"
+          value={economics && economics.costPerUser !== undefined ? formatCurrency(economics.costPerUser) : null}
+          subtext="Nube + Pasarelas / Activo"
           icon={TrendingUp}
           variant="rose"
+          quality={(economics?.costsQuality?.["cpau"] as SignalQuality) || (economics ? "CERTIFIED" : "UNAVAILABLE")}
+          source="FinOps Aggregator"
+          owner="FinOps & Infraestructura"
+          asOf={economics?.asOf}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Suma de pasarelas Stripe y GCP dividida entre MAU."
         />
         <KpiCard
           title="Costo Operativo Total"
-          value={formatCurrency(totalOperatingCosts)}
+          value={economics ? formatCurrency(totalOperatingCosts) : null}
           subtext="Gastos directos del mes"
           icon={Layers}
           variant="orange"
+          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
+          source="Stripe + GCP BigQuery"
+          owner="Finanzas & Infraestructura"
+          asOf={economics?.asOf}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Costos totales certificados de operación del periodo."
         />
         <KpiCard
           title="Margen Neto Global"
-          value={formatCurrency(economics?.netProfit || 0)}
+          value={economics && economics.netProfit !== undefined ? formatCurrency(economics.netProfit) : null}
           changePercent={0}
           changePeriod="Utilidad neta real"
           icon={Percent}
           variant="indigo"
+          quality={economics ? "PROVISIONAL" : "UNAVAILABLE"}
+          source="Modelo de Conciliación Preliminar"
+          owner="Dirección Financiera"
+          asOf={economics?.asOf}
+          period={economics?.period || selectedPeriod}
+          isFilterable={true}
+          explanation="Utilidad neta calculada antes de conciliación bancaria definitiva."
         />
       </div>
 
@@ -120,10 +217,10 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
               Margen de Contribución
             </span>
             <span className="text-2xl font-extrabold text-indigo-950 mt-1 block">
-              {formatCurrency((economics?.arpu || 280) - (economics?.costPerUser || 18.5))}
+              {formatCurrency(contributionMargin)}
             </span>
             <span className="text-[11px] text-indigo-600 mt-1 block">
-              {Math.round((((economics?.arpu || 280) - (economics?.costPerUser || 18.5)) / (economics?.arpu || 280)) * 100)}% de margen unitario
+              {contributionMarginPct}% de margen unitario
             </span>
           </div>
         </div>
@@ -139,7 +236,10 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           <div className="space-y-3">
             {costBreakdown.map((item) => {
               const Icon = item.icon;
-              const percent = totalOperatingCosts > 0 ? Math.round((item.cost / totalOperatingCosts) * 100) : 0;
+              const isCostAvailable = item.cost !== null && item.cost !== undefined;
+              const percent = item.cost !== null && item.cost !== undefined && totalOperatingCosts > 0 
+                ? Math.round(((item.cost ?? 0) / totalOperatingCosts) * 100) 
+                : 0;
               return (
                 <div
                   key={item.name}
@@ -153,19 +253,30 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-semibold text-slate-800 text-sm block">
-                        {item.name}
-                      </span>
-                      <span className="text-xs text-slate-400">{item.desc}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-slate-800 text-sm">
+                          {item.name}
+                        </span>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${
+                          item.quality === "CERTIFIED"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : item.quality === "PROVISIONAL"
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : "bg-slate-100 text-slate-600 border-slate-200"
+                        }`}>
+                          {item.quality === "CERTIFIED" ? "CERTIFICADO" : item.quality === "PROVISIONAL" ? "PROVISIONAL" : "NO DISPONIBLE"}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-400 block mt-0.5">{item.desc}</span>
                     </div>
                   </div>
 
                   <div className="text-right">
                     <span className="font-bold text-slate-900 text-base block">
-                      {formatCurrency(item.cost)}
+                      {item.cost !== null && item.cost !== undefined ? formatCurrency(item.cost) : "No disponible"}
                     </span>
                     <span className="text-xs font-semibold text-slate-500">
-                      {percent}% del total
+                      {item.cost !== null && item.cost !== undefined ? `${percent}% del total` : "—"}
                     </span>
                   </div>
                 </div>
@@ -187,12 +298,16 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={costBreakdown} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+              <BarChart
+                data={costBreakdown.map((c) => ({ ...c, chartCost: c.cost ?? 0 }))}
+                layout="vertical"
+                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                 <XAxis type="number" stroke="#94a3b8" fontSize={11} tickFormatter={(v) => `$${v}`} />
                 <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={10} width={100} />
-                <RechartsTooltip formatter={(v: number) => formatCurrency(v)} />
-                <Bar dataKey="cost" radius={[0, 6, 6, 0]}>
+                <RechartsTooltip formatter={(v: number, name: string, item: any) => item?.payload?.cost !== null && item?.payload?.cost !== undefined ? formatCurrency(v) : "No disponible"} />
+                <Bar dataKey="chartCost" radius={[0, 6, 6, 0]}>
                   {costBreakdown.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}

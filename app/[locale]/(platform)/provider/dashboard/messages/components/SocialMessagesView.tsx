@@ -46,6 +46,7 @@ import {
 import { toast } from "react-toastify";
 
 import { socialService } from "@/services/social.service";
+import { useCrmStream } from "@/hooks/useCrmStream";
 import { patientDirectoryService } from "@/services/patientDirectory.service";
 import {
   ConversationDTO,
@@ -311,35 +312,30 @@ export function SocialMessagesView() {
     }
   }, [messages]);
 
-  // 3. Conexión SSE en Tiempo Real
-  useEffect(() => {
-    let eventSource: EventSource | null = null;
-    try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("qh_auth_token") : null;
-      if (token) {
-        eventSource = new EventSource(`/api/social/crm/stream?token=${encodeURIComponent(token)}`);
-        eventSource.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            if (data?.conversationId) {
-              loadCrmData();
-              if (selectedConversation?.id === data.conversationId) {
-                loadConversationMessages(data.conversationId);
-              }
-            }
-          } catch (e) {
-            console.error("Error parseando evento SSE:", e);
-          }
-        };
+  // 3. Conexión SSE en Tiempo Real compartida (STREAM-SEC-01: Ephemeral Stream Ticket)
+  useCrmStream({
+    onNewMessage: (data) => {
+      if (data?.conversationId) {
+        loadCrmData();
+        if (selectedConversation?.id === data.conversationId) {
+          loadConversationMessages(data.conversationId);
+        }
       }
-    } catch (err) {
-      console.error("Error inicializando SSE:", err);
-    }
-
-    return () => {
-      if (eventSource) eventSource.close();
-    };
-  }, [selectedConversation?.id, loadCrmData, loadConversationMessages]);
+    },
+    onRawMessage: (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data?.conversationId) {
+          loadCrmData();
+          if (selectedConversation?.id === data.conversationId) {
+            loadConversationMessages(data.conversationId);
+          }
+        }
+      } catch (e) {
+        // No-op si no es JSON
+      }
+    },
+  });
 
   // 4. Acciones de Mensajería
   const handleSendMessage = async () => {

@@ -19,7 +19,7 @@ Construido sobre una arquitectura multinquilino (*multi-portal*) con **Next.js 1
 | **Estado Global** | Zustand 5.0.8 | Manejo reactivo de sesiones, teleconsultas y copilot |
 | **Telemedicina** | LiveKit Client 2.20 | Videoconsultas en tiempo real con WebRTC; los controles de seguridad se validan por entorno |
 | **Pasarela de Pagos** | Stripe JS 7.9 | Checkout de citas, marketplace y soporte de pagos con Stripe Connect |
-| **PWA** | `next-pwa` 5.6 | Experiencia instalable como aplicación progresiva |
+| **PWA** | `@serwist/next` 9 | Experiencia instalable como aplicación progresiva |
 
 ---
 

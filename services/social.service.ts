@@ -18,6 +18,7 @@ import {
   AiSuggestRequest,
   AiSuggestResponse,
   AnalyticsDashboardDTO,
+  StreamTicketResponse,
 } from '@/types/social';
 
 const BASE = '/api/social';
@@ -246,6 +247,15 @@ export const socialService = {
 
   getAnalyticsDashboard: async (): Promise<AnalyticsDashboardDTO> => {
     const response = await axiosInstance.get(`${BASE}/analytics/dashboard`);
+    return response.data;
+  },
+
+  // ============================================================
+  // 6. STREAMING SSE SEGURO (STREAM-SEC-01)
+  // ============================================================
+
+  getStreamTicket: async (): Promise<StreamTicketResponse> => {
+    const response = await axiosInstance.post<StreamTicketResponse>(`${BASE}/crm/stream-ticket`);
     return response.data;
   },
 };

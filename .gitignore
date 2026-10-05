@@ -17,6 +17,13 @@
 /.next/
 /out/
 
+# Serwist service-worker build artifacts
+/public/sw.js
+/public/sw.js.map
+/public/swe-worker-*.js
+/public/swe-worker-*.js.map
+/public/workbox-*.js
+
 # production
 /build
 
@@ -39,3 +46,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# playwright
+/playwright-report/
+/test-results/

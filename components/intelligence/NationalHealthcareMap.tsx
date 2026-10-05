@@ -129,7 +129,7 @@ export default function NationalHealthcareMap() {
       mapTypeControl: true,
       mapTypeControlOptions: {
         position: 3, // TOP_RIGHT
-        style: 1, // HORIZONTAL_BAR
+        style: 1 as google.maps.MapTypeControlStyle, // HORIZONTAL_BAR
       },
       clickableIcons: false,
       styles: resolvedTheme === "dark" ? darkMapStyle : lightMapStyle,

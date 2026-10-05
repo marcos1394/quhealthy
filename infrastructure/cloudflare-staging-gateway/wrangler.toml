@@ -1,0 +1,10 @@
+name = "quhealthy-staging-api-gateway"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+routes = [
+  { pattern = "api-staging.quhealthy.org", custom_domain = true }
+]
+
+[observability]
+enabled = true

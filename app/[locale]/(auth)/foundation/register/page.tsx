@@ -1,9 +1,5 @@
 "use client";
 
-/* eslint-disable react-doctor/button-has-type */
-/* eslint-disable react-doctor/no-giant-component */
-/* eslint-disable react-doctor/prefer-useReducer */
-
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

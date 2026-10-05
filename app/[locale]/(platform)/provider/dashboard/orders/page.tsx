@@ -381,13 +381,18 @@ function PrescriptionViewer({
     }
   };
 
+  let urls: Record<string, string>;
   try {
-    const urls = JSON.parse(prescriptionUrls) as Record<string, string>;
-    const entries = Object.entries(urls);
-    if (entries.length === 0) return null;
+    urls = JSON.parse(prescriptionUrls) as Record<string, string>;
+  } catch {
+    return null;
+  }
 
-    return (
-      <div className="p-6 md:p-8 bg-amber-50/40 dark:bg-amber-950/10 border-b border-gray-100 dark:border-gray-800 flex flex-col space-y-3">
+  const entries = Object.entries(urls);
+  if (entries.length === 0) return null;
+
+  return (
+    <div className="p-6 md:p-8 bg-amber-50/40 dark:bg-amber-950/10 border-b border-gray-100 dark:border-gray-800 flex flex-col space-y-3">
         <h4 className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" strokeWidth={2} />
           <span>{t("prescriptions.title")}</span>
@@ -417,11 +422,8 @@ function PrescriptionViewer({
             </Button>
           ))}
         </div>
-      </div>
-    );
-  } catch {
-    return null;
-  }
+    </div>
+  );
 }
 
 // ── State Reducer Interface ───────────────────────────────────────────────────
