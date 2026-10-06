@@ -13,6 +13,9 @@ const STAGING_UPSTREAMS = {
   onboarding: "https://onboarding-service-ayzpmwrdkq-uc.a.run.app",
   appointment: "https://appointment-service-ayzpmwrdkq-uc.a.run.app",
   analytics: "https://analytics-service-ayzpmwrdkq-uc.a.run.app",
+  notification: "https://notification-service-ayzpmwrdkq-uc.a.run.app",
+  referral: "https://referral-service-ayzpmwrdkq-uc.a.run.app",
+  review: "https://review-service-ayzpmwrdkq-uc.a.run.app",
 };
 
 const ALLOWED_ORIGINS = [
@@ -57,6 +60,22 @@ function resolveUpstream(pathname) {
   ) {
     return STAGING_UPSTREAMS.analytics;
   }
+  if (pathname.startsWith("/api/notifications")) {
+    return STAGING_UPSTREAMS.notification;
+  }
+  if (
+    pathname.startsWith("/api/referrals") ||
+    pathname.startsWith("/api/loyalty") ||
+    pathname.startsWith("/api/admin/referrals")
+  ) {
+    return STAGING_UPSTREAMS.referral;
+  }
+  if (
+    pathname.startsWith("/api/reviews") ||
+    pathname.startsWith("/api/admin/reviews")
+  ) {
+    return STAGING_UPSTREAMS.review;
+  }
 
   // Fallback to auth-service for general API or root
   return STAGING_UPSTREAMS.auth;
@@ -81,6 +100,9 @@ export default {
               onboarding: STAGING_UPSTREAMS.onboarding,
               appointment: STAGING_UPSTREAMS.appointment,
               analytics: STAGING_UPSTREAMS.analytics,
+              notification: STAGING_UPSTREAMS.notification,
+              referral: STAGING_UPSTREAMS.referral,
+              review: STAGING_UPSTREAMS.review,
             },
             timestamp: new Date().toISOString(),
           },
