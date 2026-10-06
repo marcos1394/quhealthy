@@ -5,6 +5,20 @@
  * Routes incoming API requests to the corresponding GCP Cloud Run microservices
  * in the quhealthy-staging project, maintaining full parity with the production
  * GCP Cloud Load Balancer (url-map-quhealthy) while maintaining FinOps $0 cost in idle.
+ *
+ * Complete 12/12 Microservices Suite (Waves 1, 2, 3 & 4):
+ * 1. auth-service
+ * 2. catalog-service
+ * 3. onboarding-service
+ * 4. appointment-service
+ * 5. analytics-service
+ * 6. notification-service
+ * 7. referral-service
+ * 8. review-service
+ * 9. payment-service
+ * 10. social-service
+ * 11. admin-service
+ * 12. health-agent-service
  */
 
 const STAGING_UPSTREAMS = {
@@ -16,6 +30,10 @@ const STAGING_UPSTREAMS = {
   notification: "https://notification-service-ayzpmwrdkq-uc.a.run.app",
   referral: "https://referral-service-ayzpmwrdkq-uc.a.run.app",
   review: "https://review-service-ayzpmwrdkq-uc.a.run.app",
+  payment: "https://payment-service-ayzpmwrdkq-uc.a.run.app",
+  social: "https://social-service-ayzpmwrdkq-uc.a.run.app",
+  admin: "https://admin-service-ayzpmwrdkq-uc.a.run.app",
+  healthAgent: "https://health-agent-service-ayzpmwrdkq-uc.a.run.app",
 };
 
 const ALLOWED_ORIGINS = [
@@ -41,9 +59,19 @@ function getCorsHeaders(requestOrigin) {
 }
 
 function resolveUpstream(pathname) {
+  // Wave 1
   if (pathname.startsWith("/api/auth")) {
     return STAGING_UPSTREAMS.auth;
   }
+  if (
+    pathname.startsWith("/api/intelligence") ||
+    pathname.startsWith("/api/analytics") ||
+    pathname.startsWith("/api/admin/intelligence")
+  ) {
+    return STAGING_UPSTREAMS.analytics;
+  }
+
+  // Wave 2
   if (pathname.startsWith("/api/catalog")) {
     return STAGING_UPSTREAMS.catalog;
   }
@@ -53,13 +81,8 @@ function resolveUpstream(pathname) {
   if (pathname.startsWith("/api/appointments")) {
     return STAGING_UPSTREAMS.appointment;
   }
-  if (
-    pathname.startsWith("/api/intelligence") ||
-    pathname.startsWith("/api/analytics") ||
-    pathname.startsWith("/api/admin/intelligence")
-  ) {
-    return STAGING_UPSTREAMS.analytics;
-  }
+
+  // Wave 3
   if (pathname.startsWith("/api/notifications")) {
     return STAGING_UPSTREAMS.notification;
   }
@@ -75,6 +98,37 @@ function resolveUpstream(pathname) {
     pathname.startsWith("/api/admin/reviews")
   ) {
     return STAGING_UPSTREAMS.review;
+  }
+
+  // Wave 4
+  if (
+    pathname.startsWith("/api/payments") ||
+    pathname.startsWith("/api/payment") ||
+    pathname.startsWith("/api/admin/payments")
+  ) {
+    return STAGING_UPSTREAMS.payment;
+  }
+  if (
+    pathname.startsWith("/api/social") ||
+    pathname.startsWith("/api/corporate") ||
+    pathname.startsWith("/api/admin/social")
+  ) {
+    return STAGING_UPSTREAMS.social;
+  }
+  if (
+    pathname.startsWith("/api/v1/health-agent") ||
+    pathname.startsWith("/api/health-agent")
+  ) {
+    return STAGING_UPSTREAMS.healthAgent;
+  }
+  if (
+    pathname.startsWith("/admin-dashboard") ||
+    pathname.startsWith("/sba-settings.js") ||
+    pathname.startsWith("/variables.css") ||
+    pathname.startsWith("/instances") ||
+    pathname.startsWith("/applications")
+  ) {
+    return STAGING_UPSTREAMS.admin;
   }
 
   // Fallback to auth-service for general API or root
@@ -103,6 +157,10 @@ export default {
               notification: STAGING_UPSTREAMS.notification,
               referral: STAGING_UPSTREAMS.referral,
               review: STAGING_UPSTREAMS.review,
+              payment: STAGING_UPSTREAMS.payment,
+              social: STAGING_UPSTREAMS.social,
+              admin: STAGING_UPSTREAMS.admin,
+              healthAgent: STAGING_UPSTREAMS.healthAgent,
             },
             timestamp: new Date().toISOString(),
           },

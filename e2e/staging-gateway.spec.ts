@@ -4,7 +4,7 @@ const GATEWAY_BASE = 'https://api-staging.quhealthy.org';
 
 test.describe('QuHealthy Staging API Gateway E2E Tests', () => {
 
-  test('Gateway healthz returns UP and lists all 8 Cloud Run services', async ({ request }) => {
+  test('Gateway healthz returns UP and lists all 12 Cloud Run services', async ({ request }) => {
     const response = await request.get(`${GATEWAY_BASE}/healthz`);
     expect(response.status()).toBe(200);
 
@@ -13,14 +13,22 @@ test.describe('QuHealthy Staging API Gateway E2E Tests', () => {
     expect(body.environment).toBe('staging');
     expect(body.gateway).toBe('api-staging.quhealthy.org');
     expect(body.services).toBeDefined();
+    // Wave 1
     expect(body.services.auth).toContain('auth-service');
+    expect(body.services.analytics).toContain('analytics-service');
+    // Wave 2
     expect(body.services.catalog).toContain('catalog-service');
     expect(body.services.onboarding).toContain('onboarding-service');
     expect(body.services.appointment).toContain('appointment-service');
-    expect(body.services.analytics).toContain('analytics-service');
+    // Wave 3
     expect(body.services.notification).toContain('notification-service');
     expect(body.services.referral).toContain('referral-service');
     expect(body.services.review).toContain('review-service');
+    // Wave 4
+    expect(body.services.payment).toContain('payment-service');
+    expect(body.services.social).toContain('social-service');
+    expect(body.services.admin).toContain('admin-service');
+    expect(body.services.healthAgent).toContain('health-agent-service');
   });
 
   test('CORS preflight (OPTIONS) returns 204 with allowed headers', async ({ request }) => {
@@ -98,4 +106,42 @@ test.describe('QuHealthy Staging API Gateway E2E Tests', () => {
     const stats = await response.json();
     expect(stats).toBeDefined();
   });
+
+  test('Payment Service proxy: GET /api/payments/plans returns 200 and list structure', async ({ request }) => {
+    const response = await request.get(`${GATEWAY_BASE}/api/payments/plans`);
+    expect(response.status()).toBe(200);
+
+    const plans = await response.json();
+    expect(Array.isArray(plans)).toBe(true);
+  });
+
+  test('Social Service proxy: GET /api/social/posts rejects unauthenticated request', async ({ request }) => {
+    const response = await request.get(`${GATEWAY_BASE}/api/social/posts`);
+    // Expect 401 Unauthorized or 403 Forbidden (Spring Security fail-closed)
+    expect([401, 403]).toContain(response.status());
+  });
+
+  test('Admin Service proxy: GET /sba-settings.js returns 200 with script content', async ({ request }) => {
+    const response = await request.get(`${GATEWAY_BASE}/sba-settings.js`);
+    expect(response.status()).toBe(200);
+
+    const text = await response.text();
+    expect(text.length).toBeGreaterThan(0);
+  });
+
+  test('Health Agent Service proxy: POST /api/v1/health-agent/intent returns 200 with intent response', async ({ request }) => {
+    const response = await request.post(`${GATEWAY_BASE}/api/v1/health-agent/intent`, {
+      data: {},
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    expect(response.status()).toBe(200);
+
+    const body = await response.json();
+    expect(body).toHaveProperty('complete');
+    expect(body).toHaveProperty('id');
+    expect(body).toHaveProperty('intent');
+  });
 });
+
