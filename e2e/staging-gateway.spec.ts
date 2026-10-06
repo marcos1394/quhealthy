@@ -4,7 +4,7 @@ const GATEWAY_BASE = 'https://api-staging.quhealthy.org';
 
 test.describe('QuHealthy Staging API Gateway E2E Tests', () => {
 
-  test('Gateway healthz returns UP and lists all 5 Cloud Run services', async ({ request }) => {
+  test('Gateway healthz returns UP and lists all 8 Cloud Run services', async ({ request }) => {
     const response = await request.get(`${GATEWAY_BASE}/healthz`);
     expect(response.status()).toBe(200);
 
@@ -18,6 +18,9 @@ test.describe('QuHealthy Staging API Gateway E2E Tests', () => {
     expect(body.services.onboarding).toContain('onboarding-service');
     expect(body.services.appointment).toContain('appointment-service');
     expect(body.services.analytics).toContain('analytics-service');
+    expect(body.services.notification).toContain('notification-service');
+    expect(body.services.referral).toContain('referral-service');
+    expect(body.services.review).toContain('review-service');
   });
 
   test('CORS preflight (OPTIONS) returns 204 with allowed headers', async ({ request }) => {
@@ -74,5 +77,25 @@ test.describe('QuHealthy Staging API Gateway E2E Tests', () => {
     expect(rates).toHaveProperty('MXN');
     expect(rates.MXN).toBe(1.0);
     expect(rates).toHaveProperty('USD');
+  });
+
+  test('Notification Service proxy: GET /api/notifications rejects unauthenticated request', async ({ request }) => {
+    const response = await request.get(`${GATEWAY_BASE}/api/notifications`);
+    // Expect 401 Unauthorized or 403 Forbidden (Spring Security fail-closed)
+    expect([401, 403]).toContain(response.status());
+  });
+
+  test('Referral Service proxy: GET /api/referrals/dashboard rejects unauthenticated request', async ({ request }) => {
+    const response = await request.get(`${GATEWAY_BASE}/api/referrals/dashboard`);
+    // Expect 401 Unauthorized or 403 Forbidden (Spring Security fail-closed)
+    expect([401, 403]).toContain(response.status());
+  });
+
+  test('Review Service proxy: GET /api/reviews/provider/1/stats returns 200 with stats structure', async ({ request }) => {
+    const response = await request.get(`${GATEWAY_BASE}/api/reviews/provider/1/stats`);
+    expect(response.status()).toBe(200);
+
+    const stats = await response.json();
+    expect(stats).toBeDefined();
   });
 });
