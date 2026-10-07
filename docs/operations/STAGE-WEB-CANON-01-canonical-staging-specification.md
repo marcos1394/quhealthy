@@ -24,7 +24,7 @@ El pipeline anterior de publicación falló debido a que los secretos de GitHub 
 
 ### A. Saneamiento de Código
 * **Archivo:** `playwright.config.ts`
-* **Cambio:** Se eliminó la cadena plana `'GdAd9XOosfsGpaRVF9TKNn6B05Nx14Cf'`. La cabecera `x-vercel-protection-bypass` ahora sólo se inyecta dinámicamente si `process.env.VERCEL_PROTECTION_BYPASS` está configurado en el entorno de ejecución.
+* **Cambio:** se eliminó del código un valor de bypass de Preview que estaba versionado. No se conserva su valor en esta documentación; queda pendiente rotación o revocación en Vercel y revisión del historial Git.
 * **Seguridad:** Pendiente la rotación/revocación formal de dicho token en el panel de Vercel.
 
 ### B. Vinculación Canónica Local
