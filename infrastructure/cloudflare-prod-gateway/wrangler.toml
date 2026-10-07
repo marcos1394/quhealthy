@@ -1,0 +1,10 @@
+name = "quhealthy-prod-api-gateway"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+routes = [
+  { pattern = "api.quhealthy.org/*", zone_name = "quhealthy.org" }
+]
+
+[observability]
+enabled = true
