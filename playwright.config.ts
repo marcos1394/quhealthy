@@ -19,7 +19,9 @@ export default defineConfig({
   use: {
     baseURL: process.env.STAGING_URL || 'https://staging.quhealthy.org',
     extraHTTPHeaders: {
-      'x-vercel-protection-bypass': process.env.VERCEL_PROTECTION_BYPASS || 'GdAd9XOosfsGpaRVF9TKNn6B05Nx14Cf',
+      ...(process.env.VERCEL_PROTECTION_BYPASS
+        ? { 'x-vercel-protection-bypass': process.env.VERCEL_PROTECTION_BYPASS }
+        : {}),
     },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
