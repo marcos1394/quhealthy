@@ -17,7 +17,6 @@ import {
   FileText
 } from "lucide-react";
 import useSWR from "swr";
-import axiosInstance from "@/lib/axios";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 
@@ -35,8 +34,21 @@ interface BlogPost {
   imageUrl: string;
 }
 
-const fetcher = (url: string) =>
-  axiosInstance.get<BlogPost[]>(url).then((res) => res.data);
+const fetcher = async (url: string): Promise<BlogPost[]> => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.quhealthy.org";
+  const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
+  try {
+    const res = await fetch(fullUrl, {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+      return [];
+    }
+    return await res.json();
+  } catch {
+    return [];
+  }
+};
 
 export default function BlogPage() {
   const t = useTranslations("PublicBlog");
