@@ -36,25 +36,57 @@ const STAGING_UPSTREAMS = {
   healthAgent: "https://health-agent-service-ayzpmwrdkq-uc.a.run.app",
 };
 
-const ALLOWED_ORIGINS = [
-  "https://staging.quhealthy.org",
-  "https://quhealthy.org",
-  "http://localhost:3000",
-];
+function isOriginAllowed(requestOrigin) {
+  if (!requestOrigin) return false;
+  try {
+    const url = new URL(requestOrigin);
+    // Allow apex and any subdomain of quhealthy.org via HTTPS
+    if (
+      url.protocol === "https:" &&
+      (url.hostname === "quhealthy.org" || url.hostname.endsWith(".quhealthy.org"))
+    ) {
+      return true;
+    }
+    // Allow local development (localhost, 127.0.0.1, admin.localhost, etc.)
+    if (
+      (url.protocol === "http:" || url.protocol === "https:") &&
+      (url.hostname === "localhost" ||
+        url.hostname === "127.0.0.1" ||
+        url.hostname.endsWith(".localhost"))
+    ) {
+      return true;
+    }
+    // Allow Vercel preview environments
+    if (
+      url.protocol === "https:" &&
+      url.hostname.endsWith(".vercel.app") &&
+      url.hostname.includes("quhealthy")
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
 
-function getCorsHeaders(requestOrigin) {
-  const origin = ALLOWED_ORIGINS.includes(requestOrigin)
-    ? requestOrigin
-    : "https://staging.quhealthy.org";
+function getCorsHeaders(requestOrigin, requestHeaders) {
+  const allowed = isOriginAllowed(requestOrigin);
+  const allowOrigin = allowed ? requestOrigin : "https://staging.quhealthy.org";
+
+  const requestedHeaders = requestHeaders?.get?.("Access-Control-Request-Headers");
+  const allowHeaders =
+    requestedHeaders ||
+    "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Device-Id, X-Timezone, Cache-Control, Pragma, X-Correlation-ID";
 
   return {
-    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
-    "Access-Control-Allow-Headers":
-      "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Device-Id, X-Timezone, Cache-Control, Pragma",
-    "Access-Control-Expose-Headers": "Set-Cookie, Authorization",
+    "Access-Control-Allow-Headers": allowHeaders,
+    "Access-Control-Expose-Headers": "Set-Cookie, Authorization, X-Correlation-ID",
     "Access-Control-Max-Age": "86400",
+    "Vary": "Origin",
   };
 }
 
@@ -171,7 +203,7 @@ export default {
           status: 200,
           headers: {
             "Content-Type": "application/json",
-            ...getCorsHeaders(origin),
+            ...getCorsHeaders(origin, request.headers),
           },
         }
       );
@@ -181,7 +213,7 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
-        headers: getCorsHeaders(origin),
+        headers: getCorsHeaders(origin, request.headers),
       });
     }
 
@@ -210,12 +242,10 @@ export default {
       // 6. Return response preserving all headers (including Set-Cookie)
       const responseHeaders = new Headers(response.headers);
 
-      // Ensure CORS headers are present on all responses
-      const cors = getCorsHeaders(origin);
+      // Overwrite/ensure correct CORS headers on all responses
+      const cors = getCorsHeaders(origin, request.headers);
       for (const [key, value] of Object.entries(cors)) {
-        if (!responseHeaders.has(key)) {
-          responseHeaders.set(key, value);
-        }
+        responseHeaders.set(key, value);
       }
 
       return new Response(response.body, {
@@ -235,7 +265,7 @@ export default {
           status: 502,
           headers: {
             "Content-Type": "application/json",
-            ...getCorsHeaders(origin),
+            ...getCorsHeaders(origin, request.headers),
           },
         }
       );
