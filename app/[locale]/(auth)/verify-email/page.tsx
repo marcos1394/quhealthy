@@ -33,6 +33,13 @@ function VerificationContent() {
 
   const token = searchParams.get("token");
   const roleParam = searchParams.get("role");
+  const callbackUrl = searchParams.get("callbackUrl") || searchParams.get("redirect");
+  const loginUrl = callbackUrl
+    ? `/login?verified=true&callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/login?verified=true";
+  const manualLoginUrl = callbackUrl
+    ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/login";
 
   const [status, setStatus] = useState<
     "loading" | "success" | "error" | "pending"
@@ -56,9 +63,9 @@ function VerificationContent() {
       const timer = setTimeout(() => setCountdown((p) => p - 1), 1000);
       return () => clearTimeout(timer);
     } else if (status === "success" && countdown === 0) {
-      router.push("/login?verified=true");
+      router.push(loginUrl);
     }
-  }, [status, countdown, router]);
+  }, [status, countdown, router, loginUrl]);
 
   useEffect(() => {
     const verify = async () => {
@@ -244,7 +251,7 @@ function VerificationContent() {
 
                   <button
                     type="button"
-                    onClick={() => router.push("/login")}
+                    onClick={() => router.push(manualLoginUrl)}
                     className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2 mt-2"
                   >
                     <span>{t("go_to_login")}</span>
@@ -306,7 +313,7 @@ function VerificationContent() {
 
                   <button
                     type="button"
-                    onClick={() => router.push("/login?verified=true")}
+                    onClick={() => router.push(loginUrl)}
                     className="w-full h-12 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors text-xs font-bold shadow-sm flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" strokeWidth={2} />

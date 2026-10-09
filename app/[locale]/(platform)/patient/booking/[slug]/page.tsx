@@ -38,6 +38,8 @@ import { PackageMultiScheduler } from "@/components/booking/PackageMultiSchedule
 import { BookingProgressBar } from "@/components/booking/BookingProgressBar";
 import { useStorefront } from "@/hooks/useStorefront";
 import { StorefrontItem } from "@/types/storefront";
+import { useSessionStore } from "@/stores/SessionStore";
+import { AuthGateModal } from "@/components/shared/AuthGateModal";
 
 import {
   format,
@@ -81,6 +83,7 @@ export default function BookingPage({
   const { availableSlots, isLoadingSlots, fetchAvailableSlots, monthAvailability, fetchMonthAvailability, isLoadingMonth } =
     useAvailability();
   const { processCheckout, isProcessing } = useBookingCheckout();
+  const { isAuthenticated } = useSessionStore();
 
   const searchParams = useSearchParams();
   const serviceIdParam = searchParams?.get("serviceId");
@@ -111,6 +114,7 @@ export default function BookingPage({
 
   // --- ESTADOS DE E-COMMERCE ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showAuthGateModal, setShowAuthGateModal] = useState(false);
   const [pendingSymptoms, setPendingSymptoms] = useState("");
   const [pendingGrantedModules, setPendingGrantedModules] = useState<string[]>([]);
   const [pendingAllowedDocumentIds, setPendingAllowedDocumentIds] = useState<string[]>([]);
@@ -271,6 +275,12 @@ export default function BookingPage({
       !isPackageMultiSchedule &&
       (!selectedDate || !selectedTime)
     ) {
+      return;
+    }
+
+    // 🚀 Ruptura 2: Si el usuario no tiene sesión iniciada, abrir AuthGateModal preservando URL
+    if (!isAuthenticated) {
+      setShowAuthGateModal(true);
       return;
     }
 
@@ -830,6 +840,11 @@ export default function BookingPage({
         onClose={() => setShowCheckoutModal(false)}
         totalAmount={getTotalPrice()}
         onProcessCheckout={async (payload) => {
+          if (!isAuthenticated) {
+            setShowCheckoutModal(false);
+            setShowAuthGateModal(true);
+            return;
+          }
           if (providerId) {
             await processCheckout({
               providerId,
@@ -850,6 +865,17 @@ export default function BookingPage({
           setShowCheckoutModal(false);
         }}
         isProcessing={isProcessing}
+      />
+
+      {/* 🚀 Ruptura 2: Modal de Autenticación para Checkout */}
+      <AuthGateModal
+        isOpen={showAuthGateModal}
+        onClose={() => setShowAuthGateModal(false)}
+        callbackUrl={
+          typeof window !== "undefined"
+            ? window.location.pathname + window.location.search
+            : undefined
+        }
       />
     </div>
   );
