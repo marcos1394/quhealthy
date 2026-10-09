@@ -62,4 +62,26 @@ test.describe('PORT-A-01: Patient & Provider Activation Funnel E2E', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
+  // 6. Ruptura 2: Transición de Roles y Sesión del Paciente en Checkout
+  test('Ruptura 2: /es/patient/booking/* no rebota preventivamente a /login para visitantes anónimos', async ({ page }) => {
+    await page.goto('/es/patient/booking/demo-doctor');
+    expect(page.url()).not.toContain('/login');
+  });
+
+  test('Ruptura 2: El enlace de registro en /es/login preserva callbackUrl hacia booking', async ({ page }) => {
+    await page.goto('/es/login?callbackUrl=%2Fes%2Fpatient%2Fbooking%2Fdemo-doctor');
+    const registerLink = page.locator('a[href*="/register"]');
+    await expect(registerLink).toBeVisible();
+    const href = await registerLink.getAttribute('href');
+    expect(href).toContain('callbackUrl');
+  });
+
+  test('Ruptura 2: El enlace de login en /es/register preserva callbackUrl hacia booking', async ({ page }) => {
+    await page.goto('/es/register?callbackUrl=%2Fes%2Fpatient%2Fbooking%2Fdemo-doctor');
+    const loginLink = page.locator('a[href*="/login"]');
+    await expect(loginLink).toBeVisible();
+    const href = await loginLink.getAttribute('href');
+    expect(href).toContain('callbackUrl');
+  });
+
 });

@@ -16,6 +16,7 @@ interface AuthGateModalProps {
   icon?: React.ReactNode;
   title?: string;
   description?: string;
+  callbackUrl?: string;
 }
 
 export const AuthGateModal: React.FC<AuthGateModalProps> = ({
@@ -24,12 +25,17 @@ export const AuthGateModal: React.FC<AuthGateModalProps> = ({
   icon,
   title,
   description,
+  callbackUrl,
 }) => {
   const t = useTranslations("AuthGateModal");
   const router = useRouter();
 
   const modalTitle = title || t("default_title");
   const modalDescription = description || t("default_description");
+
+  const targetCallback = callbackUrl || (typeof window !== "undefined" ? window.location.pathname + window.location.search : "");
+  const registerTarget = targetCallback ? `/register?callbackUrl=${encodeURIComponent(targetCallback)}` : "/register";
+  const loginTarget = targetCallback ? `/login?callbackUrl=${encodeURIComponent(targetCallback)}` : "/login";
 
   return (
     <AnimatePresence>
@@ -84,7 +90,7 @@ export const AuthGateModal: React.FC<AuthGateModalProps> = ({
                   type="button"
                   onClick={() => {
                     onClose();
-                    router.push("/register");
+                    router.push(registerTarget);
                   }}
                   className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer flex items-center justify-center gap-2"
                 >
@@ -97,7 +103,7 @@ export const AuthGateModal: React.FC<AuthGateModalProps> = ({
                   variant="outline"
                   onClick={() => {
                     onClose();
-                    router.push("/login");
+                    router.push(loginTarget);
                   }}
                   className="w-full h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all shadow-2xs cursor-pointer"
                 >

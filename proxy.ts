@@ -56,6 +56,9 @@ export function proxy(request: NextRequest) {
   // 🚀 Identificamos la ruta pública de la receta para excluirla
   const isPublicPrescriptionRoute = /^\/([a-zA-Z]{2}\/)?patient\/prescription\//.test(pathname);
 
+  // 🚀 Ruptura 2: Identificamos la ruta de agendamiento para permitir exploración sin rebote prematuro
+  const isPublicBookingRoute = /^\/([a-zA-Z]{2}\/)?patient\/booking\//.test(pathname);
+
   // 🚀 Identificamos la ruta de login de admin para excluirla de las protegidas
   const isAdminLoginRoute = /^\/([a-zA-Z]{2}\/)?admin\/login/.test(pathname);
 
@@ -71,6 +74,7 @@ export function proxy(request: NextRequest) {
     && !isSupplierRegisterRoute
     && !isFoundationRegisterRoute
     && !isPublicPrescriptionRoute
+    && !isPublicBookingRoute
     && !isAdminLoginRoute
     && !isPublicFoundationsRoute
     && !isPublicSuppliersRoute

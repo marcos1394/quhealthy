@@ -41,6 +41,11 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const t = useTranslations("Auth");
 
+  const redirectTarget = searchParams.get("redirect") || searchParams.get("callbackUrl");
+  const registerHref = redirectTarget
+    ? `/register?callbackUrl=${encodeURIComponent(redirectTarget)}`
+    : "/register";
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { login, verifyMfaLogin } = useAuth();
@@ -591,7 +596,7 @@ export default function LoginPage() {
               </p>
 
               <Link
-                href="/register"
+                href={registerHref}
                 className="inline-flex items-center justify-center w-full h-11 text-xs font-bold rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all shadow-sm"
               >
                 {t("create_account")}

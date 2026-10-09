@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
@@ -49,8 +49,14 @@ const passwordRulesConfig: Omit<PasswordRule, "valid">[] = [
 
 export default function ConsumerSignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("AuthSignupConsumer");
   const { registerConsumer, loading: authLoading } = useAuth();
+
+  const redirectTarget = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
+  const loginHref = redirectTarget
+    ? `/login?callbackUrl=${encodeURIComponent(redirectTarget)}`
+    : "/login";
 
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
@@ -144,9 +150,10 @@ export default function ConsumerSignupPage() {
       });
 
       setTimeout(() => {
-        router.push(
-          `/verify-email?email=${encodeURIComponent(response.email)}`
-        );
+        const verifyUrl = redirectTarget
+          ? `/verify-email?email=${encodeURIComponent(response.email)}&callbackUrl=${encodeURIComponent(redirectTarget)}`
+          : `/verify-email?email=${encodeURIComponent(response.email)}`;
+        router.push(verifyUrl);
       }, 1200);
     } catch (err: any) {
       const errorMessage = err.message || "Error al crear la cuenta de paciente";
@@ -540,7 +547,7 @@ export default function ConsumerSignupPage() {
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 {t("has_account")}{" "}
                 <Link
-                  href="/login"
+                  href={loginHref}
                   className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline"
                 >
                   {t("login_here")}

@@ -236,7 +236,12 @@ export const useBookingCheckout = () => {
       
       if (error.response?.status === 401) {
         toast.warning("Tu sesión ha expirado.");
-        router.push('/login?expired=true');
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '';
+        const expiredTarget = currentPath
+          ? `/login?expired=true&callbackUrl=${encodeURIComponent(currentPath)}`
+          : '/login?expired=true';
+        router.push(expiredTarget);
+        return;
       }
 
       const errorMsg = errorData?.message || error.message || "Error al procesar la reserva.";
