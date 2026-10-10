@@ -92,10 +92,19 @@ export const TabMedicalOperations: React.FC<TabMedicalOperationsProps> = ({
     }
   };
 
+  const completed = dashboard?.completedAppointmentsThisMonth ?? 0;
+  const cancelled = dashboard?.cancelledAppointmentsThisMonth ?? 0;
+  const noShow = dashboard?.noShowAppointmentsThisMonth ?? 0;
+  const totalEvaluated = completed + cancelled + noShow;
+  const attendanceRate =
+    totalEvaluated > 0
+      ? `${((completed / totalEvaluated) * 100).toFixed(1)}%`
+      : "No disponible";
+
   const appointmentStatusData = [
-    { name: "Completadas", cantidad: dashboard?.completedAppointmentsThisMonth || 142, color: "#10b981" },
-    { name: "Canceladas", cantidad: dashboard?.cancelledAppointmentsThisMonth || 24, color: "#f43f5e" },
-    { name: "No-Show", cantidad: dashboard?.noShowAppointmentsThisMonth || 14, color: "#f59e0b" },
+    { name: "Completadas", cantidad: completed, color: "#10b981" },
+    { name: "Canceladas", cantidad: cancelled, color: "#f43f5e" },
+    { name: "No-Show", cantidad: noShow, color: "#f59e0b" },
   ];
 
   return (
@@ -104,29 +113,28 @@ export const TabMedicalOperations: React.FC<TabMedicalOperationsProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="Citas Hoy"
-          value={dashboard?.appointmentsToday || 12}
+          value={dashboard ? dashboard.appointmentsToday : "No disponible"}
           subtext="Consultas agendadas para hoy"
           icon={Activity}
           variant="blue"
         />
         <KpiCard
           title="Citas Este Mes"
-          value={dashboard?.appointmentsThisMonth || 180}
-          changePercent={11.4}
-          changePeriod="vs mes anterior"
+          value={dashboard ? dashboard.appointmentsThisMonth : "No disponible"}
+          subtext="Total agendadas en el periodo actual"
           icon={CalendarCheck}
           variant="purple"
         />
         <KpiCard
           title="Médicos Activos"
-          value={dashboard?.activeProvidersThisMonth || 34}
+          value={dashboard ? dashboard.activeProvidersThisMonth : "No disponible"}
           subtext="Con citas y agenda activa"
           icon={Users}
           variant="emerald"
         />
         <KpiCard
           title="Nuevos Médicos (Mes)"
-          value={dashboard?.newProvidersThisMonth || 8}
+          value={dashboard ? dashboard.newProvidersThisMonth : "No disponible"}
           subtext="En proceso de onboarding"
           icon={UserCheck}
           variant="indigo"
@@ -145,7 +153,7 @@ export const TabMedicalOperations: React.FC<TabMedicalOperationsProps> = ({
             </p>
           </div>
           <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
-            Tasa de Asistencia: 78.9%
+            Tasa de Asistencia: {attendanceRate}
           </span>
         </div>
 
