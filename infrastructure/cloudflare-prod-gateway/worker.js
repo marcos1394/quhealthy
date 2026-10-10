@@ -40,7 +40,11 @@ function isOriginAllowed(requestOrigin) {
   if (!requestOrigin) return false;
   try {
     const url = new URL(requestOrigin);
-    // Allow apex and any subdomain of quhealthy.org via HTTPS
+    // Explicitly disallow staging environments from accessing production API
+    if (url.hostname.includes("staging")) {
+      return false;
+    }
+    // Allow apex and valid production subdomains of quhealthy.org via HTTPS
     if (
       url.protocol === "https:" &&
       (url.hostname === "quhealthy.org" || url.hostname.endsWith(".quhealthy.org"))
