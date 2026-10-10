@@ -72,6 +72,106 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* 🎯 Las Tres Decisiones Esenciales del CEO (PORT-E-01 & HU #43) */}
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-white shadow-md space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <h3 className="font-bold text-base sm:text-lg text-white">
+                Las Tres Decisiones Esenciales del CEO (PORT-E-01)
+              </h3>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Decisiones operativas condicionadas con base en evidencia certificada de Producto, Demanda y FinOps.
+            </p>
+          </div>
+          <span className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60 self-start sm:self-auto">
+            Corte: {economics?.asOf ? new Date(economics.asOf).toLocaleDateString("es-MX") : "2026-10-10"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Tarjeta 1: Producto y Activación */}
+          <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                  1. Producto & Activación
+                </span>
+                <span className="text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
+                  PILOTO CONTROLADO
+                </span>
+              </div>
+              <h4 className="text-xs font-bold text-white mt-1.5">
+                ¿El producto entrega primer valor sin romperse?
+              </h4>
+              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                Rupturas 1-3 resueltas (agenda, checkout y cédula NOM-004). Cero citas orgánicas de pacientes externos completadas.
+              </p>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
+              <div className="text-[10px] uppercase font-bold text-slate-400">Acción Aprobada:</div>
+              <p className="text-xs font-semibold text-emerald-400">
+                👉 No abrir a tráfico masivo. Ejecutar piloto cerrado con 10 médicos seleccionados y soporte concierge.
+              </p>
+            </div>
+          </div>
+
+          {/* Tarjeta 2: Demanda y Monetización */}
+          <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
+                  2. Demanda & Monetización
+                </span>
+                <span className="text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                  CONGELAR PAUTA
+                </span>
+              </div>
+              <h4 className="text-xs font-bold text-white mt-1.5">
+                ¿Hay demanda comprobable y dinero real en caja?
+              </h4>
+              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                GMV Real: $0.00 MXN · MRR: $0.00 MXN · CAC: No disponible. Cero clientes de pago fuera de testing interno.
+              </p>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
+              <div className="text-[10px] uppercase font-bold text-slate-400">Acción Aprobada:</div>
+              <p className="text-xs font-semibold text-amber-400">
+                👉 $0 en Meta/Google Ads. Prohibir pauta pagada y validar adopción de $1,800/mes 1-a-1 bajo criterio de falsación.
+              </p>
+            </div>
+          </div>
+
+          {/* Tarjeta 3: Riesgo Operativo y FinOps */}
+          <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                  3. Riesgo Operativo & FinOps
+                </span>
+                <span className="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  OPTIMIZACIÓN ACTIVA
+                </span>
+              </div>
+              <h4 className="text-xs font-bold text-white mt-1.5">
+                ¿Qué riesgo o costo amenaza la continuidad?
+              </h4>
+              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                0 fallas de pasarela en BD. ~$35 USD/mes ocioso identificado. Borde protegido vía Worker ($0 USD adicionales).
+              </p>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
+              <div className="text-[10px] uppercase font-bold text-slate-400">Acción Aprobada:</div>
+              <p className="text-xs font-semibold text-emerald-400">
+                👉 Liberar IP estática, evaluar minScale=0 en Auth (ahorro 80%), rechazar Cloud Armor ($80/mes) y validar Playbook.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 🚀 Top Executive KPIs (ADMIN-TRUST-01: Cero fallbacks a cero falso, linaje fidedigno) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         <KpiCard
