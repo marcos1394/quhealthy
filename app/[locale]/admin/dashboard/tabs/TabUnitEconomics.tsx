@@ -41,9 +41,8 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
   const aiCost = economics?.aiCosts ?? null;
   const satCost = economics?.satFacturamaCosts ?? null;
   const commsCost = economics?.communicationsCosts ?? null;
-  const stripeCost = economics?.stripeFees || 0;
-  const totalOperatingCosts =
-    economics?.totalCosts ?? (stripeCost + (gcpCost || 0));
+  const stripeCost = economics?.stripeFees ?? null;
+  const totalOperatingCosts = economics?.totalCosts ?? null;
 
   const costBreakdown = [
     {
@@ -52,7 +51,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       color: "#f97316",
       icon: CreditCard,
       desc: "Comisión fija + 3.6% por transacción",
-      quality: "CERTIFIED" as SignalQuality,
+      quality: ((economics?.costsQuality?.["stripeFees"] as SignalQuality) || (stripeCost !== null ? "PROVISIONAL" : "UNAVAILABLE")) as SignalQuality,
       source: "Stripe Balance API",
     },
     {
@@ -61,7 +60,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       color: "#f43f5e",
       icon: Cloud,
       desc: gcpCost && gcpCost > 0 ? "Cloud Run, Cloud SQL, Storage" : "Sin exportación BigQuery activa",
-      quality: (gcpCost && gcpCost > 0 ? "CERTIFIED" : "UNAVAILABLE") as SignalQuality,
+      quality: ((economics?.costsQuality?.["cloudCosts"] as SignalQuality) || (gcpCost && gcpCost > 0 ? "PROVISIONAL" : "UNAVAILABLE")) as SignalQuality,
       source: "GCP Billing Export",
     },
     {
@@ -70,7 +69,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       color: "#8b5cf6",
       icon: Cpu,
       desc: aiCost !== null ? "Health Agent & Copilot Tokens" : "API de facturación Gemini no conectada",
-      quality: (aiCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      quality: ((economics?.costsQuality?.["aiCosts"] as SignalQuality) || (aiCost !== null ? "PROVISIONAL" : "UNAVAILABLE")) as SignalQuality,
       source: "Gemini Billing API",
     },
     {
@@ -79,7 +78,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       color: "#3b82f6",
       icon: Receipt,
       desc: satCost !== null ? "Timbres fiscales CFDI 4.0" : "API de timbrado Facturama no conectada",
-      quality: (satCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      quality: ((economics?.costsQuality?.["satFacturamaCosts"] as SignalQuality) || (satCost !== null ? "PROVISIONAL" : "UNAVAILABLE")) as SignalQuality,
       source: "Facturama API",
     },
     {
@@ -88,16 +87,19 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       color: "#06b6d4",
       icon: Mail,
       desc: commsCost !== null ? "Notificaciones y OTPs" : "API de mensajería no conectada",
-      quality: (commsCost !== null ? "PROVISIONAL" : "UNAVAILABLE") as SignalQuality,
+      quality: ((economics?.costsQuality?.["communicationsCosts"] as SignalQuality) || (commsCost !== null ? "PROVISIONAL" : "UNAVAILABLE")) as SignalQuality,
       source: "Resend / Twilio API",
     },
   ];
 
-  const hasArpu = economics && economics.arpu !== undefined && economics.arpu !== null;
-  const contributionMargin = hasArpu ? economics.arpu - (economics.costPerUser || 0) : 0;
-  const contributionMarginPct = hasArpu && economics.arpu > 0
-    ? Math.round((contributionMargin / economics.arpu) * 100)
-    : 0;
+  const arpu = economics?.arpu;
+  const hasArpu = typeof arpu === "number";
+  const cpau = economics?.costPerUser;
+  const hasCpau = typeof cpau === "number";
+  const contributionMargin = hasArpu && hasCpau ? arpu - cpau : null;
+  const contributionMarginPct = contributionMargin !== null && hasArpu && arpu > 0
+    ? Math.round((contributionMargin / arpu) * 100)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -125,7 +127,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title="ARPU (Ingreso / Usuario)"
-          value={economics && hasArpu ? formatCurrency(economics.arpu) : null}
+          value={hasArpu ? formatCurrency(arpu) : null}
           subtext="Promedio global por usuario activo"
           icon={DollarSign}
           variant="emerald"
@@ -139,40 +141,40 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
         />
         <KpiCard
           title="Costo por Usuario (CPAU)"
-          value={economics && economics.costPerUser !== undefined ? formatCurrency(economics.costPerUser) : null}
+          value={hasCpau ? formatCurrency(cpau) : null}
           subtext="Nube + Pasarelas / Activo"
           icon={TrendingUp}
           variant="rose"
-          quality={(economics?.costsQuality?.["cpau"] as SignalQuality) || (economics ? "CERTIFIED" : "UNAVAILABLE")}
+          quality={((economics?.costsQuality?.["costPerUser"] || economics?.costsQuality?.["cpau"] as SignalQuality) || (hasCpau ? "CERTIFIED" : "UNAVAILABLE")) as SignalQuality}
           source="FinOps Aggregator"
           owner="FinOps & Infraestructura"
           asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Suma de pasarelas Stripe y GCP dividida entre MAU."
+          explanation="Suma de pasarelas Stripe y GCP dividida entre MAU. Requiere costo total certificado."
         />
         <KpiCard
           title="Costo Operativo Total"
-          value={economics ? formatCurrency(totalOperatingCosts) : null}
+          value={totalOperatingCosts !== null ? formatCurrency(totalOperatingCosts) : null}
           subtext="Gastos directos del mes"
           icon={Layers}
           variant="orange"
-          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
+          quality={((economics?.costsQuality?.["totalCosts"] as SignalQuality) || (totalOperatingCosts !== null ? "CERTIFIED" : "UNAVAILABLE")) as SignalQuality}
           source="Stripe + GCP BigQuery"
           owner="Finanzas & Infraestructura"
           asOf={economics?.asOf}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Costos totales certificados de operación del periodo."
+          explanation="Costos totales certificados de operación del periodo. No se suman subconjuntos parciales."
         />
         <KpiCard
           title="Margen Neto Global"
-          value={economics && economics.netProfit !== undefined ? formatCurrency(economics.netProfit) : null}
+          value={economics && economics.netProfit !== undefined && economics.netProfit !== null ? formatCurrency(economics.netProfit) : null}
           changePercent={0}
           changePeriod="Utilidad neta real"
           icon={Percent}
           variant="indigo"
-          quality={economics ? "PROVISIONAL" : "UNAVAILABLE"}
+          quality={((economics?.costsQuality?.["netProfit"] as SignalQuality) || (economics?.netProfit !== null && economics?.netProfit !== undefined ? "PROVISIONAL" : "UNAVAILABLE")) as SignalQuality}
           source="Modelo de Conciliación Preliminar"
           owner="Dirección Financiera"
           asOf={economics?.asOf}
@@ -193,7 +195,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
               Ingreso Promedio (ARPU)
             </span>
             <span className="text-2xl font-extrabold text-emerald-900 mt-1 block">
-              {formatCurrency(economics?.arpu || 0)}
+              {hasArpu ? formatCurrency(arpu) : "No disponible"}
             </span>
             <span className="text-[11px] text-emerald-600 mt-1 block">SaaS + Comisiones</span>
           </div>
@@ -205,7 +207,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
               Costo Unitario (CPAU)
             </span>
             <span className="text-2xl font-extrabold text-rose-900 mt-1 block">
-              {formatCurrency(economics?.costPerUser || 0)}
+              {hasCpau ? formatCurrency(cpau) : "No disponible"}
             </span>
             <span className="text-[11px] text-rose-600 mt-1 block">GCP + IA + Timbres + Pasarela</span>
           </div>
@@ -217,10 +219,10 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
               Margen de Contribución
             </span>
             <span className="text-2xl font-extrabold text-indigo-950 mt-1 block">
-              {formatCurrency(contributionMargin)}
+              {contributionMargin !== null ? formatCurrency(contributionMargin) : "No disponible"}
             </span>
             <span className="text-[11px] text-indigo-600 mt-1 block">
-              {contributionMarginPct}% de margen unitario
+              {contributionMarginPct !== null ? `${contributionMarginPct}% de margen unitario` : "Requiere costo total certificado"}
             </span>
           </div>
         </div>
@@ -236,10 +238,9 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           <div className="space-y-3">
             {costBreakdown.map((item) => {
               const Icon = item.icon;
-              const isCostAvailable = item.cost !== null && item.cost !== undefined;
-              const percent = item.cost !== null && item.cost !== undefined && totalOperatingCosts > 0 
+              const percent = item.cost !== null && item.cost !== undefined && totalOperatingCosts !== null && totalOperatingCosts > 0 
                 ? Math.round(((item.cost ?? 0) / totalOperatingCosts) * 100) 
-                : 0;
+                : null;
               return (
                 <div
                   key={item.name}
@@ -276,7 +277,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
                       {item.cost !== null && item.cost !== undefined ? formatCurrency(item.cost) : "No disponible"}
                     </span>
                     <span className="text-xs font-semibold text-slate-500">
-                      {item.cost !== null && item.cost !== undefined ? `${percent}% del total` : "—"}
+                      {percent !== null ? `${percent}% del total` : "—"}
                     </span>
                   </div>
                 </div>

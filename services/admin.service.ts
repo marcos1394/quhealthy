@@ -48,12 +48,12 @@ export interface UnitEconomicsDTO {
   chartData?: ChartPointDTO[];
   
   // Costos Operativos Granulares
-  cloudCosts: number;
+  cloudCosts?: number;
   aiCosts?: number;
   satFacturamaCosts?: number;
   communicationsCosts?: number;
-  stripeFees: number;
-  marketingCosts: number;
+  stripeFees?: number;
+  marketingCosts?: number;
   totalCosts?: number;
 
   // SaaS
@@ -70,9 +70,9 @@ export interface UnitEconomicsDTO {
   topProviders: ProviderEarningsDTO[];
   salesByType: SalesVolumeDTO[];
   arpu: number;
-  costPerUser: number;
-  grossMargin: number;
-  netProfit: number;
+  costPerUser?: number;
+  grossMargin?: number;
+  netProfit?: number;
 
   // Veracidad & Auditoría (ADMIN-TRUST-01)
   asOf?: string;

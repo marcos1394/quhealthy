@@ -266,20 +266,20 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
             <div className="flex items-center justify-between text-xs text-slate-500 font-semibold uppercase">
               <span>Margen Neto Real</span>
               <span className="text-emerald-600 font-bold">
-                {economics && economics.totalRevenue && economics.totalRevenue > 0
+                {economics?.totalRevenue && economics.totalRevenue > 0 && typeof economics.netProfit === "number"
                   ? `${Math.round((economics.netProfit / economics.totalRevenue) * 100)}%`
                   : "N/D"}
               </span>
             </div>
             <div className="text-2xl font-extrabold text-slate-900">
-              {economics ? formatCurrency(economics.netProfit) : "No disponible"}
+              {typeof economics?.netProfit === "number" ? formatCurrency(economics.netProfit) : "No disponible"}
             </div>
             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all"
                 style={{
                   width: `${
-                    economics?.totalRevenue && economics.totalRevenue > 0
+                    economics?.totalRevenue && economics.totalRevenue > 0 && typeof economics.netProfit === "number"
                       ? Math.min(Math.max(Math.round((economics.netProfit / economics.totalRevenue) * 100), 0), 100)
                       : 0
                   }%`,
