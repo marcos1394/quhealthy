@@ -70,6 +70,10 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
       }))
     : [];
 
+  const asOfDate = economics?.asOf ? new Date(economics.asOf) : null;
+  const isStale = asOfDate ? Date.now() - asOfDate.getTime() > 48 * 60 * 60 * 1000 : false;
+  const hasTelemetry = Boolean(economics || dashboard);
+
   return (
     <div className="space-y-6">
       {/* 🎯 Las Tres Decisiones Esenciales del CEO (PORT-E-01 & HU #43) */}
@@ -77,96 +81,148 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className={`w-2.5 h-2.5 rounded-full ${hasTelemetry ? "bg-amber-400 animate-pulse" : "bg-slate-500"}`} />
               <h3 className="font-bold text-base sm:text-lg text-white">
-                Las Tres Decisiones Esenciales del CEO (PORT-E-01)
+                Las Tres Decisiones Esenciales del CEO (PORT-E-01) — Propuestas a Junta
               </h3>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Decisiones operativas condicionadas con base en evidencia certificada de Producto, Demanda y FinOps.
+              Propuestas técnicas y operativas bajo diagnóstico preliminar. Requieren ratificación humana de la Junta Directiva antes de cualquier ejecución.
             </p>
           </div>
-          <span className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60 self-start sm:self-auto">
-            Corte: {economics?.asOf ? new Date(economics.asOf).toLocaleDateString("es-MX") : "2026-10-10"}
-          </span>
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            {isStale && (
+              <span className="text-[11px] font-medium text-amber-300 bg-amber-950/70 border border-amber-800/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3 text-amber-400" /> Dato obsoleto (&gt;48h)
+              </span>
+            )}
+            <span className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60">
+              Corte: {asOfDate ? asOfDate.toLocaleDateString("es-MX") : "Sin corte verificado"}
+            </span>
+          </div>
         </div>
+
+        {!hasTelemetry && (
+          <div className="bg-amber-950/30 border border-amber-800/50 rounded-2xl p-3.5 text-xs text-amber-200/90 flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-amber-300">Telemetría no conectada (Estado Vacío / Diagnóstico Preliminar)</p>
+              <p className="text-slate-300 text-[11px] mt-0.5">
+                No se ha recibido respuesta del servicio de analítica o métricas. Las propuestas mostradas abajo son recomendaciones de diseño de arquitectura y no representan decisiones aprobadas ni datos en vivo.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Tarjeta 1: Producto y Activación */}
           <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
-                  1. Producto & Activación
+                  1. Eje Producto & Activación
                 </span>
-                <span className="text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
-                  PILOTO CONTROLADO
+                <span className="text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
+                  PROPUESTA A JUNTA
                 </span>
               </div>
-              <h4 className="text-xs font-bold text-white mt-1.5">
+              <h4 className="text-xs font-bold text-white">
                 ¿El producto entrega primer valor sin romperse?
               </h4>
-              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+              <p className="text-[11px] text-slate-300 leading-relaxed">
                 Rupturas 1-3 resueltas (agenda, checkout y cédula NOM-004). Cero citas orgánicas de pacientes externos completadas.
               </p>
             </div>
-            <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-slate-400">Acción Aprobada:</div>
-              <p className="text-xs font-semibold text-emerald-400">
-                👉 No abrir a tráfico masivo. Ejecutar piloto cerrado con 10 médicos seleccionados y soporte concierge.
-              </p>
+
+            <div className="space-y-2">
+              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="uppercase font-bold text-slate-400">Propuesta Técnica:</span>
+                  <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
+                </div>
+                <p className="text-xs font-semibold text-slate-200">
+                  👉 No abrir a tráfico masivo. Ejecutar piloto cerrado con 10 médicos seleccionados y soporte concierge únicamente tras validación humana.
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Fuente: DB Logs & appointment-service</span>
+                <span className="font-mono text-slate-300">Calidad: PROVISIONAL</span>
+              </div>
             </div>
           </div>
 
           {/* Tarjeta 2: Demanda y Monetización */}
           <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
-                  2. Demanda & Monetización
+                  2. Eje Demanda & Monetización
                 </span>
-                <span className="text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                  CONGELAR PAUTA
+                <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                  PROPUESTA A JUNTA
                 </span>
               </div>
-              <h4 className="text-xs font-bold text-white mt-1.5">
+              <h4 className="text-xs font-bold text-white">
                 ¿Hay demanda comprobable y dinero real en caja?
               </h4>
-              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+              <p className="text-[11px] text-slate-300 leading-relaxed">
                 GMV Real: $0.00 MXN · MRR: $0.00 MXN · CAC: No disponible. Cero clientes de pago fuera de testing interno.
               </p>
             </div>
-            <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-slate-400">Acción Aprobada:</div>
-              <p className="text-xs font-semibold text-amber-400">
-                👉 $0 en Meta/Google Ads. Prohibir pauta pagada y validar adopción de $1,800/mes 1-a-1 bajo criterio de falsación.
-              </p>
+
+            <div className="space-y-2">
+              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="uppercase font-bold text-slate-400">Propuesta Técnica:</span>
+                  <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
+                </div>
+                <p className="text-xs font-semibold text-slate-200">
+                  👉 $0 en Meta/Google Ads. Prohibir pauta pagada y validar adopción de $1,800/mes 1-a-1 bajo criterio de falsación.
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Fuente: Stripe Events & analytics-service</span>
+                <span className="font-mono text-emerald-400">Calidad: AUDITADA</span>
+              </div>
             </div>
           </div>
 
           {/* Tarjeta 3: Riesgo Operativo y FinOps */}
           <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-                  3. Riesgo Operativo & FinOps
+                  3. Eje Riesgo Operativo & FinOps
                 </span>
-                <span className="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                  OPTIMIZACIÓN ACTIVA
+                <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  PROPUESTA A JUNTA
                 </span>
               </div>
-              <h4 className="text-xs font-bold text-white mt-1.5">
+              <h4 className="text-xs font-bold text-white">
                 ¿Qué riesgo o costo amenaza la continuidad?
               </h4>
-              <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+              <p className="text-[11px] text-slate-300 leading-relaxed">
                 0 fallas de pasarela en BD. ~$35 USD/mes ocioso identificado. Borde protegido vía Worker ($0 USD adicionales).
               </p>
             </div>
-            <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-slate-400">Acción Aprobada:</div>
-              <p className="text-xs font-semibold text-emerald-400">
-                👉 Liberar IP estática, evaluar minScale=0 en Auth (ahorro 80%), rechazar Cloud Armor ($80/mes) y validar Playbook.
-              </p>
+
+            <div className="space-y-2">
+              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="uppercase font-bold text-slate-400">Propuesta Técnica:</span>
+                  <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
+                </div>
+                <p className="text-xs font-semibold text-slate-200">
+                  👉 Liberar IP estática, evaluar minScale=0 en Auth (ahorro 80%), rechazar Cloud Armor ($80/mes) y validar Playbook.
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Fuente: GCP Billing & Cloudflare Metrics</span>
+                <span className="font-mono text-slate-300">Calidad: ESTIMADA</span>
+              </div>
             </div>
           </div>
         </div>
