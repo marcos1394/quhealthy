@@ -3,6 +3,7 @@ import path from "path";
 
 export default defineConfig({
   test: {
+    cache: false,
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],

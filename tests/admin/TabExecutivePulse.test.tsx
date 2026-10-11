@@ -18,7 +18,7 @@ beforeAll(() => {
   };
 });
 
-describe("TabExecutivePulse (PORT-E-01 & HU #43 Compliance)", () => {
+describe("TabExecutivePulse (PORT-E-01 & HU #43 Compliance - Veracidad y Gobernanza)", () => {
   const formatCurrency = (val: number) => `$${val.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`;
   const mockNavigateTab = vi.fn();
 
@@ -36,7 +36,7 @@ describe("TabExecutivePulse (PORT-E-01 & HU #43 Compliance)", () => {
     },
   ];
 
-  it("renders the 3 Essential CEO Decisions (PORT-E-01) with their status badges and approved actions", () => {
+  it("renders the 3 CEO axes as Board Proposals with PENDING human approval, provenance sources and data quality", () => {
     render(
       <TabExecutivePulse
         economics={null}
@@ -48,39 +48,66 @@ describe("TabExecutivePulse (PORT-E-01 & HU #43 Compliance)", () => {
       />
     );
 
-    // Title and container
+    // Title clarifies they are Board Proposals under preliminary diagnosis
     expect(
-      screen.getByText("Las Tres Decisiones Esenciales del CEO (PORT-E-01)")
+      screen.getByText(/Las Tres Decisiones Esenciales del CEO \(PORT-E-01\) — Propuestas a Junta/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Requieren ratificación humana de la Junta Directiva/i)
     ).toBeInTheDocument();
 
-    // Decision 1: Producto & Activación
-    expect(screen.getByText("1. Producto & Activación")).toBeInTheDocument();
-    expect(screen.getByText("PILOTO CONTROLADO")).toBeInTheDocument();
-    expect(
-      screen.getByText(/No abrir a tráfico masivo\. Ejecutar piloto cerrado con 10 médicos/i)
-    ).toBeInTheDocument();
+    // Never present unverified recommendations as already approved actions
+    expect(screen.queryByText("Acción Aprobada:")).not.toBeInTheDocument();
+    expect(screen.queryByText(/evidencia certificada/i)).not.toBeInTheDocument();
 
-    // Decision 2: Demanda & Monetización
-    expect(screen.getByText("2. Demanda & Monetización")).toBeInTheDocument();
-    expect(screen.getByText("CONGELAR PAUTA")).toBeInTheDocument();
-    expect(
-      screen.getByText(/\$0 en Meta\/Google Ads\. Prohibir pauta pagada/i)
-    ).toBeInTheDocument();
+    // Board proposal badges and pending status
+    const proposalBadges = screen.getAllByText("PROPUESTA A JUNTA");
+    expect(proposalBadges.length).toBe(3);
 
-    // Decision 3: Riesgo Operativo & FinOps
-    expect(screen.getByText("3. Riesgo Operativo & FinOps")).toBeInTheDocument();
-    expect(screen.getByText("OPTIMIZACIÓN ACTIVA")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Liberar IP estática, evaluar minScale=0 en Auth/i)
-    ).toBeInTheDocument();
+    const pendingDecisions = screen.getAllByText(/Decisión: PENDIENTE/i);
+    expect(pendingDecisions.length).toBe(3);
 
-    // Default cutoff date when economics is null
-    expect(screen.getByText(/Corte: 2026-10-10/i)).toBeInTheDocument();
+    // Eje 1: Producto & Activación
+    expect(screen.getByText("1. Eje Producto & Activación")).toBeInTheDocument();
+    expect(screen.getByText(/Fuente: DB Logs & appointment-service/i)).toBeInTheDocument();
+    expect(screen.getByText(/Calidad: PROVISIONAL/i)).toBeInTheDocument();
+
+    // Eje 2: Demanda & Monetización
+    expect(screen.getByText("2. Eje Demanda & Monetización")).toBeInTheDocument();
+    expect(screen.getByText(/Fuente: Stripe Events & analytics-service/i)).toBeInTheDocument();
+    expect(screen.getByText(/Calidad: AUDITADA/i)).toBeInTheDocument();
+
+    // Eje 3: Riesgo Operativo & FinOps
+    expect(screen.getByText("3. Eje Riesgo Operativo & FinOps")).toBeInTheDocument();
+    expect(screen.getByText(/Fuente: GCP Billing & Cloudflare Metrics/i)).toBeInTheDocument();
+    expect(screen.getByText(/Calidad: ESTIMADA/i)).toBeInTheDocument();
   });
 
-  it("formats the asOf cut-off date faithfully when economics provides an asOf timestamp", () => {
-    const mockEconomics: UnitEconomicsDTO = {
-      totalUsers: 12,
+  it("renders empty telemetry state banner and 'Sin corte verificado' when data is null", () => {
+    render(
+      <TabExecutivePulse
+        economics={null}
+        dashboard={null}
+        productMetrics={null}
+        providers={mockProviders}
+        formatCurrency={formatCurrency}
+        onNavigateTab={mockNavigateTab}
+      />
+    );
+
+    // Empty state banner
+    expect(
+      screen.getByText(/Telemetría no conectada \(Estado Vacío \/ Diagnóstico Preliminar\)/i)
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Corte: Sin corte verificado/i)).toBeInTheDocument();
+    // Must NOT fabricate a default date
+    expect(screen.queryByText(/Corte: 2026-10-10/i)).not.toBeInTheDocument();
+  });
+
+  it("renders stale data warning when asOf timestamp is older than 48 hours", () => {
+    const staleDate = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+    const staleEconomics: UnitEconomicsDTO = {
+      totalUsers: 10,
       activeSubscriptions: 0,
       totalRevenue: 0,
       totalSubscriptionsRevenue: 0,
@@ -92,7 +119,7 @@ describe("TabExecutivePulse (PORT-E-01 & HU #43 Compliance)", () => {
       grossMargin: 0,
       topProviders: [],
       salesByType: [],
-      asOf: "2026-10-09T18:30:00Z",
+      asOf: staleDate,
       period: "30d",
       costsQuality: {
         stripeFees: "PROVISIONAL",
@@ -108,7 +135,7 @@ describe("TabExecutivePulse (PORT-E-01 & HU #43 Compliance)", () => {
 
     render(
       <TabExecutivePulse
-        economics={mockEconomics}
+        economics={staleEconomics}
         dashboard={null}
         productMetrics={null}
         providers={mockProviders}
@@ -117,8 +144,53 @@ describe("TabExecutivePulse (PORT-E-01 & HU #43 Compliance)", () => {
       />
     );
 
-    const expectedDate = new Date("2026-10-09T18:30:00Z").toLocaleDateString("es-MX");
+    // Stale telemetry badge
+    expect(screen.getByText(/Dato obsoleto \(>48h\)/i)).toBeInTheDocument();
+  });
+
+  it("formats the asOf cut-off date faithfully when fresh economics data is provided", () => {
+    const freshDate = new Date().toISOString();
+    const freshEconomics: UnitEconomicsDTO = {
+      totalUsers: 12,
+      activeSubscriptions: 0,
+      totalRevenue: 0,
+      totalSubscriptionsRevenue: 0,
+      totalCommissionsRevenue: 0,
+      cloudCosts: 0,
+      stripeFees: 0,
+      totalCosts: 0,
+      arpu: 0,
+      grossMargin: 0,
+      topProviders: [],
+      salesByType: [],
+      asOf: freshDate,
+      period: "30d",
+      costsQuality: {
+        stripeFees: "PROVISIONAL",
+        cloudCosts: "PROVISIONAL",
+        aiCosts: "UNAVAILABLE",
+        satFacturamaCosts: "UNAVAILABLE",
+        communicationsCosts: "UNAVAILABLE",
+        totalCosts: "UNAVAILABLE",
+        costPerUser: "UNAVAILABLE",
+        netProfit: "UNAVAILABLE",
+      },
+    };
+
+    render(
+      <TabExecutivePulse
+        economics={freshEconomics}
+        dashboard={null}
+        productMetrics={null}
+        providers={mockProviders}
+        formatCurrency={formatCurrency}
+        onNavigateTab={mockNavigateTab}
+      />
+    );
+
+    const expectedDate = new Date(freshDate).toLocaleDateString("es-MX");
     expect(screen.getByText(new RegExp(`Corte: ${expectedDate}`, "i"))).toBeInTheDocument();
+    expect(screen.queryByText(/Dato obsoleto \(>48h\)/i)).not.toBeInTheDocument();
   });
 
   it("obeys ADMIN-TRUST-01 by rendering 'No disponible' for uncertified metrics instead of fabricated figures", () => {
