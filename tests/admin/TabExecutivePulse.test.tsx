@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, beforeAll, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import {
   TabExecutivePulse,
   validateSourceDate,
@@ -377,18 +377,18 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
         inClinicRevenue: 0,
         totalGmv: 0,
         cloudCosts: 35.5,
-        aiCosts: null,
-        satFacturamaCosts: null,
-        communicationsCosts: null,
-        marketingCosts: null,
+        aiCosts: undefined,
+        satFacturamaCosts: undefined,
+        communicationsCosts: undefined,
+        marketingCosts: undefined,
         stripeFees: 0,
-        totalCosts: null,
+        totalCosts: undefined,
         mrr: 0,
         arr: 0,
         churnRate: 0,
         planTiers: [],
-        totalDoctorPayouts: null,
-        pendingDoctorPayouts: null,
+        totalDoctorPayouts: undefined,
+        pendingDoctorPayouts: undefined,
         reconciliationMatch: false,
         reconciliationQuality: "PROVISIONAL",
         reconciliationNotes: "Conciliación bancaria y balance Stripe en proceso",
@@ -408,9 +408,9 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
         period: "30d",
         salesByType: [],
         arpu: 0,
-        costPerUser: null,
+        costPerUser: undefined,
         grossMargin: 0,
-        netProfit: null,
+        netProfit: undefined,
         topProviders: [],
       };
 
@@ -445,13 +445,98 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
       expect(screen.queryByText("AUDITADA")).not.toBeInTheDocument();
 
       // Verify labels match truth:
-      expect(screen.getByText("Ingresos netos de plataforma en Stripe:")).toBeInTheDocument();
+      expect(screen.getByText("Recaudo de transacciones Stripe:")).toBeInTheDocument();
       expect(screen.getByText("Costo cloud estimado (GCP):")).toBeInTheDocument();
       expect(screen.getByText(/Volumen Clínico Agregado/i)).toBeInTheDocument();
-      expect(screen.getByText(/Ingresos por Suscripciones/i)).toBeInTheDocument();
+      expect(screen.getByText(/Recaudo por Suscripciones/i)).toBeInTheDocument();
 
       // Verify API response timestamp note
       expect(screen.getAllByText(/Generado API:/i).length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("renders 'No disponible' for GMV when totalGmv is missing/undefined, without falling back to totalRevenue", () => {
+      const missingGmvEconomics: UnitEconomicsDTO = {
+        totalUsers: 10,
+        activeSubscriptions: 2,
+        totalRevenue: 5000, // Existe totalRevenue, pero totalGmv es null
+        totalSubscriptionsRevenue: 2000,
+        totalCommissionsRevenue: 3000,
+        cloudCosts: 100,
+        stripeFees: 50,
+        totalCosts: undefined,
+        arpu: 500,
+        grossMargin: 0.99,
+        topProviders: [],
+        salesByType: [],
+        asOf: new Date(Date.now() - 3600 * 1000).toISOString(),
+        period: "30d",
+        reconciliationQuality: "PROVISIONAL",
+      };
+
+      render(
+        <TabExecutivePulse
+          economics={missingGmvEconomics}
+          dashboard={null}
+          productMetrics={null}
+          providers={mockProviders}
+          formatCurrency={formatCurrency}
+          onNavigateTab={mockNavigateTab}
+        />
+      );
+
+      // El KPI de Volumen Clínico Agregado debe mostrar "No disponible" y NO "$5,000.00"
+      const gmvKpiTitle = screen.getByText(/Volumen Clínico Agregado/i);
+      const gmvKpiCard = gmvKpiTitle.closest("div")?.parentElement;
+      expect(gmvKpiCard).toBeTruthy();
+      expect(within(gmvKpiCard!).queryByText("$5,000.00")).not.toBeInTheDocument();
+      expect(within(gmvKpiCard!).getByText("No disponible")).toBeInTheDocument();
+    });
+
+    it("honors reconciliationQuality=PROVISIONAL without promoting revenue signals to CERTIFIED or AUDITADA even if costsQuality has CERTIFIED fees", () => {
+      const provisionalEconomics: UnitEconomicsDTO = {
+        totalUsers: 10,
+        activeSubscriptions: 2,
+        totalGmv: 4000,
+        totalRevenue: 4000,
+        totalSubscriptionsRevenue: 1800,
+        totalCommissionsRevenue: 2200,
+        cloudCosts: 50,
+        stripeFees: 30,
+        totalCosts: undefined,
+        arpu: 400,
+        grossMargin: 0.99,
+        mrr: 1800,
+        topProviders: [],
+        salesByType: [],
+        asOf: new Date(Date.now() - 3600 * 1000).toISOString(),
+        period: "30d",
+        reconciliationQuality: "PROVISIONAL",
+        costsQuality: {
+          stripeFees: "CERTIFIED", // Las tarifas de pasarela pueden estar auditadas por Stripe, pero NO certifican los ingresos
+          cloudCosts: "PROVISIONAL",
+        },
+      };
+
+      render(
+        <TabExecutivePulse
+          economics={provisionalEconomics}
+          dashboard={null}
+          productMetrics={null}
+          providers={mockProviders}
+          formatCurrency={formatCurrency}
+          onNavigateTab={mockNavigateTab}
+        />
+      );
+
+      // Señales de ingresos y GMV permanecen en calidad provisional / estimada (badge 'Estimado' en KpiCard y 'Calidad: PROVISIONAL' en tarjeta de decisiones)
+      const estimatedBadges = screen.getAllByText("Estimado");
+      expect(estimatedBadges.length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText(/Calidad:\s*PROVISIONAL/i).length).toBeGreaterThanOrEqual(1);
+
+      // Nunca promover a CERTIFIED o AUDITADA
+      expect(screen.queryByText("Certificado")).not.toBeInTheDocument();
+      expect(screen.queryByText("Certificada")).not.toBeInTheDocument();
+      expect(screen.queryByText("AUDITADA")).not.toBeInTheDocument();
     });
   });
 });

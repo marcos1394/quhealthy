@@ -158,11 +158,9 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
     ? productMetricsDate
     : economicsDate;
 
-  // Extracción estricta de métricas ejecutivas (erradicando || 0 y certificados automáticos)
+  // Extracción estricta de métricas ejecutivas (erradicando || 0, fallbacks cruzados y certificados automáticos)
   const totalGmvVal = typeof economics?.totalGmv === "number"
     ? economics.totalGmv
-    : typeof economics?.totalRevenue === "number"
-    ? economics.totalRevenue
     : null;
   const displayGmv = totalGmvVal !== null ? formatCurrency(totalGmvVal) : null;
 
@@ -344,7 +342,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               </h4>
               <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Ingresos netos de plataforma en Stripe:</span>
+                  <span className="text-slate-400">Recaudo de transacciones Stripe:</span>
                   <span className="font-semibold text-white">
                     {typeof economics?.totalRevenue === "number"
                       ? formatCurrency(economics.totalRevenue)
@@ -353,8 +351,8 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
                   {typeof economics?.totalRevenue === "number"
-                    ? `Ingresos en balance Stripe (suscripciones + comisiones): ${formatCurrency(economics.totalRevenue)}. Suscripciones periodo: ${typeof economics.mrr === "number" ? formatCurrency(economics.mrr) : typeof economics.totalSubscriptionsRevenue === "number" ? formatCurrency(economics.totalSubscriptionsRevenue) : "No verificado"}. CAC: No disponible / No verificado.`
-                    : "Sin conciliación bancaria de pasarela ni eventos de pago verificados."}
+                    ? `Transacciones Stripe registradas (suscripciones + comisiones): ${formatCurrency(economics.totalRevenue)}. Suscripciones periodo: ${typeof economics.mrr === "number" ? formatCurrency(economics.mrr) : typeof economics.totalSubscriptionsRevenue === "number" ? formatCurrency(economics.totalSubscriptionsRevenue) : "No verificado"}. CAC: No disponible / No verificado. Datos provisionales no conciliados bancariamente.`
+                    : "Sin eventos de pago verificados en pasarela ni conciliación bancaria."}
                 </p>
               </div>
             </div>
@@ -465,7 +463,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           explanation="Volumen bruto agregado en base de datos local (citas en línea y consultorio). No constituye GMV conciliado en pasarela."
         />
         <KpiCard
-          title={`Ingresos por Suscripciones (${selectedPeriod.toUpperCase()})`}
+          title={`Recaudo por Suscripciones (${selectedPeriod.toUpperCase()})`}
           value={displayMrr}
           subtext={mrrBreakdown}
           icon={Zap}
@@ -476,7 +474,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           asOf={economicsDate.formattedText}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Ingresos netos por cobros de suscripciones en el periodo solicitado. No normalizado como MRR recurrente anualizado."
+          explanation="Cobros de suscripciones registrados en Stripe en el periodo (calidad provisional, sin conciliación bancaria externa ni normalización como MRR recurrente)."
         />
         <KpiCard
           title="Usuarios Activos (MAU)"
