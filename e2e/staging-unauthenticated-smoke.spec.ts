@@ -69,10 +69,12 @@ test.describe('Smoke Negativo No Autenticado y Verificación de Borde en Staging
        * Debe responder 200 OK con un array de slots (o [] si no hay disponibilidad configurada).
        * REGLA DE CODEX: Un 404 indica recurso ausente y NUNCA debe interpretarse como "disponibilidad de slots".
        */
+      const scheduleProbeId = process.env.STAGING_TEST_SCHEDULE_ID || '1';
+      const locationProbeId = process.env.STAGING_TEST_LOCATION_ID || '1';
       const res = await request.get(
-        `${API_BASE}/api/appointments/schedules/1/available-slots?locationId=1&startDate=2026-10-20&endDate=2026-10-20&durationMinutes=30`
+        `${API_BASE}/api/appointments/schedules/${scheduleProbeId}/available-slots?locationId=${locationProbeId}&startDate=2026-10-20&endDate=2026-10-20&durationMinutes=30`
       );
-      expect(res.status()).toBe(200);
+      expect(res.status(), `El endpoint de slots respondió ${res.status()}. Un 404 indica ausencia de recurso y no certifica disponibilidad.`).toBe(200);
       const slots = await res.json();
       expect(Array.isArray(slots)).toBe(true);
     });
@@ -83,11 +85,13 @@ test.describe('Smoke Negativo No Autenticado y Verificación de Borde en Staging
        * Un error 500 indica una excepción no capturada en backend (defecto de software),
        * NUNCA una validación exitosa de entrada. La API debe responder 400 Bad Request.
        */
+      const scheduleProbeId = process.env.STAGING_TEST_SCHEDULE_ID || '1';
+      const locationProbeId = process.env.STAGING_TEST_LOCATION_ID || '1';
       const res = await request.get(
-        `${API_BASE}/api/appointments/schedules/1/available-slots?locationId=1&startDate=fecha-invalida&endDate=2026-10-20`
+        `${API_BASE}/api/appointments/schedules/${scheduleProbeId}/available-slots?locationId=${locationProbeId}&startDate=fecha-invalida&endDate=2026-10-20`
       );
-      // Exigir estrictamente 400 Bad Request (o 422). Si responde 500, la prueba debe advertir el fallo de backend.
-      expect([400, 422]).toContain(res.status());
+      // Exigir estrictamente 400 Bad Request (o 422). Si responde 500, la prueba falla evidenciando el defecto en backend.
+      expect(res.status(), 'Defecto de software: el backend retornó 500 ante fecha inválida en lugar de 400 Bad Request').toBe(400);
     });
   });
 
@@ -104,10 +108,11 @@ test.describe('Smoke Negativo No Autenticado y Verificación de Borde en Staging
     });
 
     test('3.2 Caso Negativo: Login con credenciales sintéticas incorrectas devuelve 400/401', async ({ request }) => {
+      const invalidPasswordProbe = process.env.STAGING_TEST_INVALID_PASSWORD || 'probe_nonexistent_pwd_99';
       const res = await request.post(`${API_BASE}/api/auth/login`, {
         data: {
           email: 'synthetic-nonexistent-user@quhealthy.org',
-          password: 'WrongPassword123!',
+          password: invalidPasswordProbe,
         },
         headers: { 'Content-Type': 'application/json' },
       });
@@ -138,7 +143,7 @@ test.describe('Smoke Negativo No Autenticado y Verificación de Borde en Staging
       expect(res.status()).toBe(401);
     });
 
-    test('4.2 Frontera Público vs Sesión: Auditoría de redirección 307 en /patient/booking/*', async ({ page }) => {
+    test('4.2 Diagnóstico de Frontera Público vs Sesión: Acceso anónimo a /patient/booking/[slug]', async ({ page }) => {
       /**
        * DEFINICIÓN DE ARQUITECTURA (Público vs Sesión):
        * - DEBE SER PÚBLICO: Consulta de catálogo, visualización del perfil médico (/patient/booking/[slug]),
@@ -147,19 +152,21 @@ test.describe('Smoke Negativo No Autenticado y Verificación de Borde en Staging
        *   acceso a sala virtual de teleconsulta y consulta de notas clínicas.
        * 
        * DIAGNÓSTICO DEL 307 ACTUAL EN STAGING:
-       * El middleware de Vercel en staging actualmente intercepta /patient/booking/ y redirige con 307
+       * El middleware de Vercel en staging actualmente intercepta /patient/booking/[slug] y redirige con 307
        * a /login?callbackUrl=... Esto constituye una discrepancia con la regla de ruta pública
        * ('isPublicBookingRoute' en proxy.ts) pendiente de sincronización en el edge.
-       * NO SE CONVIERTE ESTE 307 EN CRITERIO DE APROBACIÓN; se audita y documenta el comportamiento.
+       * REGLA DE CODEX / JUNTA: No marcar este 307 como aprobación de la ruta pública.
+       * Si el edge redirige a login, la compuerta de navegación pública anónima falla explícitamente.
        */
-      const response = await page.goto('/es/patient/booking/demo-doctor');
+      await page.goto('/es/patient/booking/demo-doctor');
       const finalUrl = page.url();
 
       const redirectedToLogin = finalUrl.includes('/login') && finalUrl.includes('callbackUrl');
       const renderedBooking = finalUrl.includes('/booking/demo-doctor');
 
-      // Se constata el estado de borde en staging sin declarar el 307 como la experiencia ideal
-      expect(redirectedToLogin || renderedBooking).toBe(true);
+      // Si el edge intercepta con 307 hacia login, la compuerta pública anónima queda NO APROBADA
+      expect(redirectedToLogin, 'Defecto de borde en staging: la ruta pública /patient/booking/[slug] redirige a login (307) en vez de ser accesible anónimamente').toBe(false);
+      expect(renderedBooking).toBe(true);
     });
   });
 

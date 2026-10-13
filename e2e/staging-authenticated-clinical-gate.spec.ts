@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Compuerta E2E Positiva y Autenticada en Staging (PR #82 / P0)
+ * Compuerta E2E Positiva y Autenticada en Staging (PR #82 / P0 - Iteración 2.2)
  * 
- * Cadena Clínica Requerida:
- * Prestador habilitado -> Sede/Horario -> Paciente encuentra slot ->
- * Reserva -> Acceso por roles -> Teleconsulta/Consentimiento IA -> Cierre clínico.
- * 
- * Reglas de Veracidad y Seguridad (PORT-E-01 / ADMIN-TRUST-01):
- * - Exclusivamente identidades y datos sintéticos.
- * - Cero pacientes reales, cero cobros a tarjetas reales, cero correos externos, cero recetas a personas.
- * - Por cada paso, registrar Execution ID, request/response saneados y estado verificable.
- * - Si falta una cuenta, permiso o integración en staging, se declara el bloqueo exacto
- *   y NO se marca la compuerta como aprobada ni se inventan mocks.
+ * Reglas de Veracidad y Seguridad Estricta (Codex & Junta Directiva):
+ * 1. CERO contraseñas por defecto o en texto claro. Exclusivamente variables de entorno
+ *    del almacén de secretos de staging (STAGING_TEST_DOCTOR_PASSWORD, etc.).
+ * 2. CERO compuertas verdes ficticias: un bloqueo o falta de prerrequisito DEBE producir
+ *    un fallo explícito en la prueba de compuerta; nunca enmascarar un bloqueo como éxito.
+ * 3. CERO IDs sustitutos (1) cuando no existen fixtures reales.
+ * 4. CERO impresión de tokens JWT o cuerpos completos de respuesta en logs (saneamiento estricto).
+ * 5. Flujo clínico verificado:
+ *    Prestador autenticado -> Sede/Horario existente -> Paciente autenticado ->
+ *    Slot encontrado -> Reserva -> Acceso por ambos roles -> Consentimiento IA -> Cierre clínico.
  */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api-staging.quhealthy.org';
 
@@ -22,16 +22,14 @@ interface StepAuditRecord {
   executionId: string;
   status: 'PASÓ' | 'FALLÓ' | 'BLOQUEADO';
   sanitizedRequest: Record<string, any>;
-  sanitizedResponse: {
-    status: number;
-    bodySummary: string;
-  };
+  sanitizedResponseStatus: number;
+  sanitizedSummary: string;
   blockerDetail?: string;
 }
 
 const auditTrail: StepAuditRecord[] = [];
 
-test.describe('Compuerta E2E Clínica Positiva y Autenticada en Staging', () => {
+test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.2)', () => {
 
   const runId = `GATE-STAGING-${Date.now()}`;
   let providerToken: string | null = null;
@@ -41,119 +39,135 @@ test.describe('Compuerta E2E Clínica Positiva y Autenticada en Staging', () => 
   let testAppointmentId: number | null = null;
 
   test.afterAll(async () => {
-    // Imprimir informe de trazabilidad al finalizar
     console.log('\n=============================================================');
-    console.log(`📋 AUDIT TRAIL COMPUERTA E2E AUTENTICADA [Run: ${runId}]`);
+    console.log(`📋 AUDIT TRAIL SANEADO COMPUERTA E2E [Run: ${runId}]`);
     console.log('=============================================================');
     for (const record of auditTrail) {
       console.log(`[Paso ${record.stepNumber}: ${record.stepName}] -> ${record.status}`);
-      console.log(`  Req: ${JSON.stringify(record.sanitizedRequest)}`);
-      console.log(`  Res [HTTP ${record.sanitizedResponse.status}]: ${record.sanitizedResponse.bodySummary}`);
+      console.log(`  Endpoint / Operación: ${JSON.stringify(record.sanitizedRequest)}`);
+      console.log(`  HTTP Status: ${record.sanitizedResponseStatus} | Resumen: ${record.sanitizedSummary}`);
       if (record.blockerDetail) {
-        console.log(`  ⚠️ Bloqueo: ${record.blockerDetail}`);
+        console.log(`  ⚠️ Bloqueo / Prerrequisito Faltante: ${record.blockerDetail}`);
       }
     }
     console.log('=============================================================\n');
   });
 
   // -------------------------------------------------------------------------
-  // PASO 1: PRESTADOR HABILITADO (Autenticación / Sesión de Prestador Sintético)
+  // PASO 0: VERIFICACIÓN DE PRERREQUISITOS DE SECRETERÍA EN EL ENTORNO
   // -------------------------------------------------------------------------
-  test('Paso 1: Prestador habilitado - Obtención de sesión autenticada con credenciales sintéticas de staging', async ({ request }) => {
-    const stepExecId = `${runId}-STEP-1`;
-    const syntheticEmail = process.env.STAGING_TEST_DOCTOR_EMAIL || 'synthetic-doctor-p0@quhealthy.org';
-    const syntheticPassword = process.env.STAGING_TEST_DOCTOR_PASSWORD || 'StagingDoctorP0#2026';
+  test('Paso 0: Verificación de Prerrequisitos de Secretos en Staging', async () => {
+    const doctorEmail = process.env.STAGING_TEST_DOCTOR_EMAIL;
+    const doctorPassword = process.env.STAGING_TEST_DOCTOR_PASSWORD;
+    const patientEmail = process.env.STAGING_TEST_PATIENT_EMAIL;
+    const patientPassword = process.env.STAGING_TEST_PATIENT_PASSWORD;
 
-    const reqData = {
-      email: syntheticEmail,
-      password: '[REDACTED_PASSWORD]',
-      role: 'PROVIDER',
-    };
+    const missingSecrets: string[] = [];
+    if (!doctorEmail) missingSecrets.push('STAGING_TEST_DOCTOR_EMAIL');
+    if (!doctorPassword) missingSecrets.push('STAGING_TEST_DOCTOR_PASSWORD');
+    if (!patientEmail) missingSecrets.push('STAGING_TEST_PATIENT_EMAIL');
+    if (!patientPassword) missingSecrets.push('STAGING_TEST_PATIENT_PASSWORD');
 
-    try {
-      const res = await request.post(`${API_BASE}/api/auth/login`, {
-        data: {
-          email: syntheticEmail,
-          password: syntheticPassword,
-          role: 'PROVIDER',
-        },
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (missingSecrets.length > 0) {
+      const blockerMsg = `PRERREQUISITO AUSENTE: Faltan secretos en el entorno de staging: [${missingSecrets.join(', ')}]. ` +
+        `De conformidad con la directiva de seguridad, no se admiten contraseñas por defecto ni credenciales hardcodeadas.`;
 
-      const status = res.status();
-      const bodyText = await res.text();
-      let bodyJson: any = null;
-      try { bodyJson = JSON.parse(bodyText); } catch {}
-
-      if (status === 200 && (bodyJson?.token || bodyJson?.accessToken)) {
-        providerToken = bodyJson.token || bodyJson.accessToken;
-        testProviderId = bodyJson.userId || bodyJson.providerId || 1;
-        auditTrail.push({
-          stepNumber: 1,
-          stepName: 'Prestador Habilitado (Login Sintético)',
-          executionId: stepExecId,
-          status: 'PASÓ',
-          sanitizedRequest: reqData,
-          sanitizedResponse: {
-            status,
-            bodySummary: `Token JWT emitido exitosamente para providerId=${testProviderId}`,
-          },
-        });
-        expect(providerToken).toBeTruthy();
-      } else {
-        // Bloqueo documentado con honestidad técnica:
-        const blockerMsg = status === 401 || status === 400
-          ? `Credenciales sintéticas de prestador no provisionadas en Cloud SQL staging (o rechazo por captcha Turnstile sin bypass key). HTTP ${status}.`
-          : `Fallo inesperado al autenticar prestador sintético. HTTP ${status}.`;
-
-        auditTrail.push({
-          stepNumber: 1,
-          stepName: 'Prestador Habilitado (Login Sintético)',
-          executionId: stepExecId,
-          status: 'BLOQUEADO',
-          sanitizedRequest: reqData,
-          sanitizedResponse: {
-            status,
-            bodySummary: bodyText.slice(0, 180),
-          },
-          blockerDetail: blockerMsg,
-        });
-
-        // La compuerta se detiene aquí formalmente sin inventar mocks
-        console.warn(`[COMPUERTA BLOQUEADA EN PASO 1]: ${blockerMsg}`);
-        expect([400, 401, 403]).toContain(status);
-      }
-    } catch (err: any) {
       auditTrail.push({
-        stepNumber: 1,
-        stepName: 'Prestador Habilitado (Login Sintético)',
-        executionId: stepExecId,
-        status: 'FALLÓ',
-        sanitizedRequest: reqData,
-        sanitizedResponse: { status: 0, bodySummary: err.message },
-        blockerDetail: `Error de red hacia ${API_BASE}: ${err.message}`,
+        stepNumber: 0,
+        stepName: 'Verificación de Secretos en Staging',
+        executionId: `${runId}-STEP-0`,
+        status: 'BLOQUEADO',
+        sanitizedRequest: { checkedSecrets: ['DOCTOR_CREDENTIALS', 'PATIENT_CREDENTIALS'] },
+        sanitizedResponseStatus: 0,
+        sanitizedSummary: 'Secretos requeridos no configurados en variables de entorno.',
+        blockerDetail: blockerMsg,
       });
-      throw err;
+
+      // REGLA CODEX: Un bloqueo NO debe producir una compuerta verde.
+      // Se fuerza el fallo documentado para impedir falsos positivos.
+      expect(missingSecrets, blockerMsg).toHaveLength(0);
     }
   });
 
   // -------------------------------------------------------------------------
-  // PASO 2: SEDE Y HORARIO (Configuración de Agenda del Prestador)
+  // PASO 1: PRESTADOR HABILITADO (Autenticación sin Contraseñas por Defecto)
   // -------------------------------------------------------------------------
-  test('Paso 2: Sede y Horario - Consulta o provisión de sede clínica para el prestador', async ({ request }) => {
-    const stepExecId = `${runId}-STEP-2`;
+  test('Paso 1: Prestador Habilitado - Autenticación con Credenciales del Secret Manager', async ({ request }) => {
+    const stepExecId = `${runId}-STEP-1`;
+    const doctorEmail = process.env.STAGING_TEST_DOCTOR_EMAIL;
+    const doctorPassword = process.env.STAGING_TEST_DOCTOR_PASSWORD;
+    const turnstileTestToken = process.env.STAGING_TURNSTILE_TEST_TOKEN;
 
-    if (!providerToken) {
+    if (!doctorEmail || !doctorPassword) {
+      test.skip(true, 'Bloqueado por falta de secretos en Paso 0');
+      return;
+    }
+
+    const reqData = {
+      email: doctorEmail,
+      password: '[REDACTED_PASSWORD]',
+      role: 'PROVIDER',
+      hasCaptchaToken: !!turnstileTestToken,
+    };
+
+    const res = await request.post(`${API_BASE}/api/auth/login`, {
+      data: {
+        email: doctorEmail,
+        password: doctorPassword,
+        role: 'PROVIDER',
+        ...(turnstileTestToken ? { captchaToken: turnstileTestToken } : {}),
+      },
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const status = res.status();
+    let bodyJson: any = null;
+    try { bodyJson = await res.json(); } catch {}
+
+    if (status === 200 && (bodyJson?.token || bodyJson?.accessToken)) {
+      providerToken = bodyJson.token || bodyJson.accessToken;
+      // PROHIBIDO usar 1 como fallback. Se exige el ID del usuario retornado.
+      testProviderId = bodyJson.userId || bodyJson.providerId || null;
+      expect(testProviderId, 'El payload de autenticación no retornó un ID de prestador válido').not.toBeNull();
+
       auditTrail.push({
-        stepNumber: 2,
-        stepName: 'Sede y Horario',
+        stepNumber: 1,
+        stepName: 'Prestador Habilitado (Login)',
+        executionId: stepExecId,
+        status: 'PASÓ',
+        sanitizedRequest: reqData,
+        sanitizedResponseStatus: status,
+        sanitizedSummary: `Token JWT emitido exitosamente para providerId=${testProviderId}`,
+      });
+    } else {
+      const errorMsg = bodyJson?.message || (status === 400 && bodyJson?.errors ? JSON.stringify(bodyJson.errors) : `HTTP ${status}`);
+      const blockerMsg = `No fue posible autenticar al prestador sintético: ${errorMsg}. ` +
+        `Requiere provisión de cuenta en Cloud SQL staging y clave de prueba de Turnstile.`;
+
+      auditTrail.push({
+        stepNumber: 1,
+        stepName: 'Prestador Habilitado (Login)',
         executionId: stepExecId,
         status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint: '/api/appointments/locations' },
-        sanitizedResponse: { status: 0, bodySummary: 'No ejecutado por bloqueo en Paso 1' },
-        blockerDetail: 'Dependencia insatisfecha: requiere token de prestador emitido en Paso 1.',
+        sanitizedRequest: reqData,
+        sanitizedResponseStatus: status,
+        sanitizedSummary: `Fallo de autenticación: ${errorMsg}`,
+        blockerDetail: blockerMsg,
       });
-      test.skip(true, 'Bloqueado por Paso 1 (falta token de prestador en staging)');
+
+      // La compuerta falla explícitamente sin inventar sesión ni producir verde
+      expect(status, blockerMsg).toBe(200);
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // PASO 2: SEDE Y HORARIO (Fixtures Reales sin IDs Dummy)
+  // -------------------------------------------------------------------------
+  test('Paso 2: Sede y Horario - Verificación de Sedes Clínicas del Prestador', async ({ request }) => {
+    const stepExecId = `${runId}-STEP-2`;
+
+    if (!providerToken || !testProviderId) {
+      test.skip(true, 'Bloqueado por Paso 1 (falta sesión de prestador)');
       return;
     }
 
@@ -162,95 +176,106 @@ test.describe('Compuerta E2E Clínica Positiva y Autenticada en Staging', () => 
     });
 
     const status = res.status();
-    const bodyText = await res.text();
-    let bodyJson: any = null;
-    try { bodyJson = JSON.parse(bodyText); } catch {}
+    let locations: any[] = [];
+    try { locations = await res.json(); } catch {}
 
-    if (status === 200 && Array.isArray(bodyJson) && bodyJson.length > 0) {
-      testLocationId = bodyJson[0].id;
+    if (status === 200 && Array.isArray(locations) && locations.length > 0) {
+      // Cero ID 1 inventado: tomar el ID real de la sede retornada
+      testLocationId = locations[0].id || null;
+      expect(testLocationId, 'La sede encontrada no tiene un ID numérico válido').not.toBeNull();
+
       auditTrail.push({
         stepNumber: 2,
         stepName: 'Sede y Horario',
         executionId: stepExecId,
         status: 'PASÓ',
         sanitizedRequest: { endpoint: '/api/appointments/locations', method: 'GET' },
-        sanitizedResponse: { status, bodySummary: `Sedes encontradas: ${bodyJson.length}. locationId=${testLocationId}` },
+        sanitizedResponseStatus: status,
+        sanitizedSummary: `Sedes activas encontradas: ${locations.length}. locationId=${testLocationId}`,
       });
-      expect(testLocationId).toBeTruthy();
     } else {
+      const blockerMsg = `El prestador ID=${testProviderId} no tiene sedes clínicas activas configuradas en staging.`;
       auditTrail.push({
         stepNumber: 2,
         stepName: 'Sede y Horario',
         executionId: stepExecId,
         status: 'BLOQUEADO',
         sanitizedRequest: { endpoint: '/api/appointments/locations', method: 'GET' },
-        sanitizedResponse: { status, bodySummary: bodyText.slice(0, 180) },
-        blockerDetail: 'El prestador no cuenta con sedes clínicas registradas ni horarios activos en staging.',
+        sanitizedResponseStatus: status,
+        sanitizedSummary: 'Sin sedes configuradas.',
+        blockerDetail: blockerMsg,
       });
-      expect([200, 404]).toContain(status);
+      expect(locations.length, blockerMsg).toBeGreaterThan(0);
     }
   });
 
   // -------------------------------------------------------------------------
-  // PASO 3: PACIENTE ENCUENTRA SLOT DISPONIBLE
+  // PASO 3: PACIENTE ENCUENTRA SLOT DISPONIBLE (Sin Fallback a ID 1)
   // -------------------------------------------------------------------------
-  test('Paso 3: Búsqueda de Slot - Paciente consulta disponibilidad de horarios para la sede', async ({ request }) => {
+  test('Paso 3: Búsqueda de Slot - Disponibilidad Real de Horarios para el Prestador', async ({ request }) => {
     const stepExecId = `${runId}-STEP-3`;
-    const targetProvider = testProviderId || 1;
-    const targetLocation = testLocationId || 1;
-    const searchDate = '2026-10-25';
 
-    const endpoint = `${API_BASE}/api/appointments/schedules/${targetProvider}/available-slots?locationId=${targetLocation}&startDate=${searchDate}&endDate=${searchDate}&durationMinutes=30`;
+    if (!testProviderId || !testLocationId) {
+      test.skip(true, 'Bloqueado por pasos previos (sin providerId o locationId auténticos)');
+      return;
+    }
+
+    const searchDate = '2026-10-25';
+    const endpoint = `${API_BASE}/api/appointments/schedules/${testProviderId}/available-slots?locationId=${testLocationId}&startDate=${searchDate}&endDate=${searchDate}&durationMinutes=30`;
 
     const res = await request.get(endpoint);
     const status = res.status();
-    const bodyText = await res.text();
-    let bodyJson: any = null;
-    try { bodyJson = JSON.parse(bodyText); } catch {}
+    let slots: any[] = [];
+    try { slots = await res.json(); } catch {}
 
-    if (status === 200 && Array.isArray(bodyJson) && bodyJson.length > 0) {
+    if (status === 200 && Array.isArray(slots) && slots.length > 0) {
       auditTrail.push({
         stepNumber: 3,
         stepName: 'Paciente Encuentra Slot',
         executionId: stepExecId,
         status: 'PASÓ',
-        sanitizedRequest: { endpoint, targetProvider, targetLocation, searchDate },
-        sanitizedResponse: { status, bodySummary: `Slots disponibles: ${bodyJson.length}` },
+        sanitizedRequest: { providerId: testProviderId, locationId: testLocationId, searchDate },
+        sanitizedResponseStatus: status,
+        sanitizedSummary: `Slots disponibles encontrados: ${slots.length}`,
       });
-      expect(bodyJson.length).toBeGreaterThan(0);
+      expect(slots.length).toBeGreaterThan(0);
     } else {
-      const blockerDetail = status === 404
-        ? `No hay calendario/horario configurado para providerId=${targetProvider} y locationId=${targetLocation} en staging.`
-        : `Slots no disponibles o respuesta inesperada: HTTP ${status}.`;
-
+      const blockerMsg = `No existen slots disponibles para providerId=${testProviderId} y locationId=${testLocationId} en fecha ${searchDate}.`;
       auditTrail.push({
         stepNumber: 3,
         stepName: 'Paciente Encuentra Slot',
         executionId: stepExecId,
         status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint, targetProvider, targetLocation, searchDate },
-        sanitizedResponse: { status, bodySummary: bodyText.slice(0, 180) },
-        blockerDetail,
+        sanitizedRequest: { providerId: testProviderId, locationId: testLocationId, searchDate },
+        sanitizedResponseStatus: status,
+        sanitizedSummary: `Respuesta HTTP ${status} con ${slots.length} slots.`,
+        blockerDetail: blockerMsg,
       });
-      // Dejar documentado que 404 NO certifica slots
-      expect([200, 400, 404]).toContain(status);
+      expect(slots.length, blockerMsg).toBeGreaterThan(0);
     }
   });
 
   // -------------------------------------------------------------------------
-  // PASO 4: RESERVA DE CITA (Autenticación de Paciente y Creación)
+  // PASO 4: RESERVA DE CITA (Paciente Autenticado desde Secret Manager)
   // -------------------------------------------------------------------------
-  test('Paso 4: Reserva de Cita - Paciente sintético autenticado crea reserva clínica', async ({ request }) => {
+  test('Paso 4: Reserva de Cita - Creación Auténtica con Paciente Sintético', async ({ request }) => {
     const stepExecId = `${runId}-STEP-4`;
-    const patientEmail = process.env.STAGING_TEST_PATIENT_EMAIL || 'synthetic-patient-p0@quhealthy.org';
-    const patientPassword = process.env.STAGING_TEST_PATIENT_PASSWORD || 'StagingPatientP0#2026';
+    const patientEmail = process.env.STAGING_TEST_PATIENT_EMAIL;
+    const patientPassword = process.env.STAGING_TEST_PATIENT_PASSWORD;
+    const turnstileTestToken = process.env.STAGING_TURNSTILE_TEST_TOKEN;
 
-    // 1. Intentar autenticar paciente
+    if (!patientEmail || !patientPassword || !testProviderId || !testLocationId) {
+      test.skip(true, 'Bloqueado por falta de credenciales de paciente o fixtures de agenda');
+      return;
+    }
+
+    // 1. Autenticar paciente
     const loginRes = await request.post(`${API_BASE}/api/auth/login`, {
       data: {
         email: patientEmail,
         password: patientPassword,
         role: 'PATIENT',
+        ...(turnstileTestToken ? { captchaToken: turnstileTestToken } : {}),
       },
       headers: { 'Content-Type': 'application/json' },
     });
@@ -261,30 +286,30 @@ test.describe('Compuerta E2E Clínica Positiva y Autenticada en Staging', () => 
 
     if (loginStatus === 200 && (loginBody?.token || loginBody?.accessToken)) {
       patientToken = loginBody.token || loginBody.accessToken;
-    }
-
-    if (!patientToken) {
+    } else {
+      const blockerMsg = `No fue posible autenticar al paciente sintético: HTTP ${loginStatus}`;
       auditTrail.push({
         stepNumber: 4,
-        stepName: 'Reserva de Cita',
+        stepName: 'Reserva de Cita (Login Paciente)',
         executionId: stepExecId,
         status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint: '/api/appointments/create', patientEmail },
-        sanitizedResponse: { status: loginStatus, bodySummary: 'Fallo al autenticar paciente sintético en staging' },
-        blockerDetail: 'No existe cuenta de paciente sintético autorizada en staging con contraseña activa.',
+        sanitizedRequest: { email: patientEmail, role: 'PATIENT' },
+        sanitizedResponseStatus: loginStatus,
+        sanitizedSummary: 'Fallo de autenticación del paciente sintético.',
+        blockerDetail: blockerMsg,
       });
-      test.skip(true, 'Bloqueado por falta de credenciales de paciente en staging');
+      expect(loginStatus, blockerMsg).toBe(200);
       return;
     }
 
-    // 2. Si hay token, intentar crear cita sintética
+    // 2. Crear cita sintética
     const createRes = await request.post(`${API_BASE}/api/appointments/create`, {
       data: {
-        providerId: testProviderId || 1,
-        locationId: testLocationId || 1,
+        providerId: testProviderId,
+        locationId: testLocationId,
         startTime: '2026-10-25T11:00:00',
         endTime: '2026-10-25T11:30:00',
-        reason: 'Consulta Sintética Staging - Validación E2E',
+        reason: 'Consulta Sintética Staging - Validación E2E P0',
       },
       headers: {
         Authorization: `Bearer ${patientToken}`,
@@ -293,88 +318,83 @@ test.describe('Compuerta E2E Clínica Positiva y Autenticada en Staging', () => 
     });
 
     const createStatus = createRes.status();
-    const createText = await createRes.text();
     let createJson: any = null;
-    try { createJson = JSON.parse(createText); } catch {}
+    try { createJson = await createRes.json(); } catch {}
 
     if (createStatus === 200 || createStatus === 201) {
-      testAppointmentId = createJson?.id || createJson?.appointmentId;
+      testAppointmentId = createJson?.id || createJson?.appointmentId || null;
+      expect(testAppointmentId, 'La cita creada no tiene un ID numérico válido').not.toBeNull();
+
       auditTrail.push({
         stepNumber: 4,
-        stepName: 'Reserva de Cita',
+        stepName: 'Reserva de Cita (Creación)',
         executionId: stepExecId,
         status: 'PASÓ',
-        sanitizedRequest: { endpoint: '/api/appointments/create', reason: 'Consulta Sintética' },
-        sanitizedResponse: { status: createStatus, bodySummary: `Cita creada ID=${testAppointmentId}` },
+        sanitizedRequest: { providerId: testProviderId, locationId: testLocationId, reason: 'Consulta Sintética' },
+        sanitizedResponseStatus: createStatus,
+        sanitizedSummary: `Cita sintética creada exitosamente con ID=${testAppointmentId}`,
       });
-      expect(testAppointmentId).toBeTruthy();
     } else {
+      const blockerMsg = `Fallo al crear la cita sintética: HTTP ${createStatus}`;
       auditTrail.push({
         stepNumber: 4,
-        stepName: 'Reserva de Cita',
+        stepName: 'Reserva de Cita (Creación)',
         executionId: stepExecId,
         status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint: '/api/appointments/create' },
-        sanitizedResponse: { status: createStatus, bodySummary: createText.slice(0, 180) },
-        blockerDetail: `Rechazo al crear cita: HTTP ${createStatus}.`,
+        sanitizedRequest: { providerId: testProviderId, locationId: testLocationId },
+        sanitizedResponseStatus: createStatus,
+        sanitizedSummary: `Rechazo al crear cita: HTTP ${createStatus}`,
+        blockerDetail: blockerMsg,
       });
-      expect([200, 201, 400, 404, 409]).toContain(createStatus);
+      expect(createStatus, blockerMsg).toBe(201);
     }
   });
 
   // -------------------------------------------------------------------------
-  // PASO 5: ACCESO POR ROLES (Médico vs Paciente vs Tercero)
+  // PASO 5: ACCESO POR AMBOS ROLES (Médico y Paciente)
   // -------------------------------------------------------------------------
-  test('Paso 5: Acceso por Roles - Verificación de control de acceso a la cita creada', async ({ request }) => {
+  test('Paso 5: Acceso por Roles - Verificación de Autorización para Doctor y Paciente', async ({ request }) => {
     const stepExecId = `${runId}-STEP-5`;
 
-    if (!testAppointmentId) {
-      auditTrail.push({
-        stepNumber: 5,
-        stepName: 'Acceso por Roles',
-        executionId: stepExecId,
-        status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint: '/api/appointments/:id' },
-        sanitizedResponse: { status: 0, bodySummary: 'No ejecutado por bloqueo en Paso 4' },
-        blockerDetail: 'Dependencia insatisfecha: requiere cita sintética creada en Paso 4.',
-      });
-      test.skip(true, 'Bloqueado por falta de cita creada');
+    if (!testAppointmentId || !providerToken || !patientToken) {
+      test.skip(true, 'Bloqueado por pasos previos (falta cita creada o tokens)');
       return;
     }
 
-    // Tercero no autorizado debe ser rechazado
-    const unauthorizedRes = await request.get(`${API_BASE}/api/appointments/${testAppointmentId}`);
-    expect([401, 403]).toContain(unauthorizedRes.status());
+    // A. Paciente accede a su cita
+    const patientRes = await request.get(`${API_BASE}/api/appointments/${testAppointmentId}`, {
+      headers: { Authorization: `Bearer ${patientToken}` },
+    });
+    expect(patientRes.status(), 'El paciente no pudo consultar su cita').toBe(200);
+
+    // B. Doctor accede a la cita
+    const doctorRes = await request.get(`${API_BASE}/api/appointments/${testAppointmentId}`, {
+      headers: { Authorization: `Bearer ${providerToken}` },
+    });
+    expect(doctorRes.status(), 'El doctor no pudo consultar su cita asignada').toBe(200);
+
+    // C. Usuario anónimo rechazado con 401
+    const anonRes = await request.get(`${API_BASE}/api/appointments/${testAppointmentId}`);
+    expect([401, 403]).toContain(anonRes.status());
 
     auditTrail.push({
       stepNumber: 5,
-      stepName: 'Acceso por Roles',
+      stepName: 'Acceso por Ambos Roles',
       executionId: stepExecId,
       status: 'PASÓ',
-      sanitizedRequest: { endpoint: `/api/appointments/${testAppointmentId}`, role: 'ANÓNIMO' },
-      sanitizedResponse: {
-        status: unauthorizedRes.status(),
-        bodySummary: 'Acceso anónimo bloqueado correctamente con 401/403',
-      },
+      sanitizedRequest: { appointmentId: testAppointmentId },
+      sanitizedResponseStatus: 200,
+      sanitizedSummary: 'Acceso positivo verificado para paciente y doctor; anónimo bloqueado 401.',
     });
   });
 
   // -------------------------------------------------------------------------
   // PASO 6: TELECONSULTA Y CONSENTIMIENTO DE IA
   // -------------------------------------------------------------------------
-  test('Paso 6: Teleconsulta y Consentimiento IA - Registro de consentimiento informado para procesamiento de IA', async ({ request }) => {
+  test('Paso 6: Teleconsulta y Consentimiento IA - Registro y Persistencia Legal', async ({ request }) => {
     const stepExecId = `${runId}-STEP-6`;
 
-    if (!patientToken || !testAppointmentId) {
-      auditTrail.push({
-        stepNumber: 6,
-        stepName: 'Teleconsulta y Consentimiento IA',
-        executionId: stepExecId,
-        status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint: '/api/appointments/teleconsultations/:id/ai-consent' },
-        sanitizedResponse: { status: 0, bodySummary: 'No ejecutado por bloqueos previos' },
-        blockerDetail: 'Dependencia insatisfecha: requiere sesión de paciente y cita sintética activa.',
-      });
+    if (!testAppointmentId || !patientToken) {
       test.skip(true, 'Bloqueado por pasos previos');
       return;
     }
@@ -394,58 +414,37 @@ test.describe('Compuerta E2E Clínica Positiva y Autenticada en Staging', () => 
     );
 
     const status = consentRes.status();
-    const text = await consentRes.text();
+    expect([200, 204], `Fallo al registrar consentimiento de IA: HTTP ${status}`).toContain(status);
 
-    if (status === 200 || status === 204) {
-      auditTrail.push({
-        stepNumber: 6,
-        stepName: 'Teleconsulta y Consentimiento IA',
-        executionId: stepExecId,
-        status: 'PASÓ',
-        sanitizedRequest: { aiProcessingConsent: true, audioRecordingConsent: false },
-        sanitizedResponse: { status, bodySummary: 'Consentimiento registrado exitosamente' },
-      });
-      expect([200, 204]).toContain(status);
-    } else {
-      auditTrail.push({
-        stepNumber: 6,
-        stepName: 'Teleconsulta y Consentimiento IA',
-        executionId: stepExecId,
-        status: 'BLOQUEADO',
-        sanitizedRequest: { aiProcessingConsent: true },
-        sanitizedResponse: { status, bodySummary: text.slice(0, 180) },
-        blockerDetail: `Rechazo al registrar consentimiento: HTTP ${status}`,
-      });
-      expect([200, 204, 400, 404]).toContain(status);
-    }
+    auditTrail.push({
+      stepNumber: 6,
+      stepName: 'Teleconsulta y Consentimiento IA',
+      executionId: stepExecId,
+      status: 'PASÓ',
+      sanitizedRequest: { appointmentId: testAppointmentId, aiProcessingConsent: true },
+      sanitizedResponseStatus: status,
+      sanitizedSummary: 'Consentimiento informado registrado y persistido exitosamente.',
+    });
   });
 
   // -------------------------------------------------------------------------
-  // PASO 7: CIERRE CLÍNICO Y NOTA SOAP
+  // PASO 7: CIERRE CLÍNICO, NOTA SOAP Y ESTADO FINAL
   // -------------------------------------------------------------------------
-  test('Paso 7: Cierre Clínico - Prestador registra nota médica y completa la atención', async ({ request }) => {
+  test('Paso 7: Cierre Clínico - Nota Médica y Verificación de Estado Final COMPLETED', async ({ request }) => {
     const stepExecId = `${runId}-STEP-7`;
 
-    if (!providerToken || !testAppointmentId) {
-      auditTrail.push({
-        stepNumber: 7,
-        stepName: 'Cierre Clínico y Nota SOAP',
-        executionId: stepExecId,
-        status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint: '/api/appointments/:id/complete' },
-        sanitizedResponse: { status: 0, bodySummary: 'No ejecutado por bloqueos previos' },
-        blockerDetail: 'Dependencia insatisfecha: requiere prestador autenticado y cita sintética activa.',
-      });
+    if (!testAppointmentId || !providerToken) {
       test.skip(true, 'Bloqueado por pasos previos');
       return;
     }
 
+    // 1. Completar consulta con nota clínica
     const completeRes = await request.post(`${API_BASE}/api/appointments/${testAppointmentId}/complete`, {
       data: {
-        subjective: 'Paciente sintético asintomático en corrida de prueba',
-        objective: 'Signos vitales normales simulados',
-        assessment: 'Validación de compuerta superada',
-        plan: 'Alta de consulta sintética',
+        subjective: 'Paciente sintético en corrida automatizada de validación clínica',
+        objective: 'Constantes vitales simuladas estables',
+        assessment: 'Validación E2E completada',
+        plan: 'Cierre de consulta de prueba',
       },
       headers: {
         Authorization: `Bearer ${providerToken}`,
@@ -453,31 +452,26 @@ test.describe('Compuerta E2E Clínica Positiva y Autenticada en Staging', () => 
       },
     });
 
-    const status = completeRes.status();
-    const text = await completeRes.text();
+    const completeStatus = completeRes.status();
+    expect([200, 204], `Fallo al completar la consulta médica: HTTP ${completeStatus}`).toContain(completeStatus);
 
-    if (status === 200 || status === 204) {
-      auditTrail.push({
-        stepNumber: 7,
-        stepName: 'Cierre Clínico y Nota SOAP',
-        executionId: stepExecId,
-        status: 'PASÓ',
-        sanitizedRequest: { assessment: 'Validación de compuerta' },
-        sanitizedResponse: { status, bodySummary: 'Cita completada y nota clínica registrada' },
-      });
-      expect([200, 204]).toContain(status);
-    } else {
-      auditTrail.push({
-        stepNumber: 7,
-        stepName: 'Cierre Clínico y Nota SOAP',
-        executionId: stepExecId,
-        status: 'BLOQUEADO',
-        sanitizedRequest: { endpoint: `/api/appointments/${testAppointmentId}/complete` },
-        sanitizedResponse: { status, bodySummary: text.slice(0, 180) },
-        blockerDetail: `Rechazo al completar consulta: HTTP ${status}`,
-      });
-      expect([200, 204, 400, 404]).toContain(status);
-    }
+    // 2. Verificar estado final COMPLETED
+    const finalCheckRes = await request.get(`${API_BASE}/api/appointments/${testAppointmentId}`, {
+      headers: { Authorization: `Bearer ${providerToken}` },
+    });
+    expect(finalCheckRes.status()).toBe(200);
+    const finalAppointment = await finalCheckRes.json();
+    expect(finalAppointment.status, 'El estado final de la cita no es COMPLETED').toBe('COMPLETED');
+
+    auditTrail.push({
+      stepNumber: 7,
+      stepName: 'Cierre Clínico y Estado Final',
+      executionId: stepExecId,
+      status: 'PASÓ',
+      sanitizedRequest: { appointmentId: testAppointmentId, action: 'complete' },
+      sanitizedResponseStatus: completeStatus,
+      sanitizedSummary: `Cita finalizada exitosamente; estado final verificado: ${finalAppointment.status}`,
+    });
   });
 
 });
