@@ -176,9 +176,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
     ? "UNAVAILABLE"
     : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
     ? "ERROR"
-    : economics.costsQuality?.stripeFees === "CERTIFIED"
-    ? "CERTIFIED"
-    : "PROVISIONAL";
+    : economics.reconciliationQuality || "PROVISIONAL";
 
   const mrrVal = typeof economics?.mrr === "number"
     ? economics.mrr
@@ -195,9 +193,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
     ? "UNAVAILABLE"
     : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
     ? "ERROR"
-    : economics.costsQuality?.stripeFees === "CERTIFIED"
-    ? "CERTIFIED"
-    : "PROVISIONAL";
+    : economics.reconciliationQuality || "PROVISIONAL";
 
   const mauVal = typeof productMetrics?.mau === "number" ? productMetrics.mau : null;
   const mauBreakdown = typeof productMetrics?.activeProvidersMonth === "number" && typeof productMetrics?.activePatientsMonth === "number"
@@ -253,8 +249,11 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                 <AlertTriangle className="w-3 h-3 text-rose-400" /> Fecha futura no válida
               </span>
             )}
-            <span className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60">
-              Corte: {primaryDate.status === "VALID" || primaryDate.status === "STALE" ? primaryDate.formattedText.replace(/ \(Obsoleto >48h\)/, "") : primaryDate.formattedText}
+            <span
+              className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60"
+              title="Timestamp emitido por la API al responder; no acredita frescura intrínseca de orígenes Stripe/GCP"
+            >
+              Generado API: {primaryDate.status === "VALID" || primaryDate.status === "STALE" ? primaryDate.formattedText.replace(/ \(Obsoleto >48h\)/, "") : primaryDate.formattedText}
             </span>
           </div>
         </div>
@@ -323,7 +322,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                 </div>
                 <div className="flex items-center justify-between text-[9px] text-slate-500">
                   <span>Periodo: {dashboard ? (selectedPeriod || "30d") : "No verificado"}</span>
-                  <span>Corte: {dashboardDate.formattedText}</span>
+                  <span>Generado API: {dashboardDate.formattedText}</span>
                 </div>
               </div>
             </div>
@@ -345,7 +344,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               </h4>
               <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Ingreso real en pasarela:</span>
+                  <span className="text-slate-400">Ingresos netos de plataforma en Stripe:</span>
                   <span className="font-semibold text-white">
                     {typeof economics?.totalRevenue === "number"
                       ? formatCurrency(economics.totalRevenue)
@@ -354,7 +353,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
                   {typeof economics?.totalRevenue === "number"
-                    ? `Volumen en pasarela: ${formatCurrency(economics.totalRevenue)}. MRR: ${typeof economics.mrr === "number" ? formatCurrency(economics.mrr) : typeof economics.totalSubscriptionsRevenue === "number" ? formatCurrency(economics.totalSubscriptionsRevenue) : "No verificado"}. CAC: No disponible.`
+                    ? `Ingresos en balance Stripe (suscripciones + comisiones): ${formatCurrency(economics.totalRevenue)}. Suscripciones periodo: ${typeof economics.mrr === "number" ? formatCurrency(economics.mrr) : typeof economics.totalSubscriptionsRevenue === "number" ? formatCurrency(economics.totalSubscriptionsRevenue) : "No verificado"}. CAC: No disponible / No verificado.`
                     : "Sin conciliación bancaria de pasarela ni eventos de pago verificados."}
                 </p>
               </div>
@@ -373,16 +372,16 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
 
               <div className="pt-2 border-t border-slate-700/50 flex flex-col gap-1 text-[10px] text-slate-400">
                 <div className="flex items-center justify-between">
-                  <span>Fuente: Stripe Balance API</span>
+                  <span>Fuente: Stripe BalanceTransactions</span>
                   <span className="font-mono text-slate-300">
                     Calidad: {typeof economics?.totalRevenue === "number"
-                      ? (economics.costsQuality?.stripeFees === "CERTIFIED" ? "AUDITADA" : "PROVISIONAL")
+                      ? (economics.reconciliationQuality || "PROVISIONAL")
                       : "No disponible / No verificado"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-[9px] text-slate-500">
                   <span>Periodo: {economics?.period || "No verificado"}</span>
-                  <span>Corte: {economicsDate.formattedText}</span>
+                  <span>Generado API: {economicsDate.formattedText}</span>
                 </div>
               </div>
             </div>
@@ -404,7 +403,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               </h4>
               <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Costo cloud registrado:</span>
+                  <span className="text-slate-400">Costo cloud estimado (GCP):</span>
                   <span className="font-semibold text-white">
                     {typeof economics?.cloudCosts === "number"
                       ? formatCurrency(economics.cloudCosts)
@@ -413,7 +412,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
                   {typeof economics?.cloudCosts === "number"
-                    ? `Costo cloud: ${formatCurrency(economics.cloudCosts)}. Clúster: ${totalServices > 0 ? `${upCount}/${totalServices} UP` : "Sin telemetría"}. Excepciones pasarela: Brecha de telemetría en DTO.`
+                    ? `Costo cloud estimado: ${formatCurrency(economics.cloudCosts)}. Clúster: ${totalServices > 0 ? `${upCount}/${totalServices} UP` : "Sin telemetría"}. Excepciones pasarela: Brecha de telemetría en DTO.`
                     : "Sin telemetría de costos cloud ni métricas de infraestructura verificadas en este DTO."}
                 </p>
               </div>
@@ -441,7 +440,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                 </div>
                 <div className="flex items-center justify-between text-[9px] text-slate-500">
                   <span>Periodo: {economics?.period || "No verificado"}</span>
-                  <span>Corte: {economicsDate.formattedText}</span>
+                  <span>Generado API: {economicsDate.formattedText}</span>
                 </div>
               </div>
             </div>
@@ -449,43 +448,40 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
         </div>
       </div>
 
-      {/* 🚀 Top Executive KPIs (ADMIN-TRUST-01: Cero fallbacks a cero falso, linaje fidedigno) */}
+      {/* 🚀 Top Executive KPIs (ADMIN-TRUST-01: Cero fallbacks a cero falso, linaje fidedigno, cero +0% sin comparativa) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         <KpiCard
-          title={`Volumen Clínico (${selectedPeriod.toUpperCase()})`}
+          title={`Volumen Clínico Agregado (${selectedPeriod.toUpperCase()})`}
           value={displayGmv}
-          changePercent={0}
-          changePeriod={gmvBreakdown}
+          subtext={gmvBreakdown}
           icon={DollarSign}
           variant="emerald"
           quality={gmvQuality}
-          source="Stripe Connect API"
-          owner="Finanzas"
+          source="BD Local (citas online + consultorio)"
+          owner="Operaciones / Finanzas"
           asOf={economicsDate.formattedText}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Volumen bruto transaccionado a través de pasarelas de pago y conciliado con Stripe."
+          explanation="Volumen bruto agregado en base de datos local (citas en línea y consultorio). No constituye GMV conciliado en pasarela."
         />
         <KpiCard
-          title="SaaS MRR (Planes Médicos)"
+          title={`Ingresos por Suscripciones (${selectedPeriod.toUpperCase()})`}
           value={displayMrr}
-          changePercent={0}
-          changePeriod={mrrBreakdown}
+          subtext={mrrBreakdown}
           icon={Zap}
           variant="blue"
           quality={mrrQuality}
-          source="Stripe Billing API"
+          source="Stripe Balance Transactions"
           owner="Finanzas"
           asOf={economicsDate.formattedText}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Ingresos recurrentes mensuales certificados de suscripciones profesionales activas."
+          explanation="Ingresos netos por cobros de suscripciones en el periodo solicitado. No normalizado como MRR recurrente anualizado."
         />
         <KpiCard
           title="Usuarios Activos (MAU)"
           value={mauVal}
-          changePercent={0}
-          changePeriod={mauBreakdown}
+          subtext={mauBreakdown}
           icon={Users}
           variant="indigo"
           quality={mauQuality}

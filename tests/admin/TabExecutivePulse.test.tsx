@@ -114,7 +114,7 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
       ).toBeInTheDocument();
 
       // Cutoff shows unverified
-      expect(screen.getAllByText(/Corte: No disponible \/ No verificado/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Generado API: No disponible \/ No verificado/i).length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -138,9 +138,10 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
         salesByType: [],
         asOf: new Date(Date.now() - 3600 * 1000).toISOString(),
         period: "30d",
+        reconciliationQuality: "PROVISIONAL",
         costsQuality: {
-          stripeFees: "CERTIFIED",
-          cloudCosts: "CERTIFIED",
+          stripeFees: "PROVISIONAL",
+          cloudCosts: "PROVISIONAL",
         },
       };
 
@@ -177,7 +178,7 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
       expect(screen.getByText("0 este mes")).toBeInTheDocument();
 
       // Cost cloud registered shows $0.00
-      expect(screen.getAllByText(/Costo cloud registrado:/i).length).toBe(1);
+      expect(screen.getAllByText(/Costo cloud estimado \(GCP\):/i).length).toBe(1);
     });
   });
 
@@ -363,4 +364,95 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
       expect(proposalBadges.length).toBe(3);
     });
   });
+
+  describe("8. Contrato Financiero Veraz: Réplica de DTO Real de AdminPaymentController & StripeAnalyticsService", () => {
+    it("renders accurately with realistic backend DTO payload without promoting signals to CERTIFIED or inventing +0% variations", () => {
+      const realBackendPayload: UnitEconomicsDTO = {
+        totalUsers: 12,
+        activeSubscriptions: 0,
+        totalRevenue: 0,
+        totalSubscriptionsRevenue: 0,
+        totalCommissionsRevenue: 0,
+        onlineRevenue: 0,
+        inClinicRevenue: 0,
+        totalGmv: 0,
+        cloudCosts: 35.5,
+        aiCosts: null,
+        satFacturamaCosts: null,
+        communicationsCosts: null,
+        marketingCosts: null,
+        stripeFees: 0,
+        totalCosts: null,
+        mrr: 0,
+        arr: 0,
+        churnRate: 0,
+        planTiers: [],
+        totalDoctorPayouts: null,
+        pendingDoctorPayouts: null,
+        reconciliationMatch: false,
+        reconciliationQuality: "PROVISIONAL",
+        reconciliationNotes: "Conciliación bancaria y balance Stripe en proceso",
+        isEstimatedScenario: true,
+        costsQuality: {
+          stripeFees: "PROVISIONAL",
+          cloudCosts: "PROVISIONAL",
+          aiCosts: "UNAVAILABLE",
+          satFacturamaCosts: "UNAVAILABLE",
+          communicationsCosts: "UNAVAILABLE",
+          marketingCosts: "UNAVAILABLE",
+          totalCosts: "UNAVAILABLE",
+          costPerUser: "UNAVAILABLE",
+          netProfit: "UNAVAILABLE",
+        },
+        asOf: new Date(Date.now() - 1800 * 1000).toISOString(),
+        period: "30d",
+        salesByType: [],
+        arpu: 0,
+        costPerUser: null,
+        grossMargin: 0,
+        netProfit: null,
+        topProviders: [],
+      };
+
+      const realDashboardPayload: AdminDashboardDTO = {
+        appointmentsToday: 0,
+        appointmentsThisMonth: 0,
+        activeProvidersThisMonth: 1,
+        newProvidersThisMonth: 0,
+        completedAppointmentsThisMonth: 0,
+        cancelledAppointmentsThisMonth: 0,
+        noShowAppointmentsThisMonth: 0,
+        revenueThisMonth: 0,
+        generatedAt: new Date(Date.now() - 1800 * 1000).toISOString(),
+      };
+
+      render(
+        <TabExecutivePulse
+          economics={realBackendPayload}
+          dashboard={realDashboardPayload}
+          productMetrics={null}
+          providers={mockProviders}
+          formatCurrency={formatCurrency}
+          onNavigateTab={mockNavigateTab}
+        />
+      );
+
+      // Verify no +0% variation badges appear
+      expect(screen.queryByText("+0%")).not.toBeInTheDocument();
+
+      // Verify signal quality is PROVISIONAL, never promoted to CERTIFIED
+      expect(screen.queryByText("Certificada")).not.toBeInTheDocument();
+      expect(screen.queryByText("AUDITADA")).not.toBeInTheDocument();
+
+      // Verify labels match truth:
+      expect(screen.getByText("Ingresos netos de plataforma en Stripe:")).toBeInTheDocument();
+      expect(screen.getByText("Costo cloud estimado (GCP):")).toBeInTheDocument();
+      expect(screen.getByText(/Volumen Clínico Agregado/i)).toBeInTheDocument();
+      expect(screen.getByText(/Ingresos por Suscripciones/i)).toBeInTheDocument();
+
+      // Verify API response timestamp note
+      expect(screen.getAllByText(/Generado API:/i).length).toBeGreaterThanOrEqual(1);
+    });
+  });
 });
+
