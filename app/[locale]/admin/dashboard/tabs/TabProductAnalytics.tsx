@@ -68,11 +68,10 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
         <KpiCard
           title="DAU (Usuarios Activos Hoy)"
           value={productMetrics ? dau : null}
-          changePercent={0}
-          changePeriod={productMetrics ? "Usuarios diarios" : undefined}
+          subtext={productMetrics ? "Usuarios diarios" : undefined}
           icon={Flame}
           variant="orange"
-          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          quality={productMetrics ? "PROVISIONAL" : "UNAVAILABLE"}
           source="Motor de Telemetría"
           owner="Producto & Analítica"
           asOf={productMetrics?.asOf}
@@ -83,11 +82,10 @@ export const TabProductAnalytics: React.FC<TabProductAnalyticsProps> = ({
         <KpiCard
           title="MAU (Usuarios Activos Mes)"
           value={productMetrics ? mau : null}
-          changePercent={0}
-          changePeriod={productMetrics ? `${productMetrics.activeProvidersMonth || 0} Médicos / ${productMetrics.activePatientsMonth || 0} Pacientes` : undefined}
+          subtext={productMetrics ? `${productMetrics.activeProvidersMonth || 0} Médicos / ${productMetrics.activePatientsMonth || 0} Pacientes` : undefined}
           icon={Users}
           variant="indigo"
-          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          quality={productMetrics ? "PROVISIONAL" : "UNAVAILABLE"}
           source="Motor de Telemetría"
           owner="Producto & Analítica"
           asOf={productMetrics?.asOf}

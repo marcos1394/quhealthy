@@ -170,8 +170,7 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
         <KpiCard
           title="Margen Neto Global"
           value={economics && economics.netProfit !== undefined && economics.netProfit !== null ? formatCurrency(economics.netProfit) : null}
-          changePercent={0}
-          changePeriod="Utilidad neta real"
+          subtext="Utilidad neta real"
           icon={Percent}
           variant="indigo"
           quality={((economics?.costsQuality?.["netProfit"] as SignalQuality) || (economics?.netProfit !== null && economics?.netProfit !== undefined ? "PROVISIONAL" : "UNAVAILABLE")) as SignalQuality}
