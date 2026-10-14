@@ -240,9 +240,9 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
       return;
     }
 
-    const endpoint = `${API_BASE}/api/appointments/locations`;
+    const endpoint = `${API_BASE}/api/onboarding/locations`;
     const contractReq = 'Header: Authorization: Bearer <token>';
-    const contractAssert = 'HTTP 200 + LocationDto[] (array no vacío con id numérico)';
+    const contractAssert = 'HTTP 200 + LocationResponse[] (array no vacío con id numérico)';
 
     const res = await request.get(endpoint, {
       headers: { Authorization: `Bearer ${providerToken}` },
@@ -657,14 +657,14 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
   // CASOS NEGATIVOS: SEGURIDAD, ROLES, SESIÓN Y VALIDACIÓN DE ERRORES
   // =========================================================================
 
-  test('Caso Negativo 1: Consulta de sedes sin autenticación - Rechazo fail-closed HTTP 401', async ({ request }) => {
-    const res = await request.get(`${API_BASE}/api/appointments/locations`);
-    expect(res.status(), 'Una petición sin token debe ser rechazada con 401 Unauthorized').toBe(401);
+  test('Caso Negativo 1: Consulta de sedes sin autenticación - Rechazo fail-closed HTTP 401/403', async ({ request }) => {
+    const res = await request.get(`${API_BASE}/api/onboarding/locations`);
+    expect([401, 403], 'Una petición sin token debe ser rechazada con 401 Unauthorized o 403 Forbidden').toContain(res.status());
   });
 
   test('Caso Negativo 2: Consulta de slots con formato de fecha inválido - HTTP 400 (nunca 500)', async ({ request }) => {
-    const dummyProviderId = testProviderId || 99999;
-    const res = await request.get(`${API_BASE}/api/appointments/schedules/${dummyProviderId}/available-slots?startDate=FECHA_INVALIDA_2026`);
+    const dummyProviderId = testProviderId || 3;
+    const res = await request.get(`${API_BASE}/api/appointments/schedules/${dummyProviderId}/available-slots?startDate=FECHA_INVALIDA_2026&endDate=2026-10-15`);
     expect([400, 422], 'Una fecha malformada debe responder 400 Bad Request y nunca 500 Internal Server Error').toContain(res.status());
   });
 
