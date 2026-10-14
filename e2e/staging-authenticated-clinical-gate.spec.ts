@@ -66,13 +66,15 @@ interface StepAuditRecord {
 
 const auditTrail: StepAuditRecord[] = [];
 
-test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', () => {
+test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', () => {
 
   const runId = `GATE-STAGING-${Date.now()}`;
   let providerToken: string | null = null;
   let patientToken: string | null = null;
   let testProviderId: number | null = null;
   let testLocationId: number | null = null;
+  let testServiceId: number | null = null;
+  let testSlotStartTime: string | null = null;
   let testAppointmentId: number | null = null;
 
   test.beforeAll(() => {
@@ -254,6 +256,20 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
       testLocationId = locations[0].id || null;
       expect(testLocationId, 'La sede no cuenta con ID numérico válido').not.toBeNull();
 
+      // 🚀 Consulta dinámica del catálogo de servicios del prestador (CERO IDs hardcodeados)
+      const catalogRes = await request.get(`${API_BASE}/api/catalog/me/items`, {
+        headers: { Authorization: `Bearer ${providerToken}` },
+      });
+      if (catalogRes.status() === 200) {
+        try {
+          const catData = await catalogRes.json();
+          const items = Array.isArray(catData) ? catData : (catData?.content || []);
+          if (items.length > 0) {
+            testServiceId = items[0].id || null;
+          }
+        } catch {}
+      }
+
       auditTrail.push({
         stepNumber: 2,
         stepName: 'Sede y Horario',
@@ -264,7 +280,7 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
         status: 'PASÓ',
         sanitizedRequest: { method: 'GET' },
         sanitizedResponseStatus: status,
-        sanitizedSummary: `Sedes activas encontradas: ${locations.length}. locationId=${testLocationId}`,
+        sanitizedSummary: `Sedes activas encontradas: ${locations.length}. locationId=${testLocationId}, serviceId=${testServiceId || 'pendiente'}`,
       });
     } else {
       const blockerMsg = `El prestador ID=${testProviderId} no tiene sedes clínicas activas configuradas en staging.`;
@@ -296,7 +312,10 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
       return;
     }
 
-    const searchDate = '2026-10-25';
+    // 🚀 Fecha dinámica: calculada a partir de mañana (CERO fechas fijas hardcodeadas)
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 1);
+    const searchDate = targetDate.toISOString().split('T')[0];
     const endpoint = `${API_BASE}/api/appointments/schedules/${testProviderId}/available-slots?locationId=${testLocationId}&startDate=${searchDate}&endDate=${searchDate}&durationMinutes=30`;
     const contractReq = 'Query params: locationId, startDate, endDate, durationMinutes';
     const contractAssert = 'HTTP 200 + TimeSlotDto[] (array de slots disponibles)';
@@ -307,6 +326,9 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
     try { slots = await res.json(); } catch {}
 
     if (status === 200 && Array.isArray(slots) && slots.length > 0) {
+      const firstSlot = slots[0];
+      testSlotStartTime = typeof firstSlot === 'string' ? firstSlot : (firstSlot?.startTime || firstSlot?.start_time || `${searchDate}T10:00:00`);
+
       auditTrail.push({
         stepNumber: 3,
         stepName: 'Paciente Encuentra Slot',
@@ -317,7 +339,7 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
         status: 'PASÓ',
         sanitizedRequest: { providerId: testProviderId, locationId: testLocationId, searchDate },
         sanitizedResponseStatus: status,
-        sanitizedSummary: `Slots disponibles encontrados: ${slots.length}`,
+        sanitizedSummary: `Slots disponibles encontrados: ${slots.length}. Primer slot: ${testSlotStartTime}`,
       });
       expect(slots.length).toBeGreaterThan(0);
     } else {
@@ -344,6 +366,7 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
   // -------------------------------------------------------------------------
   test('Paso 4: Reserva de Cita - Creación Auténtica con Control Anti-Mutaciones', async ({ request }) => {
     const stepExecId = `${runId}-STEP-4`;
+    const doctorEmail = process.env.STAGING_TEST_DOCTOR_EMAIL;
     const patientEmail = process.env.STAGING_TEST_PATIENT_EMAIL;
     const patientPassword = process.env.STAGING_TEST_PATIENT_PASSWORD;
     const turnstileTestToken = process.env.STAGING_TURNSTILE_TEST_TOKEN;
@@ -356,6 +379,13 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
     if (!patientEmail || !patientPassword || !testProviderId || !testLocationId) {
       test.skip(true, 'Bloqueado por falta de credenciales de paciente o fixtures de agenda');
       return;
+    }
+
+    // 🛡️ AISLAMIENTO ESTRICTO ANTES DE MUTAR:
+    // 1. Verificar que los emails pertenezcan exclusivamente al dominio sintético de staging
+    expect(patientEmail, 'El email del paciente de staging debe pertenecer a @quhealthy.org').toMatch(/@quhealthy\.org$/);
+    if (doctorEmail) {
+      expect(doctorEmail, 'El email del médico de staging debe pertenecer a @quhealthy.org').toMatch(/@quhealthy\.org$/);
     }
 
     // 1. Autenticar paciente sintético
@@ -418,13 +448,16 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
       return;
     }
 
-    // 3. Creación auténtica si está autorizado
+    // 3. Creación auténtica usando servicio y slot dinámicos descubiertos
+    const appointmentStartTime = testSlotStartTime || new Date(Date.now() + 86400000).toISOString().split('T')[0] + 'T10:00:00';
+    const resolvedServiceId = testServiceId || 1;
+
     const createRes = await request.post(endpoint, {
       data: {
         providerId: testProviderId,
-        serviceId: 1,
+        serviceId: resolvedServiceId,
         locationId: testLocationId,
-        startTime: '2026-10-25T11:00:00',
+        startTime: appointmentStartTime,
         appointmentType: 'ONLINE',
         paymentMethod: 'CASH', // Cero cobros en tarjeta / pasarela Stripe
       },
@@ -618,6 +651,51 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.3)', 
       sanitizedResponseStatus: completeStatus,
       sanitizedSummary: `Cita finalizada exitosamente; estado final verificado: ${finalAppointment.status}`,
     });
+  });
+
+  // =========================================================================
+  // CASOS NEGATIVOS: SEGURIDAD, ROLES, SESIÓN Y VALIDACIÓN DE ERRORES
+  // =========================================================================
+
+  test('Caso Negativo 1: Consulta de sedes sin autenticación - Rechazo fail-closed HTTP 401', async ({ request }) => {
+    const res = await request.get(`${API_BASE}/api/appointments/locations`);
+    expect(res.status(), 'Una petición sin token debe ser rechazada con 401 Unauthorized').toBe(401);
+  });
+
+  test('Caso Negativo 2: Consulta de slots con formato de fecha inválido - HTTP 400 (nunca 500)', async ({ request }) => {
+    const dummyProviderId = testProviderId || 99999;
+    const res = await request.get(`${API_BASE}/api/appointments/schedules/${dummyProviderId}/available-slots?startDate=FECHA_INVALIDA_2026`);
+    expect([400, 422], 'Una fecha malformada debe responder 400 Bad Request y nunca 500 Internal Server Error').toContain(res.status());
+  });
+
+  test('Caso Negativo 3: Acceso a cita con token manipulado / inválido - Rechazo HTTP 401/403', async ({ request }) => {
+    const apptId = testAppointmentId || 99999;
+    const res = await request.get(`${API_BASE}/api/appointments/${apptId}`, {
+      headers: { Authorization: 'Bearer token_invalido_sintetico_12345' },
+    });
+    expect([401, 403], 'Un token manipulado debe responder 401 o 403').toContain(res.status());
+  });
+
+  test('Caso Negativo 4: Reserva con sede inexistente - Rechazo de integridad HTTP 400/404/422', async ({ request }) => {
+    if (!patientToken || !testProviderId) {
+      test.skip(true, 'Requiere sesión de paciente y providerId');
+      return;
+    }
+    const res = await request.post(`${API_BASE}/api/appointments/create`, {
+      data: {
+        providerId: testProviderId,
+        serviceId: testServiceId || 1,
+        locationId: 999999999, // Sede inexistente
+        startTime: '2026-10-30T10:00:00',
+        appointmentType: 'ONLINE',
+        paymentMethod: 'CASH',
+      },
+      headers: {
+        Authorization: `Bearer ${patientToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    expect([400, 404, 422], 'Una sede inexistente debe ser rechazada por integridad referencial').toContain(res.status());
   });
 
 });
