@@ -226,7 +226,7 @@ def main():
         service_id = cat_row[0]
         cur.execute("""
             UPDATE catalog_items
-            SET price = 0.00, status = 'ACTIVE', duration_minutes = 30, modality = 'ONLINE', updated_at = NOW()
+            SET price = 0.00, status = 'ACTIVE', duration_minutes = 30, modality = 'ONLINE', accepts_bnpl = false, updated_at = NOW()
             WHERE id = %s;
         """, (service_id,))
     else:
@@ -234,12 +234,12 @@ def main():
             INSERT INTO catalog_items (
                 provider_id, name, type, category, price, currency,
                 duration_minutes, modality, status, description,
-                created_at, updated_at
+                accepts_bnpl, created_at, updated_at
             ) VALUES (
                 %s, 'Consulta de Medicina General Staging', 'SERVICE', 'Medicina General',
                 0.00, 'MXN', 30, 'ONLINE', 'ACTIVE',
                 'Consulta médica sintética para compuerta clínica en staging',
-                NOW(), NOW()
+                false, NOW(), NOW()
             ) RETURNING id;
         """, (provider_id,))
         service_id = cur.fetchone()[0]

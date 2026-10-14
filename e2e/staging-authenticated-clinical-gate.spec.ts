@@ -687,7 +687,7 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
         serviceId: testServiceId || 1,
         locationId: 999999999, // Sede inexistente
         startTime: '2026-10-30T10:00:00',
-        appointmentType: 'ONLINE',
+        appointmentType: 'IN_PERSON',
         paymentMethod: 'CASH',
       },
       headers: {
