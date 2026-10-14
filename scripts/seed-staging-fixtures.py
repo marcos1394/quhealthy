@@ -35,6 +35,18 @@ def hash_password(plain_pw):
     salt = bcrypt.gensalt(10)
     return bcrypt.hashpw(plain_pw.encode("utf-8"), salt).decode("utf-8")
 
+def set_or_create_secret(name, value):
+    try:
+        cmd_desc = ["gcloud", "secrets", "describe", name, "--project=quhealthy-staging"]
+        res = subprocess.run(cmd_desc, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if res.returncode != 0:
+            cmd_create = ["gcloud", "secrets", "create", name, "--replication-policy=automatic", "--project=quhealthy-staging"]
+            subprocess.run(cmd_create, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        cmd_ver = ["gcloud", "secrets", "versions", "add", name, "--data-file=-", "--project=quhealthy-staging"]
+        subprocess.run(cmd_ver, input=value.encode("utf-8"), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except Exception as e:
+        print(f"⚠️ Alerta guardando secreto {name}: {e}")
+
 def main():
     print("🏥 [1/5] Obteniendo credenciales de conexión a Supabase Staging...")
     db_user = get_secret("staging-db-user") or os.environ.get("STAGING_DB_USER", "postgres.rguiwyhfikoeelrviogh")
@@ -60,34 +72,57 @@ def main():
     conn.autocommit = True
     cur = conn.cursor()
 
-    print("🔐 [2/5] Gestionando credenciales de prueba...")
+    print("🔐 [2/5] Gestionando credenciales de prueba en Secret Manager...")
     doctor_email = "staging.doctor.test@quhealthy.org"
     patient_email = "staging.patient.test@quhealthy.org"
+    turnstile_token = "1x00000000000000000000AA"
 
     doctor_pw = get_secret("staging-test-doctor-password") or os.environ.get("STAGING_TEST_DOCTOR_PASSWORD")
     if not doctor_pw:
         doctor_pw = generate_secure_password()
+        set_or_create_secret("staging-test-doctor-password", doctor_pw)
     doctor_pw_hash = hash_password(doctor_pw)
 
     patient_pw = get_secret("staging-test-patient-password") or os.environ.get("STAGING_TEST_PATIENT_PASSWORD")
     if not patient_pw:
         patient_pw = generate_secure_password()
+        set_or_create_secret("staging-test-patient-password", patient_pw)
     patient_pw_hash = hash_password(patient_pw)
 
+    set_or_create_secret("staging-test-doctor-email", doctor_email)
+    set_or_create_secret("staging-test-patient-email", patient_email)
+    set_or_create_secret("staging-turnstile-test-token", turnstile_token)
+
     print("👨‍⚕️ [3/5] Aprovisionando Médico Sintético y Entidades Clínicas...")
+    # 0. Upsert Plan
+    cur.execute("""
+        INSERT INTO plans (
+            id, name, description, price, transaction_fee, commission_rate,
+            marketing_level, support_level, user_management,
+            currency, duration, code, is_active, is_default, created_at, updated_at
+        ) VALUES (
+            1, 'Plan Profesional Staging', 'Plan sintético para compuerta clínica en staging', 0.00, 0.00, 0.00,
+            1, 1, 1,
+            'MXN', 'MONTHLY', 'PRO_STAGING', true, true, NOW(), NOW()
+        ) ON CONFLICT (id) DO UPDATE SET
+            is_active = true, is_default = true;
+    """)
+
     # 1. Upsert Provider
     cur.execute("""
         INSERT INTO providers (
             email, password, first_name, last_name, role, status, phone,
-            is_email_verified, is_phone_verified, terms_accepted,
-            onboarding_complete, has_active_plan,
+            is_email_verified, is_phone_verified, is_two_factor_enabled, terms_accepted,
+            marketing_emails_opt_in,
+            onboarding_complete, is_onboarding_completed, has_active_plan, plan_id,
             email_notifications_enabled, sms_notifications_enabled,
             appointment_reminders_enabled, push_notifications_enabled,
             slug, business_name, created_at, updated_at
         ) VALUES (
-            %s, %s, 'Doctora Sintética', 'Staging', 'ROLE_PROVIDER', 'ACTIVE', '+525500000001',
-            true, true, true,
-            true, true,
+            %s, %s, 'Doctora Sintética', 'Staging', 'PROVIDER', 'ACTIVE', '+525500000001',
+            true, true, false, true,
+            false,
+            true, true, true, 1,
             false, false,
             false, false,
             'dra-sintetica-staging', 'Consultorio Médico Staging', NOW(), NOW()
@@ -95,8 +130,11 @@ def main():
         ON CONFLICT (email) DO UPDATE SET
             password = EXCLUDED.password,
             status = 'ACTIVE',
+            is_two_factor_enabled = false,
             onboarding_complete = true,
+            is_onboarding_completed = true,
             has_active_plan = true,
+            plan_id = 1,
             email_notifications_enabled = false,
             sms_notifications_enabled = false,
             appointment_reminders_enabled = false,
@@ -227,18 +265,21 @@ def main():
     cur.execute("""
         INSERT INTO consumers (
             email, password, first_name, last_name, role, status, phone,
-            is_email_verified, is_phone_verified, terms_accepted,
+            is_email_verified, is_phone_verified, is_two_factor_enabled, terms_accepted,
+            marketing_emails_opt_in,
             email_notifications_enabled, sms_notifications_enabled,
             appointment_reminders_enabled, created_at, updated_at
         ) VALUES (
-            %s, %s, 'Paciente Sintético', 'Staging', 'ROLE_CONSUMER', 'ACTIVE', '+525500000002',
-            true, true, true,
+            %s, %s, 'Paciente Sintético', 'Staging', 'CONSUMER', 'ACTIVE', '+525500000002',
+            true, true, false, true,
+            false,
             false, false,
             false, NOW(), NOW()
         )
         ON CONFLICT (email) DO UPDATE SET
             password = EXCLUDED.password,
             status = 'ACTIVE',
+            is_two_factor_enabled = false,
             email_notifications_enabled = false,
             sms_notifications_enabled = false,
             appointment_reminders_enabled = false,
