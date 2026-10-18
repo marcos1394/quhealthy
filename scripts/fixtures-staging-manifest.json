@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-10-18T01:26:03.947923+00:00",
+  "provider_id": 3,
+  "doctor_email": "staging.doctor.test@example.com",
+  "location_id": 1,
+  "license_doc_id": 2,
+  "service_id": 1,
+  "consumer_id": 1,
+  "patient_email": "staging.patient.test@example.com",
+  "unroutable_domain": "example.com",
+  "turnstile_dummy_token": "XXXX.DUMMY.TOKEN.XXXX"
+}

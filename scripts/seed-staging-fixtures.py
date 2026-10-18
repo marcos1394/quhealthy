@@ -11,6 +11,7 @@ import string
 import subprocess
 import re
 import json
+import datetime
 import psycopg2
 import bcrypt
 
@@ -73,9 +74,9 @@ def main():
     cur = conn.cursor()
 
     print("🔐 [2/5] Gestionando credenciales de prueba en Secret Manager...")
-    doctor_email = "staging.doctor.test@quhealthy.org"
-    patient_email = "staging.patient.test@quhealthy.org"
-    turnstile_token = "1x00000000000000000000AA"
+    doctor_email = "staging.doctor.test@example.com"
+    patient_email = "staging.patient.test@example.com"
+    turnstile_token = "XXXX.DUMMY.TOKEN.XXXX"
 
     doctor_pw = get_secret("staging-test-doctor-password") or os.environ.get("STAGING_TEST_DOCTOR_PASSWORD")
     if not doctor_pw:
@@ -94,55 +95,65 @@ def main():
     set_or_create_secret("staging-turnstile-test-token", turnstile_token)
 
     print("👨‍⚕️ [3/5] Aprovisionando Médico Sintético y Entidades Clínicas...")
-    # 0. Upsert Plan
-    cur.execute("""
-        INSERT INTO plans (
-            id, name, description, price, transaction_fee, commission_rate,
-            marketing_level, support_level, user_management,
-            currency, duration, code, is_active, is_default, created_at, updated_at
-        ) VALUES (
-            1, 'Plan Profesional Staging', 'Plan sintético para compuerta clínica en staging', 0.00, 0.00, 0.00,
-            1, 1, 1,
-            'MXN', 'MONTHLY', 'PRO_STAGING', true, true, NOW(), NOW()
-        ) ON CONFLICT (id) DO UPDATE SET
-            is_active = true, is_default = true;
-    """)
+    # 0. Obtener Plan Activo existente sin mutar plans.id = 1
+    cur.execute("SELECT id FROM plans WHERE is_active = true ORDER BY id ASC LIMIT 1;")
+    plan_row = cur.fetchone()
+    if plan_row:
+        active_plan_id = plan_row[0]
+    else:
+        cur.execute("""
+            INSERT INTO plans (
+                id, name, description, price, transaction_fee, commission_rate,
+                marketing_level, support_level, user_management,
+                currency, duration, code, is_active, is_default, created_at, updated_at
+            ) VALUES (
+                9999, 'Plan Profesional Staging', 'Plan sintético para compuerta clínica en staging', 0.00, 0.00, 0.00,
+                1, 1, 1,
+                'MXN', 'MONTHLY', 'PRO_STAGING', true, false, NOW(), NOW()
+            ) ON CONFLICT (id) DO UPDATE SET is_active = true
+            RETURNING id;
+        """)
+        active_plan_id = cur.fetchone()[0]
 
-    # 1. Upsert Provider
-    cur.execute("""
-        INSERT INTO providers (
-            email, password, first_name, last_name, role, status, phone,
-            is_email_verified, is_phone_verified, is_two_factor_enabled, terms_accepted,
-            marketing_emails_opt_in,
-            onboarding_complete, is_onboarding_completed, has_active_plan, plan_id,
-            email_notifications_enabled, sms_notifications_enabled,
-            appointment_reminders_enabled, push_notifications_enabled,
-            slug, business_name, created_at, updated_at
-        ) VALUES (
-            %s, %s, 'Doctora Sintética', 'Staging', 'PROVIDER', 'ACTIVE', '+525500000001',
-            true, true, false, true,
-            false,
-            true, true, true, 1,
-            false, false,
-            false, false,
-            'dra-sintetica-staging', 'Consultorio Médico Staging', NOW(), NOW()
-        )
-        ON CONFLICT (email) DO UPDATE SET
-            password = EXCLUDED.password,
-            status = 'ACTIVE',
-            is_two_factor_enabled = false,
-            onboarding_complete = true,
-            is_onboarding_completed = true,
-            has_active_plan = true,
-            plan_id = 1,
-            email_notifications_enabled = false,
-            sms_notifications_enabled = false,
-            appointment_reminders_enabled = false,
-            push_notifications_enabled = false,
-            updated_at = NOW()
-        RETURNING id;
-    """, (doctor_email, doctor_pw_hash))
-    provider_id = cur.fetchone()[0]
+    # 1. Upsert Provider (con email no enrutable @example.com y notificaciones desactivadas)
+    cur.execute("SELECT id FROM providers WHERE email = %s OR slug = 'dra-sintetica-staging' LIMIT 1;", (doctor_email,))
+    prov_row = cur.fetchone()
+    if prov_row:
+        provider_id = prov_row[0]
+        cur.execute("""
+            UPDATE providers
+            SET email = %s, password = %s, first_name = 'Doctora Sintética', last_name = 'Staging',
+                role = 'PROVIDER', status = 'ACTIVE', phone = '+525500000001',
+                is_email_verified = true, is_phone_verified = true, is_two_factor_enabled = false,
+                terms_accepted = true, marketing_emails_opt_in = false,
+                onboarding_complete = true, is_onboarding_completed = true, has_active_plan = true,
+                plan_id = %s, email_notifications_enabled = false, sms_notifications_enabled = false,
+                appointment_reminders_enabled = false, push_notifications_enabled = false,
+                slug = 'dra-sintetica-staging', business_name = 'Consultorio Médico Staging',
+                updated_at = NOW()
+            WHERE id = %s;
+        """, (doctor_email, doctor_pw_hash, active_plan_id, provider_id))
+    else:
+        cur.execute("""
+            INSERT INTO providers (
+                email, password, first_name, last_name, role, status, phone,
+                is_email_verified, is_phone_verified, is_two_factor_enabled, terms_accepted,
+                marketing_emails_opt_in,
+                onboarding_complete, is_onboarding_completed, has_active_plan, plan_id,
+                email_notifications_enabled, sms_notifications_enabled,
+                appointment_reminders_enabled, push_notifications_enabled,
+                slug, business_name, created_at, updated_at
+            ) VALUES (
+                %s, %s, 'Doctora Sintética', 'Staging', 'PROVIDER', 'ACTIVE', '+525500000001',
+                true, true, false, true,
+                false,
+                true, true, true, %s,
+                false, false,
+                false, false,
+                'dra-sintetica-staging', 'Consultorio Médico Staging', NOW(), NOW()
+            ) RETURNING id;
+        """, (doctor_email, doctor_pw_hash, active_plan_id))
+        provider_id = cur.fetchone()[0]
 
     # 2. Upsert Provider Onboarding con Cédula Aprobada (Validación NOM-004)
     cur.execute("""
@@ -174,23 +185,36 @@ def main():
         json.dumps([{"number": "12345678", "institution": "UNAM", "status": "APPROVED", "type": "MEDICINA_GENERAL"}])
     ))
 
-    # 3. Upsert Provider Documents (Cédula Profesional Aprobada)
+    # 3. Upsert Provider Documents (No destructivo)
     cur.execute("""
-        DELETE FROM provider_documents WHERE provider_id = %s AND document_type = 'PROFESSIONAL_LICENSE';
+        SELECT id FROM provider_documents WHERE provider_id = %s AND document_type = 'PROFESSIONAL_LICENSE' LIMIT 1;
     """, (provider_id,))
-    cur.execute("""
-        INSERT INTO provider_documents (
-            provider_id, document_type, verification_status, file_key,
-            extracted_data, verified_at, created_at, updated_at
-        ) VALUES (
-            %s, 'PROFESSIONAL_LICENSE', 'APPROVED', 'staging/licenses/synthetic_license_12345678.pdf',
-            %s, NOW(), NOW(), NOW()
-        ) RETURNING id;
-    """, (
-        provider_id,
-        json.dumps({"license_number": "12345678", "institution": "UNAM", "status": "APPROVED"})
-    ))
-    doc_id = cur.fetchone()[0]
+    doc_row = cur.fetchone()
+    if doc_row:
+        doc_id = doc_row[0]
+        cur.execute("""
+            UPDATE provider_documents
+            SET verification_status = 'APPROVED', verified_at = NOW(), updated_at = NOW(),
+                extracted_data = %s
+            WHERE id = %s;
+        """, (
+            json.dumps({"license_number": "12345678", "institution": "UNAM", "status": "APPROVED"}),
+            doc_id
+        ))
+    else:
+        cur.execute("""
+            INSERT INTO provider_documents (
+                provider_id, document_type, verification_status, file_key,
+                extracted_data, verified_at, created_at, updated_at
+            ) VALUES (
+                %s, 'PROFESSIONAL_LICENSE', 'APPROVED', 'staging/licenses/synthetic_license_12345678.pdf',
+                %s, NOW(), NOW(), NOW()
+            ) RETURNING id;
+        """, (
+            provider_id,
+            json.dumps({"license_number": "12345678", "institution": "UNAM", "status": "APPROVED"})
+        ))
+        doc_id = cur.fetchone()[0]
 
     # 4. Upsert Provider Locations (Sede Clínica Principal)
     cur.execute("""
@@ -244,52 +268,82 @@ def main():
         """, (provider_id,))
         service_id = cur.fetchone()[0]
 
-    # 6. Upsert Provider Schedules (7 días a la semana de 08:00 a 20:00)
+    # 6. Upsert Provider Schedules (Sin eliminación masiva, upsert por día)
     days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
-    cur.execute("""
-        DELETE FROM provider_schedules WHERE provider_id = %s;
-    """, (provider_id,))
     for d in days:
         cur.execute("""
-            INSERT INTO provider_schedules (
-                provider_id, location_id, day_of_week,
-                start_time, end_time, is_working_day
-            ) VALUES (
-                %s, %s, %s,
-                '08:00:00', '20:00:00', true
-            );
+            SELECT id FROM provider_schedules WHERE provider_id = %s AND location_id = %s AND day_of_week = %s LIMIT 1;
         """, (provider_id, location_id, d))
+        sched_row = cur.fetchone()
+        if sched_row:
+            cur.execute("""
+                UPDATE provider_schedules
+                SET start_time = '08:00:00', end_time = '20:00:00', is_working_day = true
+                WHERE id = %s;
+            """, (sched_row[0],))
+        else:
+            cur.execute("""
+                INSERT INTO provider_schedules (
+                    provider_id, location_id, day_of_week,
+                    start_time, end_time, is_working_day
+                ) VALUES (
+                    %s, %s, %s,
+                    '08:00:00', '20:00:00', true
+                );
+            """, (provider_id, location_id, d))
 
     print("🧑‍🦱 [4/5] Aprovisionando Paciente Sintético...")
-    # 7. Upsert Consumer
-    cur.execute("""
-        INSERT INTO consumers (
-            email, password, first_name, last_name, role, status, phone,
-            is_email_verified, is_phone_verified, is_two_factor_enabled, terms_accepted,
-            marketing_emails_opt_in,
-            email_notifications_enabled, sms_notifications_enabled,
-            appointment_reminders_enabled, created_at, updated_at
-        ) VALUES (
-            %s, %s, 'Paciente Sintético', 'Staging', 'CONSUMER', 'ACTIVE', '+525500000002',
-            true, true, false, true,
-            false,
-            false, false,
-            false, NOW(), NOW()
-        )
-        ON CONFLICT (email) DO UPDATE SET
-            password = EXCLUDED.password,
-            status = 'ACTIVE',
-            is_two_factor_enabled = false,
-            email_notifications_enabled = false,
-            sms_notifications_enabled = false,
-            appointment_reminders_enabled = false,
-            updated_at = NOW()
-        RETURNING id;
-    """, (patient_email, patient_pw_hash))
-    consumer_id = cur.fetchone()[0]
+    # 7. Upsert Consumer (con email no enrutable @example.com y notificaciones desactivadas)
+    cur.execute("SELECT id FROM consumers WHERE email = %s OR email = 'staging.patient.test@quhealthy.org' LIMIT 1;", (patient_email,))
+    cons_row = cur.fetchone()
+    if cons_row:
+        consumer_id = cons_row[0]
+        cur.execute("""
+            UPDATE consumers
+            SET email = %s, password = %s, first_name = 'Paciente Sintético', last_name = 'Staging',
+                role = 'CONSUMER', status = 'ACTIVE', phone = '+525500000002',
+                is_email_verified = true, is_phone_verified = true, is_two_factor_enabled = false,
+                terms_accepted = true, marketing_emails_opt_in = false,
+                email_notifications_enabled = false, sms_notifications_enabled = false,
+                appointment_reminders_enabled = false, updated_at = NOW()
+            WHERE id = %s;
+        """, (patient_email, patient_pw_hash, consumer_id))
+    else:
+        cur.execute("""
+            INSERT INTO consumers (
+                email, password, first_name, last_name, role, status, phone,
+                is_email_verified, is_phone_verified, is_two_factor_enabled, terms_accepted,
+                marketing_emails_opt_in,
+                email_notifications_enabled, sms_notifications_enabled,
+                appointment_reminders_enabled, created_at, updated_at
+            ) VALUES (
+                %s, %s, 'Paciente Sintético', 'Staging', 'CONSUMER', 'ACTIVE', '+525500000002',
+                true, true, false, true,
+                false,
+                false, false,
+                false, NOW(), NOW()
+            ) RETURNING id;
+        """, (patient_email, patient_pw_hash))
+        consumer_id = cur.fetchone()[0]
 
     cur.close()
     conn.close()
+
+    manifest = {
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "provider_id": provider_id,
+        "doctor_email": doctor_email,
+        "location_id": location_id,
+        "license_doc_id": doc_id,
+        "service_id": service_id,
+        "consumer_id": consumer_id,
+        "patient_email": patient_email,
+        "unroutable_domain": "example.com",
+        "turnstile_dummy_token": turnstile_token
+    }
+    manifest_path = os.path.join(os.path.dirname(__file__), "fixtures-staging-manifest.json")
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
 
     print("\n✅ [5/5] Fixtures sintéticos aprovisionados exitosamente:")
     print(f"   - Provider ID: {provider_id} ({doctor_email})")
@@ -298,7 +352,8 @@ def main():
     print(f"   - Servicio ID: {service_id} (Consulta de Medicina General Staging - $0.00 MXN)")
     print(f"   - Agenda: {len(days)} días configurados (08:00 - 20:00)")
     print(f"   - Consumer ID: {consumer_id} ({patient_email})")
-    print("   - Aislamiento garantizado: notificaciones desactivadas, precio $0.00, dominios sintéticos.")
+    print(f"   - Manifiesto guardado en: {manifest_path}")
+    print("   - Aislamiento garantizado: notificaciones desactivadas, precio $0.00, dominios no enrutables RFC 2606 (@example.com).")
 
 if __name__ == "__main__":
     main()

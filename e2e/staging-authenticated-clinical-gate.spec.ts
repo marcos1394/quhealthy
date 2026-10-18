@@ -25,21 +25,27 @@ import { test, expect } from '@playwright/test';
  */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api-staging.quhealthy.org';
 
+const CANONICAL_STAGING_HOSTS = new Set([
+  'api-staging.quhealthy.org',
+  'staging.quhealthy.org',
+  'localhost',
+  '127.0.0.1',
+]);
+
 /**
- * Verificación obligatoria contra mutaciones en producción
+ * Verificación obligatoria contra mutaciones en producción (Lista Blanca Estricta)
  */
 function assertNonProductionTarget(url: string): void {
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname.toLowerCase();
-    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
-    const isStaging = hostname.includes('staging') || hostname.includes('dev');
-    const isProd = (hostname.endsWith('quhealthy.org') || hostname.endsWith('quhealthy.com')) && !isStaging;
+    const isExplicitlyAllowed = CANONICAL_STAGING_HOSTS.has(hostname) ||
+      hostname.endsWith('.quhealthy-staging.a.run.app');
 
-    if (isProd || process.env.NODE_ENV === 'production') {
+    if (!isExplicitlyAllowed || process.env.NODE_ENV === 'production') {
       throw new Error(
-        `🚨 BLOQUEO ANTI-PRODUCCIÓN: La suite E2E de mutaciones clínicas no puede ejecutarse contra entornos de producción (${hostname}). ` +
-        `Solo se admiten dominios que contengan 'staging', 'dev' o 'localhost'. Abortando inmediatamente por seguridad clínica y de datos.`
+        `🚨 BLOQUEO ANTI-PRODUCCIÓN: La suite E2E de mutaciones clínicas solo tiene autorización para ejecutarse contra hostnames canónicos de staging (${Array.from(CANONICAL_STAGING_HOSTS).join(', ')}). ` +
+        `Host actual detectado: '${hostname}'. Abortando inmediatamente para impedir mutaciones fuera del entorno controlado.`
       );
     }
   } catch (err: any) {
@@ -139,17 +145,23 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
       // La compuerta falla explícitamente documentando la falta de secretos
       expect(missingSecrets, blockerMsg).toHaveLength(0);
     } else {
+      // 3. Verificación de Aislamiento de Efectos Externos (Correos RFC 2606 y Token Dummy Cloudflare)
+      const turnstileToken = process.env.STAGING_TURNSTILE_TEST_TOKEN;
+      expect(doctorEmail, 'El correo del médico debe pertenecer al dominio sintético no enrutable @example.com').toMatch(/@example\.com$/);
+      expect(patientEmail, 'El correo del paciente debe pertenecer al dominio sintético no enrutable @example.com').toMatch(/@example\.com$/);
+      expect(turnstileToken, 'El token de prueba de Turnstile debe ser el dummy response token de Cloudflare (XXXX.DUMMY.TOKEN.XXXX)').toBe('XXXX.DUMMY.TOKEN.XXXX');
+
       auditTrail.push({
         stepNumber: 0,
         stepName: 'Salvaguarda Anti-Prod y Secretos',
         executionId: `${runId}-STEP-0`,
         endpoint: 'N/A (Verificación de Entorno)',
         contractRequest: 'Variables de entorno del Secret Manager',
-        contractAssertion: 'Todas las variables requeridas deben estar presentes y el target debe ser no-producción',
+        contractAssertion: 'Todas las variables requeridas deben estar presentes, target de staging y dominios no enrutables (@example.com)',
         status: 'PASÓ',
-        sanitizedRequest: { targetUrl: API_BASE },
+        sanitizedRequest: { targetUrl: API_BASE, unroutableDomain: '@example.com' },
         sanitizedResponseStatus: 200,
-        sanitizedSummary: 'Entorno validado: Target no-producción verificado y secretos de prueba presentes.',
+        sanitizedSummary: 'Entorno validado: Target staging verificado, correos no enrutables y token dummy oficial de Cloudflare.',
       });
     }
   });
@@ -269,6 +281,7 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
           }
         } catch {}
       }
+      expect(testServiceId, 'El catálogo del prestador debe contener al menos un servicio médico activo en staging (CERO IDs sustitutos/hardcodeados)').not.toBeNull();
 
       auditTrail.push({
         stepNumber: 2,
@@ -280,7 +293,7 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
         status: 'PASÓ',
         sanitizedRequest: { method: 'GET' },
         sanitizedResponseStatus: status,
-        sanitizedSummary: `Sedes activas encontradas: ${locations.length}. locationId=${testLocationId}, serviceId=${testServiceId || 'pendiente'}`,
+        sanitizedSummary: `Sedes activas encontradas: ${locations.length}. locationId=${testLocationId}, serviceId=${testServiceId}`,
       });
     } else {
       const blockerMsg = `El prestador ID=${testProviderId} no tiene sedes clínicas activas configuradas en staging.`;
@@ -327,7 +340,9 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
 
     if (status === 200 && Array.isArray(slots) && slots.length > 0) {
       const firstSlot = slots[0];
-      testSlotStartTime = typeof firstSlot === 'string' ? firstSlot : (firstSlot?.startTime || firstSlot?.start_time || `${searchDate}T10:00:00`);
+      const discoveredSlotTime = typeof firstSlot === 'string' ? firstSlot : (firstSlot?.startTime || firstSlot?.start_time);
+      expect(discoveredSlotTime, 'El slot disponible devuelto por el backend debe contener un horario válido (CERO fechas sustitutas)').toBeTruthy();
+      testSlotStartTime = discoveredSlotTime;
 
       auditTrail.push({
         stepNumber: 3,
@@ -382,10 +397,10 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
     }
 
     // 🛡️ AISLAMIENTO ESTRICTO ANTES DE MUTAR:
-    // 1. Verificar que los emails pertenezcan exclusivamente al dominio sintético de staging
-    expect(patientEmail, 'El email del paciente de staging debe pertenecer a @quhealthy.org').toMatch(/@quhealthy\.org$/);
+    // 1. Verificar que los emails pertenezcan exclusivamente al dominio no enrutable @example.com (RFC 2606)
+    expect(patientEmail, 'El email del paciente de staging debe pertenecer a @example.com').toMatch(/@example\.com$/);
     if (doctorEmail) {
-      expect(doctorEmail, 'El email del médico de staging debe pertenecer a @quhealthy.org').toMatch(/@quhealthy\.org$/);
+      expect(doctorEmail, 'El email del médico de staging debe pertenecer a @example.com').toMatch(/@example\.com$/);
     }
 
     // 1. Autenticar paciente sintético
@@ -448,16 +463,16 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
       return;
     }
 
-    // 3. Creación auténtica usando servicio y slot dinámicos descubiertos
-    const appointmentStartTime = testSlotStartTime || new Date(Date.now() + 86400000).toISOString().split('T')[0] + 'T10:00:00';
-    const resolvedServiceId = testServiceId || 1;
+    // 3. Creación auténtica usando servicio y slot dinámicos descubiertos (CERO IDs FIJOS / CERO FECHAS FIJAS)
+    expect(testServiceId, 'Está prohibido recurrir a serviceId=1 o IDs fijos cuando falla el descubrimiento').not.toBeNull();
+    expect(testSlotStartTime, 'Está prohibido recurrir a fechas fijas cuando falla el descubrimiento del slot').not.toBeNull();
 
     const createRes = await request.post(endpoint, {
       data: {
         providerId: testProviderId,
-        serviceId: resolvedServiceId,
+        serviceId: testServiceId,
         locationId: testLocationId,
-        startTime: appointmentStartTime,
+        startTime: testSlotStartTime,
         appointmentType: 'ONLINE',
         paymentMethod: 'CASH', // Cero cobros en tarjeta / pasarela Stripe
       },
@@ -477,6 +492,10 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
       testAppointmentId = apptData?.id || null;
       expect(testAppointmentId, 'La cita creada no tiene un ID numérico válido').not.toBeNull();
 
+      // 🚀 Verificación de Aislamiento Financiero (Cero cobros y pasarela Stripe no impactada)
+      expect(apptData.paymentMethod).toBe('CASH');
+      expect([0, '0', '0.00', null, undefined]).toContain(apptData.amountPaid);
+
       auditTrail.push({
         stepNumber: 4,
         stepName: 'Reserva de Cita (Creación)',
@@ -487,7 +506,7 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
         status: 'PASÓ',
         sanitizedRequest: { providerId: testProviderId, locationId: testLocationId, paymentMethod: 'CASH' },
         sanitizedResponseStatus: createStatus,
-        sanitizedSummary: `Cita sintética creada exitosamente con ID=${testAppointmentId}`,
+        sanitizedSummary: `Cita sintética creada exitosamente con ID=${testAppointmentId}. Aislamiento verificado (CASH, $0.00).`,
       });
     } else {
       const blockerMsg = `Fallo al crear la cita sintética: HTTP ${createStatus}`;
@@ -677,14 +696,14 @@ test.describe('Compuerta E2E Clínica Autenticada en Staging (Iteración 2.4)', 
   });
 
   test('Caso Negativo 4: Reserva con sede inexistente - Rechazo de integridad HTTP 400/404/422', async ({ request }) => {
-    if (!patientToken || !testProviderId) {
-      test.skip(true, 'Requiere sesión de paciente y providerId');
+    if (!patientToken || !testProviderId || !testServiceId) {
+      test.skip(true, 'Requiere sesión de paciente, providerId y testServiceId descubierto del catálogo');
       return;
     }
     const res = await request.post(`${API_BASE}/api/appointments/create`, {
       data: {
         providerId: testProviderId,
-        serviceId: testServiceId || 1,
+        serviceId: testServiceId,
         locationId: 999999999, // Sede inexistente
         startTime: '2026-10-30T10:00:00',
         appointmentType: 'IN_PERSON',
