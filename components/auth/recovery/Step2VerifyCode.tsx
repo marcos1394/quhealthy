@@ -332,6 +332,7 @@ export default function Step2VerifyCode({
           theme: "auto",
           size: "invisible",
           execution: "execute",
+          action: "forgot-password",
         }}
       />
 

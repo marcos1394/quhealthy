@@ -181,6 +181,7 @@ export default function Step1SendCode({
           theme: "auto",
           size: "invisible",
           execution: "execute",
+          action: "forgot-password",
         }}
       />
 

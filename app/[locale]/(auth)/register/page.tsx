@@ -514,6 +514,7 @@ export default function ConsumerSignupPage() {
                     theme: "auto",
                     size: "invisible",
                     execution: "execute",
+                    action: "register-patient",
                   }}
                 />
 
