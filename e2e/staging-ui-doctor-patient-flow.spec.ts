@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Iteración 2.5 — Flujo Real de Interfaz Médico–Paciente en staging.quhealthy.org
- * Ejecución con identidades sintéticas autorizadas y trazabilidad de cada paso.
- * Cero datos reales de producción, cero cobros a pasarelas reales.
+ * Iteración 2.5 (Smoke): Smoke Test de Seis Pantallas Médico–Paciente en staging.quhealthy.org
+ * Reclasificado explícitamente como suite de smoke de componentes y pantallas UI, no E2E completo.
+ * Verifica accesibilidad, campos de formulario y renderizado de seis pantallas clave.
  */
 
 const STAGING_URL = process.env.STAGING_URL || 'https://staging.quhealthy.org';
 
-test.describe('Iteración 2.5: Flujo Real de Interfaz Médico–Paciente en Staging', () => {
+test.describe('Iteración 2.5 (Smoke): Smoke de Seis Pantallas Médico–Paciente en Staging', () => {
 
   // Paso 1: Interfaz de Acceso del Prestador Médico
   test('Paso UI-1: Interfaz de Login Médico en /es/provider/login', async ({ page }) => {
