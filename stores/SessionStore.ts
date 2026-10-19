@@ -8,6 +8,19 @@ import { AuthResponse, AuthUser, AuthStatus, UserRole } from '@/types/auth';
 export let isInitialRefreshInProgress = false;
 export let initialRefreshPromise: Promise<string | null> | null = null;
 
+export function getSessionApiBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'staging.quhealthy.org' || host.includes('staging')) {
+      return 'https://api-staging.quhealthy.org';
+    }
+  }
+  return 'https://api.quhealthy.org';
+}
+
 // =========================================================================
 // 🧹 NUCLEAR COOKIE CLEANUP
 // Borra TODAS las cookies accesibles desde JS (las HttpOnly las borra el
@@ -149,7 +162,7 @@ export const useSessionStore = create<SessionState>()(
         initialRefreshPromise = (async (): Promise<string | null> => {
           try {
             const response = await axios.post<AuthResponse>(
-              `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+              `${getSessionApiBaseUrl()}/api/auth/refresh-token`,
               {}, // Body vacío
               { withCredentials: true } 
             );
@@ -227,7 +240,7 @@ export const useSessionStore = create<SessionState>()(
         const state = get();
         try {
           const response = await axios.post<AuthResponse>(
-            `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+            `${getSessionApiBaseUrl()}/api/auth/refresh-token`,
             {}, 
             { withCredentials: true } 
           );

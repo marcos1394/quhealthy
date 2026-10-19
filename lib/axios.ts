@@ -19,8 +19,21 @@ interface ApiErrorResponse {
 // =========================================================================
 // 1. INSTANCIA BASE
 // =========================================================================
+const getBaseApiUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'staging.quhealthy.org' || host.includes('staging')) {
+      return 'https://api-staging.quhealthy.org';
+    }
+  }
+  return 'https://api.quhealthy.org';
+};
+
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org',
+  baseURL: getBaseApiUrl(),
   timeout: 45000,
   headers: {
     'Content-Type': 'application/json',

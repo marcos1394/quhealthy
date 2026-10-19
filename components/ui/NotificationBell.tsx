@@ -25,7 +25,7 @@ import {
 import axiosInstance from "@/lib/axios";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { db } from "@/lib/firebase";
+import { db, isStagingEnvironment } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
@@ -101,29 +101,31 @@ export const NotificationBell = ({
       fetchUnreadCount();
     }, 45000);
 
-    // 🔥 Suscripción a Firestore signals en tiempo real (si está configurado)
+    // 🔥 Suscripción a Firestore signals en tiempo real (desactivada en staging.quhealthy.org)
     let unsubscribeFirestore: (() => void) | null = null;
-    try {
-      const roleStr = user.role ? user.role.replace("ROLE_", "") : "CONSUMER";
-      const documentId = `${roleStr}_${user.id}`;
-      const signalRef = doc(db, "notificationSignals", documentId);
+    if (db && !isStagingEnvironment()) {
+      try {
+        const roleStr = user.role ? user.role.replace("ROLE_", "") : "CONSUMER";
+        const documentId = `${roleStr}_${user.id}`;
+        const signalRef = doc(db, "notificationSignals", documentId);
 
-      unsubscribeFirestore = onSnapshot(
-        signalRef,
-        (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            if (typeof data.unreadCount === "number") {
-              setUnreadCount(data.unreadCount);
+        unsubscribeFirestore = onSnapshot(
+          signalRef,
+          (snapshot) => {
+            if (snapshot.exists()) {
+              const data = snapshot.data();
+              if (typeof data.unreadCount === "number") {
+                setUnreadCount(data.unreadCount);
+              }
             }
+          },
+          () => {
+            // Si Firestore está deshabilitado en el cliente, el polling de respaldo se encarga
           }
-        },
-        () => {
-          // Si Firestore está deshabilitado en el cliente, el polling de respaldo se encarga
-        }
-      );
-    } catch {
-      // Silent catch
+        );
+      } catch {
+        // Silent catch
+      }
     }
 
     return () => {

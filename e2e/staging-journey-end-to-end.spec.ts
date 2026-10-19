@@ -193,6 +193,71 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
     console.log(`✅ [BLOQUEO POST-LOGIN CONFIRMADO] ${violationDetected} -> Compuerta ROJA disparada y verificada`);
   });
 
+  test('Comprobación de Aislamiento de Staging: Cero solicitudes al Firestore productivo en páginas autenticadas de paciente y médico', async ({ page }) => {
+    // 1. Instalar bloqueo de red estricto
+    let securityViolation: string | null = null;
+    await installNetworkMutationGuard(page, (violation) => {
+      securityViolation = violation;
+    });
+
+    const interceptedFirestoreRequests: string[] = [];
+    page.on('request', (req) => {
+      const url = req.url();
+      const method = req.method();
+      if (
+        url.includes('firestore.googleapis.com') ||
+        url.includes('quhealthy-backend')
+      ) {
+        interceptedFirestoreRequests.push(`${method} ${url}`);
+      }
+    });
+
+    // 2. Simular sesión autenticada de Paciente y cargar pantalla con NotificationBell (/es/discover)
+    await page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      localStorage.setItem('quhealthy-session', JSON.stringify({
+        state: {
+          token: 'mock-patient-session-token',
+          isAuthenticated: true,
+          role: 'ROLE_CONSUMER',
+          user: { id: 101, email: 'staging.patient.test@example.com', role: 'ROLE_CONSUMER' },
+        },
+      }));
+    });
+
+    await page.goto(`${STAGING_URL}/es/discover`, { waitUntil: 'domcontentloaded' });
+    // Permitir ciclo de montaje de componentes y polling inicial
+    await page.waitForTimeout(2000);
+
+    // 3. Simular sesión autenticada de Médico y cargar pantalla de plataforma (/es/provider/agenda o /es/provider/login)
+    await page.evaluate(() => {
+      localStorage.setItem('quhealthy-session', JSON.stringify({
+        state: {
+          token: 'mock-doctor-session-token',
+          isAuthenticated: true,
+          role: 'ROLE_PROVIDER',
+          user: { id: 202, email: 'staging.doctor.test@example.com', role: 'ROLE_PROVIDER' },
+        },
+      }));
+    });
+
+    await page.goto(`${STAGING_URL}/es/provider/login`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(2000);
+
+    // 4. Aserciones de aislamiento estricto
+    expect(
+      securityViolation,
+      `No debe ocurrir ninguna violación de compuerta roja por tráfico productivo: ${securityViolation}`
+    ).toBeNull();
+
+    expect(
+      interceptedFirestoreRequests,
+      `Se detectaron solicitudes dirigidas a Firestore productivo o proyecto quhealthy-backend: ${interceptedFirestoreRequests.join('; ')}`
+    ).toHaveLength(0);
+
+    console.log('✅ [AISLAMIENTO STAGING CONFIRMADO] Cero solicitudes a Firestore productivo en páginas autenticadas de paciente y médico.');
+  });
+
   test('Recorrido E2E Estricto: Paciente reserva -> Médico atiende -> Cierre verificado COMPLETED', async ({ page }) => {
     test.setTimeout(180000); // 3 minutos máximo
 
