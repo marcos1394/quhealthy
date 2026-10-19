@@ -37,8 +37,6 @@ import {
   Trash2,
   ChevronDown,
   ShieldAlert,
-  Paperclip,
-  Image as ImageIcon,
 } from "lucide-react";
 import { adminService } from "@/services/admin.service";
 
@@ -965,31 +963,7 @@ export const TabAdminCrm: React.FC = () => {
                                 : "bg-white border border-slate-200 text-slate-800 rounded-bl-xs"
                             }`}
                           >
-                            {/* Previsualización de imagen si mediaUrl es HTTP(S) */}
-                            {msg.mediaUrl && msg.mediaUrl.startsWith("http") && (
-                              <div className="mb-2 overflow-hidden rounded-xl border border-slate-200/40">
-                                <img
-                                  src={msg.mediaUrl}
-                                  alt="Adjunto multimedia"
-                                  className="max-h-60 max-w-full object-cover hover:opacity-95 transition-opacity"
-                                />
-                              </div>
-                            )}
-
-                            {/* Contenido de texto o badge multimedia con fallback para evitar burbujas en blanco */}
-                            {msg.content?.trim() ? (
-                              <p className="whitespace-pre-wrap">{msg.content}</p>
-                            ) : msg.type === "IMAGE" ? (
-                              <div className="flex items-center gap-1.5 py-0.5 text-slate-500 italic text-[11px]">
-                                <ImageIcon className="w-3.5 h-3.5 text-emerald-600" />
-                                <span>[Imagen / Sticker recibido]</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1.5 py-0.5 text-slate-400 italic text-[11px]">
-                                <Paperclip className="w-3.5 h-3.5" />
-                                <span>[Mensaje multimedia sin texto]</span>
-                              </div>
-                            )}
+                            <p className="whitespace-pre-wrap">{msg.content}</p>
                           </div>
                           <span className="text-[9px] text-slate-400 mt-1 px-1 flex items-center gap-1">
                             <span>

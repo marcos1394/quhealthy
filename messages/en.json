@@ -5049,7 +5049,6 @@
     "toasts": {
       "limit_reached": "You've reached your current plan limit.",
       "validation_name": "The title cannot be empty.",
-      "validation_category": "Category is required.",
       "validation_desc": "We recommend adding a description of at least 150 characters to provide helpful details for patients.",
       "validation_image": "We recommend uploading at least one good quality image.",
       "name_price_required": "Name and price are required.",

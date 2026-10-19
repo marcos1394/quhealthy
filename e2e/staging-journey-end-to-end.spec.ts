@@ -26,20 +26,60 @@ const PATIENT_PASSWORD = process.env.STAGING_TEST_PATIENT_PASSWORD;
 const DOCTOR_EMAIL = process.env.STAGING_TEST_DOCTOR_EMAIL;
 const DOCTOR_PASSWORD = process.env.STAGING_TEST_DOCTOR_PASSWORD;
 
+/**
+ * Guarda de Seguridad de Origen Canónico de Staging
+ * Acepta exclusivamente orígenes canónicos de staging y rechaza terminantemente producción.
+ */
+const CANONICAL_STAGING_ORIGINS = ['https://staging.quhealthy.org'];
+
+function assertCanonicalStagingOrigin(urlStr: string): void {
+  const parsed = new URL(urlStr);
+  const hostname = parsed.hostname.toLowerCase();
+
+  // 1. Rechazo explícito de cualquier dominio productivo
+  if (
+    hostname === 'quhealthy.org' ||
+    hostname === 'www.quhealthy.org' ||
+    hostname === 'app.quhealthy.org' ||
+    hostname === 'admin.quhealthy.org' ||
+    hostname === 'api.quhealthy.org' ||
+    (hostname.endsWith('.quhealthy.org') && !hostname.startsWith('staging.'))
+  ) {
+    throw new Error(`[SEGURIDAD BLOQUEANTE] Intento de ejecución contra PRODUCCIÓN rechazado: ${urlStr}`);
+  }
+
+  // 2. Aceptación exclusiva de orígenes canónicos autorizados de staging
+  const isCanonical = CANONICAL_STAGING_ORIGINS.some(origin => {
+    const originHost = new URL(origin).hostname.toLowerCase();
+    return hostname === originHost;
+  });
+
+  if (!isCanonical) {
+    throw new Error(
+      `[SEGURIDAD BLOQUEANTE] Origen no canónico de staging: ${urlStr}. ` +
+      `Orígenes aceptados exclusivamente: ${CANONICAL_STAGING_ORIGINS.join(', ')}`
+    );
+  }
+}
+
 test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Journey E2E)', () => {
 
-  test('Recorrido E2E Estricto: Paciente reserva -> Médico atiende -> Cierre verificado COMPLETED', async ({ page, request }) => {
+  test('Recorrido E2E Estricto: Paciente reserva -> Médico atiende -> Cierre verificado COMPLETED', async ({ page }) => {
     test.setTimeout(180000); // 3 minutos máximo
 
     let dynamicAppointmentId: string | number | null = null;
     let selectedProviderSlug: string | null = null;
-    let currentStep = 'VALIDACIÓN DE VARIABLES DE ENTORNO OBLIGATORIAS';
+    let currentStep = 'VALIDACIÓN DE ORIGEN CANÓNICO Y CREDENCIALES OBLIGATORIAS';
 
     try {
       // =========================================================================
-      // PASO 0: VALIDACIÓN DE CREDENCIALES (SIN FALLBACKS NI DEFAULT PASSWORDS)
+      // PASO 0: VALIDACIÓN DE ORIGEN CANÓNICO Y CREDENCIALES (SIN FALLBACKS)
       // =========================================================================
-      console.log(`\n▶ [${currentStep}] Comprobando configuración de credenciales de prueba...`);
+      console.log(`\n▶ [${currentStep}] Validando que el destino sea exclusivamente staging canónico...`);
+      assertCanonicalStagingOrigin(STAGING_URL);
+      console.log(`  [Seguridad] Origen canónico verificado: ${STAGING_URL}`);
+
+      console.log(`  Comprobando configuración de credenciales de prueba sintéticas...`);
       if (!PATIENT_EMAIL || !PATIENT_PASSWORD || !DOCTOR_EMAIL || !DOCTOR_PASSWORD) {
         throw new Error(
           `Credenciales de prueba obligatorias no definidas en el entorno. ` +
@@ -56,6 +96,7 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       currentStep = 'PASO 1: Autenticación y sesión de Paciente Sintético';
       console.log(`\n▶ [${currentStep}] Accediendo a ${STAGING_URL}/es/login...`);
 
+      assertCanonicalStagingOrigin(`${STAGING_URL}/es/login`);
       await page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
       const patientEmailInput = page.locator('input[type="email"], input[name="email"]').first();
       const patientPasswordInput = page.locator('input[type="password"], input[name="password"]').first();
@@ -64,6 +105,18 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       await expect(patientEmailInput, 'Campo de correo de paciente no encontrado en UI').toBeVisible({ timeout: 15000 });
       await expect(patientPasswordInput, 'Campo de contraseña de paciente no encontrado en UI').toBeVisible({ timeout: 15000 });
       await expect(patientSubmitBtn, 'Botón de enviar login de paciente no encontrado en UI').toBeVisible({ timeout: 15000 });
+
+      // Descartar modales flotantes (cookies, permisos de ubicación) que interceptan clics
+      const cookieBannerBtn = page.locator('button:has-text("Aceptar todas"), button:has-text("Aceptar")').first();
+      if (await cookieBannerBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+        console.log('  [UI Overlay] Descartando banner de cookies...');
+        await cookieBannerBtn.click().catch(() => null);
+      }
+      const dismissLocationBtn = page.locator('button:has-text("Ahora no")').first();
+      if (await dismissLocationBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+        console.log('  [UI Overlay] Descartando modal de ubicación...');
+        await dismissLocationBtn.click().catch(() => null);
+      }
 
       await patientEmailInput.fill(PATIENT_EMAIL);
       await patientPasswordInput.fill(PATIENT_PASSWORD);
@@ -188,6 +241,7 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       currentStep = 'PASO 6: Autenticación y sesión del Médico Prestador';
       console.log(`\n▶ [${currentStep}] Accediendo a portal médico en ${STAGING_URL}/es/provider/login...`);
 
+      assertCanonicalStagingOrigin(`${STAGING_URL}/es/provider/login`);
       await page.goto(`${STAGING_URL}/es/provider/login`, { waitUntil: 'domcontentloaded' });
       const doctorEmailInput = page.locator('input[type="email"], input[name="email"]').first();
       const doctorPasswordInput = page.locator('input[type="password"], input[name="password"]').first();
@@ -196,6 +250,16 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       await expect(doctorEmailInput, 'Campo de correo de médico no encontrado en UI').toBeVisible({ timeout: 15000 });
       await expect(doctorPasswordInput, 'Campo de contraseña de médico no encontrado en UI').toBeVisible({ timeout: 15000 });
       await expect(doctorSubmitBtn, 'Botón de submit de médico no encontrado en UI').toBeVisible({ timeout: 15000 });
+
+      // Descartar overlays flotantes si reaparecen
+      const doctorCookieBtn = page.locator('button:has-text("Aceptar todas"), button:has-text("Aceptar")').first();
+      if (await doctorCookieBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await doctorCookieBtn.click().catch(() => null);
+      }
+      const doctorLocationBtn = page.locator('button:has-text("Ahora no")').first();
+      if (await doctorLocationBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await doctorLocationBtn.click().catch(() => null);
+      }
 
       await doctorEmailInput.fill(DOCTOR_EMAIL);
       await doctorPasswordInput.fill(DOCTOR_PASSWORD);
@@ -221,6 +285,7 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       currentStep = 'PASO 7: Apertura de Cita Exacta por el Médico';
       console.log(`\n▶ [${currentStep}] Navegando a agenda y abriendo cita ID ${dynamicAppointmentId}...`);
 
+      assertCanonicalStagingOrigin(`${STAGING_URL}/es/provider/agenda`);
       await page.goto(`${STAGING_URL}/es/provider/agenda`, { waitUntil: 'domcontentloaded' });
       const appointmentCard = page.locator(`[data-appointment-id="${dynamicAppointmentId}"], a[href*="${dynamicAppointmentId}"]`).first();
       await expect(appointmentCard, `La cita ${dynamicAppointmentId} no apareció en la agenda médica`).toBeVisible({ timeout: 20000 });
@@ -251,17 +316,41 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       console.log(`✅ [${currentStep}] Completado.`);
 
       // =========================================================================
-      // PASO 9: VERIFICACIÓN READ-ONLY VIA API CON AUTORIZACIÓN (COMPLETED)
+      // PASO 9: VERIFICACIÓN READ-ONLY VIA SESIÓN AUTENTICADA EN NAVEGADOR
       // =========================================================================
-      currentStep = 'PASO 9: Verificación de Estado COMPLETED con Autorización';
-      console.log(`\n▶ [${currentStep}] Verificando estado final COMPLETED vía API...`);
+      currentStep = 'PASO 9: Verificación de Estado COMPLETED con Sesión de Navegador';
+      console.log(`\n▶ [${currentStep}] Verificando estado final COMPLETED vía sesión autenticada en navegador...`);
 
-      const verifyResp = await request.get(`${STAGING_URL}/api/appointments/${dynamicAppointmentId}`);
-      expect(verifyResp.status(), `Verificación API de cita ${dynamicAppointmentId} falló con HTTP ${verifyResp.status()}`).toBe(200);
+      // Verificación directa mediante sesión activa del navegador (cookies/credenciales incluidas, cero tokens en logs)
+      const verifyResult = await page.evaluate(async (appointmentId) => {
+        try {
+          const resp = await fetch(`/api/appointments/${appointmentId}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+            },
+            credentials: 'include',
+          });
+          const data = await resp.json().catch(() => null);
+          return {
+            status: resp.status,
+            ok: resp.ok,
+            appointmentStatus: data?.status || data?.appointmentStatus || data?.appointment?.status,
+            dataExists: Boolean(data),
+          };
+        } catch (err: any) {
+          return {
+            status: 0,
+            ok: false,
+            error: err?.message || 'Error de red en navegador',
+            dataExists: false,
+          };
+        }
+      }, dynamicAppointmentId);
 
-      const appointmentData = await verifyResp.json();
-      expect(appointmentData.status, `El estado final de la cita ${dynamicAppointmentId} debe ser COMPLETED`).toBe('COMPLETED');
-      console.log(`  🎯 [VERIFICACIÓN READ-ONLY] Cita ${dynamicAppointmentId} confirmada en estado: ${appointmentData.status}`);
+      expect(verifyResult.status, `Verificación API de cita ${dynamicAppointmentId} retornó status HTTP ${verifyResult.status}`).toBe(200);
+      expect(verifyResult.appointmentStatus, `El estado final de la cita ${dynamicAppointmentId} debe ser COMPLETED`).toBe('COMPLETED');
+      console.log(`  🎯 [VERIFICACIÓN READ-ONLY SESIÓN] Cita ${dynamicAppointmentId} confirmada en estado: ${verifyResult.appointmentStatus}`);
       console.log(`✅ [${currentStep}] Completado.`);
 
     } catch (error: any) {

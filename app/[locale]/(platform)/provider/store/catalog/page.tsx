@@ -229,7 +229,7 @@ export default function CatalogSetupPage() {
       id: Date.now(),
       name: "",
       description: "",
-      category: "Medicamentos",
+      category: "",
       price: 0,
       stockQuantity: 1,
       activeIngredient: "",
@@ -250,11 +250,6 @@ export default function CatalogSetupPage() {
   const handleSaveProduct = async (product: UI_Product) => {
     if (!product.name.trim()) {
       toast.warning(t("toasts.validation_name"));
-      return;
-    }
-
-    if (!product.category || !product.category.trim()) {
-      toast.warning(t("toasts.validation_category") || "La categoría del producto es obligatoria.");
       return;
     }
 
