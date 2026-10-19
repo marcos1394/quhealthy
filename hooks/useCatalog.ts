@@ -190,6 +190,7 @@ export const useCatalog = () => {
       }
       return { ...service, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };
@@ -208,7 +209,7 @@ export const useCatalog = () => {
     const payload: CatalogItemDTO = {
       type: 'PACKAGE',
       name: pkg.name,
-      category: pkg.category, 
+      category: (pkg.category && pkg.category.trim()) ? pkg.category.trim() : 'General', 
       description: pkg.description,
       price: pkg.price,
       packageItems: pkg.packageItems?.map(pi => ({
@@ -227,6 +228,7 @@ export const useCatalog = () => {
       }
       return { ...pkg, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };
@@ -245,7 +247,7 @@ export const useCatalog = () => {
     const payload: CatalogItemDTO = {
       type: 'PRODUCT',
       name: product.name,
-      category: product.category,
+      category: (product.category && product.category.trim()) ? product.category.trim() : 'General',
       description: product.description,
       price: product.price,
       stockQuantity: product.stockQuantity,
@@ -267,6 +269,7 @@ export const useCatalog = () => {
       }
       return { ...product, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };

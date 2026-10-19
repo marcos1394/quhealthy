@@ -42,6 +42,8 @@ import {
   ChevronDown,
   Copy,
   MessageCircle,
+  Paperclip,
+  Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -1034,7 +1036,31 @@ export function SocialMessagesView() {
                               : "bg-white dark:bg-[#121212] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white rounded-bl-none"
                           )}
                         >
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                          {/* Previsualización de imagen si mediaUrl es HTTP(S) */}
+                          {msg.mediaUrl && msg.mediaUrl.startsWith("http") && (
+                            <div className="mb-2 overflow-hidden rounded-xl border border-gray-200/40 dark:border-gray-800">
+                              <img
+                                src={msg.mediaUrl}
+                                alt="Adjunto multimedia"
+                                className="max-h-60 max-w-full object-cover hover:opacity-95 transition-opacity"
+                              />
+                            </div>
+                          )}
+
+                          {/* Contenido de texto con fallback inteligente para evitar burbujas en blanco */}
+                          {msg.content?.trim() ? (
+                            <p className="whitespace-pre-wrap">{msg.content}</p>
+                          ) : msg.type === "IMAGE" ? (
+                            <div className="flex items-center gap-1.5 py-0.5 text-gray-500 italic text-[11px]">
+                              <ImageIcon className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>[Imagen / Sticker recibido]</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 py-0.5 text-gray-400 italic text-[11px]">
+                              <Paperclip className="w-3.5 h-3.5" />
+                              <span>[Mensaje multimedia sin texto]</span>
+                            </div>
+                          )}
                           <div
                             className={cn(
                               "mt-1 flex items-center justify-end gap-1 text-[9px]",

@@ -35,6 +35,18 @@ import { complianceService } from "@/services/compliance.service";
 import { handleApiError } from "@/lib/handleApiError";
 import { CameraModal } from "./CameraModal";
 
+export const DEFAULT_PRODUCT_CATEGORIES = [
+  "Medicamentos",
+  "Farmacia y Botiquín",
+  "Vitaminas y Suplementos",
+  "Material de Curación e Insumos",
+  "Cuidado Personal y Dermatológico",
+  "Ortopedia y Rehabilitación",
+  "Equipo Médico y Diagnóstico",
+  "Nutrición y Salud",
+  "General",
+];
+
 interface ProductsManagerProps {
   products: UI_Product[];
   onAdd: () => void;
@@ -75,6 +87,17 @@ export function ProductsManager({
   const [suggestStatus, setSuggestStatus] = useState<{
     [key: number]: "NONE" | "SEARCHING" | "FOUND" | "NOT_FOUND";
   }>({});
+  const [customCategoryInputs, setCustomCategoryInputs] = useState<{
+    [productId: number]: boolean;
+  }>({});
+
+  const availableCategories = useMemo(() => {
+    const existing = products
+      .map((p) => p.category?.trim())
+      .filter((cat): cat is string => Boolean(cat && cat !== ""));
+    const set = new Set([...DEFAULT_PRODUCT_CATEGORIES, ...existing]);
+    return Array.from(set);
+  }, [products]);
 
   const cofeprisCategories = useMemo(
     () => [
@@ -125,9 +148,13 @@ export function ProductsManager({
 
       const aiData = await catalogAiService.scanProductImage(base64String);
 
+      const currentProduct = products.find((p) => p.id === productId);
+      const categoryToUse = currentProduct?.category?.trim() || "Medicamentos";
+
       onUpdate(productId, {
         name: aiData.name || "",
         description: aiData.description || "",
+        category: categoryToUse,
         activeIngredient: aiData.activeIngredient || "",
         manufacturer: aiData.manufacturer || "",
         cofeprisCategory: aiData.cofeprisCategory || "OTC_GENERAL",
@@ -505,18 +532,104 @@ export function ProductsManager({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                            <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                            <span>{t("label_category")}</span>
-                          </label>
-                          <Input
-                            value={product.category}
-                            onChange={(e) =>
-                              onUpdate(product.id, { category: e.target.value })
-                            }
-                            placeholder={t("placeholder_category")}
-                            className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
-                          />
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                              <span>{t("label_category")}</span>
+                              <span className="text-rose-500">*</span>
+                            </label>
+                            {customCategoryInputs[product.id] && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCustomCategoryInputs((prev) => ({ ...prev, [product.id]: false }));
+                                  onUpdate(product.id, { category: DEFAULT_PRODUCT_CATEGORIES[0] });
+                                }}
+                                className="text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
+                              >
+                                ← Volver a la lista
+                              </button>
+                            )}
+                          </div>
+
+                          {!customCategoryInputs[product.id] ? (
+                            <div className="space-y-1">
+                              <select
+                                value={
+                                  product.category && availableCategories.includes(product.category)
+                                    ? product.category
+                                    : product.category
+                                    ? "__CUSTOM__"
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  if (e.target.value === "__NEW__") {
+                                    setCustomCategoryInputs((prev) => ({ ...prev, [product.id]: true }));
+                                    onUpdate(product.id, { category: "" });
+                                  } else {
+                                    onUpdate(product.id, { category: e.target.value });
+                                  }
+                                }}
+                                className={cn(
+                                  "w-full h-11 rounded-xl bg-gray-50/50 dark:bg-[#050505] border text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 px-3.5 transition-all cursor-pointer shadow-2xs appearance-none",
+                                  !product.category?.trim()
+                                    ? "border-rose-300 dark:border-rose-900/50"
+                                    : "border-gray-200 dark:border-gray-800"
+                                )}
+                              >
+                                <option value="" disabled>-- Selecciona una categoría obligatoria * --</option>
+                                {availableCategories.map((cat) => (
+                                  <option key={cat} value={cat}>
+                                    {cat}
+                                  </option>
+                                ))}
+                                {product.category && !availableCategories.includes(product.category) && (
+                                  <option value="__CUSTOM__">
+                                    {product.category} (Personalizada)
+                                  </option>
+                                )}
+                                <option value="__NEW__" className="font-bold text-emerald-600">
+                                  ➕ + Agregar nueva categoría...
+                                </option>
+                              </select>
+                            </div>
+                          ) : (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  autoFocus
+                                  value={product.category}
+                                  onChange={(e) =>
+                                    onUpdate(product.id, { category: e.target.value })
+                                  }
+                                  placeholder="Escribe el nombre de la nueva categoría *"
+                                  className={cn(
+                                    "rounded-xl bg-gray-50/50 dark:bg-[#050505] border h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs",
+                                    !product.category?.trim()
+                                      ? "border-rose-400 dark:border-rose-800"
+                                      : "border-emerald-300 dark:border-emerald-700"
+                                  )}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCustomCategoryInputs((prev) => ({ ...prev, [product.id]: false }));
+                                    onUpdate(product.id, { category: DEFAULT_PRODUCT_CATEGORIES[0] });
+                                  }}
+                                  className="h-11 px-3 text-xs font-semibold text-gray-500 hover:text-gray-700 rounded-xl shrink-0 cursor-pointer"
+                                >
+                                  Lista
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          {!product.category?.trim() && (
+                            <p className="text-[10px] text-rose-500 font-medium">
+                              La categoría es obligatoria para registrar el producto en el catálogo.
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
