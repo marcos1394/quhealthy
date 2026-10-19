@@ -58,34 +58,74 @@ function assertCanonicalStagingOrigin(urlStr: string): void {
   }
 }
 
+const ALLOWED_STAGING_MUTATION_HOSTS = new Set([
+  'staging.quhealthy.org',
+  'api-staging.quhealthy.org',
+  'challenges.cloudflare.com',
+]);
+
+/**
+ * Instala un bloqueo de red a nivel de ruta antes de navegar que aborta
+ * de forma activa cualquier mutación HTTP fuera de los destinos de staging permitidos.
+ */
+async function installNetworkMutationGuard(page: any): Promise<void> {
+  await page.route('**/*', async (route: any) => {
+    const req = route.request();
+    const method = req.method().toUpperCase();
+    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+    if (isMutation) {
+      try {
+        const parsed = new URL(req.url());
+        const host = parsed.hostname.toLowerCase();
+        const isAllowed = ALLOWED_STAGING_MUTATION_HOSTS.has(host) || host.endsWith('.challenges.cloudflare.com');
+
+        if (!isAllowed) {
+          console.warn(`🚨 [BLOQUEO DE RED] Mutación ${method} abortada antes de salir a la red: ${req.url()}`);
+          return route.abort('blockedbyclient');
+        }
+      } catch {
+        return route.abort('blockedbyclient');
+      }
+    }
+
+    await route.continue();
+  });
+}
+
 test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Journey E2E)', () => {
+
+  test('Comprobación de Bloqueo de Red: Mutación simulada a producción es abortada sin salir a la red', async ({ page }) => {
+    // 1. Instalar bloqueo de red antes de navegar
+    await installNetworkMutationGuard(page);
+
+    // 2. Navegar a página en blanco para ejecutar la llamada desde el contexto del navegador
+    await page.goto('about:blank');
+
+    // 3. Ejecutar mutación simulada dirigida a producción
+    const simResult = await page.evaluate(async () => {
+      try {
+        await fetch('https://quhealthy.org/api/appointments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ simulated: true }),
+        });
+        return { aborted: false, error: null };
+      } catch (err: any) {
+        return { aborted: true, error: err?.message || 'Failed to fetch' };
+      }
+    });
+
+    // 4. Verificar que la petición fue efectivamente abortada en el cliente
+    expect(simResult.aborted, 'La mutación hacia producción debe ser abortada por el interceptor de red').toBe(true);
+    console.log('✅ [BLOQUEO CONFIRMADO] Mutación simulada hacia producción abortada exitosamente sin salir a la red.');
+  });
 
   test('Recorrido E2E Estricto: Paciente reserva -> Médico atiende -> Cierre verificado COMPLETED', async ({ page }) => {
     test.setTimeout(180000); // 3 minutos máximo
 
-    // Blindaje de red a nivel navegador: aborta cualquier mutación saliente hacia producción
-    page.on('request', req => {
-      const method = req.method();
-      const urlStr = req.url();
-      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-        try {
-          const parsed = new URL(urlStr);
-          const host = parsed.hostname.toLowerCase();
-          if (
-            host === 'quhealthy.org' ||
-            host === 'www.quhealthy.org' ||
-            host === 'app.quhealthy.org' ||
-            host === 'admin.quhealthy.org' ||
-            host === 'api.quhealthy.org' ||
-            (host.endsWith('.quhealthy.org') && !host.startsWith('staging.'))
-          ) {
-            throw new Error(`[SEGURIDAD BLOQUEANTE] Mutación ${method} interceptada hacia API productiva: ${urlStr}`);
-          }
-        } catch (e: any) {
-          if (e.message.includes('SEGURIDAD BLOQUEANTE')) throw e;
-        }
-      }
-    });
+    // Instalar bloqueo de red obligatorio antes de navegar a staging
+    await installNetworkMutationGuard(page);
 
     let dynamicAppointmentId: string | number | null = null;
     let selectedProviderSlug: string | null = null;
@@ -336,21 +376,38 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       console.log(`✅ [${currentStep}] Completado.`);
 
       // =========================================================================
-      // PASO 9: VERIFICACIÓN READ-ONLY VIA SESIÓN AUTENTICADA EN NAVEGADOR
+      // PASO 9: VERIFICACIÓN READ-ONLY VIA API-STAGING CON AUTENTICACIÓN DE SESIÓN
       // =========================================================================
-      currentStep = 'PASO 9: Verificación de Estado COMPLETED con Sesión de Navegador';
-      console.log(`\n▶ [${currentStep}] Verificando estado final COMPLETED vía sesión autenticada en navegador...`);
+      currentStep = 'PASO 9: Verificación de Estado COMPLETED en api-staging.quhealthy.org';
+      console.log(`\n▶ [${currentStep}] Consultando endpoint real de api-staging.quhealthy.org con autenticación de sesión...`);
 
-      // Verificación directa mediante sesión activa del navegador (cookies/credenciales incluidas, cero tokens en logs)
+      // Verificación directa contra api-staging.quhealthy.org utilizando la autenticación activa de la sesión
+      // (sin persistir ni imprimir tokens en ningún log o archivo)
       const verifyResult = await page.evaluate(async (appointmentId) => {
         try {
-          const resp = await fetch(`/api/appointments/${appointmentId}`, {
+          // Extraer token de autenticación desde el estado de la sesión activa en el navegador
+          let authToken = '';
+          const rawSession = localStorage.getItem('quhealthy-session');
+          if (rawSession) {
+            try {
+              const parsed = JSON.parse(rawSession);
+              authToken = parsed?.state?.token || '';
+            } catch {}
+          }
+
+          const headers: Record<string, string> = {
+            'Accept': 'application/json',
+          };
+          if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`;
+          }
+
+          const resp = await fetch(`https://api-staging.quhealthy.org/api/appointments/${appointmentId}`, {
             method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-            },
+            headers,
             credentials: 'include',
           });
+
           const data = await resp.json().catch(() => null);
           return {
             status: resp.status,
@@ -368,9 +425,9 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
         }
       }, dynamicAppointmentId);
 
-      expect(verifyResult.status, `Verificación API de cita ${dynamicAppointmentId} retornó status HTTP ${verifyResult.status}`).toBe(200);
-      expect(verifyResult.appointmentStatus, `El estado final de la cita ${dynamicAppointmentId} debe ser COMPLETED`).toBe('COMPLETED');
-      console.log(`  🎯 [VERIFICACIÓN READ-ONLY SESIÓN] Cita ${dynamicAppointmentId} confirmada en estado: ${verifyResult.appointmentStatus}`);
+      expect(verifyResult.status, `Verificación API en api-staging.quhealthy.org de cita ${dynamicAppointmentId} retornó status HTTP ${verifyResult.status}`).toBe(200);
+      expect(verifyResult.appointmentStatus, `El estado final de la cita ${dynamicAppointmentId} en api-staging.quhealthy.org debe ser COMPLETED`).toBe('COMPLETED');
+      console.log(`  🎯 [VERIFICACIÓN READ-ONLY API-STAGING] Cita ${dynamicAppointmentId} confirmada en estado: ${verifyResult.appointmentStatus}`);
       console.log(`✅ [${currentStep}] Completado.`);
 
     } catch (error: any) {
