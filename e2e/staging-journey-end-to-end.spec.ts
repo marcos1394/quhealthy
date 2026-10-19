@@ -66,9 +66,10 @@ const ALLOWED_STAGING_MUTATION_HOSTS = new Set([
 
 /**
  * Instala un bloqueo de red a nivel de ruta antes de navegar que aborta
- * de forma activa cualquier mutación HTTP fuera de los destinos de staging permitidos.
+ * de forma activa cualquier mutación HTTP fuera de los destinos de staging permitidos
+ * y notifica la violación para forzar el fallo inmediato de la compuerta.
  */
-async function installNetworkMutationGuard(page: any): Promise<void> {
+async function installNetworkMutationGuard(page: any, onViolation?: (violation: string) => void): Promise<void> {
   await page.route('**/*', async (route: any) => {
     const req = route.request();
     const method = req.method().toUpperCase();
@@ -81,8 +82,13 @@ async function installNetworkMutationGuard(page: any): Promise<void> {
         const isAllowed = ALLOWED_STAGING_MUTATION_HOSTS.has(host) || host.endsWith('.challenges.cloudflare.com');
 
         if (!isAllowed) {
-          console.warn(`🚨 [BLOQUEO DE RED] Mutación ${method} abortada antes de salir a la red: ${req.url()}`);
-          return route.abort('blockedbyclient');
+          const violationMsg = `Mutación no permitida interceptada hacia: ${method} ${req.url()}`;
+          console.error(`🚨 [BLOQUEO DE RED] ${violationMsg}`);
+          await route.abort('blockedbyclient');
+          if (onViolation) {
+            onViolation(violationMsg);
+          }
+          return;
         }
       } catch {
         return route.abort('blockedbyclient');
@@ -92,6 +98,13 @@ async function installNetworkMutationGuard(page: any): Promise<void> {
     await route.continue();
   });
 }
+
+// Desactivar trazas, screenshots y grabaciones de red para proteger credenciales y sesiones
+test.use({
+  trace: 'off',
+  screenshot: 'off',
+  video: 'off',
+});
 
 test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Journey E2E)', () => {
 
@@ -124,8 +137,26 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
   test('Recorrido E2E Estricto: Paciente reserva -> Médico atiende -> Cierre verificado COMPLETED', async ({ page }) => {
     test.setTimeout(180000); // 3 minutos máximo
 
+    let securityViolation: string | null = null;
+    let rejectOnSecurityViolation: ((reason: Error) => void) | null = null;
+    const securityViolationPromise = new Promise<never>((_, reject) => {
+      rejectOnSecurityViolation = reject;
+    });
+
     // Instalar bloqueo de red obligatorio antes de navegar a staging
-    await installNetworkMutationGuard(page);
+    // Cualquier mutación hacia producción aborta la conexión y hace fallar la prueba inmediatamente
+    await installNetworkMutationGuard(page, (violation) => {
+      securityViolation = violation;
+      if (rejectOnSecurityViolation) {
+        rejectOnSecurityViolation(new Error(`[COMPUERTA ROJA] ${violation}`));
+      }
+    });
+
+    const assertNoProductionMutations = () => {
+      if (securityViolation) {
+        throw new Error(`[COMPUERTA ROJA] ${securityViolation}`);
+      }
+    };
 
     let dynamicAppointmentId: string | number | null = null;
     let selectedProviderSlug: string | null = null;
@@ -178,17 +209,22 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
         await dismissLocationBtn.click().catch(() => null);
       }
 
+      assertNoProductionMutations();
       await patientEmailInput.fill(PATIENT_EMAIL);
       await patientPasswordInput.fill(PATIENT_PASSWORD);
 
-      const [loginResponse] = await Promise.all([
-        page.waitForResponse(
-          resp => (resp.url().includes('/api/auth/login') || resp.url().includes('/api/auth/token') || resp.url().includes('/auth')) && resp.request().method() === 'POST',
-          { timeout: 20000 }
-        ),
-        patientSubmitBtn.click(),
+      const [loginResponse] = await Promise.race([
+        Promise.all([
+          page.waitForResponse(
+            resp => (resp.url().includes('/api/auth/login') || resp.url().includes('/api/auth/token') || resp.url().includes('/auth')) && resp.request().method() === 'POST',
+            { timeout: 20000 }
+          ),
+          patientSubmitBtn.click(),
+        ]),
+        securityViolationPromise.then(() => { throw new Error('Unreachable'); }),
       ]);
 
+      assertNoProductionMutations();
       expect(loginResponse.status(), `Login de paciente HTTP retornó error ${loginResponse.status()}`).toBeLessThan(400);
 
       // Confirmar establecimiento de sesión y salida de la pantalla de login
@@ -431,6 +467,10 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       console.log(`✅ [${currentStep}] Completado.`);
 
     } catch (error: any) {
+      if (securityViolation) {
+        console.error(`\n❌ [COMPUERTA ROJA] Violación de seguridad de red interceptada hacia producción:`, securityViolation);
+        throw new Error(`Compuerta ROJA por violación de seguridad: ${securityViolation}`);
+      }
       console.error(`\n❌ [COMPUERTA ROJA] Fallo crítico obligatorio en [${currentStep}]:`, error.message || error);
       throw new Error(`Compuerta ROJA en ${currentStep}: ${error.message || error}`);
     }
