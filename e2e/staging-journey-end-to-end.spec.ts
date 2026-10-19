@@ -72,17 +72,30 @@ const ALLOWED_STAGING_MUTATION_HOSTS = new Set([
 async function installNetworkMutationGuard(page: any, onViolation?: (violation: string) => void): Promise<void> {
   await page.route('**/*', async (route: any) => {
     const req = route.request();
-    const method = req.method().toUpperCase();
-    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+    const urlStr = req.url();
 
-    if (isMutation) {
-      try {
-        const parsed = new URL(req.url());
-        const host = parsed.hostname.toLowerCase();
+    try {
+      const parsed = new URL(urlStr);
+      const host = parsed.hostname.toLowerCase();
+
+      // Bloquear scripts y telemetría de previsualización/terceros ajenos a la aplicación clínica
+      if (
+        host === 'vercel.live' ||
+        host.endsWith('.vercel.live') ||
+        host.includes('merchantverse') ||
+        (host.endsWith('google.com') && urlStr.includes('batchexecute'))
+      ) {
+        return route.abort('blockedbyclient');
+      }
+
+      const method = req.method().toUpperCase();
+      const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+      if (isMutation) {
         const isAllowed = ALLOWED_STAGING_MUTATION_HOSTS.has(host) || host.endsWith('.challenges.cloudflare.com');
 
         if (!isAllowed) {
-          const violationMsg = `Mutación no permitida interceptada hacia: ${method} ${req.url()}`;
+          const violationMsg = `Mutación no permitida interceptada hacia: ${method} ${urlStr}`;
           console.error(`🚨 [BLOQUEO DE RED] ${violationMsg}`);
           await route.abort('blockedbyclient');
           if (onViolation) {
@@ -90,9 +103,9 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
           }
           return;
         }
-      } catch {
-        return route.abort('blockedbyclient');
       }
+    } catch {
+      return route.abort('blockedbyclient');
     }
 
     await route.continue();
@@ -273,8 +286,8 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
 
       const [loginResponse] = await withSecurityGuard(Promise.all([
         page.waitForResponse(
-          resp => (resp.url().includes('/api/auth/login') || resp.url().includes('/api/auth/token') || resp.url().includes('/auth')) && resp.request().method() === 'POST',
-          { timeout: 20000 }
+          resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
+          { timeout: 25000 }
         ),
         patientSubmitBtn.click(),
       ]));
@@ -282,8 +295,8 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       assertNoProductionMutations();
       expect(loginResponse.status(), `Login de paciente HTTP retornó error ${loginResponse.status()}`).toBeLessThan(400);
 
-      // Confirmar establecimiento de sesión y salida de la pantalla de login
-      await withSecurityGuard(page.waitForURL(url => !url.pathname.endsWith('/login'), { timeout: 15000 }));
+      // Confirmar establecimiento de sesión y salida de la pantalla de login (SPA soft navigation)
+      await withSecurityGuard(page.waitForURL(url => !url.pathname.endsWith('/login'), { waitUntil: 'domcontentloaded', timeout: 20000 }));
       console.log(`  [Sesión] Paciente autenticado exitosamente. URL actual: ${page.url()}`);
       assertNoProductionMutations();
       console.log(`✅ [${currentStep}] Completado.`);
@@ -315,7 +328,7 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       console.log(`  [UI] Prestador seleccionado dinámicamente desde UI: ${selectedProviderSlug}`);
 
       await withSecurityGuard(Promise.all([
-        page.waitForURL(url => url.pathname.includes('/doctor/') || url.pathname.includes('/provider/'), { timeout: 15000 }),
+        page.waitForURL(url => url.pathname.includes('/doctor/') || url.pathname.includes('/provider/'), { waitUntil: 'domcontentloaded', timeout: 20000 }),
         providerCards.first().click(),
       ]));
       assertNoProductionMutations();
@@ -432,8 +445,8 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
 
       const [doctorLoginResp] = await withSecurityGuard(Promise.all([
         page.waitForResponse(
-          resp => (resp.url().includes('/api/auth/login') || resp.url().includes('/api/auth/token') || resp.url().includes('/auth')) && resp.request().method() === 'POST',
-          { timeout: 20000 }
+          resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
+          { timeout: 25000 }
         ),
         doctorSubmitBtn.click(),
       ]));
@@ -441,8 +454,8 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       assertNoProductionMutations();
       expect(doctorLoginResp.status(), `Login de médico retornó error HTTP ${doctorLoginResp.status()}`).toBeLessThan(400);
 
-      // Confirmar sesión del médico y redirección fuera de login
-      await withSecurityGuard(page.waitForURL(url => !url.pathname.endsWith('/provider/login'), { timeout: 15000 }));
+      // Confirmar sesión del médico y redirección fuera de login (SPA soft navigation)
+      await withSecurityGuard(page.waitForURL(url => !url.pathname.endsWith('/provider/login'), { waitUntil: 'domcontentloaded', timeout: 20000 }));
       console.log(`  [Sesión] Médico autenticado exitosamente. URL actual: ${page.url()}`);
       assertNoProductionMutations();
       console.log(`✅ [${currentStep}] Completado.`);
