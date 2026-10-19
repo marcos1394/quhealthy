@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
-import React, { useRef, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -23,6 +23,7 @@ import {
   Building2,
   ShieldAlert,
   FileText,
+  Check,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,20 +31,24 @@ import { Input } from "@/components/ui/input";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { UI_Product } from "@/types/catalog";
 import { cn } from "@/lib/utils";
+import { catalogService } from "@/services/catalog.service";
 import { catalogAiService } from "@/services/catalogAiService";
 import { complianceService } from "@/services/compliance.service";
 import { handleApiError } from "@/lib/handleApiError";
 import { CameraModal } from "./CameraModal";
 
 export const DEFAULT_PRODUCT_CATEGORIES = [
-  "Medicamentos",
-  "Farmacia y Botiquín",
-  "Vitaminas y Suplementos",
-  "Material de Curación e Insumos",
-  "Cuidado Personal y Dermatológico",
+  "Material de Curación y Quirúrgico",
+  "Instrumental Médico y Cirugía",
+  "Medicamentos de Patente",
+  "Medicamentos Genéricos",
+  "Insumos Desechables y EPP",
+  "Dispositivos Médicos y Diagnóstico",
+  "Soluciones y Antisépticos",
   "Ortopedia y Rehabilitación",
-  "Equipo Médico y Diagnóstico",
-  "Nutrición y Salud",
+  "Nutrición Clínica y Suplementos",
+  "Odontología e Insumos Dentales",
+  "Laboratorio y Reactivos",
   "General",
 ];
 
@@ -90,14 +95,61 @@ export function ProductsManager({
   const [customCategoryInputs, setCustomCategoryInputs] = useState<{
     [productId: number]: boolean;
   }>({});
+  const [dbCategories, setDbCategories] = useState<string[]>(DEFAULT_PRODUCT_CATEGORIES);
+  const [isSavingCategory, setIsSavingCategory] = useState<{ [productId: number]: boolean }>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    catalogService
+      .getProductCategories()
+      .then((cats) => {
+        if (isMounted && Array.isArray(cats) && cats.length > 0) {
+          const names = cats.map((c) => c.name.trim()).filter(Boolean);
+          setDbCategories((prev) => Array.from(new Set([...names, ...prev])));
+        }
+      })
+      .catch((err) => {
+        // Fallback silencioso a categorías predeterminadas
+        console.debug("Categorías de BD no disponibles en este momento, usando catálogo base.", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handlePersistNewCategory = async (productId: number, categoryName: string) => {
+    const trimmed = categoryName?.trim();
+    if (!trimmed) return;
+
+    setIsSavingCategory((prev) => ({ ...prev, [productId]: true }));
+    try {
+      await catalogService.createProductCategory(trimmed);
+      setDbCategories((prev) => Array.from(new Set([...prev, trimmed])));
+      toast.success(`Categoría "${trimmed}" guardada en la base de datos.`);
+    } catch (err) {
+      console.warn("No se pudo registrar la categoría en BD, manteniéndola localmente:", err);
+    } finally {
+      setIsSavingCategory((prev) => ({ ...prev, [productId]: false }));
+      setCustomCategoryInputs((prev) => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  const handleSaveProduct = (product: UI_Product) => {
+    const cat = product.category?.trim();
+    if (cat && !dbCategories.includes(cat)) {
+      catalogService.createProductCategory(cat).catch(() => null);
+      setDbCategories((prev) => Array.from(new Set([...prev, cat])));
+    }
+    onSave(product);
+  };
 
   const availableCategories = useMemo(() => {
     const existing = products
       .map((p) => p.category?.trim())
       .filter((cat): cat is string => Boolean(cat && cat !== ""));
-    const set = new Set([...DEFAULT_PRODUCT_CATEGORIES, ...existing]);
+    const set = new Set([...dbCategories, ...existing]);
     return Array.from(set);
-  }, [products]);
+  }, [dbCategories, products]);
 
   const cofeprisCategories = useMemo(
     () => [
@@ -602,6 +654,12 @@ export function ProductsManager({
                                   onChange={(e) =>
                                     onUpdate(product.id, { category: e.target.value })
                                   }
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      handlePersistNewCategory(product.id, product.category || "");
+                                    }
+                                  }}
                                   placeholder="Escribe el nombre de la nueva categoría *"
                                   className={cn(
                                     "rounded-xl bg-gray-50/50 dark:bg-[#050505] border h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs",
@@ -612,10 +670,28 @@ export function ProductsManager({
                                 />
                                 <Button
                                   type="button"
+                                  variant="default"
+                                  onClick={() =>
+                                    handlePersistNewCategory(product.id, product.category || "")
+                                  }
+                                  disabled={!product.category?.trim() || isSavingCategory[product.id]}
+                                  className="h-11 px-3 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shrink-0 cursor-pointer"
+                                >
+                                  {isSavingCategory[product.id] ? (
+                                    <QhSpinner className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 mr-1" />
+                                      Guardar
+                                    </>
+                                  )}
+                                </Button>
+                                <Button
+                                  type="button"
                                   variant="outline"
                                   onClick={() => {
                                     setCustomCategoryInputs((prev) => ({ ...prev, [product.id]: false }));
-                                    onUpdate(product.id, { category: DEFAULT_PRODUCT_CATEGORIES[0] });
+                                    onUpdate(product.id, { category: dbCategories[0] || DEFAULT_PRODUCT_CATEGORIES[0] });
                                   }}
                                   className="h-11 px-3 text-xs font-semibold text-gray-500 hover:text-gray-700 rounded-xl shrink-0 cursor-pointer"
                                 >
@@ -816,7 +892,7 @@ export function ProductsManager({
 
                       <Button
                         type="button"
-                        onClick={() => onSave(product)}
+                        onClick={() => handleSaveProduct(product)}
                         disabled={!product.hasUnsavedChanges && !product.isNew}
                         className={cn(
                           "w-full sm:w-auto h-11 px-8 rounded-xl text-xs font-bold transition-all border-0 shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",

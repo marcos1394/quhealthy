@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
-Test local de rollback para la Cita 5 y sus relaciones reales.
-Ejecutado estrictamente en memoria local (SQLite) sin tocar staging ni producción.
-Demuestra la resolución en orden inverso de claves foráneas:
+SIMULACIÓN LOCAL SQLITE (IN-MEMORY): Demostración conceptual del orden de resolución de borrado relacional.
+ADVERTENCIA: Esta prueba es únicamente una simulación sintética de orden en memoria.
+NO afirma ni demuestra integridad referencial bajo PostgreSQL ni ejecuta cambios en staging.
+Para verificar integridad referencial real, debe ejecutarse contra PostgreSQL local con el esquema migrado.
+
+Orden conceptual evaluado:
 1. teleconsultation_consent_audits
 2. teleconsultation_ai_consents
 3. appointment_transactions

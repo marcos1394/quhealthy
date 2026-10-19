@@ -62,5 +62,21 @@ export const catalogService = {
     if (!itemIds || itemIds.length === 0) return [];
     const response = await axiosInstance.post(`${BASE_URL}/items/batch`, { itemIds });
     return response.data;
+  },
+
+  /**
+   * Obtiene las categorías de productos disponibles desde la base de datos
+   */
+  getProductCategories: async (): Promise<{ id: number; name: string; description?: string; custom: boolean }[]> => {
+    const response = await axiosInstance.get(`${BASE_URL}/categories/products`);
+    return response.data;
+  },
+
+  /**
+   * Registra una nueva categoría de productos personalizada en la base de datos
+   */
+  createProductCategory: async (name: string, description?: string): Promise<{ id: number; name: string; description?: string; custom: boolean }> => {
+    const response = await axiosInstance.post(`${BASE_URL}/categories/products`, { name, description });
+    return response.data;
   }
 };
