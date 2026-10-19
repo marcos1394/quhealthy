@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
-import React, { useRef, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -23,6 +23,7 @@ import {
   Building2,
   ShieldAlert,
   FileText,
+  Check,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,10 +31,26 @@ import { Input } from "@/components/ui/input";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { UI_Product } from "@/types/catalog";
 import { cn } from "@/lib/utils";
+import { catalogService } from "@/services/catalog.service";
 import { catalogAiService } from "@/services/catalogAiService";
 import { complianceService } from "@/services/compliance.service";
 import { handleApiError } from "@/lib/handleApiError";
 import { CameraModal } from "./CameraModal";
+
+export const DEFAULT_PRODUCT_CATEGORIES = [
+  "Material de Curación y Quirúrgico",
+  "Instrumental Médico y Cirugía",
+  "Medicamentos de Patente",
+  "Medicamentos Genéricos",
+  "Insumos Desechables y EPP",
+  "Dispositivos Médicos y Diagnóstico",
+  "Soluciones y Antisépticos",
+  "Ortopedia y Rehabilitación",
+  "Nutrición Clínica y Suplementos",
+  "Odontología e Insumos Dentales",
+  "Laboratorio y Reactivos",
+  "General",
+];
 
 interface ProductsManagerProps {
   products: UI_Product[];
@@ -75,6 +92,64 @@ export function ProductsManager({
   const [suggestStatus, setSuggestStatus] = useState<{
     [key: number]: "NONE" | "SEARCHING" | "FOUND" | "NOT_FOUND";
   }>({});
+  const [customCategoryInputs, setCustomCategoryInputs] = useState<{
+    [productId: number]: boolean;
+  }>({});
+  const [dbCategories, setDbCategories] = useState<string[]>(DEFAULT_PRODUCT_CATEGORIES);
+  const [isSavingCategory, setIsSavingCategory] = useState<{ [productId: number]: boolean }>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    catalogService
+      .getProductCategories()
+      .then((cats) => {
+        if (isMounted && Array.isArray(cats) && cats.length > 0) {
+          const names = cats.map((c) => c.name.trim()).filter(Boolean);
+          setDbCategories((prev) => Array.from(new Set([...names, ...prev])));
+        }
+      })
+      .catch((err) => {
+        // Fallback silencioso a categorías predeterminadas
+        console.debug("Categorías de BD no disponibles en este momento, usando catálogo base.", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handlePersistNewCategory = async (productId: number, categoryName: string) => {
+    const trimmed = categoryName?.trim();
+    if (!trimmed) return;
+
+    setIsSavingCategory((prev) => ({ ...prev, [productId]: true }));
+    try {
+      await catalogService.createProductCategory(trimmed);
+      setDbCategories((prev) => Array.from(new Set([...prev, trimmed])));
+      toast.success(`Categoría "${trimmed}" guardada en la base de datos.`);
+    } catch (err) {
+      console.warn("No se pudo registrar la categoría en BD, manteniéndola localmente:", err);
+    } finally {
+      setIsSavingCategory((prev) => ({ ...prev, [productId]: false }));
+      setCustomCategoryInputs((prev) => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  const handleSaveProduct = (product: UI_Product) => {
+    const cat = product.category?.trim();
+    if (cat && !dbCategories.includes(cat)) {
+      catalogService.createProductCategory(cat).catch(() => null);
+      setDbCategories((prev) => Array.from(new Set([...prev, cat])));
+    }
+    onSave(product);
+  };
+
+  const availableCategories = useMemo(() => {
+    const existing = products
+      .map((p) => p.category?.trim())
+      .filter((cat): cat is string => Boolean(cat && cat !== ""));
+    const set = new Set([...dbCategories, ...existing]);
+    return Array.from(set);
+  }, [dbCategories, products]);
 
   const cofeprisCategories = useMemo(
     () => [
@@ -125,9 +200,13 @@ export function ProductsManager({
 
       const aiData = await catalogAiService.scanProductImage(base64String);
 
+      const currentProduct = products.find((p) => p.id === productId);
+      const categoryToUse = currentProduct?.category?.trim() || "Medicamentos";
+
       onUpdate(productId, {
         name: aiData.name || "",
         description: aiData.description || "",
+        category: categoryToUse,
         activeIngredient: aiData.activeIngredient || "",
         manufacturer: aiData.manufacturer || "",
         cofeprisCategory: aiData.cofeprisCategory || "OTC_GENERAL",
@@ -505,18 +584,128 @@ export function ProductsManager({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                            <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                            <span>{t("label_category")}</span>
-                          </label>
-                          <Input
-                            value={product.category}
-                            onChange={(e) =>
-                              onUpdate(product.id, { category: e.target.value })
-                            }
-                            placeholder={t("placeholder_category")}
-                            className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
-                          />
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                              <span>{t("label_category")}</span>
+                              <span className="text-rose-500">*</span>
+                            </label>
+                            {customCategoryInputs[product.id] && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCustomCategoryInputs((prev) => ({ ...prev, [product.id]: false }));
+                                  onUpdate(product.id, { category: DEFAULT_PRODUCT_CATEGORIES[0] });
+                                }}
+                                className="text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
+                              >
+                                ← Volver a la lista
+                              </button>
+                            )}
+                          </div>
+
+                          {!customCategoryInputs[product.id] ? (
+                            <div className="space-y-1">
+                              <select
+                                value={
+                                  product.category && availableCategories.includes(product.category)
+                                    ? product.category
+                                    : product.category
+                                    ? "__CUSTOM__"
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  if (e.target.value === "__NEW__") {
+                                    setCustomCategoryInputs((prev) => ({ ...prev, [product.id]: true }));
+                                    onUpdate(product.id, { category: "" });
+                                  } else {
+                                    onUpdate(product.id, { category: e.target.value });
+                                  }
+                                }}
+                                className={cn(
+                                  "w-full h-11 rounded-xl bg-gray-50/50 dark:bg-[#050505] border text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 px-3.5 transition-all cursor-pointer shadow-2xs appearance-none",
+                                  !product.category?.trim()
+                                    ? "border-rose-300 dark:border-rose-900/50"
+                                    : "border-gray-200 dark:border-gray-800"
+                                )}
+                              >
+                                <option value="" disabled>-- Selecciona una categoría obligatoria * --</option>
+                                {availableCategories.map((cat) => (
+                                  <option key={cat} value={cat}>
+                                    {cat}
+                                  </option>
+                                ))}
+                                {product.category && !availableCategories.includes(product.category) && (
+                                  <option value="__CUSTOM__">
+                                    {product.category} (Personalizada)
+                                  </option>
+                                )}
+                                <option value="__NEW__" className="font-bold text-emerald-600">
+                                  ➕ + Agregar nueva categoría...
+                                </option>
+                              </select>
+                            </div>
+                          ) : (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  autoFocus
+                                  value={product.category}
+                                  onChange={(e) =>
+                                    onUpdate(product.id, { category: e.target.value })
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      handlePersistNewCategory(product.id, product.category || "");
+                                    }
+                                  }}
+                                  placeholder="Escribe el nombre de la nueva categoría *"
+                                  className={cn(
+                                    "rounded-xl bg-gray-50/50 dark:bg-[#050505] border h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs",
+                                    !product.category?.trim()
+                                      ? "border-rose-400 dark:border-rose-800"
+                                      : "border-emerald-300 dark:border-emerald-700"
+                                  )}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="default"
+                                  onClick={() =>
+                                    handlePersistNewCategory(product.id, product.category || "")
+                                  }
+                                  disabled={!product.category?.trim() || isSavingCategory[product.id]}
+                                  className="h-11 px-3 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shrink-0 cursor-pointer"
+                                >
+                                  {isSavingCategory[product.id] ? (
+                                    <QhSpinner className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 mr-1" />
+                                      Guardar
+                                    </>
+                                  )}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCustomCategoryInputs((prev) => ({ ...prev, [product.id]: false }));
+                                    onUpdate(product.id, { category: dbCategories[0] || DEFAULT_PRODUCT_CATEGORIES[0] });
+                                  }}
+                                  className="h-11 px-3 text-xs font-semibold text-gray-500 hover:text-gray-700 rounded-xl shrink-0 cursor-pointer"
+                                >
+                                  Lista
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          {!product.category?.trim() && (
+                            <p className="text-[10px] text-rose-500 font-medium">
+                              La categoría es obligatoria para registrar el producto en el catálogo.
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -703,7 +892,7 @@ export function ProductsManager({
 
                       <Button
                         type="button"
-                        onClick={() => onSave(product)}
+                        onClick={() => handleSaveProduct(product)}
                         disabled={!product.hasUnsavedChanges && !product.isNew}
                         className={cn(
                           "w-full sm:w-auto h-11 px-8 rounded-xl text-xs font-bold transition-all border-0 shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
