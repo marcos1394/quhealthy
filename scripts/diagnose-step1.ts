@@ -30,7 +30,6 @@ async function diagnoseStep1() {
     networkRequests.push({
       url: req.url(),
       method: req.method(),
-      postData: req.postData(),
     });
   });
 
@@ -91,10 +90,17 @@ async function diagnoseStep1() {
     disabledAttr: await submitButton.getAttribute('disabled'),
   });
 
+  // Validar y obtener credenciales de entorno (sin valores fijos en código)
+  const patientEmail = process.env.STAGING_TEST_PATIENT_EMAIL;
+  const patientPassword = process.env.STAGING_TEST_PATIENT_PASSWORD;
+  if (!patientEmail || !patientPassword) {
+    throw new Error('Variables STAGING_TEST_PATIENT_EMAIL o STAGING_TEST_PATIENT_PASSWORD no definidas en el entorno.');
+  }
+
   // Llenar formulario
   console.log('4. Llenando campos...');
-  await emailInput.fill('staging.patient.test@example.com');
-  await passwordInput.fill('StagingTestPassword123!');
+  await emailInput.fill(patientEmail);
+  await passwordInput.fill(patientPassword);
 
   console.log('5. Estado del botón tras llenar campos:');
   console.log({

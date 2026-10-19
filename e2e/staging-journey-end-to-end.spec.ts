@@ -35,6 +35,7 @@ const CANONICAL_STAGING_ORIGINS = ['https://staging.quhealthy.org'];
 function assertCanonicalStagingOrigin(urlStr: string): void {
   const parsed = new URL(urlStr);
   const hostname = parsed.hostname.toLowerCase();
+  const origin = parsed.origin.toLowerCase();
 
   // 1. Rechazo explícito de cualquier dominio productivo
   if (
@@ -48,16 +49,11 @@ function assertCanonicalStagingOrigin(urlStr: string): void {
     throw new Error(`[SEGURIDAD BLOQUEANTE] Intento de ejecución contra PRODUCCIÓN rechazado: ${urlStr}`);
   }
 
-  // 2. Aceptación exclusiva de orígenes canónicos autorizados de staging
-  const isCanonical = CANONICAL_STAGING_ORIGINS.some(origin => {
-    const originHost = new URL(origin).hostname.toLowerCase();
-    return hostname === originHost;
-  });
-
-  if (!isCanonical) {
+  // 2. Aceptación exclusiva del origen canónico exacto https://staging.quhealthy.org
+  if (origin !== 'https://staging.quhealthy.org') {
     throw new Error(
       `[SEGURIDAD BLOQUEANTE] Origen no canónico de staging: ${urlStr}. ` +
-      `Orígenes aceptados exclusivamente: ${CANONICAL_STAGING_ORIGINS.join(', ')}`
+      `Se exige exclusivamente el origen exacto: https://staging.quhealthy.org`
     );
   }
 }
@@ -66,6 +62,30 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
 
   test('Recorrido E2E Estricto: Paciente reserva -> Médico atiende -> Cierre verificado COMPLETED', async ({ page }) => {
     test.setTimeout(180000); // 3 minutos máximo
+
+    // Blindaje de red a nivel navegador: aborta cualquier mutación saliente hacia producción
+    page.on('request', req => {
+      const method = req.method();
+      const urlStr = req.url();
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+        try {
+          const parsed = new URL(urlStr);
+          const host = parsed.hostname.toLowerCase();
+          if (
+            host === 'quhealthy.org' ||
+            host === 'www.quhealthy.org' ||
+            host === 'app.quhealthy.org' ||
+            host === 'admin.quhealthy.org' ||
+            host === 'api.quhealthy.org' ||
+            (host.endsWith('.quhealthy.org') && !host.startsWith('staging.'))
+          ) {
+            throw new Error(`[SEGURIDAD BLOQUEANTE] Mutación ${method} interceptada hacia API productiva: ${urlStr}`);
+          }
+        } catch (e: any) {
+          if (e.message.includes('SEGURIDAD BLOQUEANTE')) throw e;
+        }
+      }
+    });
 
     let dynamicAppointmentId: string | number | null = null;
     let selectedProviderSlug: string | null = null;
