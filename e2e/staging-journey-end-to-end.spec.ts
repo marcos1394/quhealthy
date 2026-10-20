@@ -384,16 +384,18 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       assertNoProductionMutations();
       expect(searchResponse.status(), 'Respuesta del catálogo de prestadores no fue HTTP 200').toBe(200);
 
-      const providerCards = page.locator('a[href*="/doctor/"], a[href*="/provider/"], [data-testid="provider-card"]');
+      const providerCards = page.locator('a[href*="/doctor/"], a[href*="/provider/"], a[href*="/store/"], [data-testid="provider-card"]');
       await withSecurityGuard(expect(providerCards.first(), 'No se encontraron prestadores renderizados en la UI de /discover').toBeVisible({ timeout: 15000 }));
 
-      const href = await providerCards.first().getAttribute('href');
-      expect(href, 'La tarjeta de prestador renderizada en la UI debe tener un link válido').toBeTruthy();
+      const href = (await providerCards.first().getAttribute('href')) ||
+                   (await providerCards.first().getAttribute('data-href')) ||
+                   (await providerCards.first().locator('a').first().getAttribute('href').catch(() => null));
+      expect(href, 'La tarjeta de prestador renderizada en la UI debe tener un link o slug válido').toBeTruthy();
       selectedProviderSlug = href;
       console.log(`  [UI] Prestador seleccionado dinámicamente desde UI: ${selectedProviderSlug}`);
 
       await withSecurityGuard(Promise.all([
-        page.waitForURL(url => url.pathname.includes('/doctor/') || url.pathname.includes('/provider/'), { waitUntil: 'domcontentloaded', timeout: 20000 }),
+        page.waitForURL(url => url.pathname.includes('/doctor/') || url.pathname.includes('/provider/') || url.pathname.includes('/store/'), { waitUntil: 'domcontentloaded', timeout: 20000 }),
         providerCards.first().click(),
       ]));
       assertNoProductionMutations();

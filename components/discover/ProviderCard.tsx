@@ -120,6 +120,8 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   return (
     <div
       role="button"
+      data-testid="provider-card"
+      data-href={`/store/${provider.slug}`}
       tabIndex={0}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
