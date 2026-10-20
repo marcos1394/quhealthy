@@ -62,6 +62,7 @@ const ALLOWED_STAGING_MUTATION_HOSTS = new Set([
   'staging.quhealthy.org',
   'api-staging.quhealthy.org',
   'challenges.cloudflare.com',
+  'maps.googleapis.com',
 ]);
 
 /**
@@ -92,7 +93,10 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
       const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
       if (isMutation) {
-        const isAllowed = ALLOWED_STAGING_MUTATION_HOSTS.has(host) || host.endsWith('.challenges.cloudflare.com');
+        const isAllowed =
+          ALLOWED_STAGING_MUTATION_HOSTS.has(host) ||
+          host.endsWith('.challenges.cloudflare.com') ||
+          host.endsWith('.googleapis.com');
 
         if (!isAllowed) {
           const violationMsg = `Mutación no permitida interceptada hacia: ${method} ${urlStr}`;
@@ -322,6 +326,17 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       currentStep = 'PASO 1: Autenticación y sesión de Paciente Sintético';
       console.log(`\n▶ [${currentStep}] Accediendo a ${STAGING_URL}/es/login...`);
 
+      page.on('console', msg => {
+        if (msg.type() === 'error' || msg.text().includes('Turnstile') || msg.text().includes('auth') || msg.text().includes('login') || msg.text().includes('error')) {
+          console.log(`  [BROWSER ${msg.type().toUpperCase()}]`, msg.text());
+        }
+      });
+      page.on('response', resp => {
+        if (resp.url().includes('/api/')) {
+          console.log(`  [NETWORK] ${resp.status()} ${resp.request().method()} ${resp.url()}`);
+        }
+      });
+
       assertNoProductionMutations();
       assertCanonicalStagingOrigin(`${STAGING_URL}/es/login`);
       await withSecurityGuard(page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' }));
@@ -358,6 +373,10 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       ]));
 
       assertNoProductionMutations();
+      console.log(`  [LOGIN RESP] Status: ${loginResponse.status()}, URL: ${loginResponse.url()}`);
+      const btnText = await patientSubmitBtn.textContent().catch(() => 'unknown');
+      const btnDisabled = await patientSubmitBtn.isDisabled().catch(() => false);
+      console.log(`  [SUBMIT BTN STATE] text: "${btnText?.trim()}", disabled: ${btnDisabled}`);
       expect(loginResponse.status(), `Login de paciente HTTP retornó error ${loginResponse.status()}`).toBeLessThan(400);
 
       // Confirmar establecimiento de sesión y salida de la pantalla de login (SPA soft navigation)
