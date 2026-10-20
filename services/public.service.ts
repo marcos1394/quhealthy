@@ -1,17 +1,16 @@
 import axios from 'axios';
 import axiosInstance from '@/lib/axios';
+import { resolveApiBaseUrl } from '@/lib/api-config';
 import { PlatformStats } from '@/types/public';
-
-// Usamos la variable de entorno que ya tienes configurada en tu proyecto
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
 
 export const publicService = {
   /**
    * Descarga la receta pública validando los últimos 4 dígitos del celular.
    */
   verifyAndDownloadPrescription: async (appointmentId: number, phoneLast4: string): Promise<Blob> => {
+    const apiUrl = resolveApiBaseUrl();
     const response = await axios.post(
-      `${API_URL}/api/appointments/public/${appointmentId}/prescription/pdf`,
+      `${apiUrl}/api/appointments/public/${appointmentId}/prescription/pdf`,
       { phoneLast4 },
       { 
         responseType: 'blob', // 🚀 CRÍTICO: Le decimos a Axios que esperamos un archivo binario

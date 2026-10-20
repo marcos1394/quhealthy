@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { socialService } from '@/services/social.service';
 import { useSessionStore } from '@/stores/SessionStore';
+import { resolveApiBaseUrl } from '@/lib/api-config';
 
 /**
  * STREAM-SEC-01: Resuelve la URL base del servicio social dinámicamente desde variables de entorno.
@@ -10,6 +11,14 @@ import { useSessionStore } from '@/stores/SessionStore';
 export const getStreamBaseUrl = (): string => {
   const customUrl = process.env.NEXT_PUBLIC_SOCIAL_SERVICE_URL;
   if (customUrl) return customUrl.replace(/\/$/, '');
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'staging.quhealthy.org' || host.includes('staging') || host.includes('stage')) {
+      return 'https://api-staging.quhealthy.org';
+    }
+  }
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (apiUrl) return apiUrl.replace(/\/$/, '');
   return '';
