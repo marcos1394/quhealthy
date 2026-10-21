@@ -78,6 +78,22 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
     try {
       const parsed = new URL(urlStr);
       const host = parsed.hostname.toLowerCase();
+      const method = req.method().toUpperCase();
+
+      // Bloquear terminantemente Firestore (firestore.googleapis.com) y cualquier host productivo
+      if (
+        host === 'firestore.googleapis.com' ||
+        host.endsWith('.firestore.googleapis.com') ||
+        urlStr.includes('firestore.googleapis.com')
+      ) {
+        const firestoreViolation = `Solicitud prohibida interceptada hacia Firestore: ${method} ${urlStr}`;
+        console.error(`🚨 [BLOQUEO DE RED] ${firestoreViolation}`);
+        await route.abort('blockedbyclient');
+        if (onViolation) {
+          onViolation(firestoreViolation);
+        }
+        return;
+      }
 
       // Bloquear scripts y telemetría de previsualización/terceros ajenos a la aplicación clínica
       if (
@@ -89,14 +105,13 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
         return route.abort('blockedbyclient');
       }
 
-      const method = req.method().toUpperCase();
       const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
       if (isMutation) {
+        // Exclusivamente destinos de staging permitidos y el destino estricto de Maps (sin *.googleapis.com genérico)
         const isAllowed =
           ALLOWED_STAGING_MUTATION_HOSTS.has(host) ||
-          host.endsWith('.challenges.cloudflare.com') ||
-          host.endsWith('.googleapis.com');
+          host.endsWith('.challenges.cloudflare.com');
 
         if (!isAllowed) {
           const violationMsg = `Mutación no permitida interceptada hacia: ${method} ${urlStr}`;
@@ -149,6 +164,30 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
     // 4. Verificar que la petición fue efectivamente abortada en el cliente
     expect(simResult.aborted, 'La mutación hacia producción debe ser abortada por el interceptor de red').toBe(true);
     console.log('✅ [BLOQUEO CONFIRMADO] Mutación simulada hacia producción abortada exitosamente sin salir a la red.');
+  });
+
+  test('Comprobación de Bloqueo de Firestore: Solicitud simulada a firestore.googleapis.com es abortada sin salir a la red', async ({ page }) => {
+    let violationDetected: string | null = null;
+    await installNetworkMutationGuard(page, (violation) => {
+      violationDetected = violation;
+    });
+
+    await page.goto('about:blank');
+
+    const simResult = await page.evaluate(async () => {
+      try {
+        await fetch('https://firestore.googleapis.com/v1/projects/quhealthy-backend/databases/(default)/documents', {
+          method: 'GET',
+        });
+        return { aborted: false, error: null };
+      } catch (err: any) {
+        return { aborted: true, error: err?.message || 'Failed to fetch' };
+      }
+    });
+
+    expect(simResult.aborted, 'La solicitud hacia firestore.googleapis.com debe ser abortada por el interceptor').toBe(true);
+    expect(violationDetected, 'La violación hacia firestore debe ser detectada').toContain('firestore.googleapis.com');
+    console.log('✅ [BLOQUEO FIRESTORE CONFIRMADO] Solicitud a firestore.googleapis.com abortada exitosamente.');
   });
 
   test('Comprobación de Bloqueo de Red Post-Login: Mutación prohibida tras autenticación aborta y deja la compuerta roja', async ({ page }) => {
