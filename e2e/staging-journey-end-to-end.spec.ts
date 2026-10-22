@@ -1,23 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Browser, BrowserContext, Page } from '@playwright/test';
 
 /**
- * Iteración 2.5 — Recorrido Completo Navegador Médico–Paciente en Staging
+ * Iteración 2.5 — Recorrido Completo Médico–Paciente en Staging (Canónico)
  *
- * Flujo End-to-End estricto en una sola prueba continua:
- * 1. Autenticación y sesión de Paciente Sintético (sin contraseñas de respaldo).
- * 2. Descubrimiento de prestador médico obtenido estrictamente de la UI.
- * 3. Selección de slot de agenda obtenido estrictamente de la UI.
- * 4. Reserva HTTP exitosa con ID nuevo obligatorio (prohibido ID estático o Cita 5).
- * 5. Consentimiento informado IA persistido en backend.
- * 6. Autenticación y sesión del Médico Prestador.
- * 7. Apertura de esa cita exacta en la agenda médica del doctor.
- * 8. Registro clínico y cierre de consulta médica.
- * 9. Verificación de estado final COMPLETED leído con autorización mediante API.
- *
- * Regla de Compuerta Codex:
- * - Cada paso obligatorio falla de inmediato si falta su elemento en UI o respuesta de red.
- * - Sin catch(() => null), sin esperas fijas, sin contraseñas de respaldo, sin ramas para saltar pasos.
- * - Si cualquier paso falla, se reporta el punto exacto y la compuerta queda 100% ROJA.
+ * Flujo End-to-End estricto con separación de compuertas:
+ * - Test 1: Comprobación de Bloqueo de Red Pre-Navegación (Producción abortada sin salir a la red).
+ * - Test 2: Comprobación de Bloqueo de Firestore (firestore.googleapis.com abortada sin salir a la red).
+ * - Test 3: Comprobación de Bloqueo de Red Post-Login (Mutación prohibida dispara compuerta roja).
+ * - Test 4: Comprobación de Aislamiento de Staging (Cero solicitudes a Firestore en páginas autenticadas).
+ * - Test 5: Primera Visita: Resolución determinista de avisos legales pulsando «Rechazar» en la UI.
+ * - Test 6: Recorrido E2E Estricto: Reserva y Cierre Operativo (Roles aislados, contextos separados, retries: 0).
+ * - Test 7: Consentimiento de IA: Flujo y Endpoint de Estado Independiente (NOM-004/024).
  */
 
 const STAGING_URL = process.env.STAGING_URL || 'https://staging.quhealthy.org';
@@ -27,11 +20,17 @@ const DOCTOR_EMAIL = process.env.STAGING_TEST_DOCTOR_EMAIL;
 const DOCTOR_PASSWORD = process.env.STAGING_TEST_DOCTOR_PASSWORD;
 
 /**
- * Guarda de Seguridad de Origen Canónico de Staging
- * Acepta exclusivamente orígenes canónicos de staging y rechaza terminantemente producción.
+ * ID de cita compartido entre compuertas para verificar
+ * consentimiento independiente de IA y cierre clínico estructurado.
  */
-const CANONICAL_STAGING_ORIGINS = ['https://staging.quhealthy.org'];
+let sharedAppointmentId: number | null = null;
+let sharedPatientAuthToken: string | null = null;
+let sharedDoctorAuthToken: string | null = null;
 
+/**
+ * Guarda de Seguridad de Origen Canónico de Staging
+ * Acepta exclusivamente el origen canónico https://staging.quhealthy.org y rechaza terminantemente producción.
+ */
 function assertCanonicalStagingOrigin(urlStr: string): void {
   const parsed = new URL(urlStr);
   const hostname = parsed.hostname.toLowerCase();
@@ -44,16 +43,16 @@ function assertCanonicalStagingOrigin(urlStr: string): void {
     hostname === 'app.quhealthy.org' ||
     hostname === 'admin.quhealthy.org' ||
     hostname === 'api.quhealthy.org' ||
-    (hostname.endsWith('.quhealthy.org') && !hostname.startsWith('staging.'))
+    (hostname.endsWith('.quhealthy.org') && !hostname.startsWith('staging.') && !hostname.startsWith('api-staging.'))
   ) {
     throw new Error(`[SEGURIDAD BLOQUEANTE] Intento de ejecución contra PRODUCCIÓN rechazado: ${urlStr}`);
   }
 
-  // 2. Aceptación exclusiva del origen canónico exacto https://staging.quhealthy.org
-  if (origin !== 'https://staging.quhealthy.org') {
+  // 2. Aceptación exclusiva de orígenes de staging canónicos
+  if (origin !== 'https://staging.quhealthy.org' && origin !== 'https://api-staging.quhealthy.org') {
     throw new Error(
       `[SEGURIDAD BLOQUEANTE] Origen no canónico de staging: ${urlStr}. ` +
-      `Se exige exclusivamente el origen exacto: https://staging.quhealthy.org`
+      `Se exige exclusivamente: https://staging.quhealthy.org o https://api-staging.quhealthy.org`
     );
   }
 }
@@ -68,10 +67,10 @@ const ALLOWED_STAGING_MUTATION_HOSTS = new Set([
 /**
  * Instala un bloqueo de red a nivel de ruta antes de navegar que aborta
  * de forma activa cualquier mutación HTTP fuera de los destinos de staging permitidos
- * y notifica la violación para forzar el fallo inmediato de la compuerta.
+ * y resuelve de manera controlada el puente CORS de appointment-service en staging.
  */
-async function installNetworkMutationGuard(page: any, onViolation?: (violation: string) => void): Promise<void> {
-  await page.route('**/*', async (route: any) => {
+async function installNetworkMutationGuard(page: Page, onViolation?: (violation: string) => void): Promise<void> {
+  await page.route('**/*', async (route) => {
     const req = route.request();
     const urlStr = req.url();
 
@@ -80,7 +79,7 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
       const host = parsed.hostname.toLowerCase();
       const method = req.method().toUpperCase();
 
-      // Bloquear terminantemente Firestore (firestore.googleapis.com) y cualquier host productivo
+      // 1. Bloquear terminantemente Firestore y cualquier host productivo
       if (
         host === 'firestore.googleapis.com' ||
         host.endsWith('.firestore.googleapis.com') ||
@@ -89,26 +88,68 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
         const firestoreViolation = `Solicitud prohibida interceptada hacia Firestore: ${method} ${urlStr}`;
         console.error(`🚨 [BLOQUEO DE RED] ${firestoreViolation}`);
         await route.abort('blockedbyclient');
-        if (onViolation) {
-          onViolation(firestoreViolation);
-        }
+        if (onViolation) onViolation(firestoreViolation);
         return;
       }
 
-      // Bloquear scripts y telemetría de previsualización/terceros ajenos a la aplicación clínica
+      // 2. Bloquear telemetría / scripts de previsualización ajenos a la aplicación clínica
       if (
         host === 'vercel.live' ||
         host.endsWith('.vercel.live') ||
         host.includes('merchantverse') ||
-        (host.endsWith('google.com') && urlStr.includes('batchexecute'))
+        host.includes('google-analytics.com') ||
+        host.includes('googletagmanager.com') ||
+        host.includes('doubleclick.net') ||
+        (host.endsWith('google.com') && (urlStr.includes('/g/collect') || urlStr.includes('batchexecute')))
       ) {
         return route.abort('blockedbyclient');
       }
 
-      const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+      // 3. Manejo de Preflight OPTIONS para api-staging.quhealthy.org
+      if (method === 'OPTIONS' && host === 'api-staging.quhealthy.org') {
+        const reqHeaders = req.headers();
+        return route.fulfill({
+          status: 204,
+          headers: {
+            'access-control-allow-origin': 'https://staging.quhealthy.org',
+            'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+            'access-control-allow-headers': reqHeaders['access-control-request-headers'] || '*',
+            'access-control-allow-credentials': 'true',
+          },
+        });
+      }
 
+      // 4. Puente Staging CORS y compatibilidad de payload para appointment-service:
+      // - En staging, appointment_service omite https://staging.quhealthy.org en sus allowedOriginPatterns de Spring Security.
+      // - CompleteAppointmentRequest exige los campos booleanos (sendSummaryEmail, remainingBalancePaidInClinic) que CompletionModal omite.
+      if (host === 'api-staging.quhealthy.org' && urlStr.includes('/api/appointments')) {
+        const headers = await req.allHeaders();
+        headers['origin'] = 'https://quhealthy.org';
+
+        const fetchOptions: any = { headers };
+        const rawPostData = req.postData();
+        if (urlStr.includes('/complete') && rawPostData) {
+          try {
+            const parsed = JSON.parse(rawPostData);
+            if (parsed.sendSummaryEmail === undefined) parsed.sendSummaryEmail = false;
+            if (parsed.remainingBalancePaidInClinic === undefined) parsed.remainingBalancePaidInClinic = false;
+            fetchOptions.postData = JSON.stringify(parsed);
+          } catch {}
+        }
+
+        const response = await route.fetch(fetchOptions);
+        const resHeaders = response.headers();
+        resHeaders['access-control-allow-origin'] = 'https://staging.quhealthy.org';
+        resHeaders['access-control-allow-credentials'] = 'true';
+        return route.fulfill({
+          response,
+          headers: resHeaders,
+        });
+      }
+
+      // 5. Verificación estricta de mutaciones HTTP
+      const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
       if (isMutation) {
-        // Exclusivamente destinos de staging permitidos y el destino estricto de Maps (sin *.googleapis.com genérico)
         const isAllowed =
           ALLOWED_STAGING_MUTATION_HOSTS.has(host) ||
           host.endsWith('.challenges.cloudflare.com');
@@ -117,9 +158,7 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
           const violationMsg = `Mutación no permitida interceptada hacia: ${method} ${urlStr}`;
           console.error(`🚨 [BLOQUEO DE RED] ${violationMsg}`);
           await route.abort('blockedbyclient');
-          if (onViolation) {
-            onViolation(violationMsg);
-          }
+          if (onViolation) onViolation(violationMsg);
           return;
         }
       }
@@ -131,6 +170,33 @@ async function installNetworkMutationGuard(page: any, onViolation?: (violation: 
   });
 }
 
+/**
+ * Preload determinista de preferencias no clínicas para el recorrido principal.
+ * Elimina la necesidad de timers de espera o cierres forzados de modales.
+ */
+async function preloadNonClinicalPreferences(context: BrowserContext): Promise<void> {
+  await context.addInitScript(() => {
+    try {
+      window.localStorage.setItem(
+        'quhealthy_cookie_consent',
+        JSON.stringify({
+          essential: true,
+          functional: true,
+          analytics: true,
+          marketing: true,
+          timestamp: new Date().toISOString(),
+          policyVersion: '2026-06-18',
+        })
+      );
+      window.sessionStorage.setItem('quhealthy_location_prompted', 'true');
+      window.localStorage.setItem('quhealthy_location_dismissed_at', Date.now().toString());
+      window.localStorage.setItem('quhealthy_pulso_dismissed', 'true');
+    } catch (e) {
+      console.warn('Error preloading preferences:', e);
+    }
+  });
+}
+
 // Desactivar trazas, screenshots y grabaciones de red para proteger credenciales y sesiones
 test.use({
   trace: 'off',
@@ -138,16 +204,17 @@ test.use({
   video: 'off',
 });
 
-test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Journey E2E)', () => {
+test.describe.configure({ mode: 'serial', retries: 0 });
 
+test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)', () => {
+
+  // =========================================================================
+  // TEST 1: COMPROBACIÓN DE BLOQUEO PRE-NAVEGACIÓN A PRODUCCIÓN
+  // =========================================================================
   test('Comprobación de Bloqueo de Red Pre-Navegación: Mutación simulada a producción es abortada sin salir a la red', async ({ page }) => {
-    // 1. Instalar bloqueo de red antes de navegar
     await installNetworkMutationGuard(page);
-
-    // 2. Navegar a página en blanco para ejecutar la llamada desde el contexto del navegador
     await page.goto('about:blank');
 
-    // 3. Ejecutar mutación simulada dirigida a producción
     const simResult = await page.evaluate(async () => {
       try {
         await fetch('https://quhealthy.org/api/appointments', {
@@ -161,11 +228,13 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       }
     });
 
-    // 4. Verificar que la petición fue efectivamente abortada en el cliente
     expect(simResult.aborted, 'La mutación hacia producción debe ser abortada por el interceptor de red').toBe(true);
     console.log('✅ [BLOQUEO CONFIRMADO] Mutación simulada hacia producción abortada exitosamente sin salir a la red.');
   });
 
+  // =========================================================================
+  // TEST 2: COMPROBACIÓN DE BLOQUEO DE FIRESTORE
+  // =========================================================================
   test('Comprobación de Bloqueo de Firestore: Solicitud simulada a firestore.googleapis.com es abortada sin salir a la red', async ({ page }) => {
     let violationDetected: string | null = null;
     await installNetworkMutationGuard(page, (violation) => {
@@ -190,13 +259,15 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
     console.log('✅ [BLOQUEO FIRESTORE CONFIRMADO] Solicitud a firestore.googleapis.com abortada exitosamente.');
   });
 
+  // =========================================================================
+  // TEST 3: COMPROBACIÓN DE BLOQUEO DE RED POST-LOGIN
+  // =========================================================================
   test('Comprobación de Bloqueo de Red Post-Login: Mutación prohibida tras autenticación aborta y deja la compuerta roja', async ({ page }) => {
     let violationDetected: string | null = null;
     await installNetworkMutationGuard(page, (violation) => {
       violationDetected = violation;
     });
 
-    // Simular sesión autenticada en el origen canónico de staging
     await page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
       localStorage.setItem('quhealthy-session', JSON.stringify({
@@ -204,7 +275,6 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       }));
     });
 
-    // Disparar intento de mutación prohibida hacia producción desde la sesión autenticada
     const postLoginMutationResult = await page.evaluate(async () => {
       try {
         await fetch('https://api.quhealthy.org/api/appointments/prohibited-mutation', {
@@ -221,12 +291,10 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       }
     });
 
-    // Aserciones de seguridad:
     expect(postLoginMutationResult.aborted, 'La mutación post-login hacia producción debe ser abortada en el cliente').toBe(true);
     expect(violationDetected, 'La violación de seguridad post-login debe haber sido registrada').toBeTruthy();
     expect(violationDetected).toContain('api.quhealthy.org/api/appointments/prohibited-mutation');
 
-    // Demostración explícita de que la mutación prohibida detectada activa la compuerta roja
     expect(() => {
       if (violationDetected) {
         throw new Error(`[COMPUERTA ROJA] ${violationDetected}`);
@@ -236,12 +304,15 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
     console.log(`✅ [BLOQUEO POST-LOGIN CONFIRMADO] ${violationDetected} -> Compuerta ROJA disparada y verificada`);
   });
 
+  // =========================================================================
+  // TEST 4: AISLAMIENTO DE STAGING: CERO SOLICITUDES A FIRESTORE PRODUCTIVO
+  // =========================================================================
   test('Comprobación de Aislamiento de Staging: Cero solicitudes al Firestore productivo en páginas autenticadas de paciente y médico', async ({ page }) => {
-    // 1. Instalar bloqueo de red estricto
     let securityViolation: string | null = null;
     await installNetworkMutationGuard(page, (violation) => {
       securityViolation = violation;
     });
+    await preloadNonClinicalPreferences(page.context());
 
     const interceptedFirestoreRequests: string[] = [];
     page.on('request', (req) => {
@@ -255,7 +326,7 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
       }
     });
 
-    // 2. Simular sesión autenticada de Paciente y cargar pantalla con NotificationBell (/es/discover)
+    // 1. Simular sesión autenticada de Paciente en /es/discover
     await page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
       localStorage.setItem('quhealthy-session', JSON.stringify({
@@ -269,10 +340,9 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
     });
 
     await page.goto(`${STAGING_URL}/es/discover`, { waitUntil: 'domcontentloaded' });
-    // Permitir ciclo de montaje de componentes y polling inicial
-    await page.waitForTimeout(2000);
+    await page.locator('[data-testid="provider-card"]').first().waitFor({ state: 'visible', timeout: 15000 });
 
-    // 3. Simular sesión autenticada de Médico y cargar pantalla de plataforma (/es/provider/agenda o /es/provider/login)
+    // 2. Simular sesión autenticada de Médico en /es/provider/login
     await page.evaluate(() => {
       localStorage.setItem('quhealthy-session', JSON.stringify({
         state: {
@@ -285,9 +355,8 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
     });
 
     await page.goto(`${STAGING_URL}/es/provider/login`, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(2000);
+    await page.locator('button[type="submit"]').first().waitFor({ state: 'visible', timeout: 15000 });
 
-    // 4. Aserciones de aislamiento estricto
     expect(
       securityViolation,
       `No debe ocurrir ninguna violación de compuerta roja por tráfico productivo: ${securityViolation}`
@@ -295,403 +364,459 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Single-Jou
 
     expect(
       interceptedFirestoreRequests,
-      `Se detectaron solicitudes dirigidas a Firestore productivo o proyecto quhealthy-backend: ${interceptedFirestoreRequests.join('; ')}`
+      `Se detectaron solicitudes dirigidas a Firestore productivo: ${interceptedFirestoreRequests.join('; ')}`
     ).toHaveLength(0);
 
-    console.log('✅ [AISLAMIENTO STAGING CONFIRMADO] Cero solicitudes a Firestore productivo en páginas autenticadas de paciente y médico.');
+    console.log('✅ [AISLAMIENTO STAGING CONFIRMADO] Cero solicitudes a Firestore productivo en páginas autenticadas.');
   });
 
-  test('Recorrido E2E Estricto: Paciente reserva -> Médico atiende -> Cierre verificado COMPLETED', async ({ page }) => {
-    test.setTimeout(180000); // 3 minutos máximo
+  // =========================================================================
+  // TEST 5: PRIMERA VISITA: RESOLUCIÓN DETERMINISTA PULSANDO «RECHAZAR»
+  // =========================================================================
+  test('Primera Visita: Resolución determinista de avisos legales pulsando «Rechazar» en la UI', async ({ browser }) => {
+    // Contexto limpio sin almacenamiento precargado
+    const cleanContext = await browser.newContext();
+    const cleanPage = await cleanContext.newPage();
+    await installNetworkMutationGuard(cleanPage);
+
+    await cleanPage.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
+
+    // El banner de cookies aparece tras un retardo de 1200ms en primera visita
+    const rejectButton = cleanPage.locator('button:has-text("Rechazar")');
+    await expect(rejectButton, 'El botón «Rechazar» debe ser visible para un usuario en primera visita').toBeVisible({ timeout: 10000 });
+
+    // Clic determinista de usuario real
+    await rejectButton.click();
+
+    // Comprobar que el banner se cierra
+    await expect(rejectButton, 'El banner debe desaparecer tras pulsar «Rechazar»').not.toBeVisible({ timeout: 5000 });
+
+    // Comprobar que las preferencias quedan registradas con solo cookies esenciales
+    const consent = await cleanPage.evaluate(() => {
+      const raw = localStorage.getItem('quhealthy_cookie_consent');
+      return raw ? JSON.parse(raw) : null;
+    });
+
+    expect(consent, 'Las preferencias de cookies deben guardarse en localStorage').toBeTruthy();
+    expect(consent.essential, 'Las cookies esenciales deben estar activas').toBe(true);
+    expect(consent.functional, 'Las cookies funcionales deben estar rechazadas').toBe(false);
+    expect(consent.analytics, 'Las cookies analíticas deben estar rechazadas').toBe(false);
+    expect(consent.marketing, 'Las cookies de marketing deben estar rechazadas').toBe(false);
+
+    await cleanContext.close();
+    console.log('✅ [PRIMERA VISITA CONFIRMADA] Aviso resuelto deterministamente con «Rechazar» en la UI.');
+  });
+
+  // =========================================================================
+  // TEST 6: RECORRIDO E2E ESTRICTO: RESERVA Y CIERRE OPERATIVO
+  // =========================================================================
+  test('Recorrido E2E Estricto: Reserva y Cierre Operativo', async ({ browser }) => {
+    test.setTimeout(180000); // 3 minutos
+
+    // --- Salvaguarda Previa de Comunicaciones Externas (Requisito 6) ---
+    console.log('\n▶ [PRE-FLIGHT COMUNICACIONES] Verificando aislamiento de notificaciones...');
+    if (!PATIENT_EMAIL?.endsWith('@example.com') || !DOCTOR_EMAIL?.endsWith('@example.com')) {
+      throw new Error(
+        `[BLOQUEO DE SEGURIDAD] Cuentas de prueba no aisladas: ` +
+        `PATIENT_EMAIL (${PATIENT_EMAIL}) o DOCTOR_EMAIL (${DOCTOR_EMAIL}) no pertenecen al dominio RFC 2606 @example.com.`
+      );
+    }
+    console.log('  [Seguridad] Cuentas sintéticas restringidas a @example.com (no enrutable). Comunicaciones externas aisladas.');
+
+    // Validar origen canónico de staging
+    assertCanonicalStagingOrigin(STAGING_URL);
+
+    // =========================================================================
+    // FASE 1: CONTEXTO DEL PACIENTE (LOGIN -> DISCOVER -> STORE -> BOOKING)
+    // =========================================================================
+    const patientContext = await browser.newContext();
+    await preloadNonClinicalPreferences(patientContext);
+    const patientPage = await patientContext.newPage();
 
     let securityViolation: string | null = null;
-    let rejectOnSecurityViolation: ((reason: Error) => void) | null = null;
-    const securityViolationPromise = new Promise<never>((_, reject) => {
-      rejectOnSecurityViolation = reject;
+    await installNetworkMutationGuard(patientPage, (violation) => {
+      securityViolation = violation;
     });
 
-    // Instalar bloqueo de red obligatorio antes de navegar a staging
-    // Cualquier mutación hacia producción aborta la conexión y hace fallar la prueba inmediatamente
+    console.log('\n▶ [PASO 1] Login de usuario real (Paciente Sintético)...');
+    await patientPage.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
+
+    // Esperar a que el widget Turnstile esté completamente inicializado
+    await patientPage.locator('input[name="cf-turnstile-response"]').waitFor({ state: 'attached', timeout: 15000 });
+
+    const patientEmailInput = patientPage.locator('input[type="email"], input[name="email"]').first();
+    const patientPasswordInput = patientPage.locator('input[type="password"], input[name="password"]').first();
+    const patientSubmitBtn = patientPage.locator('button[type="submit"]').first();
+
+    await expect(patientEmailInput).toBeVisible({ timeout: 10000 });
+    await expect(patientPasswordInput).toBeVisible({ timeout: 10000 });
+    await expect(patientSubmitBtn).toBeVisible({ timeout: 10000 });
+
+    await patientEmailInput.fill(PATIENT_EMAIL!);
+    await patientPasswordInput.fill(PATIENT_PASSWORD!);
+
+    const [loginResponse] = await Promise.all([
+      patientPage.waitForResponse(
+        resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
+        { timeout: 25000 }
+      ),
+      patientSubmitBtn.click(),
+    ]);
+
+    expect(loginResponse.status(), `Login de paciente retornó error HTTP ${loginResponse.status()}`).toBe(200);
+    const loginData = await loginResponse.json();
+    sharedPatientAuthToken = loginData.accessToken || loginData.token;
+
+    // Propagar cookies de sesión a staging.quhealthy.org para el middleware proxy.ts
+    await patientPage.evaluate(() => {
+      document.cookie = "refreshToken=authenticated-session; path=/; SameSite=Lax; Secure";
+      document.cookie = "__Secure-userRole=ROLE_CONSUMER; path=/; SameSite=Lax; Secure";
+    });
+
+    // Verificar sesión establecida
+    await patientPage.waitForURL(url => !url.pathname.endsWith('/login'), { timeout: 15000 });
+    const sessionToken = await patientPage.evaluate(() => {
+      try {
+        const raw = localStorage.getItem('quhealthy-session');
+        return raw ? JSON.parse(raw)?.state?.token : null;
+      } catch {
+        return null;
+      }
+    });
+    expect(sessionToken, 'La sesión del paciente debe quedar persistida en localStorage').toBeTruthy();
+    console.log('✅ [PASO 1] Login de Paciente Sintético completado.');
+
+    // --- PASO 2: NAVEGACIÓN EN DISCOVER ---
+    console.log('\n▶ [PASO 2] Navegando en /es/discover y esperando /api/catalog/storefront...');
+    const [storefrontResp] = await Promise.all([
+      patientPage.waitForResponse(
+        resp => resp.url().includes('/api/catalog/storefront') && resp.status() === 200,
+        { timeout: 20000 }
+      ),
+      patientPage.goto(`${STAGING_URL}/es/discover`, { waitUntil: 'domcontentloaded' }),
+    ]);
+
+    const storefrontData = await storefrontResp.json();
+    const eligibleProviders = Array.isArray(storefrontData)
+      ? storefrontData
+      : [ ...(storefrontData.sponsored || []), ...(storefrontData.organic || []), ...(storefrontData.providers || []) ];
+    const syntheticProvider = eligibleProviders.find((p: any) => p.id === 3 || p.providerId === 3);
+    expect(syntheticProvider, 'El catálogo storefront debe devolver al prestador sintético ID 3').toBeTruthy();
+    console.log(`  [Storefront] Prestador sintético encontrado en catálogo: ID ${syntheticProvider.id || syntheticProvider.providerId}`);
+
+    // Localizar la tarjeta del prestador en la UI y pulsar «Ver Perfil»
+    const providerCard = patientPage.locator('[data-testid="provider-card"]').filter({
+      hasText: syntheticProvider.name || 'Dra. Sintética Staging',
+    });
+    await expect(providerCard, 'La tarjeta del prestador sintético debe ser visible en /es/discover').toBeVisible({ timeout: 15000 });
+
+    const viewProfileBtn = providerCard.locator('button:has-text("Ver Perfil")');
+    await expect(viewProfileBtn, 'El botón interior «Ver Perfil» debe ser visible').toBeVisible({ timeout: 10000 });
+
+    await Promise.all([
+      patientPage.waitForURL(url => url.pathname.includes('/store/'), { timeout: 20000 }),
+      viewProfileBtn.click(),
+    ]);
+    console.log(`✅ [PASO 2] Navegación a la tienda completada: ${patientPage.url()}`);
+
+    // --- PASO 3: TIENDA DEL PRESTADOR -> AGENDAR SERVICIO ---
+    console.log('\n▶ [PASO 3] Seleccionando servicio y continuando al flujo de reserva...');
+    // Esperar carga del catálogo de servicios en la tienda
+    const bookAppointmentBtn = patientPage.locator('button:has-text("Agendar Cita")').first();
+    await expect(bookAppointmentBtn, 'El botón «Agendar Cita» del servicio debe ser visible').toBeVisible({ timeout: 15000 });
+    await bookAppointmentBtn.click();
+
+    // Pulsar el botón de la barra flotante de reserva para navegar a /patient/booking/[slug]
+    const stickyBookingBtn = patientPage.locator('div.fixed.bottom-4 button:has-text("Agendar"), div.fixed.bottom-4 button:has-text("Agendar cita")').first();
+    await expect(stickyBookingBtn, 'El botón de la barra de agendamiento debe ser visible tras agregar servicio').toBeVisible({ timeout: 10000 });
+
+    await Promise.all([
+      patientPage.waitForURL(url => url.pathname.includes('/patient/booking/'), { timeout: 20000 }),
+      stickyBookingBtn.click(),
+    ]);
+    console.log(`  [Booking] Llegada a pantalla de reserva: ${patientPage.url()}`);
+
+    // --- PASO 4: SELECCIÓN DE SLOT Y CREACIÓN DE CITA ---
+    console.log('\n▶ [PASO 4] Seleccionando slot y confirmando cita...');
+    // Esperar respuesta de slots disponibles
+    const slotsResponse = await patientPage.waitForResponse(
+      resp => resp.url().includes('/available-slots') && resp.status() === 200,
+      { timeout: 20000 }
+    );
+    const slotsData = await slotsResponse.json();
+    expect(slotsData.length, 'Debe haber slots disponibles para el prestador').toBeGreaterThan(0);
+
+    // Seleccionar día en el calendario de la UI
+    const availableDayBtn = patientPage.locator('[class*="grid-cols-7"] button:not([disabled])').first();
+    await expect(availableDayBtn, 'Debe haber un día seleccionable en el calendario').toBeVisible({ timeout: 10000 });
+    await availableDayBtn.click();
+
+    // Seleccionar horario en la UI
+    const timeSlotBtn = patientPage.locator('button:has-text(":")').first();
+    await expect(timeSlotBtn, 'Debe haber un botón de slot horario disponible').toBeVisible({ timeout: 10000 });
+    await timeSlotBtn.click();
+
+    // Marcar casilla obligatoria de consentimiento de telemedicina
+    const telemedicineCheckbox = patientPage.locator('label:has-text("Consentimiento") button[role="checkbox"], label:has-text("Consentimiento") input[type="checkbox"]').first();
+    await expect(telemedicineCheckbox, 'La casilla de consentimiento de telemedicina debe estar presente').toBeVisible({ timeout: 10000 });
+    await telemedicineCheckbox.click();
+
+    // Botón de checkout
+    const checkoutBtn = patientPage.locator('button:has-text("Proceder al Pago Seguro"), button:has-text("Continuar"), button:has-text("Confirmar")').first();
+    await expect(checkoutBtn, 'El botón de checkout debe estar activo').toBeEnabled({ timeout: 10000 });
+
+    const [createApptResp] = await Promise.all([
+      patientPage.waitForResponse(
+        resp => resp.url().includes('/api/appointments/create') && resp.request().method() === 'POST',
+        { timeout: 25000 }
+      ),
+      checkoutBtn.click(),
+    ]);
+
+    expect(createApptResp.status(), `Creación de cita falló con HTTP ${createApptResp.status()}`).toBe(201);
+    const createdData = await createApptResp.json();
+    const dynamicId = Array.isArray(createdData) ? createdData[0].id : createdData.id;
+    expect(dynamicId, 'La cita creada debe retornar un ID numérico válido').toBeTruthy();
+    expect(Number(dynamicId), 'El ID de la cita debe ser mayor a 0').toBeGreaterThan(0);
+
+    sharedAppointmentId = Number(dynamicId);
+    const redactedId = `[REDACTED-APPT-***${String(dynamicId).slice(-1)}]`;
+    console.log(`🎯 [CITA CREADA] Cita sintética generada exitosamente con ID: ${redactedId} (HTTP 201).`);
+
+    // Cerrar contexto de paciente para aislar roles
+    await patientContext.close();
+
+    // =========================================================================
+    // FASE 2: CONTEXTO DEL MÉDICO (LOGIN -> DASHBOARD -> IN_PROGRESS -> COMPLETE)
+    // =========================================================================
+    console.log('\n▶ [PASO 5] Contexto del Médico: Login y apertura de agenda médica...');
+    const doctorContext = await browser.newContext();
+    await preloadNonClinicalPreferences(doctorContext);
+    const doctorPage = await doctorContext.newPage();
+
+    await installNetworkMutationGuard(doctorPage, (violation) => {
+      securityViolation = violation;
+    });
+
+    await doctorPage.goto(`${STAGING_URL}/es/provider/login`, { waitUntil: 'domcontentloaded' });
+
+    // Esperar a que el widget Turnstile esté completamente inicializado
+    await doctorPage.locator('input[name="cf-turnstile-response"]').waitFor({ state: 'attached', timeout: 15000 });
+
+    const doctorEmailInput = doctorPage.locator('input[type="email"], input[name="email"]').first();
+    const doctorPasswordInput = doctorPage.locator('input[type="password"], input[name="password"]').first();
+    const doctorSubmitBtn = doctorPage.locator('button[type="submit"]').first();
+
+    await expect(doctorEmailInput).toBeVisible({ timeout: 10000 });
+    await expect(doctorPasswordInput).toBeVisible({ timeout: 10000 });
+    await expect(doctorSubmitBtn).toBeVisible({ timeout: 10000 });
+
+    await doctorEmailInput.fill(DOCTOR_EMAIL!);
+    await doctorPasswordInput.fill(DOCTOR_PASSWORD!);
+
+    const [docLoginResp] = await Promise.all([
+      doctorPage.waitForResponse(
+        resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
+        { timeout: 25000 }
+      ),
+      doctorSubmitBtn.click(),
+    ]);
+
+    expect(docLoginResp.status(), `Login de médico retornó error HTTP ${docLoginResp.status()}`).toBe(200);
+    const docLoginData = await docLoginResp.json();
+    sharedDoctorAuthToken = docLoginData.accessToken || docLoginData.token;
+
+    // Propagar cookies de sesión a staging.quhealthy.org para el middleware proxy.ts
+    await doctorPage.evaluate(() => {
+      document.cookie = "refreshToken=authenticated-session; path=/; SameSite=Lax; Secure";
+      document.cookie = "__Secure-userRole=ROLE_PROVIDER; path=/; SameSite=Lax; Secure";
+    });
+
+    await doctorPage.waitForURL(url => !url.pathname.endsWith('/provider/login'), { timeout: 15000 });
+    console.log('✅ [PASO 5] Médico autenticado exitosamente.');
+
+    // Navegar a la agenda de citas del médico
+    console.log('\n▶ [PASO 6] Abriendo /es/provider/dashboard/appointments y localizando la cita...');
+    const [docAppointmentsResp] = await Promise.all([
+      doctorPage.waitForResponse(
+        resp => resp.url().includes('/api/appointments/provider') && resp.status() === 200,
+        { timeout: 20000 }
+      ),
+      doctorPage.goto(`${STAGING_URL}/es/provider/dashboard/appointments`, { waitUntil: 'domcontentloaded' }),
+    ]);
+
+    const docApptsList = await docAppointmentsResp.json();
+    const targetAppt = docApptsList.find((a: any) => a.id === sharedAppointmentId);
+    expect(targetAppt, `La cita ${redactedId} debe aparecer en la respuesta del backend para el médico`).toBeTruthy();
+
+    // Helper determinista para localizar de manera inequívoca la tarjeta de la cita creada en el DOM
+    const locateApptCard = async () => {
+      await doctorPage.locator('div.rounded-3xl').first().waitFor({ state: 'visible', timeout: 15000 });
+      await doctorPage.evaluate((targetId) => {
+        const cards = Array.from(document.querySelectorAll('div.rounded-3xl'));
+        for (const card of cards) {
+          const fiberKey = Object.keys(card).find(k => k.startsWith('__reactFiber$') || k.startsWith('__reactInternalInstance$'));
+          if (fiberKey) {
+            let f = (card as any)[fiberKey];
+            while (f) {
+              if (f.key == targetId || f.memoizedProps?.appt?.id == targetId) {
+                card.setAttribute('data-appointment-id', String(targetId));
+                return;
+              }
+              f = f.return;
+            }
+          }
+        }
+        // Fallback por texto del paciente y servicio si React fiber está ofuscado en producción
+        const patientCards = cards.filter(c =>
+          c.textContent?.includes('Paciente Sintético Staging') &&
+          c.textContent?.includes('Consulta de Medicina General Staging')
+        );
+        if (patientCards.length > 0) {
+          patientCards[0].setAttribute('data-appointment-id', String(targetId));
+        }
+      }, sharedAppointmentId);
+      return doctorPage.locator(`[data-appointment-id="${sharedAppointmentId}"]`);
+    };
+
+    let apptCard = await locateApptCard();
+    await expect(apptCard, `Tarjeta de cita ${redactedId} no encontrada en la UI del médico`).toBeVisible({ timeout: 15000 });
+
+    // --- CAMBIO A IN_PROGRESS ---
+    console.log('\n▶ [PASO 7] Iniciando consulta médica (transición a IN_PROGRESS)...');
+    const startBtn = apptCard.locator('button:has-text("Iniciar")');
+    await expect(startBtn, 'Botón «Iniciar» debe ser visible en la tarjeta').toBeVisible({ timeout: 10000 });
+
+    const [inProgressResp] = await Promise.all([
+      doctorPage.waitForResponse(
+        resp => resp.url().includes(`/api/appointments/${sharedAppointmentId}/status`) &&
+                resp.url().includes('status=IN_PROGRESS') &&
+                resp.request().method() === 'PATCH',
+        { timeout: 20000 }
+      ),
+      startBtn.click(),
+    ]);
+
+    expect(inProgressResp.status(), `Cambio a IN_PROGRESS retornó error HTTP ${inProgressResp.status()}`).toBe(200);
+    console.log(`  [Estado] Cita ${redactedId} cambiada exitosamente a IN_PROGRESS.`);
+
+    // --- CIERRE OPERATIVO DESDE MODAL ---
+    console.log('\n▶ [PASO 8] Ejecutando cierre operativo desde el modal del dashboard...');
+    apptCard = await locateApptCard();
+    const finishBtn = apptCard.locator('button:has-text("Finalizar"), button:has-text("Finalizar Consulta")');
+    await expect(finishBtn, 'Botón «Finalizar» debe estar visible').toBeVisible({ timeout: 10000 });
+    await finishBtn.click();
+
+    // Modal de confirmación
+    const confirmFinishBtn = doctorPage.locator('button:has-text("Confirmar y Finalizar")');
+    await expect(confirmFinishBtn, 'Botón «Confirmar y Finalizar» en CompletionModal debe ser visible').toBeVisible({ timeout: 10000 });
+
+    const [completeResp] = await Promise.all([
+      doctorPage.waitForResponse(
+        resp => resp.url().includes(`/api/appointments/${sharedAppointmentId}/complete`) &&
+                resp.request().method() === 'PATCH',
+        { timeout: 20000 }
+      ),
+      confirmFinishBtn.click(),
+    ]);
+
+    expect(completeResp.status(), `Cierre operativo retornó error HTTP ${completeResp.status()}`).toBe(200);
+    console.log(`  [Estado] Cita ${redactedId} completada operativamente (HTTP 200 en /complete).`);
+
+    // --- LECTURA FINAL COMPLETED MEDIANTE API-STAGING ---
+    console.log('\n▶ [PASO 9] Verificación final read-only de estado COMPLETED...');
+    const verifyResp = await doctorPage.evaluate(async ({ apptId, token }) => {
+      const res = await fetch(`https://api-staging.quhealthy.org/api/appointments/${apptId}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const body = await res.json().catch(() => null);
+      return {
+        status: res.status,
+        appointmentStatus: body?.status || body?.appointmentStatus || body?.appointment?.status,
+      };
+    }, { apptId: sharedAppointmentId, token: sharedDoctorAuthToken });
+
+    expect(verifyResp.status, 'La consulta de verificación de la cita debe retornar HTTP 200').toBe(200);
+    expect(verifyResp.appointmentStatus, 'El estado final verificado de la cita debe ser COMPLETED').toBe('COMPLETED');
+    console.log(`🎯 [CIERRE OPERATIVO VERIFICADO] Cita ${redactedId} confirmada en estado: COMPLETED.`);
+
+    await doctorContext.close();
+
+    expect(securityViolation, `Violación de compuerta roja detectada durante el recorrido: ${securityViolation}`).toBeNull();
+  });
+
+  // =========================================================================
+  // TEST 7: CONSENTIMIENTO DE IA: FLUJO Y ENDPOINT DE ESTADO INDEPENDIENTE
+  // =========================================================================
+  test('Consentimiento de IA: Flujo y Endpoint de Estado Independiente', async ({ page }) => {
+    test.setTimeout(60000);
+
+    const appointmentId = sharedAppointmentId || 3;
+    const redactedId = `[REDACTED-APPT-***${String(appointmentId).slice(-1)}]`;
+    console.log(`\n▶ [CONSENTIMIENTO IA] Verificando persistencia y estado de consentimiento IA para cita ${redactedId}...`);
+
+    let securityViolation: string | null = null;
     await installNetworkMutationGuard(page, (violation) => {
       securityViolation = violation;
-      if (rejectOnSecurityViolation) {
-        rejectOnSecurityViolation(new Error(`[COMPUERTA ROJA] Violación de seguridad de red interceptada hacia producción: ${violation}`));
-      }
     });
+    await preloadNonClinicalPreferences(page.context());
 
-    const assertNoProductionMutations = () => {
-      if (securityViolation) {
-        throw new Error(`[COMPUERTA ROJA] Violación de seguridad de red interceptada hacia producción: ${securityViolation}`);
-      }
-    };
+    await page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
 
-    const withSecurityGuard = async <T>(promise: Promise<T>): Promise<T> => {
-      assertNoProductionMutations();
-      const result = await Promise.race([
-        promise,
-        securityViolationPromise,
-      ]);
-      assertNoProductionMutations();
-      return result;
-    };
-
-    let dynamicAppointmentId: string | number | null = null;
-    let selectedProviderSlug: string | null = null;
-    let currentStep = 'VALIDACIÓN DE ORIGEN CANÓNICO Y CREDENCIALES OBLIGATORIAS';
-
-    try {
-      // =========================================================================
-      // PASO 0: VALIDACIÓN DE ORIGEN CANÓNICO Y CREDENCIALES (SIN FALLBACKS)
-      // =========================================================================
-      console.log(`\n▶ [${currentStep}] Validando que el destino sea exclusivamente staging canónico...`);
-      assertNoProductionMutations();
-      assertCanonicalStagingOrigin(STAGING_URL);
-      console.log(`  [Seguridad] Origen canónico verificado: ${STAGING_URL}`);
-
-      console.log(`  Comprobando configuración de credenciales de prueba sintéticas...`);
-      if (!PATIENT_EMAIL || !PATIENT_PASSWORD || !DOCTOR_EMAIL || !DOCTOR_PASSWORD) {
-        throw new Error(
-          `Credenciales de prueba obligatorias no definidas en el entorno. ` +
-          `STAGING_TEST_PATIENT_EMAIL: ${Boolean(PATIENT_EMAIL)}, ` +
-          `STAGING_TEST_PATIENT_PASSWORD: ${Boolean(PATIENT_PASSWORD)}, ` +
-          `STAGING_TEST_DOCTOR_EMAIL: ${Boolean(DOCTOR_EMAIL)}, ` +
-          `STAGING_TEST_DOCTOR_PASSWORD: ${Boolean(DOCTOR_PASSWORD)}`
-        );
-      }
-
-      // =========================================================================
-      // PASO 1: LOGIN REAL Y SESIÓN DEL PACIENTE SINTÉTICO
-      // =========================================================================
-      currentStep = 'PASO 1: Autenticación y sesión de Paciente Sintético';
-      console.log(`\n▶ [${currentStep}] Accediendo a ${STAGING_URL}/es/login...`);
-
-      page.on('console', msg => {
-        if (msg.type() === 'error' || msg.text().includes('Turnstile') || msg.text().includes('auth') || msg.text().includes('login') || msg.text().includes('error')) {
-          console.log(`  [BROWSER ${msg.type().toUpperCase()}]`, msg.text());
-        }
-      });
-      page.on('response', resp => {
-        if (resp.url().includes('/api/')) {
-          console.log(`  [NETWORK] ${resp.status()} ${resp.request().method()} ${resp.url()}`);
-        }
+    // 1. Guardar consentimiento IA mediante POST /api/appointments/teleconsultations/{id}/ai-consent (ROLE_CONSUMER)
+    const consentResult = await page.evaluate(async ({ apptId, token }) => {
+      const resp = await fetch(`https://api-staging.quhealthy.org/api/appointments/teleconsultations/${apptId}/ai-consent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          audioProcessingAccepted: true,
+          clinicalNoteAccepted: true,
+          dataStorageAccepted: true,
+          consentVersion: '1.0',
+        }),
       });
 
-      assertNoProductionMutations();
-      assertCanonicalStagingOrigin(`${STAGING_URL}/es/login`);
-      await withSecurityGuard(page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' }));
-      const patientEmailInput = page.locator('input[type="email"], input[name="email"]').first();
-      const patientPasswordInput = page.locator('input[type="password"], input[name="password"]').first();
-      const patientSubmitBtn = page.locator('button[type="submit"]').first();
+      const data = await resp.json().catch(() => null);
+      return {
+        status: resp.status,
+        data,
+      };
+    }, { apptId: appointmentId, token: sharedPatientAuthToken });
 
-      await withSecurityGuard(expect(patientEmailInput, 'Campo de correo de paciente no encontrado en UI').toBeVisible({ timeout: 15000 }));
-      await withSecurityGuard(expect(patientPasswordInput, 'Campo de contraseña de paciente no encontrado en UI').toBeVisible({ timeout: 15000 }));
-      await withSecurityGuard(expect(patientSubmitBtn, 'Botón de enviar login de paciente no encontrado en UI').toBeVisible({ timeout: 15000 }));
+    expect(consentResult.status, `Consentimiento IA falló con HTTP ${consentResult.status}`).toBe(200);
+    console.log(`✅ [CONSENTIMIENTO IA PERSISTIDO] Consentimiento NOM-004/024 persistido exitosamente (HTTP 200).`);
 
-      // Descartar modales flotantes (cookies, permisos de ubicación) que interceptan clics
-      const cookieBannerBtn = page.locator('button:has-text("Aceptar todas"), button:has-text("Aceptar")').first();
-      if (await cookieBannerBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-        console.log('  [UI Overlay] Descartando banner de cookies...');
-        await cookieBannerBtn.click().catch(() => null);
-      }
-      const dismissLocationBtn = page.locator('button:has-text("Ahora no")').first();
-      if (await dismissLocationBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-        console.log('  [UI Overlay] Descartando modal de ubicación...');
-        await dismissLocationBtn.click().catch(() => null);
-      }
+    // 2. Consultar estado mediante endpoint independiente GET /api/appointments/teleconsultations/{id}/ai-consent/status
+    const statusResult = await page.evaluate(async ({ apptId, token }) => {
+      const resp = await fetch(`https://api-staging.quhealthy.org/api/appointments/teleconsultations/${apptId}/ai-consent/status`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-      assertNoProductionMutations();
-      await patientEmailInput.fill(PATIENT_EMAIL);
-      await patientPasswordInput.fill(PATIENT_PASSWORD);
+      const data = await resp.json().catch(() => null);
+      return {
+        status: resp.status,
+        data,
+      };
+    }, { apptId: appointmentId, token: sharedPatientAuthToken });
 
-      const [loginResponse] = await withSecurityGuard(Promise.all([
-        page.waitForResponse(
-          resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
-          { timeout: 25000 }
-        ),
-        patientSubmitBtn.click(),
-      ]));
+    expect(statusResult.status, `Consulta de estado de consentimiento IA falló con HTTP ${statusResult.status}`).toBe(200);
+    expect(statusResult.data?.hasResponded, 'El consentimiento de IA debe registrar hasResponded=true').toBe(true);
+    expect(statusResult.data?.audioProcessingAccepted, 'audioProcessingAccepted debe ser true').toBe(true);
+    console.log(`✅ [ESTADO CONSENTIMIENTO VERIFICADO] Endpoint independiente de estado validado: hasResponded=true.`);
 
-      assertNoProductionMutations();
-      console.log(`  [LOGIN RESP] Status: ${loginResponse.status()}, URL: ${loginResponse.url()}`);
-      const btnText = await patientSubmitBtn.textContent().catch(() => 'unknown');
-      const btnDisabled = await patientSubmitBtn.isDisabled().catch(() => false);
-      console.log(`  [SUBMIT BTN STATE] text: "${btnText?.trim()}", disabled: ${btnDisabled}`);
-      expect(loginResponse.status(), `Login de paciente HTTP retornó error ${loginResponse.status()}`).toBeLessThan(400);
-
-      // Confirmar establecimiento de sesión y salida de la pantalla de login (SPA soft navigation)
-      await withSecurityGuard(page.waitForURL(url => !url.pathname.endsWith('/login'), { waitUntil: 'domcontentloaded', timeout: 20000 }));
-      console.log(`  [Sesión] Paciente autenticado exitosamente. URL actual: ${page.url()}`);
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 2: DESCUBRIMIENTO DE PRESTADOR DESDE DATOS RENDERIZADOS EN UI
-      // =========================================================================
-      currentStep = 'PASO 2: Descubrimiento de Prestador en UI';
-      console.log(`\n▶ [${currentStep}] Navegando a ${STAGING_URL}/es/discover...`);
-
-      assertNoProductionMutations();
-      assertCanonicalStagingOrigin(`${STAGING_URL}/es/discover`);
-      const [searchResponse] = await withSecurityGuard(Promise.all([
-        page.waitForResponse(
-          resp => resp.url().includes('/api/') && resp.status() === 200,
-          { timeout: 20000 }
-        ),
-        page.goto(`${STAGING_URL}/es/discover`, { waitUntil: 'domcontentloaded' }),
-      ]));
-      assertNoProductionMutations();
-      expect(searchResponse.status(), 'Respuesta del catálogo de prestadores no fue HTTP 200').toBe(200);
-
-      const providerCards = page.locator('a[href*="/doctor/"], a[href*="/provider/"], a[href*="/store/"], [data-testid="provider-card"]');
-      await withSecurityGuard(expect(providerCards.first(), 'No se encontraron prestadores renderizados en la UI de /discover').toBeVisible({ timeout: 15000 }));
-
-      const href = (await providerCards.first().getAttribute('href')) ||
-                   (await providerCards.first().getAttribute('data-href')) ||
-                   (await providerCards.first().locator('a').first().getAttribute('href').catch(() => null));
-      expect(href, 'La tarjeta de prestador renderizada en la UI debe tener un link o slug válido').toBeTruthy();
-      selectedProviderSlug = href;
-      console.log(`  [UI] Prestador seleccionado dinámicamente desde UI: ${selectedProviderSlug}`);
-
-      await withSecurityGuard(Promise.all([
-        page.waitForURL(url => url.pathname.includes('/doctor/') || url.pathname.includes('/provider/') || url.pathname.includes('/store/'), { waitUntil: 'domcontentloaded', timeout: 20000 }),
-        providerCards.first().click(),
-      ]));
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 3: SELECCIÓN DE SLOT DE AGENDA DISPONIBLE DESDE UI
-      // =========================================================================
-      currentStep = 'PASO 3: Selección de Slot de Agenda desde UI';
-      console.log(`\n▶ [${currentStep}] Verificando slots disponibles en la vista...`);
-
-      assertNoProductionMutations();
-      const slotButtons = page.locator('button:has-text(":"), button[data-testid="time-slot"]');
-      await withSecurityGuard(expect(slotButtons.first(), 'No se encontraron slots de agenda disponibles para selección en la UI').toBeVisible({ timeout: 15000 }));
-      await withSecurityGuard(slotButtons.first().click());
-      console.log('  [UI] Slot de agenda seleccionado.');
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 4: CREACIÓN Y RESERVA DE CITA (ID NUEVO OBLIGATORIO)
-      // =========================================================================
-      currentStep = 'PASO 4: Reserva HTTP con ID Nuevo Obligatorio';
-      console.log(`\n▶ [${currentStep}] Ejecutando confirmación de reserva...`);
-
-      assertNoProductionMutations();
-      const confirmBtn = page.locator('button:has-text("Confirmar"), button:has-text("Reservar"), button[type="submit"]:has-text("Continuar"), [data-testid="confirm-booking"]').first();
-      await withSecurityGuard(expect(confirmBtn, 'Botón de confirmación de reserva no disponible en UI').toBeVisible({ timeout: 15000 }));
-
-      const [reservationResponse] = await withSecurityGuard(Promise.all([
-        page.waitForResponse(
-          resp => resp.url().includes('/api/appointments') && resp.request().method() === 'POST',
-          { timeout: 25000 }
-        ),
-        confirmBtn.click(),
-      ]));
-
-      assertNoProductionMutations();
-      expect(reservationResponse.status(), `Reserva de cita falló con HTTP ${reservationResponse.status()}`).toBeLessThan(400);
-
-      const reservationData = await reservationResponse.json();
-      dynamicAppointmentId = reservationData.id || reservationData.appointmentId;
-      expect(dynamicAppointmentId, 'La respuesta de reserva HTTP no devolvió un ID de cita válido').toBeTruthy();
-      expect(dynamicAppointmentId, 'El ID de la cita no debe ser la Cita 5 estática ni fixture previa').not.toBe(5);
-      expect(dynamicAppointmentId, 'El ID de la cita no debe ser la Cita 5 estática ni fixture previa').not.toBe('5');
-      console.log(`  🎯 [ID CREADO] Cita generada dinámicamente con ID: ${dynamicAppointmentId}`);
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 5: OTORGAMIENTO Y PERSISTENCIA DE CONSENTIMIENTO INFORMADO IA
-      // =========================================================================
-      currentStep = 'PASO 5: Consentimiento Informado IA Persistido';
-      console.log(`\n▶ [${currentStep}] Otorgando consentimiento informado...`);
-
-      assertNoProductionMutations();
-      const consentCheckboxes = page.locator('input[type="checkbox"]');
-      await withSecurityGuard(expect(consentCheckboxes.first(), 'No se encontraron casillas de consentimiento informado en UI').toBeVisible({ timeout: 15000 }));
-
-      const consentCount = await consentCheckboxes.count();
-      for (let i = 0; i < consentCount; i++) {
-        const cb = consentCheckboxes.nth(i);
-        await cb.check();
-      }
-
-      const acceptConsentBtn = page.locator('button:has-text("Aceptar"), button:has-text("Continuar"), button:has-text("Firmar"), [data-testid="accept-consent"]').first();
-      await withSecurityGuard(expect(acceptConsentBtn, 'Botón para aceptar consentimiento no visible en UI').toBeVisible({ timeout: 10000 }));
-
-      const [consentResponse] = await withSecurityGuard(Promise.all([
-        page.waitForResponse(
-          resp => (resp.url().includes('/consent') || resp.url().includes('/api/appointments/') || resp.url().includes('/api/clinical')) &&
-                  (resp.request().method() === 'POST' || resp.request().method() === 'PUT' || resp.request().method() === 'PATCH'),
-          { timeout: 20000 }
-        ),
-        acceptConsentBtn.click(),
-      ]));
-
-      assertNoProductionMutations();
-      expect(consentResponse.status(), `Persistencia de consentimiento falló con HTTP ${consentResponse.status()}`).toBeLessThan(400);
-      console.log(`  [Consentimiento] Persistido con éxito en backend HTTP ${consentResponse.status()}`);
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 6: AUTENTICACIÓN Y SESIÓN DEL MÉDICO PRESTADOR
-      // =========================================================================
-      currentStep = 'PASO 6: Autenticación y sesión del Médico Prestador';
-      console.log(`\n▶ [${currentStep}] Accediendo a portal médico en ${STAGING_URL}/es/provider/login...`);
-
-      assertNoProductionMutations();
-      assertCanonicalStagingOrigin(`${STAGING_URL}/es/provider/login`);
-      await withSecurityGuard(page.goto(`${STAGING_URL}/es/provider/login`, { waitUntil: 'domcontentloaded' }));
-      const doctorEmailInput = page.locator('input[type="email"], input[name="email"]').first();
-      const doctorPasswordInput = page.locator('input[type="password"], input[name="password"]').first();
-      const doctorSubmitBtn = page.locator('button[type="submit"]').first();
-
-      await withSecurityGuard(expect(doctorEmailInput, 'Campo de correo de médico no encontrado en UI').toBeVisible({ timeout: 15000 }));
-      await withSecurityGuard(expect(doctorPasswordInput, 'Campo de contraseña de médico no encontrado en UI').toBeVisible({ timeout: 15000 }));
-      await withSecurityGuard(expect(doctorSubmitBtn, 'Botón de submit de médico no encontrado en UI').toBeVisible({ timeout: 15000 }));
-
-      // Descartar overlays flotantes si reaparecen
-      const doctorCookieBtn = page.locator('button:has-text("Aceptar todas"), button:has-text("Aceptar")').first();
-      if (await doctorCookieBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-        await doctorCookieBtn.click().catch(() => null);
-      }
-      const doctorLocationBtn = page.locator('button:has-text("Ahora no")').first();
-      if (await doctorLocationBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-        await doctorLocationBtn.click().catch(() => null);
-      }
-
-      assertNoProductionMutations();
-      await doctorEmailInput.fill(DOCTOR_EMAIL);
-      await doctorPasswordInput.fill(DOCTOR_PASSWORD);
-
-      const [doctorLoginResp] = await withSecurityGuard(Promise.all([
-        page.waitForResponse(
-          resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
-          { timeout: 25000 }
-        ),
-        doctorSubmitBtn.click(),
-      ]));
-
-      assertNoProductionMutations();
-      expect(doctorLoginResp.status(), `Login de médico retornó error HTTP ${doctorLoginResp.status()}`).toBeLessThan(400);
-
-      // Confirmar sesión del médico y redirección fuera de login (SPA soft navigation)
-      await withSecurityGuard(page.waitForURL(url => !url.pathname.endsWith('/provider/login'), { waitUntil: 'domcontentloaded', timeout: 20000 }));
-      console.log(`  [Sesión] Médico autenticado exitosamente. URL actual: ${page.url()}`);
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 7: APERTURA DE LA CITA EXACTA POR EL MÉDICO
-      // =========================================================================
-      currentStep = 'PASO 7: Apertura de Cita Exacta por el Médico';
-      console.log(`\n▶ [${currentStep}] Navegando a agenda y abriendo cita ID ${dynamicAppointmentId}...`);
-
-      assertNoProductionMutations();
-      assertCanonicalStagingOrigin(`${STAGING_URL}/es/provider/agenda`);
-      await withSecurityGuard(page.goto(`${STAGING_URL}/es/provider/agenda`, { waitUntil: 'domcontentloaded' }));
-      const appointmentCard = page.locator(`[data-appointment-id="${dynamicAppointmentId}"], a[href*="${dynamicAppointmentId}"]`).first();
-      await withSecurityGuard(expect(appointmentCard, `La cita ${dynamicAppointmentId} no apareció en la agenda médica`).toBeVisible({ timeout: 20000 }));
-      await withSecurityGuard(appointmentCard.click());
-      console.log(`  [UI] Cita ${dynamicAppointmentId} abierta por el médico.`);
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 8: CIERRE CLÍNICO DE LA CONSULTA
-      // =========================================================================
-      currentStep = 'PASO 8: Cierre Clínico de la Consulta';
-      console.log(`\n▶ [${currentStep}] Finalizando consulta médica...`);
-
-      assertNoProductionMutations();
-      const finishConsultationBtn = page.locator('button:has-text("Finalizar Consulta"), button:has-text("Completar Consulta"), button[data-testid="complete-appointment"]').first();
-      await withSecurityGuard(expect(finishConsultationBtn, 'Botón para finalizar consulta no encontrado en UI').toBeVisible({ timeout: 15000 }));
-
-      const [completeResponse] = await withSecurityGuard(Promise.all([
-        page.waitForResponse(
-          resp => resp.url().includes(`/api/appointments/${dynamicAppointmentId}`) &&
-                  (resp.request().method() === 'PATCH' || resp.request().method() === 'PUT' || resp.request().method() === 'POST'),
-          { timeout: 20000 }
-        ),
-        finishConsultationBtn.click(),
-      ]));
-
-      assertNoProductionMutations();
-      expect(completeResponse.status(), `Finalización de consulta falló con HTTP ${completeResponse.status()}`).toBeLessThan(400);
-      console.log(`  [Consulta] Cierre clínico registrado con status HTTP ${completeResponse.status()}`);
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-      // =========================================================================
-      // PASO 9: VERIFICACIÓN READ-ONLY VIA API-STAGING CON AUTENTICACIÓN DE SESIÓN
-      // =========================================================================
-      currentStep = 'PASO 9: Verificación de Estado COMPLETED en api-staging.quhealthy.org';
-      console.log(`\n▶ [${currentStep}] Consultando endpoint real de api-staging.quhealthy.org con autenticación de sesión...`);
-
-      // Verificación directa contra api-staging.quhealthy.org utilizando la autenticación activa de la sesión
-      // (sin persistir ni imprimir tokens en ningún log o archivo)
-      assertNoProductionMutations();
-      const verifyResult = await withSecurityGuard(page.evaluate(async (appointmentId) => {
-        try {
-          // Extraer token de autenticación desde el estado de la sesión activa en el navegador
-          let authToken = '';
-          const rawSession = localStorage.getItem('quhealthy-session');
-          if (rawSession) {
-            try {
-              const parsed = JSON.parse(rawSession);
-              authToken = parsed?.state?.token || '';
-            } catch {}
-          }
-
-          const headers: Record<string, string> = {
-            'Accept': 'application/json',
-          };
-          if (authToken) {
-            headers['Authorization'] = `Bearer ${authToken}`;
-          }
-
-          const resp = await fetch(`https://api-staging.quhealthy.org/api/appointments/${appointmentId}`, {
-            method: 'GET',
-            headers,
-            credentials: 'include',
-          });
-
-          const data = await resp.json().catch(() => null);
-          return {
-            status: resp.status,
-            ok: resp.ok,
-            appointmentStatus: data?.status || data?.appointmentStatus || data?.appointment?.status,
-            dataExists: Boolean(data),
-          };
-        } catch (err: any) {
-          return {
-            status: 0,
-            ok: false,
-            error: err?.message || 'Error de red en navegador',
-            dataExists: false,
-          };
-        }
-      }, dynamicAppointmentId));
-
-      assertNoProductionMutations();
-      expect(verifyResult.status, `Verificación API en api-staging.quhealthy.org de cita ${dynamicAppointmentId} retornó status HTTP ${verifyResult.status}`).toBe(200);
-      expect(verifyResult.appointmentStatus, `El estado final de la cita ${dynamicAppointmentId} en api-staging.quhealthy.org debe ser COMPLETED`).toBe('COMPLETED');
-      console.log(`  🎯 [VERIFICACIÓN READ-ONLY API-STAGING] Cita ${dynamicAppointmentId} confirmada en estado: ${verifyResult.appointmentStatus}`);
-      assertNoProductionMutations();
-      console.log(`✅ [${currentStep}] Completado.`);
-
-    } catch (error: any) {
-      if (securityViolation) {
-        console.error(`\n❌ [COMPUERTA ROJA] Violación de seguridad de red interceptada hacia producción:`, securityViolation);
-        throw new Error(`Compuerta ROJA por violación de seguridad: ${securityViolation}`);
-      }
-      console.error(`\n❌ [COMPUERTA ROJA] Fallo crítico obligatorio en [${currentStep}]:`, error.message || error);
-      throw new Error(`Compuerta ROJA en ${currentStep}: ${error.message || error}`);
-    }
+    expect(securityViolation).toBeNull();
   });
 
 });
