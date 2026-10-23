@@ -23,6 +23,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { KpiCard } from "../components/KpiCard";
+import { SignalQuality } from "@/types/admin-signal";
 import {
   UnitEconomicsDTO,
   AdminDashboardDTO,
@@ -42,6 +43,73 @@ interface TabExecutivePulseProps {
   onNavigateTab: (tab: any) => void;
 }
 
+export type DateValidationStatus = "VALID" | "MISSING" | "INVALID" | "FUTURE" | "STALE";
+
+export interface ValidatedDateInfo {
+  status: DateValidationStatus;
+  raw?: string;
+  formattedText: string;
+  isStale: boolean;
+  isValid: boolean;
+}
+
+export function validateSourceDate(rawDate?: string | null, maxAgeHours = 48): ValidatedDateInfo {
+  if (!rawDate || typeof rawDate !== "string" || rawDate.trim() === "") {
+    return {
+      status: "MISSING",
+      formattedText: "No disponible / No verificado",
+      isStale: false,
+      isValid: false,
+    };
+  }
+
+  const trimmed = rawDate.trim();
+  // Rechazar strings arbitrarios que V8 parsea laxamente (exigir estructura estándar YYYY-MM-DD...)
+  const isLikelyDate = /^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}/.test(trimmed);
+  const parsed = new Date(trimmed);
+  const time = parsed.getTime();
+  if (isNaN(time) || !isLikelyDate) {
+    return {
+      status: "INVALID",
+      raw: rawDate,
+      formattedText: "Fecha inválida",
+      isStale: false,
+      isValid: false,
+    };
+  }
+
+  const now = Date.now();
+  // Tolerancia de 2 minutos por desfase de reloj
+  if (time > now + 120000) {
+    return {
+      status: "FUTURE",
+      raw: rawDate,
+      formattedText: "Fecha futura no válida",
+      isStale: false,
+      isValid: false,
+    };
+  }
+
+  const isStale = now - time > maxAgeHours * 3600 * 1000;
+  if (isStale) {
+    return {
+      status: "STALE",
+      raw: rawDate,
+      formattedText: `${parsed.toLocaleDateString("es-MX")} (Obsoleto >${maxAgeHours}h)`,
+      isStale: true,
+      isValid: true,
+    };
+  }
+
+  return {
+    status: "VALID",
+    raw: rawDate,
+    formattedText: parsed.toLocaleDateString("es-MX"),
+    isStale: false,
+    isValid: true,
+  };
+}
+
 export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
   economics,
   dashboard,
@@ -56,23 +124,96 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
 
   const totalServices = services.length;
   const upCount = services.filter((s) => s.status === "UP").length;
-  const upServices = services.filter((s) => s.status === "UP" && s.latencyMs !== undefined);
+  const upServices = services.filter((s) => s.status === "UP" && typeof s.latencyMs === "number");
   const avgLatency = upServices.length > 0
     ? Math.round(upServices.reduce((acc, s) => acc + (s.latencyMs || 0), 0) / upServices.length)
     : 0;
 
   const revenueData = economics?.chartData && economics.chartData.length > 0
-    ? economics.chartData.map((d) => ({
-        name: d.date,
-        suscripciones: d.subscriptions,
-        comisiones: d.commissions,
-        total: d.subscriptions + d.commissions,
-      }))
+    ? economics.chartData.map((d) => {
+        const sub = typeof d.subscriptions === "number" ? d.subscriptions : 0;
+        const comm = typeof d.commissions === "number" ? d.commissions : 0;
+        return {
+          name: d.date,
+          suscripciones: sub,
+          comisiones: comm,
+          total: sub + comm,
+        };
+      })
     : [];
 
-  const asOfDate = economics?.asOf ? new Date(economics.asOf) : null;
-  const isStale = asOfDate ? Date.now() - asOfDate.getTime() > 48 * 60 * 60 * 1000 : false;
-  const hasTelemetry = Boolean(economics || dashboard);
+  // Validación de fechas por fuente (ADMIN-TRUST-01)
+  const economicsDate = validateSourceDate(economics?.asOf);
+  const dashboardDate = validateSourceDate(dashboard?.generatedAt);
+  const productMetricsDate = validateSourceDate(productMetrics?.asOf);
+
+  const hasStaleDate = economicsDate.isStale || dashboardDate.isStale || productMetricsDate.isStale;
+  const hasTelemetry = Boolean(economics || dashboard || productMetrics);
+
+  const primaryDate = economicsDate.isValid
+    ? economicsDate
+    : dashboardDate.isValid
+    ? dashboardDate
+    : productMetricsDate.isValid
+    ? productMetricsDate
+    : economicsDate;
+
+  // Extracción estricta de métricas ejecutivas (erradicando || 0, fallbacks cruzados y certificados automáticos)
+  const totalGmvVal = typeof economics?.totalGmv === "number"
+    ? economics.totalGmv
+    : null;
+  const displayGmv = totalGmvVal !== null ? formatCurrency(totalGmvVal) : null;
+
+  const onlineRevText = typeof economics?.onlineRevenue === "number" ? formatCurrency(economics.onlineRevenue) : null;
+  const inClinicRevText = typeof economics?.inClinicRevenue === "number" ? formatCurrency(economics.inClinicRevenue) : null;
+  const gmvBreakdown = onlineRevText !== null && inClinicRevText !== null
+    ? `En línea: ${onlineRevText} · Consultorio: ${inClinicRevText}`
+    : undefined;
+
+  const gmvQuality: SignalQuality = !economics || totalGmvVal === null
+    ? "UNAVAILABLE"
+    : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
+    ? "ERROR"
+    : economics.reconciliationQuality || "PROVISIONAL";
+
+  const mrrVal = typeof economics?.mrr === "number"
+    ? economics.mrr
+    : typeof economics?.totalSubscriptionsRevenue === "number"
+    ? economics.totalSubscriptionsRevenue
+    : null;
+  const displayMrr = mrrVal !== null ? formatCurrency(mrrVal) : null;
+
+  const mrrBreakdown = typeof economics?.activeSubscriptions === "number"
+    ? `${economics.activeSubscriptions} suscripciones`
+    : undefined;
+
+  const mrrQuality: SignalQuality = !economics || mrrVal === null
+    ? "UNAVAILABLE"
+    : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
+    ? "ERROR"
+    : economics.reconciliationQuality || "PROVISIONAL";
+
+  const mauVal = typeof productMetrics?.mau === "number" ? productMetrics.mau : null;
+  const mauBreakdown = typeof productMetrics?.activeProvidersMonth === "number" && typeof productMetrics?.activePatientsMonth === "number"
+    ? `${productMetrics.activeProvidersMonth} Médicos / ${productMetrics.activePatientsMonth} Pacientes`
+    : undefined;
+
+  const mauQuality: SignalQuality = !productMetrics || mauVal === null
+    ? "UNAVAILABLE"
+    : productMetricsDate.status === "INVALID" || productMetricsDate.status === "FUTURE"
+    ? "ERROR"
+    : "PROVISIONAL";
+
+  const appointmentsTodayVal = typeof dashboard?.appointmentsToday === "number" ? dashboard.appointmentsToday : null;
+  const appointmentsMonthText = typeof dashboard?.appointmentsThisMonth === "number"
+    ? `${dashboard.appointmentsThisMonth} este mes`
+    : undefined;
+
+  const appointmentsQuality: SignalQuality = !dashboard || appointmentsTodayVal === null
+    ? "UNAVAILABLE"
+    : dashboardDate.status === "INVALID" || dashboardDate.status === "FUTURE"
+    ? "ERROR"
+    : "PROVISIONAL";
 
   return (
     <div className="space-y-6">
@@ -91,13 +232,26 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
             </p>
           </div>
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-            {isStale && (
+            {hasStaleDate && (
               <span className="text-[11px] font-medium text-amber-300 bg-amber-950/70 border border-amber-800/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3 text-amber-400" /> Dato obsoleto (&gt;48h)
               </span>
             )}
-            <span className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60">
-              Corte: {asOfDate ? asOfDate.toLocaleDateString("es-MX") : "Sin corte verificado"}
+            {primaryDate.status === "INVALID" && (
+              <span className="text-[11px] font-medium text-rose-300 bg-rose-950/70 border border-rose-800/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3 text-rose-400" /> Fecha de corte inválida
+              </span>
+            )}
+            {primaryDate.status === "FUTURE" && (
+              <span className="text-[11px] font-medium text-rose-300 bg-rose-950/70 border border-rose-800/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3 text-rose-400" /> Fecha futura no válida
+              </span>
+            )}
+            <span
+              className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60"
+              title="Timestamp emitido por la API al responder; no acredita frescura intrínseca de orígenes Stripe/GCP"
+            >
+              Generado API: {primaryDate.status === "VALID" || primaryDate.status === "STALE" ? primaryDate.formattedText.replace(/ \(Obsoleto >48h\)/, "") : primaryDate.formattedText}
             </span>
           </div>
         </div>
@@ -106,9 +260,9 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           <div className="bg-amber-950/30 border border-amber-800/50 rounded-2xl p-3.5 text-xs text-amber-200/90 flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-amber-300">Telemetría no conectada (Estado Vacío / Diagnóstico Preliminar)</p>
+              <p className="font-semibold text-amber-300">Telemetría no conectada (Estado Vacío / Sin telemetría verificada)</p>
               <p className="text-slate-300 text-[11px] mt-0.5">
-                No se ha recibido respuesta del servicio de analítica o métricas. Las propuestas mostradas abajo son recomendaciones de diseño de arquitectura y no representan decisiones aprobadas ni datos en vivo.
+                No se ha recibido respuesta de los servicios de analítica, clínica o finanzas. Los valores se muestran como «No disponible / No verificado» y las propuestas representan hipótesis preliminares para la Junta Directiva.
               </p>
             </div>
           </div>
@@ -129,9 +283,21 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               <h4 className="text-xs font-bold text-white">
                 ¿El producto entrega primer valor sin romperse?
               </h4>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                Rupturas 1-3 resueltas (agenda, checkout y cédula NOM-004). Cero citas orgánicas de pacientes externos completadas.
-              </p>
+              <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Consultas completadas:</span>
+                  <span className="font-semibold text-white">
+                    {typeof dashboard?.completedAppointmentsThisMonth === "number"
+                      ? `${dashboard.completedAppointmentsThisMonth} consultas`
+                      : "No disponible / No verificado"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {typeof dashboard?.completedAppointmentsThisMonth === "number"
+                    ? `Consultas registradas en clúster clínico: ${dashboard.completedAppointmentsThisMonth} (canceladas: ${typeof dashboard.cancelledAppointmentsThisMonth === "number" ? dashboard.cancelledAppointmentsThisMonth : "No verificado"}).`
+                    : "Sin datos verificables de citas clínicas ni cohorte en este corte."}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -141,13 +307,21 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                   <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
                 </div>
                 <p className="text-xs font-semibold text-slate-200">
-                  👉 No abrir a tráfico masivo. Ejecutar piloto cerrado con 10 médicos seleccionados y soporte concierge únicamente tras validación humana.
+                  👉 Hipótesis / Propuesta: Evaluar la ejecución de un piloto cualitativo cerrado con acompañamiento concierge; condicionado a validación clínica E2E y resolución formal de Junta.
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
-                <span>Fuente: DB Logs & appointment-service</span>
-                <span className="font-mono text-slate-300">Calidad: PROVISIONAL</span>
+              <div className="pt-2 border-t border-slate-700/50 flex flex-col gap-1 text-[10px] text-slate-400">
+                <div className="flex items-center justify-between">
+                  <span>Fuente: PostgreSQL appointments</span>
+                  <span className="font-mono text-slate-300">
+                    Calidad: {typeof dashboard?.completedAppointmentsThisMonth === "number" ? (dashboardDate.isStale ? "OBSOLETA" : "PROVISIONAL") : "No disponible / No verificado"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500">
+                  <span>Periodo: {dashboard ? (selectedPeriod || "30d") : "No verificado"}</span>
+                  <span>Generado API: {dashboardDate.formattedText}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -166,9 +340,21 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               <h4 className="text-xs font-bold text-white">
                 ¿Hay demanda comprobable y dinero real en caja?
               </h4>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                GMV Real: $0.00 MXN · MRR: $0.00 MXN · CAC: No disponible. Cero clientes de pago fuera de testing interno.
-              </p>
+              <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Recaudo de transacciones Stripe:</span>
+                  <span className="font-semibold text-white">
+                    {typeof economics?.totalRevenue === "number"
+                      ? formatCurrency(economics.totalRevenue)
+                      : "No disponible / No verificado"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {typeof economics?.totalRevenue === "number"
+                    ? `Transacciones Stripe registradas (suscripciones + comisiones): ${formatCurrency(economics.totalRevenue)}. Suscripciones periodo: ${typeof economics.mrr === "number" ? formatCurrency(economics.mrr) : typeof economics.totalSubscriptionsRevenue === "number" ? formatCurrency(economics.totalSubscriptionsRevenue) : "No verificado"}. CAC: No disponible / No verificado. Datos provisionales no conciliados bancariamente.`
+                    : "Sin eventos de pago verificados en pasarela ni conciliación bancaria."}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -178,13 +364,23 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                   <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
                 </div>
                 <p className="text-xs font-semibold text-slate-200">
-                  👉 $0 en Meta/Google Ads. Prohibir pauta pagada y validar adopción de $1,800/mes 1-a-1 bajo criterio de falsación.
+                  👉 Hipótesis / Propuesta: Mantener $0 en pauta publicitaria; reconstruir embudo y validar disposición de pago directamente antes de definir precios comerciales o contratar pauta.
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
-                <span>Fuente: Stripe Events & analytics-service</span>
-                <span className="font-mono text-emerald-400">Calidad: AUDITADA</span>
+              <div className="pt-2 border-t border-slate-700/50 flex flex-col gap-1 text-[10px] text-slate-400">
+                <div className="flex items-center justify-between">
+                  <span>Fuente: Stripe BalanceTransactions</span>
+                  <span className="font-mono text-slate-300">
+                    Calidad: {typeof economics?.totalRevenue === "number"
+                      ? (economics.reconciliationQuality || "PROVISIONAL")
+                      : "No disponible / No verificado"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500">
+                  <span>Periodo: {economics?.period || "No verificado"}</span>
+                  <span>Generado API: {economicsDate.formattedText}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -203,9 +399,21 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               <h4 className="text-xs font-bold text-white">
                 ¿Qué riesgo o costo amenaza la continuidad?
               </h4>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                0 fallas de pasarela en BD. ~$35 USD/mes ocioso identificado. Borde protegido vía Worker ($0 USD adicionales).
-              </p>
+              <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Costo cloud estimado (GCP):</span>
+                  <span className="font-semibold text-white">
+                    {typeof economics?.cloudCosts === "number"
+                      ? formatCurrency(economics.cloudCosts)
+                      : "No disponible / No verificado"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {typeof economics?.cloudCosts === "number"
+                    ? `Costo cloud estimado: ${formatCurrency(economics.cloudCosts)}. Clúster: ${totalServices > 0 ? `${upCount}/${totalServices} UP` : "Sin telemetría"}. Excepciones pasarela: Brecha de telemetría en DTO.`
+                    : "Sin telemetría de costos cloud ni métricas de infraestructura verificadas en este DTO."}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -215,75 +423,83 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                   <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
                 </div>
                 <p className="text-xs font-semibold text-slate-200">
-                  👉 Liberar IP estática, evaluar minScale=0 en Auth (ahorro 80%), rechazar Cloud Armor ($80/mes) y validar Playbook.
+                  👉 Hipótesis / Propuesta: Evaluar opciones de optimización de infraestructura y esquema de autenticación de borde; pendiente de medición pasiva de latencia y decisión de junta.
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
-                <span>Fuente: GCP Billing & Cloudflare Metrics</span>
-                <span className="font-mono text-slate-300">Calidad: ESTIMADA</span>
+              <div className="pt-2 border-t border-slate-700/50 flex flex-col gap-1 text-[10px] text-slate-400">
+                <div className="flex items-center justify-between">
+                  <span>Fuente: GCP Billing API & Cloudflare Metrics</span>
+                  <span className="font-mono text-slate-300">
+                    Calidad: {typeof economics?.cloudCosts === "number"
+                      ? (economics.costsQuality?.cloudCosts || "ESTIMADA")
+                      : "No disponible / No verificado"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[9px] text-slate-500">
+                  <span>Periodo: {economics?.period || "No verificado"}</span>
+                  <span>Generado API: {economicsDate.formattedText}</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 🚀 Top Executive KPIs (ADMIN-TRUST-01: Cero fallbacks a cero falso, linaje fidedigno) */}
+      {/* 🚀 Top Executive KPIs (ADMIN-TRUST-01: Cero fallbacks a cero falso, linaje fidedigno, cero +0% sin comparativa) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         <KpiCard
-          title={`Volumen Clínico (${selectedPeriod.toUpperCase()})`}
-          value={economics ? formatCurrency(economics.totalGmv || economics.totalRevenue || 0) : null}
-          changePercent={0}
-          changePeriod={economics ? `En línea: ${formatCurrency(economics.onlineRevenue || 0)} · Consultorio: ${formatCurrency(economics.inClinicRevenue || 0)}` : undefined}
+          title={`Volumen Clínico Agregado (${selectedPeriod.toUpperCase()})`}
+          value={displayGmv}
+          subtext={gmvBreakdown}
           icon={DollarSign}
           variant="emerald"
-          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
-          source="Stripe Connect API"
-          owner="Finanzas"
-          asOf={economics?.asOf}
+          quality={gmvQuality}
+          source="BD Local (citas online + consultorio)"
+          owner="Operaciones / Finanzas"
+          asOf={economicsDate.formattedText}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Volumen bruto transaccionado a través de pasarelas de pago y conciliado con Stripe."
+          explanation="Volumen bruto agregado en base de datos local (citas en línea y consultorio). No constituye GMV conciliado en pasarela."
         />
         <KpiCard
-          title="SaaS MRR (Planes Médicos)"
-          value={economics ? formatCurrency(economics.mrr || economics.totalSubscriptionsRevenue || 0) : null}
-          changePercent={0}
-          changePeriod={economics ? `${economics.activeSubscriptions || 0} suscripciones` : undefined}
+          title={`Recaudo por Suscripciones (${selectedPeriod.toUpperCase()})`}
+          value={displayMrr}
+          subtext={mrrBreakdown}
           icon={Zap}
           variant="blue"
-          quality={economics ? "CERTIFIED" : "UNAVAILABLE"}
-          source="Stripe Billing API"
+          quality={mrrQuality}
+          source="Stripe Balance Transactions"
           owner="Finanzas"
-          asOf={economics?.asOf}
+          asOf={economicsDate.formattedText}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Ingresos recurrentes mensuales certificados de suscripciones profesionales activas."
+          explanation="Cobros de suscripciones registrados en Stripe en el periodo (calidad provisional, sin conciliación bancaria externa ni normalización como MRR recurrente)."
         />
         <KpiCard
           title="Usuarios Activos (MAU)"
-          value={productMetrics ? productMetrics.mau : null}
-          changePercent={0}
-          changePeriod={productMetrics ? `${productMetrics.activeProvidersMonth || 0} Médicos / ${productMetrics.activePatientsMonth || 0} Pacientes` : undefined}
+          value={mauVal}
+          subtext={mauBreakdown}
           icon={Users}
           variant="indigo"
-          quality={productMetrics ? "CERTIFIED" : "UNAVAILABLE"}
+          quality={mauQuality}
           source="Telemetry Event Stream"
           owner="Growth / Producto"
+          asOf={productMetricsDate.formattedText}
           period={selectedPeriod}
           isFilterable={true}
           explanation="Usuarios únicos (médicos y pacientes) con sesiones activas en el periodo."
         />
         <KpiCard
           title="Citas Hoy"
-          value={dashboard ? dashboard.appointmentsToday : null}
-          subtext={dashboard ? `${dashboard.appointmentsThisMonth || 0} este mes` : undefined}
+          value={appointmentsTodayVal}
+          subtext={appointmentsMonthText}
           icon={CalendarCheck}
           variant="purple"
-          quality={dashboard ? "CERTIFIED" : "UNAVAILABLE"}
+          quality={appointmentsQuality}
           source="PostgreSQL Clinical Cluster"
           owner="Operaciones Médicas"
-          asOf={dashboard?.generatedAt}
+          asOf={dashboardDate.formattedText}
           period="24h"
           isFilterable={false}
           explanation="Citas agendadas y atendidas en el día calendario actual en base de datos primaria."

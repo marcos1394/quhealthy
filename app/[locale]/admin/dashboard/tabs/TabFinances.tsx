@@ -266,10 +266,9 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
           variant="emerald"
         />
         <KpiCard
-          title="SaaS MRR (Planes Médicos)"
+          title="Ingresos por Suscripciones"
           value={formatCurrency(economics?.mrr || economics?.totalSubscriptionsRevenue || 0)}
-          changePercent={0}
-          changePeriod={`${subscriptionsAudit.filter((s) => !s.isExpired).length} planes vigentes`}
+          subtext={`${subscriptionsAudit.filter((s) => !s.isExpired).length} planes vigentes`}
           icon={Zap}
           variant="blue"
         />
@@ -283,8 +282,7 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
         <KpiCard
           title="Tasa de Churn SaaS"
           value={`${economics?.churnRate ?? 0}%`}
-          changePercent={0}
-          changePeriod="Cancelaciones del periodo"
+          subtext="Cancelaciones del periodo"
           icon={TrendingDown}
           variant="indigo"
         />
