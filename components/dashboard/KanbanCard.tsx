@@ -153,6 +153,8 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 
   return (
     <div
+      data-testid="kanban-appointment-card"
+      data-appointment-id={appt.id}
       draggable
       onDragStart={(e) => onDragStart(e, appt.id)}
       className="flex flex-col bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-emerald-500/30 transition-all relative mb-3 overflow-hidden shadow-2xs font-sans select-none"

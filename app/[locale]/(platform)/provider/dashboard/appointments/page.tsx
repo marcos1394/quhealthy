@@ -587,6 +587,8 @@ export default function ProviderAppointmentsPage() {
                     return (
                       <motion.div
                         key={appt.id}
+                        data-testid="appointment-card"
+                        data-appointment-id={appt.id}
                         layout
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
