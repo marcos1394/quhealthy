@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
+import { resolveApiBaseUrl } from '@/lib/api-config';
 import { AuthResponse, AuthUser, AuthStatus, UserRole } from '@/types/auth';
 
 // 🚀 FIX BUG-5: Mutex compartido con axios.ts para prevenir race condition en token rotation
 // Exportamos este flag para que el interceptor de axios sepa si initializeSession ya está en progreso
 export let isInitialRefreshInProgress = false;
 export let initialRefreshPromise: Promise<string | null> | null = null;
+
+export function getSessionApiBaseUrl(): string {
+  return resolveApiBaseUrl();
+}
 
 // =========================================================================
 // 🧹 NUCLEAR COOKIE CLEANUP
@@ -149,7 +154,7 @@ export const useSessionStore = create<SessionState>()(
         initialRefreshPromise = (async (): Promise<string | null> => {
           try {
             const response = await axios.post<AuthResponse>(
-              `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+              `${getSessionApiBaseUrl()}/api/auth/refresh-token`,
               {}, // Body vacío
               { withCredentials: true } 
             );
@@ -227,7 +232,7 @@ export const useSessionStore = create<SessionState>()(
         const state = get();
         try {
           const response = await axios.post<AuthResponse>(
-            `${process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org'}/api/auth/refresh-token`,
+            `${getSessionApiBaseUrl()}/api/auth/refresh-token`,
             {}, 
             { withCredentials: true } 
           );

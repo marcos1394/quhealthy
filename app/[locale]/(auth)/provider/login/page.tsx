@@ -595,6 +595,7 @@ export default function ProviderLoginPage() {
                     theme: "auto",
                     size: "invisible",
                     execution: "execute",
+                    action: "login",
                   }}
                 />
 

@@ -4,6 +4,7 @@ import axios, {
   AxiosError,
   AxiosResponse,
 } from 'axios';
+import { resolveApiBaseUrl } from '@/lib/api-config';
 import { useSessionStore } from '@/stores/SessionStore';
 import { isInitialRefreshInProgress, initialRefreshPromise, nukeCookies } from '@/stores/SessionStore';
 import { UserRole } from '@/types/auth';
@@ -20,7 +21,7 @@ interface ApiErrorResponse {
 // 1. INSTANCIA BASE
 // =========================================================================
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org',
+  baseURL: resolveApiBaseUrl(),
   timeout: 45000,
   headers: {
     'Content-Type': 'application/json',

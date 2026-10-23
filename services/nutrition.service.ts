@@ -1,4 +1,5 @@
 import axiosInstance from '@/lib/axios';
+import { resolveApiBaseUrl } from '@/lib/api-config';
 import { NutritionAnalysis, NutritionProfile, NutritionProfileRequest } from '@/types/nutrition';
 
 const BASE_URL = '/api/onboarding/consumer/nutrition';
@@ -36,7 +37,7 @@ export const nutritionService = {
     if (item.imageUrl.startsWith('http')) return item.imageUrl;
     
     // Fallback por si en algún momento se expone públicamente
-    const baseUrl = axiosInstance.defaults.baseURL || process.env.NEXT_PUBLIC_API_URL || 'https://api.quhealthy.org';
+    const baseUrl = axiosInstance.defaults.baseURL || resolveApiBaseUrl();
     return `${baseUrl}/${item.imageUrl.replace(/^\//, '')}`;
   },
 

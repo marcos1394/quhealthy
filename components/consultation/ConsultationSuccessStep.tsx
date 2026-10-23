@@ -68,7 +68,8 @@ export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = (
       }
     );
 
-    const patientPortalUrl = `https://www.quhealthy.org/${currentLocale}/patient/prescription/${appointmentId}`;
+    const hostOrigin = typeof window !== "undefined" ? window.location.origin : "https://www.quhealthy.org";
+    const patientPortalUrl = `${hostOrigin}/${currentLocale}/patient/prescription/${appointmentId}`;
 
     const greeting = t("wa_greeting", { doctorName, clinicName });
     const body = t("wa_body");

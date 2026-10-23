@@ -564,6 +564,7 @@ export default function LoginPage() {
                     theme: "auto",
                     size: "invisible",
                     execution: "execute",
+                    action: "login",
                   }}
                 />
 

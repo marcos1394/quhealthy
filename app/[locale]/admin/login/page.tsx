@@ -196,6 +196,7 @@ export default function AdminLoginPage() {
                 theme: "auto",
                 size: "invisible",
                 execution: "execute",
+                action: "admin-login",
               }}
             />
 

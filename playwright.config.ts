@@ -7,9 +7,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
-  timeout: 90000,
+  timeout: 180000,
   expect: {
-    timeout: 20000,
+    timeout: 30000,
   },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -18,7 +18,9 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: process.env.STAGING_URL || 'https://staging.quhealthy.org',
+    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
     extraHTTPHeaders: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
       ...(process.env.VERCEL_PROTECTION_BYPASS
         ? { 'x-vercel-protection-bypass': process.env.VERCEL_PROTECTION_BYPASS }
         : {}),

@@ -523,6 +523,7 @@ export default function ProviderSignupPage() {
                     theme: "auto",
                     size: "invisible",
                     execution: "execute",
+                    action: "register-provider",
                   }}
                 />
 
