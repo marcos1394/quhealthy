@@ -1,16 +1,18 @@
 import { test, expect, Browser, BrowserContext, Page } from '@playwright/test';
 
 /**
- * Iteración 2.5 — Recorrido Completo Médico–Paciente en Staging (Canónico)
+ * Iteración 2.5.1 — Compuerta E2E sin Adaptadores (Staging Canónico)
  *
- * Flujo End-to-End estricto con separación de compuertas:
+ * Flujo End-to-End estricto SIN adaptadores de red, SIN cookies inyectadas manualmente
+ * y SIN inspección de React Fiber ni mutación del DOM:
+ * - Test 0: Comprobación de CORS Real desde Navegador (Preflight OPTIONS + Petición Real hacia appointment-service).
  * - Test 1: Comprobación de Bloqueo de Red Pre-Navegación (Producción abortada sin salir a la red).
  * - Test 2: Comprobación de Bloqueo de Firestore (firestore.googleapis.com abortada sin salir a la red).
  * - Test 3: Comprobación de Bloqueo de Red Post-Login (Mutación prohibida dispara compuerta roja).
  * - Test 4: Comprobación de Aislamiento de Staging (Cero solicitudes a Firestore en páginas autenticadas).
  * - Test 5: Primera Visita: Resolución determinista de avisos legales pulsando «Rechazar» en la UI.
- * - Test 6: Recorrido E2E Estricto: Reserva y Cierre Operativo (Roles aislados, contextos separados, retries: 0).
- * - Test 7: Consentimiento de IA: Flujo y Endpoint de Estado Independiente (NOM-004/024).
+ * - Test 6: Recorrido E2E Estricto sin Adaptadores: Login Real, Navegación Protegida en Ambos Roles, Reserva y Cierre Operativo.
+ * - Test 7: Integración de API de Consentimiento de IA (POST y GET sobre la cita recién creada; no ejercita UI ni certifica cumplimiento normativo NOM-004/NOM-024).
  */
 
 const STAGING_URL = process.env.STAGING_URL || 'https://staging.quhealthy.org';
@@ -65,9 +67,10 @@ const ALLOWED_STAGING_MUTATION_HOSTS = new Set([
 ]);
 
 /**
- * Instala un bloqueo de red a nivel de ruta antes de navegar que aborta
- * de forma activa cualquier mutación HTTP fuera de los destinos de staging permitidos
- * y resuelve de manera controlada el puente CORS de appointment-service en staging.
+ * Instala únicamente la guarda de seguridad que aborta tráfico prohibido
+ * (Firestore, telemetría externa y mutaciones fuera de los hosts permitidos de staging).
+ * NO modifica encabezados Origin, NO responde artificialmente a OPTIONS,
+ * NO reescribe encabezados CORS y NO altera cuerpos JSON de negocio.
  */
 async function installNetworkMutationGuard(page: Page, onViolation?: (violation: string) => void): Promise<void> {
   await page.route('**/*', async (route) => {
@@ -100,54 +103,13 @@ async function installNetworkMutationGuard(page: Page, onViolation?: (violation:
         host.includes('google-analytics.com') ||
         host.includes('googletagmanager.com') ||
         host.includes('doubleclick.net') ||
-        (host.endsWith('google.com') && (urlStr.includes('/g/collect') || urlStr.includes('batchexecute')))
+        host === 'play.google.com' ||
+        (host.endsWith('google.com') && (urlStr.includes('/g/collect') || urlStr.includes('batchexecute') || urlStr.includes('/log')))
       ) {
         return route.abort('blockedbyclient');
       }
 
-      // 3. Manejo de Preflight OPTIONS para api-staging.quhealthy.org
-      if (method === 'OPTIONS' && host === 'api-staging.quhealthy.org') {
-        const reqHeaders = req.headers();
-        return route.fulfill({
-          status: 204,
-          headers: {
-            'access-control-allow-origin': 'https://staging.quhealthy.org',
-            'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
-            'access-control-allow-headers': reqHeaders['access-control-request-headers'] || '*',
-            'access-control-allow-credentials': 'true',
-          },
-        });
-      }
-
-      // 4. Puente Staging CORS y compatibilidad de payload para appointment-service:
-      // - En staging, appointment_service omite https://staging.quhealthy.org en sus allowedOriginPatterns de Spring Security.
-      // - CompleteAppointmentRequest exige los campos booleanos (sendSummaryEmail, remainingBalancePaidInClinic) que CompletionModal omite.
-      if (host === 'api-staging.quhealthy.org' && urlStr.includes('/api/appointments')) {
-        const headers = await req.allHeaders();
-        headers['origin'] = 'https://quhealthy.org';
-
-        const fetchOptions: any = { headers };
-        const rawPostData = req.postData();
-        if (urlStr.includes('/complete') && rawPostData) {
-          try {
-            const parsed = JSON.parse(rawPostData);
-            if (parsed.sendSummaryEmail === undefined) parsed.sendSummaryEmail = false;
-            if (parsed.remainingBalancePaidInClinic === undefined) parsed.remainingBalancePaidInClinic = false;
-            fetchOptions.postData = JSON.stringify(parsed);
-          } catch {}
-        }
-
-        const response = await route.fetch(fetchOptions);
-        const resHeaders = response.headers();
-        resHeaders['access-control-allow-origin'] = 'https://staging.quhealthy.org';
-        resHeaders['access-control-allow-credentials'] = 'true';
-        return route.fulfill({
-          response,
-          headers: resHeaders,
-        });
-      }
-
-      // 5. Verificación estricta de mutaciones HTTP
+      // 3. Verificación estricta de mutaciones HTTP (sólo orígenes permitidos de staging)
       const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
       if (isMutation) {
         const isAllowed =
@@ -172,7 +134,7 @@ async function installNetworkMutationGuard(page: Page, onViolation?: (violation:
 
 /**
  * Preload determinista de preferencias no clínicas para el recorrido principal.
- * Elimina la necesidad de timers de espera o cierres forzados de modales.
+ * Configura únicamente preferencias esenciales (functional, analytics y marketing en false).
  */
 async function preloadNonClinicalPreferences(context: BrowserContext): Promise<void> {
   await context.addInitScript(() => {
@@ -181,9 +143,9 @@ async function preloadNonClinicalPreferences(context: BrowserContext): Promise<v
         'quhealthy_cookie_consent',
         JSON.stringify({
           essential: true,
-          functional: true,
-          analytics: true,
-          marketing: true,
+          functional: false,
+          analytics: false,
+          marketing: false,
           timestamp: new Date().toISOString(),
           policyVersion: '2026-06-18',
         })
@@ -206,7 +168,141 @@ test.use({
 
 test.describe.configure({ mode: 'serial', retries: 0 });
 
-test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)', () => {
+test.describe('Iteración 2.5.1: Compuerta E2E sin Adaptadores (Staging)', () => {
+
+  // =========================================================================
+  // TEST 0: COMPROBACIÓN DE CORS DESDE NAVEGADOR REAL (SIN ADAPTADORES)
+  // =========================================================================
+  test('Comprobación de CORS Real desde Navegador: Preflight OPTIONS y petición cross-origin hacia appointment-service en api-staging.quhealthy.org', async ({ page }) => {
+    await installNetworkMutationGuard(page);
+    await page.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
+
+    const corsRequests: Array<{ method: string; url: string; headers: Record<string, string> }> = [];
+    const corsFailures: Array<{ method: string; url: string; errorText: string | undefined }> = [];
+    const corsConsoleErrors: string[] = [];
+
+    page.on('request', (req) => {
+      if (req.url().includes('api-staging.quhealthy.org/api/appointments')) {
+        corsRequests.push({
+          method: req.method(),
+          url: req.url(),
+          headers: req.headers(),
+        });
+      }
+    });
+
+    page.on('requestfailed', (req) => {
+      if (req.url().includes('api-staging.quhealthy.org/api/appointments')) {
+        corsFailures.push({
+          method: req.method(),
+          url: req.url(),
+          errorText: req.failure()?.errorText,
+        });
+      }
+    });
+
+    page.on('console', (msg) => {
+      if (msg.type() === 'error' && msg.text().toLowerCase().includes('cors')) {
+        corsConsoleErrors.push(msg.text());
+      }
+    });
+
+    // 1. Ejecutar fetch cross-origin real desde el contexto del navegador (https://staging.quhealthy.org -> https://api-staging.quhealthy.org)
+    const browserFetchResult = await page.evaluate(async () => {
+      try {
+        const res = await fetch('https://api-staging.quhealthy.org/api/appointments/provider', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer cors-probe-token',
+          },
+          credentials: 'include',
+        });
+        return {
+          ok: true,
+          status: res.status,
+          allowOrigin: res.headers.get('access-control-allow-origin'),
+          error: null,
+        };
+      } catch (err: any) {
+        return {
+          ok: false,
+          status: null,
+          allowOrigin: null,
+          error: err?.message || String(err),
+        };
+      }
+    });
+
+    // 2. Inspeccionar la respuesta exacta del servidor tanto al preflight OPTIONS como a la petición real GET con Origin
+    const preflightProbe = await page.request.fetch('https://api-staging.quhealthy.org/api/appointments/provider', {
+      method: 'OPTIONS',
+      headers: {
+        'Origin': 'https://staging.quhealthy.org',
+        'Access-Control-Request-Method': 'GET',
+        'Access-Control-Request-Headers': 'authorization',
+      },
+    });
+    const preflightStatus = preflightProbe.status();
+    const preflightHeaders = preflightProbe.headers();
+    const preflightBody = await preflightProbe.text();
+
+    const actualGetProbe = await page.request.fetch('https://api-staging.quhealthy.org/api/appointments/provider', {
+      method: 'GET',
+      headers: {
+        'Origin': 'https://staging.quhealthy.org',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer cors-probe-token',
+      },
+    });
+    const actualGetStatus = actualGetProbe.status();
+    const actualGetHeaders = actualGetProbe.headers();
+    const actualGetBody = await actualGetProbe.text();
+
+    console.log('\n📋 [DIAGNÓSTICO CORS NAVEGADOR REAL - APPOINTMENT-SERVICE]');
+    console.log('  Servicio responsable: appointment-service (Cloud Run / detrás de api-staging.quhealthy.org)');
+    console.log('  Petición emitida por el navegador:', JSON.stringify(corsRequests, null, 2));
+    console.log('  Resultado fetch en navegador:', JSON.stringify(browserFetchResult));
+    console.log('  Respuesta a Preflight OPTIONS (Cloudflare Edge / Gateway):', JSON.stringify({
+      status: preflightStatus,
+      allowOrigin: preflightHeaders['access-control-allow-origin'] || null,
+      allowCredentials: preflightHeaders['access-control-allow-credentials'] || null,
+      server: preflightHeaders['server'] || null,
+      body: preflightBody,
+    }, null, 2));
+    console.log('  Respuesta a Petición Real GET (appointment-service CorsFilter):', JSON.stringify({
+      status: actualGetStatus,
+      allowOrigin: actualGetHeaders['access-control-allow-origin'] || null,
+      allowCredentials: actualGetHeaders['access-control-allow-credentials'] || null,
+      vary: actualGetHeaders['vary'] || null,
+      body: actualGetBody,
+    }, null, 2));
+
+    expect(
+      [200, 204],
+      `Preflight OPTIONS devolvió HTTP ${preflightStatus}`
+    ).toContain(preflightStatus);
+    expect(
+      preflightHeaders['access-control-allow-origin'],
+      'El preflight OPTIONS debe incluir Access-Control-Allow-Origin: https://staging.quhealthy.org'
+    ).toBe('https://staging.quhealthy.org');
+
+    // Comprobación crítica sobre la petición real que llega a appointment-service:
+    // Si appointment-service rechaza Origin: https://staging.quhealthy.org en su CorsFilter,
+    // devuelve HTTP 403 "Invalid CORS request" SIN encabezado Access-Control-Allow-Origin.
+    expect(
+      actualGetBody,
+      `[DEFECTO CORS EN APPOINTMENT-SERVICE] La petición real GET https://api-staging.quhealthy.org/api/appointments/provider con Origin: https://staging.quhealthy.org fue rechazada por CorsFilter de appointment-service con HTTP ${actualGetStatus} y cuerpo "${actualGetBody}"`
+    ).not.toContain('Invalid CORS request');
+    expect(
+      actualGetHeaders['access-control-allow-origin'],
+      `[DEFECTO CORS EN APPOINTMENT-SERVICE] La respuesta de appointment-service a la petición real GET con Origin: https://staging.quhealthy.org omitió el encabezado Access-Control-Allow-Origin (status=${actualGetStatus}, body="${actualGetBody}")`
+    ).toBe('https://staging.quhealthy.org');
+    expect(
+      browserFetchResult.allowOrigin,
+      '[DEFECTO CORS EN APPOINTMENT-SERVICE] El navegador no recibió Access-Control-Allow-Origin: https://staging.quhealthy.org en la respuesta real'
+    ).toBe('https://staging.quhealthy.org');
+  });
 
   // =========================================================================
   // TEST 1: COMPROBACIÓN DE BLOQUEO PRE-NAVEGACIÓN A PRODUCCIÓN
@@ -408,6 +504,111 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
   });
 
   // =========================================================================
+  // TEST 5.5: COMPROBACIÓN DE SESIÓN Y NAVEGACIÓN PROTEGIDA EN AMBOS ROLES (SIN COOKIES ARTIFICIALES)
+  // =========================================================================
+  test('Comprobación de Sesión Real sin Cookies Artificiales: Navegación a rutas protegidas en ROLE_CONSUMER y ROLE_PROVIDER', async ({ browser }) => {
+    test.setTimeout(120000);
+    assertCanonicalStagingOrigin(STAGING_URL);
+
+    // 1. Verificar login real y navegación protegida en ROLE_CONSUMER
+    const patientContext = await browser.newContext();
+    await preloadNonClinicalPreferences(patientContext);
+    const patientPage = await patientContext.newPage();
+    await installNetworkMutationGuard(patientPage);
+
+    await patientPage.goto(`${STAGING_URL}/es/login`, { waitUntil: 'domcontentloaded' });
+    await patientPage.locator('input[name="cf-turnstile-response"]').waitFor({ state: 'attached', timeout: 15000 });
+
+    const patientEmailInput = patientPage.locator('input[type="email"], input[name="email"]').first();
+    const patientPasswordInput = patientPage.locator('input[type="password"], input[name="password"]').first();
+    const patientSubmitBtn = patientPage.locator('button[type="submit"]').first();
+    await expect(patientEmailInput).toBeVisible({ timeout: 10000 });
+    await expect(patientPasswordInput).toBeVisible({ timeout: 10000 });
+    await expect(patientSubmitBtn).toBeVisible({ timeout: 10000 });
+
+    await patientEmailInput.fill(PATIENT_EMAIL!);
+    await patientPasswordInput.fill(PATIENT_PASSWORD!);
+
+    const [patientLoginResp] = await Promise.all([
+      patientPage.waitForResponse(
+        resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
+        { timeout: 25000 }
+      ),
+      patientSubmitBtn.click(),
+    ]);
+
+    const patientSetCookieHeader = await patientLoginResp.headerValue('set-cookie');
+    expect(patientLoginResp.status()).toBe(200);
+
+    // Esperar a que la llamada post-login (/api/onboarding/consumer/profile) finalice y se ejecute router.push
+    await patientPage.waitForTimeout(3000);
+
+    const patientBrowserCookies = await patientContext.cookies(STAGING_URL);
+    const postLoginPatientUrl = patientPage.url();
+    console.log('\n📋 [DIAGNÓSTICO DE SESIÓN REAL - ROLE_CONSUMER]');
+    console.log('  Set-Cookie emitido por auth-service (api-staging.quhealthy.org):', patientSetCookieHeader ? '[PRESENTE: ' + patientSetCookieHeader.replace(/refreshToken=[^;]+/, 'refreshToken=[REDACTED]') + ']' : 'NULL');
+    console.log('  Cookies almacenadas por el navegador para https://staging.quhealthy.org:', JSON.stringify(patientBrowserCookies.map(c => ({ name: c.name, domain: c.domain }))));
+    console.log('  URL tras login de ROLE_CONSUMER:', postLoginPatientUrl);
+
+    await patientPage.goto(`${STAGING_URL}/es/patient/dashboard`, { waitUntil: 'domcontentloaded' });
+    const finalPatientUrl = patientPage.url();
+    console.log('  URL resultante al navegar directamente a /es/patient/dashboard:', finalPatientUrl);
+    await patientContext.close();
+
+    // 2. Verificar login real y navegación protegida en ROLE_PROVIDER
+    const doctorContext = await browser.newContext();
+    await preloadNonClinicalPreferences(doctorContext);
+    const doctorPage = await doctorContext.newPage();
+    await installNetworkMutationGuard(doctorPage);
+
+    await doctorPage.goto(`${STAGING_URL}/es/provider/login`, { waitUntil: 'domcontentloaded' });
+    await doctorPage.locator('input[name="cf-turnstile-response"]').waitFor({ state: 'attached', timeout: 15000 });
+
+    const doctorEmailInput = doctorPage.locator('input[type="email"], input[name="email"]').first();
+    const doctorPasswordInput = doctorPage.locator('input[type="password"], input[name="password"]').first();
+    const doctorSubmitBtn = doctorPage.locator('button[type="submit"]').first();
+    await expect(doctorEmailInput).toBeVisible({ timeout: 10000 });
+    await expect(doctorPasswordInput).toBeVisible({ timeout: 10000 });
+    await expect(doctorSubmitBtn).toBeVisible({ timeout: 10000 });
+
+    await doctorEmailInput.fill(DOCTOR_EMAIL!);
+    await doctorPasswordInput.fill(DOCTOR_PASSWORD!);
+
+    const [doctorLoginResp] = await Promise.all([
+      doctorPage.waitForResponse(
+        resp => resp.url().includes('/api/auth/login') && resp.request().method() === 'POST',
+        { timeout: 25000 }
+      ),
+      doctorSubmitBtn.click(),
+    ]);
+
+    const doctorSetCookieHeader = await doctorLoginResp.headerValue('set-cookie');
+    expect(doctorLoginResp.status()).toBe(200);
+    await doctorPage.waitForTimeout(3000);
+
+    const doctorBrowserCookies = await doctorContext.cookies(STAGING_URL);
+    const postLoginDoctorUrl = doctorPage.url();
+    await doctorPage.goto(`${STAGING_URL}/es/provider/dashboard/appointments`, { waitUntil: 'domcontentloaded' });
+    const finalDoctorUrl = doctorPage.url();
+
+    console.log('\n📋 [DIAGNÓSTICO DE SESIÓN REAL - ROLE_PROVIDER]');
+    console.log('  Set-Cookie emitido por auth-service (api-staging.quhealthy.org):', doctorSetCookieHeader ? '[PRESENTE: ' + doctorSetCookieHeader.replace(/refreshToken=[^;]+/, 'refreshToken=[REDACTED]') + ']' : 'NULL');
+    console.log('  Cookies almacenadas por el navegador para https://staging.quhealthy.org:', JSON.stringify(doctorBrowserCookies.map(c => ({ name: c.name, domain: c.domain }))));
+    console.log('  URL tras login de ROLE_PROVIDER:', postLoginDoctorUrl);
+    console.log('  URL resultante al navegar directamente a /es/provider/dashboard/appointments:', finalDoctorUrl);
+    await doctorContext.close();
+
+    expect(
+      finalPatientUrl,
+      `[DEFECTO DE SESIÓN ROLE_CONSUMER EN AUTH-SERVICE] Navegar a /es/patient/dashboard redirigió a ${finalPatientUrl} porque el navegador rechazó Set-Cookie con Domain=staging.quhealthy.org emitido desde api-staging.quhealthy.org (RFC 6265 §5.3)`
+    ).toContain('/es/patient/dashboard');
+    expect(
+      finalDoctorUrl,
+      `[DEFECTO DE SESIÓN ROLE_PROVIDER EN AUTH-SERVICE] Navegar a /es/provider/dashboard/appointments redirigió a ${finalDoctorUrl} porque el navegador rechazó Set-Cookie con Domain=staging.quhealthy.org emitido desde api-staging.quhealthy.org (RFC 6265 §5.3)`
+    ).toContain('/es/provider/dashboard/appointments');
+  });
+
+  // =========================================================================
   // TEST 6: RECORRIDO E2E ESTRICTO: RESERVA Y CIERRE OPERATIVO
   // =========================================================================
   test('Recorrido E2E Estricto: Reserva y Cierre Operativo', async ({ browser }) => {
@@ -467,13 +668,7 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
     const loginData = await loginResponse.json();
     sharedPatientAuthToken = loginData.accessToken || loginData.token;
 
-    // Propagar cookies de sesión a staging.quhealthy.org para el middleware proxy.ts
-    await patientPage.evaluate(() => {
-      document.cookie = "refreshToken=authenticated-session; path=/; SameSite=Lax; Secure";
-      document.cookie = "__Secure-userRole=ROLE_CONSUMER; path=/; SameSite=Lax; Secure";
-    });
-
-    // Verificar sesión establecida
+    // Verificar sesión establecida sin inyectar cookies artificiales en Playwright
     await patientPage.waitForURL(url => !url.pathname.endsWith('/login'), { timeout: 15000 });
     const sessionToken = await patientPage.evaluate(() => {
       try {
@@ -484,7 +679,14 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
       }
     });
     expect(sessionToken, 'La sesión del paciente debe quedar persistida en localStorage').toBeTruthy();
-    console.log('✅ [PASO 1] Login de Paciente Sintético completado.');
+
+    // Comprobar que el login real del paciente (ROLE_CONSUMER) permite navegar a ruta protegida (/es/patient/dashboard)
+    await patientPage.goto(`${STAGING_URL}/es/patient/dashboard`, { waitUntil: 'domcontentloaded' });
+    expect(
+      patientPage.url(),
+      '[DEFECTO DE SESIÓN ROLE_CONSUMER] El login real debe permitir navegar a /es/patient/dashboard sin redirigir a /es/login'
+    ).toContain('/es/patient/dashboard');
+    console.log('✅ [PASO 1] Login real de Paciente Sintético y navegación protegida (/es/patient/dashboard) completados.');
 
     // --- PASO 2: NAVEGACIÓN EN DISCOVER ---
     console.log('\n▶ [PASO 2] Navegando en /es/discover y esperando /api/catalog/storefront...');
@@ -626,17 +828,16 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
     const docLoginData = await docLoginResp.json();
     sharedDoctorAuthToken = docLoginData.accessToken || docLoginData.token;
 
-    // Propagar cookies de sesión a staging.quhealthy.org para el middleware proxy.ts
-    await doctorPage.evaluate(() => {
-      document.cookie = "refreshToken=authenticated-session; path=/; SameSite=Lax; Secure";
-      document.cookie = "__Secure-userRole=ROLE_PROVIDER; path=/; SameSite=Lax; Secure";
-    });
-
+    // Verificar redirección post-login sin inyectar cookies artificiales en Playwright
     await doctorPage.waitForURL(url => !url.pathname.endsWith('/provider/login'), { timeout: 15000 });
-    console.log('✅ [PASO 5] Médico autenticado exitosamente.');
+    expect(
+      doctorPage.url(),
+      '[DEFECTO DE SESIÓN ROLE_PROVIDER] El login real del médico debe permitir permanecer en /es/provider/dashboard sin rebotar a /es/provider/login'
+    ).toContain('/provider/dashboard');
+    console.log('✅ [PASO 5] Médico autenticado exitosamente sin cookies artificiales.');
 
     // Navegar a la agenda de citas del médico
-    console.log('\n▶ [PASO 6] Abriendo /es/provider/dashboard/appointments y localizando la cita...');
+    console.log('\n▶ [PASO 6] Abriendo /es/provider/dashboard/appointments y localizando la cita por selector estable...');
     const [docAppointmentsResp] = await Promise.all([
       doctorPage.waitForResponse(
         resp => resp.url().includes('/api/appointments/provider') && resp.status() === 200,
@@ -645,42 +846,22 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
       doctorPage.goto(`${STAGING_URL}/es/provider/dashboard/appointments`, { waitUntil: 'domcontentloaded' }),
     ]);
 
+    expect(
+      doctorPage.url(),
+      '[DEFECTO DE SESIÓN ROLE_PROVIDER] La navegación a /es/provider/dashboard/appointments no debe ser redirigida a /es/provider/login'
+    ).toContain('/es/provider/dashboard/appointments');
+
     const docApptsList = await docAppointmentsResp.json();
     const targetAppt = docApptsList.find((a: any) => a.id === sharedAppointmentId);
     expect(targetAppt, `La cita ${redactedId} debe aparecer en la respuesta del backend para el médico`).toBeTruthy();
 
-    // Helper determinista para localizar de manera inequívoca la tarjeta de la cita creada en el DOM
-    const locateApptCard = async () => {
-      await doctorPage.locator('div.rounded-3xl').first().waitFor({ state: 'visible', timeout: 15000 });
-      await doctorPage.evaluate((targetId) => {
-        const cards = Array.from(document.querySelectorAll('div.rounded-3xl'));
-        for (const card of cards) {
-          const fiberKey = Object.keys(card).find(k => k.startsWith('__reactFiber$') || k.startsWith('__reactInternalInstance$'));
-          if (fiberKey) {
-            let f = (card as any)[fiberKey];
-            while (f) {
-              if (f.key == targetId || f.memoizedProps?.appt?.id == targetId) {
-                card.setAttribute('data-appointment-id', String(targetId));
-                return;
-              }
-              f = f.return;
-            }
-          }
-        }
-        // Fallback por texto del paciente y servicio si React fiber está ofuscado en producción
-        const patientCards = cards.filter(c =>
-          c.textContent?.includes('Paciente Sintético Staging') &&
-          c.textContent?.includes('Consulta de Medicina General Staging')
-        );
-        if (patientCards.length > 0) {
-          patientCards[0].setAttribute('data-appointment-id', String(targetId));
-        }
-      }, sharedAppointmentId);
-      return doctorPage.locator(`[data-appointment-id="${sharedAppointmentId}"]`);
-    };
-
-    let apptCard = await locateApptCard();
-    await expect(apptCard, `Tarjeta de cita ${redactedId} no encontrada en la UI del médico`).toBeVisible({ timeout: 15000 });
+    // Exigir exactamente una tarjeta con el selector estable del producto (sin React Fiber, sin mutación DOM, sin fallback por nombre)
+    const apptCard = doctorPage.locator(`[data-testid="appointment-card"][data-appointment-id="${sharedAppointmentId}"]`);
+    await expect(
+      apptCard,
+      `Debe existir exactamente 1 tarjeta en el DOM con [data-testid="appointment-card"][data-appointment-id="${sharedAppointmentId}"]`
+    ).toHaveCount(1, { timeout: 15000 });
+    await expect(apptCard, `Tarjeta de cita ${redactedId} debe ser visible en la UI del médico`).toBeVisible({ timeout: 15000 });
 
     // --- CAMBIO A IN_PROGRESS ---
     console.log('\n▶ [PASO 7] Iniciando consulta médica (transición a IN_PROGRESS)...');
@@ -702,7 +883,7 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
 
     // --- CIERRE OPERATIVO DESDE MODAL ---
     console.log('\n▶ [PASO 8] Ejecutando cierre operativo desde el modal del dashboard...');
-    apptCard = await locateApptCard();
+    await expect(apptCard).toHaveCount(1);
     const finishBtn = apptCard.locator('button:has-text("Finalizar"), button:has-text("Finalizar Consulta")');
     await expect(finishBtn, 'Botón «Finalizar» debe estar visible').toBeVisible({ timeout: 10000 });
     await finishBtn.click();
@@ -751,14 +932,21 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
   });
 
   // =========================================================================
-  // TEST 7: CONSENTIMIENTO DE IA: FLUJO Y ENDPOINT DE ESTADO INDEPENDIENTE
+  // TEST 7: INTEGRACIÓN DE API DE CONSENTIMIENTO DE IA (CITA RECIÉN CREADA)
   // =========================================================================
-  test('Consentimiento de IA: Flujo y Endpoint de Estado Independiente', async ({ page }) => {
+  test('Integración de API de Consentimiento de IA: POST y GET de estado sobre la cita recién creada (sin UI de consentimiento)', async ({ page }) => {
     test.setTimeout(60000);
 
-    const appointmentId = sharedAppointmentId || 3;
+    expect(
+      sharedAppointmentId,
+      'El consentimiento de IA debe ejecutarse exclusivamente sobre la cita recién creada en el recorrido E2E (sin fallback a ID fijo)'
+    ).toBeTruthy();
+    expect(Number(sharedAppointmentId)).toBeGreaterThan(0);
+    expect(sharedPatientAuthToken, 'Se requiere el token de sesión del paciente autenticado').toBeTruthy();
+
+    const appointmentId = sharedAppointmentId!;
     const redactedId = `[REDACTED-APPT-***${String(appointmentId).slice(-1)}]`;
-    console.log(`\n▶ [CONSENTIMIENTO IA] Verificando persistencia y estado de consentimiento IA para cita ${redactedId}...`);
+    console.log(`\n▶ [INTEGRACIÓN API CONSENTIMIENTO IA] Verificando endpoints POST/GET de consentimiento IA para cita recién creada ${redactedId}...`);
 
     let securityViolation: string | null = null;
     await installNetworkMutationGuard(page, (violation) => {
@@ -791,8 +979,8 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
       };
     }, { apptId: appointmentId, token: sharedPatientAuthToken });
 
-    expect(consentResult.status, `Consentimiento IA falló con HTTP ${consentResult.status}`).toBe(200);
-    console.log(`✅ [CONSENTIMIENTO IA PERSISTIDO] Consentimiento NOM-004/024 persistido exitosamente (HTTP 200).`);
+    expect(consentResult.status, `POST de consentimiento IA falló con HTTP ${consentResult.status}`).toBe(200);
+    console.log(`✅ [API CONSENTIMIENTO IA] Registro técnico persistido vía POST para cita ${redactedId} (HTTP 200).`);
 
     // 2. Consultar estado mediante endpoint independiente GET /api/appointments/teleconsultations/{id}/ai-consent/status
     const statusResult = await page.evaluate(async ({ apptId, token }) => {
@@ -812,9 +1000,9 @@ test.describe('Iteración 2.5: Recorrido Completo Médico–Paciente (Staging)',
     }, { apptId: appointmentId, token: sharedPatientAuthToken });
 
     expect(statusResult.status, `Consulta de estado de consentimiento IA falló con HTTP ${statusResult.status}`).toBe(200);
-    expect(statusResult.data?.hasResponded, 'El consentimiento de IA debe registrar hasResponded=true').toBe(true);
+    expect(statusResult.data?.hasResponded, 'El endpoint de estado debe registrar hasResponded=true').toBe(true);
     expect(statusResult.data?.audioProcessingAccepted, 'audioProcessingAccepted debe ser true').toBe(true);
-    console.log(`✅ [ESTADO CONSENTIMIENTO VERIFICADO] Endpoint independiente de estado validado: hasResponded=true.`);
+    console.log(`✅ [API ESTADO CONSENTIMIENTO] Endpoint independiente GET validado: hasResponded=true (comprobación de integración de API; la UI de consentimiento corresponde a HU-EHR-024).`);
 
     expect(securityViolation).toBeNull();
   });
