@@ -103,6 +103,8 @@ export function AppointmentCard({
 
   return (
     <motion.div
+      data-testid="patient-appointment-card"
+      data-appointment-id={appt.id}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
