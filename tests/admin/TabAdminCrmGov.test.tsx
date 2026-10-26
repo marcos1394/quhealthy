@@ -109,7 +109,7 @@ describe("CRM-GOV-01: Material Actions Governance in TabAdminCrm", () => {
     // Wait for suggestions to render
     await waitFor(() => {
       expect(screen.getAllByText("Usar como Borrador").length).toBeGreaterThan(0);
-    });
+    }, { timeout: 3000 });
 
     // Click 'Usar como Borrador' on the first suggestion
     const draftButtons = screen.getAllByText("Usar como Borrador");

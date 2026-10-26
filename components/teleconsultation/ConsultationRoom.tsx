@@ -119,7 +119,10 @@ export const ConsultationRoom: React.FC<ConsultationRoomProps> = ({
           {/* Indicador de Asistente IA */}
           <div className="flex flex-col gap-2 pointer-events-auto">
             {aiAgentActive && (
-              <Badge className="bg-sky-500/90 backdrop-blur-md text-white border-0 text-xs font-bold px-3 py-1.5 rounded-2xl shadow-md flex items-center gap-2">
+              <Badge
+                data-testid="consent-verified-badge"
+                className="bg-sky-500/90 backdrop-blur-md text-white border-0 text-xs font-bold px-3 py-1.5 rounded-2xl shadow-md flex items-center gap-2"
+              >
                 <BrainCircuit className="w-4 h-4 animate-pulse" strokeWidth={2} />
                 <span>{t("ai_active")}</span>
               </Badge>

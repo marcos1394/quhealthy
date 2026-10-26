@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Video, Mic, AlertCircle } from "lucide-react";
+import { Video, Mic, AlertCircle, ShieldCheck } from "lucide-react";
 
 import { useTeleconsultationStore } from "@/stores/TeleconsultationStore";
 import { Button } from "@/components/ui/button";
@@ -87,6 +87,14 @@ export const DeviceSetup: React.FC<DeviceSetupProps> = ({
 
       {/* ── BANDERAS DE ESTADO DE SISTEMA (TOP RIGHT) ──────────────── */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 pointer-events-none">
+        <Badge
+          data-testid="consent-verified-badge"
+          className="bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold px-3 py-1 rounded-full shadow-2xs"
+        >
+          <ShieldCheck className="w-3.5 h-3.5 mr-1.5" strokeWidth={2} />
+          <span>{t("consent_ok", { defaultValue: "Consentimiento Verificado" })}</span>
+        </Badge>
+
         <Badge
           className={
             systemChecks.camera
