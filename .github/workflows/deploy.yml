@@ -84,10 +84,15 @@ jobs:
           fi
 
       - name: Deploy to Vercel
+        id: vercel_deploy
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             # Despliegue a URL temporal (Preview)
-            vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+            PREVIEW_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+            echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+            if [ "${{ github.base_ref }}" == "staging" ] || [ "${{ github.head_ref }}" == "staging" ]; then
+              vercel alias set "$PREVIEW_URL" staging.quhealthy.org --token=${{ secrets.VERCEL_TOKEN }} || true
+            fi
           else
             # Despliegue a Dominio Principal (Production)
             vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

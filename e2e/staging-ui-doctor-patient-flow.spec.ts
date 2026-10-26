@@ -98,6 +98,19 @@ test.describe('Iteración 2.5 (Smoke): Smoke de Seis Pantallas Médico–Pacient
     const titleOrBody = await page.title();
     expect(titleOrBody).toBeDefined();
 
+    // Verificación de selectores de Consentimiento Informado (HU-EHR-024)
+    const consentModal = page.locator('[data-testid="consent-modal"]');
+    if (await consentModal.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await expect(consentModal).toBeVisible();
+      const checkboxes = page.locator('[data-testid="consent-accept-checkbox"]');
+      if (await checkboxes.count() > 0) {
+        await checkboxes.first().click();
+      }
+      const submitBtn = page.locator('[data-testid="consent-submit-btn"]');
+      await expect(submitBtn).toBeVisible();
+      console.log('✅ [UI-5] Modal interactivo de consentimiento (HU-EHR-024) verificado con selectores estables.');
+    }
+
     console.log('✅ [UI-5] Interfaz de sala de teleconsulta cargada y operativa.');
   });
 

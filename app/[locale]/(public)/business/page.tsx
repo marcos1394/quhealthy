@@ -30,6 +30,8 @@ import axiosInstance from "@/lib/axios";
 import { useSessionStore } from "@/stores/SessionStore";
 import { BackendPlan, buildFeaturesForPlan } from "@/lib/subscriptionUtils";
 import { cn } from "@/lib/utils";
+import { trackProviderFunnel } from "@/lib/analytics/funnel-events";
+import { MedicalStructuredData, FaqStructuredData } from "@/components/seo/MedicalStructuredData";
 
 interface UIPlan {
   id: string;
@@ -53,6 +55,12 @@ export default function BusinessPage() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [rawPlans, setRawPlans] = useState<BackendPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    trackProviderFunnel("view_business_landing", {
+      leadSource: "organic_business",
+    });
+  }, []);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -127,8 +135,34 @@ export default function BusinessPage() {
     },
   };
 
+  const businessFaqs = [
+    {
+      question: "¿Cómo funciona la verificación de cédula profesional en QuHealthy?",
+      answer: "Validamos tu cédula profesional y títulos de especialidad directamente ante el Registro Nacional de Profesionistas de la SEP/DGP en menos de 24 horas hábiles.",
+    },
+    {
+      question: "¿El expediente clínico cumple con las normas mexicanas NOM-004 y NOM-024?",
+      answer: "Sí, QuHealthy implementa bitácora inmutable de consulta SOAP, consentimiento informado digital para telemedicina y trazabilidad legal de cada acto médico.",
+    },
+    {
+      question: "¿Cómo y cuándo recibo los pagos de mis consultas?",
+      answer: "Los pagos se procesan de forma segura a través de Stripe Connect Express y se transfieren directamente a tu cuenta bancaria registrada.",
+    },
+    {
+      question: "¿Qué beneficios tiene la Cohorte Fundadora de médicos?",
+      answer: "Los primeros 20 médicos especialistas reciben onboarding asistido 'White-Glove' y 3 meses de suscripción SaaS sin costo fijo, pagando únicamente la comisión por transacción procesada.",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500">
+      <MedicalStructuredData
+        name="QuHealthy Business — Plataforma Médica Integral"
+        description="Software SaaS de expediente clínico, telemedicina, agenda inteligente y cobros para médicos privados y clínicas ambulatorias en México."
+        priceRange="$$"
+        medicalSpecialty={["Medicina General", "Cardiología", "Dermatología", "Pediatría", "Ginecología", "Psicología"]}
+      />
+      <FaqStructuredData items={businessFaqs} />
       
       {/* ── HERO SECTION ──────────────────────────────────────────────────── */}
       <section className="pt-28 pb-16 md:pt-36 md:pb-24 bg-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800">

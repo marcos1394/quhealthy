@@ -40,8 +40,14 @@ export const AiConsentModal: React.FC<AiConsentModalProps> = ({
   };
 
   return (
-    <div className="absolute inset-0 w-full h-full overflow-y-auto p-4 sm:p-6 flex flex-col items-center justify-start sm:justify-center bg-gray-50/60 dark:bg-[#050505] font-sans select-none">
-      <div className="w-full max-w-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 relative overflow-hidden group shrink-0 sm:my-auto shadow-2xl transition-colors">
+    <div
+      data-testid="consent-modal"
+      className="absolute inset-0 w-full h-full overflow-y-auto p-4 sm:p-6 flex flex-col items-center justify-start sm:justify-center bg-gray-50/60 dark:bg-[#050505] font-sans select-none"
+    >
+      <div
+        data-testid="consent-modal-card"
+        className="w-full max-w-2xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 relative overflow-hidden group shrink-0 sm:my-auto shadow-2xl transition-colors"
+      >
         
         {/* Elementos Decorativos de Fondo */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 dark:bg-emerald-950/20 rounded-bl-full pointer-events-none -z-10 transition-transform duration-500 group-hover:scale-110" />
@@ -84,6 +90,8 @@ export const AiConsentModal: React.FC<AiConsentModalProps> = ({
               className="sr-only"
               checked={audioAccepted}
               onChange={() => {}}
+              data-testid="consent-accept-checkbox"
+              data-consent-type="audio"
             />
             <div className="space-y-1">
               <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
@@ -120,6 +128,8 @@ export const AiConsentModal: React.FC<AiConsentModalProps> = ({
               className="sr-only"
               checked={clinicalNoteAccepted}
               onChange={() => {}}
+              data-testid="consent-accept-checkbox"
+              data-consent-type="clinical-note"
             />
             <div className="space-y-1">
               <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
@@ -156,6 +166,8 @@ export const AiConsentModal: React.FC<AiConsentModalProps> = ({
               className="sr-only"
               checked={storageAccepted}
               onChange={() => {}}
+              data-testid="consent-accept-checkbox"
+              data-consent-type="storage"
             />
             <div className="space-y-1">
               <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white tracking-tight">
@@ -182,6 +194,7 @@ export const AiConsentModal: React.FC<AiConsentModalProps> = ({
           <div className="mt-8 flex justify-end">
             <button
               type="submit"
+              data-testid="consent-submit-btn"
               disabled={isSubmitting}
               className="h-11 px-7 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
