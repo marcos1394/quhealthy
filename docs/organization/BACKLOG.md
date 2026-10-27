@@ -1,6 +1,6 @@
 # BACKLOG MAESTRO DE LA STARTUP — QuHealthy (Q4 2026)
 
-**Última actualización:** 2026-10-26 (Cierre Verificado de Sprints 1, 2 y 3 — Despliegue Exitoso en Staging y Producción)
+**Última actualización:** 2026-10-26 (Cierre Verificado E2E Frontend + Backend de Sprints 1, 2 y 3 + Radar Ejecutivo de las 6 Aristas en Admin Portal — Listo para Sprint 4)
 **Modelo de Gobierno:** Lean Agentic OS v2 (6 Escuadrones Autónomos, Cero Burocracia Documental)
 **Cobertura:** Producto, Ingeniería (Web/Backend/Mobile/IA), DevSecOps/SRE/FinOps, Marketing/Growth, Comercial/Ventas B2B, Operaciones/Customer Success/Confianza Clínica, Finanzas y Legal/Cumplimiento.
 
@@ -47,22 +47,39 @@
 
 ---
 
-## 3. Horizonte 3: Sprint 3 / P2 — ✅ COMPLETADO EN STAGING Y PRODUCCIÓN
+## 3. Horizonte 3: Sprint 3 / P2 — ✅ COMPLETADO EN STAGING Y PRODUCCIÓN (FRONTEND + BACKEND + ADMIN PORTAL 6 ARISTAS)
 
-*Estado:* 100% implementado, con 25 suites de pruebas unitarias/integración (140/140 tests en verde), CI/CD exitoso (`Enterprise Frontend CI/CD` Runs `40435771060` y `40435772763`) y verificado en vivo vía HTTP/2.
+*Estado:* 100% implementado de punta a punta en Frontend (`quhealthy`) y Backend (`github-backend-java` commit `55a30401`), con 25 suites de pruebas en Frontend (141/141 tests en verde), suites de controlador/servicio en Backend (`NotificationControllerTest` 7/7, `CatalogSchemaInitializerTest` 2/2, `StaffControllerTest` 2/2, `ClinicalAiControllerTest` 3/3), y Radar Ejecutivo de las 6 Aristas de la Startup integrado en el Portal del Administrador (`StartupAristasRadar.tsx`).
 
-- ✅ **`COM-ENTERPRISE-01` (P2):** Gestión de clínicas multi-médico con roles (`CLINIC_ADMIN`, `RECEPTIONIST`, `PHYSICIAN`, `ASSISTANT`) vía `data-testid="clinic-member-role-select"`, asignación de sucursales vía `data-testid="clinic-branch-selector"` y postulación a programas asistenciales subsidiados en `/foundation` con `data-testid="foundation-subsidy-apply-btn"`.
-- ✅ **`AI-PULSO-01` (P2):** Motor asistido de detección de interacciones farmacológicas y alergias en prescripción médica (`lib/clinical/drug-interactions.ts`, banner `data-testid="rx-interaction-warning-banner"`, NOM-004/NOM-024) y componente de seguimiento longitudinal post-consulta (`LongitudinalFollowUpWidget.tsx`, `data-testid="longitudinal-followup-panel"`).
-- ✅ **`ENG-IOS-01` (P2):** Manifiesto Universal Links `/.well-known/apple-app-site-association` (`HTTP/2 200` en Staging y Producción) y servicio de registro de dispositivos móviles Push APNs/FCM (`services/device.service.ts`).
-- ✅ **`MKT-PAID-01` (P2):** Motor de atribución first-party de campañas (`utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `gclid`, `fbclid`) con persistencia en sesión, enlace a conversiones y guardia Anti-PII estricta (`lib/analytics/funnel-events.ts`).
-- ✅ **`MKT-CRM-01` (P2):** Motor de reactivación preventiva de pacientes (`lib/crm/preventive-reactivation.ts`) para chequeos a 90/180/365 días con cláusula estricta de opt-out conforme a LFPDPPP.
-- ✅ **`OPS-ISO-01` & `OPS-SEC-03` (P2):** Script ejecutable de auditoría de aislamiento de entornos (`scripts/ops/verify-env-isolation-and-secrets.sh`, 0 fugas detectadas) y endurecimiento de cabeceras HTTP OWASP (`Permissions-Policy: camera=(self), microphone=(self), geolocation=()`).
-- ✅ **`COM-B2B2C-01`, `LEG-COFEPRIS-01` & `FIN-SEED-01` (P2):** Playbook Enterprise B2B2C (`03-enterprise-clinics-and-b2b2c-playbook.md`), Dossier Regulatorio COFEPRIS / NOM-024 (`03-cofepris-telemedicine-and-nom024-audit.md`) y Plantilla Ejecutiva de Investor Update Seed (`03-seed-investor-update-and-cohort-governance.md`).
+- ✅ **`COM-ENTERPRISE-01` (P2):**
+  * **Frontend:** Gestión de clínicas multi-médico con roles (`CLINIC_ADMIN`, `RECEPTIONIST`, `PHYSICIAN`, `ASSISTANT`) vía `data-testid="clinic-member-role-select"`, asignación de sucursales vía `data-testid="clinic-branch-selector"` y postulación a programas asistenciales subsidiados en `/foundation` con `data-testid="foundation-subsidy-apply-btn"`.
+  * **Backend (`catalog_service`):** Extensión de `StaffRole` con deserialización case-insensitive (`@JsonCreator`), campo `branch` en `StaffMember`, `StaffRequest` y `StaffResponse`, y migración idempotente en `CatalogSchemaInitializer` compatible con `ddl-auto: validate`.
+- ✅ **`AI-PULSO-01` (P2):**
+  * **Frontend:** Motor asistido de detección de interacciones farmacológicas y alergias en prescripción médica (`lib/clinical/drug-interactions.ts`, banner `data-testid="rx-interaction-warning-banner"`, `NOM-004`/`NOM-024`) y componente de seguimiento longitudinal post-consulta (`LongitudinalFollowUpWidget.tsx`, `data-testid="longitudinal-followup-panel"`) montado en `/patient/dashboard`.
+  * **Backend (`appointment_service`):** Endpoint `POST /api/appointments/ai/clinical-copilot/check-interactions` en `ClinicalAiController` y `ClinicalAiService` con detección de alergias cruzadas (betalactámicos, AINEs), duplicidad terapéutica e interacciones con anticoagulantes bajo guardia `NOM-024`.
+- ✅ **`ENG-IOS-01` (P2):**
+  * **Frontend:** Manifiesto Universal Links `/.well-known/apple-app-site-association` (`HTTP/2 200` en Staging y Producción) y cliente `services/device.service.ts`.
+  * **Backend (`notification_service`):** Endpoints `POST /api/notifications/devices` y `DELETE /api/notifications/devices/{token}` en `NotificationController` y `NotificationService` persistiendo tokens APNs/FCM en `SharedConsumerRepository` y `SharedProviderRepository`.
+- ✅ **`MKT-PAID-01` & `MKT-CRM-01` (P2):** Motor de atribución first-party (`utm_source`, `utm_medium`, `utm_campaign`, `gclid`, `fbclid`) auto-enlazado en `trackProviderFunnel` y `trackPatientFunnel` con guardia estricta Anti-PII (`lib/analytics/funnel-events.ts`), y motor de reactivación preventiva (`lib/crm/preventive-reactivation.ts`) conforme a `LFPDPPP`.
+- ✅ **`OPS-ISO-01`, `OPS-SEC-03` & `ADMIN-RADAR-01` (P2):** Script de auditoría de aislamiento (`scripts/ops/verify-env-isolation-and-secrets.sh`), cabecera `Permissions-Policy` y rediseño ejecutivo de `TabExecutivePulse.tsx` + `StartupAristasRadar.tsx` dando visibilidad limpia y filtrable a las 6 Aristas de la Startup sin saturación visual.
+- ✅ **`COM-B2B2C-01`, `LEG-COFEPRIS-01` & `FIN-SEED-01` (P2):** Playbook Enterprise B2B2C, Dossier Regulatorio COFEPRIS / NOM-024 y Plantilla Ejecutiva de Investor Update Seed.
 
 ---
 
-## 4. Próxima Fase: Crecimiento Continuo, Escalado y Expansión Operativa
+## 4. Horizonte 4: Sprint 4 / P2+ — Telemetría Ejecutiva en Vivo, Conciliación CFDI 4.0, Órdenes B2B Labs y Puente Nativo iOS (Ver `SPRINT-4-PLAYBOOK.md`)
 
-1. **Expansión Comercial Activa (Nivel 3 🔴):** Inicio de contacto formal con las primeras clínicas multi-médico y convenios B2B con aseguradoras bajo los playbooks establecidos.
-2. **Monitoreo Continuo Cloud & FinOps:** Supervisión de latencia P95 y cuotas de base de datos en Supabase y GCP Cloud Run.
-3. **App Mobile Nativa iOS (TestFlight):** Empaquetado y distribución de la app nativa consumiendo los Universal Links y contratos Push unificados.
+### Bloque A (`founder-cos-gov` + `product-engineering`)
+- [ ] **`ADMIN-PULSE-02` (P2+):** Conectar contadores operativos en vivo desde `appointment_service` (`GET /api/appointments/admin/metrics`) hacia `StartupAristasRadar.tsx` (`signedConsentsCount`, `aiSoapDraftsCount`, `activeTreatmentPlansCount`, `b2bOrdersCount`) con selector `data-testid="arista-live-telemetry-badge"`.
+- [ ] **`ENG-BILLING-01` (P2+):** Validador fiscal CFDI 4.0 SAT (`lib/fiscal/cfdi-validator.ts`) y solicitud de factura (`data-testid="cfdi-invoice-request-btn"`) + distinción de conciliación Stripe en el Admin Portal.
+
+### Bloque B (`commercial-operations` + `product-engineering`)
+- [ ] **`COM-B2B-ORDERS-01` (P2+):** Seguimiento End-to-End de órdenes clínicas B2B para Laboratorios y Proveedores (`ORDERED` -> `SAMPLE_COLLECTED` -> `RESULTS_READY`) con selector `data-testid="b2b-lab-order-status-badge"`.
+- [ ] **`COM-FOUNDATION-02` (P2+):** Tablero de impacto social y trazabilidad de subsidios asistenciales en `TabFoundations.tsx` del Portal de Administrador (`data-testid="admin-foundation-impact-table"`).
+
+### Bloque C (`data-ai-copilot` + `growth-marketing`)
+- [ ] **`AI-LONGITUDINAL-02` (P2+):** Endpoint `GET /api/appointments/treatment-plans/consumer/{consumerId}/longitudinal` en `TreatmentPlanController.java` para alimentar los hitos 7/30/90/180 días del paciente.
+- [ ] **`MKT-CRM-02` (P2+):** Endpoint cron `/api/internal/cron/send-preventive-reactivations` protegido por `X-CloudScheduler` en `InternalCronController.java` para disparar reactivaciones preventivas con opt-out `LFPDPPP`.
+
+### Bloque D (`devsecops-sre` + `founder-cos-gov`)
+- [ ] **`ENG-IOS-02` (P2+):** Puente nativo iOS/Android (`lib/mobile/native-bridge.ts`) para detección de `WKWebView`/Capacitor, permisos WebRTC y auto-registro Push tras login.
+- [ ] **`OPS-FINOPS-02` & `FIN-SEED-02` (P2+):** Calculadora auditable de Unit Economics por consulta (`lib/finops/unit-economics-calculator.ts` integrada en `TabUnitEconomics.tsx`) y cierre documental del Sprint 4.

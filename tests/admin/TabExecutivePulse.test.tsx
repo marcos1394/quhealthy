@@ -539,5 +539,35 @@ describe("TabExecutivePulse & validateSourceDate (ADMIN-TRUST-01 & HU #43 Veraci
       expect(screen.queryByText("AUDITADA")).not.toBeInTheDocument();
     });
   });
+
+  describe("9. Radar Ejecutivo de las 6 Aristas de la Startup (Lean v2 Visibility)", () => {
+    it("renders all 6 startup pillars with live metrics and shipped Sprint 1-3 capabilities", () => {
+      render(
+        <TabExecutivePulse
+          economics={null}
+          dashboard={null}
+          productMetrics={null}
+          providers={mockProviders}
+          formatCurrency={formatCurrency}
+          onNavigateTab={mockNavigateTab}
+        />
+      );
+
+      expect(screen.getByTestId("startup-aristas-radar")).toBeInTheDocument();
+      expect(screen.getByTestId("arista-card-product")).toBeInTheDocument();
+      expect(screen.getByTestId("arista-card-ai")).toBeInTheDocument();
+      expect(screen.getByTestId("arista-card-growth")).toBeInTheDocument();
+      expect(screen.getByTestId("arista-card-commercial")).toBeInTheDocument();
+      expect(screen.getByTestId("arista-card-sre")).toBeInTheDocument();
+      expect(screen.getByTestId("arista-card-governance")).toBeInTheDocument();
+
+      expect(screen.getByText(/1\. Producto & Clínica E2E/i)).toBeInTheDocument();
+      expect(screen.getByText(/2\. Copiloto IA & Pulso Longitudinal/i)).toBeInTheDocument();
+      expect(screen.getByText(/3\. Growth, SEO & Conversión/i)).toBeInTheDocument();
+      expect(screen.getByText(/4\. Comercial, Clínicas & KYB/i)).toBeInTheDocument();
+      expect(screen.getByText(/5\. DevSecOps, SRE & FinOps/i)).toBeInTheDocument();
+      expect(screen.getByText(/6\. Finanzas, Legal & Gobierno/i)).toBeInTheDocument();
+    });
+  });
 });
 

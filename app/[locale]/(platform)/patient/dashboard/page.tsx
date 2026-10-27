@@ -16,6 +16,7 @@ import { PatientTreatmentAdherenceWidget } from "@/components/dashboard/PatientT
 import { PatientClinicalSummaryCard } from "@/components/dashboard/PatientClinicalSummaryCard";
 import { HealthScore360Widget } from "@/components/dashboard/HealthScore360Widget";
 import { PatientCopilotInsightCard } from "@/components/dashboard/PatientCopilotInsightCard";
+import { LongitudinalFollowUpWidget } from "@/components/dashboard/LongitudinalFollowUpWidget";
 import { PatientClinicalMetricsGrid } from "@/components/dashboard/PatientClinicalMetricsGrid";
 import { PatientActivityTimeline } from "@/components/dashboard/PatientActivityTimeline";
 import { HealthOnboardingModal } from "@/components/dashboard/HealthOnboardingModal";
@@ -207,7 +208,18 @@ export default function ConsumerDashboardPage() {
           />
         </div>
 
-        {/* ── 6. LÍNEA DE TIEMPO: HISTORIAL DE ACTIVIDAD MÉDICA ─────────── */}
+        {/* ── 6. SEGUIMIENTO LONGITUDINAL IA (AI-PULSO-01) ───────────────── */}
+        <div className="w-full">
+          <LongitudinalFollowUpWidget
+            currentScore={scoreData?.quscore ?? 78}
+            deltaScore={6}
+            patientName={firstName}
+            lastConsultationDate={nextAppointment?.startTime ? new Date(nextAppointment.startTime).toLocaleDateString(locale) : "Reciente"}
+            onScheduleCheckup={() => router.push("/discover")}
+          />
+        </div>
+
+        {/* ── 7. LÍNEA DE TIEMPO: HISTORIAL DE ACTIVIDAD MÉDICA ─────────── */}
         <div className="w-full">
           <PatientActivityTimeline
             activities={recentActivity}

@@ -136,7 +136,7 @@ export function trackProviderFunnel(
   params?: FunnelEventParams
 ): boolean {
   return trackFunnelEvent(step, {
-    ...params,
+    ...withAttribution(params),
     funnel_type: 'provider',
   });
 }
@@ -147,7 +147,7 @@ export function trackPatientFunnel(
   params?: FunnelEventParams
 ): boolean {
   return trackFunnelEvent(step, {
-    ...params,
+    ...withAttribution(params),
     funnel_type: 'patient',
   });
 }

@@ -283,19 +283,16 @@ export default function AdminDashboardPage() {
             className="focus-visible:outline-none"
           >
             {activeTab === "pulse" && (
-              <>
-                <OperatingCockpitPilot />
-                <TabExecutivePulse
-                  economics={economics}
-                  dashboard={dashboard}
-                  productMetrics={productMetrics}
-                  providers={providers}
-                  services={services}
-                  selectedPeriod={selectedPeriod}
-                  formatCurrency={formatCurrency}
-                  onNavigateTab={handleTabChange}
-                />
-              </>
+              <TabExecutivePulse
+                economics={economics}
+                dashboard={dashboard}
+                productMetrics={productMetrics}
+                providers={providers}
+                services={services}
+                selectedPeriod={selectedPeriod}
+                formatCurrency={formatCurrency}
+                onNavigateTab={handleTabChange}
+              />
             )}
 
             {activeTab === "crm" && (
