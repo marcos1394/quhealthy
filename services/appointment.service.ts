@@ -116,6 +116,15 @@ export const appointmentService = {
   },
 
   /**
+   * ✅ Confirma la asistencia a la cita por parte del paciente (CONSUMER)
+   * POST /api/appointments/{id}/confirm
+   */
+  confirmAppointment: async (id: number | string): Promise<AppointmentResponse> => {
+    const response = await axiosInstance.post<AppointmentResponse>(`${BASE_URL}/${id}/confirm`);
+    return response.data;
+  },
+
+  /**
    * ✅ Finaliza una cita (Solo para Providers)
    */
   completeAppointment: async (id: number, notes: string): Promise<AppointmentResponse> => {

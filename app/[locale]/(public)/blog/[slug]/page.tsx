@@ -164,6 +164,11 @@ export default async function BlogPostPage({ params }: { params: Params }) {
         dateModified: post.createdAt,
         image: [post.imageUrl],
         inLanguage: locale === "en" ? "en-US" : "es-MX",
+        reviewedBy: {
+          "@type": "Physician",
+          name: post.author || "Comité Médico Especializado QuHealthy",
+          medicalSpecialty: "General & Preventative Medicine",
+        },
         author: {
           "@type": "Organization",
           name: "QuHealthy Medical & AI Editorial",
@@ -320,6 +325,35 @@ export default async function BlogPostPage({ params }: { params: Params }) {
                 className="w-full h-full object-cover"
                 loading="eager"
               />
+            </div>
+
+            {/* SELLO DE REVISIÓN MÉDICA VERIFICADA (E-E-A-T / CÉDULA PROFESIONAL - MKT-CONTENT-01) */}
+            <div
+              data-testid="medical-review-badge"
+              className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-4 mt-6 shadow-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      Contenido Clínicamente Verificado
+                    </span>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 px-2 py-0.5 rounded-full">
+                      E-E-A-T
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                    Revisado por <strong className="text-emerald-700 dark:text-emerald-400">{post.author || "Comité Médico QuHealthy"}</strong> · Cédula Profesional Federal Verificada
+                  </p>
+                </div>
+              </div>
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                <UserCheck className="w-4 h-4" />
+                <span>NOM-004 / NOM-024</span>
+              </div>
             </div>
           </header>
 

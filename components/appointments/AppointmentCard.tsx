@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Appointment, AppointmentStatus } from "@/types/appointments";
+import { appointmentService } from "@/services/appointment.service";
 
 interface AppointmentCardProps {
   appt: Appointment;
@@ -39,6 +40,22 @@ export function AppointmentCard({
 }: AppointmentCardProps) {
   const router = useRouter();
   const t = useTranslations("PatientAppointments");
+
+  const [isConfirmed, setIsConfirmed] = React.useState(!!appt.attendanceConfirmed);
+  const [isConfirming, setIsConfirming] = React.useState(false);
+
+  const handleConfirmAttendance = async () => {
+    try {
+      setIsConfirming(true);
+      await appointmentService.confirmAppointment(appt.id);
+      setIsConfirmed(true);
+      toast.success(t("toast_calendar_added") ? "¡Asistencia confirmada con éxito!" : "Confirmado");
+    } catch {
+      toast.error("Error al confirmar asistencia.");
+    } finally {
+      setIsConfirming(false);
+    }
+  };
 
   const isPast = new Date(appt.endTime) < new Date();
   const isVideo = appt.type === "ONLINE";
@@ -240,6 +257,31 @@ export function AppointmentCard({
                 {isLateTolerance ? t("btn_join_late") : t("btn_join_video")}
               </span>
             </Button>
+          )}
+
+          {appt.status === "SCHEDULED" && !isPast && (
+            isConfirmed ? (
+              <div
+                data-testid="attendance-confirmed-badge"
+                className="w-full py-2 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="truncate">Asistencia Confirmada</span>
+              </div>
+            ) : (
+              <Button
+                data-testid="confirm-attendance-btn"
+                variant="outline"
+                disabled={isConfirming}
+                onClick={handleConfirmAttendance}
+                className="w-full min-h-11 h-auto py-2 rounded-xl text-xs font-bold flex items-center justify-start pl-3.5 bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800 shadow-sm transition-all"
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+                <span className="text-left break-words whitespace-normal leading-tight flex-1">
+                  {isConfirming ? "Confirmando..." : "Confirmar Asistencia"}
+                </span>
+              </Button>
+            )
           )}
 
           <Button

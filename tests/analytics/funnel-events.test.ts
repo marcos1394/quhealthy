@@ -4,6 +4,7 @@ import {
   trackFunnelEvent,
   trackProviderFunnel,
   trackPatientFunnel,
+  trackReferralInviteSent,
 } from "@/lib/analytics/funnel-events";
 
 describe("Funnel Events & Anti-PII Guard (MKT-ANL-01)", () => {
@@ -84,6 +85,22 @@ describe("Funnel Events & Anti-PII Guard (MKT-ANL-01)", () => {
         specialty: "Dermatología",
         consultationType: "telemedicine",
         providerId: 42,
+      }
+    );
+  });
+
+  it("dispatches referral_invite_sent with channel and role without PII (MKT-REF-01)", () => {
+    const dispatched = trackReferralInviteSent("whatsapp", "provider");
+
+    expect(dispatched).toBe(true);
+    expect((window as any).gtag).toHaveBeenCalledTimes(1);
+    expect((window as any).gtag).toHaveBeenCalledWith(
+      "event",
+      "referral_invite_sent",
+      {
+        channel: "whatsapp",
+        referrer_role: "provider",
+        funnel_type: "provider",
       }
     );
   });

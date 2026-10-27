@@ -7,7 +7,8 @@ export type ProviderFunnelStep =
   | 'view_business_landing'
   | 'signup_provider_start'
   | 'signup_provider_complete'
-  | 'kyb_submitted';
+  | 'kyb_submitted'
+  | 'referral_invite_sent';
 
 export type PatientFunnelStep =
   | 'search_specialty'
@@ -141,5 +142,20 @@ export function trackPatientFunnel(
   return trackFunnelEvent(step, {
     ...params,
     funnel_type: 'patient',
+  });
+}
+
+/**
+ * 📢 Telemetría de referidos médico-a-médico o paciente-a-paciente (MKT-REF-01)
+ * Registra 'referral_invite_sent' sin PII (solo canal y rol).
+ */
+export function trackReferralInviteSent(
+  channel: 'whatsapp' | 'email' | 'copy_link' | 'qr',
+  role: 'provider' | 'patient' = 'provider'
+): boolean {
+  return trackFunnelEvent('referral_invite_sent', {
+    channel,
+    referrer_role: role,
+    funnel_type: role,
   });
 }

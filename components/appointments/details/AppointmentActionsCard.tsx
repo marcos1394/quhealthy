@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MessageSquare, RotateCcw, XCircle } from "lucide-react";
+import { MessageSquare, RotateCcw, XCircle, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -12,16 +12,51 @@ export function AppointmentActionsCard({
   paymentStatus,
   handleStartChat,
   isStartingChat,
+  isConfirmed,
+  onConfirmAttendance,
+  isConfirming,
 }: {
   status: string;
   paymentStatus: string;
   handleStartChat: () => void;
   isStartingChat: boolean;
+  isConfirmed?: boolean;
+  onConfirmAttendance?: () => void;
+  isConfirming?: boolean;
 }) {
   const t = useTranslations("AppointmentDetails.actions");
 
   return (
     <div className="space-y-4 font-sans">
+      {status === "SCHEDULED" && (
+        <div className="mb-2">
+          {isConfirmed ? (
+            <div
+              data-testid="attendance-confirmed-badge"
+              className="w-full h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 px-4 shadow-xs"
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Asistencia Confirmada</span>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              data-testid="confirm-attendance-btn"
+              onClick={onConfirmAttendance}
+              disabled={isConfirming}
+              className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 px-4 disabled:opacity-50"
+            >
+              {isConfirming ? (
+                <QhSpinner size="sm" className="text-white" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
+              <span>Confirmar Asistencia</span>
+            </Button>
+          )}
+        </div>
+      )}
+
       {(status === "SCHEDULED" || status === "COMPLETED") &&
         paymentStatus === "SETTLED" && (
           <Button
