@@ -146,5 +146,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating blogs for sitemap:', error);
   }
 
+  // 4. Páginas programáticas Especialidad × Ciudad (MKT-SEO-02)
+  const topSpecialties = [
+    'cardiologia',
+    'dermatologia',
+    'pediatria',
+    'ginecologia',
+    'psicologia',
+    'medicina-general',
+  ];
+  const topCities = ['cdmx', 'guadalajara', 'monterrey', 'queretaro', 'puebla'];
+  for (const specialty of topSpecialties) {
+    for (const city of topCities) {
+      routes.push({
+        url: `${baseUrl}/es/especialistas/${specialty}/${city}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      });
+      routes.push({
+        url: `${baseUrl}/en/especialistas/${specialty}/${city}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      });
+    }
+  }
+
   return routes;
 }

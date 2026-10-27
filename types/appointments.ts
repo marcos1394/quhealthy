@@ -96,6 +96,8 @@ export interface Appointment {
   
   // Tiempos de sistema
   cancelledAt?: string; // ISO 8601
+  confirmedAt?: string; // ISO 8601 - Confirmación de asistencia
+  attendanceConfirmed?: boolean;
   createdAt?: string;   // ISO 8601
 
   // Relaciones anidadas (si el endpoint las incluye)

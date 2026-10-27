@@ -23,7 +23,10 @@ export const WaitingRoom: React.FC = () => {
   const isPatient = role === "PATIENT";
 
   return (
-    <div className="w-full h-full flex items-center justify-center relative bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans select-none transition-colors p-6">
+    <div
+      data-testid="waiting-room-container"
+      className="w-full h-full flex items-center justify-center relative bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white font-sans select-none transition-colors p-6"
+    >
       <div className="z-10 w-full max-w-4xl flex flex-col md:flex-row items-center gap-8 md:gap-12">
         {/* Información y Estado */}
         <div className="w-full md:w-1/2 flex flex-col gap-5 text-center md:text-left">
@@ -52,7 +55,10 @@ export const WaitingRoom: React.FC = () => {
                 <p className="text-xs font-bold text-gray-400">
                   {t("time_remaining")}
                 </p>
-                <p className="text-2xl font-mono font-black text-gray-900 dark:text-white tracking-tight">
+                <p
+                  data-testid="waiting-room-timer"
+                  className="text-2xl font-mono font-black text-gray-900 dark:text-white tracking-tight"
+                >
                   {formattedTime}
                 </p>
               </div>
