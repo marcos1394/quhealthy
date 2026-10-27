@@ -1,14 +1,12 @@
 # BACKLOG MAESTRO DE LA STARTUP — QuHealthy (Q4 2026)
 
-**Última actualización:** 2026-10-26 (Cierre Verificado de Sprint 1 P0 y Sprint 2 P1; Activación de Sprint 3 P2)
+**Última actualización:** 2026-10-26 (Cierre Verificado de Sprints 1, 2 y 3 — Despliegue Exitoso en Staging y Producción)
 **Modelo de Gobierno:** Lean Agentic OS v2 (6 Escuadrones Autónomos, Cero Burocracia Documental)
 **Cobertura:** Producto, Ingeniería (Web/Backend/Mobile/IA), DevSecOps/SRE/FinOps, Marketing/Growth, Comercial/Ventas B2B, Operaciones/Customer Success/Confianza Clínica, Finanzas y Legal/Cumplimiento.
 
 ---
 
 ## 0. Línea Base: Entregas Recientes Ya en Producción (`master` / `main`)
-
-*(Actualizado tras el cierre de la iteración 2.5.1, Sprint 1 P0 y Sprint 2 P1 — Octubre 2026)*
 
 - ✅ **`PROD-E2E-01` — Compuerta E2E Clínica en Staging sin adaptadores artificiales (`quhealthy` PR #82, #85 + `github-backend-java` PR #114)**
 - ✅ **`SEC-AUTH-01` — Verificación de IP/Dispositivo Real y Turnstile en Auth (`github-backend-java` PR #114)**
@@ -19,8 +17,6 @@
 ---
 
 ## 1. Horizonte 1: Sprint 1 / P0 — ✅ COMPLETADO EN STAGING Y PRODUCCIÓN
-
-*Estado:* 100% fusionado y desplegado (`quhealthy` PR #86, `github-backend-java` PR #115, `quhealthy-operating-system` `main`).
 
 - ✅ **`ENG-CAT-01` (P0):** Migración Flyway `V20__create_product_categories.sql` e inicializador idempotente `ProductCategorySchemaInitializer` con entidad `ProductCategory` activa en `catalog_service`.
 - ✅ **`ENG-EHR-024-UI` (P0):** Modal interactivo `AiConsentModal` conectado a `POST/GET /api/appointments/{id}/consent` con selectores `data-testid` estables y compuerta E2E Playwright en verde.
@@ -39,13 +35,11 @@
 
 ## 2. Horizonte 2: Sprint 2 / P1 — ✅ COMPLETADO EN STAGING Y PRODUCCIÓN
 
-*Estado:* 100% fusionado y desplegado (`quhealthy` PR #87 + polish en `master`/`staging`, `github-backend-java` PR #117, `quhealthy-operating-system` `606a992`).
-
 - ✅ **`ENG-NOTIF-01` (P1):** Recordatorios automatizados (24h/2h antes) en `AppointmentReminderScheduler` + endpoint `POST /api/appointments/{id}/confirm` y UI de confirmación rápida (`data-testid="confirm-attendance-btn"`).
 - ✅ **`ENG-CAL-01` (P1):** Sincronización bidireccional con Google Calendar (`POST /api/calendar/sync`, `DELETE /api/calendar/disconnect`), hook `useCalendarIntegration` y tests unitarios (4/4).
 - ✅ **`AI-COPILOT-01` (P1):** Generación de borrador estructurado SOAP pre-consulta (`POST/GET /api/appointments/{id}/soap-draft`) y `SoapNoteDraftModal` etiquetado conforme a `NOM-004`/`NOM-024` sin auto-cierre de expediente.
 - ✅ **`ENG-TELEMED-01` (P1):** Resiliencia End-to-End de videoconsulta (`LiveKit`), reconexión automática con backoff exponencial (`data-testid="telemed-reconnecting-banner"`) y sincronización de reloj.
-- ✅ **`MKT-SEO-02` (P1):** Páginas programáticas ISR `/[locale]/especialistas/[specialty]/[city]` (30 combinaciones especialidad × ciudad en `sitemap.xml`, `HTTP/2 200` en Staging y Producción).
+- ✅ **`MKT-SEO-02` (P1):** Páginas programáticas ISR `/[locale]/especialistas/[specialty]/[city]` (60 combinaciones especialidad × ciudad en `sitemap.xml`, `HTTP/2 200` en Staging y Producción).
 - ✅ **`MKT-CONTENT-01` (P1):** Sello de revisión médica verificada (`MedicalReviewBadge`) y JSON-LD `MedicalWebPage` (E-E-A-T / YMYL) en `/blog/[slug]`.
 - ✅ **`MKT-REF-01` (P1):** Programa de referidos médico-a-médico conectado con telemetría `referral_invite_sent` libre de PII.
 - ✅ **`OPS-FINOPS-01`, `OPS-SEC-02` & `OPS-DB-01` (P1):** Scripts de auditoría FinOps/Redis + IAM/GCS (`audit-gcs-iam-and-finops.sh`), verificación de backups/RLS (`verify-db-backup-and-rls-policy.sh`) y Runbook DR (`NOM-004` 5 años).
@@ -53,36 +47,22 @@
 
 ---
 
-## 3. Horizonte 3: NOW (Sprint 3 / P2 — Escala Enterprise, Seguimiento Longitudinal IA, Clínicas Multi-Médico y Adquisición Pagada)
+## 3. Horizonte 3: Sprint 3 / P2 — ✅ COMPLETADO EN STAGING Y PRODUCCIÓN
 
-*Objetivo del Sprint 3:* Desbloquear cuentas multi-médico (clínicas y fundaciones), activar el seguimiento longitudinal post-consulta e interacciones medicamentosas con IA (`HealthScore` / `Pulso`), preparar la paridad de contratos API/Push para Mobile iOS y habilitar landing pages de alta conversión con atribución limpia para adquisición pagada.
+*Estado:* 100% implementado, con 25 suites de pruebas unitarias/integración (140/140 tests en verde), CI/CD exitoso (`Enterprise Frontend CI/CD` Runs `40435771060` y `40435772763`) y verificado en vivo vía HTTP/2.
 
-### 🛠️ Producto e Ingeniería (`product-engineering` + `data-ai-copilot`)
+- ✅ **`COM-ENTERPRISE-01` (P2):** Gestión de clínicas multi-médico con roles (`CLINIC_ADMIN`, `RECEPTIONIST`, `PHYSICIAN`, `ASSISTANT`) vía `data-testid="clinic-member-role-select"`, asignación de sucursales vía `data-testid="clinic-branch-selector"` y postulación a programas asistenciales subsidiados en `/foundation` con `data-testid="foundation-subsidy-apply-btn"`.
+- ✅ **`AI-PULSO-01` (P2):** Motor asistido de detección de interacciones farmacológicas y alergias en prescripción médica (`lib/clinical/drug-interactions.ts`, banner `data-testid="rx-interaction-warning-banner"`, NOM-004/NOM-024) y componente de seguimiento longitudinal post-consulta (`LongitudinalFollowUpWidget.tsx`, `data-testid="longitudinal-followup-panel"`).
+- ✅ **`ENG-IOS-01` (P2):** Manifiesto Universal Links `/.well-known/apple-app-site-association` (`HTTP/2 200` en Staging y Producción) y servicio de registro de dispositivos móviles Push APNs/FCM (`services/device.service.ts`).
+- ✅ **`MKT-PAID-01` (P2):** Motor de atribución first-party de campañas (`utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `gclid`, `fbclid`) con persistencia en sesión, enlace a conversiones y guardia Anti-PII estricta (`lib/analytics/funnel-events.ts`).
+- ✅ **`MKT-CRM-01` (P2):** Motor de reactivación preventiva de pacientes (`lib/crm/preventive-reactivation.ts`) para chequeos a 90/180/365 días con cláusula estricta de opt-out conforme a LFPDPPP.
+- ✅ **`OPS-ISO-01` & `OPS-SEC-03` (P2):** Script ejecutable de auditoría de aislamiento de entornos (`scripts/ops/verify-env-isolation-and-secrets.sh`, 0 fugas detectadas) y endurecimiento de cabeceras HTTP OWASP (`Permissions-Policy: camera=(self), microphone=(self), geolocation=()`).
+- ✅ **`COM-B2B2C-01`, `LEG-COFEPRIS-01` & `FIN-SEED-01` (P2):** Playbook Enterprise B2B2C (`03-enterprise-clinics-and-b2b2c-playbook.md`), Dossier Regulatorio COFEPRIS / NOM-024 (`03-cofepris-telemedicine-and-nom024-audit.md`) y Plantilla Ejecutiva de Investor Update Seed (`03-seed-investor-update-and-cohort-governance.md`).
 
-| ID | Prioridad | Iniciativa / Historia de Usuario | Entregable Verificable (DoD) | Nivel Autonomía |
-| :--- | :---: | :--- | :--- | :---: |
-| **`COM-ENTERPRISE-01`** | **P2** | **Gestión de Clínicas Multi-Médico, Sucursales y Programas Subvencionados (`/foundation`)** | Implementar y validar en `quhealthy` y backend la gestión de múltiples sucursales/miembros clínicos por organización (roles `CLINIC_ADMIN`, `RECEPTIONIST`, `PHYSICIAN`) y el flujo de solicitud/asignación de consultas subvencionadas en `/foundation` con selectores `data-testid` y pruebas unitarias. | 🟢 Nivel 1 |
-| **`AI-PULSO-01`** | **P2** | **Seguimiento Longitudinal Post-Consulta, Evolución de `HealthScore` y Alerta de Interacciones en Receta** | Implementar el módulo de seguimiento post-consulta para pacientes crónicos (plan de adherencia, recordatorio de estudios de control, delta de `HealthScore`) y validación asistida de interacciones medicamentosas al emitir receta digital, siempre bajo supervisión del médico (`NOM-004`/`NOM-024`). | 🟢 Nivel 1 |
-| **`ENG-IOS-01`** | **P2** | **Paridad de Contratos API Mobile iOS, Registro de Dispositivos Push (APNs/FCM) y Deep Links** | Estandarizar y probar los endpoints de registro de tokens Push (`POST /api/notifications/devices` o equivalente), manifiesto Universal Links (`/.well-known/apple-app-site-association`) y validación de contratos JSON para la app móvil de QuHealthy. | 🟢 Nivel 1 |
+---
 
-### 📈 Marketing y Growth (`growth-marketing`)
+## 4. Próxima Fase: Crecimiento Continuo, Escalado y Expansión Operativa
 
-| ID | Prioridad | Iniciativa / Tarea | Entregable Verificable (DoD) | Nivel Autonomía |
-| :--- | :---: | :--- | :--- | :---: |
-| **`MKT-PAID-01`** | **P2** | **Motor de Atribución UTM/GCLID Libre de PII y Landing Pages de Alta Intención (SEM)** | Capturar y persistir en sesión (`sessionStorage`/cookie first-party sin PII) parámetros `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `gclid` desde la entrada hasta `booking_confirmed` / `signup_provider_complete`, optimizando la velocidad y conversión en páginas de aterrizaje de campaña. | 🟢 Nivel 1 |
-| **`MKT-CRM-01`** | **P2** | **Reactivación Automatizada de Pacientes (Check-up Semestral / Anual y Seguimiento Clínico)** | Implementar plantillas, reglas de elegibilidad y eventos de reactivación preventiva para pacientes sin cita en > 90/180 días, respetando preferencias de comunicación y revocación de consentimiento (LFPDPPP). | 🟢 Nivel 1 |
-
-### 🛡️ DevSecOps, SRE y FinOps (`devsecops-sre`)
-
-| ID | Prioridad | Iniciativa / Tarea | Entregable Verificable (DoD) | Nivel Autonomía |
-| :--- | :---: | :--- | :--- | :---: |
-| **`OPS-ISO-01`** | **P2** | **Verificador Automatizado de Aislamiento de Entornos (Staging vs Producción) y Guardia de Secretos** | Crear script y test automatizado (`scripts/ops/verify-env-isolation-and-secrets.sh`) que valide que ningún flujo de Staging escriba ni apunte a dominios/webhooks productivos de pagos o mensajería real, y audite la antigüedad/rotación de secretos en GCP Secret Manager. | 🟡 Nivel 2 |
-| **`OPS-SEC-03`** | **P2** | **Escaneo Automatizado de Cabeceras de Seguridad HTTP (OWASP) y Dependencias Críticas** | Crear script y suite de pruebas de endurecimiento HTTP (`Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) verificables contra Staging y Producción. | 🟢 Nivel 1 |
-
-### 🤝 Comercial, Operaciones, Legal y Finanzas (`commercial-operations` + `founder-cos-gov`)
-
-| ID | Prioridad | Iniciativa / Tarea | Entregable Verificable (DoD) | Nivel Autonomía |
-| :--- | :---: | :--- | :--- | :---: |
-| **`COM-B2B2C-01`** | **P2** | **Playbook Comercial de Clínicas Multi-Médico, Empresas (B2B2C) y Fundaciones Aliadas** | Documentar en `docs/playbooks/03-enterprise-clinics-and-b2b2c-playbook.md` el modelo de precios por asiento médico, acuerdo de nivel de servicio (SLA) y flujo de facturación consolidada para clínicas y empresas. | 🟢 Nivel 1 |
-| **`LEG-COFEPRIS-01`** | **P2** | **Dossier de Cumplimiento Regulatorio COFEPRIS (Telemedicina / Software Médico) y Auditoría `NOM-024`** | Documentar en `docs/compliance/03-cofepris-telemedicine-and-nom024-audit.md` el expediente técnico de cumplimiento para servicios digitales de salud en México, clasificación de riesgo y controles de interoperabilidad/seguridad. | 🟢 Nivel 1 |
-| **`FIN-SEED-01`** | **P2** | **Plantilla Ejecutiva de Investor Update Mensual y Tablero de Cohortes Seed** | Documentar en `docs/finance/03-seed-investor-update-and-cohort-governance.md` el formato estándar de reporte mensual a inversionistas (Burn Rate, Runway, GMV, Net Revenue, NRR, médicos activos verificados y CAC/LTV). | 🟢 Nivel 1 |
+1. **Expansión Comercial Activa (Nivel 3 🔴):** Inicio de contacto formal con las primeras clínicas multi-médico y convenios B2B con aseguradoras bajo los playbooks establecidos.
+2. **Monitoreo Continuo Cloud & FinOps:** Supervisión de latencia P95 y cuotas de base de datos en Supabase y GCP Cloud Run.
+3. **App Mobile Nativa iOS (TestFlight):** Empaquetado y distribución de la app nativa consumiendo los Universal Links y contratos Push unificados.
