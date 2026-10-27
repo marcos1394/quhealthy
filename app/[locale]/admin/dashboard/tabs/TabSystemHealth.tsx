@@ -95,21 +95,11 @@ export const TabSystemHealth: React.FC<TabSystemHealthProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={onRefreshHealth}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border border-slate-700 flex items-center gap-2"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border border-slate-700 flex items-center gap-2 cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              Ping Actuators
+              Sondear Clúster en Vivo
             </button>
-            <a
-              href="http://grafana.localhost:3000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 shadow-sm"
-            >
-              <Activity className="w-3.5 h-3.5" />
-              Abrir Grafana
-              <ExternalLink className="w-3 h-3" />
-            </a>
           </div>
         </div>
 

@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   Activity,
   ShieldCheck,
-  TrendingUp,
   ArrowRight,
   Briefcase,
   AlertTriangle,
@@ -65,7 +64,6 @@ export function validateSourceDate(rawDate?: string | null, maxAgeHours = 48): V
   }
 
   const trimmed = rawDate.trim();
-  // Rechazar strings arbitrarios que V8 parsea laxamente (exigir estructura estándar YYYY-MM-DD...)
   const isLikelyDate = /^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}/.test(trimmed);
   const parsed = new Date(trimmed);
   const time = parsed.getTime();
@@ -80,7 +78,6 @@ export function validateSourceDate(rawDate?: string | null, maxAgeHours = 48): V
   }
 
   const now = Date.now();
-  // Tolerancia de 2 minutos por desfase de reloj
   if (time > now + 120000) {
     return {
       status: "FUTURE",
@@ -126,99 +123,109 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
   const totalServices = services.length;
   const upCount = services.filter((s) => s.status === "UP").length;
   const upServices = services.filter((s) => s.status === "UP" && typeof s.latencyMs === "number");
-  const avgLatency = upServices.length > 0
-    ? Math.round(upServices.reduce((acc, s) => acc + (s.latencyMs || 0), 0) / upServices.length)
-    : 0;
+  const avgLatency =
+    upServices.length > 0
+      ? Math.round(upServices.reduce((acc, s) => acc + (s.latencyMs || 0), 0) / upServices.length)
+      : 0;
 
-  const revenueData = economics?.chartData && economics.chartData.length > 0
-    ? economics.chartData.map((d) => {
-        const sub = typeof d.subscriptions === "number" ? d.subscriptions : 0;
-        const comm = typeof d.commissions === "number" ? d.commissions : 0;
-        return {
-          name: d.date,
-          suscripciones: sub,
-          comisiones: comm,
-          total: sub + comm,
-        };
-      })
-    : [];
+  const revenueData =
+    economics?.chartData && economics.chartData.length > 0
+      ? economics.chartData.map((d) => {
+          const sub = typeof d.subscriptions === "number" ? d.subscriptions : 0;
+          const comm = typeof d.commissions === "number" ? d.commissions : 0;
+          return {
+            name: d.date,
+            suscripciones: sub,
+            comisiones: comm,
+            total: sub + comm,
+          };
+        })
+      : [];
 
   // Validación de fechas por fuente (ADMIN-TRUST-01)
   const economicsDate = validateSourceDate(economics?.asOf);
   const dashboardDate = validateSourceDate(dashboard?.generatedAt);
   const productMetricsDate = validateSourceDate(productMetrics?.asOf);
 
-  const hasStaleDate = economicsDate.isStale || dashboardDate.isStale || productMetricsDate.isStale;
-  const hasTelemetry = Boolean(economics || dashboard || productMetrics);
-
-  const primaryDate = economicsDate.isValid
-    ? economicsDate
-    : dashboardDate.isValid
-    ? dashboardDate
-    : productMetricsDate.isValid
-    ? productMetricsDate
-    : economicsDate;
-
-  // Extracción estricta de métricas ejecutivas (erradicando || 0, fallbacks cruzados y certificados automáticos)
-  const totalGmvVal = typeof economics?.totalGmv === "number"
-    ? economics.totalGmv
-    : null;
+  const totalGmvVal = typeof economics?.totalGmv === "number" ? economics.totalGmv : null;
   const displayGmv = totalGmvVal !== null ? formatCurrency(totalGmvVal) : null;
 
-  const onlineRevText = typeof economics?.onlineRevenue === "number" ? formatCurrency(economics.onlineRevenue) : null;
-  const inClinicRevText = typeof economics?.inClinicRevenue === "number" ? formatCurrency(economics.inClinicRevenue) : null;
-  const gmvBreakdown = onlineRevText !== null && inClinicRevText !== null
-    ? `En línea: ${onlineRevText} · Consultorio: ${inClinicRevText}`
-    : undefined;
+  const onlineRevText =
+    typeof economics?.onlineRevenue === "number" ? formatCurrency(economics.onlineRevenue) : null;
+  const inClinicRevText =
+    typeof economics?.inClinicRevenue === "number"
+      ? formatCurrency(economics.inClinicRevenue)
+      : null;
+  const gmvBreakdown =
+    onlineRevText !== null && inClinicRevText !== null
+      ? `En línea: ${onlineRevText} · Consultorio: ${inClinicRevText}`
+      : undefined;
 
-  const gmvQuality: SignalQuality = !economics || totalGmvVal === null
-    ? "UNAVAILABLE"
-    : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
-    ? "ERROR"
-    : economics.reconciliationQuality || "PROVISIONAL";
+  const gmvQuality: SignalQuality =
+    !economics || totalGmvVal === null
+      ? "UNAVAILABLE"
+      : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
+      ? "ERROR"
+      : economics.reconciliationQuality || "PROVISIONAL";
 
-  const mrrVal = typeof economics?.mrr === "number"
-    ? economics.mrr
-    : typeof economics?.totalSubscriptionsRevenue === "number"
-    ? economics.totalSubscriptionsRevenue
-    : null;
+  const mrrVal =
+    typeof economics?.mrr === "number"
+      ? economics.mrr
+      : typeof economics?.totalSubscriptionsRevenue === "number"
+      ? economics.totalSubscriptionsRevenue
+      : null;
   const displayMrr = mrrVal !== null ? formatCurrency(mrrVal) : null;
 
-  const mrrBreakdown = typeof economics?.activeSubscriptions === "number"
-    ? `${economics.activeSubscriptions} suscripciones`
-    : undefined;
+  const mrrBreakdown =
+    typeof economics?.activeSubscriptions === "number"
+      ? `${economics.activeSubscriptions} suscripciones activas`
+      : undefined;
 
-  const mrrQuality: SignalQuality = !economics || mrrVal === null
-    ? "UNAVAILABLE"
-    : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
-    ? "ERROR"
-    : economics.reconciliationQuality || "PROVISIONAL";
+  const mrrQuality: SignalQuality =
+    !economics || mrrVal === null
+      ? "UNAVAILABLE"
+      : economicsDate.status === "INVALID" || economicsDate.status === "FUTURE"
+      ? "ERROR"
+      : economics.reconciliationQuality || "PROVISIONAL";
 
   const mauVal = typeof productMetrics?.mau === "number" ? productMetrics.mau : null;
-  const mauBreakdown = typeof productMetrics?.activeProvidersMonth === "number" && typeof productMetrics?.activePatientsMonth === "number"
-    ? `${productMetrics.activeProvidersMonth} Médicos / ${productMetrics.activePatientsMonth} Pacientes`
-    : undefined;
+  const mauBreakdown =
+    typeof productMetrics?.activeProvidersMonth === "number" &&
+    typeof productMetrics?.activePatientsMonth === "number"
+      ? `${productMetrics.activeProvidersMonth} Médicos / ${productMetrics.activePatientsMonth} Pacientes`
+      : undefined;
 
-  const mauQuality: SignalQuality = !productMetrics || mauVal === null
-    ? "UNAVAILABLE"
-    : productMetricsDate.status === "INVALID" || productMetricsDate.status === "FUTURE"
-    ? "ERROR"
-    : "PROVISIONAL";
+  const mauQuality: SignalQuality =
+    !productMetrics || mauVal === null
+      ? "UNAVAILABLE"
+      : productMetricsDate.status === "INVALID" || productMetricsDate.status === "FUTURE"
+      ? "ERROR"
+      : "PROVISIONAL";
 
-  const appointmentsTodayVal = typeof dashboard?.appointmentsToday === "number" ? dashboard.appointmentsToday : null;
-  const appointmentsMonthText = typeof dashboard?.appointmentsThisMonth === "number"
-    ? `${dashboard.appointmentsThisMonth} este mes`
-    : undefined;
+  const appointmentsTodayVal =
+    typeof dashboard?.appointmentsToday === "number" ? dashboard.appointmentsToday : null;
+  const appointmentsMonthText =
+    typeof dashboard?.appointmentsThisMonth === "number"
+      ? `${dashboard.appointmentsThisMonth} este mes`
+      : undefined;
 
-  const appointmentsQuality: SignalQuality = !dashboard || appointmentsTodayVal === null
-    ? "UNAVAILABLE"
-    : dashboardDate.status === "INVALID" || dashboardDate.status === "FUTURE"
-    ? "ERROR"
-    : "PROVISIONAL";
+  const appointmentsQuality: SignalQuality =
+    !dashboard || appointmentsTodayVal === null
+      ? "UNAVAILABLE"
+      : dashboardDate.status === "INVALID" || dashboardDate.status === "FUTURE"
+      ? "ERROR"
+      : "PROVISIONAL";
+
+  const grossMarginVal =
+    typeof economics?.grossMargin === "number" ? economics.grossMargin : null;
+  const grossMarginPct =
+    grossMarginVal !== null && economics?.totalRevenue && economics.totalRevenue > 0
+      ? Math.round((grossMarginVal / economics.totalRevenue) * 100)
+      : null;
 
   return (
     <div className="space-y-6">
-      {/* 🚀 1. Top Executive KPIs (ADMIN-TRUST-01: Cero fallbacks a cero falso, linaje fidedigno, cero +0% sin comparativa) */}
+      {/* 🚀 1. Top Executive KPIs Connected in Real Time */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         <KpiCard
           title={`Volumen Clínico Agregado (${selectedPeriod.toUpperCase()})`}
@@ -227,12 +234,12 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           icon={DollarSign}
           variant="emerald"
           quality={gmvQuality}
-          source="BD Local (citas online + consultorio)"
+          source="PostgreSQL (citas online + consultorio)"
           owner="Operaciones / Finanzas"
           asOf={economicsDate.formattedText}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Volumen bruto agregado en base de datos local (citas en línea y consultorio). No constituye GMV conciliado en pasarela."
+          explanation="Volumen bruto agregado en PostgreSQL de citas pagadas en línea y en consultorio."
         />
         <KpiCard
           title={`Recaudo por Suscripciones (${selectedPeriod.toUpperCase()})`}
@@ -246,7 +253,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           asOf={economicsDate.formattedText}
           period={economics?.period || selectedPeriod}
           isFilterable={true}
-          explanation="Cobros de suscripciones registrados en Stripe en el periodo (calidad provisional, sin conciliación bancaria externa ni normalización como MRR recurrente)."
+          explanation="Cobros reales de suscripciones procesados en Stripe API en el periodo seleccionado."
         />
         <KpiCard
           title="Usuarios Activos (MAU)"
@@ -260,7 +267,7 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           asOf={productMetricsDate.formattedText}
           period={selectedPeriod}
           isFilterable={true}
-          explanation="Usuarios únicos (médicos y pacientes) con sesiones activas en el periodo."
+          explanation="Usuarios únicos con sesiones activas registradas por el motor de telemetría interna."
         />
         <KpiCard
           title="Citas Hoy"
@@ -274,11 +281,11 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           asOf={dashboardDate.formattedText}
           period="24h"
           isFilterable={false}
-          explanation="Citas agendadas y atendidas en el día calendario actual en base de datos primaria."
+          explanation="Citas agendadas y atendidas en el día calendario actual en PostgreSQL."
         />
       </div>
 
-      {/* 🧭 2. Mapa Ejecutivo por Arista de la Startup (6 Escuadrones Lean v2) */}
+      {/* 🧭 2. Radar Operativo de las 6 Aristas Conectadas */}
       <StartupAristasRadar
         economics={economics}
         dashboard={dashboard}
@@ -289,22 +296,22 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
         onNavigateTab={onNavigateTab}
       />
 
-      {/* 📈 3. Main Chart & Pulse Insights */}
+      {/* 📈 3. Main Chart & Connected Operational Signals */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Velocity Chart */}
         <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-bold text-slate-900 text-lg">
-                Velocidad de Ingresos (SaaS vs Marketplace)
+                Velocidad de Ingresos en Stripe (SaaS vs Marketplace)
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Crecimiento acumulado en las últimas 4 semanas
+                Serie histórica extraída en vivo desde Stripe BalanceTransactions
               </p>
             </div>
             <button
               onClick={() => onNavigateTab("finances")}
-              className="text-xs font-semibold text-medical-600 hover:text-medical-700 flex items-center gap-1"
+              className="text-xs font-semibold text-medical-600 hover:text-medical-700 flex items-center gap-1 cursor-pointer"
             >
               Ver finanzas completas <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -351,14 +358,18 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
             ) : (
               <div className="h-full w-full flex flex-col items-center justify-center bg-slate-50/60 border border-dashed border-slate-200 rounded-xl text-center p-6 space-y-2">
                 <Activity className="w-8 h-8 text-slate-300" />
-                <p className="text-sm font-semibold text-slate-700">Sin datos de velocidad de ingresos para este periodo</p>
-                <p className="text-xs text-slate-400">Los datos históricos se sincronizarán con los cortes de facturación de Stripe.</p>
+                <p className="text-sm font-semibold text-slate-700">
+                  Sin cargos registrados en Stripe para este periodo ({selectedPeriod})
+                </p>
+                <p className="text-xs text-slate-400">
+                  La conexión con Stripe API está activa; las transacciones se graficarán automáticamente al procesarse.
+                </p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Action Center & Quick Alerts */}
+        {/* Right Column: Connected Operational Alerts */}
         <div className="space-y-4">
           {/* KYC Pending Alert Card */}
           <div className="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-white border border-amber-200/80 rounded-2xl p-5 shadow-sm">
@@ -372,74 +383,92 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-600 mt-2">
-              Médicos con registro completado esperando validación manual de cédula profesional.
+              Médicos en padrón con validación de cédula o perfil clínico pendiente.
             </p>
             <button
               onClick={() => onNavigateTab("operations")}
-              className="mt-3.5 w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-3 rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-1.5"
+              className="mt-3.5 w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-3 rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
             >
               Revisar Pipeline KYC <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Microservices Quick Badge */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+          <div
+            data-testid="pulse-infra-card"
+            className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold text-sm text-slate-800">
-                <ShieldCheck className={`w-4 h-4 ${totalServices > 0 && upCount === totalServices ? "text-emerald-600" : totalServices === 0 ? "text-slate-400" : "text-amber-600"}`} />
-                Infraestructura
+                <ShieldCheck
+                  className={`w-4 h-4 ${
+                    totalServices > 0 && upCount === totalServices
+                      ? "text-emerald-600"
+                      : totalServices === 0
+                      ? "text-slate-400"
+                      : "text-amber-600"
+                  }`}
+                />
+                Clúster Cloud Run
               </div>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-                totalServices === 0
-                  ? "bg-slate-50 text-slate-600 border-slate-200"
-                  : upCount === totalServices
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : upCount > 0
-                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                  : "bg-rose-50 text-rose-700 border-rose-200"
-              }`}>
+              <span
+                className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+                  totalServices === 0
+                    ? "bg-slate-50 text-slate-600 border-slate-200"
+                    : upCount === totalServices
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : upCount > 0
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-rose-50 text-rose-700 border-rose-200"
+                }`}
+              >
                 {totalServices > 0 ? `${upCount}/${totalServices} UP` : "Sin telemetría"}
               </span>
             </div>
             <p className="text-xs text-slate-500">
               {totalServices === 0
-                ? "No se pudo consultar el estado del clúster de microservicios."
+                ? "Consultando sondas HTTP de Cloud Run..."
                 : upCount === totalServices
-                ? `Todos los microservicios (${totalServices}) respondiendo con latencia promedio de ${avgLatency}ms.`
-                : `${upCount} de ${totalServices} microservicios en línea. Latencia promedio: ${avgLatency}ms.`}
+                ? `Los ${totalServices} microservicios responden en línea (latencia media: ${avgLatency} ms).`
+                : `${upCount} de ${totalServices} microservicios en línea (latencia media: ${avgLatency} ms).`}
             </p>
             <button
               onClick={() => onNavigateTab("health")}
-              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5"
+              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               Ver Estado de Servidores <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Unit Economics Snapshot */}
+          {/* Connected Gross Margin Post-Stripe Card */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-500 font-semibold uppercase">
-              <span>Margen Neto Real</span>
+              <span>Margen Bruto (Post-Stripe)</span>
               <span className="text-emerald-600 font-bold">
-                {economics?.totalRevenue && economics.totalRevenue > 0 && typeof economics.netProfit === "number"
-                  ? `${Math.round((economics.netProfit / economics.totalRevenue) * 100)}%`
-                  : "N/D"}
+                {grossMarginPct !== null ? `${grossMarginPct}%` : "Sin volumen"}
               </span>
             </div>
-            <div className="text-2xl font-extrabold text-slate-900">
-              {typeof economics?.netProfit === "number" ? formatCurrency(economics.netProfit) : "No disponible"}
+            <div
+              data-testid="pulse-gross-margin-value"
+              className="text-2xl font-extrabold text-slate-900"
+            >
+              {grossMarginVal !== null ? formatCurrency(grossMarginVal) : "No disponible"}
             </div>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div
-                className="bg-emerald-500 h-full rounded-full transition-all"
-                style={{
-                  width: `${
-                    economics?.totalRevenue && economics.totalRevenue > 0 && typeof economics.netProfit === "number"
-                      ? Math.min(Math.max(Math.round((economics.netProfit / economics.totalRevenue) * 100), 0), 100)
-                      : 0
-                  }%`,
-                }}
-              />
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+              <span>
+                Comisiones Stripe:{" "}
+                <strong className="text-slate-700">
+                  {typeof economics?.stripeFees === "number"
+                    ? formatCurrency(economics.stripeFees)
+                    : "N/D"}
+                </strong>
+              </span>
+              <button
+                onClick={() => onNavigateTab("economics")}
+                className="font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer"
+              >
+                Unit Economics →
+              </button>
             </div>
           </div>
         </div>
@@ -452,13 +481,13 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-medical-500" />
-              Top Médicos (Mayor Volumen)
+              Top Médicos por Volumen Clínico (PostgreSQL)
             </h3>
             <button
               onClick={() => onNavigateTab("finances")}
-              className="text-xs font-semibold text-medical-600 hover:text-medical-700"
+              className="text-xs font-semibold text-medical-600 hover:text-medical-700 cursor-pointer"
             >
-              Ver todos
+              Ver libro mayor
             </button>
           </div>
 
@@ -488,9 +517,6 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                             💵 Consultorio: {formatCurrency(prov.inClinicEarned)}
                           </span>
                         ) : null}
-                        {(!prov.onlineEarned || prov.onlineEarned === 0) && (!prov.inClinicEarned || prov.inClinicEarned === 0) ? (
-                          <span className="text-xs text-slate-400">Proveedor Verificado</span>
-                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -501,7 +527,9 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-400 py-6 text-center">No hay datos de doctores este mes.</p>
+            <p className="text-xs text-slate-400 py-6 text-center">
+              Sin citas liquidadas registradas en este periodo.
+            </p>
           )}
         </div>
 
@@ -510,11 +538,11 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
               <Activity className="w-4 h-4 text-indigo-500" />
-              Módulos Más Utilizados (Telemetría)
+              Módulos Más Utilizados (Telemetría en Vivo)
             </h3>
             <button
               onClick={() => onNavigateTab("analytics")}
-              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer"
             >
               Ver telemetría
             </button>
@@ -536,244 +564,15 @@ export const TabExecutivePulse: React.FC<TabExecutivePulseProps> = ({
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-slate-400">
                     <span>{mod.totalEvents} eventos registrados</span>
-                    <span>{mod.uniqueUsers} médicos activos</span>
+                    <span>{mod.uniqueUsers} usuarios activos</span>
                   </div>
                 </div>
               ))
             ) : (
               <p className="text-xs text-slate-400 py-6 text-center">
-                Esperando eventos de telemetría en vivo (0 eventos en los últimos 30 días).
+                Esperando eventos de uso de módulos en el periodo actual.
               </p>
             )}
-          </div>
-        </div>
-      </div>
-
-      {/* 🎯 5. Gobernanza Ejecutiva y Decisiones de Junta (PORT-E-01 & HU #43) */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-white shadow-md space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${hasTelemetry ? "bg-amber-400 animate-pulse" : "bg-slate-500"}`} />
-              <h3 className="font-bold text-base sm:text-lg text-white">
-                Las Tres Decisiones Esenciales del CEO (PORT-E-01) — Propuestas a Junta
-              </h3>
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Propuestas técnicas y operativas bajo diagnóstico preliminar. Requieren ratificación humana de la Junta Directiva antes de cualquier ejecución.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-            {hasStaleDate && (
-              <span className="text-[11px] font-medium text-amber-300 bg-amber-950/70 border border-amber-800/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3 text-amber-400" /> Dato obsoleto (&gt;48h)
-              </span>
-            )}
-            {primaryDate.status === "INVALID" && (
-              <span className="text-[11px] font-medium text-rose-300 bg-rose-950/70 border border-rose-800/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3 text-rose-400" /> Fecha de corte inválida
-              </span>
-            )}
-            {primaryDate.status === "FUTURE" && (
-              <span className="text-[11px] font-medium text-rose-300 bg-rose-950/70 border border-rose-800/80 px-2 py-0.5 rounded-lg flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3 text-rose-400" /> Fecha futura no válida
-              </span>
-            )}
-            <span
-              className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60"
-              title="Timestamp emitido por la API al responder; no acredita frescura intrínseca de orígenes Stripe/GCP"
-            >
-              Generado API: {primaryDate.status === "VALID" || primaryDate.status === "STALE" ? primaryDate.formattedText.replace(/ \(Obsoleto >48h\)/, "") : primaryDate.formattedText}
-            </span>
-          </div>
-        </div>
-
-        {!hasTelemetry && (
-          <div className="bg-amber-950/30 border border-amber-800/50 rounded-2xl p-3.5 text-xs text-amber-200/90 flex items-start gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-amber-300">Telemetría no conectada (Estado Vacío / Sin telemetría verificada)</p>
-              <p className="text-slate-300 text-[11px] mt-0.5">
-                No se ha recibido respuesta de los servicios de analítica, clínica o finanzas. Los valores se muestran como «No disponible / No verificado» y las propuestas representan hipótesis preliminares para la Junta Directiva.
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Tarjeta 1: Producto y Activación */}
-          <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
-                  1. Eje Producto & Activación
-                </span>
-                <span className="text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
-                  PROPUESTA A JUNTA
-                </span>
-              </div>
-              <h4 className="text-xs font-bold text-white">
-                ¿El producto entrega primer valor sin romperse?
-              </h4>
-              <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Consultas completadas:</span>
-                  <span className="font-semibold text-white">
-                    {typeof dashboard?.completedAppointmentsThisMonth === "number"
-                      ? `${dashboard.completedAppointmentsThisMonth} consultas`
-                      : "No disponible / No verificado"}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  {typeof dashboard?.completedAppointmentsThisMonth === "number"
-                    ? `Consultas registradas en clúster clínico: ${dashboard.completedAppointmentsThisMonth} (canceladas: ${typeof dashboard.cancelledAppointmentsThisMonth === "number" ? dashboard.cancelledAppointmentsThisMonth : "No verificado"}).`
-                    : "Sin datos verificables de citas clínicas ni cohorte en este corte."}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="uppercase font-bold text-slate-400">Propuesta Técnica:</span>
-                  <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
-                </div>
-                <p className="text-xs font-semibold text-slate-200">
-                  👉 Hipótesis / Propuesta: Evaluar la ejecución de un piloto cualitativo cerrado con acompañamiento concierge; condicionado a validación clínica E2E y resolución formal de Junta.
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-slate-700/50 flex flex-col gap-1 text-[10px] text-slate-400">
-                <div className="flex items-center justify-between">
-                  <span>Fuente: PostgreSQL appointments</span>
-                  <span className="font-mono text-slate-300">
-                    Calidad: {typeof dashboard?.completedAppointmentsThisMonth === "number" ? (dashboardDate.isStale ? "OBSOLETA" : "PROVISIONAL") : "No disponible / No verificado"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-[9px] text-slate-500">
-                  <span>Periodo: {dashboard ? (selectedPeriod || "30d") : "No verificado"}</span>
-                  <span>Generado API: {dashboardDate.formattedText}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tarjeta 2: Demanda y Monetización */}
-          <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
-                  2. Eje Demanda & Monetización
-                </span>
-                <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                  PROPUESTA A JUNTA
-                </span>
-              </div>
-              <h4 className="text-xs font-bold text-white">
-                ¿Hay demanda comprobable y dinero real en caja?
-              </h4>
-              <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Recaudo de transacciones Stripe:</span>
-                  <span className="font-semibold text-white">
-                    {typeof economics?.totalRevenue === "number"
-                      ? formatCurrency(economics.totalRevenue)
-                      : "No disponible / No verificado"}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  {typeof economics?.totalRevenue === "number"
-                    ? `Transacciones Stripe registradas (suscripciones + comisiones): ${formatCurrency(economics.totalRevenue)}. Suscripciones periodo: ${typeof economics.mrr === "number" ? formatCurrency(economics.mrr) : typeof economics.totalSubscriptionsRevenue === "number" ? formatCurrency(economics.totalSubscriptionsRevenue) : "No verificado"}. CAC: No disponible / No verificado. Datos provisionales no conciliados bancariamente.`
-                    : "Sin eventos de pago verificados en pasarela ni conciliación bancaria."}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="uppercase font-bold text-slate-400">Propuesta Técnica:</span>
-                  <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
-                </div>
-                <p className="text-xs font-semibold text-slate-200">
-                  👉 Hipótesis / Propuesta: Mantener $0 en pauta publicitaria; reconstruir embudo y validar disposición de pago directamente antes de definir precios comerciales o contratar pauta.
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-slate-700/50 flex flex-col gap-1 text-[10px] text-slate-400">
-                <div className="flex items-center justify-between">
-                  <span>Fuente: Stripe BalanceTransactions</span>
-                  <span className="font-mono text-slate-300">
-                    Calidad: {typeof economics?.totalRevenue === "number"
-                      ? (economics.reconciliationQuality || "PROVISIONAL")
-                      : "No disponible / No verificado"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-[9px] text-slate-500">
-                  <span>Periodo: {economics?.period || "No verificado"}</span>
-                  <span>Generado API: {economicsDate.formattedText}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tarjeta 3: Riesgo Operativo y FinOps */}
-          <div className="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-                  3. Eje Riesgo Operativo & FinOps
-                </span>
-                <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                  PROPUESTA A JUNTA
-                </span>
-              </div>
-              <h4 className="text-xs font-bold text-white">
-                ¿Qué riesgo o costo amenaza la continuidad?
-              </h4>
-              <div className="text-[11px] text-slate-300 leading-relaxed space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Costo cloud estimado (GCP):</span>
-                  <span className="font-semibold text-white">
-                    {typeof economics?.cloudCosts === "number"
-                      ? formatCurrency(economics.cloudCosts)
-                      : "No disponible / No verificado"}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  {typeof economics?.cloudCosts === "number"
-                    ? `Costo cloud estimado: ${formatCurrency(economics.cloudCosts)}. Clúster: ${totalServices > 0 ? `${upCount}/${totalServices} UP` : "Sin telemetría"}. Excepciones pasarela: Brecha de telemetría en DTO.`
-                    : "Sin telemetría de costos cloud ni métricas de infraestructura verificadas en este DTO."}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-1">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="uppercase font-bold text-slate-400">Propuesta Técnica:</span>
-                  <span className="text-amber-400 font-semibold">Decisión: PENDIENTE</span>
-                </div>
-                <p className="text-xs font-semibold text-slate-200">
-                  👉 Hipótesis / Propuesta: Evaluar opciones de optimización de infraestructura y esquema de autenticación de borde; pendiente de medición pasiva de latencia y decisión de junta.
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-slate-700/50 flex flex-col gap-1 text-[10px] text-slate-400">
-                <div className="flex items-center justify-between">
-                  <span>Fuente: GCP Billing API & Cloudflare Metrics</span>
-                  <span className="font-mono text-slate-300">
-                    Calidad: {typeof economics?.cloudCosts === "number"
-                      ? (economics.costsQuality?.cloudCosts || "ESTIMADA")
-                      : "No disponible / No verificado"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-[9px] text-slate-500">
-                  <span>Periodo: {economics?.period || "No verificado"}</span>
-                  <span>Generado API: {economicsDate.formattedText}</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

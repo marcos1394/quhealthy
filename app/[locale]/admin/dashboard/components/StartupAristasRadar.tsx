@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Stethoscope,
-  Sparkles,
   TrendingUp,
-  Building2,
+  DollarSign,
+  Users,
+  Server,
   ShieldCheck,
-  Landmark,
-  CheckCircle2,
   ArrowUpRight,
-  Layers,
 } from "lucide-react";
-import { AdminTab } from "./AdminSidebar";
 import {
   UnitEconomicsDTO,
   AdminDashboardDTO,
@@ -31,9 +28,23 @@ interface StartupAristasRadarProps {
   onNavigateTab: (tab: any) => void;
 }
 
-type AristaCategory = "ALL" | "CLINICAL_AI" | "GROWTH_COMMERCIAL" | "INFRA_GOVERNANCE";
+interface AristaMetric {
+  label: string;
+  value: string;
+}
 
-export const StartupAristasRadar: React.FC<StartupAristasRadarProps> = ({
+interface AristaConfig {
+  id: string;
+  title: string;
+  subtitle: string;
+  tabTarget: string;
+  icon: React.ElementType;
+  status: "HEALTHY" | "ATTENTION" | "DEGRADED";
+  statusLabel: string;
+  primaryMetrics: AristaMetric[];
+}
+
+export function StartupAristasRadar({
   economics,
   dashboard,
   productMetrics,
@@ -41,293 +52,275 @@ export const StartupAristasRadar: React.FC<StartupAristasRadarProps> = ({
   services = [],
   formatCurrency,
   onNavigateTab,
-}) => {
-  const [selectedCategory, setSelectedCategory] = useState<AristaCategory>("ALL");
+}: StartupAristasRadarProps) {
+  const upServices = services.filter((s) => s.status === "UP");
+  const totalServicesCount = services.length;
+  const infraRatio = totalServicesCount > 0 ? upServices.length / totalServicesCount : 0;
 
-  const upCount = services.filter((s) => s.status === "UP").length;
-  const totalServices = services.length;
-  const pendingKycCount = providers.filter(
-    (p) => !p.onboardingComplete || p.status === "INACTIVE"
-  ).length;
-  const activeProvidersCount = providers.filter(
+  const latencies = upServices
+    .map((s) => s.latencyMs)
+    .filter((l): l is number => typeof l === "number" && l > 0);
+  const avgLatency =
+    latencies.length > 0
+      ? `${Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length)} ms`
+      : "No disponible";
+
+  const activeProvidersCount = dashboard?.activeProvidersThisMonth ?? 0;
+  const onboardedProvidersCount = providers.filter(
     (p) => p.onboardingComplete && p.status === "ACTIVE"
   ).length;
 
-  const aristas = [
+  const totalAppointmentsMonth = dashboard?.appointmentsThisMonth ?? 0;
+  const completedAppointmentsMonth = dashboard?.completedAppointmentsThisMonth ?? 0;
+
+  const aristas: AristaConfig[] = [
     {
-      id: "product",
-      category: "CLINICAL_AI" as AristaCategory,
-      code: "product-engineering",
-      title: "1. Producto & Clínica E2E",
-      subtitle: "Citas, Expediente NOM-004, Telemedicina & Mobile iOS",
-      statusBadge: "H1–H3 EN VIVO",
-      badgeStyle: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      id: "producto-clinico",
+      title: "1. Producto & Operación Clínica",
+      subtitle: "Consultas, agenda y actividad médica en PostgreSQL",
+      tabTarget: "operations",
       icon: Stethoscope,
-      iconBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
-      primaryMetricLabel: "Consultas mes / Citas hoy",
-      primaryMetricValue:
-        typeof dashboard?.completedAppointmentsThisMonth === "number"
-          ? `${dashboard.completedAppointmentsThisMonth} completadas · ${dashboard.appointmentsToday ?? 0} hoy`
-          : "Sin corte clínico activo",
-      deliverables: [
-        "Compuerta Consentimiento Informado NOM-004 (HU-EHR-024)",
-        "Receta Electrónica PDF + QR & Google Calendar 2-Way Sync",
-        "Universal Links iOS (AASA) + API Push (/api/notifications/devices)",
+      status: totalAppointmentsMonth > 0 ? "HEALTHY" : "ATTENTION",
+      statusLabel: totalAppointmentsMonth > 0 ? "Flujo Activo" : "Sin Citas Mes",
+      primaryMetrics: [
+        {
+          label: "Citas del Mes",
+          value: dashboard ? String(totalAppointmentsMonth) : "No disponible",
+        },
+        {
+          label: "Citas Completadas",
+          value: dashboard ? String(completedAppointmentsMonth) : "No disponible",
+        },
+        {
+          label: "Citas Hoy",
+          value: dashboard ? String(dashboard.appointmentsToday) : "No disponible",
+        },
       ],
-      targetTab: "operations" as AdminTab,
-      ctaLabel: "Abrir Operaciones Médicas",
     },
     {
-      id: "ai",
-      category: "CLINICAL_AI" as AristaCategory,
-      code: "data-ai-copilot",
-      title: "2. Copiloto IA & Pulso Longitudinal",
-      subtitle: "Vertex AI Asistivo, Farmacovigilancia & Seguimiento",
-      statusBadge: "GUARDIA NOM-024",
-      badgeStyle: "bg-indigo-50 text-indigo-700 border-indigo-200",
-      icon: Sparkles,
-      iconBg: "bg-indigo-50 text-indigo-600 border-indigo-100",
-      primaryMetricLabel: "Seguridad Clínica IA",
-      primaryMetricValue: "0 diagnósticos autónomos · Edición médica obligatoria",
-      deliverables: [
-        "Borrador SOAP Pre-Consulta con aprobación explícita del médico",
-        "Verificador de Interacciones Farmacológicas y Alergias Cruzadas",
-        "Plan de Cuidados Longitudinal 7/30/90/180d & HealthScore 360°",
-      ],
-      targetTab: "analytics" as AdminTab,
-      ctaLabel: "Ver Adopción de Módulos IA",
-    },
-    {
-      id: "growth",
-      category: "GROWTH_COMMERCIAL" as AristaCategory,
-      code: "growth-marketing",
-      title: "3. Growth, SEO & Conversión",
-      subtitle: "SEO Programático, E-E-A-T, Atribución & CRM Preventivo",
-      statusBadge: "60 RUTAS SEO",
-      badgeStyle: "bg-blue-50 text-blue-700 border-blue-200",
+      id: "adquisicion-growth",
+      title: "2. Tráfico & Telemetría de Producto",
+      subtitle: "Sesiones activas y retención en tiempo real",
+      tabTarget: "analytics",
       icon: TrendingUp,
-      iconBg: "bg-blue-50 text-blue-600 border-blue-100",
-      primaryMetricLabel: "Tráfico & Usuarios Activos (MAU)",
-      primaryMetricValue:
-        typeof productMetrics?.mau === "number"
-          ? `${productMetrics.mau.toLocaleString()} MAU (${productMetrics.activeProvidersMonth ?? 0} médicos)`
-          : "60 páginas Especialidad × Ciudad indexadas",
-      deliverables: [
-        "60 Landings Especialidad × Ciudad en sitemap.xml con JSON-LD",
-        "Sello Médico Verificado E-E-A-T (Cédula SEP) & Guardia Anti-PII GA4",
-        "Atribución First-Party (UTM/GCLID) & Reactivación Preventiva LFPDPPP",
+      status: (productMetrics?.mau ?? 0) > 0 ? "HEALTHY" : "ATTENTION",
+      statusLabel: (productMetrics?.mau ?? 0) > 0 ? "Telemetría Activa" : "Esperando Tráfico",
+      primaryMetrics: [
+        {
+          label: "MAU (30d)",
+          value: productMetrics ? String(productMetrics.mau) : "No disponible",
+        },
+        {
+          label: "Sesiones (30d)",
+          value: productMetrics ? String(productMetrics.totalSessionsMonth) : "No disponible",
+        },
+        {
+          label: "Stickiness (DAU/MAU)",
+          value: productMetrics ? `${productMetrics.stickinessRatio}%` : "No disponible",
+        },
       ],
-      targetTab: "channels" as AdminTab,
-      ctaLabel: "Ver Canales & Atribución CMO",
     },
     {
-      id: "commercial",
-      category: "GROWTH_COMMERCIAL" as AristaCategory,
-      code: "commercial-operations",
-      title: "4. Comercial, Clínicas & KYB",
-      subtitle: "Pipeline Cédulas DGP, Clínicas Multi-Sede & Fundaciones",
-      statusBadge: pendingKycCount > 0 ? `${pendingKycCount} KYC PENDIENTES` : "KYB AL DÍA",
-      badgeStyle:
-        pendingKycCount > 0
-          ? "bg-amber-50 text-amber-800 border-amber-200"
-          : "bg-emerald-50 text-emerald-700 border-emerald-200",
-      icon: Building2,
-      iconBg: "bg-amber-50 text-amber-600 border-amber-100",
-      primaryMetricLabel: "Red Médica & Clínicas",
-      primaryMetricValue: `${activeProvidersCount} activos · ${providers.length} registrados`,
-      deliverables: [
-        "Roles Enterprise en Clínicas (CLINIC_ADMIN, RECEPTIONIST, PHYSICIAN)",
-        "Asignación Multi-Sede (branch) & Playbook B2B2C / Laboratorios",
-        "Flujo de Subsidio e Impacto Social en Fundaciones (/foundation)",
+      id: "monetizacion-finanzas",
+      title: "3. Monetización & Finanzas (Stripe)",
+      subtitle: "Ingresos procesados, MRR y margen post-Stripe",
+      tabTarget: "finances",
+      icon: DollarSign,
+      status: economics ? "HEALTHY" : "ATTENTION",
+      statusLabel: economics ? "Stripe Conectado" : "Sin Señal Stripe",
+      primaryMetrics: [
+        {
+          label: "Revenue Neto Stripe",
+          value:
+            economics && typeof economics.totalRevenue === "number"
+              ? formatCurrency(economics.totalRevenue)
+              : "No disponible",
+        },
+        {
+          label: "MRR Suscripciones",
+          value:
+            economics && typeof economics.mrr === "number"
+              ? formatCurrency(economics.mrr)
+              : "No disponible",
+        },
+        {
+          label: "Margen Bruto (Post-Stripe)",
+          value:
+            economics && typeof economics.grossMargin === "number"
+              ? formatCurrency(economics.grossMargin)
+              : "No disponible",
+        },
       ],
-      targetTab: "crm" as AdminTab,
-      ctaLabel: "Gestionar CRM & Pipeline KYB",
     },
     {
-      id: "sre",
-      category: "INFRA_GOVERNANCE" as AristaCategory,
-      code: "devsecops-sre",
-      title: "5. DevSecOps, SRE & FinOps",
-      subtitle: "Cloud Run, Perímetro Zero-Trust, Cabeceras OWASP & Costos",
-      statusBadge:
-        totalServices > 0 ? `${upCount}/${totalServices} MICROSERVICIOS UP` : "PERÍMETRO ACTIVO",
-      badgeStyle:
-        totalServices > 0 && upCount === totalServices
-          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-          : "bg-slate-100 text-slate-700 border-slate-200",
+      id: "operacion-medica-red",
+      title: "4. Red de Especialistas & Onboarding",
+      subtitle: "Médicos registrados y estado KYC en PostgreSQL",
+      tabTarget: "operations",
+      icon: Users,
+      status: activeProvidersCount > 0 || providers.length > 0 ? "HEALTHY" : "ATTENTION",
+      statusLabel: `${providers.length} en Padrón`,
+      primaryMetrics: [
+        {
+          label: "Médicos con Citas (Mes)",
+          value: dashboard ? String(activeProvidersCount) : "No disponible",
+        },
+        {
+          label: "Nuevos Médicos (Mes)",
+          value: dashboard ? String(dashboard.newProvidersThisMonth) : "No disponible",
+        },
+        {
+          label: "KYC Completado",
+          value: `${onboardedProvidersCount} / ${providers.length}`,
+        },
+      ],
+    },
+    {
+      id: "infraestructura-sre",
+      title: "5. Infraestructura Cloud Run",
+      subtitle: "Disponibilidad HTTP en vivo y latencia de microservicios",
+      tabTarget: "health",
+      icon: Server,
+      status: infraRatio >= 0.85 ? "HEALTHY" : infraRatio >= 0.5 ? "ATTENTION" : "DEGRADED",
+      statusLabel:
+        totalServicesCount > 0
+          ? `${upServices.length}/${totalServicesCount} UP`
+          : "Sondeando...",
+      primaryMetrics: [
+        {
+          label: "Servicios Cloud Run UP",
+          value:
+            totalServicesCount > 0
+              ? `${upServices.length} de ${totalServicesCount}`
+              : "No disponible",
+        },
+        {
+          label: "Latencia Promedio",
+          value: avgLatency,
+        },
+        {
+          label: "Usuarios Totales BD",
+          value: economics ? String(economics.totalUsers) : "No disponible",
+        },
+      ],
+    },
+    {
+      id: "cumplimiento-gobernanza",
+      title: "6. Eficiencia & Calidad Operativa",
+      subtitle: "Indicadores reales de asistencia, cancelación y ausentismo",
+      tabTarget: "foundations",
       icon: ShieldCheck,
-      iconBg: "bg-teal-50 text-teal-600 border-teal-100",
-      primaryMetricLabel: "Gasto Cloud GCP & Resiliencia",
-      primaryMetricValue:
-        typeof economics?.cloudCosts === "number"
-          ? `${formatCurrency(economics.cloudCosts)} GCP · Staging/Prod aislados`
-          : "Perímetro Cloudflare + OWASP Headers activos",
-      deliverables: [
-        "Filtro Zero-Trust X-CF-Origin-Verify & Permissions-Policy cámara/mic",
-        "Aislamiento estricto Staging (staging.quhealthy.org) vs Producción",
-        "FinOps: Caché Redis (@Cacheable) + Lifecycle de blobs en GCS",
+      status: "HEALTHY",
+      statusLabel: "BD Conectada",
+      primaryMetrics: [
+        {
+          label: "Ausentismo (No-Show Mes)",
+          value: dashboard ? String(dashboard.noShowAppointmentsThisMonth) : "No disponible",
+        },
+        {
+          label: "Cancelaciones del Mes",
+          value: dashboard ? String(dashboard.cancelledAppointmentsThisMonth) : "No disponible",
+        },
+        {
+          label: "Volumen Clínico (GMV)",
+          value:
+            economics && typeof economics.totalGmv === "number"
+              ? formatCurrency(economics.totalGmv)
+              : "No disponible",
+        },
       ],
-      targetTab: "health" as AdminTab,
-      ctaLabel: "Inspeccionar Salud & Servidores",
-    },
-    {
-      id: "governance",
-      category: "INFRA_GOVERNANCE" as AristaCategory,
-      code: "founder-cos-gov",
-      title: "6. Finanzas, Legal & Gobierno",
-      subtitle: "Unit Economics, Stripe, COFEPRIS / NOM-024 & Seed Room",
-      statusBadge: "DATA ROOM SEED",
-      badgeStyle: "bg-purple-50 text-purple-700 border-purple-200",
-      icon: Landmark,
-      iconBg: "bg-purple-50 text-purple-600 border-purple-100",
-      primaryMetricLabel: "Recaudo Stripe & Suscripciones",
-      primaryMetricValue:
-        typeof economics?.totalRevenue === "number"
-          ? `${formatCurrency(economics.totalRevenue)} (${economics.activeSubscriptions ?? 0} suscripciones)`
-          : "Señales financieras con linaje veraz (ADMIN-TRUST-01)",
-      deliverables: [
-        "Auditoría COFEPRIS Telemedicina, NOM-004, NOM-024 y Derechos ARCO",
-        "Separación estricta GMV Clínico vs Recaudo Conciliado Stripe",
-        "Data Room Seed & Gobernanza de Cohortes (Horizontes 1–3 completados)",
-      ],
-      targetTab: "finances" as AdminTab,
-      ctaLabel: "Abrir Finanzas & Unit Economics",
     },
   ];
 
-  const filteredAristas =
-    selectedCategory === "ALL"
-      ? aristas
-      : aristas.filter((a) => a.category === selectedCategory);
+  const getStatusBadgeStyle = (status: AristaConfig["status"]) => {
+    switch (status) {
+      case "HEALTHY":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "ATTENTION":
+        return "bg-amber-50 text-amber-700 border-amber-200";
+      case "DEGRADED":
+        return "bg-rose-50 text-rose-700 border-rose-200";
+    }
+  };
 
   return (
     <section
       data-testid="startup-aristas-radar"
-      aria-label="Radar Ejecutivo de las 6 Aristas de la Startup"
-      className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-5"
+      className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5"
     >
-      {/* Cabecera limpia con filtros por dimensión */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-        <div className="space-y-1">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-medical-700 bg-medical-50 border border-medical-200/70 px-2.5 py-0.5 rounded-full">
-              <Layers className="w-3.5 h-3.5" />
-              Sistema Operativo Agéntico Lean v2
+            <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+              6 Aristas Conectadas
             </span>
-            <span className="text-[11px] font-semibold text-slate-400">
-              Sprints 1–3 en Producción
-            </span>
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+              Radar Operativo en Tiempo Real
+            </h3>
           </div>
-          <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
-            Mapa Ejecutivo por Arista de la Startup (6 Escuadrones)
-          </h2>
-          <p className="text-xs text-slate-500">
-            Visibilidad consolidada del progreso técnico, clínico, comercial, regulatorio y financiero conectado a cada módulo administrativo.
+          <p className="text-xs text-slate-500 mt-1">
+            Métricas alimentadas directamente desde PostgreSQL, Stripe API, Telemetría Interna y sondas HTTP Cloud Run.
           </p>
-        </div>
-
-        {/* Filtros rápidos para evitar saturación visual */}
-        <div
-          role="group"
-          aria-label="Filtrar aristas de la startup"
-          className="flex flex-wrap items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60 self-start lg:self-auto"
-        >
-          {[
-            { id: "ALL" as AristaCategory, label: "Todas (6)" },
-            { id: "CLINICAL_AI" as AristaCategory, label: "Clínica & IA" },
-            { id: "GROWTH_COMMERCIAL" as AristaCategory, label: "Growth & Comercial" },
-            { id: "INFRA_GOVERNANCE" as AristaCategory, label: "SRE & Finanzas" },
-          ].map((filter) => {
-            const active = selectedCategory === filter.id;
-            return (
-              <button
-                key={filter.id}
-                type="button"
-                onClick={() => setSelectedCategory(filter.id)}
-                aria-pressed={active}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  active
-                    ? "bg-white text-slate-900 shadow-xs border border-slate-200/80"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {filter.label}
-              </button>
-            );
-          })}
         </div>
       </div>
 
-      {/* Grid de las 6 Aristas */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filteredAristas.map((arista) => {
+        {aristas.map((arista) => {
           const Icon = arista.icon;
           return (
             <div
               key={arista.id}
               data-testid={`arista-card-${arista.id}`}
-              className="group rounded-2xl border border-slate-200/80 bg-slate-50/40 hover:bg-white hover:border-slate-300/90 hover:shadow-sm transition-all p-4 flex flex-col justify-between space-y-4"
+              className="flex flex-col justify-between rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 hover:border-indigo-300 transition-all"
             >
               <div className="space-y-3">
-                {/* Top row: Icon + Title + Status Badge */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div
-                      className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${arista.iconBg}`}
-                    >
-                      <Icon className="w-4.5 h-4.5" />
+                    <div className="p-2 rounded-lg bg-white border border-slate-200/70 text-indigo-600 shadow-2xs">
+                      <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                      <h4 className="text-sm font-bold text-slate-900 leading-tight">
                         {arista.title}
-                      </h3>
-                      <p className="text-[11px] text-slate-500 leading-tight">
+                      </h4>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
                         {arista.subtitle}
                       </p>
                     </div>
                   </div>
                   <span
-                    className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border shrink-0 ${arista.badgeStyle}`}
+                    className={`shrink-0 px-2 py-0.5 text-[10px] font-bold rounded-md border ${getStatusBadgeStyle(
+                      arista.status
+                    )}`}
                   >
-                    {arista.statusBadge}
+                    {arista.statusLabel}
                   </span>
                 </div>
 
-                {/* Live Metric Pill */}
-                <div className="bg-white rounded-xl border border-slate-200/70 px-3 py-2 flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    {arista.primaryMetricLabel}
-                  </span>
-                  <span className="text-xs font-bold text-slate-800 text-right">
-                    {arista.primaryMetricValue}
-                  </span>
-                </div>
-
-                {/* Shipped Capabilities Checklist */}
-                <ul className="space-y-1.5 pt-0.5">
-                  {arista.deliverables.map((item, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-start gap-2 text-xs text-slate-600 leading-snug"
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {arista.primaryMetrics.map((m, i) => (
+                    <div
+                      key={i}
+                      className="bg-white border border-slate-200/60 rounded-lg p-2"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </li>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate">
+                        {m.label}
+                      </p>
+                      <p className="text-xs font-extrabold text-slate-900 mt-0.5 truncate">
+                        {m.value}
+                      </p>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
 
-              {/* Direct Navigation Action */}
-              <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400">
-                  @{arista.code}
-                </span>
+              <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex items-center justify-end">
                 <button
                   type="button"
-                  onClick={() => onNavigateTab(arista.targetTab)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-medical-600 hover:text-medical-700 transition-colors"
+                  onClick={() => onNavigateTab(arista.tabTarget)}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors cursor-pointer"
                 >
-                  {arista.ctaLabel}
+                  Abrir vista detallada
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -337,4 +330,4 @@ export const StartupAristasRadar: React.FC<StartupAristasRadarProps> = ({
       </div>
     </section>
   );
-};
+}

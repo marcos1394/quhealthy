@@ -275,7 +275,7 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
         <KpiCard
           title="Comisiones Marketplace"
           value={formatCurrency(economics?.totalCommissionsRevenue || 0)}
-          subtext="Take-rate promedio 15%"
+          subtext="Retención neta procesada en Stripe"
           icon={DollarSign}
           variant="purple"
         />
@@ -679,23 +679,34 @@ export const TabFinances: React.FC<TabFinancesProps> = ({
       {activeSubTab === "stripe" && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
           {/* Reconciliation Banner */}
-          <div className="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div
+            className={`rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border ${
+              economics?.reconciliationMatch
+                ? "bg-emerald-50/90 border-emerald-200"
+                : "bg-slate-50 border-slate-200"
+            }`}
+          >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
+              <div
+                className={`w-9 h-9 rounded-xl text-white flex items-center justify-center shrink-0 ${
+                  economics?.reconciliationMatch ? "bg-emerald-500" : "bg-indigo-600"
+                }`}
+              >
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-emerald-900 text-sm">
-                  Conciliación Bancaria & Stripe: Información 100% Fidedigna
+                <h4 className="font-bold text-slate-900 text-sm">
+                  Conexión Directa con Stripe Balance Transactions
                 </h4>
-                <p className="text-xs text-emerald-700 mt-0.5">
-                  Todos los movimientos reportados provienen directamente de Stripe Balance Transactions con cuadre contable automático.
+                <p className="text-xs text-slate-600 mt-0.5">
+                  {economics?.reconciliationNotes ||
+                    "Movimientos consultados en tiempo real desde la API de Stripe."}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 font-mono text-xs text-emerald-800 bg-white/80 px-3 py-1.5 rounded-xl border border-emerald-200 self-stretch sm:self-auto justify-center">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Discrepancias: $0.00 MXN</span>
+            <div className="flex items-center gap-2 font-mono text-xs text-slate-700 bg-white px-3 py-1.5 rounded-xl border border-slate-200 self-stretch sm:self-auto justify-center">
+              <CheckCircle2 className="w-4 h-4 text-indigo-600" />
+              <span>{transactions.length} transacciones en periodo</span>
             </div>
           </div>
 

@@ -179,9 +179,9 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [marketIntel, setMarketIntel] = useState<any>(null);
   const [loadingMarketIntel, setLoadingMarketIntel] = useState(false);
   const [loadingMoreLeads, setLoadingMoreLeads] = useState(false);
-  const [scoutCity, setScoutCity] = useState("Los Mochis");
+  const [scoutCity, setScoutCity] = useState("");
   const [scoutQuery, setScoutQuery] = useState("");
-  const [scoutState, setScoutState] = useState("Sinaloa");
+  const [scoutState, setScoutState] = useState("");
   const [scoutCategory, setScoutCategory] = useState<string>("ALL");
   const [scoutOnlyWithoutWeb, setScoutOnlyWithoutWeb] = useState(false);
   const [marketViewSection, setMarketViewSection] = useState<"leads" | "outbound" | "batch" | "keywords" | "reach">("leads");
@@ -223,17 +223,17 @@ export const TabAdminSocialConnections: React.FC = () => {
   const [newCampaignData, setNewCampaignData] = useState({
     name: "",
     channel: "AI_OMNICHANNEL",
-    targetCity: "Los Mochis",
-    targetState: "Sinaloa",
+    targetCity: "",
+    targetState: "",
     targetCategory: "ALL",
-    calendarUrl: "https://calendar.app.google/4YNfwhfPLE8GXoFB6",
+    calendarUrl: "",
     customTemplateBody: "",
     launchImmediately: true,
   });
 
   const [batchHarvesterData, setBatchHarvesterData] = useState({
-    city: "Los Mochis",
-    state: "Sinaloa",
+    city: "",
+    state: "",
     categories: ["MEDICOS", "PEDIATRIA", "GINECOLOGIA", "DENTISTAS", "CLINICAS", "LABORATORIOS", "FARMACIAS", "OPTICAS"],
     onlyWithoutWebsite: false,
     maxPagesPerCategory: 2,
