@@ -38,7 +38,8 @@ export interface StaffMember {
   specialty: string;
   bio: string;
   imageUrl?: string;
-  role?: "professional" | "lead" | "specialist" | "assistant";
+  role?: "professional" | "lead" | "specialist" | "assistant" | "CLINIC_ADMIN" | "RECEPTIONIST" | "PHYSICIAN";
+  branch?: string;
   credentials?: string;
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
@@ -377,6 +378,46 @@ export function StaffManager({
                             placeholder={t("placeholder_specialty")}
                             className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
                           />
+                        </div>
+
+                        {/* Rol Clínico Multi-Médico (COM-ENTERPRISE-01) */}
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                            Rol en Clínica / Organización
+                          </Label>
+                          <select
+                            data-testid="clinic-member-role-select"
+                            value={member.role || "PHYSICIAN"}
+                            onChange={(e) =>
+                              onUpdate(member.id, "role", e.target.value)
+                            }
+                            className="w-full rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 h-11 px-3 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                          >
+                            <option value="PHYSICIAN">Médico Especialista (PHYSICIAN)</option>
+                            <option value="CLINIC_ADMIN">Administrador de Clínica (CLINIC_ADMIN)</option>
+                            <option value="RECEPTIONIST">Recepción y Caja (RECEPTIONIST)</option>
+                            <option value="assistant">Asistente Clínico (ASSISTANT)</option>
+                          </select>
+                        </div>
+
+                        {/* Sucursal / Consultorio Asignado (COM-ENTERPRISE-01) */}
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                            Sucursal / Sede Asignada
+                          </Label>
+                          <select
+                            data-testid="clinic-branch-selector"
+                            value={member.branch || "SEDE_PRINCIPAL"}
+                            onChange={(e) =>
+                              onUpdate(member.id, "branch", e.target.value)
+                            }
+                            className="w-full rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 h-11 px-3 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                          >
+                            <option value="SEDE_PRINCIPAL">Sede Principal (Consultorios Médicos)</option>
+                            <option value="SUCURSAL_NORTE">Sucursal Norte</option>
+                            <option value="SUCURSAL_SUR">Sucursal Sur</option>
+                            <option value="TELEMEDICINA_SOLO">Telemedicina Exclusiva</option>
+                          </select>
                         </div>
                       </div>
 

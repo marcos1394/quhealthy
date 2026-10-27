@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "9Q87J44R49.org.quhealthy.app",
+        "paths": [
+          "/patient/appointments/*",
+          "/patient/video-call/*",
+          "/especialistas/*",
+          "/provider/dashboard/*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["9Q87J44R49.org.quhealthy.app"]
+  }
+}

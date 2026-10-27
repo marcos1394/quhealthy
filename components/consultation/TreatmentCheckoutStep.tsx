@@ -24,6 +24,8 @@ import {
   Building2,
   Sparkles,
   Activity,
+  AlertTriangle,
+  ShieldAlert,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -38,6 +40,7 @@ import { PrescriptionItem, InConsultationItem } from "@/types/ehr";
 import { useCatalog } from "@/hooks/useCatalog";
 import { UI_Product } from "@/types/catalog";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { checkPrescriptionInteractions } from "@/lib/clinical/drug-interactions";
 
 interface TreatmentCheckoutStepProps {
   prescription: PrescriptionItem[];
@@ -112,6 +115,19 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
   // Dropdown para Farmacia / Receta
   const [showRxDropdown, setShowRxDropdown] = useState(false);
   const rxDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 💊 Health OS Pulso: Detección Asistida de Interacciones Medicamentosas (AI-PULSO-01 / NOM-004 / NOM-024)
+  const currentMedNames = React.useMemo(() => {
+    const names = prescription.map((p) => p.medicationName);
+    if (newRx.medicationName && newRx.medicationName.trim().length > 2) {
+      names.push(newRx.medicationName.trim());
+    }
+    return names;
+  }, [prescription, newRx.medicationName]);
+
+  const interactionResult = React.useMemo(() => {
+    return checkPrescriptionInteractions(currentMedNames);
+  }, [currentMedNames]);
 
   // Filtros de catálogo
   const filteredCatalogItems = products.filter((item) =>
@@ -637,6 +653,61 @@ export const TreatmentCheckoutStep: React.FC<TreatmentCheckoutStepProps> = ({
               </button>
             </div>
           </div>
+
+          {/* ── BANNER ASISTIDO DE INTERACCIONES FARMACOLÓGICAS (AI-PULSO-01 / NOM-004 / NOM-024) ── */}
+          {interactionResult.hasInteractions && (
+            <div
+              data-testid="rx-interaction-warning-banner"
+              className="p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 space-y-3 shadow-xs"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-5 h-5" strokeWidth={2} />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-200/80 dark:bg-amber-900/60 px-2 py-0.5 rounded text-amber-900 dark:text-amber-100">
+                      Alerta Clínica Asistida — Health OS Pulso
+                    </span>
+                    <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                      NOM-004 / NOM-024
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                    Posible interacción farmacológica detectada en el plan de prescripción
+                  </h4>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1 border-t border-amber-200/60 dark:border-amber-900/40">
+                {interactionResult.interactions.map((inter) => (
+                  <div
+                    key={inter.id}
+                    className="p-3 rounded-xl bg-white/80 dark:bg-black/40 border border-amber-200 dark:border-amber-900/30 text-xs space-y-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-amber-900 dark:text-amber-200">
+                        {inter.title} ({inter.drugs.join(" + ")})
+                      </span>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">
+                        Severidad: {inter.severity}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                      <strong>Mecanismo:</strong> {inter.mechanism}
+                    </p>
+                    <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
+                      <strong>Recomendación:</strong> {inter.clinicalRecommendation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-[10px] text-amber-700/80 dark:text-amber-400/80 italic">
+                {interactionResult.regulatoryDisclaimer}
+              </p>
+            </div>
+          )}
 
           {/* Lista de Fármacos en Receta */}
           {prescription.length === 0 ? (

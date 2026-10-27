@@ -37,7 +37,8 @@ export interface UI_StaffMember {
   specialty: string;
   bio: string;
   imageUrl?: string;
-  role: 'lead' | 'specialist' | 'assistant' | 'professional'; // El componente usa minúsculas
+  role: 'lead' | 'specialist' | 'assistant' | 'professional' | 'CLINIC_ADMIN' | 'RECEPTIONIST' | 'PHYSICIAN'; // El componente usa minúsculas y roles enterprise
+  branch?: string;
   credentials?: string;
   email?: string;
   baseSalary?: number;

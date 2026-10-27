@@ -87,6 +87,7 @@ export const FoundationStickyActionCard: React.FC<FoundationStickyActionCardProp
       {/* ── Botones de Acción Inmediata ── */}
       <div className="space-y-2.5">
         <Button
+          data-testid="foundation-subsidy-apply-btn"
           onClick={onApplyClick}
           className="w-full h-12 rounded-2xl text-xs font-bold uppercase tracking-wider text-white shadow-md hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer border-0"
           style={{ backgroundColor: primaryColor }}

@@ -500,6 +500,7 @@ export default function FoundationPublicStorefrontPage() {
                             </span>
 
                             <Button
+                              data-testid="foundation-subsidy-apply-btn"
                               onClick={() => handleOpenApplyModal(prog)}
                               className="rounded-2xl h-11 px-6 text-xs font-bold text-white shadow-md hover:brightness-105 transition-all flex items-center justify-center gap-2 cursor-pointer border-0 w-full sm:w-auto"
                               style={{ backgroundColor: primaryColor }}
