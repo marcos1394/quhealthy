@@ -30,6 +30,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { LogoCarousel } from "@/components/sections/LogoCarousel";
 import { cn } from "@/lib/utils";
+import { googleService } from "@/services/google.service";
 
 const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: string }) => {
   const [index, setIndex] = useState(0);
@@ -67,34 +68,84 @@ const HeroSection: React.FC = () => {
   const [isLocating, setIsLocating] = useState(false);
 
   const handleGeolocation = () => {
-    if ("geolocation" in navigator) {
-      setIsLocating(true);
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
+    if (typeof window === "undefined" || !("geolocation" in navigator)) {
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+
           try {
-            const { latitude, longitude } = position.coords;
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`);
+            sessionStorage.setItem(
+              "quhealthy_user_coords",
+              JSON.stringify({ lat: latitude, lng: longitude })
+            );
+          } catch {}
+
+          // 1. Intentar resolver ciudad usando el proxy seguro de Google Places
+          try {
+            const data = await googleService.reverseGeocode(latitude, longitude);
+            const city = data?.city || data?.state || data?.formatted_address || "";
+            if (city) {
+              setLocationQuery(city);
+              return;
+            }
+          } catch {}
+
+          // 2. Fallback de cortesía a reverse geocoder público
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`
+            );
             const data = await response.json();
-            const city = data.address.city || data.address.town || data.address.village || data.address.state || "";
+            const city =
+              data?.address?.city ||
+              data?.address?.town ||
+              data?.address?.village ||
+              data?.address?.state ||
+              "";
             if (city) {
               setLocationQuery(city);
             }
-          } catch (error) {
-            console.error("Error fetching location:", error);
-          } finally {
-            setIsLocating(false);
-          }
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
+          } catch {}
+        } finally {
           setIsLocating(false);
         }
-      );
-    }
+      },
+      (error) => {
+        // En caso de que el usuario decline el prompt o no esté disponible, no emitir console.error invasivo
+        if (process.env.NODE_ENV === "development" && error.code !== 1) {
+          console.debug("Geolocation skipped or unavailable:", error.message);
+        }
+        setIsLocating(false);
+      },
+      { timeout: 8000, maximumAge: 60000, enableHighAccuracy: false }
+    );
   };
 
   useEffect(() => {
-    handleGeolocation();
+    // Si el usuario ya cuenta con permisos otorgados previamente en el navegador (granted),
+    // resolvemos la ubicación de manera silenciosa sin activar popups molestos ni violar políticas.
+    if (typeof window !== "undefined" && navigator.permissions?.query) {
+      let isMounted = true;
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((result) => {
+          if (isMounted && result.state === "granted") {
+            handleGeolocation();
+          }
+        })
+        .catch(() => {
+          // No soportado o bloqueado silenciosamente
+        });
+
+      return () => {
+        isMounted = false;
+      };
+    }
   }, []);
 
   const metrics = [

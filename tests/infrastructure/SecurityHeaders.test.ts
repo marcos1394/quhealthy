@@ -38,6 +38,7 @@ describe('OPS-SEC-03: Endurecimiento de Cabeceras de Seguridad HTTP (OWASP)', ()
     expect(headersMap.has('Permissions-Policy')).toBe(true);
     expect(headersMap.get('Permissions-Policy')).toContain('camera=(self)');
     expect(headersMap.get('Permissions-Policy')).toContain('microphone=(self)');
+    expect(headersMap.get('Permissions-Policy')).toContain('geolocation=(self)');
   });
 
   it('aplica noindex y no-store a las rutas administrativas de auditoría /admin/:path*', async () => {
