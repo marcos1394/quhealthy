@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 // Hooks y Componentes
 import { useReferrals } from "@/hooks/useReferrals";
 import { RecommendationsManager } from "@/components/dashboard/referrals/RecommendationsManager";
+import { trackReferralInviteSent } from "@/lib/analytics/funnel-events";
 
 export default function ProviderReferralsPage() {
   const t = useTranslations("DashboardReferrals");
@@ -48,6 +49,7 @@ export default function ProviderReferralsPage() {
   const handleCopy = useCallback(() => {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
+    trackReferralInviteSent("copy_link", "provider");
     setCopied(true);
     toast.success(t("toast_copied"), { theme: "colored" });
     setTimeout(() => setCopied(false), 2000);
@@ -61,6 +63,7 @@ export default function ProviderReferralsPage() {
           text: t("share_text"),
           url: referralLink,
         });
+        trackReferralInviteSent("copy_link");
       } catch (error) {
         // Ignorar cancelación del diálogo nativo
       }
@@ -70,6 +73,7 @@ export default function ProviderReferralsPage() {
   };
 
   const handleWhatsAppShare = () => {
+    trackReferralInviteSent("whatsapp");
     const text = encodeURIComponent(
       `${t("share_text")} ${referralLink}`
     );
@@ -77,6 +81,7 @@ export default function ProviderReferralsPage() {
   };
 
   const handleFacebookShare = () => {
+    trackReferralInviteSent("copy_link");
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
         referralLink
@@ -86,6 +91,7 @@ export default function ProviderReferralsPage() {
   };
 
   const handleTwitterShare = () => {
+    trackReferralInviteSent("copy_link");
     const text = encodeURIComponent(t("share_text"));
     window.open(
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(
@@ -213,6 +219,7 @@ export default function ProviderReferralsPage() {
                         className="flex-1 h-11 px-4 bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-mono font-bold text-gray-900 dark:text-white rounded-xl shadow-sm focus:outline-none truncate"
                       />
                       <Button
+                        data-testid="referral-copy-btn"
                         onClick={handleCopy}
                         className={cn(
                           "h-11 px-6 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 shrink-0 border-0",
@@ -237,6 +244,7 @@ export default function ProviderReferralsPage() {
                       <div className="flex flex-wrap gap-2">
                         <Button
                           variant="outline"
+                          data-testid="referral-whatsapp-btn"
                           onClick={handleWhatsAppShare}
                           className="h-9 px-4 rounded-xl border-emerald-200 bg-emerald-50/60 dark:bg-emerald-950/30 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold shadow-sm"
                         >

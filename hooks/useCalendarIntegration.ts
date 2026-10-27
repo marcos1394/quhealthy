@@ -12,6 +12,8 @@ export const useCalendarIntegration = () => {
 
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [isCheckingGoogle, setIsCheckingGoogle] = useState(true);
+  const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
 
   // 1. Verificar estado actual
   const checkStatus = useCallback(async () => {
@@ -19,6 +21,7 @@ export const useCalendarIntegration = () => {
     try {
       const data = await calendarIntegrationService.getStatus();
       setIsGoogleConnected(data.connected);
+      setLastSyncedAt(data.lastSyncedAt || null);
     } catch (error) {
       console.error("Error verificando estado de Google Calendar", error);
     } finally {
@@ -52,13 +55,44 @@ export const useCalendarIntegration = () => {
       const url = await calendarIntegrationService.getConnectUrl();
       window.location.href = url; // Redirección directa al Auth de Google
     } catch (error) {
+      handleApiError(error);
+    }
+  };
+
+  // 5. Sincronizar manualmente con Google Calendar
+  const handleSyncNow = async () => {
+    setIsSyncingGoogle(true);
+    try {
+      await calendarIntegrationService.syncNow();
+      await checkStatus();
+      toast.success("Agenda sincronizada con Google Calendar", { theme: "dark" });
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setIsSyncingGoogle(false);
+    }
+  };
+
+  // 6. Desconectar Google Calendar
+  const handleDisconnect = async () => {
+    try {
+      await calendarIntegrationService.disconnect();
+      setIsGoogleConnected(false);
+      setLastSyncedAt(null);
+      toast.info("Google Calendar desconectado", { theme: "dark" });
+    } catch (error) {
+      handleApiError(error);
     }
   };
 
   return {
     isGoogleConnected,
     isCheckingGoogle,
+    isSyncingGoogle,
+    lastSyncedAt,
     handleGoogleConnect,
+    handleSyncNow,
+    handleDisconnect,
     refetchStatus: checkStatus
   };
 };

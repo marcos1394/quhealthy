@@ -2,7 +2,7 @@
 
 /* eslint-disable react-doctor/button-has-type */
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { FileText, Sparkles, Mic, Square, Cpu } from "lucide-react";
 
@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { SoapNotes } from "@/types/ehr";
 import { cn } from "@/lib/utils";
+import { SoapNoteDraftModal } from "./SoapNoteDraftModal";
 
 interface DocumentationPanelProps {
   soapNotes: SoapNotes;
@@ -28,6 +29,14 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
   handleToggleRecording,
 }) => {
   const t = useTranslations("EHR");
+  const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
+
+  const handleAcceptDraft = (editedSoap: SoapNotes) => {
+    updateSoapNote("subjective", editedSoap.subjective);
+    updateSoapNote("objective", editedSoap.objective);
+    updateSoapNote("assessment", editedSoap.assessment);
+    updateSoapNote("plan", editedSoap.plan);
+  };
 
   return (
     <aside className="w-full lg:w-[400px] xl:w-[450px] bg-white dark:bg-[#0a0a0a] p-6 flex flex-col border-l border-gray-100 dark:border-gray-800 font-sans shadow-sm z-0 transition-colors">
@@ -169,10 +178,28 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
                   </>
                 )}
               </button>
+
+              <button
+                type="button"
+                data-testid="open-ai-soap-draft-btn"
+                onClick={() => setIsDraftModalOpen(true)}
+                className="w-full h-11 mt-2 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Revisar Borrador SOAP IA</span>
+              </button>
             </div>
           </div>
         </TabsContent>
       </Tabs>
+
+      <SoapNoteDraftModal
+        isOpen={isDraftModalOpen}
+        onClose={() => setIsDraftModalOpen(false)}
+        draftSoap={soapNotes}
+        onAccept={handleAcceptDraft}
+        onReject={() => setIsDraftModalOpen(false)}
+      />
     </aside>
   );
 };

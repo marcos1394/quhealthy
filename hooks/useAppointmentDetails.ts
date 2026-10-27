@@ -10,8 +10,10 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   
-  // Estados para archivos
+  // Estados para archivos y confirmación de asistencia (ENG-NOTIF-01)
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isAttendanceConfirmed, setIsAttendanceConfirmed] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // 📱 NUEVO
 
   const [prevAppointmentId, setPrevAppointmentId] = useState(appointmentId);
@@ -107,6 +109,27 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
     }
   };
 
+  const confirmAttendance = async () => {
+    if (!appointmentId) return false;
+    setIsConfirming(true);
+    try {
+      const updated = await appointmentService.confirmAppointment(Number(appointmentId));
+      setIsAttendanceConfirmed(true);
+      if (updated) {
+        setAppointment(updated);
+      }
+      toast.success("Asistencia confirmada exitosamente");
+      return true;
+    } catch (err) {
+      console.error("Error confirming attendance:", err);
+      toast.error("Error al confirmar asistencia");
+      handleApiError(err);
+      return false;
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
   return {
     appointment,
     isLoading,
@@ -114,6 +137,9 @@ export const useAppointmentDetails = (appointmentId: string | number | undefined
     isDownloading,
     downloadInvoice,
     qrCodeUrl, // 📱 Exponemos el QR a la página
-    cancelAppointment
+    cancelAppointment,
+    isConfirming,
+    isAttendanceConfirmed,
+    confirmAttendance,
   };
 };

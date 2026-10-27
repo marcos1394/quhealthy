@@ -26,6 +26,7 @@ import {
   RotateCcw,
   XCircle,
   QrCode,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Image from "next/image";
@@ -63,6 +64,9 @@ export default function PatientAppointmentDetailsPage() {
     downloadInvoice,
     qrCodeUrl,
     cancelAppointment,
+    isConfirming,
+    isAttendanceConfirmed,
+    confirmAttendance,
   } = useAppointmentDetails(appointmentId);
 
   const handlePayNow = async () => {
@@ -526,8 +530,28 @@ export default function PatientAppointmentDetailsPage() {
 
               {appointment.status === "SCHEDULED" && (
                 <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-800 pt-6">
+                  {isAttendanceConfirmed ? (
+                    <div
+                      data-testid="attendance-confirmed-badge"
+                      className="w-full rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 h-14 text-sm font-bold flex items-center px-6 gap-3"
+                    >
+                      <CheckCircle2 className="w-4 h-4 shrink-0" strokeWidth={2} />
+                      <span>Asistencia Confirmada</span>
+                    </div>
+                  ) : (
+                    <Button
+                      data-testid="confirm-attendance-btn"
+                      onClick={confirmAttendance}
+                      disabled={isConfirming}
+                      className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-14 text-sm font-semibold transition-all shadow-sm flex justify-start px-6 border-0"
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-3" strokeWidth={2} />{" "}
+                      {isConfirming ? "Confirmando..." : "Confirmar Asistencia"}
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
+                    data-testid="reschedule-appointment-btn"
                     onClick={() => setIsRescheduleModalOpen(true)}
                     className="w-full rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111] h-14 text-sm font-semibold transition-all shadow-sm flex justify-start px-6"
                   >

@@ -38,6 +38,7 @@ import { SoapNotes, AppointmentDiagnosis, VitalSignRequest } from "@/types/ehr";
 import { cn } from "@/lib/utils";
 import { Icd10Autocomplete } from "./Icd10Autocomplete";
 import { VitalSignsCapture } from "./VitalSignsCapture";
+import { SoapNoteDraftModal } from "./SoapNoteDraftModal";
 
 interface ClinicalEvaluationStepProps {
   soapNotes: SoapNotes;
@@ -87,6 +88,30 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   const t = useTranslations("EHR");
 
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const [isSoapDraftModalOpen, setIsSoapDraftModalOpen] = useState(false);
+
+  const currentSoapDraft: SoapNotes = {
+    subjective:
+      soapNotes.subjective ||
+      "Paciente refiere motivo de consulta capturado en triage pre-consulta.",
+    objective:
+      soapNotes.objective ||
+      "Signos vitales y exploración física pendientes de validación por el médico.",
+    assessment:
+      soapNotes.assessment ||
+      "Impresión diagnóstica preliminar sujeta a criterio clínico.",
+    plan:
+      soapNotes.plan ||
+      "Plan terapéutico y seguimiento sugerido sujeto a firma médica.",
+  };
+
+  const handleAcceptSoapDraft = (editedDraft: SoapNotes) => {
+    updateSoapNote("subjective", editedDraft.subjective);
+    updateSoapNote("objective", editedDraft.objective);
+    updateSoapNote("assessment", editedDraft.assessment);
+    updateSoapNote("plan", editedDraft.plan);
+    setIsSoapDraftModalOpen(false);
+  };
   
   // Estado local para los campos dinámicos de la plantilla estructurada
   const [templateData, setTemplateData] = useState<Record<string, any>>({});
@@ -600,6 +625,16 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              data-testid="open-ai-soap-draft-btn"
+              onClick={() => setIsSoapDraftModalOpen(true)}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 h-10 rounded-xl text-xs font-bold bg-white dark:bg-[#0a0a0a] border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all cursor-pointer shadow-xs"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-600" strokeWidth={2} />
+              <span>Revisar Borrador SOAP IA</span>
+            </button>
+
             {syncAiSoapNote && (
               <button
                 type="button"
@@ -679,6 +714,15 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         onSelect={handleTemplateSelect}
+      />
+
+      {/* Modal Borrador Estructurado SOAP IA (NOM-004 / NOM-024) */}
+      <SoapNoteDraftModal
+        isOpen={isSoapDraftModalOpen}
+        onClose={() => setIsSoapDraftModalOpen(false)}
+        draftSoap={currentSoapDraft}
+        onAccept={handleAcceptSoapDraft}
+        onReject={() => setIsSoapDraftModalOpen(false)}
       />
     </div>
   );

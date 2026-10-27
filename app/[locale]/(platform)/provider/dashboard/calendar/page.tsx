@@ -63,8 +63,14 @@ function CalendarContent() {
   );
   const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
 
-  const { isGoogleConnected, isCheckingGoogle, handleGoogleConnect } =
-    useCalendarIntegration();
+  const {
+    isGoogleConnected,
+    isCheckingGoogle,
+    isSyncingGoogle,
+    handleGoogleConnect,
+    handleSyncNow,
+    handleDisconnect,
+  } = useCalendarIntegration();
   const { fetchSchedules } = useOperatingHours();
   const { locations, fetchLocations, isLoading: isLoadingLocations } =
     useProviderLocations();
@@ -311,15 +317,32 @@ function CalendarContent() {
                 {isCheckingGoogle ? (
                   <div className="h-11 w-44 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl" />
                 ) : isGoogleConnected ? (
-                  <Button
-                    variant="outline"
-                    className="w-full md:w-auto rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all h-11 px-5 shadow-sm flex items-center gap-2"
-                  >
-                    <Settings className="w-4 h-4" strokeWidth={2} />
-                    <span>{t("settings")}</span>
-                  </Button>
+                  <div className="flex flex-col sm:flex-row items-center gap-2">
+                    <Button
+                      data-testid="google-calendar-sync-btn"
+                      variant="outline"
+                      disabled={isSyncingGoogle}
+                      onClick={async () => {
+                        await handleSyncNow();
+                        setRefreshKey((prev) => prev + 1);
+                      }}
+                      className="w-full sm:w-auto rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#111] text-xs font-bold transition-all h-11 px-5 shadow-sm flex items-center gap-2"
+                    >
+                      <Settings className={`w-4 h-4 ${isSyncingGoogle ? "animate-spin" : ""}`} strokeWidth={2} />
+                      <span>{isSyncingGoogle ? "Sincronizando..." : t("settings")}</span>
+                    </Button>
+                    <Button
+                      data-testid="google-calendar-disconnect-btn"
+                      variant="ghost"
+                      onClick={handleDisconnect}
+                      className="w-full sm:w-auto rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs font-bold h-11 px-4"
+                    >
+                      Desvincular
+                    </Button>
+                  </div>
                 ) : (
                   <Button
+                    data-testid="google-calendar-connect-btn"
                     onClick={handleGoogleConnect}
                     className="w-full md:w-auto rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-xs font-bold transition-all h-11 px-5 shadow-sm border-0 flex items-center gap-2"
                   >

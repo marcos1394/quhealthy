@@ -5,9 +5,9 @@ permissions:
 
 on:
   push:
-    branches: [ master ] # Producción
+    branches: [ master, staging ] # Producción y Staging
   pull_request:
-    branches: [ master ] # Preview
+    branches: [ master, staging ] # Preview
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -47,7 +47,7 @@ jobs:
   deploy:
     name: Build & Deploy
     needs: quality-assurance # Solo despliega si pasa el control de calidad
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/staging')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -67,33 +67,31 @@ jobs:
 
       - name: Pull Vercel Environment Information
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-          else
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
             vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
           fi
 
       - name: Build Project Artifacts
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # Build para Preview (sin flag --prod)
-            vercel build --token=${{ secrets.VERCEL_TOKEN }}
-          else
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
             # Build para Producción (con flag --prod)
             vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            # Build para Staging / Preview (sin flag --prod)
+            vercel build --token=${{ secrets.VERCEL_TOKEN }}
           fi
 
       - name: Deploy to Vercel
         id: vercel_deploy
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # Despliegue a URL temporal (Preview)
-            PREVIEW_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
-            echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
-            if [ "${{ github.base_ref }}" == "staging" ] || [ "${{ github.head_ref }}" == "staging" ]; then
-              vercel alias set "$PREVIEW_URL" staging.quhealthy.org --token=${{ secrets.VERCEL_TOKEN }} || true
-            fi
-          else
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
             # Despliegue a Dominio Principal (Production)
             vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            # Despliegue a Staging y actualización de alias staging.quhealthy.org
+            PREVIEW_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+            echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+            vercel alias set "$PREVIEW_URL" staging.quhealthy.org --token=${{ secrets.VERCEL_TOKEN }} || true
           fi
