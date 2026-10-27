@@ -92,6 +92,10 @@ export interface AdminDashboardDTO {
   cancelledAppointmentsThisMonth: number;
   noShowAppointmentsThisMonth: number;
   revenueThisMonth: number;
+  signedConsentsCount?: number;
+  aiSoapDraftsCount?: number;
+  activeTreatmentPlansCount?: number;
+  b2bOrdersCount?: number;
   generatedAt: string;
 }
 

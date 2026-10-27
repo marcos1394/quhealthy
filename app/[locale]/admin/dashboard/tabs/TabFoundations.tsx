@@ -184,7 +184,10 @@ export const TabFoundations: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
+            <table
+              data-testid="admin-foundation-impact-table"
+              className="w-full text-left text-xs text-slate-600"
+            >
               <thead className="text-[11px] uppercase bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="px-4 py-3.5 rounded-tl-xl">Institución / Razón Social</th>

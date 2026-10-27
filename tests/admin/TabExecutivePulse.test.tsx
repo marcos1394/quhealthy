@@ -36,6 +36,10 @@ function buildBaseProps() {
     cancelledAppointmentsThisMonth: 5,
     noShowAppointmentsThisMonth: 2,
     revenueThisMonth: 18500,
+    signedConsentsCount: 14,
+    aiSoapDraftsCount: 9,
+    activeTreatmentPlansCount: 6,
+    b2bOrdersCount: 8,
     generatedAt: nowIso,
   };
 
@@ -136,6 +140,11 @@ describe("TabExecutivePulse — Real Connected Signals & Decluttered UI", () => 
     expect(screen.getByTestId("startup-aristas-radar")).toBeInTheDocument();
     expect(screen.getByTestId("pulse-gross-margin-value")).toHaveTextContent("$23136.00 MXN");
     expect(screen.getByTestId("pulse-infra-card")).toHaveTextContent("2/2 UP");
+
+    // SPRINT-4: ADMIN-PULSE-02 telemetría en vivo
+    const badges = screen.getAllByTestId("arista-live-telemetry-badge");
+    expect(badges.length).toBe(6);
+    expect(screen.getByText("14 NOM-004")).toBeInTheDocument();
   });
 
   it("renders 'No disponible' when economics is null", () => {

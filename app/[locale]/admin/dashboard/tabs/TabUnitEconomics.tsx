@@ -27,6 +27,7 @@ import {
 import { KpiCard } from "../components/KpiCard";
 import { UnitEconomicsDTO } from "@/services/admin.service";
 import { SignalQuality } from "@/types/admin-signal";
+import { calculateConsultationUnitEconomics } from "@/lib/finops/unit-economics-calculator";
 
 interface TabUnitEconomicsProps {
   economics: UnitEconomicsDTO | null;
@@ -456,6 +457,94 @@ export const TabUnitEconomics: React.FC<TabUnitEconomicsProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 🔬 SPRINT-4: Unit Economics Granular por Consulta Médica */}
+      {(() => {
+        const sampleConsultation = calculateConsultationUnitEconomics({
+          consultationPrice: 800,
+          quhealthyTakePercent: 0.15,
+          durationMinutes: 30,
+        });
+
+        return (
+          <div
+            data-testid="unit-economics-consultation-breakdown"
+            className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Unit Economics Auditado
+                  </span>
+                  <h3 className="font-bold text-slate-900 text-base">
+                    Modelo Unitario por Consulta Típica ($800 MXN / 30 min)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Desglose de COGS directos: Cloud Run + Vertex AI + LiveKit WebRTC + Stripe + Facturama SAT.
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-slate-400 font-semibold uppercase block">
+                  Margen de Contribución
+                </span>
+                <span className="text-xl font-black text-emerald-600 block">
+                  {formatCurrency(sampleConsultation.contributionMargin)} ({sampleConsultation.contributionMarginPercent}%)
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Precio Paciente</p>
+                <p className="text-sm font-extrabold text-slate-800 mt-0.5">
+                  {formatCurrency(sampleConsultation.consultationPrice)}
+                </p>
+              </div>
+
+              <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-200/60">
+                <p className="text-[10px] font-bold text-indigo-700 uppercase">Take QuHealthy (15%)</p>
+                <p className="text-sm font-extrabold text-indigo-950 mt-0.5">
+                  {formatCurrency(sampleConsultation.quhealthyGrossTake)}
+                </p>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60">
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Payout Doctor (85%)</p>
+                <p className="text-sm font-extrabold text-slate-800 mt-0.5">
+                  {formatCurrency(sampleConsultation.providerPayout)}
+                </p>
+              </div>
+
+              <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200/60">
+                <p className="text-[10px] font-bold text-amber-700 uppercase">Stripe (3.6% + $3)</p>
+                <p className="text-sm font-extrabold text-amber-950 mt-0.5">
+                  {formatCurrency(sampleConsultation.stripeFee)}
+                </p>
+              </div>
+
+              <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-200/60">
+                <p className="text-[10px] font-bold text-purple-700 uppercase">Infra (Run + AI + WebRTC)</p>
+                <p className="text-sm font-extrabold text-purple-950 mt-0.5">
+                  {formatCurrency(
+                    sampleConsultation.cloudRunCost +
+                      sampleConsultation.vertexAiCost +
+                      sampleConsultation.liveKitCost
+                  )}
+                </p>
+              </div>
+
+              <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200/60">
+                <p className="text-[10px] font-bold text-blue-700 uppercase">Timbre SAT CFDI 4.0</p>
+                <p className="text-sm font-extrabold text-blue-950 mt-0.5">
+                  {formatCurrency(sampleConsultation.satCfdiCost)}
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

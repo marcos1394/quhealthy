@@ -114,5 +114,13 @@ describe("TabUnitEconomics (ADMIN-TRUST-01 Compliance)", () => {
     expect(screen.getByText("$3,000.00")).toBeInTheDocument();
     expect(screen.getAllByText("$30.00").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("$7,000.00")).toBeInTheDocument();
+
+    // SPRINT-4: Unit economics granular breakdown
+    expect(
+      screen.getByTestId("unit-economics-consultation-breakdown")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Modelo Unitario por Consulta Típica ($800 MXN / 30 min)")
+    ).toBeInTheDocument();
   });
 });

@@ -206,26 +206,38 @@ export function StartupAristasRadar({
     },
     {
       id: "cumplimiento-gobernanza",
-      title: "6. Eficiencia & Calidad Operativa",
-      subtitle: "Indicadores reales de asistencia, cancelación y ausentismo",
+      title: "6. Cumplimiento & Telemetría Clínica",
+      subtitle: "Consentimientos NOM-004, Notas IA SOAP y Gobernanza",
       tabTarget: "foundations",
       icon: ShieldCheck,
-      status: "HEALTHY",
-      statusLabel: "BD Conectada",
+      status:
+        (dashboard?.signedConsentsCount ?? 0) > 0 || (dashboard?.aiSoapDraftsCount ?? 0) > 0
+          ? "HEALTHY"
+          : "ATTENTION",
+      statusLabel:
+        dashboard && typeof dashboard.signedConsentsCount === "number"
+          ? `${dashboard.signedConsentsCount} NOM-004`
+          : "BD Conectada",
       primaryMetrics: [
         {
-          label: "Ausentismo (No-Show Mes)",
-          value: dashboard ? String(dashboard.noShowAppointmentsThisMonth) : "No disponible",
-        },
-        {
-          label: "Cancelaciones del Mes",
-          value: dashboard ? String(dashboard.cancelledAppointmentsThisMonth) : "No disponible",
-        },
-        {
-          label: "Volumen Clínico (GMV)",
+          label: "Consentimientos NOM-004",
           value:
-            economics && typeof economics.totalGmv === "number"
-              ? formatCurrency(economics.totalGmv)
+            dashboard && typeof dashboard.signedConsentsCount === "number"
+              ? String(dashboard.signedConsentsCount)
+              : "No disponible",
+        },
+        {
+          label: "Borradores SOAP IA",
+          value:
+            dashboard && typeof dashboard.aiSoapDraftsCount === "number"
+              ? String(dashboard.aiSoapDraftsCount)
+              : "No disponible",
+        },
+        {
+          label: "Planes / Órdenes B2B",
+          value:
+            dashboard && typeof dashboard.activeTreatmentPlansCount === "number"
+              ? `${dashboard.activeTreatmentPlansCount} / ${dashboard.b2bOrdersCount ?? 0}`
               : "No disponible",
         },
       ],
@@ -289,6 +301,7 @@ export function StartupAristasRadar({
                     </div>
                   </div>
                   <span
+                    data-testid="arista-live-telemetry-badge"
                     className={`shrink-0 px-2 py-0.5 text-[10px] font-bold rounded-md border ${getStatusBadgeStyle(
                       arista.status
                     )}`}

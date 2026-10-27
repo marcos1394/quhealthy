@@ -41,6 +41,7 @@ import {
   SAT_REGIMES,
   SAT_CFDI_USES,
 } from "@/types/cfdi";
+import { validateCfdiPayload } from "@/lib/fiscal/cfdi-validator";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { toast } from "sonner";
 
@@ -103,23 +104,24 @@ function FacturacionContent() {
   const handleIssueInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!patientRfc.trim() || patientRfc.length < 12) {
-      toast.error("El RFC debe tener entre 12 y 13 caracteres.");
-      return;
-    }
-
-    if (!patientName.trim()) {
-      toast.error("Ingresa el Nombre o Razón Social como aparece en tu Constancia de Situación Fiscal.");
-      return;
-    }
-
-    if (!patientZipCode.trim() || patientZipCode.length !== 5) {
-      toast.error("El Código Postal fiscal debe ser de 5 dígitos.");
-      return;
-    }
-
     if (!receipt) {
       toast.error("No hay ticket seleccionado.");
+      return;
+    }
+
+    // Validación estricta SAT CFDI 4.0
+    const validation = validateCfdiPayload({
+      rfc: patientRfc,
+      name: patientName,
+      zipCode: patientZipCode,
+      regime: patientRegime,
+      cfdiUse: cfdiUsage,
+      email: patientEmail || undefined,
+    });
+
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
+      toast.error(firstError || "Los datos fiscales no son válidos para timbrado CFDI 4.0");
       return;
     }
 
@@ -440,6 +442,7 @@ function FacturacionContent() {
               <div className="pt-2">
                 <Button
                   type="submit"
+                  data-testid="cfdi-invoice-request-btn"
                   disabled={isStamping}
                   className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm gap-2 cursor-pointer shadow-lg shadow-emerald-600/25 border-0"
                 >
