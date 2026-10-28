@@ -25,12 +25,8 @@ export function ActiveCreditsBanner({
   const { user, token } = useSessionStore();
   const { packages, isLoading } = usePackages();
 
-  if (!user || !token) {
-    return null;
-  }
-
   const activeCreditsCount = useMemo(() => {
-    if (!packages || packages.length === 0) return 0;
+    if (!user || !token || !packages || packages.length === 0) return 0;
 
     const providerPackages = packages.filter(
       (pkg: ConsumerPackage) => pkg.provider?.id === providerId
@@ -44,9 +40,9 @@ export function ActiveCreditsBanner({
     });
 
     return totalRemaining;
-  }, [packages, providerId]);
+  }, [user, token, packages, providerId]);
 
-  if (isLoading || activeCreditsCount === 0) {
+  if (!user || !token || isLoading || activeCreditsCount === 0) {
     return null;
   }
 

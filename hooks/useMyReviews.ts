@@ -1,7 +1,5 @@
 // src/hooks/useMyReviews.ts
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
-import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 
 import { useSessionStore } from '@/stores/SessionStore';
@@ -10,7 +8,6 @@ import { Review } from '@/types/reviews';
 
 export const useMyReviews = () => {
     const { token, user } = useSessionStore();
-    const t = useTranslations('PatientReviewsDashboard');
     
     const [reviews, setReviews] = useState<Review[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -32,7 +29,7 @@ export const useMyReviews = () => {
             setReviews(data.content);
         } catch (err: any) {
             console.error("❌ Error cargando historial de reseñas:", err);
-            const errorMessage = err.response?.data?.message || t('toast_error', { defaultValue: 'No pudimos cargar tu historial.' });
+            const errorMessage = err.response?.data?.message || 'No pudimos cargar tu historial.';
             setError(errorMessage);
             handleApiError(err);
         } finally {

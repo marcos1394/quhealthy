@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { Sparkles, UserPlus, LogIn, X, ShieldCheck } from "lucide-react";
 import { useSessionStore } from "@/stores/SessionStore";
 import { cn } from "@/lib/utils";

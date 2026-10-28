@@ -1,7 +1,5 @@
 // src/hooks/usePackages.ts
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
-import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 
 import { useSessionStore } from '@/stores/SessionStore';
@@ -10,7 +8,6 @@ import { ConsumerPackage } from '@/types/packages';
 
 export const usePackages = () => {
     const { token, user } = useSessionStore();
-    const t = useTranslations('PatientPackages'); // Asumiendo que tu diccionario tiene esta llave
     
     // Estados
     const [packages, setPackages] = useState<ConsumerPackage[]>([]);
@@ -38,9 +35,9 @@ export const usePackages = () => {
         } catch (err: any) {
             console.error("❌ Error cargando los paquetes del paciente:", err);
             
-            // Extraer mensaje del backend o usar fallback del diccionario
+            // Extraer mensaje del backend o usar fallback
             const errorMessage = err.response?.data?.message 
-                || t('toast_error', { defaultValue: 'No pudimos cargar tus suscripciones. Intenta de nuevo.' });
+                || 'No pudimos cargar tus suscripciones. Intenta de nuevo.';
             
             setError(errorMessage);
             handleApiError(err);
