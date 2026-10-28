@@ -24,7 +24,9 @@ export const usePackages = () => {
     const fetchPackages = useCallback(async () => {
         // Si no hay token, no intentamos hacer la llamada para evitar 401s innecesarios
         if (!token || !user) {
+            setPackages([]);
             setIsLoading(false);
+            return;
         }
 
         setIsLoading(true);
@@ -45,7 +47,7 @@ export const usePackages = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [token, user, t]);
+    }, [token, user]);
 
     // Disparador inicial cuando el componente se monta y el token está listo
     useEffect(() => {

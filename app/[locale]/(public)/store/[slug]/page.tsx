@@ -43,6 +43,7 @@ import { useMyFavorites } from "@/hooks/useMyFavorites";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 import { ActiveCreditsBanner } from "@/components/packages/ActiveCreditsBanner";
+import { GuestStorefrontBanner } from "@/components/store/GuestStorefrontBanner";
 import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useProviderScore } from "@/hooks/useProviderScore";
@@ -293,6 +294,16 @@ export default function PublicStorePage() {
         providerId={store.providerId}
         brandColor={store.primaryColor}
       />
+
+      {/* --- BANNER DE INVITACIÓN PARA INVITADOS (NO AUTENTICADOS) --- */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+        <GuestStorefrontBanner
+          storeName={store.displayName}
+          slug={slug}
+          brandColor={store.primaryColor}
+          type="store"
+        />
+      </div>
 
       {/* --- HERO SECTION Y CONFIANZA --- */}
       <StorefrontHero

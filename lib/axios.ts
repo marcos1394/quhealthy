@@ -139,6 +139,13 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(await buildCustomError(error));
       }
 
+      // 🛡️ Si el usuario es invitado (sin token en memoria) y no hay refresh inicial en curso,
+      // evitamos llamar innecesariamente a /refresh-token
+      const hasToken = Boolean(useSessionStore.getState().token);
+      if (!hasToken && !isInitialRefreshInProgress) {
+        return Promise.reject(await buildCustomError(error));
+      }
+
       // 🚀 FIX BUG-5: Si initializeSession() ya está haciendo refresh,
       // esperamos su resultado en vez de hacer otro refresh que rompería la rotación
       if (isInitialRefreshInProgress && initialRefreshPromise) {
@@ -228,7 +235,7 @@ axiosInstance.interceptors.response.use(
           }
         }
 
-        return Promise.reject(refreshError);
+        return Promise.reject(originalRequest ? await buildCustomError(error) : refreshError);
 
       } finally {
         isRefreshing = false;

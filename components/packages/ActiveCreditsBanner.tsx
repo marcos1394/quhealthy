@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Sparkles, PackageCheck } from "lucide-react";
 import { usePackages } from "@/hooks/usePackages";
+import { useSessionStore } from "@/stores/SessionStore";
 import { cn } from "@/lib/utils";
 import { ConsumerPackage } from "@/types/packages";
 
@@ -21,7 +22,12 @@ export function ActiveCreditsBanner({
   isBookingView,
 }: ActiveCreditsBannerProps) {
   const t = useTranslations("ActiveCreditsBanner");
+  const { user, token } = useSessionStore();
   const { packages, isLoading } = usePackages();
+
+  if (!user || !token) {
+    return null;
+  }
 
   const activeCreditsCount = useMemo(() => {
     if (!packages || packages.length === 0) return 0;

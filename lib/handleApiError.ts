@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify';
+import { useSessionStore } from '@/stores/SessionStore';
 
 // =========================================================================
 //  Error Dictionary — HTTP status code → i18n key mapping
@@ -58,17 +59,36 @@ export function getErrorMessage(statusOrKey: number | string): string {
  * @param customMessage - Optional override message from the caller
  */
 export function handleApiError(error: any, customMessage?: string): void {
-    // If a custom message was provided, use it directly
-    if (customMessage) {
-        toast.error(customMessage);
+    const url = String(error?.config?.url || '');
+    const serverMessage: string | undefined =
+        error?.response?.data?.message || error?.message;
+
+    // 🛡️ Silenciar errores de refresh-token para que jamás interrumpan la UI
+    const isRefreshTokenError =
+        url.includes('/api/auth/refresh-token') ||
+        (typeof serverMessage === 'string' &&
+            /refresh.?token|token de refresco/i.test(serverMessage));
+
+    if (isRefreshTokenError) {
+        console.warn('🛡️ [handleApiError] Silenciado toast de refresh token:', serverMessage);
         return;
     }
 
     const status: number | undefined =
         error?.status || error?.response?.status;
 
-    const serverMessage: string | undefined =
-        error?.response?.data?.message || error?.message;
+    // 🛡️ Si el usuario es invitado (sin token en memoria) y un endpoint devuelve 401 en segundo plano, no mostrar toast
+    const hasToken = typeof window !== 'undefined' ? Boolean(useSessionStore.getState().token) : false;
+    if (status === 401 && !hasToken) {
+        console.warn('🛡️ [handleApiError] Silenciado toast 401 para usuario invitado.');
+        return;
+    }
+
+    // If a custom message was provided, use it directly
+    if (customMessage) {
+        toast.error(customMessage);
+        return;
+    }
 
     // If the server gave a specific message AND it's not a generic Axios message, prefer it
     if (serverMessage && !serverMessage.startsWith('Request failed with status')) {

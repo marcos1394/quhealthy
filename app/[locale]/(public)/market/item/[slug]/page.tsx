@@ -31,6 +31,7 @@ import { CourseDetailsSection } from "./CourseDetailsSection";
 import { PackageDetailsSection } from "./PackageDetailsSection";
 import { MarketplaceFaqSection } from "./MarketplaceFaqSection";
 import { StickyBottomBar } from "./StickyBottomBar";
+import { GuestStorefrontBanner } from "@/components/store/GuestStorefrontBanner";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -276,6 +277,14 @@ export default async function MarketItemPage({
               {item.name}
             </span>
           </nav>
+
+          {/* ── Guest Storefront Banner ─────────────────────────────── */}
+          <GuestStorefrontBanner
+            storeName={providerProfile?.displayName || "esta tienda"}
+            slug={slug}
+            brandColor={providerProfile?.primaryColor}
+            type="product"
+          />
 
           {/* ── Main Detail Grid ────────────────────────────────────── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">

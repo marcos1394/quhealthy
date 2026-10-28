@@ -18,7 +18,9 @@ export const useMyReviews = () => {
 
     const fetchMyReviews = useCallback(async () => {
         if (!token || !user) {
+            setReviews([]);
             setIsLoading(false);
+            return;
         }
 
         setIsLoading(true);
@@ -36,7 +38,7 @@ export const useMyReviews = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [token, user, t]);
+    }, [token, user]);
 
     useEffect(() => {
         fetchMyReviews();
