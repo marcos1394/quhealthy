@@ -58,7 +58,7 @@ import { StorefrontReviews } from "@/components/store/StorefrontReviews";
 import { StorefrontNavigation } from "@/components/store/StorefrontNavigation";
 import { StoreStructuredData } from "@/components/store/StoreStructuredData";
 import { MultiLocationSelector } from "@/components/store/MultiLocationSelector";
-import { StorefrontStickyBookingCard } from "@/components/store/StorefrontStickyBookingCard";
+import { StorefrontTrustBadges } from "@/components/store/StorefrontTrustBadges";
 import { toast } from "react-toastify";
 
 type TabType = "servicios" | "paquetes" | "productos" | "cursos";
@@ -333,13 +333,10 @@ export default function PublicStorePage() {
         </div>
       )}
 
-      {/* --- CONTENIDO PRINCIPAL EN 2 COLUMNAS (DESKTOP) --- */}
-      <div id="catalog-section" className="max-w-6xl mx-auto px-4 sm:px-6 mt-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* COLUMNA PRINCIPAL (8 COLS) */}
-          <div className="lg:col-span-8 space-y-8 min-w-0">
-            {/* NAVEGACIÓN TABULAR MODERNA CON SEGMENTED PILLS */}
-            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 py-3 shadow-2xs rounded-2xl px-2">
+      {/* --- CATÁLOGO PRINCIPAL Y EXPERIENCIA DE TIENDA (FULL WIDTH) --- */}
+      <div id="catalog-section" className="max-w-6xl mx-auto px-4 sm:px-6 mt-4 space-y-8 min-w-0">
+        {/* NAVEGACIÓN TABULAR MODERNA CON SEGMENTED PILLS */}
+        <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/80 py-3 shadow-2xs rounded-2xl px-2">
               <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                 {/* SERVICIOS */}
                 <button
@@ -921,7 +918,7 @@ export default function PublicStorePage() {
             >
               {store.products && store.products.length > 0 ? (
                 <div className="flex flex-col gap-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                     {store.products.slice(0, visibleProducts).map((product) => {
                       const isOutOfStock =
                         product.stockQuantity === 0 && !product.isDigital;
@@ -1316,6 +1313,14 @@ export default function PublicStorePage() {
         {/* 🚀 RESEÑAS (FASE 4) */}
         <StorefrontReviews providerId={store.providerId} />
 
+        {/* 🚀 GARANTÍAS DE CONFIANZA Y CUMPLIMIENTO */}
+        <StorefrontTrustBadges
+          store={store}
+          scoreData={singleScore}
+          brandColor={safePrimaryColor}
+          className="mt-12"
+        />
+
         {/* 🚀 CARRUSELES DE CROSS-SELLING (FASE 1) */}
         <div className="mt-12">
           <CrossSellingCarousel
@@ -1330,19 +1335,6 @@ export default function PublicStorePage() {
         </div>
       </div>
     </div>
-
-          {/* COLUMNA STICKY LATERAL (4 COLS EN DESKTOP) */}
-          <div className="hidden lg:block lg:col-span-4">
-            <StorefrontStickyBookingCard
-              store={store}
-              scoreData={singleScore}
-              selectedLocationId={selectedLocationId}
-              onSelectLocation={(loc) => setSelectedLocationId(loc.id)}
-              brandColor={safePrimaryColor}
-            />
-          </div>
-        </div>
-      </div>
 
       <QuScoreModal
         isOpen={showQuScoreModal}
