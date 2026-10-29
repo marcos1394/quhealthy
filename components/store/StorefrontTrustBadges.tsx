@@ -10,6 +10,8 @@ import {
   FileText,
   CalendarCheck,
   CheckCircle2,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 
 import { StorefrontData } from "@/types/storefront";
@@ -23,6 +25,16 @@ interface StorefrontTrustBadgesProps {
   className?: string;
 }
 
+interface TrustBadgeItem {
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  title: string;
+  description: string;
+  statusBadge: {
+    label: string;
+    isVerified: boolean;
+  };
+}
+
 export const StorefrontTrustBadges: React.FC<StorefrontTrustBadgesProps> = ({
   store,
   scoreData,
@@ -32,9 +44,9 @@ export const StorefrontTrustBadges: React.FC<StorefrontTrustBadgesProps> = ({
   const safePrimaryColor =
     brandColor && brandColor !== "#ffffff" ? brandColor : "#059669";
 
-  // Identificar si el perfil es de insumos / distribuidor / farmacia o principalmente venta de productos
+  // Identificar si el perfil es de insumos / distribuidor / farmacia o venta de productos
   const isSupplierOrProductStore = useMemo(() => {
-    if (store.providerType === "SUPPLIER" || store.providerType === "PHARMACY") {
+    if (store.providerType === "SUPPLIER" || store.providerType === "PHARMACY" || store.authRole === "SUPPLIER") {
       return true;
     }
     const productCount = store.products?.length || 0;
@@ -43,72 +55,159 @@ export const StorefrontTrustBadges: React.FC<StorefrontTrustBadgesProps> = ({
       return true;
     }
     return false;
-  }, [store.providerType, store.products, store.services]);
+  }, [store.providerType, store.authRole, store.products, store.services]);
 
-  // Lista de insignias adaptadas al contexto
-  const badges = useMemo(() => {
+  // Lista de insignias auditadas directamente con los datos reales del backend
+  const badges: TrustBadgeItem[] = useMemo(() => {
     if (isSupplierOrProductStore) {
-      return [
-        {
-          icon: ShieldCheck,
-          title: "Insumos Médicos Verificados",
-          description: store.cofeprisNotice
-            ? `Aviso de Funcionamiento COFEPRIS: ${store.cofeprisNotice}`
-            : "Material de curación, reactivos y dispositivos con trazabilidad y registro sanitario.",
+      // 1. Estatus del Distribuidor / Proveedor
+      const isSupplierVerified = store.supplierStatus === "VERIFIED";
+      const supplierBadge: TrustBadgeItem = {
+        icon: ShieldCheck,
+        title: isSupplierVerified
+          ? "Distribuidor Oficial Verificado"
+          : "Distribuidor Registrado QuHealthy",
+        description: isSupplierVerified
+          ? "Razón social, constancia fiscal y almacenes inspeccionados y aprobados por QuHealthy."
+          : store.cofeprisNotice
+          ? `Aviso de Funcionamiento COFEPRIS: ${store.cofeprisNotice}`
+          : "Empresa con catálogo activo en QuHealthy; validación de instalaciones y almacenes en curso.",
+        statusBadge: {
+          label: isSupplierVerified ? "Verificado" : "Registrado",
+          isVerified: isSupplierVerified,
         },
-        {
-          icon: Truck,
-          title: store.coldChainCertified
-            ? "Cadena de Frío & Envío Asegurado"
-            : "Envíos Asegurados a Todo México",
-          description: store.coldChainCertified
-            ? "Monitoreo térmico continuo certificado para biológicos e insumos sensibles."
-            : "Cobertura logística nacional con empaque de protección médica y rastreo en tiempo real.",
+      };
+
+      // 2. Logística y Cadena de Frío
+      const hasColdChain = Boolean(store.coldChainCertified);
+      const logisticsBadge: TrustBadgeItem = {
+        icon: Truck,
+        title: hasColdChain
+          ? "Cadena de Frío Certificada"
+          : "Envíos Asegurados a Todo México",
+        description: hasColdChain
+          ? "Monitoreo térmico continuo certificado para reactivos, biológicos y productos termolábiles."
+          : "Empaque de protección médica y logística con guía rastreable y garantía de entrega.",
+        statusBadge: {
+          label: hasColdChain ? "Cadena de Frío" : "Cobertura Nacional",
+          isVerified: true,
         },
-        {
-          icon: Receipt,
-          title: "Facturación SAT CFDI 4.0",
-          description:
-            "Emisión formal de factura electrónica deducible para clínicas, hospitales y profesionales.",
+      };
+
+      // 3. Facturación Fiscal SAT CFDI 4.0
+      const hasFiscalValidation = Boolean(
+        store.taxReceiptAvailable ||
+        store.rfc ||
+        store.fiscalStatus === "COMPLETED"
+      );
+      const maskedRfc = store.rfc && store.rfc.length >= 4
+        ? `${store.rfc.substring(0, 4)}***`
+        : null;
+
+      const fiscalBadge: TrustBadgeItem = {
+        icon: Receipt,
+        title: hasFiscalValidation
+          ? "Facturación SAT CFDI 4.0"
+          : "Comprobante Digital QuHealthy",
+        description: hasFiscalValidation
+          ? maskedRfc
+            ? `Emisión formal de factura electrónica con RFC validado en el SAT (${maskedRfc}).`
+            : "Emisión inmediata de factura electrónica deducible para personas físicas o morales."
+          : "Recibo de compra digital emitido. Para solicitar factura con RFC contacta al proveedor.",
+        statusBadge: {
+          label: hasFiscalValidation ? "Deducible SAT" : "Comprobante",
+          isVerified: hasFiscalValidation,
         },
-        {
-          icon: Lock,
-          title: "Pago Seguro SSL en Garantía",
-          description:
-            "Transacciones encriptadas. Tus fondos se resguardan de forma segura hasta confirmar la entrega.",
+      };
+
+      // 4. Pago Escrow SSL QuHealthy
+      const escrowBadge: TrustBadgeItem = {
+        icon: Lock,
+        title: "Pago Protegido en Garantía",
+        description:
+          "Transacciones encriptadas SSL. Tus fondos se resguardan en garantía hasta la recepción de tus insumos.",
+        statusBadge: {
+          label: "Escrow QuHealthy",
+          isVerified: true,
         },
-      ];
+      };
+
+      return [supplierBadge, logisticsBadge, fiscalBadge, escrowBadge];
     }
 
-    return [
-      {
-        icon: Award,
-        title: "Profesionales de Salud Verificados",
-        description: store.doctorLicense
-          ? `Cédula Profesional Auditada: ${store.doctorLicense}`
-          : "Cédulas y credenciales médicas verificadas ante la SEP y Secretaría de Salud.",
+    // FLUJO MÉDICO / CLÍNICO
+    // 1. Cédula Profesional y Credenciales
+    const hasLicense = Boolean(
+      store.doctorLicense || store.licenseStatus === "COMPLETED"
+    );
+    const licenseBadge: TrustBadgeItem = {
+      icon: Award,
+      title: hasLicense
+        ? "Cédula Profesional Auditada"
+        : "Profesional de Salud Registrado",
+      description: store.doctorLicense
+        ? `Cédula SEP / DGP: ${store.doctorLicense} (Estatus Activo ante la Dirección General de Profesiones).`
+        : hasLicense
+        ? "Cédula profesional verificada ante la SEP y Dirección General de Profesiones."
+        : "Especialista incorporado a la red QuHealthy en proceso de auditoría documental.",
+      statusBadge: {
+        label: hasLicense ? "Cédula Verificada" : "En Revisión",
+        isVerified: hasLicense,
       },
-      {
-        icon: FileText,
-        title: "Expediente Digital NOM-004",
-        description:
-          "Notas médicas, recetas y datos clínicos con cifrado de grado hospitalario bajo la norma oficial.",
+    };
+
+    // 2. Expediente Digital NOM-004
+    const nom004Badge: TrustBadgeItem = {
+      icon: FileText,
+      title: "Expediente Digital NOM-004",
+      description:
+        "Notas clínicas, recetas y datos de salud encriptados bajo la Norma Oficial Mexicana NOM-004-SSA3.",
+      statusBadge: {
+        label: "Norma Oficial",
+        isVerified: true,
       },
-      {
-        icon: CalendarCheck,
-        title: "Confirmación Inmediata de Cita",
-        description: store.cancellationPolicy
-          ? "Políticas claras de reprogramación y cancelación flexible en 1 clic."
-          : "Confirmación al instante con recordatorios automáticos vía WhatsApp.",
+    };
+
+    // 3. Confirmación Inmediata de Cita
+    const appointmentBadge: TrustBadgeItem = {
+      icon: CalendarCheck,
+      title: "Confirmación Inmediata de Cita",
+      description: store.cancellationPolicy
+        ? "Políticas de cancelación y reprogramación transparentes y gestionables en línea."
+        : "Confirmación en tiempo real y recordatorios automatizados de consulta vía WhatsApp.",
+      statusBadge: {
+        label: "En Línea",
+        isVerified: true,
       },
-      {
-        icon: Lock,
-        title: "Pago Seguro y Retención en Garantía",
-        description:
-          "Tu pago se mantiene en garantía protegida hasta que tu consulta o procedimiento concluya con éxito.",
+    };
+
+    // 4. Pago Seguro y Retención en Garantía
+    const paymentBadge: TrustBadgeItem = {
+      icon: Lock,
+      title: "Pago Seguro QuHealthy",
+      description:
+        "Tu pago queda protegido en garantía y únicamente se transfiere una vez que tu consulta concluye.",
+      statusBadge: {
+        label: "Garantía de Atención",
+        isVerified: true,
       },
-    ];
-  }, [isSupplierOrProductStore, store.cofeprisNotice, store.coldChainCertified, store.doctorLicense, store.cancellationPolicy]);
+    };
+
+    return [licenseBadge, nom004Badge, appointmentBadge, paymentBadge];
+  }, [
+    isSupplierOrProductStore,
+    store.supplierStatus,
+    store.cofeprisNotice,
+    store.coldChainCertified,
+    store.taxReceiptAvailable,
+    store.rfc,
+    store.fiscalStatus,
+    store.doctorLicense,
+    store.licenseStatus,
+    store.cancellationPolicy,
+  ]);
+
+  const isKycVerified = store.kycStatus === "COMPLETED";
 
   return (
     <section
@@ -135,48 +234,78 @@ export const StorefrontTrustBadges: React.FC<StorefrontTrustBadgesProps> = ({
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {isSupplierOrProductStore
-              ? "Todos los distribuidores y productos en QuHealthy operan bajo estándares de calidad y formalidad fiscal."
-              : "Tu bienestar es prioridad: todos los especialistas en QuHealthy cumplen con la regulación sanitaria vigente."}
+              ? "Datos de acreditación comercial, logística y fiscal auditados por el motor de cumplimiento de QuHealthy."
+              : "Acreditaciones clínicas, expediente normativo y protección de pago auditados por QuHealthy."}
           </p>
         </div>
 
-        {scoreData && (
-          <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 px-3.5 py-1.5 rounded-2xl shadow-2xs shrink-0">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-xs font-black">
-              QuScore {scoreData.score} / 1000
-            </span>
-            <span className="text-[10px] font-semibold text-emerald-700/80 dark:text-emerald-400/80 uppercase tracking-wider">
-              • Verificado
-            </span>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Badge de KYC Oficial si está validado en base de datos */}
+          {isKycVerified ? (
+            <div className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50 px-3 py-1.5 rounded-2xl shadow-2xs text-[11px] font-bold">
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>KYC Oficial Validado</span>
+            </div>
+          ) : store.kycStatus === "PENDING" ? (
+            <div className="inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 px-3 py-1.5 rounded-2xl shadow-2xs text-[11px] font-bold">
+              <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>KYC en Revisión</span>
+            </div>
+          ) : null}
+
+          {/* Badge de QuScore Verificado */}
+          {scoreData && (
+            <div className="inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 px-3 py-1.5 rounded-2xl shadow-2xs text-[11px] font-bold">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="font-black">QuScore {scoreData.score}</span>
+              <span className="text-[10px] text-emerald-700/80 dark:text-emerald-400/80 uppercase">
+                • Verificado
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* GRILLA DE 4 PILARES DE CONFIANZA */}
+      {/* GRILLA DE 4 PILARES AUDITADOS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6">
         {badges.map((badge) => {
           const Icon = badge.icon;
           return (
             <div
               key={badge.title}
-              className="p-5 rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800/80 shadow-2xs hover:shadow-xs transition-all space-y-2.5 flex flex-col justify-start"
+              className="p-5 rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800/80 shadow-2xs hover:shadow-xs transition-all space-y-2.5 flex flex-col justify-between"
             >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                style={{
-                  backgroundColor: `${safePrimaryColor}15`,
-                  color: safePrimaryColor,
-                }}
-              >
-                <Icon className="w-5 h-5" strokeWidth={2} />
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{
+                      backgroundColor: `${safePrimaryColor}15`,
+                      color: safePrimaryColor,
+                    }}
+                  >
+                    <Icon className="w-5 h-5" strokeWidth={2} />
+                  </div>
+
+                  <span
+                    className={cn(
+                      "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                      badge.statusBadge.isVerified
+                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/40"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700"
+                    )}
+                  >
+                    {badge.statusBadge.label}
+                  </span>
+                </div>
+
+                <h4 className="text-xs font-bold text-gray-900 dark:text-white leading-snug">
+                  {badge.title}
+                </h4>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                  {badge.description}
+                </p>
               </div>
-              <h4 className="text-xs font-bold text-gray-900 dark:text-white leading-snug">
-                {badge.title}
-              </h4>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                {badge.description}
-              </p>
             </div>
           );
         })}

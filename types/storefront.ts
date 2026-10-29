@@ -75,13 +75,19 @@ export interface StorefrontStaff {
 
 export interface StorefrontData {
   providerId: number;
-  providerType?: 'DOCTOR' | 'CLINIC' | 'FOUNDATION' | 'SUPPLIER' | 'PHARMACY';
+  providerType?: 'DOCTOR' | 'CLINIC' | 'FOUNDATION' | 'SUPPLIER' | 'PHARMACY' | string;
   doctorLicense?: string;
   specialty?: string;
   cofeprisNotice?: string;
   coldChainCertified?: boolean;
   taxReceiptAvailable?: boolean;
   b2bQuoteAvailable?: boolean;
+  kycStatus?: 'COMPLETED' | 'PENDING' | 'REJECTED' | string;
+  licenseStatus?: 'COMPLETED' | 'PENDING' | 'SKIPPED' | string;
+  fiscalStatus?: 'COMPLETED' | 'PENDING' | string;
+  rfc?: string;
+  supplierStatus?: 'VERIFIED' | 'PENDING_REVIEW' | 'REJECTED' | string;
+  authRole?: string;
   displayName: string;
   slug: string;
   bio: string;
