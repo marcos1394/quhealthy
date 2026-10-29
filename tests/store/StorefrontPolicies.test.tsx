@@ -78,6 +78,53 @@ describe("Storefront Policies Intelligence (Cancellation vs Return vs Hybrid)", 
     expect(
       screen.queryByText("Política de Cancelación y Reprogramación")
     ).not.toBeInTheDocument();
+
+    // Shows supplier-tailored section header
+    expect(screen.getByText("Sobre la Empresa / Distribuidor")).toBeInTheDocument();
+  });
+
+  it("protects suppliers from displaying legacy appointment cancellation text under return policy", () => {
+    const legacySupplierStore: StorefrontData = {
+      ...baseStore,
+      providerType: "SUPPLIER",
+      returnPolicy: undefined,
+      cancellationPolicy: "Las citas pueden ser canceladas o reprogramadas con hasta 24 horas de anticipación sin costo alguno.",
+      products: [
+        {
+          id: 501,
+          type: "PRODUCT",
+          category: "Material Quirúrgico",
+          name: "Guantes de Nitrilo Quirúrgicos",
+          description: "Caja con 100 piezas",
+          price: 180,
+        },
+      ],
+    };
+
+    render(
+      <StorefrontHero
+        store={legacySupplierStore}
+        isFavorited={false}
+      />
+    );
+
+    // Shows return policy title
+    expect(
+      screen.getByText("Política de Devolución y Garantías")
+    ).toBeInTheDocument();
+
+    // MUST NOT display the legacy appointment cancellation text!
+    expect(
+      screen.queryByText(/Las citas pueden ser canceladas/i)
+    ).not.toBeInTheDocument();
+
+    // Displays the standard COFEPRIS return guarantee
+    expect(
+      screen.getByText(/Aceptamos devoluciones dentro de los primeros 7 días naturales/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/bioseguridad COFEPRIS/i)
+    ).toBeInTheDocument();
   });
 
   it("renders only Cancellation Policy for a clinical doctor with medical appointments", () => {

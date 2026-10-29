@@ -85,15 +85,56 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
   const t = useTranslations("StorePublic");
   const [showQuScoreModal, setShowQuScoreModal] = useState(false);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [selectedPolicyType, setSelectedPolicyType] = useState<"cancellation" | "return">("cancellation");
-
   const safePrimaryColor = store.primaryColor || "#059669";
   const contactPhone = resolveStoreContactPhone(store);
 
-  const isSupplier = store.providerType === "SUPPLIER" || store.providerType === "PHARMACY" || store.authRole === "SUPPLIER";
-  const effectiveReturnPolicy = store.returnPolicy || (isSupplier ? store.cancellationPolicy : null);
-  const effectiveCancellationPolicy = !isSupplier ? store.cancellationPolicy : null;
+  const hasServices = Boolean((store.services && store.services.length > 0) || (store.packages && store.packages.length > 0));
+  const hasProducts = Boolean(store.products && store.products.length > 0);
+
+  const isSupplier =
+    store.providerType === "SUPPLIER" ||
+    store.providerType === "PHARMACY" ||
+    store.authRole === "SUPPLIER" ||
+    Boolean(hasProducts && !hasServices);
+
+  // Detección estricta de textos clínicos/citas médicas para no filtrarlos a devoluciones
+  const isAppointmentCancellationText = Boolean(
+    store.cancellationPolicy &&
+    /cita|consulta|reprogram|sesi[oó]n|anticipaci[oó]n/i.test(store.cancellationPolicy)
+  );
+
+  const DEFAULT_SUPPLIER_RETURN_POLICY =
+    "Aceptamos devoluciones dentro de los primeros 7 días naturales posteriores a la entrega con empaque original sellado e intacto. Por disposición sanitaria y bioseguridad COFEPRIS, no aplican devoluciones en material estéril abierto ni productos con cadena de frío. Garantía de 30 días contra defectos de fabricación.";
+
+  // Política de Devolución (Insumos y Productos)
+  const effectiveReturnPolicy = store.returnPolicy
+    ? store.returnPolicy
+    : isSupplier
+    ? (!isAppointmentCancellationText && store.cancellationPolicy ? store.cancellationPolicy : DEFAULT_SUPPLIER_RETURN_POLICY)
+    : hasProducts
+    ? DEFAULT_SUPPLIER_RETURN_POLICY
+    : null;
+
+  // Política de Cancelación (Citas Médicas y Consultas Clínicas)
+  const effectiveCancellationPolicy = hasServices && store.cancellationPolicy
+    ? store.cancellationPolicy
+    : (!isSupplier && store.cancellationPolicy)
+    ? store.cancellationPolicy
+    : null;
+
   const isHybridPolicy = Boolean(effectiveCancellationPolicy && effectiveReturnPolicy);
+
+  const [selectedPolicyType, setSelectedPolicyType] = useState<"cancellation" | "return">(
+    isSupplier && !hasServices ? "return" : "cancellation"
+  );
+
+  useEffect(() => {
+    if (isSupplier && !hasServices) {
+      setSelectedPolicyType("return");
+    } else if (!effectiveCancellationPolicy && effectiveReturnPolicy) {
+      setSelectedPolicyType("return");
+    }
+  }, [isSupplier, hasServices, effectiveCancellationPolicy, effectiveReturnPolicy]);
 
   // Galería de imágenes: Banner como imagen principal (índice 0), seguido de las demás
   const images: string[] = [];
@@ -125,7 +166,9 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
   const handleShare = async () => {
     const shareData = {
       title: store.displayName,
-      text: `Agenda tu cita con ${store.displayName} en QuHealthy`,
+      text: isSupplier
+        ? `Conoce el catálogo de insumos médicos de ${store.displayName} en QuHealthy`
+        : `Agenda tu cita con ${store.displayName} en QuHealthy`,
       url: window.location.href,
     };
 
@@ -408,7 +451,9 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
                 <div key="products" className="p-4 rounded-2xl bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800/80 flex items-start gap-3.5 shadow-2xs">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
                   <div className="space-y-0.5">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">Catálogo de Productos & Farmacia</h4>
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                      {isSupplier ? "Insumos Médicos & Productos" : "Catálogo de Productos & Farmacia"}
+                    </h4>
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
                       {store.products.length} {store.products.length === 1 ? "ítem registrado" : "ítems registrados"} en catálogo directo.
                     </p>
@@ -514,7 +559,9 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
           {(Boolean(store.bio && store.bio.trim().length > 0) || Boolean(contactPhone) || Boolean(store.whatsappEnabled && contactPhone) || Boolean(store.instagramUrl)) && (
             <div className="space-y-4 pt-2">
               <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
-                {t("about_specialist", { defaultValue: "Sobre el Especialista" })}
+                {isSupplier
+                  ? "Sobre la Empresa / Distribuidor"
+                  : t("about_specialist", { defaultValue: "Sobre el Especialista" })}
               </h3>
 
               {store.bio && store.bio.trim().length > 0 && (
