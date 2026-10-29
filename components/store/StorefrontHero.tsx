@@ -19,6 +19,8 @@ import {
   ChevronRight,
   PhoneCall,
   ExternalLink,
+  PackageCheck,
+  CalendarCheck,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -83,9 +85,15 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
   const t = useTranslations("StorePublic");
   const [showQuScoreModal, setShowQuScoreModal] = useState(false);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [selectedPolicyType, setSelectedPolicyType] = useState<"cancellation" | "return">("cancellation");
 
   const safePrimaryColor = store.primaryColor || "#059669";
   const contactPhone = resolveStoreContactPhone(store);
+
+  const isSupplier = store.providerType === "SUPPLIER" || store.providerType === "PHARMACY" || store.authRole === "SUPPLIER";
+  const effectiveReturnPolicy = store.returnPolicy || (isSupplier ? store.cancellationPolicy : null);
+  const effectiveCancellationPolicy = !isSupplier ? store.cancellationPolicy : null;
+  const isHybridPolicy = Boolean(effectiveCancellationPolicy && effectiveReturnPolicy);
 
   // Galería de imágenes: Banner como imagen principal (índice 0), seguido de las demás
   const images: string[] = [];
@@ -568,18 +576,71 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
                 )}
               </div>
 
-              {/* Política de Cancelación Transparente */}
-              {store.cancellationPolicy && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-start gap-3.5 mt-4">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
-                  <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-emerald-950 dark:text-emerald-300 uppercase tracking-wider">
-                      {t("cancellation_policy_title")}
-                    </h4>
-                    <p className="text-xs font-medium text-emerald-900/80 dark:text-emerald-400/80 leading-relaxed">
-                      {store.cancellationPolicy}
-                    </p>
-                  </div>
+              {/* Políticas Inteligentes: Cancelación (Servicios) vs Devolución (Insumos) vs Híbrido */}
+              {(effectiveCancellationPolicy || effectiveReturnPolicy) && (
+                <div className="mt-4 space-y-2.5 font-sans" data-testid="storefront-hero-policies">
+                  {/* Selector si el prestador tiene ambas políticas configuradas */}
+                  {isHybridPolicy && (
+                    <div className="flex items-center gap-1.5 p-1 bg-gray-100 dark:bg-[#141414] rounded-xl w-fit border border-gray-200/60 dark:border-gray-800">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPolicyType("cancellation")}
+                        className={cn(
+                          "px-3 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+                          selectedPolicyType === "cancellation"
+                            ? "bg-white dark:bg-[#222] text-emerald-700 dark:text-emerald-300 shadow-2xs"
+                            : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+                        )}
+                      >
+                        <CalendarCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Citas Médicas</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPolicyType("return")}
+                        className={cn(
+                          "px-3 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+                          selectedPolicyType === "return"
+                            ? "bg-white dark:bg-[#222] text-blue-700 dark:text-blue-300 shadow-2xs"
+                            : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+                        )}
+                      >
+                        <PackageCheck className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Insumos y Productos</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Tarjeta de Política de Cancelación */}
+                  {(!isHybridPolicy ? effectiveCancellationPolicy : selectedPolicyType === "cancellation") && effectiveCancellationPolicy && (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-start gap-3.5">
+                      <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2} />
+                      <div className="space-y-1">
+                        <h4 className="text-xs font-bold text-emerald-950 dark:text-emerald-300 uppercase tracking-wider">
+                          Política de Cancelación y Reprogramación
+                        </h4>
+                        <p className="text-xs font-medium text-emerald-900/80 dark:text-emerald-400/80 leading-relaxed">
+                          {effectiveCancellationPolicy}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tarjeta de Política de Devolución */}
+                  {(!isHybridPolicy ? effectiveReturnPolicy : selectedPolicyType === "return") && effectiveReturnPolicy && (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 flex items-start gap-3.5">
+                      <PackageCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" strokeWidth={2} />
+                      <div className="space-y-1">
+                        <h4 className="text-xs font-bold text-blue-950 dark:text-blue-300 uppercase tracking-wider">
+                          Política de Devolución y Garantías
+                        </h4>
+                        <p className="text-xs font-medium text-blue-900/80 dark:text-blue-400/80 leading-relaxed">
+                          {effectiveReturnPolicy}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

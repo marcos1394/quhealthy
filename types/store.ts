@@ -51,6 +51,7 @@ export interface StoreProfile {
   // Idiomas y Políticas
   languages: string[];
   cancellationPolicy: string | null;
+  returnPolicy?: string | null;
 }
 
 export interface UploadMediaResponse {

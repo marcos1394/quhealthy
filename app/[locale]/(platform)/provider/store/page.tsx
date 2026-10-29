@@ -78,7 +78,7 @@ export default function StoreSetupPage() {
     activeServices + activePackages + activeProducts + activeCourses;
   const isCatalogComplete = realCatalogCount > 0;
 
-  const isPoliciesComplete = !!profile?.cancellationPolicy;
+  const isPoliciesComplete = !!(profile?.cancellationPolicy || profile?.returnPolicy);
 
   const activeStaffCount = staff.filter((s) => !s.isNew).length;
   const isStaffComplete = activeStaffCount > 0;

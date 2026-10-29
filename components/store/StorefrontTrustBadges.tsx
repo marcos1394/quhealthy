@@ -120,14 +120,15 @@ export const StorefrontTrustBadges: React.FC<StorefrontTrustBadgesProps> = ({
         },
       };
 
-      // 4. Pago Escrow SSL QuHealthy
+      // 4. Pago Escrow SSL QuHealthy y Garantía de Devolución
       const escrowBadge: TrustBadgeItem = {
         icon: Lock,
         title: "Pago Protegido en Garantía",
-        description:
-          "Transacciones encriptadas SSL. Tus fondos se resguardan en garantía hasta la recepción de tus insumos.",
+        description: store.returnPolicy
+          ? "Transacciones encriptadas SSL. Tus fondos se resguardan en garantía bajo la política de devolución del proveedor."
+          : "Transacciones encriptadas SSL. Tus fondos se resguardan en garantía hasta la recepción de tus insumos.",
         statusBadge: {
-          label: "Escrow QuHealthy",
+          label: store.returnPolicy ? "Devolución Activa" : "Escrow QuHealthy",
           isVerified: true,
         },
       };
@@ -205,6 +206,7 @@ export const StorefrontTrustBadges: React.FC<StorefrontTrustBadgesProps> = ({
     store.doctorLicense,
     store.licenseStatus,
     store.cancellationPolicy,
+    store.returnPolicy,
   ]);
 
   const isKycVerified = store.kycStatus === "COMPLETED";

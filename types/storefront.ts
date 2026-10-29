@@ -106,6 +106,7 @@ export interface StorefrontData {
   longitude?: number;
   languages?: string[];
   cancellationPolicy?: string;
+  returnPolicy?: string;
   tags?: string[]; 
 
   rating: number;
