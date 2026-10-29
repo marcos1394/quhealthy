@@ -10,8 +10,11 @@ vi.mock("next-intl", () => ({
 }));
 
 describe("GuestStorefrontBanner Component", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    sessionStorage.clear();
+    const { useBookingStore } = await import("@/hooks/useBookingStore");
+    useBookingStore.setState({ cart: [] });
     useSessionStore.setState({
       token: null,
       user: null,
@@ -88,6 +91,51 @@ describe("GuestStorefrontBanner Component", () => {
     const closeBtn = screen.getByTestId("guest-banner-close-btn");
     fireEvent.click(closeBtn);
 
+    expect(screen.queryByTestId("guest-storefront-banner")).toBeNull();
+  });
+
+  it("renders with fixed bottom positioning classes when floating={true}", () => {
+    render(
+      <GuestStorefrontBanner
+        storeName="Asap Medix"
+        slug="asap-medix"
+        type="store"
+        floating={true}
+      />
+    );
+
+    const banner = screen.getByTestId("guest-storefront-banner");
+    expect(banner).toBeDefined();
+    expect(banner.className).toContain("fixed");
+    expect(banner.className).toContain("bottom-4");
+  });
+
+  it("yields to checkout bar and does not render floating banner when cart has items", async () => {
+    const { useBookingStore } = await import("@/hooks/useBookingStore");
+    useBookingStore.setState({
+      cart: [
+        {
+          id: 1,
+          type: "PRODUCT",
+          name: "Guantes",
+          category: "Material Quirúrgico",
+          description: "Caja de guantes",
+          price: 150,
+          cartQuantity: 1,
+        },
+      ],
+    });
+
+    const { container } = render(
+      <GuestStorefrontBanner
+        storeName="Asap Medix"
+        slug="asap-medix"
+        type="store"
+        floating={true}
+      />
+    );
+
+    expect(container.firstChild).toBeNull();
     expect(screen.queryByTestId("guest-storefront-banner")).toBeNull();
   });
 });

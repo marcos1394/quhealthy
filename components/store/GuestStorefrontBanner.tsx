@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { Sparkles, UserPlus, LogIn, X, ShieldCheck } from "lucide-react";
 import { useSessionStore } from "@/stores/SessionStore";
+import { useBookingStore } from "@/hooks/useBookingStore";
 import { cn } from "@/lib/utils";
 
 export interface GuestStorefrontBannerProps {
@@ -12,6 +13,7 @@ export interface GuestStorefrontBannerProps {
   slug?: string;
   brandColor?: string;
   type?: "store" | "product";
+  floating?: boolean;
   className?: string;
 }
 
@@ -20,15 +22,28 @@ export function GuestStorefrontBanner({
   slug,
   brandColor = "#059669",
   type = "store",
+  floating = false,
   className,
 }: GuestStorefrontBannerProps) {
   const locale = useLocale();
   const [mounted, setMounted] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const { user, token } = useSessionStore();
+  const { cart } = useBookingStore();
+  const hasCartItems = Boolean(cart && cart.length > 0);
 
   useEffect(() => {
     setMounted(true);
+    try {
+      if (typeof window !== "undefined") {
+        const dismissed = sessionStorage.getItem("guest_storefront_banner_dismissed");
+        if (dismissed === "true") {
+          setIsDismissed(true);
+        }
+      }
+    } catch {
+      // sessionStorage no disponible
+    }
   }, []);
 
   // No renderizar en SSR para evitar desajustes de hidratación con el store de cliente
@@ -40,6 +55,22 @@ export function GuestStorefrontBanner({
   if (user || token || isDismissed) {
     return null;
   }
+
+  // Si está flotando y el usuario ya tiene ítems en el carrito, cedemos espacio a la barra de checkout
+  if (floating && hasCartItems) {
+    return null;
+  }
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("guest_storefront_banner_dismissed", "true");
+      }
+    } catch {
+      // Ignore
+    }
+  };
 
   const safeBrandColor =
     brandColor && brandColor !== "#ffffff" && brandColor !== "#000000"
@@ -70,9 +101,9 @@ export function GuestStorefrontBanner({
       data-testid="guest-storefront-banner"
       aria-label="Invitación para registrarse o iniciar sesión"
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-emerald-200/90 dark:border-emerald-800/50",
-        "bg-gradient-to-r from-emerald-50/95 via-white to-teal-50/90 dark:from-emerald-950/40 dark:via-[#111111] dark:to-teal-950/30",
-        "p-4 sm:p-5 shadow-xs backdrop-blur-xs transition-all duration-300",
+        floating
+          ? "fixed bottom-4 sm:bottom-6 left-3 sm:left-6 right-3 sm:right-6 max-w-4xl mx-auto z-40 overflow-hidden rounded-2xl border border-emerald-500/30 dark:border-emerald-500/20 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md shadow-2xl shadow-emerald-950/20 dark:shadow-black/70 p-3.5 sm:p-4 transition-all duration-300 animate-in slide-in-from-bottom-5"
+          : "relative overflow-hidden rounded-2xl border border-emerald-200/90 dark:border-emerald-800/50 bg-gradient-to-r from-emerald-50/95 via-white to-teal-50/90 dark:from-emerald-950/40 dark:via-[#111111] dark:to-teal-950/30 p-4 sm:p-5 shadow-xs backdrop-blur-xs transition-all duration-300",
         className
       )}
     >
@@ -80,7 +111,7 @@ export function GuestStorefrontBanner({
       <button
         type="button"
         data-testid="guest-banner-close-btn"
-        onClick={() => setIsDismissed(true)}
+        onClick={handleDismiss}
         className="absolute top-3 right-3 p-1.5 rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
         aria-label="Cerrar aviso de registro"
         title="Cerrar"

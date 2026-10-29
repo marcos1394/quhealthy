@@ -302,15 +302,14 @@ export default function PublicStorePage() {
         brandColor={store.primaryColor}
       />
 
-      {/* --- BANNER DE INVITACIÓN PARA INVITADOS (NO AUTENTICADOS) --- */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-4">
-        <GuestStorefrontBanner
-          storeName={store.displayName}
-          slug={slug}
-          brandColor={store.primaryColor}
-          type="store"
-        />
-      </div>
+      {/* --- BANNER FLOTANTE DE INVITACIÓN PARA INVITADOS (NO AUTENTICADOS) --- */}
+      <GuestStorefrontBanner
+        storeName={store.displayName}
+        slug={slug}
+        brandColor={store.primaryColor}
+        type="store"
+        floating={true}
+      />
 
       {/* --- HERO SECTION Y CONFIANZA --- */}
       <StorefrontHero
