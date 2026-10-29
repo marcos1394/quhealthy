@@ -30,6 +30,7 @@ import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { QuScoreModal } from "@/components/store/QuScoreModal";
 import { QuickAvailability } from "@/components/store/QuickAvailability";
 import { cn } from "@/lib/utils";
+import { formatWhatsAppUrl, resolveStoreContactPhone } from "@/lib/whatsapp";
 
 interface StorefrontHeroProps {
   store: StorefrontData;
@@ -84,6 +85,7 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
 
   const safePrimaryColor = store.primaryColor || "#059669";
+  const contactPhone = resolveStoreContactPhone(store);
 
   // Galería de imágenes: Banner como imagen principal (índice 0), seguido de las demás
   const images: string[] = [];
@@ -501,7 +503,7 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
           )}
 
           {/* Biografía y Contacto (Solo si tiene bio real o teléfono/redes) */}
-          {(Boolean(store.bio && store.bio.trim().length > 0) || Boolean(store.phone) || Boolean(store.whatsappEnabled) || Boolean(store.instagramUrl)) && (
+          {(Boolean(store.bio && store.bio.trim().length > 0) || Boolean(contactPhone) || Boolean(store.whatsappEnabled && contactPhone) || Boolean(store.instagramUrl)) && (
             <div className="space-y-4 pt-2">
               <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
                 {t("about_specialist", { defaultValue: "Sobre el Especialista" })}
@@ -516,28 +518,32 @@ export const StorefrontHero: React.FC<StorefrontHeroProps> = ({
               {/* Botones de Contacto Directo */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 {/* Llamar por Teléfono */}
-                {store.phone && (
+                {contactPhone && (
                   <a
-                    href={`tel:${store.phone}`}
+                    href={`tel:${contactPhone.replace(/[^\d+]/g, "")}`}
+                    data-testid="storefront-phone-btn"
                     className="inline-flex items-center gap-2 rounded-xl h-10 px-4 text-xs font-bold border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-2xs cursor-pointer"
                   >
                     <PhoneCall className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                    <span>{t("call_phone")}: {store.phone}</span>
+                    <span>{t("call_phone")}: {contactPhone}</span>
                   </a>
                 )}
 
                 {/* WhatsApp enriquecido */}
-                {store.whatsappEnabled && (() => {
-                  const cleanPhone = (store.phone || "").replace(/\D/g, "");
-                  const waHref = cleanPhone
-                    ? `https://wa.me/${cleanPhone.length === 10 ? `52${cleanPhone}` : cleanPhone}?text=${encodeURIComponent(`Hola, vi tu perfil en QuHealthy (${store.displayName}) y me gustaría solicitar información.`)}`
-                    : `https://wa.me/?text=${encodeURIComponent(`Hola, vi tu perfil en QuHealthy (${store.displayName}) y me gustaría solicitar información.`)}`;
+                {store.whatsappEnabled && contactPhone && (() => {
+                  const waHref = formatWhatsAppUrl(
+                    contactPhone,
+                    `Hola, vi tu perfil en QuHealthy (${store.displayName}) y me gustaría solicitar información.`
+                  );
+
+                  if (!waHref) return null;
 
                   return (
                     <a
                       href={waHref}
                       target="_blank"
                       rel="noopener noreferrer"
+                      data-testid="storefront-whatsapp-btn"
                       className="inline-flex items-center gap-2 rounded-xl h-10 px-5 text-xs font-bold border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-800 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-2xs cursor-pointer"
                     >
                       <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
