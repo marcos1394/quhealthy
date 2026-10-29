@@ -284,8 +284,15 @@ export default function PublicStorePage() {
     return null;
   };
 
+  const isPlatformMode = Boolean(user && userId);
+
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+    <div
+      className={cn(
+        "min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300",
+        isPlatformMode ? "pt-2 md:pt-4" : "pt-20 md:pt-24"
+      )}
+    >
       <StoreStructuredData store={store} />
       <StorefrontNavigation storeName={store.displayName} category={store.tags?.[0]} />
       
@@ -296,7 +303,7 @@ export default function PublicStorePage() {
       />
 
       {/* --- BANNER DE INVITACIÓN PARA INVITADOS (NO AUTENTICADOS) --- */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-4">
         <GuestStorefrontBanner
           storeName={store.displayName}
           slug={slug}

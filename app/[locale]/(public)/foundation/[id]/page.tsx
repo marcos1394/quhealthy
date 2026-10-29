@@ -261,7 +261,7 @@ export default function FoundationPublicStorefrontPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-20 md:pt-24 pb-40 font-sans selection:bg-gray-200 dark:selection:bg-white/20 text-black dark:text-white transition-colors duration-300">
       {/* ── BREADCRUMBS Y NAVEGACIÓN SUPERIOR ────────────────────────── */}
       <div className="border-b border-gray-100 dark:border-gray-800/80 bg-white dark:bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between text-xs text-gray-500 font-medium">

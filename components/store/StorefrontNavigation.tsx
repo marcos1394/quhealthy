@@ -53,33 +53,45 @@ export const StorefrontNavigation: React.FC<StorefrontNavigationProps> = ({
 
   return (
     <>
-      {/* Breadcrumbs de Escritorio */}
-      <div className="hidden md:flex max-w-7xl mx-auto px-6 py-4 items-center text-xs font-semibold text-gray-500 font-sans select-none">
+      {/* ── Navegación y Breadcrumbs en Móvil y Escritorio (In-flow, jamás flota sobre el Navbar) ── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between text-xs font-semibold text-gray-500 font-sans select-none">
+        <div className="flex items-center gap-1.5 truncate">
+          <button
+            type="button"
+            onClick={() => router.push("/discover")}
+            className="inline-flex items-center gap-1 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
+            <span>{t("discover")}</span>
+          </button>
+          <span className="mx-1.5 text-gray-300 dark:text-gray-700">/</span>
+          {category && (
+            <>
+              <span className="hidden sm:inline hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer">
+                {category}
+              </span>
+              <span className="hidden sm:inline mx-1.5 text-gray-300 dark:text-gray-700">/</span>
+            </>
+          )}
+          <span className="text-gray-900 dark:text-white truncate max-w-[160px] sm:max-w-[240px] font-bold">
+            {storeName}
+          </span>
+        </div>
+
         <button
           type="button"
-          onClick={() => router.push("/discover")}
-          className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+          onClick={handleShare}
+          className="md:hidden inline-flex items-center justify-center p-1.5 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer shadow-2xs"
+          title="Compartir"
         >
-          {t("discover")}
+          <Share className="w-3.5 h-3.5" />
         </button>
-        <span className="mx-2 text-gray-300 dark:text-gray-700">/</span>
-        {category && (
-          <>
-            <span className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer">
-              {category}
-            </span>
-            <span className="mx-2 text-gray-300 dark:text-gray-700">/</span>
-          </>
-        )}
-        <span className="text-gray-900 dark:text-white truncate max-w-[200px] font-bold">
-          {storeName}
-        </span>
       </div>
 
-      {/* Cabecera Móvil y Pegajosa al Scroll */}
+      {/* Cabecera Móvil y Pegajosa al Scroll (Activa solo tras pasar el Hero) */}
       <div
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md transition-all duration-300 border-b font-sans select-none",
+          "fixed top-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md transition-all duration-300 border-b font-sans select-none",
           isScrolled
             ? "translate-y-0 opacity-100 border-gray-100 dark:border-gray-800 shadow-2xs"
             : "-translate-y-full opacity-0 border-transparent pointer-events-none"
@@ -106,22 +118,6 @@ export const StorefrontNavigation: React.FC<StorefrontNavigationProps> = ({
             <Share className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
-      </div>
-
-      {/* Botón Flotante Superior en Móvil (Estático al tope) */}
-      <div
-        className={cn(
-          "md:hidden absolute top-4 left-4 z-40 transition-opacity duration-300 font-sans",
-          isScrolled ? "opacity-0 pointer-events-none" : "opacity-100"
-        )}
-      >
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white shadow-2xs cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-        </button>
       </div>
     </>
   );

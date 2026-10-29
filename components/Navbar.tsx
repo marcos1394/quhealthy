@@ -164,6 +164,8 @@ export const Navbar: React.FC = () => {
   const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const pathname = usePathname();
   const isLandingPage = pathname === "/";
   const t = useTranslations("Navbar");
@@ -181,10 +183,50 @@ export const Navbar: React.FC = () => {
   }, [_hasHydrated, isAuthenticated, initializeSession]);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+
+          // Si el menú móvil está abierto, el navbar debe permanecer visible
+          if (mobileMenuOpen) {
+            setIsVisible(true);
+            setIsScrolled(currentScrollY > 10);
+            lastScrollY.current = currentScrollY;
+            ticking = false;
+            return;
+          }
+
+          // Cerca del tope siempre visible
+          if (currentScrollY <= 20) {
+            setIsVisible(true);
+            setIsScrolled(false);
+          } else {
+            setIsScrolled(true);
+            const delta = currentScrollY - lastScrollY.current;
+
+            // Al hacer scroll hacia abajo significativo (>8px tras haber bajado >70px), ocultar suavemente
+            if (delta > 8 && currentScrollY > 70) {
+              setIsVisible(false);
+            }
+            // Al hacer scroll hacia arriba (< -8px), reaparecer inmediatamente
+            else if (delta < -8) {
+              setIsVisible(true);
+            }
+          }
+
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+      }
+    };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [mobileMenuOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -478,10 +520,14 @@ export const Navbar: React.FC = () => {
 
   return (
     <header
+      data-testid="smart-navbar"
+      data-visible={isVisible}
+      data-scrolled={isScrolled}
       className={cn(
-        "fixed top-0 inset-x-0 z-50 transition-all duration-300 font-sans",
+        "fixed top-0 inset-x-0 z-50 font-sans transition-all duration-300 ease-in-out transform",
+        isVisible || mobileMenuOpen ? "translate-y-0" : "-translate-y-full",
         isScrolled || mobileMenuOpen
-          ? "bg-white/85 dark:bg-[#0a0a0a]/85 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 py-3 shadow-xs"
+          ? "bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 py-3 shadow-xs"
           : "bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-sm border-b border-transparent py-4"
       )}
     >
