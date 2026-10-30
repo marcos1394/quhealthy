@@ -66,6 +66,19 @@ export function PulsoFloatingAssistant() {
   const [attachments, setAttachments] = useState<AttachmentData[]>([]);
   const [messages, setMessages] = useState<FloatingChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeVoiceInfo, setActiveVoiceInfo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      healthOSService.getActiveVoice()
+        .then((cfg) => {
+          if (cfg?.activeVoice) {
+            setActiveVoiceInfo(cfg.activeVoice);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen]);
 
   // Posicionamiento libre y arrastrable
   const dragX = useMotionValue(0);
@@ -428,6 +441,7 @@ export function PulsoFloatingAssistant() {
     : [
         t("prompt_simulation", { defaultValue: "🩺 Simular una consulta médica (práctica de voz)" }),
         t("prompt_stress_relief", { defaultValue: "🧘 Técnicas de respiración para calmar el estrés" }),
+        t("prompt_voice_info", { defaultValue: "🎙️ Conoce la voz clínica exclusiva de Pulso" }),
         t("prompt_find_doctor", { defaultValue: "Buscar especialista por síntoma" }),
         t("prompt_supplies", { defaultValue: "¿Dónde puedo comprar insumos médicos?" }),
         t("prompt_my_appointments", { defaultValue: "Consultar mis próximas citas" }),
@@ -619,8 +633,11 @@ export function PulsoFloatingAssistant() {
                     <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
                       Pulso
                     </h3>
-                    <Badge className="bg-emerald-50 text-[#1D9E75] dark:bg-emerald-950/50 dark:text-[#5DCAA5] border border-[#5DCAA5]/40 rounded-full text-[9px] font-black px-2 py-0">
-                      AI COPILOT
+                    <Badge
+                      className="bg-emerald-50 text-[#1D9E75] dark:bg-emerald-950/50 dark:text-[#5DCAA5] border border-[#5DCAA5]/40 rounded-full text-[9px] font-black px-2 py-0 cursor-default"
+                      title={activeVoiceInfo ? `Voz activa de Pulso: ${activeVoiceInfo}` : "AI COPILOT"}
+                    >
+                      {activeVoiceInfo?.startsWith("voice_") ? "VOICE DESIGN" : "AI COPILOT"}
                     </Badge>
                   </div>
 
