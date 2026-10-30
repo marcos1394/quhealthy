@@ -287,9 +287,12 @@ export function PulsoFloatingAssistant() {
             if (audioPlayerRef.current) {
               audioPlayerRef.current.pause();
             }
+            const rawBase64 = (response as any).audioBase64;
+            // Detección automática de formato: Gemini 3.8 Flash TTS devuelve WAV ("RIFF" = "UklG") o MP3 de respaldo
+            const mimeType = rawBase64.startsWith("UklG") ? "audio/wav" : "audio/mp3";
             const audioBlob = new Blob(
-              [Uint8Array.from(atob((response as any).audioBase64), (c) => c.charCodeAt(0))],
-              { type: "audio/mp3" }
+              [Uint8Array.from(atob(rawBase64), (c) => c.charCodeAt(0))],
+              { type: mimeType }
             );
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
