@@ -270,39 +270,21 @@ export function PulsoFloatingAssistant() {
 
       startTransition(() => {
         const assistantMsgId = crypto.randomUUID();
+        const rawAudio = (response as any).audioBase64 || (response as any).audioContent;
         const newAssistantMsg: FloatingChatMessage = {
           id: assistantMsgId,
           role: "assistant",
           text: response.text || (response as any).reply || "",
           response: response,
-          audioBase64: (response as any).audioBase64,
+          audioBase64: rawAudio,
         };
 
         setMessages((prev) => [...prev, newAssistantMsg]);
         setIsProcessing(false);
 
         // Reproducir audio TTS si está activo
-        if (ttsEnabled && (response as any).audioBase64) {
-          try {
-            if (audioPlayerRef.current) {
-              audioPlayerRef.current.pause();
-            }
-            const rawBase64 = (response as any).audioBase64;
-            // Detección automática de formato: Gemini 3.8 Flash TTS devuelve WAV ("RIFF" = "UklG") o MP3 de respaldo
-            const mimeType = rawBase64.startsWith("UklG") ? "audio/wav" : "audio/mp3";
-            const audioBlob = new Blob(
-              [Uint8Array.from(atob(rawBase64), (c) => c.charCodeAt(0))],
-              { type: mimeType }
-            );
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            audioPlayerRef.current = audio;
-            audio.onplay = () => setIsSpeaking(true);
-            audio.onended = () => setIsSpeaking(false);
-            audio.play();
-          } catch (e) {
-            console.warn("TTS Playback error:", e);
-          }
+        if (ttsEnabled && rawAudio) {
+          playAudioBase64(rawAudio);
         }
       });
     } catch (err) {
@@ -316,6 +298,30 @@ export function PulsoFloatingAssistant() {
         },
       ]);
       setIsProcessing(false);
+    }
+  };
+
+  const playAudioBase64 = (rawBase64: string) => {
+    try {
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+      }
+      // Detección automática de formato: Gemini 3.8 Flash TTS devuelve WAV ("RIFF" = "UklG") o MP3 de respaldo
+      const mimeType = rawBase64.startsWith("UklG") ? "audio/wav" : "audio/mp3";
+      const audioBlob = new Blob(
+        [Uint8Array.from(atob(rawBase64), (c) => c.charCodeAt(0))],
+        { type: mimeType }
+      );
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioPlayerRef.current = audio;
+      audio.onplay = () => setIsSpeaking(true);
+      audio.onended = () => setIsSpeaking(false);
+      audio.onerror = () => setIsSpeaking(false);
+      audio.play().catch((err) => console.warn("Audio autoplay blocked or failed:", err));
+    } catch (e) {
+      console.warn("TTS Playback error:", e);
+      setIsSpeaking(false);
     }
   };
 
@@ -344,6 +350,60 @@ export function PulsoFloatingAssistant() {
     }
   };
 
+  const renderMessageContent = (text: string, isAssistant: boolean) => {
+    if (!isAssistant) {
+      return <p className="whitespace-pre-wrap">{text}</p>;
+    }
+
+    const lines = text.split("\n");
+    const turnRegex = /^\s*(Doctor|Doctora|Dr\.|Dra\.|Médico|Especialista|Pulso|Paciente|Usuario|Familiar)\s*:\s*(.+)$/i;
+    const hasDialogue = lines.some((l) => turnRegex.test(l));
+
+    if (!hasDialogue) {
+      return <p className="whitespace-pre-wrap">{text}</p>;
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5 pb-1 mb-1 border-b border-gray-200/50 dark:border-gray-700/50">
+          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            🎙️ Simulación Clínica Multi-Voz
+          </span>
+        </div>
+        {lines.map((line, idx) => {
+          const match = line.match(turnRegex);
+          if (match) {
+            const speaker = match[1].trim();
+            const dialogue = match[2].trim();
+            const isDoc = /doc|médic|medic|especialista|pulso/i.test(speaker);
+            return (
+              <div
+                key={idx}
+                className={cn(
+                  "p-2.5 rounded-xl border text-xs leading-relaxed",
+                  isDoc
+                    ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-950 dark:text-emerald-100"
+                    : "bg-blue-500/10 border-blue-500/25 text-blue-950 dark:text-blue-100"
+                )}
+              >
+                <span className="font-bold text-[11px] block mb-0.5 opacity-90">
+                  {isDoc ? "🩺 " + speaker : "👤 " + speaker}
+                </span>
+                <p>{dialogue}</p>
+              </div>
+            );
+          }
+          if (!line.trim()) return null;
+          return (
+            <p key={idx} className="text-xs opacity-90">
+              {line}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
   // Sugerencias rápidas según la ruta actual
   const quickPrompts = isStorePage
     ? [
@@ -353,6 +413,7 @@ export function PulsoFloatingAssistant() {
         t("prompt_store_prices", { defaultValue: "¿Cuáles son los precios de sus consultas?" }),
       ]
     : [
+        t("prompt_simulation", { defaultValue: "🩺 Simular una consulta médica (práctica de voz)" }),
         t("prompt_find_doctor", { defaultValue: "Buscar especialista por síntoma" }),
         t("prompt_supplies", { defaultValue: "¿Dónde puedo comprar insumos médicos?" }),
         t("prompt_my_appointments", { defaultValue: "Consultar mis próximas citas" }),
@@ -690,7 +751,20 @@ export function PulsoFloatingAssistant() {
                     )}
                   >
                     {/* Texto del Mensaje */}
-                    {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
+                    {msg.text && renderMessageContent(msg.text, msg.role === "assistant")}
+
+                    {/* Botón para reproducir audio Multi-Speaker o TTS */}
+                    {msg.role === "assistant" && msg.audioBase64 && (
+                      <button
+                        type="button"
+                        onClick={() => playAudioBase64(msg.audioBase64!)}
+                        className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-[#1D9E75] dark:text-[#5DCAA5] hover:opacity-85 transition-opacity bg-[#5DCAA5]/15 hover:bg-[#5DCAA5]/25 border border-[#5DCAA5]/30 px-3 py-1 rounded-full cursor-pointer shadow-2xs"
+                        title="Reproducir audio de este mensaje"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                        <span>Escuchar audio</span>
+                      </button>
+                    )}
 
                     {/* Adjunto de Imagen si Existe */}
                     {msg.attachment && (
