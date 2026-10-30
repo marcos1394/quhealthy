@@ -10992,6 +10992,8 @@
     "prompt_store_hours": "¿Cuáles son sus horarios y ubicación?",
     "prompt_store_book": "Quiero agendar una cita aquí",
     "prompt_store_prices": "¿Cuáles son los precios de sus consultas?",
+    "prompt_simulation": "🩺 Simular una consulta médica (práctica de voz)",
+    "prompt_stress_relief": "🧘 Técnicas de respiración para calmar el estrés",
     "prompt_find_doctor": "Buscar especialista por síntoma",
     "prompt_supplies": "¿Dónde puedo comprar insumos médicos?",
     "prompt_my_appointments": "Consultar mis próximas citas",

@@ -10953,6 +10953,8 @@
     "prompt_store_hours": "What are their hours and location?",
     "prompt_store_book": "I'd like to book an appointment here",
     "prompt_store_prices": "What are the consultation fees?",
+    "prompt_simulation": "🩺 Simulate a medical consultation (voice practice)",
+    "prompt_stress_relief": "🧘 Breathing techniques to relieve stress",
     "prompt_find_doctor": "Find a doctor by symptom",
     "prompt_supplies": "Where can I buy medical supplies?",
     "prompt_my_appointments": "Check my upcoming appointments",
