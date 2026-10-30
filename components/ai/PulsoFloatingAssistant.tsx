@@ -350,6 +350,19 @@ export function PulsoFloatingAssistant() {
     }
   };
 
+  const cleanVocalTokensForDisplay = (str: string): string => {
+    return str
+      .replace(/<short pause>/gi, "… ")
+      .replace(/<breath>/gi, " ")
+      .replace(/<sigh>/gi, " ")
+      .replace(/<cough>/gi, " ")
+      .replace(/<throat-clearing>/gi, " ")
+      .replace(/<laugh>/gi, " ")
+      .replace(/<gasp>/gi, " ")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  };
+
   const renderMessageContent = (text: string, isAssistant: boolean) => {
     if (!isAssistant) {
       return <p className="whitespace-pre-wrap">{text}</p>;
@@ -360,7 +373,7 @@ export function PulsoFloatingAssistant() {
     const hasDialogue = lines.some((l) => turnRegex.test(l));
 
     if (!hasDialogue) {
-      return <p className="whitespace-pre-wrap">{text}</p>;
+      return <p className="whitespace-pre-wrap">{cleanVocalTokensForDisplay(text)}</p>;
     }
 
     return (
@@ -374,7 +387,7 @@ export function PulsoFloatingAssistant() {
           const match = line.match(turnRegex);
           if (match) {
             const speaker = match[1].trim();
-            const dialogue = match[2].trim();
+            const dialogue = cleanVocalTokensForDisplay(match[2].trim());
             const isDoc = /doc|médic|medic|especialista|pulso/i.test(speaker);
             return (
               <div
@@ -396,7 +409,7 @@ export function PulsoFloatingAssistant() {
           if (!line.trim()) return null;
           return (
             <p key={idx} className="text-xs opacity-90">
-              {line}
+              {cleanVocalTokensForDisplay(line)}
             </p>
           );
         })}
@@ -414,6 +427,7 @@ export function PulsoFloatingAssistant() {
       ]
     : [
         t("prompt_simulation", { defaultValue: "🩺 Simular una consulta médica (práctica de voz)" }),
+        t("prompt_stress_relief", { defaultValue: "🧘 Técnicas de respiración para calmar el estrés" }),
         t("prompt_find_doctor", { defaultValue: "Buscar especialista por síntoma" }),
         t("prompt_supplies", { defaultValue: "¿Dónde puedo comprar insumos médicos?" }),
         t("prompt_my_appointments", { defaultValue: "Consultar mis próximas citas" }),
