@@ -60,6 +60,32 @@ export interface RegionalAccent {
   isActive: boolean;
 }
 
+export interface TranscribeAudioRequest {
+  audioBase64?: string;
+  audioUri?: string;
+  mimeType?: string;
+  mode?: 'smart' | 'verbatim';
+  languageCodes?: string[];
+  customVocabulary?: string[];
+}
+
+export interface WordTimestamp {
+  word: string;
+  speaker?: string;
+  startOffset: string;
+  endOffset: string;
+}
+
+export interface TranscribeAudioResponse {
+  id: string;
+  transcribedText: string;
+  mode: string;
+  detectedLanguage: string;
+  words?: WordTimestamp[];
+  status: string;
+  durationMs: number;
+}
+
 export interface RecoveryGuideRequest {
   patientName?: string;
   diagnosis?: string;
@@ -164,6 +190,15 @@ export const healthOSService = {
    */
   setActiveAccent: async (accentId: string): Promise<ActiveVoiceConfig> => {
     const response = await axiosInstance.post('/api/v1/health-agent/voices/accent', { accentId });
+    return response.data;
+  },
+
+  /**
+   * Transcribe un archivo o nota de audio a texto utilizando Gemini 3.5 Transcribe (gemini-3.5-transcribe).
+   * Modo "smart": elimina muletillas y autocorrige disfluencias con formato clínico.
+   */
+  transcribeAudio: async (request: TranscribeAudioRequest): Promise<TranscribeAudioResponse> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/transcribe', request);
     return response.data;
   }
 };

@@ -400,6 +400,46 @@ export function PulsoFloatingAssistant() {
 
     const file = files[0];
     const reader = new FileReader();
+
+    const isAudio = file.type.startsWith("audio/") || /\.(mp3|wav|m4a|ogg|webm|aac)$/i.test(file.name);
+    if (isAudio) {
+      toast.info(t("transcribing_audio", { defaultValue: "🎙️ Transcribiendo audio con Gemini 3.5 Transcribe..." }));
+      setIsProcessing(true);
+      reader.onload = async () => {
+        const base64String = (reader.result as string).split(",")[1];
+        try {
+          const result = await healthOSService.transcribeAudio({
+            audioBase64: base64String,
+            mimeType: file.type || "audio/webm",
+            mode: "smart",
+          });
+          if (result && result.transcribedText) {
+            setInputMessage((prev) => (prev ? `${prev} ${result.transcribedText}` : result.transcribedText));
+            toast.success(t("audio_transcribed_success", { defaultValue: "✨ Transcripción inteligente lista" }));
+          } else {
+            setAttachments([
+              {
+                mimeType: file.type || "audio/webm",
+                base64Data: base64String,
+              },
+            ]);
+          }
+        } catch (err) {
+          console.warn("Error en transcripción:", err);
+          setAttachments([
+            {
+              mimeType: file.type || "audio/webm",
+              base64Data: base64String,
+            },
+          ]);
+        } finally {
+          setIsProcessing(false);
+        }
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
     reader.onload = () => {
       const base64String = (reader.result as string).split(",")[1];
       setAttachments([
@@ -998,14 +1038,14 @@ export function PulsoFloatingAssistant() {
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileUpload}
-                  accept="image/*,application/pdf"
+                  accept="image/*,application/pdf,audio/*"
                   className="hidden"
                 />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                  title="Adjuntar receta o foto"
+                  title="Adjuntar receta, foto o nota de voz"
                 >
                   <Paperclip className="w-4 h-4" />
                 </button>

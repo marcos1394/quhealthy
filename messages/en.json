@@ -10960,6 +10960,8 @@
     "prompt_accent_selector": "🌎 Change Pulso regional accent",
     "select_accent_title": "Change Pulso regional accent",
     "accent_updated": "Regional accent updated",
+    "transcribing_audio": "🎙️ Transcribing audio with Gemini 3.5 Transcribe...",
+    "audio_transcribed_success": "✨ Smart transcription ready",
     "prompt_find_doctor": "Find a doctor by symptom",
     "prompt_supplies": "Where can I buy medical supplies?",
     "prompt_my_appointments": "Check my upcoming appointments",
