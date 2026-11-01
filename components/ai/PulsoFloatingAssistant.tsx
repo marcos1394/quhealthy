@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 
 import { PulsoMascot, PulsoState, PulsoPalette } from "@/components/ai/PulsoMascot";
-import { healthOSService, AttachmentData } from "@/services/healthOS.service";
+import { healthOSService, AttachmentData, RegionalAccent } from "@/services/healthOS.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { WidgetRenderer } from "@/components/engine/WidgetRenderer";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
@@ -67,6 +67,9 @@ export function PulsoFloatingAssistant() {
   const [messages, setMessages] = useState<FloatingChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeVoiceInfo, setActiveVoiceInfo] = useState<string | null>(null);
+  const [accents, setAccents] = useState<RegionalAccent[]>([]);
+  const [activeAccent, setActiveAccent] = useState<{ id: string; name: string; flagEmoji: string } | null>(null);
+  const [showAccentMenu, setShowAccentMenu] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -75,10 +78,52 @@ export function PulsoFloatingAssistant() {
           if (cfg?.activeVoice) {
             setActiveVoiceInfo(cfg.activeVoice);
           }
+          if (cfg?.activeAccent && cfg?.activeAccentName && cfg?.activeAccentFlag) {
+            setActiveAccent({
+              id: cfg.activeAccent,
+              name: cfg.activeAccentName,
+              flagEmoji: cfg.activeAccentFlag,
+            });
+          }
+        })
+        .catch(() => {});
+
+      healthOSService.listAccents()
+        .then((list) => {
+          if (Array.isArray(list) && list.length > 0) {
+            setAccents(list);
+            const current = list.find((a) => a.isActive);
+            if (current) {
+              setActiveAccent({
+                id: current.id,
+                name: current.name,
+                flagEmoji: current.flagEmoji,
+              });
+            }
+          }
         })
         .catch(() => {});
     }
   }, [isOpen]);
+
+  const handleSelectAccent = async (acc: RegionalAccent) => {
+    try {
+      await healthOSService.setActiveAccent(acc.id);
+      setActiveAccent({
+        id: acc.id,
+        name: acc.name,
+        flagEmoji: acc.flagEmoji,
+      });
+      setShowAccentMenu(false);
+      toast.success(
+        t("accent_updated", {
+          defaultValue: `Acento regional cambiado a ${acc.name} ${acc.flagEmoji}`,
+        })
+      );
+    } catch (e) {
+      console.warn("Error changing regional accent:", e);
+    }
+  };
 
   // Posicionamiento libre y arrastrable
   const dragX = useMotionValue(0);
@@ -242,6 +287,16 @@ export function PulsoFloatingAssistant() {
     const text = (textToSend || inputMessage).trim();
     if (!text && attachments.length === 0) return;
 
+    if (
+      text.toLowerCase().includes("cambiar acento") ||
+      text.toLowerCase().includes("acento regional") ||
+      text.toLowerCase().includes("change regional accent")
+    ) {
+      setInputMessage("");
+      setShowAccentMenu(true);
+      return;
+    }
+
     setInputMessage("");
     const currentAttachments = [...attachments];
     setAttachments([]);
@@ -272,6 +327,7 @@ export function PulsoFloatingAssistant() {
       storeSlug: storeSlug || undefined,
       isItemContext: Boolean(itemSlug),
       itemSlug: itemSlug || undefined,
+      regionalAccent: activeAccent?.id || "es-LATAM",
     };
 
     try {
@@ -443,6 +499,7 @@ export function PulsoFloatingAssistant() {
         t("prompt_stress_relief", { defaultValue: "🧘 Técnicas de respiración para calmar el estrés" }),
         t("prompt_voice_info", { defaultValue: "🎙️ Conoce la voz clínica exclusiva de Pulso" }),
         t("prompt_recovery_guide", { defaultValue: "📋 Audio-guía de recuperación y receta médica" }),
+        t("prompt_accent_selector", { defaultValue: "🌎 Cambiar acento regional de Pulso" }),
         t("prompt_find_doctor", { defaultValue: "Buscar especialista por síntoma" }),
         t("prompt_supplies", { defaultValue: "¿Dónde puedo comprar insumos médicos?" }),
         t("prompt_my_appointments", { defaultValue: "Consultar mis próximas citas" }),
@@ -640,6 +697,15 @@ export function PulsoFloatingAssistant() {
                     >
                       {activeVoiceInfo?.startsWith("voice_") ? "VOICE DESIGN" : "AI COPILOT"}
                     </Badge>
+                    <button
+                      type="button"
+                      onClick={() => setShowAccentMenu(!showAccentMenu)}
+                      className="bg-emerald-500/10 hover:bg-emerald-500/20 text-[#1D9E75] dark:text-[#5DCAA5] border border-emerald-500/30 rounded-full text-[10px] font-bold px-2 py-0.5 cursor-pointer flex items-center gap-1 transition-all"
+                      title={t("select_accent_title", { defaultValue: "Cambiar acento regional de Pulso" })}
+                    >
+                      <span>{activeAccent?.flagEmoji || "🌎"}</span>
+                      <span className="hidden sm:inline">{activeAccent?.name ? activeAccent.name.split(" ")[0] : "LATAM"}</span>
+                    </button>
                   </div>
 
                   <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 truncate">
@@ -722,6 +788,53 @@ export function PulsoFloatingAssistant() {
                 </button>
               </div>
             </div>
+
+            {/* ── PANEL DESPLEGABLE DE ACENTO REGIONAL (GEMINI 3.8 FLASH TTS) ── */}
+            <AnimatePresence>
+              {showAccentMenu && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="px-4 py-2.5 bg-emerald-50/90 dark:bg-[#121c17] border-b border-emerald-500/20 text-xs space-y-2 overflow-hidden shrink-0"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                      🌎 Acentos y Dialectos (Gemini 3.8 Flash TTS)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAccentMenu(false)}
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {accents.map((acc) => {
+                      const isSel = activeAccent?.id === acc.id;
+                      return (
+                        <button
+                          key={acc.id}
+                          type="button"
+                          onClick={() => handleSelectAccent(acc)}
+                          className={cn(
+                            "px-2.5 py-1.5 rounded-xl border text-left text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer",
+                            isSel
+                              ? "bg-[#1D9E75] text-white border-[#1D9E75] shadow-xs"
+                              : "bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-400"
+                          )}
+                        >
+                          <span className="text-sm shrink-0">{acc.flagEmoji}</span>
+                          <span className="truncate">{acc.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* ── FEED DE MENSAJES (RESPONSIVE SIN OVERFLOW HORIZONTAL) ── */}
             <div className="flex-1 w-full min-w-0 overflow-y-auto overflow-x-hidden p-4 space-y-4 font-sans no-scrollbar">

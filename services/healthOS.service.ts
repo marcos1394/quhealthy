@@ -43,6 +43,21 @@ export interface ActiveVoiceConfig {
   model: string;
   style: string;
   isCustomDesignedVoice: boolean;
+  activeAccent?: string;
+  activeAccentName?: string;
+  activeAccentFlag?: string;
+}
+
+export interface RegionalAccent {
+  id: string;
+  name: string;
+  countryCode: string;
+  flagEmoji: string;
+  dialectDescription: string;
+  promptStyle: string;
+  gcpFallbackVoice: string;
+  sampleGreeting: string;
+  isActive: boolean;
 }
 
 export interface RecoveryGuideRequest {
@@ -133,6 +148,22 @@ export const healthOSService = {
    */
   generateRecoveryGuide: async (request?: RecoveryGuideRequest): Promise<RecoveryGuideResponse> => {
     const response = await axiosInstance.post('/api/v1/health-agent/guides/recovery', request || {});
+    return response.data;
+  },
+
+  /**
+   * Lista todos los acentos y dialectos regionales soportados por Gemini 3.8 Flash TTS
+   */
+  listAccents: async (): Promise<RegionalAccent[]> => {
+    const response = await axiosInstance.get('/api/v1/health-agent/voices/accents');
+    return response.data;
+  },
+
+  /**
+   * Establece el acento regional dinámico activo de Pulso en tiempo de ejecución
+   */
+  setActiveAccent: async (accentId: string): Promise<ActiveVoiceConfig> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/voices/accent', { accentId });
     return response.data;
   }
 };
