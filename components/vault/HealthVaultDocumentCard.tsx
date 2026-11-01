@@ -1,14 +1,14 @@
-"use client"
-/* eslint-disable react-doctor/prefer-module-scope-pure-function */;
+"use client";
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import {
  FileText, Eye, BrainCircuit, Activity, Pill, AlertCircle,
- Clock, CheckCircle2, AlertTriangle, Type, FolderOpen, GripVertical
+ Clock, CheckCircle2, AlertTriangle, Type, FolderOpen, GripVertical, Headphones
 } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
+import { toast } from 'react-toastify';
 
 import { ConsumerDocument } from '@/types/healthVault';
 import {
@@ -22,6 +22,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +35,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Edit2, Save, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { QhSpinner } from '../ui/QhSpinner';
+import { healthOSService, RecoveryGuideResponse } from '@/services/healthOS.service';
+import { RecoveryGuideWidget } from '@/components/widgets/RecoveryGuideWidget';
 
 interface HealthVaultDocumentCardProps {
  document: ConsumerDocument;
@@ -44,6 +52,10 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate, onDelete, 
  const t = useTranslations('HealthVault.Card');
  const [isEditing, setIsEditing] = React.useState(false);
  const [isSaving, setIsSaving] = React.useState(false);
+
+ const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
+ const [isLoadingAudioGuide, setIsLoadingAudioGuide] = React.useState(false);
+ const [audioGuide, setAudioGuide] = React.useState<RecoveryGuideResponse | null>(null);
  
  // Edit state
  const [editTitle, setEditTitle] = React.useState('');
@@ -142,6 +154,38 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate, onDelete, 
 
  const StatusIcon = aiStatusConfig[currentStatus].icon;
  const aiData = document.aiExtractedData;
+
+ const hasClinicalAudio = Boolean(
+   document.documentType === 'PRESCRIPTION' ||
+   (aiData?.medications && aiData.medications.length > 0) ||
+   (aiData?.summary && aiData.summary.length > 10) ||
+   document.documentType === 'NOTE'
+ );
+
+ const handleOpenAudioGuide = async () => {
+   setIsAudioModalOpen(true);
+   if (audioGuide) return;
+
+   try {
+     setIsLoadingAudioGuide(true);
+     const medicationsStr = aiData?.medications?.join(', ') || '';
+     const conditionsStr = aiData?.medicalConditions?.join(', ') || document.title || 'Tratamiento Médico';
+     const summaryStr = aiData?.summary || document.noteContent || 'Instrucciones y cuidados clínicos según expediente';
+
+     const res = await healthOSService.generateRecoveryGuide({
+       diagnosis: conditionsStr,
+       medications: medicationsStr,
+       careInstructions: summaryStr,
+     });
+     setAudioGuide(res);
+   } catch (err) {
+     console.error("Error al generar audio-guía:", err);
+     toast.error(t('audio_guide_error', { defaultValue: 'No se pudo generar la audio-guía en este momento.' }));
+     setIsAudioModalOpen(false);
+   } finally {
+     setIsLoadingAudioGuide(false);
+   }
+ };
 
  return (
   <div 
@@ -377,23 +421,76 @@ export function HealthVaultDocumentCard({ document, onView, onUpdate, onDelete, 
  </Button>
  </div>
  ) : (
- <Button
- variant="outline"
- onClick={() => {
- if (document.documentType === 'NOTE') {
- // En un entorno real abriría un modal para leer la nota completa
- alert(document.noteContent);
- } else {
- onView(document.id);
- }
- }}
- className="w-full rounded-xl border-0 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 h-11 text-sm font-bold transition-all"
- >
- <Eye className="w-4 h-4 mr-2" />
- {document.documentType === 'NOTE' ? 'Leer Nota Completa' : t('btn_view', { defaultValue: 'Ver Documento' })}
- </Button>
+ <div className="flex flex-col gap-2">
+   {hasClinicalAudio && (
+     <Button
+       type="button"
+       variant="outline"
+       onClick={handleOpenAudioGuide}
+       className="w-full rounded-xl border border-emerald-500/20 bg-emerald-50/60 hover:bg-emerald-100 text-[#1D9E75] dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 dark:text-[#5DCAA5] h-11 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs"
+     >
+       <Headphones className="w-4 h-4" />
+       <span>{t('btn_listen_guide', { defaultValue: 'Escuchar Audio-Guía' })}</span>
+     </Button>
+   )}
+   <Button
+     type="button"
+     variant="outline"
+     onClick={() => {
+       if (document.documentType === 'NOTE') {
+         // En un entorno real abriría un modal para leer la nota completa
+         alert(document.noteContent);
+       } else {
+         onView(document.id);
+       }
+     }}
+     className="w-full rounded-xl border-0 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 h-11 text-sm font-bold transition-all"
+   >
+     <Eye className="w-4 h-4 mr-2" />
+     {document.documentType === 'NOTE' ? 'Leer Nota Completa' : t('btn_view', { defaultValue: 'Ver Documento' })}
+   </Button>
+ </div>
  )}
  </div>
+
+ <Dialog open={isAudioModalOpen} onOpenChange={setIsAudioModalOpen}>
+   <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-6 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
+     <DialogHeader>
+       <DialogTitle className="text-base font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+         <Headphones className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+         <span>{document.title || document.fileName || "Audio-Guía de Recuperación"}</span>
+       </DialogTitle>
+     </DialogHeader>
+     {isLoadingAudioGuide ? (
+       <div className="py-12 flex flex-col items-center justify-center gap-3">
+         <QhSpinner size="lg" className="text-emerald-600" />
+         <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+           {t('generating_guide', { defaultValue: 'Sintetizando indicaciones con Gemini 3.8 Flash TTS...' })}
+         </p>
+       </div>
+     ) : audioGuide ? (
+       <div className="mt-2">
+         <RecoveryGuideWidget
+           widget={{
+             id: `vault-guide-${document.id}`,
+             type: "RecoveryGuideWidget",
+             data: {
+               ...audioGuide,
+               sections: audioGuide.sections.map((s) => ({
+                 id: s.id,
+                 title: s.title,
+                 category: s.category,
+                 summary: s.summary,
+                 spokenText: s.spokenText,
+                 estimatedSeconds: s.estimatedSeconds,
+               })),
+             },
+           }}
+         />
+       </div>
+     ) : null}
+   </DialogContent>
+ </Dialog>
  </div>
  );
 }

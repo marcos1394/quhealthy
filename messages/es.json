@@ -1572,6 +1572,10 @@
     "footer_backed_by": "Plataforma de salud respaldada por QuHealthy",
     "unlocked_header": "Tu receta médica digital",
     "btn_download": "Guardar PDF",
+    "btn_listen_audio": "Escuchar con Pulso",
+    "hide_audio_guide": "Ocultar reproductor",
+    "btn_generating_audio": "Sintetizando audio...",
+    "audio_guide_error": "No se pudo generar la audio-receta en este momento.",
     "iframe_title": "Receta médica digital"
   },
 
@@ -5118,6 +5122,8 @@
       "findings": "Hallazgos",
       "medications": "Medicamentos",
       "btn_view": "Ver Documento",
+      "btn_listen_guide": "Escuchar Audio-Guía",
+      "generating_guide": "Sintetizando indicaciones con Gemini 3.8 Flash TTS...",
       "confirm_delete": "¿Estás seguro de que deseas eliminar este documento? Esta acción no se puede deshacer."
     },
     "Notifications": {

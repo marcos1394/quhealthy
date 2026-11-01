@@ -1,14 +1,18 @@
 "use client";
 
-import React, { use } from "react";
+import React, { use, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, FileText, Download, ShieldCheck, Shield } from "lucide-react";
+import { Lock, FileText, Download, ShieldCheck, Shield, Headphones } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { usePublicPrescription } from "@/hooks/usePublicPrescription";
+import { healthOSService, RecoveryGuideResponse } from "@/services/healthOS.service";
+import { RecoveryGuideWidget } from "@/components/widgets/RecoveryGuideWidget";
+import { cn } from "@/lib/utils";
 
 // Next.js 15+ requiere desempaquetar 'params' con React.use()
 export default function PublicPrescriptionPage({
@@ -23,6 +27,10 @@ export default function PublicPrescriptionPage({
   const { pin, setPin, isLoading, error, pdfUrl, verifyPinAndLoadPdf } =
     usePublicPrescription(appointmentId);
 
+  const [showAudioGuide, setShowAudioGuide] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [audioGuideData, setAudioGuideData] = useState<RecoveryGuideResponse | null>(null);
+
   // Manejador para forzar la descarga en dispositivos móviles/escritorio
   const handleDownload = () => {
     if (!pdfUrl) return;
@@ -32,6 +40,29 @@ export default function PublicPrescriptionPage({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleToggleAudioGuide = async () => {
+    if (audioGuideData) {
+      setShowAudioGuide((prev) => !prev);
+      return;
+    }
+
+    try {
+      setIsLoadingAudio(true);
+      setShowAudioGuide(true);
+      const guide = await healthOSService.generateRecoveryGuide({
+        diagnosis: "Prescripción Médica Digital",
+        careInstructions: "Sigue las dosis, horarios e indicaciones marcadas en tu receta médica.",
+      });
+      setAudioGuideData(guide);
+    } catch (err) {
+      console.error("Error al generar la audio-receta:", err);
+      toast.error(t("audio_guide_error"));
+      setShowAudioGuide(false);
+    } finally {
+      setIsLoadingAudio(false);
+    }
   };
 
   return (
@@ -132,25 +163,83 @@ export default function PublicPrescriptionPage({
             className="w-full max-w-5xl h-[90vh] flex flex-col bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden"
           >
             {/* Header Flotante del Visor */}
-            <div className="h-16 border-b border-gray-100 dark:border-gray-800 px-6 flex items-center justify-between shrink-0 bg-gray-50/50 dark:bg-[#050505]">
+            <div className="min-h-16 border-b border-gray-100 dark:border-gray-800 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 bg-gray-50/50 dark:bg-[#050505]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm shrink-0">
                   <FileText className="w-5 h-5" strokeWidth={2} />
                 </div>
-                <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white truncate">
                   {t("unlocked_header")}
                 </h2>
               </div>
 
-              <Button
-                onClick={handleDownload}
-                variant="outline"
-                className="h-10 px-4 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" strokeWidth={2} />
-                <span>{t("btn_download")}</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={handleToggleAudioGuide}
+                  disabled={isLoadingAudio}
+                  className={cn(
+                    "h-10 px-4 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2",
+                    showAudioGuide
+                      ? "bg-emerald-700 text-white"
+                      : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                  )}
+                >
+                  {isLoadingAudio ? (
+                    <>
+                      <QhSpinner size="sm" className="text-white" />
+                      <span>{t("btn_generating_audio")}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Headphones className="w-4 h-4" strokeWidth={2} />
+                      <span>{showAudioGuide ? t("hide_audio_guide") : t("btn_listen_audio")}</span>
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={handleDownload}
+                  variant="outline"
+                  className="h-10 px-4 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" strokeWidth={2} />
+                  <span>{t("btn_download")}</span>
+                </Button>
+              </div>
             </div>
+
+            {/* Panel Desplegable de Audio-Receta con Pulso */}
+            <AnimatePresence>
+              {showAudioGuide && audioGuideData && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 max-h-[45vh] overflow-y-auto"
+                >
+                  <RecoveryGuideWidget
+                    widget={{
+                      id: `guide-${appointmentId}`,
+                      type: "RecoveryGuideWidget",
+                      data: {
+                        ...audioGuideData,
+                        sections: audioGuideData.sections.map((s) => ({
+                          id: s.id,
+                          title: s.title,
+                          category: s.category,
+                          summary: s.summary,
+                          spokenText: s.spokenText,
+                          estimatedSeconds: s.estimatedSeconds,
+                        })),
+                      },
+                    }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Contenedor Iframe */}
             <div className="flex-1 w-full bg-gray-100 dark:bg-[#050505]">
