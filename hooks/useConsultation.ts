@@ -1,10 +1,10 @@
-/* eslint-disable react-doctor/no-event-handler */
 // Ubicación: src/hooks/useConsultation.ts
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 import { ehrService } from '@/services/ehr.service';
 import { aiService } from '@/services/ai.service';
+import { healthOSService } from '@/services/healthOS.service';
 import { appointmentService } from '@/services/appointment.service';
 import { 
   PatientClinicalProfile, 
@@ -280,7 +280,28 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
 
   const processAudioWithAi = async (audioBase64: string, templateSchema?: string) => {
     try {
-      const generatedSoap = await aiService.generateSoapNotes(appointmentId, audioBase64, templateSchema);
+      let generatedSoap: any;
+      try {
+        // Usar Gemini 3.5 Transcribe clínico estructurado con extracción directa a SOAP y signos vitales
+        const soapRes = await healthOSService.generateConsultationSoap({
+          audioBase64,
+          appointmentId,
+          patientName: patientProfile?.fullName,
+          shareToVault: true
+        });
+        generatedSoap = {
+          soap: {
+            subjective: soapRes.subjective,
+            objective: soapRes.objective,
+            assessment: soapRes.assessment,
+            plan: soapRes.plan
+          },
+          vital_signs: soapRes.vitalSigns || {}
+        };
+      } catch (gemini35Err) {
+        console.warn("Gemini 3.5 Transcribe SOAP fallback to legacy aiService:", gemini35Err);
+        generatedSoap = await aiService.generateSoapNotes(appointmentId, audioBase64, templateSchema);
+      }
       
       // Actualizamos el estado con lo que devolvió Gemini
       // Mantenemos lo que el doctor ya hubiera escrito manualmente (si es que había algo)

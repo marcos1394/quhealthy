@@ -1,9 +1,5 @@
 "use client";
 
-/* eslint-disable react-doctor/button-has-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @next/next/no-img-element */
-
 import React, { useState, useEffect, useRef, useTransition } from "react";
 import { motion, AnimatePresence, useMotionValue, animate } from "framer-motion";
 import { usePathname } from "next/navigation";
