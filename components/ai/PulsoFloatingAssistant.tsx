@@ -24,10 +24,11 @@ import {
   ChevronDown,
   EyeOff,
   Move,
+  Users,
 } from "lucide-react";
 
 import { PulsoMascot, PulsoState, PulsoPalette } from "@/components/ai/PulsoMascot";
-import { healthOSService, AttachmentData, RegionalAccent } from "@/services/healthOS.service";
+import { healthOSService, AttachmentData, RegionalAccent, SpeakerTurn } from "@/services/healthOS.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { WidgetRenderer } from "@/components/engine/WidgetRenderer";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
@@ -47,6 +48,7 @@ export interface FloatingChatMessage {
     fileName?: string;
   };
   audioBase64?: string;
+  speakerTurns?: SpeakerTurn[];
 }
 
 export function PulsoFloatingAssistant() {
@@ -70,6 +72,7 @@ export function PulsoFloatingAssistant() {
   const [accents, setAccents] = useState<RegionalAccent[]>([]);
   const [activeAccent, setActiveAccent] = useState<{ id: string; name: string; flagEmoji: string } | null>(null);
   const [showAccentMenu, setShowAccentMenu] = useState(false);
+  const [diarizationMode, setDiarizationMode] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -407,24 +410,44 @@ export function PulsoFloatingAssistant() {
       setIsProcessing(true);
       reader.onload = async () => {
         const base64String = (reader.result as string).split(",")[1];
+        const wantsDiarization = diarizationMode || /consulta|sesion|dialogo|entrevista|doctor/i.test(file.name);
         try {
           const result = await healthOSService.transcribeAudio({
             audioBase64: base64String,
             mimeType: file.type || "audio/webm",
-            mode: "smart",
-            includeMedicalVocabulary: true,
+            mode: wantsDiarization ? "verbatim" : "smart",
+            enableDiarization: wantsDiarization,
+            includeMedicalVocabulary: !wantsDiarization,
           });
           if (result && result.transcribedText) {
-            setInputMessage((prev) => (prev ? `${prev} ${result.transcribedText}` : result.transcribedText));
-            const vocabCount = result.appliedVocabulary?.length || 0;
-            toast.success(
-              vocabCount > 0
-                ? t("audio_transcribed_vocab_success", {
-                    defaultValue: `✨ Transcripción lista con ${vocabCount} términos médicos reconocidos`,
-                    count: vocabCount,
-                  })
-                : t("audio_transcribed_success", { defaultValue: "✨ Transcripción inteligente lista" })
-            );
+            if (result.speakerTurns && result.speakerTurns.length > 0) {
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: crypto.randomUUID(),
+                  role: "assistant",
+                  text: result.transcribedText,
+                  speakerTurns: result.speakerTurns,
+                },
+              ]);
+              toast.success(
+                t("audio_transcribed_diarization_success", {
+                  defaultValue: `🩺 Diarización completada: ${result.speakerTurns.length} turnos médico-paciente identificados`,
+                  count: result.speakerTurns.length,
+                })
+              );
+            } else {
+              setInputMessage((prev) => (prev ? `${prev} ${result.transcribedText}` : result.transcribedText));
+              const vocabCount = result.appliedVocabulary?.length || 0;
+              toast.success(
+                vocabCount > 0
+                  ? t("audio_transcribed_vocab_success", {
+                      defaultValue: `✨ Transcripción lista con ${vocabCount} términos médicos reconocidos`,
+                      count: vocabCount,
+                    })
+                  : t("audio_transcribed_success", { defaultValue: "✨ Transcripción inteligente lista" })
+              );
+            }
           } else {
             setAttachments([
               {
@@ -548,6 +571,7 @@ export function PulsoFloatingAssistant() {
         t("prompt_stress_relief", { defaultValue: "🧘 Técnicas de respiración para calmar el estrés" }),
         t("prompt_voice_info", { defaultValue: "🎙️ Conoce la voz clínica exclusiva de Pulso" }),
         t("prompt_recovery_guide", { defaultValue: "📋 Audio-guía de recuperación y receta médica" }),
+        t("prompt_consultation_diarization", { defaultValue: "🩺 Analizar consulta grabada con identificación de doctor y paciente" }),
         t("prompt_accent_selector", { defaultValue: "🌎 Cambiar acento regional de Pulso" }),
         t("prompt_find_doctor", { defaultValue: "Buscar especialista por síntoma" }),
         t("prompt_supplies", { defaultValue: "¿Dónde puedo comprar insumos médicos?" }),
@@ -783,6 +807,33 @@ export function PulsoFloatingAssistant() {
                   </button>
                 )}
 
+                {/* Diarización Médico-Paciente Toggle */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextVal = !diarizationMode;
+                    setDiarizationMode(nextVal);
+                    toast.info(
+                      nextVal
+                        ? t("diarization_enabled_toast", { defaultValue: "🩺 Modo Diarización activado: Se identificarán turnos de Doctor y Paciente en audios." })
+                        : t("diarization_disabled_toast", { defaultValue: "Modo Diarización desactivado." })
+                    );
+                  }}
+                  className={cn(
+                    "p-2 rounded-full transition-colors",
+                    diarizationMode
+                      ? "text-cyan-600 dark:text-cyan-400 bg-cyan-500/15 border border-cyan-500/30"
+                      : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/60 dark:hover:bg-gray-800"
+                  )}
+                  title={
+                    diarizationMode
+                      ? t("diarization_active_title", { defaultValue: "Diarización activa (Médico/Paciente)" })
+                      : t("diarization_inactive_title", { defaultValue: "Activar Diarización Médico-Paciente" })
+                  }
+                >
+                  <Users className="w-4 h-4" />
+                </button>
+
                 {/* Audio TTS Toggle */}
                 <button
                   type="button"
@@ -946,6 +997,46 @@ export function PulsoFloatingAssistant() {
                   >
                     {/* Texto del Mensaje */}
                     {msg.text && renderMessageContent(msg.text, msg.role === "assistant")}
+
+                    {/* Turnos de interlocutores identificados (Diarización Médico-Paciente) */}
+                    {msg.speakerTurns && msg.speakerTurns.length > 0 && (
+                      <div className="mt-3 space-y-2 pt-2 border-t border-gray-200/60 dark:border-gray-800/80">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-cyan-600 dark:text-cyan-400">
+                          <Users className="w-3.5 h-3.5" />
+                          <span>{t("dialogue_turns_title", { defaultValue: "Conversación segmentada por interlocutor (Doctor / Paciente)" })}</span>
+                        </div>
+                        {msg.speakerTurns.map((turn, tIdx) => {
+                          const isDoctor = turn.speakerId.includes("spk_1") || turn.speakerLabel.toLowerCase().includes("doctor") || turn.speakerLabel.toLowerCase().includes("médico");
+                          const isPatient = turn.speakerId.includes("spk_2") || turn.speakerLabel.toLowerCase().includes("paciente");
+                          return (
+                            <div
+                              key={tIdx}
+                              className={cn(
+                                "p-2.5 rounded-xl text-xs border transition-all space-y-1",
+                                isDoctor
+                                  ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500/30 text-emerald-950 dark:text-emerald-100"
+                                  : isPatient
+                                  ? "bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500/30 text-cyan-950 dark:text-cyan-100"
+                                  : "bg-amber-50 dark:bg-amber-950/30 border-amber-500/30 text-amber-950 dark:text-amber-100"
+                              )}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-bold text-[11px] flex items-center gap-1">
+                                  {isDoctor ? "🩺 " : isPatient ? "👤 " : "👥 "}
+                                  {turn.speakerLabel}
+                                </span>
+                                {turn.startOffset && (
+                                  <span className="text-[10px] opacity-70 font-mono">
+                                    {turn.startOffset} {turn.endOffset ? `- ${turn.endOffset}` : ""}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="leading-relaxed opacity-90">{turn.text}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
 
                     {/* Botón para reproducir audio Multi-Speaker o TTS */}
                     {msg.role === "assistant" && msg.audioBase64 && (

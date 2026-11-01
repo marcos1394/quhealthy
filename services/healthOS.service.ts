@@ -69,6 +69,7 @@ export interface TranscribeAudioRequest {
   customVocabulary?: string[];
   medicalSpecialty?: string;
   includeMedicalVocabulary?: boolean;
+  enableDiarization?: boolean;
 }
 
 export interface WordTimestamp {
@@ -78,6 +79,15 @@ export interface WordTimestamp {
   endOffset: string;
 }
 
+export interface SpeakerTurn {
+  speakerId: string;
+  speakerLabel: string;
+  text: string;
+  startOffset?: string;
+  endOffset?: string;
+  words?: WordTimestamp[];
+}
+
 export interface TranscribeAudioResponse {
   id: string;
   transcribedText: string;
@@ -85,6 +95,8 @@ export interface TranscribeAudioResponse {
   detectedLanguage: string;
   words?: WordTimestamp[];
   appliedVocabulary?: string[];
+  diarizationEnabled?: boolean;
+  speakerTurns?: SpeakerTurn[];
   status: string;
   durationMs: number;
 }
