@@ -27,10 +27,12 @@ import {
   Users,
   Play,
   Pause,
+  FileText,
+  CheckCircle2,
 } from "lucide-react";
 
 import { PulsoMascot, PulsoState, PulsoPalette } from "@/components/ai/PulsoMascot";
-import { healthOSService, AttachmentData, RegionalAccent, SpeakerTurn, WordTimestamp } from "@/services/healthOS.service";
+import { healthOSService, AttachmentData, RegionalAccent, SpeakerTurn, WordTimestamp, ConsultationSoapResponse } from "@/services/healthOS.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { WidgetRenderer } from "@/components/engine/WidgetRenderer";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
@@ -52,6 +54,8 @@ export interface FloatingChatMessage {
   audioBase64?: string;
   speakerTurns?: SpeakerTurn[];
   words?: WordTimestamp[];
+  soapData?: ConsultationSoapResponse;
+  isSavedToVault?: boolean;
 }
 
 export function PulsoFloatingAssistant() {
@@ -436,6 +440,15 @@ export function PulsoFloatingAssistant() {
     }
   };
 
+  const handleSaveSoapToVault = (msgId: string) => {
+    setMessages((prev) =>
+      prev.map((m) => (m.id === msgId ? { ...m, isSavedToVault: true } : m))
+    );
+    toast.success(
+      t("soap_saved_to_vault_success", { defaultValue: "✅ Nota clínica guardada en el Expediente Clínico (Vault)" })
+    );
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -451,6 +464,34 @@ export function PulsoFloatingAssistant() {
         const base64String = (reader.result as string).split(",")[1];
         const wantsDiarization = diarizationMode || /consulta|sesion|dialogo|entrevista|doctor/i.test(file.name);
         try {
+          if (wantsDiarization) {
+            // Feature 5: Transcripción automática de consultas con Gemini 3.5 Transcribe y generación de Nota SOAP para Vault
+            const soapResult = await healthOSService.generateConsultationSoap({
+              audioBase64: base64String,
+              mimeType: file.type || "audio/webm",
+              shareToVault: true,
+            });
+
+            if (soapResult && soapResult.status === "completed") {
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: crypto.randomUUID(),
+                  role: "assistant",
+                  text: soapResult.transcription?.transcribedText || "",
+                  soapData: soapResult,
+                  speakerTurns: soapResult.transcription?.speakerTurns,
+                  words: soapResult.transcription?.words,
+                  audioBase64: base64String,
+                },
+              ]);
+              toast.success(
+                t("soap_generated_success", { defaultValue: "📋 Nota SOAP generada y lista para el Vault digital" })
+              );
+              return;
+            }
+          }
+
           const result = await healthOSService.transcribeAudio({
             audioBase64: base64String,
             mimeType: file.type || "audio/webm",
@@ -1091,6 +1132,119 @@ export function PulsoFloatingAssistant() {
                             </div>
                           );
                         })}
+                      </div>
+                    )}
+
+                    {/* Tarjeta de Nota Clínica SOAP para Vault (Feature 5) */}
+                    {msg.soapData && (
+                      <div className="mt-3 p-3.5 rounded-2xl bg-white dark:bg-[#111] border border-emerald-500/30 shadow-md space-y-3 text-left">
+                        <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <span className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                              <FileText className="w-4 h-4" />
+                            </span>
+                            <div>
+                              <h4 className="text-xs font-bold text-gray-900 dark:text-white leading-tight">
+                                {t("soap_card_title", { defaultValue: "Nota Clínica SOAP — Health OS Copilot" })}
+                              </h4>
+                              <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                                {msg.soapData.vaultDocument?.title || "Consulta Médica General"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Botón Guardar en Vault */}
+                          <button
+                            type="button"
+                            onClick={() => handleSaveSoapToVault(msg.id)}
+                            disabled={msg.isSavedToVault}
+                            className={cn(
+                              "flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full transition-all cursor-pointer shadow-2xs",
+                              msg.isSavedToVault
+                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-400/40 cursor-default"
+                                : "bg-[#1D9E75] hover:bg-[#178563] text-white hover:scale-105"
+                            )}
+                          >
+                            {msg.isSavedToVault ? (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                <span>{t("soap_saved_badge", { defaultValue: "Guardado en Vault" })}</span>
+                              </>
+                            ) : (
+                              <>
+                                <FileText className="w-3.5 h-3.5" />
+                                <span>{t("soap_save_to_vault_btn", { defaultValue: "Guardar en Vault" })}</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Cuadrantes SOAP */}
+                        <div className="space-y-2 text-xs">
+                          {/* S: Subjetivo */}
+                          <div className="p-2 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-500/20">
+                            <div className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300 text-[11px] mb-0.5">
+                              <span className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]">S</span>
+                              <span>{t("soap_subjective_label", { defaultValue: "S (Subjetivo)" })}</span>
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-[11px]">{msg.soapData.subjective}</p>
+                          </div>
+
+                          {/* O: Objetivo */}
+                          <div className="p-2 rounded-xl bg-cyan-50/50 dark:bg-cyan-950/20 border border-cyan-500/20">
+                            <div className="flex items-center gap-1.5 font-bold text-cyan-800 dark:text-cyan-300 text-[11px] mb-0.5">
+                              <span className="w-4 h-4 rounded-full bg-cyan-500 text-white flex items-center justify-center text-[9px]">O</span>
+                              <span>{t("soap_objective_label", { defaultValue: "O (Objetivo)" })}</span>
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-[11px]">{msg.soapData.objective}</p>
+                            {msg.soapData.vitalSigns && Object.keys(msg.soapData.vitalSigns).length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-1.5 pt-1 border-t border-cyan-500/20">
+                                {Object.entries(msg.soapData.vitalSigns).map(([k, v]) => (
+                                  <span key={k} className="px-2 py-0.5 rounded-full bg-white dark:bg-[#181818] border border-cyan-500/30 text-[10px] font-semibold text-cyan-900 dark:text-cyan-200">
+                                    {k === "bloodPressure" ? "TA" : k === "temperature" ? "Temp" : k}: {String(v)}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* A: Análisis */}
+                          <div className="p-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-500/20">
+                            <div className="flex items-center gap-1.5 font-bold text-indigo-800 dark:text-indigo-300 text-[11px] mb-0.5">
+                              <span className="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[9px]">A</span>
+                              <span>{t("soap_assessment_label", { defaultValue: "A (Análisis)" })}</span>
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-[11px]">{msg.soapData.assessment}</p>
+                            {msg.soapData.suggestedDiagnoses && msg.soapData.suggestedDiagnoses.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1.5 pt-1 border-t border-indigo-500/20">
+                                {msg.soapData.suggestedDiagnoses.map((diag, dIdx) => (
+                                  <span key={dIdx} className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-900 dark:text-indigo-200 font-bold text-[10px]">
+                                    🩺 {diag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* P: Plan */}
+                          <div className="p-2 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-500/20">
+                            <div className="flex items-center gap-1.5 font-bold text-purple-800 dark:text-purple-300 text-[11px] mb-0.5">
+                              <span className="w-4 h-4 rounded-full bg-purple-500 text-white flex items-center justify-center text-[9px]">P</span>
+                              <span>{t("soap_plan_label", { defaultValue: "P (Plan)" })}</span>
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-[11px]">{msg.soapData.plan}</p>
+                            {msg.soapData.suggestedPrescriptions && msg.soapData.suggestedPrescriptions.length > 0 && (
+                              <div className="space-y-1 mt-1.5 pt-1 border-t border-purple-500/20">
+                                {msg.soapData.suggestedPrescriptions.map((rx, rxIdx) => (
+                                  <div key={rxIdx} className="text-[10px] text-purple-950 dark:text-purple-200 bg-white/70 dark:bg-[#181818]/70 p-1.5 rounded-lg border border-purple-500/20 flex items-center justify-between">
+                                    <span className="font-bold">💊 {rx.medicationName} ({rx.dosage})</span>
+                                    <span className="opacity-80">{rx.frequency} — {rx.duration}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     )}
 

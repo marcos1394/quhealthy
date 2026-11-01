@@ -105,6 +105,34 @@ export interface TranscribeAudioResponse {
   durationMs: number;
 }
 
+export interface ConsultationSoapRequest {
+  audioBase64?: string;
+  audioUri?: string;
+  mimeType?: string;
+  consultationText?: string;
+  patientName?: string;
+  doctorName?: string;
+  medicalSpecialty?: string;
+  appointmentId?: number;
+  dependentId?: number;
+  shareToVault?: boolean;
+}
+
+export interface ConsultationSoapResponse {
+  id: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  vitalSigns?: Record<string, any>;
+  suggestedDiagnoses?: string[];
+  suggestedPrescriptions?: Array<Record<string, string>>;
+  transcription?: TranscribeAudioResponse;
+  vaultDocument?: Record<string, any>;
+  status: string;
+  durationMs: number;
+}
+
 export interface RecoveryGuideRequest {
   patientName?: string;
   diagnosis?: string;
@@ -226,6 +254,15 @@ export const healthOSService = {
    */
   getClinicalVocabulary: async (): Promise<Record<string, any>> => {
     const response = await axiosInstance.get('/api/v1/health-agent/transcribe/vocabulary');
+    return response.data;
+  },
+
+  /**
+   * Transcribe un audio de consulta médica con Gemini 3.5 Transcribe y genera automáticamente
+   * una Nota SOAP clínica (Subjetivo, Objetivo, Análisis, Plan) lista para el Vault Digital.
+   */
+  generateConsultationSoap: async (request: ConsultationSoapRequest): Promise<ConsultationSoapResponse> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/transcribe/soap', request);
     return response.data;
   }
 };
