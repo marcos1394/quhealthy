@@ -13,3 +13,4 @@ export * from './DependentWidget';
 export * from './VaccinationWidget';
 export * from './GrowthWidget';
 export * from './EldercareWidget';
+export * from './RecoveryGuideWidget';

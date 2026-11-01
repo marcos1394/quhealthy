@@ -10995,6 +10995,7 @@
     "prompt_simulation": "🩺 Simular una consulta médica (práctica de voz)",
     "prompt_stress_relief": "🧘 Técnicas de respiración para calmar el estrés",
     "prompt_voice_info": "🎙️ Conoce la voz clínica exclusiva de Pulso",
+    "prompt_recovery_guide": "📋 Audio-guía de recuperación y receta médica",
     "prompt_find_doctor": "Buscar especialista por síntoma",
     "prompt_supplies": "¿Dónde puedo comprar insumos médicos?",
     "prompt_my_appointments": "Consultar mis próximas citas",

@@ -24,7 +24,8 @@ export type WidgetType =
   | 'BookingCheckoutWidget'
   | 'VaccinationWidget'
   | 'GrowthWidget'
-  | 'EldercareWidget';
+  | 'EldercareWidget'
+  | 'RecoveryGuideWidget';
 
 export interface BaseWidget<T = any> {
   id: string; // Unique identifier for the widget instance
@@ -207,3 +208,29 @@ export interface EldercareData {
 }
 
 export type EldercareWidget = BaseWidget<EldercareData>;
+
+// ============================================================
+// Recovery Guide Widget (Gemini 3.8 Flash TTS Long Audio)
+// ============================================================
+export interface RecoveryGuideSection {
+  id: string;
+  title: string;
+  category: 'DIAGNOSIS' | 'MEDICATIONS' | 'CARE' | 'WARNING_SIGNS' | string;
+  summary: string;
+  spokenText: string;
+  estimatedSeconds?: number;
+}
+
+export interface RecoveryGuideData {
+  id?: string;
+  guideTitle: string;
+  patientName?: string;
+  diagnosis?: string;
+  fullScriptText?: string;
+  sections: RecoveryGuideSection[];
+  audioBase64?: string;
+  format?: string;
+  totalDurationSeconds?: number;
+}
+
+export type RecoveryGuideWidget = BaseWidget<RecoveryGuideData>;

@@ -45,6 +45,39 @@ export interface ActiveVoiceConfig {
   isCustomDesignedVoice: boolean;
 }
 
+export interface RecoveryGuideRequest {
+  patientName?: string;
+  diagnosis?: string;
+  medications?: string;
+  careInstructions?: string;
+  doctorNotes?: string;
+  voice?: string;
+  style?: string;
+  language?: string;
+}
+
+export interface RecoveryGuideSectionItem {
+  id: string;
+  title: string;
+  category: string;
+  summary: string;
+  spokenText: string;
+  estimatedSeconds?: number;
+}
+
+export interface RecoveryGuideResponse {
+  id: string;
+  guideTitle: string;
+  patientName: string;
+  diagnosis: string;
+  fullScriptText: string;
+  sections: RecoveryGuideSectionItem[];
+  audioBase64?: string;
+  format: string;
+  totalDurationSeconds: number;
+  createdAt: string;
+}
+
 export const healthOSService = {
   /**
    * Envía un mensaje de texto plano o intención al agente orquestador con archivos adjuntos opcionales
@@ -91,6 +124,15 @@ export const healthOSService = {
    */
   setActiveVoice: async (voiceId: string): Promise<ActiveVoiceConfig> => {
     const response = await axiosInstance.post('/api/v1/health-agent/voices/active', { voiceId });
+    return response.data;
+  },
+
+  /**
+   * Genera una Audio-Guía estructurada de recuperación y tratamiento de larga duración
+   * con Gemini 3.8 Flash TTS.
+   */
+  generateRecoveryGuide: async (request?: RecoveryGuideRequest): Promise<RecoveryGuideResponse> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/guides/recovery', request || {});
     return response.data;
   }
 };

@@ -442,6 +442,7 @@ export function PulsoFloatingAssistant() {
         t("prompt_simulation", { defaultValue: "🩺 Simular una consulta médica (práctica de voz)" }),
         t("prompt_stress_relief", { defaultValue: "🧘 Técnicas de respiración para calmar el estrés" }),
         t("prompt_voice_info", { defaultValue: "🎙️ Conoce la voz clínica exclusiva de Pulso" }),
+        t("prompt_recovery_guide", { defaultValue: "📋 Audio-guía de recuperación y receta médica" }),
         t("prompt_find_doctor", { defaultValue: "Buscar especialista por síntoma" }),
         t("prompt_supplies", { defaultValue: "¿Dónde puedo comprar insumos médicos?" }),
         t("prompt_my_appointments", { defaultValue: "Consultar mis próximas citas" }),

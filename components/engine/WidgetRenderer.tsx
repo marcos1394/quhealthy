@@ -24,6 +24,7 @@ import {
   VaccinationWidget,
   GrowthWidget,
   EldercareWidget,
+  RecoveryGuideWidget,
 } from "../widgets";
 import { useActionEngine } from "@/hooks/useActionEngine";
 
@@ -51,6 +52,7 @@ const WIDGET_MAP: Record<
   VaccinationWidget,
   GrowthWidget,
   EldercareWidget,
+  RecoveryGuideWidget,
 };
 
 export const WidgetRenderer: React.FC<Props> = ({ widgets }) => {
