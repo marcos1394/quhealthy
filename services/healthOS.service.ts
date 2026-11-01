@@ -67,6 +67,8 @@ export interface TranscribeAudioRequest {
   mode?: 'smart' | 'verbatim';
   languageCodes?: string[];
   customVocabulary?: string[];
+  medicalSpecialty?: string;
+  includeMedicalVocabulary?: boolean;
 }
 
 export interface WordTimestamp {
@@ -82,6 +84,7 @@ export interface TranscribeAudioResponse {
   mode: string;
   detectedLanguage: string;
   words?: WordTimestamp[];
+  appliedVocabulary?: string[];
   status: string;
   durationMs: number;
 }
@@ -199,6 +202,14 @@ export const healthOSService = {
    */
   transcribeAudio: async (request: TranscribeAudioRequest): Promise<TranscribeAudioResponse> => {
     const response = await axiosInstance.post('/api/v1/health-agent/transcribe', request);
+    return response.data;
+  },
+
+  /**
+   * Obtiene el catálogo de vocabulario médico y farmacológico especializado (custom_vocabulary)
+   */
+  getClinicalVocabulary: async (): Promise<Record<string, any>> => {
+    const response = await axiosInstance.get('/api/v1/health-agent/transcribe/vocabulary');
     return response.data;
   }
 };

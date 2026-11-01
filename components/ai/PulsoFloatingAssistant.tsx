@@ -412,10 +412,19 @@ export function PulsoFloatingAssistant() {
             audioBase64: base64String,
             mimeType: file.type || "audio/webm",
             mode: "smart",
+            includeMedicalVocabulary: true,
           });
           if (result && result.transcribedText) {
             setInputMessage((prev) => (prev ? `${prev} ${result.transcribedText}` : result.transcribedText));
-            toast.success(t("audio_transcribed_success", { defaultValue: "✨ Transcripción inteligente lista" }));
+            const vocabCount = result.appliedVocabulary?.length || 0;
+            toast.success(
+              vocabCount > 0
+                ? t("audio_transcribed_vocab_success", {
+                    defaultValue: `✨ Transcripción lista con ${vocabCount} términos médicos reconocidos`,
+                    count: vocabCount,
+                  })
+                : t("audio_transcribed_success", { defaultValue: "✨ Transcripción inteligente lista" })
+            );
           } else {
             setAttachments([
               {

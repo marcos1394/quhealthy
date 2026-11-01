@@ -11001,6 +11001,7 @@
     "accent_updated": "Acento regional actualizado",
     "transcribing_audio": "🎙️ Transcribiendo audio con Gemini 3.5 Transcribe...",
     "audio_transcribed_success": "✨ Transcripción inteligente lista",
+    "audio_transcribed_vocab_success": "✨ Transcripción lista con {count} términos médicos reconocidos",
     "prompt_find_doctor": "Buscar especialista por síntoma",
     "prompt_supplies": "¿Dónde puedo comprar insumos médicos?",
     "prompt_my_appointments": "Consultar mis próximas citas",

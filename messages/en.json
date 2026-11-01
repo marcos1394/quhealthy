@@ -10962,6 +10962,7 @@
     "accent_updated": "Regional accent updated",
     "transcribing_audio": "🎙️ Transcribing audio with Gemini 3.5 Transcribe...",
     "audio_transcribed_success": "✨ Smart transcription ready",
+    "audio_transcribed_vocab_success": "✨ Transcription ready with {count} recognized medical terms",
     "prompt_find_doctor": "Find a doctor by symptom",
     "prompt_supplies": "Where can I buy medical supplies?",
     "prompt_my_appointments": "Check my upcoming appointments",
