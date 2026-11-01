@@ -70,6 +70,7 @@ export interface TranscribeAudioRequest {
   medicalSpecialty?: string;
   includeMedicalVocabulary?: boolean;
   enableDiarization?: boolean;
+  enableTimestamps?: boolean;
 }
 
 export interface WordTimestamp {
@@ -77,6 +78,8 @@ export interface WordTimestamp {
   speaker?: string;
   startOffset: string;
   endOffset: string;
+  startSeconds?: number;
+  endSeconds?: number;
 }
 
 export interface SpeakerTurn {
@@ -96,6 +99,7 @@ export interface TranscribeAudioResponse {
   words?: WordTimestamp[];
   appliedVocabulary?: string[];
   diarizationEnabled?: boolean;
+  timestampsEnabled?: boolean;
   speakerTurns?: SpeakerTurn[];
   status: string;
   durationMs: number;

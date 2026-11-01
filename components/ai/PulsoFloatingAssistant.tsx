@@ -25,10 +25,12 @@ import {
   EyeOff,
   Move,
   Users,
+  Play,
+  Pause,
 } from "lucide-react";
 
 import { PulsoMascot, PulsoState, PulsoPalette } from "@/components/ai/PulsoMascot";
-import { healthOSService, AttachmentData, RegionalAccent, SpeakerTurn } from "@/services/healthOS.service";
+import { healthOSService, AttachmentData, RegionalAccent, SpeakerTurn, WordTimestamp } from "@/services/healthOS.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { WidgetRenderer } from "@/components/engine/WidgetRenderer";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
@@ -49,6 +51,7 @@ export interface FloatingChatMessage {
   };
   audioBase64?: string;
   speakerTurns?: SpeakerTurn[];
+  words?: WordTimestamp[];
 }
 
 export function PulsoFloatingAssistant() {
@@ -73,6 +76,8 @@ export function PulsoFloatingAssistant() {
   const [activeAccent, setActiveAccent] = useState<{ id: string; name: string; flagEmoji: string } | null>(null);
   const [showAccentMenu, setShowAccentMenu] = useState(false);
   const [diarizationMode, setDiarizationMode] = useState(false);
+  const [activeAudioTime, setActiveAudioTime] = useState<number>(0);
+  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -373,13 +378,17 @@ export function PulsoFloatingAssistant() {
     }
   };
 
-  const playAudioBase64 = (rawBase64: string) => {
+  const playAudioBase64 = (rawBase64: string, startTime: number = 0, msgId?: string) => {
     try {
       if (audioPlayerRef.current) {
         audioPlayerRef.current.pause();
       }
       // Detección automática de formato: Gemini 3.8 Flash TTS devuelve WAV ("RIFF" = "UklG") o MP3 de respaldo
-      const mimeType = rawBase64.startsWith("UklG") ? "audio/wav" : "audio/mp3";
+      const mimeType = rawBase64.startsWith("UklG")
+        ? "audio/wav"
+        : (rawBase64.startsWith("//uQ") || rawBase64.startsWith("SUQz"))
+        ? "audio/mp3"
+        : "audio/webm";
       const audioBlob = new Blob(
         [Uint8Array.from(atob(rawBase64), (c) => c.charCodeAt(0))],
         { type: mimeType }
@@ -387,13 +396,43 @@ export function PulsoFloatingAssistant() {
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audioPlayerRef.current = audio;
-      audio.onplay = () => setIsSpeaking(true);
-      audio.onended = () => setIsSpeaking(false);
-      audio.onerror = () => setIsSpeaking(false);
+      if (startTime > 0) {
+        audio.currentTime = startTime;
+      }
+      audio.ontimeupdate = () => {
+        setActiveAudioTime(audio.currentTime);
+      };
+      audio.onplay = () => {
+        setIsSpeaking(true);
+        if (msgId) setPlayingMessageId(msgId);
+      };
+      audio.onended = () => {
+        setIsSpeaking(false);
+        setPlayingMessageId(null);
+        setActiveAudioTime(0);
+      };
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        setPlayingMessageId(null);
+        setActiveAudioTime(0);
+      };
       audio.play().catch((err) => console.warn("Audio autoplay blocked or failed:", err));
     } catch (e) {
       console.warn("TTS Playback error:", e);
       setIsSpeaking(false);
+      setPlayingMessageId(null);
+    }
+  };
+
+  const togglePlayAudio = (rawBase64: string, msgId: string) => {
+    if (playingMessageId === msgId && audioPlayerRef.current && !audioPlayerRef.current.paused) {
+      audioPlayerRef.current.pause();
+      setIsSpeaking(false);
+    } else if (playingMessageId === msgId && audioPlayerRef.current && audioPlayerRef.current.paused) {
+      audioPlayerRef.current.play();
+      setIsSpeaking(true);
+    } else {
+      playAudioBase64(rawBase64, 0, msgId);
     }
   };
 
@@ -417,10 +456,14 @@ export function PulsoFloatingAssistant() {
             mimeType: file.type || "audio/webm",
             mode: wantsDiarization ? "verbatim" : "smart",
             enableDiarization: wantsDiarization,
+            enableTimestamps: wantsDiarization,
             includeMedicalVocabulary: !wantsDiarization,
           });
           if (result && result.transcribedText) {
-            if (result.speakerTurns && result.speakerTurns.length > 0) {
+            const hasWords = Boolean(result.words && result.words.length > 0);
+            const hasSpeakerTurns = Boolean(result.speakerTurns && result.speakerTurns.length > 0);
+
+            if (hasSpeakerTurns || hasWords) {
               setMessages((prev) => [
                 ...prev,
                 {
@@ -428,14 +471,25 @@ export function PulsoFloatingAssistant() {
                   role: "assistant",
                   text: result.transcribedText,
                   speakerTurns: result.speakerTurns,
+                  words: result.words,
+                  audioBase64: base64String,
                 },
               ]);
-              toast.success(
-                t("audio_transcribed_diarization_success", {
-                  defaultValue: `🩺 Diarización completada: ${result.speakerTurns.length} turnos médico-paciente identificados`,
-                  count: result.speakerTurns.length,
-                })
-              );
+              if (hasSpeakerTurns) {
+                toast.success(
+                  t("audio_transcribed_diarization_success", {
+                    defaultValue: `🩺 Diarización completada: ${result.speakerTurns!.length} turnos médico-paciente identificados`,
+                    count: result.speakerTurns!.length,
+                  })
+                );
+              } else {
+                toast.success(
+                  t("audio_transcribed_timestamps_success", {
+                    defaultValue: `✨ Transcripción lista con ${result.words!.length} palabras sincronizadas interactivas`,
+                    count: result.words!.length,
+                  })
+                );
+              }
             } else {
               setInputMessage((prev) => (prev ? `${prev} ${result.transcribedText}` : result.transcribedText));
               const vocabCount = result.appliedVocabulary?.length || 0;
@@ -486,6 +540,8 @@ export function PulsoFloatingAssistant() {
 
   const handleResetChat = () => {
     setMessages([]);
+    setPlayingMessageId(null);
+    setActiveAudioTime(0);
     if (audioPlayerRef.current) {
       audioPlayerRef.current.pause();
     }
@@ -1038,8 +1094,72 @@ export function PulsoFloatingAssistant() {
                       </div>
                     )}
 
-                    {/* Botón para reproducir audio Multi-Speaker o TTS */}
-                    {msg.role === "assistant" && msg.audioBase64 && (
+                    {/* Transcripción interactiva con marcas de tiempo palabra por palabra (Feature 4) */}
+                    {msg.words && msg.words.length > 0 && (
+                      <div className="mt-3 p-3 rounded-2xl bg-gray-50/80 dark:bg-[#141414]/80 border border-gray-200/60 dark:border-gray-800/80 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#1D9E75] dark:text-[#5DCAA5]">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>{t("interactive_transcript_title", { defaultValue: "Transcripción interactiva sincronizada" })}</span>
+                          </div>
+                          {msg.audioBase64 && (
+                            <button
+                              type="button"
+                              onClick={() => togglePlayAudio(msg.audioBase64!, msg.id)}
+                              className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#1D9E75] hover:bg-[#178563] text-white shadow-2xs transition-all cursor-pointer"
+                            >
+                              {playingMessageId === msg.id && isSpeaking ? (
+                                <>
+                                  <Pause className="w-3 h-3" />
+                                  <span>{t("pause_audio_transcript", { defaultValue: "Pausar" })}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="w-3 h-3 fill-current" />
+                                  <span>{t("play_audio_transcript", { defaultValue: "Reproducir" })}</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 italic">
+                          {t("click_word_to_seek", { defaultValue: "Haz clic en cualquier palabra para saltar a ese punto del audio" })}
+                        </p>
+
+                        <div className="flex flex-wrap gap-x-1.5 gap-y-1 text-xs leading-relaxed pt-1">
+                          {msg.words.map((w, wIdx) => {
+                            const startSec = w.startSeconds ?? (parseFloat(w.startOffset?.replace("s", "") || "0") || 0);
+                            const endSec = w.endSeconds ?? (parseFloat(w.endOffset?.replace("s", "") || "0") || (startSec + 0.4));
+                            const isActive = playingMessageId === msg.id && isSpeaking && activeAudioTime >= startSec && activeAudioTime <= endSec;
+
+                            return (
+                              <button
+                                key={wIdx}
+                                type="button"
+                                onClick={() => {
+                                  if (msg.audioBase64) {
+                                    playAudioBase64(msg.audioBase64, startSec, msg.id);
+                                  }
+                                }}
+                                title={`${w.word} (${w.startOffset || startSec + "s"} - ${w.endOffset || endSec + "s"})`}
+                                className={cn(
+                                  "px-1 py-0.5 rounded cursor-pointer transition-all duration-150 text-left",
+                                  isActive
+                                    ? "bg-[#1D9E75] text-white font-bold shadow-xs scale-105"
+                                    : "hover:bg-[#5DCAA5]/20 hover:text-[#1D9E75] text-gray-800 dark:text-gray-200"
+                                )}
+                              >
+                                {w.word}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Botón para reproducir audio Multi-Speaker o TTS cuando no hay marcas interactivas */}
+                    {msg.role === "assistant" && msg.audioBase64 && (!msg.words || msg.words.length === 0) && (
                       <button
                         type="button"
                         onClick={() => playAudioBase64(msg.audioBase64!)}
