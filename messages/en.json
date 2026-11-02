@@ -5274,6 +5274,7 @@
     "btn_continue": "Continue to Payment",
     "new_label": "New",
     "load_more": "Load more",
+    "added_to_selection": "added to your selection",
     "reviews_count": "{count, plural, =1 {1 review} other {{count} reviews}}",
     "new_provider": "New",
     "consultorio": "Clinic Office",

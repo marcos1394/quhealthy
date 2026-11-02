@@ -195,7 +195,7 @@ export default function PublicStorePage() {
     addToCart(item, slug, store?.displayName, store?.primaryColor || "#000000");
     toast.success(
       <div className="flex items-center justify-between gap-3 text-xs font-semibold">
-        <span className="truncate">{item.name} {t("added_to_selection", { defaultValue: "agregado" })}</span>
+        <span className="truncate">{item.name} {t("added_to_selection")}</span>
         <button
           type="button"
           onClick={() => {
