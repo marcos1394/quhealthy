@@ -307,8 +307,8 @@ export default function TemplatesExplorerPage() {
 
     try {
       setIsSubmittingReview(true);
-      const authorName = user?.name
-        ? `${user.name} ${user.lastName || ""}`.trim()
+      const authorName = user?.firstName
+        ? `${user.firstName} ${user.lastName || ""}`.trim()
         : undefined;
 
       const createdReview = await clinicalTemplateService.addReview(reviewsTemplate.id, {
