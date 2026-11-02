@@ -27,6 +27,7 @@ import {
   XCircle,
   QrCode,
   CheckCircle2,
+  Banknote,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import Image from "next/image";
@@ -468,17 +469,29 @@ export default function PatientAppointmentDetailsPage() {
                     </Button>
                   ) : (
                     <div className="space-y-4">
-                      <div className="border-l-2 border-amber-500 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-r-xl">
-                        <p className="text-xs font-bold text-amber-600 dark:text-amber-500">
-                          {t("requires_settlement")}
-                        </p>
-                      </div>
+                      {appointment.paymentMethod === "CASH" ? (
+                        <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-1">
+                          <p className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                            <Banknote className="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>{t("cash_clinic_title")}</span>
+                          </p>
+                          <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                            {t("cash_clinic_desc")}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="border-l-2 border-amber-500 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-r-xl">
+                          <p className="text-xs font-bold text-amber-600 dark:text-amber-500">
+                            {t("requires_settlement")}
+                          </p>
+                        </div>
+                      )}
                       <Button
                         onClick={handlePayNow}
                         disabled={isProcessingPayment}
                         className="w-full rounded-xl bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 h-12 text-sm font-semibold transition-all shadow-sm flex items-center justify-between px-6 disabled:opacity-50"
                       >
-                        {t("pay_now")}
+                        {appointment.paymentMethod === "CASH" ? t("pay_online_instead") : t("pay_now")}
                         {isProcessingPayment ? (
                           <QhSpinner size="sm" />
                         ) : (

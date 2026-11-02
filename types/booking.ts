@@ -30,7 +30,7 @@ export interface CreateAppointmentRequest {
   serviceId: number;      
   startTime: string;      
   appointmentType: 'IN_PERSON' | 'ONLINE'; 
-  paymentMethod: 'CREDIT_CARD' | 'CASH' | 'TRANSFER'; 
+  paymentMethod: 'CREDIT_CARD' | 'CASH' | 'TRANSFER' | 'WALLET_BALANCE' | 'PACKAGE_BALANCE'; 
   consumerSymptoms?: string; 
   locationId?: number;
   staffId?: number;

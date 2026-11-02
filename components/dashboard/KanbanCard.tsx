@@ -15,6 +15,7 @@ import {
   User,
   Clock,
   Check,
+  Banknote,
 } from "lucide-react";
 
 import { ProviderAppointment } from "@/types/appointments";
@@ -197,6 +198,17 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
             <span className="text-xs font-mono font-bold border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] text-gray-700 dark:text-gray-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 shrink-0 shadow-2xs">
               <Clock className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} />
               <span>{formatLocalTime(appt.startTime, "HH:mm")}</span>
+            </span>
+          )}
+
+          {/* Badge de Cobro en Consultorio */}
+          {appt.paymentMethod === "CASH" && appt.paymentStatus !== "SETTLED" && (
+            <span
+              className="text-[10px] font-bold border border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-400 bg-amber-50/60 dark:bg-amber-950/30 px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-2xs shrink-0"
+              title="Cobro en consultorio pendiente"
+            >
+              <Banknote className="w-3 h-3 text-amber-600" />
+              <span>Efectivo</span>
             </span>
           )}
 

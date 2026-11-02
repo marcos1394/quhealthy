@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React from "react";
-import { User, CalendarCheck, Calendar, MapPin, FileText, CheckCircle2 } from "lucide-react";
+import { User, CalendarCheck, Calendar, MapPin, FileText, CheckCircle2, Banknote } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface Props {
@@ -130,12 +130,25 @@ export function AppointmentSummary({
             <p className="text-2xl sm:text-3xl font-bold font-mono text-gray-900 dark:text-white tracking-tight">
               {formattedPrice}
             </p>
+            {appointment?.paymentMethod === "CASH" && (
+              <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 pt-1">
+                <Banknote className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                <span>{t("cash_payment_pending_notice")}</span>
+              </p>
+            )}
           </div>
 
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold shadow-xs">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
-            <span>{t("status_approved")}</span>
-          </span>
+          {appointment?.paymentMethod === "CASH" ? (
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 text-xs font-bold shadow-xs">
+              <Banknote className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={2} />
+              <span>{t("status_pay_in_clinic")}</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-xs font-bold shadow-xs">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2} />
+              <span>{t("status_approved")}</span>
+            </span>
+          )}
         </div>
       </div>
     </div>

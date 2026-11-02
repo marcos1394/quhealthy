@@ -95,10 +95,16 @@ export const useBookingCheckout = () => {
           }
         }
 
-        // 2. Crear Checkout de Stripe para 1 Cita
-        if (item.price === 0 || paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
-           toast.success(item.price === 0 ? "¡Cita agendada exitosamente!" : "¡Cita agendada exitosamente usando tu crédito/saldo!");
-           router.push('/patient/dashboard/appointments');
+        // 2. Manejo de métodos sin pasarela inmediata (Gratuito, Paquetes, Billetera o Efectivo en Consultorio)
+        if (item.price === 0 || paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE' || paymentMethod === 'CASH') {
+           useBookingStore.getState().clearCart();
+           const msg = paymentMethod === 'CASH'
+             ? "¡Cita confirmada! Recuerda realizar tu pago en efectivo en recepción."
+             : item.price === 0
+               ? "¡Cita agendada exitosamente!"
+               : "¡Cita agendada exitosamente usando tu crédito/saldo!";
+           toast.success(msg);
+           router.push(`/patient/booking/success/${appointmentId}`);
            return;
         }
 
@@ -209,10 +215,19 @@ export const useBookingCheckout = () => {
           }
         }
 
-        if (preparedOrder.totalAmount === 0 || paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE') {
+        if (preparedOrder.totalAmount === 0 || paymentMethod === 'PACKAGE_BALANCE' || paymentMethod === 'WALLET_BALANCE' || paymentMethod === 'CASH') {
            useBookingStore.getState().clearCart();
-           toast.success(preparedOrder.totalAmount === 0 ? "¡Orden procesada exitosamente!" : "¡Orden procesada exitosamente usando tu crédito/saldo!");
-           router.push('/patient/dashboard/appointments');
+           const msg = paymentMethod === 'CASH'
+             ? "¡Orden agendada! Recuerda realizar tu pago en efectivo en recepción."
+             : preparedOrder.totalAmount === 0
+               ? "¡Orden procesada exitosamente!"
+               : "¡Orden procesada exitosamente usando tu crédito/saldo!";
+           toast.success(msg);
+           if (preparedOrder.createdAppointmentIds && preparedOrder.createdAppointmentIds.length > 0) {
+             router.push(`/patient/booking/success/${preparedOrder.createdAppointmentIds[0]}`);
+           } else {
+             router.push('/patient/dashboard/appointments');
+           }
            return;
         }
 

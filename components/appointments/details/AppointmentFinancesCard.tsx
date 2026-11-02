@@ -3,7 +3,7 @@
 /* eslint-disable react-doctor/prefer-explicit-variants */
 /* eslint-disable react-doctor/js-hoist-intl */
 import React from "react";
-import { Receipt, FileText, CreditCard, AlertCircle } from "lucide-react";
+import { Receipt, FileText, CreditCard, AlertCircle, Banknote } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ export function AppointmentFinancesCard({
   totalPrice,
   currency,
   paymentStatus,
+  paymentMethod,
   downloadInvoice,
   isDownloading,
   handlePayNow,
@@ -21,6 +22,7 @@ export function AppointmentFinancesCard({
   totalPrice?: number;
   currency?: string;
   paymentStatus: string;
+  paymentMethod?: string;
   downloadInvoice: () => void;
   isDownloading: boolean;
   handlePayNow: () => void;
@@ -71,12 +73,21 @@ export function AppointmentFinancesCard({
             </Button>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 flex items-center gap-2 text-amber-700 dark:text-amber-400">
-                <AlertCircle className="w-4 h-4 shrink-0" strokeWidth={2} />
-                <p className="text-xs font-bold">
-                  {t("status_unpaid")}
-                </p>
-              </div>
+              {paymentMethod === "CASH" ? (
+                <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                  <Banknote className="w-4 h-4 shrink-0" strokeWidth={2} />
+                  <p className="text-xs font-bold">
+                    Pago en consultorio (Efectivo) · A liquidar en recepción
+                  </p>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                  <AlertCircle className="w-4 h-4 shrink-0" strokeWidth={2} />
+                  <p className="text-xs font-bold">
+                    {t("status_unpaid")}
+                  </p>
+                </div>
+              )}
 
               <Button
                 type="button"
@@ -84,7 +95,7 @@ export function AppointmentFinancesCard({
                 disabled={isProcessingPayment}
                 className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-between px-6 disabled:opacity-50"
               >
-                <span>{t("pay_now")}</span>
+                <span>{paymentMethod === "CASH" ? "Pagar en línea ahora (Opcional)" : t("pay_now")}</span>
                 {isProcessingPayment ? (
                   <QhSpinner size="sm" className="text-white" />
                 ) : (

@@ -19,6 +19,7 @@ import {
   Wallet,
   ShieldCheck,
   CheckCircle2,
+  Banknote,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -222,6 +223,7 @@ export function BookingSummary({
         : true;
     const paymentOk =
       selectedPaymentMethod === "CREDIT_CARD" ||
+      (selectedPaymentMethod === "CASH" && !isOnlineConsultation) ||
       (selectedPaymentMethod === "WALLET_BALANCE" && walletBalance >= total);
     const isConsentOk = !isOnlineConsultation || telemedicineConsent;
     const isReady = isTimeValid && !cartAnalysis.isEmpty && paymentOk && isConsentOk;
@@ -238,6 +240,13 @@ export function BookingSummary({
     isOnlineConsultation,
     telemedicineConsent,
   ]);
+
+  // Si cambia a consulta online y estaba seleccionado CASH, revertir a tarjeta
+  useEffect(() => {
+    if (isOnlineConsultation && selectedPaymentMethod === "CASH") {
+      setSelectedPaymentMethod("CREDIT_CARD");
+    }
+  }, [isOnlineConsultation, selectedPaymentMethod]);
 
   const packageDetails = useMemo(() => {
     if (
@@ -672,6 +681,37 @@ export function BookingSummary({
                         )}
                       </button>
 
+                      {/* Pago en Consultorio (Efectivo) */}
+                      {!isOnlineConsultation && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentMethod("CASH")}
+                          className={cn(
+                            "w-full p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer shadow-xs text-left",
+                            selectedPaymentMethod === "CASH"
+                              ? "bg-store-50/40 dark:bg-store-950/20 border-store-500 dark:border-store-500/80 ring-2 ring-store-500/20"
+                              : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:bg-gray-50/50"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-store-50 dark:bg-store-950/30 border border-store-100 dark:border-store-900/30 flex items-center justify-center text-store-600 dark:text-store-400 shrink-0">
+                              <Banknote className="w-4 h-4" strokeWidth={2} />
+                            </div>
+                            <div className="space-y-0.5">
+                              <p className="text-xs font-bold text-gray-900 dark:text-white">
+                                {t("cash_in_clinic_method")}
+                              </p>
+                              <p className="text-[11px] font-medium text-gray-500">
+                                {t("cash_in_clinic_desc")}
+                              </p>
+                            </div>
+                          </div>
+                          {selectedPaymentMethod === "CASH" && (
+                            <CheckCircle2 className="w-5 h-5 text-store-600 dark:text-store-400 shrink-0" strokeWidth={2} />
+                          )}
+                        </button>
+                      )}
+
                       {/* QuWallet */}
                       <button
                         type="button"
@@ -714,6 +754,13 @@ export function BookingSummary({
                         )}
                       </button>
                     </div>
+
+                    {selectedPaymentMethod === "CASH" && (
+                      <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-[11px] text-amber-800 dark:text-amber-300">
+                        <Banknote className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                        <span>{t("cash_payment_notice")}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -779,6 +826,11 @@ export function BookingSummary({
                   <>
                     <Sparkles className="w-4 h-4" strokeWidth={2} />
                     <span>{t("confirm_package_btn")}</span>
+                  </>
+                ) : selectedPaymentMethod === "CASH" ? (
+                  <>
+                    <Banknote className="w-4 h-4" strokeWidth={2} />
+                    <span>{t("confirm_cash_btn")}</span>
                   </>
                 ) : (
                   <>

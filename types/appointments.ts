@@ -133,6 +133,12 @@ export interface ProviderAppointment {
   locationId?: number;
   locationNameSnapshot?: string;
 
+  // 🚀 Finanzas y Método de Pago
+  paymentMethod?: PaymentMethod | string;
+  paymentStatus?: PaymentStatus | string;
+  totalPrice?: number;
+  currency?: string;
+
   provider: { 
     name: string; 
   };

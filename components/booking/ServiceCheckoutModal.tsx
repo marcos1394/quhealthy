@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { CreditCard, Wallet, Package } from "lucide-react";
+import { CreditCard, Wallet, Package, Banknote } from "lucide-react";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 
 interface ServiceCheckoutModalProps {
@@ -61,6 +61,22 @@ export function ServiceCheckoutModal({
                   <div className="text-xs text-gray-500">Pagar con Stripe de forma segura</div>
                 </div>
               </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("CASH")}
+                className={`flex items-center gap-3 p-4 rounded-xl border text-left transition-colors ${
+                  paymentMethod === "CASH"
+                    ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20"
+                    : "border-gray-200 hover:border-emerald-600 dark:border-gray-800"
+                }`}
+              >
+                <Banknote className="w-5 h-5 text-emerald-600" />
+                <div>
+                  <div className="font-semibold text-sm">Pago en consultorio (Efectivo)</div>
+                  <div className="text-xs text-gray-500">Liquida tu consulta al presentarte en recepción</div>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -105,6 +121,8 @@ export function ServiceCheckoutModal({
               <>
                 <QhSpinner size="sm" className="mr-2" /> Procesando...
               </>
+            ) : paymentMethod === "CASH" ? (
+              "Confirmar Cita (Pagar en Consultorio)"
             ) : (
               "Confirmar y Pagar"
             )}

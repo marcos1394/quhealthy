@@ -25,6 +25,7 @@ import {
   Search,
   Zap,
   Video,
+  Banknote,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
@@ -615,6 +616,12 @@ export default function ProviderAppointmentsPage() {
                               >
                                 {getStatusIcon(appt.status)} {getStatusText(appt.status)}
                               </span>
+                              {appt.paymentMethod === "CASH" && appt.paymentStatus !== "SETTLED" && (
+                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 flex items-center gap-1 shadow-xs">
+                                  <Banknote className="w-3 h-3" />
+                                  <span>Cobro en consultorio {appt.totalPrice ? `($${appt.totalPrice} ${appt.currency || 'MXN'})` : ''}</span>
+                                </span>
+                              )}
                             </div>
                             <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                               <span className="flex items-center gap-1">

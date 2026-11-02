@@ -20,6 +20,7 @@ import {
   Eye,
   RefreshCw,
   Star,
+  Banknote,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -230,6 +231,12 @@ export function AppointmentCard({
                 <span className="text-base font-bold font-mono text-gray-900 dark:text-white whitespace-nowrap">
                   ${appt.price} {appt.currency}
                 </span>
+                {appt.paymentMethod === "CASH" && appt.paymentStatus !== "SETTLED" && (
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/40 mt-1 flex items-center gap-1 w-fit sm:self-end">
+                    <Banknote className="w-3 h-3" />
+                    <span>Efectivo en consultorio</span>
+                  </span>
+                )}
               </div>
             )}
           </div>
