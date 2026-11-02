@@ -23,6 +23,7 @@ import {
   Type,
   Upload,
   X,
+  Volume2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -39,7 +40,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { useSocial } from "@/hooks/useSocial";
-import { SocialPlatform, AiTone } from "@/types/social";
+import { SocialPlatform, AiTone, VideoAudioStyle } from "@/types/social";
 import ScheduleModal from "@/components/dashboard/marketing/ScheduleModal";
 import { useSessionStore } from "@/stores/SessionStore";
 import { QhSpinner } from "@/components/ui/QhSpinner";
@@ -110,6 +111,9 @@ interface State {
   videoTone: AiTone;
   videoAspectRatio: "LANDSCAPE" | "PORTRAIT" | "SQUARE";
   videoBaseImageUrl: string;
+  videoResolution: "720p" | "1080p" | "4k";
+  videoAudioStyle: VideoAudioStyle;
+  videoIncludeAudio: boolean;
   isGeneratingText: boolean;
   isGeneratingImage: boolean;
   isGeneratingVideo: boolean;
@@ -147,6 +151,9 @@ type Action =
   | { type: "SET_VIDEOTONE"; payload: any }
   | { type: "SET_VIDEOASPECTRATIO"; payload: any }
   | { type: "SET_VIDEOBASEIMAGEURL"; payload: any }
+  | { type: "SET_VIDEORESOLUTION"; payload: "720p" | "1080p" | "4k" }
+  | { type: "SET_VIDEOAUDIOSTYLE"; payload: VideoAudioStyle }
+  | { type: "SET_VIDEOINCLUDEAUDIO"; payload: boolean }
   | { type: "SET_ISGENERATINGTEXT"; payload: any }
   | { type: "SET_ISGENERATINGIMAGE"; payload: any }
   | { type: "SET_ISGENERATINGVIDEO"; payload: any }
@@ -213,6 +220,12 @@ function studioReducer(state: State, action: Action): State {
       return { ...state, videoAspectRatio: action.payload };
     case "SET_VIDEOBASEIMAGEURL":
       return { ...state, videoBaseImageUrl: action.payload };
+    case "SET_VIDEORESOLUTION":
+      return { ...state, videoResolution: action.payload };
+    case "SET_VIDEOAUDIOSTYLE":
+      return { ...state, videoAudioStyle: action.payload };
+    case "SET_VIDEOINCLUDEAUDIO":
+      return { ...state, videoIncludeAudio: action.payload };
     case "SET_ISGENERATINGTEXT":
       return { ...state, isGeneratingText: action.payload };
     case "SET_ISGENERATINGIMAGE":
@@ -282,6 +295,9 @@ export function AiStudioForm({
     videoTone: "educational",
     videoAspectRatio: "LANDSCAPE",
     videoBaseImageUrl: "",
+    videoResolution: "720p",
+    videoAudioStyle: "CALM",
+    videoIncludeAudio: true,
     isGeneratingText: false,
     isGeneratingImage: false,
     isGeneratingVideo: false,
@@ -318,6 +334,9 @@ export function AiStudioForm({
     videoTone,
     videoAspectRatio,
     videoBaseImageUrl,
+    videoResolution,
+    videoAudioStyle,
+    videoIncludeAudio,
     isGeneratingText,
     isGeneratingImage,
     isGeneratingVideo,
@@ -347,6 +366,20 @@ export function AiStudioForm({
     { value: "friendly", label: t("tone_friendly"), emoji: "😊" },
     { value: "educational", label: t("tone_educational"), emoji: "📚" },
     { value: "promotional", label: t("tone_promotional"), emoji: "🔥" },
+  ];
+
+  const audioOptions: { value: VideoAudioStyle; labelKey: string }[] = [
+    { value: "CALM", labelKey: "video_audio_calm" },
+    { value: "CLINICAL", labelKey: "video_audio_clinical" },
+    { value: "UPBEAT", labelKey: "video_audio_upbeat" },
+    { value: "NATURE", labelKey: "video_audio_nature" },
+    { value: "NONE", labelKey: "video_audio_none" },
+  ];
+
+  const videoResolutions: { value: "720p" | "1080p" | "4k"; labelKey: string }[] = [
+    { value: "720p", labelKey: "video_resolution_720p" },
+    { value: "1080p", labelKey: "video_resolution_1080p" },
+    { value: "4k", labelKey: "video_resolution_4k" },
   ];
 
   const handleGenerateText = async () => {
@@ -531,6 +564,9 @@ export function AiStudioForm({
         platform: videoPlatform,
         imageUrl: videoBaseImageUrl || undefined,
         aspectRatio: videoAspectRatio,
+        resolution: videoResolution,
+        includeAudio: videoIncludeAudio,
+        audioStyle: videoAudioStyle,
       });
       if (response?.message)
         dispatch({ type: "SET_VIDEOSTATUS", payload: response.message });
@@ -1482,6 +1518,74 @@ export function AiStudioForm({
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold uppercase text-gray-500">
+                      {t("video_resolution_label")}
+                    </label>
+                    <div className="flex bg-white dark:bg-[#0a0a0a] p-1 rounded-xl border border-gray-200 dark:border-gray-800 shadow-2xs">
+                      {videoResolutions.map((res) => (
+                        <button
+                          key={res.value}
+                          type="button"
+                          onClick={() =>
+                            dispatch({
+                              type: "SET_VIDEORESOLUTION",
+                              payload: res.value,
+                            })
+                          }
+                          className={cn(
+                            "flex-1 h-8 rounded-lg text-[10px] font-bold transition-all cursor-pointer",
+                            videoResolution === res.value
+                              ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 shadow-2xs border border-emerald-200 dark:border-emerald-900/40"
+                              : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          )}
+                        >
+                          {res.value.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[10px] font-bold uppercase text-gray-500 flex items-center gap-1.5">
+                        <Volume2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <span>{t("video_audio_label")}</span>
+                      </label>
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                        Omni Flash
+                      </span>
+                    </div>
+                    <div className="flex bg-white dark:bg-[#0a0a0a] p-1 rounded-xl border border-gray-200 dark:border-gray-800 shadow-2xs overflow-x-auto gap-1">
+                      {audioOptions.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => {
+                            dispatch({
+                              type: "SET_VIDEOAUDIOSTYLE",
+                              payload: opt.value,
+                            });
+                            dispatch({
+                              type: "SET_VIDEOINCLUDEAUDIO",
+                              payload: opt.value !== "NONE",
+                            });
+                          }}
+                          className={cn(
+                            "flex-1 h-8 px-2 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center cursor-pointer whitespace-nowrap",
+                            videoAudioStyle === opt.value
+                              ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 shadow-2xs border border-emerald-200 dark:border-emerald-900/40"
+                              : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          )}
+                        >
+                          {t(opt.labelKey)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
                     {t("video_prompt_label")}
@@ -1537,9 +1641,14 @@ export function AiStudioForm({
                 {generatedVideoUrl && (
                   <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-2xl p-5 space-y-4 shadow-xs mt-2">
                     <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-                      <span className="text-xs font-bold text-gray-900 dark:text-white">
-                        Video Renderizado
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-gray-900 dark:text-white">
+                          Video Renderizado
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                          {t("video_omni_badge")} • {videoResolution}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex justify-center bg-gray-900 rounded-2xl overflow-hidden shadow-2xs">

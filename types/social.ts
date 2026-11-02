@@ -106,6 +106,8 @@ export interface AiImageResponse {
 
 // ── Video ──────────────────────────────────────────────────────────
 
+export type VideoAudioStyle = 'CALM' | 'CLINICAL' | 'UPBEAT' | 'NATURE' | 'NONE';
+
 export interface AiVideoRequest {
   topic: string;
   sessionId?: string;
@@ -114,7 +116,10 @@ export interface AiVideoRequest {
   tone?: AiTone;
   imageUrl?: string;             // Para image-to-video
   aspectRatio?: 'LANDSCAPE' | 'PORTRAIT' | 'SQUARE';
-  resolution?: string;
+  resolution?: '720p' | '1080p' | '4k';
+  includeAudio?: boolean;
+  audioStyle?: VideoAudioStyle;
+  audioPrompt?: string;
 }
 
 /** Backend devuelve 202 ACCEPTED — no hay videoUrl todavía */
@@ -131,6 +136,10 @@ export interface SseVideoReadyPayload {
   sessionId: string;
   status: 'SUCCESS';
   message?: string;
+  resolution?: string;
+  duration?: string;
+  hasAudio?: boolean;
+  audioStyle?: string;
 }
 
 export interface SseVideoErrorPayload {
