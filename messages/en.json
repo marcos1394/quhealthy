@@ -5691,7 +5691,16 @@
     "voice_transcribing": "Transcribing with Gemini 3.5...",
     "voice_transcribed_toast": "Voice note transcribed successfully",
     "listen_audio": "Listen",
-    "audio_playing": "Playing"
+    "audio_playing": "Playing",
+    "filter_all": "All",
+    "filter_unread": "Unread",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "patient_file": "Medical Record",
+    "welcome_title": "QuHealthy Clinical Chat",
+    "welcome_desc": "Send and receive secure messages with your patients and review records in real time under NOM-024 compliance.",
+    "encrypted_badge": "End-to-end encrypted",
+    "chats_header_title": "Chats"
   },
 
   "PatientOrders": {

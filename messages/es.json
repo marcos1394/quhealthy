@@ -5468,7 +5468,16 @@
     "voice_transcribing": "Transcribiendo con Gemini 3.5...",
     "voice_transcribed_toast": "Mensaje transcribido exitosamente",
     "listen_audio": "Escuchar",
-    "audio_playing": "Reproduciendo"
+    "audio_playing": "Reproduciendo",
+    "filter_all": "Todos",
+    "filter_unread": "No leídos",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "patient_file": "Expediente clínico",
+    "welcome_title": "QuHealthy Chat Clínico",
+    "welcome_desc": "Envía y recibe mensajes protegidos con tus pacientes y consulta expedientes en tiempo real bajo la norma NOM-024.",
+    "encrypted_badge": "Cifrado de extremo a extremo",
+    "chats_header_title": "Chats"
   },
 
 "PatientPackages": {
