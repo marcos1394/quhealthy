@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Clock, User, ArrowRight, Activity, AlertCircle } from "lucide-react";
+import { Clock, User, ArrowRight, Activity, AlertCircle, AlertTriangle } from "lucide-react";
 
 import { EmergencyQueueItem, TriageLevel } from "@/services/emergency.service";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,24 @@ const getTriageBadgeStyle = (level?: TriageLevel) => {
       return "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/30 dark:text-cyan-400 dark:border-cyan-900/40";
     default:
       return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-[#050505] dark:text-gray-300 dark:border-gray-800";
+  }
+};
+
+// Tiempos máximos normativos según NOM-027-SSA3-2013 (en segundos)
+const getMaxNormativeWaitSeconds = (level?: TriageLevel): number => {
+  switch (level) {
+    case TriageLevel.LEVEL_1_RESUSCITATION:
+      return 0; // Inmediata
+    case TriageLevel.LEVEL_2_EMERGENT:
+      return 10 * 60; // 10 min
+    case TriageLevel.LEVEL_3_URGENT:
+      return 30 * 60; // 30 min
+    case TriageLevel.LEVEL_4_LESS_URGENT:
+      return 60 * 60; // 60 min
+    case TriageLevel.LEVEL_5_NON_URGENT:
+      return 120 * 60; // 120 min
+    default:
+      return Infinity;
   }
 };
 
@@ -62,11 +80,15 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({
     }
   };
 
-  const formatTimeElapsed = (startedAt: string | null) => {
-    if (!startedAt) return "00:00:00";
+  const getElapsedSeconds = (startedAt: string | null) => {
+    if (!startedAt) return 0;
     const start = new Date(startedAt).getTime();
     const diff = Math.floor((now.getTime() - start) / 1000);
-    if (diff < 0) return "00:00:00";
+    return diff > 0 ? diff : 0;
+  };
+
+  const formatTimeElapsed = (startedAt: string | null) => {
+    const diff = getElapsedSeconds(startedAt);
     const h = Math.floor(diff / 3600)
       .toString()
       .padStart(2, "0");
@@ -102,6 +124,10 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({
           item.triageLevel === TriageLevel.LEVEL_1_RESUSCITATION ||
           item.triageLevel === TriageLevel.LEVEL_2_EMERGENT;
 
+        const elapsedSec = getElapsedSeconds(item.triageStartedAt || item.arrivedAt);
+        const maxNormativeSec = getMaxNormativeWaitSeconds(item.triageLevel);
+        const isOverdue = item.status === "WAITING_ROOM" && elapsedSec > maxNormativeSec;
+
         return (
           <div
             key={item.appointmentId}
@@ -115,7 +141,8 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({
             }}
             className={cn(
               "group relative bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 hover:border-emerald-500/30 p-5 rounded-3xl shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between overflow-hidden select-none",
-              isCritical && "border-l-4 border-l-rose-500 dark:border-l-rose-500"
+              isCritical && "border-l-4 border-l-rose-500 dark:border-l-rose-500",
+              isOverdue && "border-rose-400 dark:border-rose-800 shadow-[0_0_12px_rgba(244,63,94,0.18)]"
             )}
           >
             <div className="space-y-3.5">
@@ -153,12 +180,20 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({
 
               {/* Contenedor de Motivo */}
               <div className="bg-gray-50/60 dark:bg-[#050505] p-3.5 rounded-2xl border border-gray-100 dark:border-gray-800/80 space-y-1">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <AlertCircle
-                    className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0"
-                    strokeWidth={2}
-                  />
-                  <span>{t("reason_label")}</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    <AlertCircle
+                      className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0"
+                      strokeWidth={2}
+                    />
+                    <span>{t("reason_label")}</span>
+                  </div>
+                  {isOverdue && (
+                    <span className="inline-flex items-center gap-1 text-[9.5px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-900/40 animate-pulse">
+                      <AlertTriangle className="w-3 h-3" />
+                      Límite NOM-027
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs font-medium text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed">
                   {item.reasonForEmergency || t("no_reason")}
@@ -170,7 +205,10 @@ export const TriageMonitor: React.FC<TriageMonitorProps> = ({
             <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100 dark:border-gray-800/80 text-xs font-semibold">
               <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
                 <Clock className="w-3.5 h-3.5 text-gray-400" strokeWidth={2} />
-                <span className="font-mono font-bold tracking-wider text-gray-900 dark:text-gray-200">
+                <span className={cn(
+                  "font-mono font-bold tracking-wider",
+                  isOverdue ? "text-rose-600 dark:text-rose-400 animate-pulse" : "text-gray-900 dark:text-gray-200"
+                )}>
                   {formatTimeElapsed(item.triageStartedAt || item.arrivedAt)}
                 </span>
               </div>

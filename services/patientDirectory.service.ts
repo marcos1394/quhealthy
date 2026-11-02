@@ -15,8 +15,9 @@ export const patientDirectoryService = {
    * ➕ Crea un paciente "Offline" manual en el directorio del doctor
    * POST /api/appointments/provider/directory
    */
-  createOfflinePatient: async (payload: PatientRegistrationPayload): Promise<void> => {
-    await axiosInstance.post('/api/appointments/provider/directory', payload);
+  createOfflinePatient: async (payload: PatientRegistrationPayload): Promise<any> => {
+    const response = await axiosInstance.post('/api/appointments/provider/directory', payload);
+    return response.data;
   },
 
   /**

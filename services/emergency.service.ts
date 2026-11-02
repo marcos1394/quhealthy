@@ -27,6 +27,15 @@ export interface TriageRequest {
   mentalState: string;
 }
 
+export interface RegisterEmergencyPayload {
+  providerId: number;
+  patientDirectoryId?: number;
+  consumerId?: number;
+  patientName?: string;
+  reasonForEmergency?: string;
+  triageLevel?: TriageLevel;
+}
+
 export interface HourlyNoteRequest {
   providerId: number;
   clinicalNotes: any; // SOAP structure
@@ -34,17 +43,34 @@ export interface HourlyNoteRequest {
 
 export const emergencyService = {
   registerEmergencyWalkIn: async (
-    providerId: number,
-    patientDirectoryId: number,
+    payloadOrProviderId: RegisterEmergencyPayload | number,
+    patientDirectoryId?: number,
     consumerId?: number
   ): Promise<any> => {
-    const params = new URLSearchParams({
-      providerId: providerId.toString(),
-      patientDirectoryId: patientDirectoryId.toString(),
-    });
-    if (consumerId) params.append("consumerId", consumerId.toString());
+    let params: URLSearchParams;
+    if (typeof payloadOrProviderId === "object") {
+      params = new URLSearchParams({
+        providerId: payloadOrProviderId.providerId.toString(),
+        patientDirectoryId: (payloadOrProviderId.patientDirectoryId ?? 0).toString(),
+      });
+      if (payloadOrProviderId.consumerId) params.append("consumerId", payloadOrProviderId.consumerId.toString());
+      if (payloadOrProviderId.patientName) params.append("patientName", payloadOrProviderId.patientName);
+      if (payloadOrProviderId.reasonForEmergency) params.append("reasonForEmergency", payloadOrProviderId.reasonForEmergency);
+      if (payloadOrProviderId.triageLevel) params.append("triageLevel", payloadOrProviderId.triageLevel);
+    } else {
+      params = new URLSearchParams({
+        providerId: payloadOrProviderId.toString(),
+        patientDirectoryId: (patientDirectoryId ?? 0).toString(),
+      });
+      if (consumerId) params.append("consumerId", consumerId.toString());
+    }
 
     const response = await axiosInstance.post(`/api/appointments/emergencies/register?${params.toString()}`);
+    return response.data;
+  },
+
+  getHourlyNotes: async (appointmentId: number): Promise<any[]> => {
+    const response = await axiosInstance.get(`/api/appointments/emergencies/${appointmentId}/notes`);
     return response.data;
   },
 
