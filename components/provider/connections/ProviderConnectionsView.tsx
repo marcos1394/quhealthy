@@ -34,6 +34,7 @@ import { QhSpinner } from "@/components/ui/QhSpinner";
 import { socialService } from "@/services/social.service";
 import { securityService } from "@/services/security.service";
 import { ProviderSettingsResponse } from "@/types/security";
+import { AgentMarketplaceMcpView } from "./AgentMarketplaceMcpView";
 
 // ── TIPOS ──────────────────────────────────────────────────────────────
 interface SocialConnection {
@@ -627,7 +628,10 @@ function ProviderConnectionsViewInner() {
         </div>
       </div>
 
-      {/* ── SECCIÓN 3: PIE DE SEGURIDAD ──────────────────────────────────── */}
+      {/* ── SECCIÓN 3: PASARELA PARA AGENTES DE IA & MCP (MODEL CONTEXT PROTOCOL) ── */}
+      <AgentMarketplaceMcpView />
+
+      {/* ── SECCIÓN 4: PIE DE SEGURIDAD ──────────────────────────────────── */}
       <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-start gap-3.5">
         <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
           <Shield className="w-4 h-4" />
