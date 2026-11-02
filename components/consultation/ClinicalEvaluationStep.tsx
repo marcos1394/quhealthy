@@ -751,7 +751,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         doctorName={doctorName}
         diagnosis={
           diagnoses.length > 0
-            ? diagnoses.map((d) => d.description || d.code).join(", ")
+            ? diagnoses.map((d) => d.cie10Description || d.cie10Code).join(", ")
             : soapNotes.assessment || "Consulta Médica"
         }
         plan={soapNotes.plan || "Medidas generales y tratamiento ambulatorio"}

@@ -120,6 +120,20 @@ export interface AiVideoRequest {
   includeAudio?: boolean;
   audioStyle?: VideoAudioStyle;
   audioPrompt?: string;
+  // 🚀 Modo "Evolución y Casos Clínicos" (Antes / Después con Omni Flash + Nano Banana 2.1)
+  isClinicalEvolution?: boolean;
+  initialImageUrl?: string;
+  initialImageBase64?: string;
+  initialImageMimeType?: string;
+  finalImageUrl?: string;
+  finalImageBase64?: string;
+  finalImageMimeType?: string;
+  clinicalSpecialty?: string;
+  doctorBranding?: string;
+  watermarkText?: string;
+  treatmentDuration?: string;
+  beforeLabel?: string;
+  afterLabel?: string;
 }
 
 /** Backend devuelve 202 ACCEPTED — no hay videoUrl todavía */
@@ -140,6 +154,8 @@ export interface SseVideoReadyPayload {
   duration?: string;
   hasAudio?: boolean;
   audioStyle?: string;
+  isClinicalEvolution?: boolean;
+  clinicalSpecialty?: string;
 }
 
 export interface SseVideoErrorPayload {

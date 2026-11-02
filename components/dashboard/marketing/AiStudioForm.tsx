@@ -114,6 +114,20 @@ interface State {
   videoResolution: "720p" | "1080p" | "4k";
   videoAudioStyle: VideoAudioStyle;
   videoIncludeAudio: boolean;
+  videoMode: "STANDARD" | "CLINICAL_EVOLUTION";
+  clinicalSpecialty: string;
+  clinicalTopic: string;
+  treatmentDuration: string;
+  doctorBranding: string;
+  watermarkText: string;
+  beforeLabel: string;
+  afterLabel: string;
+  initialImageBase64: string;
+  initialImagePreview: string;
+  initialImageMimeType: string;
+  finalImageBase64: string;
+  finalImagePreview: string;
+  finalImageMimeType: string;
   isGeneratingText: boolean;
   isGeneratingImage: boolean;
   isGeneratingVideo: boolean;
@@ -154,6 +168,22 @@ type Action =
   | { type: "SET_VIDEORESOLUTION"; payload: "720p" | "1080p" | "4k" }
   | { type: "SET_VIDEOAUDIOSTYLE"; payload: VideoAudioStyle }
   | { type: "SET_VIDEOINCLUDEAUDIO"; payload: boolean }
+  | { type: "SET_VIDEOMODE"; payload: "STANDARD" | "CLINICAL_EVOLUTION" }
+  | { type: "SET_CLINICALSPECIALTY"; payload: string }
+  | { type: "SET_CLINICALTOPIC"; payload: string }
+  | { type: "SET_TREATMENTDURATION"; payload: string }
+  | { type: "SET_DOCTORBRANDING"; payload: string }
+  | { type: "SET_WATERMARKTEXT"; payload: string }
+  | { type: "SET_BEFORELABEL"; payload: string }
+  | { type: "SET_AFTERLABEL"; payload: string }
+  | {
+      type: "SET_INITIALIMAGE";
+      payload: { base64: string; mimeType: string; preview: string } | null;
+    }
+  | {
+      type: "SET_FINALIMAGE";
+      payload: { base64: string; mimeType: string; preview: string } | null;
+    }
   | { type: "SET_ISGENERATINGTEXT"; payload: any }
   | { type: "SET_ISGENERATINGIMAGE"; payload: any }
   | { type: "SET_ISGENERATINGVIDEO"; payload: any }
@@ -226,6 +256,52 @@ function studioReducer(state: State, action: Action): State {
       return { ...state, videoAudioStyle: action.payload };
     case "SET_VIDEOINCLUDEAUDIO":
       return { ...state, videoIncludeAudio: action.payload };
+    case "SET_VIDEOMODE":
+      return { ...state, videoMode: action.payload };
+    case "SET_CLINICALSPECIALTY":
+      return { ...state, clinicalSpecialty: action.payload };
+    case "SET_CLINICALTOPIC":
+      return { ...state, clinicalTopic: action.payload };
+    case "SET_TREATMENTDURATION":
+      return { ...state, treatmentDuration: action.payload };
+    case "SET_DOCTORBRANDING":
+      return { ...state, doctorBranding: action.payload };
+    case "SET_WATERMARKTEXT":
+      return { ...state, watermarkText: action.payload };
+    case "SET_BEFORELABEL":
+      return { ...state, beforeLabel: action.payload };
+    case "SET_AFTERLABEL":
+      return { ...state, afterLabel: action.payload };
+    case "SET_INITIALIMAGE":
+      if (!action.payload) {
+        return {
+          ...state,
+          initialImageBase64: "",
+          initialImagePreview: "",
+          initialImageMimeType: "",
+        };
+      }
+      return {
+        ...state,
+        initialImageBase64: action.payload.base64,
+        initialImagePreview: action.payload.preview,
+        initialImageMimeType: action.payload.mimeType,
+      };
+    case "SET_FINALIMAGE":
+      if (!action.payload) {
+        return {
+          ...state,
+          finalImageBase64: "",
+          finalImagePreview: "",
+          finalImageMimeType: "",
+        };
+      }
+      return {
+        ...state,
+        finalImageBase64: action.payload.base64,
+        finalImagePreview: action.payload.preview,
+        finalImageMimeType: action.payload.mimeType,
+      };
     case "SET_ISGENERATINGTEXT":
       return { ...state, isGeneratingText: action.payload };
     case "SET_ISGENERATINGIMAGE":
@@ -298,6 +374,20 @@ export function AiStudioForm({
     videoResolution: "720p",
     videoAudioStyle: "CALM",
     videoIncludeAudio: true,
+    videoMode: "STANDARD",
+    clinicalSpecialty: "ORTHODONTICS",
+    clinicalTopic: "",
+    treatmentDuration: "12 Meses",
+    doctorBranding: "",
+    watermarkText: "Caso Clínico Real • QuHealthy",
+    beforeLabel: "Antes",
+    afterLabel: "Después",
+    initialImageBase64: "",
+    initialImagePreview: "",
+    initialImageMimeType: "",
+    finalImageBase64: "",
+    finalImagePreview: "",
+    finalImageMimeType: "",
     isGeneratingText: false,
     isGeneratingImage: false,
     isGeneratingVideo: false,
@@ -337,6 +427,20 @@ export function AiStudioForm({
     videoResolution,
     videoAudioStyle,
     videoIncludeAudio,
+    videoMode,
+    clinicalSpecialty,
+    clinicalTopic,
+    treatmentDuration,
+    doctorBranding,
+    watermarkText,
+    beforeLabel,
+    afterLabel,
+    initialImageBase64,
+    initialImagePreview,
+    initialImageMimeType,
+    finalImageBase64,
+    finalImagePreview,
+    finalImageMimeType,
     isGeneratingText,
     isGeneratingImage,
     isGeneratingVideo,
@@ -436,6 +540,65 @@ export function AiStudioForm({
         },
       });
       toast.success("Logotipo / imagen de referencia cargada.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const initialImageInputRef = React.useRef<HTMLInputElement | null>(null);
+  const finalImageInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const handleInitialImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor selecciona un archivo de imagen válido (PNG, JPG, WebP).");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("La imagen inicial no debe superar 8MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      dispatch({
+        type: "SET_INITIALIMAGE",
+        payload: {
+          base64: result,
+          mimeType: file.type,
+          preview: result,
+        },
+      });
+      toast.success("Fotografía inicial ('Antes') cargada con éxito.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFinalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor selecciona un archivo de imagen válido (PNG, JPG, WebP).");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("La imagen de resultado no debe superar 8MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      dispatch({
+        type: "SET_FINALIMAGE",
+        payload: {
+          base64: result,
+          mimeType: file.type,
+          preview: result,
+        },
+      });
+      toast.success("Fotografía de resultado ('Después') cargada con éxito.");
     };
     reader.readAsDataURL(file);
   };
@@ -553,6 +716,49 @@ export function AiStudioForm({
   };
 
   const handleGenerateVideo = async () => {
+    if (videoMode === "CLINICAL_EVOLUTION") {
+      if (!initialImageBase64 && !finalImageBase64) {
+        return toast.warn("Por favor carga al menos la fotografía inicial ('Antes') o final ('Después') del caso clínico.");
+      }
+      const topicText =
+        clinicalTopic.trim() ||
+        videoPrompt.trim() ||
+        (selectedService?.name ? `Evolución clínica de ${selectedService.name}` : "Evolución y transformación de caso clínico");
+
+      dispatch({ type: "SET_ISGENERATINGVIDEO", payload: true });
+      dispatch({ type: "SET_VIDEOSTATUS", payload: "" });
+      try {
+        const response = await generateVideoApi({
+          topic: topicText,
+          tone: videoTone,
+          targetAudience: "Pacientes buscando tratamientos médicos de alta especialidad",
+          platform: videoPlatform,
+          aspectRatio: videoAspectRatio,
+          resolution: videoResolution,
+          includeAudio: videoIncludeAudio,
+          audioStyle: videoAudioStyle,
+          isClinicalEvolution: true,
+          initialImageBase64: initialImageBase64 || undefined,
+          initialImageMimeType: initialImageMimeType || undefined,
+          finalImageBase64: finalImageBase64 || undefined,
+          finalImageMimeType: finalImageMimeType || undefined,
+          clinicalSpecialty,
+          doctorBranding: doctorBranding.trim() || (user ? `${user.firstName} ${user.lastName}` : undefined),
+          watermarkText: watermarkText.trim() || "Caso Clínico Real • QuHealthy",
+          treatmentDuration: treatmentDuration.trim() || undefined,
+          beforeLabel: beforeLabel.trim() || "Antes",
+          afterLabel: afterLabel.trim() || "Después",
+        });
+        if (response?.message)
+          dispatch({ type: "SET_VIDEOSTATUS", payload: response.message });
+        toast.success("Generación de video de evolución clínica iniciada (Omni Flash)");
+        onGenerationSuccess();
+      } catch {
+        dispatch({ type: "SET_ISGENERATINGVIDEO", payload: false });
+      }
+      return;
+    }
+
     if (!videoPrompt.trim()) return toast.warn(t("warn_empty_prompt"));
     dispatch({ type: "SET_ISGENERATINGVIDEO", payload: true });
     dispatch({ type: "SET_VIDEOSTATUS", payload: "" });
@@ -1392,38 +1598,320 @@ export function AiStudioForm({
                 value="video"
                 className="m-0 pt-4 outline-none flex flex-col space-y-4"
               >
-                {videoBaseImageUrl && (
-                  <div className="flex items-center gap-3 p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/30 dark:border-emerald-900/40 shadow-2xs">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={videoBaseImageUrl}
-                      alt="Base"
-                      className="w-10 h-10 rounded-xl object-cover border border-emerald-200 dark:border-emerald-800"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="flex-1 min-w-0 space-y-0.5">
-                      <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">
-                        Imagen Fuente Activa
-                      </p>
-                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
-                        Conversión Image-to-Video
+                {/* ── SELECTOR DE MODO DE VIDEO ─────────────────────────────── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 p-1 bg-gray-50 dark:bg-[#050505] rounded-2xl border border-gray-200 dark:border-gray-800 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => dispatch({ type: "SET_VIDEOMODE", payload: "STANDARD" })}
+                    className={cn(
+                      "py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer",
+                      videoMode === "STANDARD"
+                        ? "bg-white dark:bg-[#0a0a0a] text-emerald-600 dark:text-emerald-400 shadow-2xs border border-gray-200 dark:border-gray-800"
+                        : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                    )}
+                  >
+                    <Video className="w-4 h-4" />
+                    <span>Video Cinemático</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    data-testid="mode-clinical-evolution-btn"
+                    onClick={() => dispatch({ type: "SET_VIDEOMODE", payload: "CLINICAL_EVOLUTION" })}
+                    className={cn(
+                      "py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer",
+                      videoMode === "CLINICAL_EVOLUTION"
+                        ? "bg-white dark:bg-[#0a0a0a] text-emerald-600 dark:text-emerald-400 shadow-2xs border border-gray-200 dark:border-gray-800"
+                        : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                    )}
+                  >
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
+                    <span>Evolución y Casos Clínicos (Antes / Después)</span>
+                  </button>
+                </div>
+
+                {/* ── MODO 2: CASOS CLÍNICOS (ANTES / DESPUÉS CON OMNI FLASH + NANO BANANA) ── */}
+                {videoMode === "CLINICAL_EVOLUTION" ? (
+                  <div className="space-y-4">
+                    <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/70 via-teal-50/50 to-blue-50/40 dark:from-[#0a1512] dark:via-[#081a17] dark:to-[#07131a] border border-emerald-200/80 dark:border-emerald-900/50 space-y-1 shadow-2xs">
+                      <div className="flex items-center gap-2">
+                        <span className="p-1 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                          <Sparkles className="w-3.5 h-3.5" />
+                        </span>
+                        <h4 className="text-xs font-bold text-gray-900 dark:text-white">
+                          Evolución Clínica Continua • Interpolación First & Last Frame
+                        </h4>
+                      </div>
+                      <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed pl-5">
+                        Sube las fotos inicial y final del tratamiento. <strong>Gemini Omni Flash</strong> genera la transición fotorrealista continua, y <strong>Nano Banana 2.1</strong> integra el sello tipográfico del especialista.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        dispatch({
-                          type: "SET_VIDEOBASEIMAGEURL",
-                          payload: "",
-                        })
-                      }
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" strokeWidth={2} />
-                    </button>
+
+                    {/* Inputs de Carga de Imágenes (Antes / Después) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* FOTO INICIAL ("ANTES") */}
+                      <div className="p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] space-y-2 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">
+                            1. Fotografía Inicial ("Antes")
+                          </label>
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50">
+                            Primer Fotograma
+                          </span>
+                        </div>
+
+                        <input
+                          ref={initialImageInputRef}
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          className="hidden"
+                          onChange={handleInitialImageUpload}
+                        />
+
+                        {initialImagePreview ? (
+                          <div className="relative aspect-video rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] group">
+                            <img
+                              src={initialImagePreview}
+                              alt="Antes"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => initialImageInputRef.current?.click()}
+                                className="p-2 rounded-xl bg-white text-gray-900 text-xs font-bold shadow-md hover:bg-gray-100 cursor-pointer"
+                              >
+                                Cambiar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => dispatch({ type: "SET_INITIALIMAGE", payload: null })}
+                                className="p-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md hover:bg-red-700 cursor-pointer"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            data-testid="upload-initial-image-btn"
+                            onClick={() => initialImageInputRef.current?.click()}
+                            className="w-full aspect-video rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 hover:border-emerald-500 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer p-4"
+                          >
+                            <Upload className="w-6 h-6 text-gray-400 group-hover:text-emerald-600" />
+                            <div className="text-center">
+                              <span className="text-xs font-bold text-gray-700 dark:text-gray-300 block">
+                                Cargar Foto Inicial ("Antes")
+                              </span>
+                              <span className="text-[10px] text-gray-400">PNG, JPG hasta 8MB</span>
+                            </div>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* FOTO FINAL ("DESPUÉS") */}
+                      <div className="p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] space-y-2 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">
+                            2. Fotografía Final ("Después")
+                          </label>
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
+                            Último Fotograma
+                          </span>
+                        </div>
+
+                        <input
+                          ref={finalImageInputRef}
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          className="hidden"
+                          onChange={handleFinalImageUpload}
+                        />
+
+                        {finalImagePreview ? (
+                          <div className="relative aspect-video rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#050505] group">
+                            <img
+                              src={finalImagePreview}
+                              alt="Después"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => finalImageInputRef.current?.click()}
+                                className="p-2 rounded-xl bg-white text-gray-900 text-xs font-bold shadow-md hover:bg-gray-100 cursor-pointer"
+                              >
+                                Cambiar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => dispatch({ type: "SET_FINALIMAGE", payload: null })}
+                                className="p-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md hover:bg-red-700 cursor-pointer"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            data-testid="upload-final-image-btn"
+                            onClick={() => finalImageInputRef.current?.click()}
+                            className="w-full aspect-video rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 hover:border-emerald-500 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer p-4"
+                          >
+                            <Sparkles className="w-6 h-6 text-gray-400 group-hover:text-emerald-600" />
+                            <div className="text-center">
+                              <span className="text-xs font-bold text-gray-700 dark:text-gray-300 block">
+                                Cargar Foto Final ("Después")
+                              </span>
+                              <span className="text-[10px] text-gray-400">PNG, JPG hasta 8MB</span>
+                            </div>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Datos Clínicos y Especialidad */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-[10px] font-bold uppercase text-gray-500">
+                          Especialidad Médica
+                        </label>
+                        <Select
+                          value={clinicalSpecialty}
+                          onValueChange={(val) => dispatch({ type: "SET_CLINICALSPECIALTY", payload: val })}
+                        >
+                          <SelectTrigger className="w-full h-10 rounded-xl border-gray-200 dark:border-gray-800 text-xs font-semibold">
+                            <SelectValue placeholder="Selecciona especialidad" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ORTHODONTICS">🦷 Ortodoncia & Alineadores</SelectItem>
+                            <SelectItem value="AESTHETICS">💉 Medicina Estética & Botox</SelectItem>
+                            <SelectItem value="DERMATOLOGY">🔬 Dermatología & Láser</SelectItem>
+                            <SelectItem value="BARIATRIC">⚖️ Cirugía Bariátrica & Pérdida de Peso</SelectItem>
+                            <SelectItem value="PLASTIC_SURGERY">🩺 Cirugía Plástica & Reconstructiva</SelectItem>
+                            <SelectItem value="DENTISTRY">😁 Implantología Dental & Sonrisa</SelectItem>
+                            <SelectItem value="GENERAL">🏥 Caso Clínico General</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[10px] font-bold uppercase text-gray-500">
+                          Periodo o Duración del Tratamiento
+                        </label>
+                        <Input
+                          value={treatmentDuration}
+                          onChange={(e) => dispatch({ type: "SET_TREATMENTDURATION", payload: e.target.value })}
+                          placeholder="ej. 12 Meses, 6 Sesiones, 90 Días"
+                          className="h-10 text-xs rounded-xl"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Descripción del Caso */}
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                        Procedimiento o Descripción del Caso Clínico
+                      </label>
+                      <Textarea
+                        value={clinicalTopic}
+                        onChange={(e) => dispatch({ type: "SET_CLINICALTOPIC", payload: e.target.value })}
+                        placeholder="ej. Alineación maxilar completa y cierre de diastema con alineadores invisibles. Corrección de mordida profunda..."
+                        className="w-full h-20 p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 shadow-2xs resize-none"
+                      />
+                    </div>
+
+                    {/* Marca y Tipografía Médica (Nano Banana 2.1) */}
+                    <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 space-y-3 shadow-2xs">
+                      <div className="flex items-center gap-2">
+                        <Type className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <h5 className="text-[11px] font-bold uppercase text-gray-700 dark:text-gray-300">
+                          Sello y Marca Médica (Nano Banana 2.1)
+                        </h5>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold uppercase text-gray-500">
+                            Especialista / Clínica
+                          </label>
+                          <Input
+                            value={doctorBranding}
+                            onChange={(e) => dispatch({ type: "SET_DOCTORBRANDING", payload: e.target.value })}
+                            placeholder={user ? `${user.firstName} ${user.lastName}` : "Dra. Sofía Mendoza • Ortodoncia"}
+                            className="h-9 text-xs rounded-xl bg-white dark:bg-[#0a0a0a]"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-[10px] font-bold uppercase text-gray-500">
+                            Distintivo de Verificación
+                          </label>
+                          <Input
+                            value={watermarkText}
+                            onChange={(e) => dispatch({ type: "SET_WATERMARKTEXT", payload: e.target.value })}
+                            placeholder="Caso Clínico Real • QuHealthy"
+                            className="h-9 text-xs rounded-xl bg-white dark:bg-[#0a0a0a]"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                ) : (
+                  /* ── MODO 1: ESTÁNDAR TEXT-TO-VIDEO ── */
+                  <>
+                    {videoBaseImageUrl && (
+                      <div className="flex items-center gap-3 p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/30 dark:border-emerald-900/40 shadow-2xs">
+                        <img
+                          src={videoBaseImageUrl}
+                          alt="Base"
+                          className="w-10 h-10 rounded-xl object-cover border border-emerald-200 dark:border-emerald-800"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="flex-1 min-w-0 space-y-0.5">
+                          <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">
+                            Imagen Fuente Activa
+                          </p>
+                          <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                            Conversión Image-to-Video
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            dispatch({
+                              type: "SET_VIDEOBASEIMAGEURL",
+                              payload: "",
+                            })
+                          }
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" strokeWidth={2} />
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                        {t("video_prompt_label")}
+                      </label>
+                      <Textarea
+                        value={videoPrompt}
+                        onChange={(e) =>
+                          dispatch({
+                            type: "SET_VIDEOPROMPT",
+                            payload: e.target.value,
+                          })
+                        }
+                        disabled={isGeneratingVideo}
+                        placeholder="Instrucciones de movimiento, ángulo de cámara o narrativa..."
+                        className="w-full h-20 p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-2xs resize-none"
+                      />
+                    </div>
+                  </>
                 )}
 
+                {/* ── CONTROLES COMPARTIDOS: PLATAFORMA, TONO, RATIO, RESOLUCIÓN, AUDIO ── */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <label className="block text-[10px] font-bold uppercase text-gray-500">
@@ -1586,39 +2074,34 @@ export function AiStudioForm({
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-800 dark:text-gray-200">
-                    {t("video_prompt_label")}
-                  </label>
-                  <Textarea
-                    value={videoPrompt}
-                    onChange={(e) =>
-                      dispatch({
-                        type: "SET_VIDEOPROMPT",
-                        payload: e.target.value,
-                      })
-                    }
-                    disabled={isGeneratingVideo}
-                    placeholder="Instrucciones de movimiento, ángulo de cámara o narrativa..."
-                    className="w-full h-20 p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-2xs resize-none"
-                  />
-                </div>
-
                 <button
                   type="button"
                   onClick={handleGenerateVideo}
-                  disabled={isGeneratingVideo || !videoPrompt.trim()}
+                  disabled={
+                    isGeneratingVideo ||
+                    (videoMode === "CLINICAL_EVOLUTION"
+                      ? !initialImageBase64 && !finalImageBase64
+                      : !videoPrompt.trim())
+                  }
                   className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-0"
                 >
                   {isGeneratingVideo ? (
                     <>
                       <QhSpinner size="sm" className="text-white" />
-                      <span>Renderizando Video...</span>
+                      <span>
+                        {videoMode === "CLINICAL_EVOLUTION"
+                          ? "Renderizando Evolución Clínica..."
+                          : "Renderizando Video..."}
+                      </span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4" strokeWidth={2} />
-                      <span>{t("generate_video_btn")}</span>
+                      <span>
+                        {videoMode === "CLINICAL_EVOLUTION"
+                          ? "Renderizar Evolución Clínica (Omni Flash)"
+                          : t("generate_video_btn")}
+                      </span>
                     </>
                   )}
                 </button>
