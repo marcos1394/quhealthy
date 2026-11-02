@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { LogoCarousel } from "@/components/sections/LogoCarousel";
 import { cn } from "@/lib/utils";
 import { googleService } from "@/services/google.service";
+import { VoiceSearchButton } from "@/components/shared/VoiceSearchButton";
 
 const TypewriterWords = ({ words, suffix = "" }: { words: string[]; suffix?: string }) => {
   const [index, setIndex] = useState(0);
@@ -211,6 +212,10 @@ const HeroSection: React.FC = () => {
                     className="w-full bg-transparent border-none outline-none px-3 text-gray-900 dark:text-white placeholder:text-gray-400 font-semibold text-xs sm:text-sm"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <VoiceSearchButton
+                    onSearch={(term) => setSearchQuery(term)}
+                    size="sm"
                   />
                 </div>
 

@@ -32,6 +32,7 @@ import { useDiscoverContext } from "./context/DiscoverContext";
 import { SortDropdown } from "@/components/discover/SortDropdown";
 import { FilterPanel } from "@/components/discover/FilterPanel";
 import { findSymptomMatches } from "./SymptomSuggestions";
+import { VoiceSearchButton } from "@/components/shared/VoiceSearchButton";
 
 const QUICK_SPECIALTIES = [
   { es: "Medicina General", en: "General Medicine" },
@@ -140,15 +141,24 @@ export const MarketplaceHeader = ({
                 onFocus={() => setIsSearchFocused(true)}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors mr-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
+              <div className="flex items-center gap-0.5 shrink-0 ml-1">
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                <VoiceSearchButton
+                  onSearch={(term) => {
+                    setSearchQuery(term);
+                    setIsSearchFocused(true);
+                  }}
+                  size="sm"
+                />
+              </div>
             </div>
 
             {/* Selector de Vista (Mapa vs Grid) */}

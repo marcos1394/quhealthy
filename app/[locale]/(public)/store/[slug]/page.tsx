@@ -48,6 +48,7 @@ import { useBookingCheckout } from "@/hooks/useBookingCheckout";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useProviderScore } from "@/hooks/useProviderScore";
 import { QuScoreModal } from "@/components/store/QuScoreModal";
+import { VoiceSearchButton } from "@/components/shared/VoiceSearchButton";
 import { CrossSellingCarousel } from "@/components/discover/CrossSellingCarousel";
 import { ImageGalleryViewer } from "@/components/ui/gallery/ImageGalleryViewer";
 import { BeforeAfterComparator } from "@/components/ui/gallery/BeforeAfterComparator";
@@ -475,18 +476,24 @@ export default function PublicStorePage() {
                     value={serviceSearchQuery}
                     onChange={(e) => setServiceSearchQuery(e.target.value)}
                     placeholder={t("search_services_placeholder", { defaultValue: "Buscar consulta, estudio o procedimiento..." })}
-                    className="w-full h-11 pl-10 pr-8 rounded-2xl bg-gray-50/80 dark:bg-[#111] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className="w-full h-11 pl-10 pr-20 rounded-2xl bg-gray-50/80 dark:bg-[#111] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
                   />
                   <Clock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  {serviceSearchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setServiceSearchQuery("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-sm font-bold"
-                    >
-                      ×
-                    </button>
-                  )}
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    {serviceSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setServiceSearchQuery("")}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-sm font-bold px-1"
+                      >
+                        ×
+                      </button>
+                    )}
+                    <VoiceSearchButton
+                      onSearch={(term) => setServiceSearchQuery(term)}
+                      size="sm"
+                    />
+                  </div>
                 </div>
               )}
 
