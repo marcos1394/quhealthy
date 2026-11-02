@@ -1,19 +1,19 @@
 "use client";
 
-/* eslint-disable react-doctor/button-has-type */
-
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Printer, MessageCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { Printer, MessageCircle, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { appointmentService } from "@/services/appointment.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
+import { PatientCareKitModal } from "./PatientCareKitModal";
 
 interface ConsultationSuccessStepProps {
   appointmentId: number;
   patientPhone?: string;
+  patientName?: string;
   doctorName?: string;
   clinicName?: string;
   onClose: () => void;
@@ -22,6 +22,7 @@ interface ConsultationSuccessStepProps {
 export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = ({
   appointmentId,
   patientPhone,
+  patientName = "Paciente",
   doctorName = "ESPECIALISTA ASIGNADO",
   clinicName = "QUHEALTHY",
   onClose,
@@ -30,6 +31,7 @@ export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = (
   const params = useParams();
   const currentLocale = (params?.locale as string) || "es";
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isCareKitOpen, setIsCareKitOpen] = useState(false);
 
   const handlePrintPdf = async () => {
     try {
@@ -126,6 +128,17 @@ export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = (
 
         {/* PANEL DE ACCIONES */}
         <div className="p-6 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 space-y-3">
+          {/* Kit Multimodal Post-Consulta */}
+          <button
+            type="button"
+            data-testid="open-care-kit-success-btn"
+            onClick={() => setIsCareKitOpen(true)}
+            className="w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer border-0"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Kit de Cuidados (Audio + Infografía IA)</span>
+          </button>
+
           {/* WhatsApp Action */}
           <button
             type="button"
@@ -167,6 +180,15 @@ export const ConsultationSuccessStep: React.FC<ConsultationSuccessStepProps> = (
           </button>
         </div>
       </div>
+
+      <PatientCareKitModal
+        isOpen={isCareKitOpen}
+        onClose={() => setIsCareKitOpen(false)}
+        appointmentId={appointmentId}
+        patientName={patientName}
+        doctorName={doctorName}
+        patientPhone={patientPhone}
+      />
     </div>
   );
 };

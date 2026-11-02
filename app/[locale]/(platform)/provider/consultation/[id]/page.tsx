@@ -618,6 +618,7 @@ export default function ConsultationRoomPage() {
         <ConsultationSuccessStep
           appointmentId={appointmentId}
           patientPhone={patientProfile?.phone}
+          patientName={displayFullName}
           onClose={() => router.push("/provider/dashboard/appointments")}
         />
       </div>
@@ -906,6 +907,8 @@ export default function ConsultationRoomPage() {
                 setAttachedTemplates={setAttachedTemplates}
                 attachedTemplatesData={attachedTemplatesData}
                 setAttachedTemplatesData={setAttachedTemplatesData}
+                patientName={displayFullName}
+                appointmentId={appointmentId}
                 onBack={() => setCurrentStep("background")}
                 onNext={() => setCurrentStep("treatment")}
               />

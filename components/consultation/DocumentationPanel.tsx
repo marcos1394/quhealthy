@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable react-doctor/button-has-type */
-
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { FileText, Sparkles, Mic, Square, Cpu } from "lucide-react";
@@ -12,6 +10,7 @@ import { QhSpinner } from "@/components/ui/QhSpinner";
 import { SoapNotes } from "@/types/ehr";
 import { cn } from "@/lib/utils";
 import { SoapNoteDraftModal } from "./SoapNoteDraftModal";
+import { PatientCareKitModal } from "./PatientCareKitModal";
 
 interface DocumentationPanelProps {
   soapNotes: SoapNotes;
@@ -19,6 +18,10 @@ interface DocumentationPanelProps {
   isRecording: boolean;
   isTranscribing: boolean;
   handleToggleRecording: () => void;
+  patientName?: string;
+  doctorName?: string;
+  appointmentId?: number;
+  patientPhone?: string;
 }
 
 export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
@@ -27,9 +30,14 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
   isRecording,
   isTranscribing,
   handleToggleRecording,
+  patientName,
+  doctorName,
+  appointmentId,
+  patientPhone,
 }) => {
   const t = useTranslations("EHR");
   const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
+  const [isCareKitModalOpen, setIsCareKitModalOpen] = useState(false);
 
   const handleAcceptDraft = (editedSoap: SoapNotes) => {
     updateSoapNote("subjective", editedSoap.subjective);
@@ -128,6 +136,19 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
               className="text-xs font-medium h-28 resize-none rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] focus-visible:ring-emerald-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 p-3 transition-all shadow-xs"
             />
           </div>
+
+          {/* Botón rápido para generar Kit de Cuidados */}
+          <div className="pt-1">
+            <button
+              type="button"
+              data-testid="open-care-kit-soap-btn"
+              onClick={() => setIsCareKitModalOpen(true)}
+              className="w-full h-11 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100/60 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Generar Kit Multimodal para el Paciente</span>
+            </button>
+          </div>
         </TabsContent>
 
         {/* ── TAB 2: COPILOTO IA ───────────────────────────────────────── */}
@@ -149,7 +170,7 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
               </p>
             </div>
 
-            <div className="pt-4 w-full">
+            <div className="pt-4 w-full space-y-2">
               <button
                 type="button"
                 onClick={handleToggleRecording}
@@ -183,10 +204,20 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
                 type="button"
                 data-testid="open-ai-soap-draft-btn"
                 onClick={() => setIsDraftModalOpen(true)}
-                className="w-full h-11 mt-2 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 cursor-pointer"
+                className="w-full h-11 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Revisar Borrador SOAP IA</span>
+              </button>
+
+              <button
+                type="button"
+                data-testid="open-care-kit-btn"
+                onClick={() => setIsCareKitModalOpen(true)}
+                className="w-full h-11 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 border border-teal-200 dark:border-teal-800 bg-teal-50/60 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 hover:bg-teal-100 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <span>Kit Post-Consulta (Audio + Infografía)</span>
               </button>
             </div>
           </div>
@@ -199,6 +230,17 @@ export const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
         draftSoap={soapNotes}
         onAccept={handleAcceptDraft}
         onReject={() => setIsDraftModalOpen(false)}
+      />
+
+      <PatientCareKitModal
+        isOpen={isCareKitModalOpen}
+        onClose={() => setIsCareKitModalOpen(false)}
+        patientName={patientName}
+        doctorName={doctorName}
+        diagnosis={soapNotes.assessment || "Consulta Médica"}
+        plan={soapNotes.plan || "Medidas generales y tratamiento ambulatorio"}
+        appointmentId={appointmentId}
+        patientPhone={patientPhone}
       />
     </aside>
   );

@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { Icd10Autocomplete } from "./Icd10Autocomplete";
 import { VitalSignsCapture } from "./VitalSignsCapture";
 import { SoapNoteDraftModal } from "./SoapNoteDraftModal";
+import { PatientCareKitModal } from "./PatientCareKitModal";
 
 interface ClinicalEvaluationStepProps {
   soapNotes: SoapNotes;
@@ -61,6 +62,9 @@ interface ClinicalEvaluationStepProps {
   setAttachedTemplates: (val: any) => void;
   attachedTemplatesData: Record<string, Record<string, any>>;
   setAttachedTemplatesData: (val: any) => void;
+  patientName?: string;
+  doctorName?: string;
+  appointmentId?: number;
 }
 
 export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
@@ -84,11 +88,15 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   setAttachedTemplates,
   attachedTemplatesData,
   setAttachedTemplatesData,
+  patientName,
+  doctorName,
+  appointmentId,
 }) => {
   const t = useTranslations("EHR");
 
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [isSoapDraftModalOpen, setIsSoapDraftModalOpen] = useState(false);
+  const [isCareKitModalOpen, setIsCareKitModalOpen] = useState(false);
 
   const currentSoapDraft: SoapNotes = {
     subjective:
@@ -635,6 +643,16 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
               <span>Revisar Borrador SOAP IA</span>
             </button>
 
+            <button
+              type="button"
+              data-testid="open-care-kit-step-btn"
+              onClick={() => setIsCareKitModalOpen(true)}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 h-10 rounded-xl text-xs font-bold bg-white dark:bg-[#0a0a0a] border border-teal-300 dark:border-teal-800 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-all cursor-pointer shadow-xs"
+            >
+              <Sparkles className="w-4 h-4 text-teal-600" strokeWidth={2} />
+              <span>Kit de Cuidados Paciente</span>
+            </button>
+
             {syncAiSoapNote && (
               <button
                 type="button"
@@ -723,6 +741,21 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         draftSoap={currentSoapDraft}
         onAccept={handleAcceptSoapDraft}
         onReject={() => setIsSoapDraftModalOpen(false)}
+      />
+
+      {/* Modal Kit Multimodal Post-Consulta para el Paciente */}
+      <PatientCareKitModal
+        isOpen={isCareKitModalOpen}
+        onClose={() => setIsCareKitModalOpen(false)}
+        patientName={patientName}
+        doctorName={doctorName}
+        diagnosis={
+          diagnoses.length > 0
+            ? diagnoses.map((d) => d.description || d.code).join(", ")
+            : soapNotes.assessment || "Consulta Médica"
+        }
+        plan={soapNotes.plan || "Medidas generales y tratamiento ambulatorio"}
+        appointmentId={appointmentId}
       />
     </div>
   );

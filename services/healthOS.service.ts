@@ -166,6 +166,61 @@ export interface RecoveryGuideResponse {
   createdAt: string;
 }
 
+export interface MedicalInfographicRequest {
+  title?: string;
+  medicalTopic?: string;
+  category?: 'ANATOMY' | 'SURGERY' | 'REHABILITATION' | 'NUTRITION' | 'PEDIATRICS' | 'CARDIOLOGY';
+  summary?: string;
+  keyPoints?: string[];
+  aspectRatio?: '16:9' | '1:1';
+}
+
+export interface MedicalInfographicResponse {
+  id: string;
+  title: string;
+  medicalTopic: string;
+  category: string;
+  summary: string;
+  imageUrl: string;
+  aspectRatio: string;
+  keyPoints: string[];
+  disclaimer: string;
+  downloadUrl?: string;
+  createdAt: string;
+}
+
+export interface PatientCareKitRequest {
+  patientName?: string;
+  doctorName?: string;
+  medicalSpecialty?: string;
+  diagnosis?: string;
+  plan?: string;
+  medications?: string;
+  careInstructions?: string;
+  doctorNotes?: string;
+  appointmentId?: number;
+  accentId?: string;
+  includeAudioGuide?: boolean;
+  includeInfographic?: boolean;
+}
+
+export interface PatientCareKitResponse {
+  id: string;
+  kitTitle: string;
+  patientName: string;
+  doctorName: string;
+  medicalSpecialty: string;
+  diagnosis: string;
+  patientFriendlySummary: string;
+  keyCarePoints: string[];
+  warningSigns: string[];
+  recoveryGuide?: RecoveryGuideResponse;
+  infographic?: MedicalInfographicResponse;
+  shareableWhatsAppText: string;
+  createdAt: string;
+  status: string;
+}
+
 export const healthOSService = {
   /**
    * Envía un mensaje de texto plano o intención al agente orquestador con archivos adjuntos opcionales
@@ -275,6 +330,23 @@ export const healthOSService = {
     turns: { speaker: string; text: string; style?: string }[];
   }): Promise<{ audioBase64: string; format?: string; turnsCount?: number }> => {
     const response = await axiosInstance.post('/api/v1/health-agent/tts/multi-speaker', request);
+    return response.data;
+  },
+
+  /**
+   * Genera una Infografía Médica o Ilustración Anatómica con Gemini Nano Banana 2.1
+   */
+  generateMedicalInfographic: async (request?: MedicalInfographicRequest): Promise<MedicalInfographicResponse> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/infographics/medical', request || {});
+    return response.data;
+  },
+
+  /**
+   * Genera el Kit Multimodal Post-Consulta para el Paciente
+   * Combina resumen en lenguaje paciente, Audio-Guía TTS, Infografía Nano Banana 2.1 y plantilla WhatsApp
+   */
+  generatePatientCareKit: async (request: PatientCareKitRequest): Promise<PatientCareKitResponse> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/care-kit/generate', request);
     return response.data;
   }
 };
