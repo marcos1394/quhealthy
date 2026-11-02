@@ -83,6 +83,12 @@ export interface AiImageRequest {
   imageStyle?: string;
   lighting?: string;
   aspectRatio?: string;
+  // 🔥 Nano Banana 2.1 enhancements
+  resolution?: '1K' | '2K' | '4K';
+  overlayText?: string;
+  badgeText?: string;
+  referenceImageBase64?: string;
+  referenceImageMimeType?: string;
 }
 
 export interface AiImageResponse {
@@ -90,6 +96,7 @@ export interface AiImageResponse {
   generatedText?: string;
   sessionId?: string;
   usedModel?: string;
+  resolution?: string;
 }
 
 // ── Video ──────────────────────────────────────────────────────────

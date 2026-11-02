@@ -20,9 +20,13 @@ import {
   CalendarPlus,
   Save,
   Wand2,
+  Type,
+  Upload,
+  X,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -92,6 +96,12 @@ interface State {
   imageStyle: string;
   imageLighting: string;
   imageAspectRatio: string;
+  imageResolution: "1K" | "2K" | "4K";
+  imageOverlayText: string;
+  imageBadgeText: string;
+  imageReferenceBase64: string;
+  imageReferenceMimeType: string;
+  imageReferencePreview: string;
   videoPrompt: string;
   videoPlatform: SocialPlatform;
   videoTone: AiTone;
@@ -119,6 +129,13 @@ type Action =
   | { type: "SET_IMAGESTYLE"; payload: any }
   | { type: "SET_IMAGELIGHTING"; payload: any }
   | { type: "SET_IMAGEASPECTRATIO"; payload: any }
+  | { type: "SET_IMAGERESOLUTION"; payload: "1K" | "2K" | "4K" }
+  | { type: "SET_IMAGEOVERLAYTEXT"; payload: string }
+  | { type: "SET_IMAGEBADGETEXT"; payload: string }
+  | {
+      type: "SET_IMAGEREFERENCE";
+      payload: { base64: string; mimeType: string; preview: string } | null;
+    }
   | { type: "SET_VIDEOPROMPT"; payload: any }
   | { type: "SET_VIDEOPLATFORM"; payload: any }
   | { type: "SET_VIDEOTONE"; payload: any }
@@ -153,6 +170,27 @@ function studioReducer(state: State, action: Action): State {
       return { ...state, imageLighting: action.payload };
     case "SET_IMAGEASPECTRATIO":
       return { ...state, imageAspectRatio: action.payload };
+    case "SET_IMAGERESOLUTION":
+      return { ...state, imageResolution: action.payload };
+    case "SET_IMAGEOVERLAYTEXT":
+      return { ...state, imageOverlayText: action.payload };
+    case "SET_IMAGEBADGETEXT":
+      return { ...state, imageBadgeText: action.payload };
+    case "SET_IMAGEREFERENCE":
+      if (!action.payload) {
+        return {
+          ...state,
+          imageReferenceBase64: "",
+          imageReferenceMimeType: "",
+          imageReferencePreview: "",
+        };
+      }
+      return {
+        ...state,
+        imageReferenceBase64: action.payload.base64,
+        imageReferenceMimeType: action.payload.mimeType,
+        imageReferencePreview: action.payload.preview,
+      };
     case "SET_VIDEOPROMPT":
       return { ...state, videoPrompt: action.payload };
     case "SET_VIDEOPLATFORM":
@@ -218,6 +256,12 @@ export function AiStudioForm({
     imageStyle: "Fotorrealismo Clínico",
     imageLighting: "Luz Natural",
     imageAspectRatio: "SQUARE",
+    imageResolution: "1K",
+    imageOverlayText: "",
+    imageBadgeText: "",
+    imageReferenceBase64: "",
+    imageReferenceMimeType: "",
+    imageReferencePreview: "",
     videoPrompt: "",
     videoPlatform: "INSTAGRAM",
     videoTone: "educational",
@@ -245,6 +289,12 @@ export function AiStudioForm({
     imageStyle,
     imageLighting,
     imageAspectRatio,
+    imageResolution,
+    imageOverlayText,
+    imageBadgeText,
+    imageReferenceBase64,
+    imageReferenceMimeType,
+    imageReferencePreview,
     videoPrompt,
     videoPlatform,
     videoTone,
@@ -311,6 +361,34 @@ export function AiStudioForm({
     }
   };
 
+  const handleReferenceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor selecciona un archivo de imagen válido (PNG, JPG, WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("La imagen de referencia no debe superar 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      dispatch({
+        type: "SET_IMAGEREFERENCE",
+        payload: {
+          base64: result,
+          mimeType: file.type,
+          preview: result,
+        },
+      });
+      toast.success("Logotipo / imagen de referencia cargada.");
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleGenerateImage = async () => {
     if (!selectedService) return toast.warn(t("warn_select_service"));
     dispatch({ type: "SET_ISGENERATINGIMAGE", payload: true });
@@ -331,6 +409,11 @@ export function AiStudioForm({
         imageStyle,
         lighting: imageLighting,
         aspectRatio: imageAspectRatio,
+        resolution: imageResolution,
+        overlayText: imageOverlayText.trim() || undefined,
+        badgeText: imageBadgeText.trim() || undefined,
+        referenceImageBase64: imageReferenceBase64 || undefined,
+        referenceImageMimeType: imageReferenceMimeType || undefined,
       });
       if (response?.imageUrl)
         dispatch({
@@ -749,19 +832,25 @@ export function AiStudioForm({
                             <SelectItem value="LANDSCAPE" className="text-xs font-semibold">
                               16:9 Horizontal
                             </SelectItem>
+                            <SelectItem value="STANDARD_LANDSCAPE" className="text-xs font-semibold">
+                              4:3 Clásico
+                            </SelectItem>
+                            <SelectItem value="STANDARD_PORTRAIT" className="text-xs font-semibold">
+                              3:4 Póster
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="space-y-1">
                         <label className="block text-[10px] font-bold uppercase text-gray-500">
-                          PLATAFORMA
+                          {t("resolution_label")}
                         </label>
                         <Select
-                          value={imagePlatform}
+                          value={imageResolution}
                           onValueChange={(val: any) =>
                             dispatch({
-                              type: "SET_IMAGEPLATFORM",
+                              type: "SET_IMAGERESOLUTION",
                               payload: val,
                             })
                           }
@@ -770,17 +859,14 @@ export function AiStudioForm({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
-                            <SelectItem value="FACEBOOK" className="text-xs font-semibold">
-                              Facebook
+                            <SelectItem value="1K" className="text-xs font-semibold">
+                              1K (1024px)
                             </SelectItem>
-                            <SelectItem value="INSTAGRAM" className="text-xs font-semibold">
-                              Instagram
+                            <SelectItem value="2K" className="text-xs font-semibold">
+                              2K (2048px HD)
                             </SelectItem>
-                            <SelectItem value="LINKEDIN" className="text-xs font-semibold">
-                              LinkedIn
-                            </SelectItem>
-                            <SelectItem value="GOOGLE_BUSINESS" className="text-xs font-semibold">
-                              Google Business
+                            <SelectItem value="4K" className="text-xs font-semibold">
+                              4K (4096px Ultra HD)
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -851,6 +937,39 @@ export function AiStudioForm({
                         </Select>
                       </div>
                     </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold uppercase text-gray-500">
+                        PLATAFORMA
+                      </label>
+                      <Select
+                        value={imagePlatform}
+                        onValueChange={(val: any) =>
+                          dispatch({
+                            type: "SET_IMAGEPLATFORM",
+                            payload: val,
+                          })
+                        }
+                      >
+                        <SelectTrigger className="w-full h-10 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-bold text-gray-900 dark:text-white shadow-2xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans">
+                          <SelectItem value="FACEBOOK" className="text-xs font-semibold">
+                            Facebook
+                          </SelectItem>
+                          <SelectItem value="INSTAGRAM" className="text-xs font-semibold">
+                            Instagram
+                          </SelectItem>
+                          <SelectItem value="LINKEDIN" className="text-xs font-semibold">
+                            LinkedIn
+                          </SelectItem>
+                          <SelectItem value="GOOGLE_BUSINESS" className="text-xs font-semibold">
+                            Google Business
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   {/* Prompt & Acción */}
@@ -869,7 +988,7 @@ export function AiStudioForm({
                         }
                         disabled={isGeneratingImage}
                         placeholder="Describa detalles visuales específicos..."
-                        className="w-full h-20 p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-2xs resize-none"
+                        className="w-full h-24 p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-2xs resize-none"
                       />
                     </div>
 
@@ -894,13 +1013,112 @@ export function AiStudioForm({
                   </div>
                 </div>
 
+                {/* ── SECCIÓN TIPOGRAFÍA Y MARCA NANO BANANA 2.1 ── */}
+                <div className="p-4 bg-gray-50/80 dark:bg-[#080808] border border-gray-200 dark:border-gray-800 rounded-2xl space-y-3 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Type className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">
+                        {t("brand_section_title")}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                      Nano Banana 2.1
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold uppercase text-gray-500">
+                        {t("overlay_text_label")}
+                      </label>
+                      <Input
+                        value={imageOverlayText}
+                        onChange={(e) =>
+                          dispatch({
+                            type: "SET_IMAGEOVERLAYTEXT",
+                            payload: e.target.value,
+                          })
+                        }
+                        placeholder={t("overlay_text_placeholder")}
+                        className="h-10 text-xs bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-xl"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold uppercase text-gray-500">
+                        {t("badge_text_label")}
+                      </label>
+                      <Input
+                        value={imageBadgeText}
+                        onChange={(e) =>
+                          dispatch({
+                            type: "SET_IMAGEBADGETEXT",
+                            payload: e.target.value,
+                          })
+                        }
+                        placeholder={t("badge_text_placeholder")}
+                        className="h-10 text-xs bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-1">
+                    <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1.5">
+                      {t("brand_reference_label")}
+                    </label>
+                    {imageReferencePreview ? (
+                      <div className="flex items-center gap-3 p-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30">
+                        <SafeImage
+                          src={imageReferencePreview}
+                          alt="Brand reference"
+                          className="w-10 h-10 rounded-lg object-cover border border-emerald-300 dark:border-emerald-700 shrink-0"
+                          fallback={null}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                            Imagen de marca cargada
+                          </p>
+                          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                            {imageReferenceMimeType}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => dispatch({ type: "SET_IMAGEREFERENCE", payload: null })}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                          title={t("brand_reference_remove")}
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex items-center justify-center gap-2 h-10 px-4 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] hover:bg-gray-50 dark:hover:bg-[#111] transition-all text-xs font-semibold text-gray-600 dark:text-gray-300 cursor-pointer">
+                        <Upload className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>{t("brand_reference_upload_btn")}</span>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          onChange={handleReferenceUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
                 {/* Resultado Imagen */}
                 {generatedImageUrl && (
                   <div className="bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-2xl p-5 space-y-4 shadow-xs mt-2">
                     <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
-                      <span className="text-xs font-bold text-gray-900 dark:text-white">
-                        Activo Visual Generado
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-gray-900 dark:text-white">
+                          Activo Visual Generado
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                          Nano Banana 2.1 • {imageResolution}
+                        </span>
+                      </div>
                       <button
                         type="button"
                         onClick={handleGenerateImage}
