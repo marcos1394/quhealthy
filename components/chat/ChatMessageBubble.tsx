@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Clock, Check, CheckCheck, FileText, ArrowRight } from "lucide-react";
+import { Clock, Check, CheckCheck, FileText, ArrowRight, Volume2, Square } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChatMessage } from "@/types/chat";
+import { QhSpinner } from "@/components/ui/QhSpinner";
+import { healthOSService } from "@/services/healthOS.service";
 import { cn } from "@/lib/utils";
 
 interface ChatMessageBubbleProps {
@@ -21,6 +23,111 @@ export function ChatMessageBubble({
   providerInitial,
 }: ChatMessageBubbleProps) {
   const t = useTranslations("PatientMessages");
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const cachedAudioBase64 = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const fallbackSpeechSynthesis = (text: string) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      setIsPlaying(false);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-MX";
+    utterance.rate = 1.0;
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = () => setIsPlaying(false);
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+  };
+
+  const handleTogglePlayAudio = async () => {
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setIsPlaying(false);
+      return;
+    }
+
+    if (!message.content) return;
+
+    if (cachedAudioBase64.current) {
+      const audio = new Audio(
+        `data:audio/wav;base64,${cachedAudioBase64.current}`
+      );
+      audioRef.current = audio;
+      audio.onended = () => setIsPlaying(false);
+      audio.onerror = () => {
+        setIsPlaying(false);
+        fallbackSpeechSynthesis(message.content);
+      };
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (e) {
+        console.warn("Audio play error, using fallback:", e);
+        fallbackSpeechSynthesis(message.content);
+      }
+      return;
+    }
+
+    setIsSynthesizing(true);
+    try {
+      const response = await healthOSService.synthesizeMultiSpeaker({
+        speakers: [
+          { speaker: isOwn ? "Usuario" : "Especialista", voice: isOwn ? "Puck" : "Sulafat" },
+        ],
+        turns: [
+          {
+            speaker: isOwn ? "Usuario" : "Especialista",
+            text: message.content,
+            style: isOwn ? "natural, conversational" : "warm, empathetic, professional",
+          },
+        ],
+      });
+
+      if (response && response.audioBase64) {
+        cachedAudioBase64.current = response.audioBase64;
+        const audio = new Audio(
+          `data:${response.format || "audio/wav"};base64,${response.audioBase64}`
+        );
+        audioRef.current = audio;
+        audio.onended = () => setIsPlaying(false);
+        audio.onerror = () => {
+          setIsPlaying(false);
+          fallbackSpeechSynthesis(message.content);
+        };
+        await audio.play();
+        setIsPlaying(true);
+      } else {
+        fallbackSpeechSynthesis(message.content);
+      }
+    } catch (err) {
+      console.warn("Error sintetizando audio con TTS, usando síntesis local:", err);
+      fallbackSpeechSynthesis(message.content);
+    } finally {
+      setIsSynthesizing(false);
+    }
+  };
 
   // Formatear hora (ej. 14:30)
   const timeString = message.createdAt
@@ -125,17 +232,47 @@ export function ChatMessageBubble({
           <span>{message.content}</span>
         )}
 
-        {/* Meta Data (Hora y Estado) */}
+        {/* Meta Data (Hora, Botón Escuchar TTS y Estado) */}
         <div
           className={cn(
-            "flex items-center justify-end gap-1 mt-1.5 shrink-0 self-end",
-            isOwn ? "text-emerald-100/90" : "text-gray-400"
+            "flex items-center justify-between gap-2 mt-1.5 shrink-0 w-full pt-1 border-t",
+            isOwn
+              ? "border-emerald-500/40 text-emerald-100/90"
+              : "border-gray-100 dark:border-gray-800/80 text-gray-400"
           )}
         >
-          <span className="text-[10px] font-medium font-mono">
-            {timeString}
-          </span>
-          {renderStatusIcon()}
+          {message.content && message.messageType !== "VAULT_DOCUMENT" ? (
+            <button
+              type="button"
+              onClick={handleTogglePlayAudio}
+              disabled={isSynthesizing}
+              className={cn(
+                "flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md transition-colors cursor-pointer",
+                isOwn
+                  ? "hover:bg-white/10 text-emerald-100"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+              )}
+              title={isPlaying ? "Detener reproducción" : "Escuchar con Gemini 3.8 Flash TTS"}
+            >
+              {isSynthesizing ? (
+                <QhSpinner size="sm" className="w-3 h-3 text-current" />
+              ) : isPlaying ? (
+                <Square className="w-2.5 h-2.5 fill-current text-amber-300 animate-pulse" />
+              ) : (
+                <Volume2 className="w-3 h-3" />
+              )}
+              <span>{isPlaying ? t("audio_playing") : t("listen_audio")}</span>
+            </button>
+          ) : (
+            <div />
+          )}
+
+          <div className="flex items-center gap-1 ml-auto">
+            <span className="text-[10px] font-medium font-mono">
+              {timeString}
+            </span>
+            {renderStatusIcon()}
+          </div>
         </div>
       </div>
     </div>

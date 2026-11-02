@@ -264,5 +264,17 @@ export const healthOSService = {
   generateConsultationSoap: async (request: ConsultationSoapRequest): Promise<ConsultationSoapResponse> => {
     const response = await axiosInstance.post('/api/v1/health-agent/transcribe/soap', request);
     return response.data;
+  },
+
+  /**
+   * Síntesis de voz directa con Gemini 3.8 Flash TTS.
+   * Recibe turnos y oradores para generar audio WAV de alta fidelidad.
+   */
+  synthesizeMultiSpeaker: async (request: {
+    speakers?: { speaker: string; voice?: string }[];
+    turns: { speaker: string; text: string; style?: string }[];
+  }): Promise<{ audioBase64: string; format?: string; turnsCount?: number }> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/tts/multi-speaker', request);
+    return response.data;
   }
 };

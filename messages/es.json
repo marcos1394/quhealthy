@@ -5430,7 +5430,15 @@
     "btn_voice_call": "Llamada de voz",
     "btn_video_call": "Videollamada",
     "toast_voice": "Iniciando llamada de voz...",
-    "toast_video": "Iniciando videollamada..."
+    "toast_video": "Iniciando videollamada...",
+    "voice_record": "Grabar nota de voz",
+    "voice_recording": "Grabando...",
+    "voice_cancel": "Cancelar",
+    "voice_finish": "Listo",
+    "voice_transcribing": "Transcribiendo con Gemini 3.5...",
+    "voice_transcribed_toast": "Mensaje transcribido exitosamente",
+    "listen_audio": "Escuchar",
+    "audio_playing": "Reproduciendo"
   },
 
 "PatientPackages": {

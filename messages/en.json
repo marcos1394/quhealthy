@@ -5653,7 +5653,15 @@
     "attached_doc_prefix": "Attached clinical document: ",
     "btn_video_call": "Video call",
     "toast_voice": "Starting voice call...",
-    "toast_video": "Starting video call..."
+    "toast_video": "Starting video call...",
+    "voice_record": "Record voice note",
+    "voice_recording": "Recording...",
+    "voice_cancel": "Cancel",
+    "voice_finish": "Done",
+    "voice_transcribing": "Transcribing with Gemini 3.5...",
+    "voice_transcribed_toast": "Voice note transcribed successfully",
+    "listen_audio": "Listen",
+    "audio_playing": "Playing"
   },
 
   "PatientOrders": {
