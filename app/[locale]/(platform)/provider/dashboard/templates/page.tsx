@@ -23,6 +23,7 @@ import {
   Link2,
   CheckCircle2,
   Sparkles,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -31,6 +32,7 @@ import {
   ClinicalTemplateResponse,
   ClinicalTemplateRequest,
   ClinicalTemplateField,
+  ClinicalTemplateReview,
 } from "@/services/clinicalTemplates.service";
 import { catalogService } from "@/services/catalog.service";
 import { CatalogItemDTO } from "@/types/catalog";
@@ -68,7 +70,19 @@ export default function TemplatesExplorerPage() {
   const [communityTemplates, setCommunityTemplates] = useState<
     ClinicalTemplateResponse[]
   >([]);
+  const [likedTemplateIds, setLikedTemplateIds] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+
+  // Reviews modal state
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
+  const [reviewsTemplate, setReviewsTemplate] =
+    useState<ClinicalTemplateResponse | null>(null);
+  const [templateReviews, setTemplateReviews] = useState<ClinicalTemplateReview[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const [previewTemplate, setPreviewTemplate] =
     useState<ClinicalTemplateResponse | null>(null);
@@ -93,8 +107,12 @@ export default function TemplatesExplorerPage() {
     try {
       setIsLoading(true);
       if (providerId) {
-        const personal = await clinicalTemplateService.getTemplates(providerId);
+        const [personal, likedIds] = await Promise.all([
+          clinicalTemplateService.getTemplates(providerId),
+          clinicalTemplateService.getLikedTemplateIds(providerId).catch(() => []),
+        ]);
         setPersonalTemplates(personal.filter((tmpl) => !tmpl.isPublic));
+        setLikedTemplateIds(new Set(likedIds));
       }
 
       const community =
@@ -207,13 +225,135 @@ export default function TemplatesExplorerPage() {
     });
   };
 
-  const handleLike = async (id: number) => {
+  const handleToggleLike = async (id: number) => {
+    const isCurrentlyLiked = likedTemplateIds.has(id);
+
+    // Optimistic UI update
+    setLikedTemplateIds((prev) => {
+      const next = new Set(prev);
+      if (isCurrentlyLiked) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+
+    setCommunityTemplates((prev) =>
+      prev.map((tmpl) => {
+        if (tmpl.id === id) {
+          const delta = isCurrentlyLiked ? -1 : 1;
+          return { ...tmpl, likes: Math.max(0, (tmpl.likes || 0) + delta) };
+        }
+        return tmpl;
+      })
+    );
+
     try {
-      await clinicalTemplateService.likeTemplate(id);
-      toast.success(t("toasts.like_success"));
-      loadTemplates();
+      const result = await clinicalTemplateService.toggleLike(id, providerId);
+      setCommunityTemplates((prev) =>
+        prev.map((tmpl) =>
+          tmpl.id === id ? { ...tmpl, likes: result.likesCount } : tmpl
+        )
+      );
+      if (result.liked) {
+        toast.success(t("toasts.like_success"), { autoClose: 2000 });
+      } else {
+        toast.info(t("toasts.unlike_success"), { autoClose: 2000 });
+      }
     } catch (err) {
+      // Revert optimistic update on failure
+      setLikedTemplateIds((prev) => {
+        const next = new Set(prev);
+        if (isCurrentlyLiked) {
+          next.add(id);
+        } else {
+          next.delete(id);
+        }
+        return next;
+      });
+      setCommunityTemplates((prev) =>
+        prev.map((tmpl) => {
+          if (tmpl.id === id) {
+            const delta = isCurrentlyLiked ? 1 : -1;
+            return { ...tmpl, likes: Math.max(0, (tmpl.likes || 0) + delta) };
+          }
+          return tmpl;
+        })
+      );
       handleApiError(err, t("toasts.like_error"));
+    }
+  };
+
+  const handleOpenReviewsModal = async (tmpl: ClinicalTemplateResponse) => {
+    setReviewsTemplate(tmpl);
+    setReviewsModalOpen(true);
+    setReviewRating(5);
+    setHoverRating(0);
+    setReviewComment("");
+    try {
+      setIsLoadingReviews(true);
+      const reviews = await clinicalTemplateService.getReviews(tmpl.id);
+      setTemplateReviews(reviews);
+    } catch (err) {
+      handleApiError(err, t("error_loading"));
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewsTemplate || !providerId) return;
+
+    try {
+      setIsSubmittingReview(true);
+      const authorName = user?.name
+        ? `${user.name} ${user.lastName || ""}`.trim()
+        : undefined;
+
+      const createdReview = await clinicalTemplateService.addReview(reviewsTemplate.id, {
+        providerId,
+        authorName,
+        rating: reviewRating,
+        comment: reviewComment.trim() || undefined,
+      });
+
+      toast.success(t("toasts.review_success"), { theme: "colored" });
+      setReviewComment("");
+
+      // Update reviews list locally
+      setTemplateReviews((prev) => {
+        const filtered = prev.filter((r) => r.providerId !== providerId);
+        return [createdReview, ...filtered];
+      });
+
+      // Recalculate average rating & count
+      const updatedReviews = await clinicalTemplateService.getReviews(reviewsTemplate.id);
+      const avg =
+        updatedReviews.length > 0
+          ? Math.round(
+              (updatedReviews.reduce((acc, r) => acc + r.rating, 0) /
+                updatedReviews.length) *
+                10
+            ) / 10
+          : reviewRating;
+      const count = updatedReviews.length;
+
+      setCommunityTemplates((prev) =>
+        prev.map((tmpl) =>
+          tmpl.id === reviewsTemplate.id
+            ? { ...tmpl, rating: avg, reviewsCount: count }
+            : tmpl
+        )
+      );
+
+      setReviewsTemplate((prev) =>
+        prev ? { ...prev, rating: avg, reviewsCount: count } : null
+      );
+    } catch (err) {
+      handleApiError(err, t("toasts.review_error"));
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -682,23 +822,48 @@ export default function TemplatesExplorerPage() {
                         <span className="inline-flex items-center px-3 py-0.5 text-[10px] font-bold rounded-full border border-sky-200 bg-sky-50 text-sky-700 dark:bg-sky-950/30 dark:text-sky-400 dark:border-sky-900/40 shadow-sm">
                           {tmpl.category || tmpl.type}
                         </span>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => handleLike(tmpl.id)}
-                            className="flex items-center gap-1 text-rose-500 hover:scale-105 transition-transform"
+                            onClick={() => handleToggleLike(tmpl.id)}
+                            className={cn(
+                              "flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-mono font-bold transition-all border shadow-sm",
+                              likedTemplateIds.has(tmpl.id)
+                                ? "bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400"
+                                : "bg-gray-50/80 dark:bg-gray-900/40 border-gray-200 dark:border-gray-800 text-gray-500 hover:text-rose-600 hover:border-rose-200 dark:hover:border-rose-900/40"
+                            )}
+                            title={t("actions.like")}
                           >
-                            <Heart className="w-3.5 h-3.5 fill-current" strokeWidth={2} />
-                            <span className="text-xs font-mono font-bold">
-                              {tmpl.likes || 0}
-                            </span>
+                            <Heart
+                              className={cn(
+                                "w-3.5 h-3.5 transition-transform active:scale-125",
+                                likedTemplateIds.has(tmpl.id)
+                                  ? "fill-rose-500 text-rose-500"
+                                  : "text-gray-400"
+                              )}
+                              strokeWidth={2}
+                            />
+                            <span>{tmpl.likes || 0}</span>
                           </button>
-                          <div className="flex items-center gap-1 text-amber-500">
-                            <Star className="w-3.5 h-3.5 fill-current" strokeWidth={2} />
-                            <span className="text-xs font-mono font-bold">
-                              {tmpl.rating?.toFixed(1) || "0.0"}
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenReviewsModal(tmpl)}
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-mono font-bold hover:bg-amber-100/80 dark:hover:bg-amber-900/50 transition-all shadow-sm"
+                            title={t("reviews.view_reviews")}
+                          >
+                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" strokeWidth={2} />
+                            <span>
+                              {tmpl.rating && tmpl.rating > 0
+                                ? tmpl.rating.toFixed(1)
+                                : t("reviews.no_reviews_badge")}
                             </span>
-                          </div>
+                            {tmpl.reviewsCount && tmpl.reviewsCount > 0 ? (
+                              <span className="text-[10px] text-amber-600/80 dark:text-amber-400/80 font-normal">
+                                {t("reviews.reviews_count", { count: tmpl.reviewsCount })}
+                              </span>
+                            ) : null}
+                          </button>
                         </div>
                       </div>
 
@@ -808,6 +973,232 @@ export default function TemplatesExplorerPage() {
                   )}
                 </div>
               ))}
+            </div>
+
+            {(previewTemplate?.isPublic || previewTemplate?.type === "SYSTEM") && (
+              <div className="p-4 bg-gray-50/50 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3 shrink-0">
+                <div className="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <span>
+                    {previewTemplate.rating && previewTemplate.rating > 0
+                      ? `${previewTemplate.rating.toFixed(1)} / 5.0`
+                      : t("reviews.no_reviews_badge")}
+                  </span>
+                  {previewTemplate.reviewsCount ? (
+                    <span className="text-gray-400">
+                      ({previewTemplate.reviewsCount})
+                    </span>
+                  ) : null}
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const tmpl = previewTemplate;
+                    setPreviewTemplate(null);
+                    handleOpenReviewsModal(tmpl);
+                  }}
+                  className="h-9 px-4 rounded-xl border-amber-200 bg-amber-50/60 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-xs font-bold shadow-sm flex items-center gap-1.5"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>{t("reviews.view_reviews")}</span>
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* ── MODAL RESEÑAS Y CALIFICACIONES ────────────────────────────── */}
+        <Dialog
+          open={reviewsModalOpen}
+          onOpenChange={(open) => !open && setReviewsModalOpen(false)}
+        >
+          <DialogContent className="sm:max-w-xl bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 p-0 rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 bg-gray-50/50 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 shrink-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm">
+                  <Star className="w-5 h-5 fill-amber-500 text-amber-500" strokeWidth={2} />
+                </div>
+                <div>
+                  <DialogTitle className="text-sm font-bold text-gray-900 dark:text-white leading-tight">
+                    {t("reviews.title")}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs font-medium text-gray-500">
+                    {reviewsTemplate?.name}
+                  </DialogDescription>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setReviewsModalOpen(false)}
+                className="w-8 h-8 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X className="w-4 h-4" strokeWidth={2} />
+              </Button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-6 bg-white dark:bg-[#0a0a0a] custom-scrollbar">
+              {/* Resumen de Calificación */}
+              <div className="flex items-center justify-between p-4 bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 rounded-2xl">
+                <div>
+                  <div className="text-3xl font-extrabold text-gray-900 dark:text-white font-mono">
+                    {reviewsTemplate?.rating && reviewsTemplate.rating > 0
+                      ? reviewsTemplate.rating.toFixed(1)
+                      : "0.0"}
+                  </div>
+                  <div className="text-[11px] font-medium text-gray-400">
+                    {t("reviews.out_of_five")}
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        className={cn(
+                          "w-4 h-4",
+                          (reviewsTemplate?.rating || 0) >= s
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-gray-200 dark:text-gray-800"
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs font-mono font-bold text-gray-500">
+                    {templateReviews.length}{" "}
+                    {templateReviews.length === 1 ? "reseña" : "reseñas"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Formulario de Nueva Reseña (Solo para médicos autenticados) */}
+              {providerId ? (
+                <div className="bg-emerald-50/30 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/30 p-4 rounded-2xl space-y-3">
+                  <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">
+                    {t("reviews.write_review")}
+                  </h4>
+
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        className="p-1 hover:scale-110 transition-transform"
+                      >
+                        <Star
+                          className={cn(
+                            "w-6 h-6 transition-colors",
+                            (hoverRating || reviewRating) >= star
+                              ? "fill-amber-400 text-amber-400"
+                              : "text-gray-300 dark:text-gray-700"
+                          )}
+                          strokeWidth={2}
+                        />
+                      </button>
+                    ))}
+                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 ml-2 font-mono">
+                      {hoverRating || reviewRating} / 5
+                    </span>
+                  </div>
+
+                  <textarea
+                    rows={2}
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    placeholder={t("reviews.comment_placeholder")}
+                    className="w-full p-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 shadow-sm resize-none"
+                  />
+
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleSubmitReview}
+                      disabled={isSubmittingReview}
+                      className="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm border-0 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    >
+                      {isSubmittingReview ? (
+                        <QhSpinner size="sm" />
+                      ) : (
+                        <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+                      )}
+                      <span>
+                        {isSubmittingReview
+                          ? t("reviews.submitting_btn")
+                          : t("reviews.submit_btn")}
+                      </span>
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Listado de Reseñas */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  {t("reviews.title")}
+                </h4>
+
+                {isLoadingReviews ? (
+                  <div className="flex justify-center py-8">
+                    <QhSpinner size="md" />
+                  </div>
+                ) : templateReviews.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400 text-xs border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-6 space-y-2">
+                    <MessageSquare className="w-8 h-8 text-gray-300 dark:text-gray-700 mx-auto" />
+                    <p>{t("reviews.empty_reviews")}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                    {templateReviews.map((rev) => (
+                      <div
+                        key={rev.id}
+                        className="bg-gray-50/60 dark:bg-[#050505] border border-gray-100 dark:border-gray-800 p-4 rounded-2xl space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">
+                              {rev.authorName ? rev.authorName[0]?.toUpperCase() : "D"}
+                            </div>
+                            <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                              {rev.authorName || t("reviews.verified_doctor")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star
+                                key={s}
+                                className={cn(
+                                  "w-3 h-3",
+                                  rev.rating >= s
+                                    ? "fill-amber-400 text-amber-400"
+                                    : "text-gray-200 dark:text-gray-800"
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        {rev.comment && (
+                          <p className="text-xs text-gray-600 dark:text-gray-300 pl-8 font-normal leading-relaxed">
+                            {rev.comment}
+                          </p>
+                        )}
+
+                        <div className="text-[10px] text-gray-400 pl-8 font-mono">
+                          {new Date(rev.createdAt).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </DialogContent>
         </Dialog>

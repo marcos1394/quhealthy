@@ -29,12 +29,31 @@ export interface ClinicalTemplateRequest {
     downloads?: number;
     rating?: number;
     likes?: number;
+    reviewsCount?: number;
 }
 
 export interface ClinicalTemplateResponse extends ClinicalTemplateRequest {
     id: number;
     createdAt: string;
     updatedAt: string;
+    reviewsCount?: number;
+    isLiked?: boolean;
+}
+
+export interface ClinicalTemplateReview {
+    id: number;
+    templateId: number;
+    providerId: number;
+    authorName?: string;
+    rating: number; // 1 to 5
+    comment?: string;
+    createdAt: string;
+}
+
+export interface TemplateLikeToggleResult {
+    templateId: number;
+    liked: boolean;
+    likesCount: number;
 }
 
 const parseTemplate = (tmpl: any): ClinicalTemplateResponse => {
@@ -80,8 +99,37 @@ export const clinicalTemplateService = {
         await axiosInstance.delete(`/api/appointments/clinical-templates/${id}`);
     },
 
-    likeTemplate: async (id: number): Promise<void> => {
-        await axiosInstance.put(`/api/appointments/clinical-templates/${id}/like`);
+    likeTemplate: async (id: number, providerId?: number): Promise<void> => {
+        await axiosInstance.put(`/api/appointments/clinical-templates/${id}/like`, null, {
+            params: { providerId }
+        });
+    },
+
+    toggleLike: async (id: number, providerId?: number): Promise<TemplateLikeToggleResult> => {
+        const response = await axiosInstance.post(`/api/appointments/clinical-templates/${id}/like`, null, {
+            params: { providerId }
+        });
+        return response.data;
+    },
+
+    getLikedTemplateIds: async (providerId: number): Promise<number[]> => {
+        const response = await axiosInstance.get('/api/appointments/clinical-templates/liked-ids', {
+            params: { providerId }
+        });
+        return response.data;
+    },
+
+    getReviews: async (templateId: number): Promise<ClinicalTemplateReview[]> => {
+        const response = await axiosInstance.get(`/api/appointments/clinical-templates/${templateId}/reviews`);
+        return response.data;
+    },
+
+    addReview: async (
+        templateId: number,
+        data: { providerId: number; authorName?: string; rating: number; comment?: string }
+    ): Promise<ClinicalTemplateReview> => {
+        const response = await axiosInstance.post(`/api/appointments/clinical-templates/${templateId}/reviews`, data);
+        return response.data;
     },
 
     cloneTemplate: async (id: number, providerId: number): Promise<ClinicalTemplateResponse> => {
