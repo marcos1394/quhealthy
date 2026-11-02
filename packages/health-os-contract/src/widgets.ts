@@ -25,7 +25,8 @@ export type WidgetType =
   | 'VaccinationWidget'
   | 'GrowthWidget'
   | 'EldercareWidget'
-  | 'RecoveryGuideWidget';
+  | 'RecoveryGuideWidget'
+  | 'MedicalInfographicWidget';
 
 export interface BaseWidget<T = any> {
   id: string; // Unique identifier for the widget instance
@@ -234,3 +235,22 @@ export interface RecoveryGuideData {
 }
 
 export type RecoveryGuideWidget = BaseWidget<RecoveryGuideData>;
+
+// ============================================================
+// Medical Infographic Widget (Gemini Nano Banana 2.1)
+// ============================================================
+export interface MedicalInfographicData {
+  id?: string;
+  title: string;
+  medicalTopic: string;
+  category?: 'ANATOMY' | 'REHABILITATION' | 'PREVENTION' | 'PROCEDURE' | 'PATIENT_GUIDE' | string;
+  summary: string;
+  imageUrl: string;
+  aspectRatio?: '16:9' | '1:1' | string;
+  keyPoints?: string[];
+  disclaimer?: string;
+  downloadUrl?: string;
+  createdAt?: string;
+}
+
+export type MedicalInfographicWidget = BaseWidget<MedicalInfographicData>;

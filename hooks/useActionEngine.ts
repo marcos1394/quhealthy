@@ -163,6 +163,10 @@ export const useActionEngine = () => {
         }
         break;
 
+      case 'save_vault':
+        console.log('Guardando infografía en el expediente digital:', payload);
+        break;
+
       default:
         console.warn('Action no implementada en el Engine:', action);
     }

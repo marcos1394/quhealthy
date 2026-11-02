@@ -17,7 +17,8 @@ export type ActionType =
   | 'authenticate'
   | 'confirm_booking'
   | 'initiate_checkout'
-  | 'change_date';
+  | 'change_date'
+  | 'save_vault';
 
 export interface BaseAction {
   type: ActionType;
@@ -79,6 +80,18 @@ export interface DownloadAction extends BaseAction {
   };
 }
 
+export interface SaveVaultAction extends BaseAction {
+  type: 'save_vault';
+  payload: {
+    entityType: string;
+    title: string;
+    imageUrl?: string;
+    summary?: string;
+    category?: string;
+    medicalTopic?: string;
+  };
+}
+
 export type HealthOSAction = 
   | NavigateAction 
   | OpenAction 
@@ -87,4 +100,5 @@ export type HealthOSAction =
   | UploadAction 
   | ConfirmAction
   | DownloadAction
+  | SaveVaultAction
   | BaseAction;
