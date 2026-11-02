@@ -89,6 +89,11 @@ export interface AiImageRequest {
   badgeText?: string;
   referenceImageBase64?: string;
   referenceImageMimeType?: string;
+  // 🚀 Edición Conversacional Multi-Turno (Iteración e Inpainting)
+  sessionId?: string;
+  previousImageUrl?: string;
+  refinementPrompt?: string;
+  isRefinement?: boolean;
 }
 
 export interface AiImageResponse {

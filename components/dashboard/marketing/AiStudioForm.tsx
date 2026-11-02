@@ -102,6 +102,9 @@ interface State {
   imageReferenceBase64: string;
   imageReferenceMimeType: string;
   imageReferencePreview: string;
+  imageSessionId: string;
+  imageRefinementPrompt: string;
+  isRefiningImage: boolean;
   videoPrompt: string;
   videoPlatform: SocialPlatform;
   videoTone: AiTone;
@@ -136,6 +139,9 @@ type Action =
       type: "SET_IMAGEREFERENCE";
       payload: { base64: string; mimeType: string; preview: string } | null;
     }
+  | { type: "SET_IMAGESESSIONID"; payload: string }
+  | { type: "SET_IMAGEREFINEMENTPROMPT"; payload: string }
+  | { type: "SET_ISREFININGIMAGE"; payload: boolean }
   | { type: "SET_VIDEOPROMPT"; payload: any }
   | { type: "SET_VIDEOPLATFORM"; payload: any }
   | { type: "SET_VIDEOTONE"; payload: any }
@@ -191,6 +197,12 @@ function studioReducer(state: State, action: Action): State {
         imageReferenceMimeType: action.payload.mimeType,
         imageReferencePreview: action.payload.preview,
       };
+    case "SET_IMAGESESSIONID":
+      return { ...state, imageSessionId: action.payload };
+    case "SET_IMAGEREFINEMENTPROMPT":
+      return { ...state, imageRefinementPrompt: action.payload };
+    case "SET_ISREFININGIMAGE":
+      return { ...state, isRefiningImage: action.payload };
     case "SET_VIDEOPROMPT":
       return { ...state, videoPrompt: action.payload };
     case "SET_VIDEOPLATFORM":
@@ -262,6 +274,9 @@ export function AiStudioForm({
     imageReferenceBase64: "",
     imageReferenceMimeType: "",
     imageReferencePreview: "",
+    imageSessionId: "",
+    imageRefinementPrompt: "",
+    isRefiningImage: false,
     videoPrompt: "",
     videoPlatform: "INSTAGRAM",
     videoTone: "educational",
@@ -295,6 +310,9 @@ export function AiStudioForm({
     imageReferenceBase64,
     imageReferenceMimeType,
     imageReferencePreview,
+    imageSessionId,
+    imageRefinementPrompt,
+    isRefiningImage,
     videoPrompt,
     videoPlatform,
     videoTone,
@@ -394,6 +412,8 @@ export function AiStudioForm({
     dispatch({ type: "SET_ISGENERATINGIMAGE", payload: true });
     dispatch({ type: "SET_GENERATEDIMAGEURL", payload: "" });
     dispatch({ type: "SET_GENERATEDIMAGECAPTION", payload: "" });
+    dispatch({ type: "SET_IMAGESESSIONID", payload: "" });
+    dispatch({ type: "SET_IMAGEREFINEMENTPROMPT", payload: "" });
     try {
       const itemTypeLabel =
         selectedService.itemType?.toLowerCase() || "servicio";
@@ -420,6 +440,11 @@ export function AiStudioForm({
           type: "SET_GENERATEDIMAGEURL",
           payload: response.imageUrl,
         });
+      if (response?.sessionId)
+        dispatch({
+          type: "SET_IMAGESESSIONID",
+          payload: response.sessionId,
+        });
       if (response?.generatedText)
         dispatch({
           type: "SET_GENERATEDIMAGECAPTION",
@@ -427,11 +452,70 @@ export function AiStudioForm({
         });
       toast.success(t("generate_success"));
       dispatch({ type: "SET_IMAGEPROMPT", payload: "" });
+      dispatch({ type: "SET_IMAGEREFINEMENTPROMPT", payload: "" });
       onGenerationSuccess();
     } catch {
       // Silencioso
     } finally {
       dispatch({ type: "SET_ISGENERATINGIMAGE", payload: false });
+    }
+  };
+
+  const handleRefineImage = async () => {
+    if (!imageRefinementPrompt.trim()) {
+      return toast.warn(t("refinement_placeholder"));
+    }
+    if (!generatedImageUrl) {
+      return toast.warn(t("warn_select_service"));
+    }
+
+    dispatch({ type: "SET_ISREFININGIMAGE", payload: true });
+    try {
+      const topic = imagePrompt.trim() || (selectedService?.name ? `Promoción para ${selectedService.name}` : "Creativo médico");
+      const response = await generateImageApi({
+        topic,
+        refinementPrompt: imageRefinementPrompt.trim(),
+        previousImageUrl: generatedImageUrl,
+        sessionId: imageSessionId || undefined,
+        isRefinement: true,
+        tone: "professional",
+        targetAudience: "Pacientes potenciales de la clínica",
+        platform: imagePlatform,
+        imageStyle,
+        lighting: imageLighting,
+        aspectRatio: imageAspectRatio,
+        resolution: imageResolution,
+        overlayText: imageOverlayText.trim() || undefined,
+        badgeText: imageBadgeText.trim() || undefined,
+        referenceImageBase64: imageReferenceBase64 || undefined,
+        referenceImageMimeType: imageReferenceMimeType || undefined,
+      });
+
+      if (response?.imageUrl) {
+        dispatch({
+          type: "SET_GENERATEDIMAGEURL",
+          payload: response.imageUrl,
+        });
+      }
+      if (response?.sessionId) {
+        dispatch({
+          type: "SET_IMAGESESSIONID",
+          payload: response.sessionId,
+        });
+      }
+      if (response?.generatedText) {
+        dispatch({
+          type: "SET_GENERATEDIMAGECAPTION",
+          payload: response.generatedText,
+        });
+      }
+      dispatch({ type: "SET_IMAGEREFINEMENTPROMPT", payload: "" });
+      toast.success(t("refinement_success"));
+      onGenerationSuccess();
+    } catch {
+      // Silencioso
+    } finally {
+      dispatch({ type: "SET_ISREFININGIMAGE", payload: false });
     }
   };
 
@@ -1208,6 +1292,60 @@ export function AiStudioForm({
                         <Video className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                         <span>Animar</span>
                       </button>
+                    </div>
+
+                    {/* ── SECCIÓN DE EDICIÓN CONVERSACIONAL ITERATIVA (NANO BANANA 2.1) ── */}
+                    <div className="p-4 bg-gray-50/80 dark:bg-[#080808] border border-gray-200 dark:border-gray-800 rounded-2xl space-y-3 shadow-2xs mt-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Wand2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                          <span className="text-xs font-bold text-gray-900 dark:text-white">
+                            {t("refinement_title")}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                          {t("refinement_badge")}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Input
+                          value={imageRefinementPrompt}
+                          onChange={(e) =>
+                            dispatch({
+                              type: "SET_IMAGEREFINEMENTPROMPT",
+                              payload: e.target.value,
+                            })
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleRefineImage();
+                            }
+                          }}
+                          disabled={isRefiningImage}
+                          placeholder={t("refinement_placeholder")}
+                          className="flex-1 h-10 text-xs bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 rounded-xl"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRefineImage}
+                          disabled={isRefiningImage || !imageRefinementPrompt.trim()}
+                          className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border-0 shrink-0"
+                        >
+                          {isRefiningImage ? (
+                            <>
+                              <QhSpinner size="sm" className="text-white" />
+                              <span>{t("refinement_in_progress")}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-3.5 h-3.5" strokeWidth={2} />
+                              <span>{t("refinement_btn")}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
