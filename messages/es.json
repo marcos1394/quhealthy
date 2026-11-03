@@ -6077,7 +6077,13 @@
     "step_progress_location_staff": "Sede y Staff",
     "step_progress_datetime": "Fecha y Hora",
     "step_progress_patient": "Paciente",
-    "step_progress_payment": "Confirmación y Pago"
+    "step_progress_payment": "Confirmación y Pago",
+    "remove_item": "Eliminar servicio",
+    "clear_all": "Vaciar selección",
+    "return_to_store": "Explorar catálogo del médico",
+    "provider_label": "Especialista",
+    "empty_selection_title": "No tienes servicios seleccionados para esta cita",
+    "empty_selection_desc": "Agrega una consulta o estudio desde el catálogo del especialista para continuar con tu reserva."
   },
 
  
@@ -6424,7 +6430,20 @@
     "btn_book": "Agendar Cita",
     "btn_book_short": "Agendar",
     "btn_checkout": "Continuar con el pago",
-    "btn_checkout_short": "Pagar"
+    "btn_checkout_short": "Pagar",
+    "clear_selection": "Vaciar selección de esta tienda",
+    "view_selection_tooltip": "Ver y editar selección",
+    "edit": "Editar"
+  },
+
+  "StoreConflictModal": {
+    "title": "Cambio de Especialista",
+    "subtitle": "Selección previa detectada",
+    "desc": "Actualmente tienes {count, plural, =1 {1 servicio seleccionado} other {{count} servicios seleccionados}} con {providerName}. Las citas médicas se programan de manera individual por especialista.",
+    "question": "¿Deseas vaciar tu selección previa para agendar con {providerName} o prefieres continuar con tu cita anterior?",
+    "switch_btn": "Cambiar a {providerName}",
+    "continue_btn": "Continuar con {providerName}",
+    "cancel_btn": "Seguir explorando"
   },
 
   "QuScoreModal": {

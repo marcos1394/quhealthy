@@ -6400,7 +6400,13 @@
     "step_progress_location_staff": "Location & Staff",
     "step_progress_datetime": "Date & Time",
     "step_progress_patient": "Patient",
-    "step_progress_payment": "Payment & Confirmation"
+    "step_progress_payment": "Payment & Confirmation",
+    "remove_item": "Remove service",
+    "clear_all": "Clear selection",
+    "return_to_store": "Explore doctor's catalog",
+    "provider_label": "Specialist",
+    "empty_selection_title": "No services selected for this appointment",
+    "empty_selection_desc": "Add a consultation or test from the specialist's catalog to proceed with your booking."
   },
 
   "BookingTimeStep": {
@@ -6810,7 +6816,20 @@
     "btn_book": "Book Appointment",
     "btn_book_short": "Book",
     "btn_checkout": "Proceed to Checkout",
-    "btn_checkout_short": "Checkout"
+    "btn_checkout_short": "Checkout",
+    "clear_selection": "Clear selection for this store",
+    "view_selection_tooltip": "View and edit selection",
+    "edit": "Edit"
+  },
+
+  "StoreConflictModal": {
+    "title": "Change Specialist",
+    "subtitle": "Previous selection detected",
+    "desc": "You currently have {count, plural, =1 {1 item selected} other {{count} items selected}} with {providerName}. Medical appointments are scheduled individually per healthcare specialist.",
+    "question": "Would you like to clear your previous selection to book with {providerName}, or continue with your previous appointment?",
+    "switch_btn": "Switch to {providerName}",
+    "continue_btn": "Continue with {providerName}",
+    "cancel_btn": "Keep browsing"
   },
 
   "QuScoreModal": {

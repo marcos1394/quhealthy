@@ -120,15 +120,27 @@ export default function BookingPage({
   const [pendingAllowedDocumentIds, setPendingAllowedDocumentIds] = useState<string[]>([]);
   const [scheduleNow, setScheduleNow] = useState(true);
 
-  // 🧠 LÓGICA DEL CHECKOUT HÍBRIDO
-  const requiresScheduling = cart.some(
+  // 🩺 Carrito acotado al especialista de esta URL
+  const scopedCart = useMemo(() => {
+    return cart.filter((item) => !item.providerSlug || item.providerSlug === slug);
+  }, [cart, slug]);
+
+  const total = useMemo(() => {
+    return scopedCart.reduce(
+      (acc, item) => acc + item.price * (item.cartQuantity || 1),
+      0
+    );
+  }, [scopedCart]);
+
+  // 🧠 LÓGICA DEL CHECKOUT HÍBRIDO (Acotada a los ítems del especialista)
+  const requiresScheduling = scopedCart.some(
     (item) =>
       item.type === "SERVICE" ||
       (item.type === "PACKAGE" &&
         item.packageContents?.some((sub) => sub.type === "SERVICE"))
   );
 
-  const requiresShipping = cart.some(
+  const requiresShipping = scopedCart.some(
     (item) =>
       (item.type === "PRODUCT" && item.isDigital !== true) ||
       (item.type === "PACKAGE" &&
@@ -137,7 +149,7 @@ export default function BookingPage({
         ))
   );
 
-  const needsPrescription = cart.some(
+  const needsPrescription = scopedCart.some(
     (item) =>
       (item.type === "PRODUCT" && item.requiresPrescription === true) ||
       (item.type === "PACKAGE" &&
@@ -145,14 +157,14 @@ export default function BookingPage({
   );
 
   const isOnlyDigital = !requiresScheduling && !requiresShipping;
-  const isPackageMultiSchedule = cart.some(
+  const isPackageMultiSchedule = scopedCart.some(
     (item) =>
       item.type === "PACKAGE" &&
       item.packageContents?.some((sub) => sub.type === "SERVICE")
   );
 
   // Filtrar profesionales que pueden realizar los servicios
-  const cartServiceIds = cart.filter(item => item.type === "SERVICE").map(item => item.id);
+  const cartServiceIds = scopedCart.filter(item => item.type === "SERVICE").map(item => item.id);
   const relevantStaff = store?.staff?.filter(member => {
     if (!member.assignedServices || member.assignedServices.length === 0) return false;
     return cartServiceIds.every(id => member.assignedServices?.some(as => as.catalogItemId === id));
@@ -217,7 +229,7 @@ export default function BookingPage({
 
   // LÓGICA DE AUTO-RESERVA
   useEffect(() => {
-    if (cart.length === 0 && serviceIdParam && store && !isStoreLoading) {
+    if (scopedCart.length === 0 && serviceIdParam && store && !isStoreLoading) {
       const serviceIdNum = Number(serviceIdParam);
       const serviceToBook = store.services?.find(
         (s: StorefrontItem) => s.id === serviceIdNum
@@ -233,7 +245,7 @@ export default function BookingPage({
       }
     }
   }, [
-    cart.length,
+    scopedCart.length,
     serviceIdParam,
     store,
     isStoreLoading,
@@ -304,7 +316,7 @@ export default function BookingPage({
               ? selectedTime
               : null,
           scheduledPackageServices,
-          cart,
+          cart: scopedCart,
           dependentId:
             requiresScheduling && scheduleNow ? dependentId : undefined,
           consumerSymptoms: symptomsText,
@@ -318,7 +330,7 @@ export default function BookingPage({
     }
   };
 
-  if ((cart.length === 0 && serviceIdParam) || isStoreLoading) {
+  if ((scopedCart.length === 0 && serviceIdParam) || isStoreLoading) {
     return (
       <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] flex flex-col items-center justify-center transition-colors duration-300">
         <QhSpinner size="lg" />
@@ -329,10 +341,9 @@ export default function BookingPage({
     );
   }
 
-  if (cart.length === 0 || !providerId) return null;
+  if (!providerId) return null;
 
   const safeColor = providerColor || "#059669";
-  const total = getTotalPrice();
   const duration = getTotalDuration();
 
   const monthStart = startOfMonth(currentMonth);
@@ -565,7 +576,7 @@ export default function BookingPage({
               <AnimatePresence>
                 {scheduleNow && isPackageMultiSchedule && (
                   <PackageMultiScheduler
-                    cart={cart}
+                    cart={scopedCart}
                     providerId={selectedStaffId || providerId}
                     providerColor={safeColor}
                     onSchedulePackageService={handleSchedulePackageService}
@@ -812,9 +823,13 @@ export default function BookingPage({
 
         {/* Resumen Lateral de la Orden */}
         <BookingSummary
-          cart={cart}
+          cart={scopedCart}
           total={total}
           providerColor={safeColor}
+          providerName={store?.displayName}
+          providerSpecialty={store?.specialty}
+          providerSlug={slug}
+          locationName={store?.locations?.find((l) => l.id === selectedLocationId)?.name}
           selectedDate={
             isPackageMultiSchedule
               ? new Date()
@@ -838,7 +853,7 @@ export default function BookingPage({
       <ServiceCheckoutModal
         isOpen={showCheckoutModal}
         onClose={() => setShowCheckoutModal(false)}
-        totalAmount={getTotalPrice()}
+        totalAmount={total}
         onProcessCheckout={async (payload) => {
           if (!isAuthenticated) {
             setShowCheckoutModal(false);
@@ -854,7 +869,7 @@ export default function BookingPage({
               locationId: selectedLocationId || undefined,
               staffId: selectedStaffId || undefined,
               dependentId: dependentId || undefined,
-              cart,
+              cart: scopedCart,
               shareVaultAccess: payload.shareVaultAccess,
               allowedDocumentIds: pendingAllowedDocumentIds,
               consumerSymptoms: payload.consumerSymptoms,

@@ -60,6 +60,7 @@ import { StorefrontNavigation } from "@/components/store/StorefrontNavigation";
 import { StoreStructuredData } from "@/components/store/StoreStructuredData";
 import { MultiLocationSelector } from "@/components/store/MultiLocationSelector";
 import { StorefrontTrustBadges } from "@/components/store/StorefrontTrustBadges";
+import { StoreConflictModal } from "@/components/store/StoreConflictModal";
 import { toast } from "react-toastify";
 
 type TabType = "servicios" | "paquetes" | "productos" | "cursos";
@@ -85,11 +86,25 @@ export default function PublicStorePage() {
   const [serviceSearchQuery, setServiceSearchQuery] = useState<string>("");
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
   const [visibleProducts, setVisibleProducts] = useState(12);
-  const { cart, addToCart, removeFromCart, setProvider, updateQuantity } =
+  const { cart, addToCart, removeFromCart, clearCart, setProvider, updateQuantity } =
     useBookingStore();
   const { user } = useSessionStore();
   const userId = user?.id;
   const [showQuScoreModal, setShowQuScoreModal] = useState(false);
+  const [conflictModalOpen, setConflictModalOpen] = useState(false);
+  const [pendingItemToBook, setPendingItemToBook] = useState<StorefrontItem | null>(null);
+
+  const otherProviderItems = React.useMemo(() => {
+    return cart.filter((c) => c.providerSlug && c.providerSlug !== slug);
+  }, [cart, slug]);
+
+  const existingProviderName = React.useMemo(() => {
+    return otherProviderItems[0]?.providerName || "otro especialista";
+  }, [otherProviderItems]);
+
+  const existingProviderSlug = React.useMemo(() => {
+    return otherProviderItems[0]?.providerSlug;
+  }, [otherProviderItems]);
 
   const { singleScore, fetchSingleScore } = useProviderScore();
 
@@ -192,6 +207,13 @@ export default function PublicStorePage() {
   ]);
 
   const handleAddToCart = (item: StorefrontItem) => {
+    // Si hay ítems de otro especialista en el carrito, solicitar confirmación de cambio
+    if (otherProviderItems.length > 0) {
+      setPendingItemToBook(item);
+      setConflictModalOpen(true);
+      return;
+    }
+
     addToCart(item, slug, store?.displayName, store?.primaryColor || "#000000");
     toast.success(
       <div className="flex items-center justify-between gap-3 text-xs font-semibold">
@@ -209,6 +231,45 @@ export default function PublicStorePage() {
       </div>,
       { autoClose: 3500 }
     );
+  };
+
+  const handleConfirmSwitchProvider = () => {
+    if (!pendingItemToBook) return;
+    clearCart();
+    addToCart(
+      pendingItemToBook,
+      slug,
+      store?.displayName,
+      store?.primaryColor || "#000000"
+    );
+    setConflictModalOpen(false);
+    const bookedItem = pendingItemToBook;
+    setPendingItemToBook(null);
+
+    toast.success(
+      <div className="flex items-center justify-between gap-3 text-xs font-semibold">
+        <span className="truncate">{bookedItem.name} {t("added_to_selection")}</span>
+        <button
+          type="button"
+          onClick={() => {
+            const query = selectedLocationId ? `?locationId=${selectedLocationId}` : "";
+            router.push(`/${locale}/patient/booking/${slug}${query}`);
+          }}
+          className="font-bold underline text-white hover:text-emerald-200 shrink-0 cursor-pointer"
+        >
+          {bookedItem.type === "SERVICE" || bookedItem.type === "PACKAGE" ? "Agendar →" : "Ver Selección →"}
+        </button>
+      </div>,
+      { autoClose: 3500 }
+    );
+  };
+
+  const handleContinuePreviousProvider = () => {
+    setConflictModalOpen(false);
+    setPendingItemToBook(null);
+    if (existingProviderSlug) {
+      router.push(`/${locale}/patient/booking/${existingProviderSlug}`);
+    }
   };
 
   const handleSelectQuickSlot = (slotTime: string, locId?: number) => {
@@ -1346,6 +1407,21 @@ export default function PublicStorePage() {
         isOpen={showQuScoreModal}
         onClose={() => setShowQuScoreModal(false)}
         scoreData={singleScore}
+      />
+
+      <StoreConflictModal
+        isOpen={conflictModalOpen}
+        onClose={() => {
+          setConflictModalOpen(false);
+          setPendingItemToBook(null);
+        }}
+        currentProviderName={store.displayName}
+        existingProviderName={existingProviderName}
+        existingProviderSlug={existingProviderSlug}
+        existingItemsCount={otherProviderItems.length}
+        onConfirmSwitch={handleConfirmSwitchProvider}
+        onContinuePrevious={handleContinuePreviousProvider}
+        brandColor={safePrimaryColor}
       />
 
       <StickyBookingBar

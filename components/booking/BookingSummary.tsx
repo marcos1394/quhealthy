@@ -4,7 +4,8 @@
 /* eslint-disable react-doctor/no-giant-component */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -20,6 +21,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   Banknote,
+  Trash2,
+  ArrowLeft,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -31,6 +34,7 @@ import { useHealthVault } from "@/hooks/useHealthVault";
 import { usePackages } from "@/hooks/usePackages";
 import { consumerWalletService } from "@/services/consumer-wallet.service";
 import { useModuleStore } from "@/stores/useModuleStore";
+import { useBookingStore } from "@/hooks/useBookingStore";
 import { cn } from "@/lib/utils";
 
 const MODULE_METADATA: Record<string, { title: string, desc: string, color: string }> = {
@@ -43,6 +47,10 @@ interface BookingSummaryProps {
   cart: StorefrontItem[];
   total: number;
   providerColor?: string;
+  providerName?: string;
+  providerSpecialty?: string;
+  providerSlug?: string;
+  locationName?: string;
   selectedDate: Date | null;
   selectedTime: string | null;
   isProcessing?: boolean;
@@ -61,6 +69,10 @@ export function BookingSummary({
   cart,
   total,
   providerColor,
+  providerName,
+  providerSpecialty,
+  providerSlug,
+  locationName,
   selectedDate,
   selectedTime,
   isProcessing = false,
@@ -68,6 +80,9 @@ export function BookingSummary({
   onCheckout,
 }: BookingSummaryProps) {
   const t = useTranslations("PatientBooking");
+  const router = useRouter();
+  const locale = useLocale();
+  const { removeFromCart, clearCart } = useBookingStore();
   const { activeModules } = useModuleStore();
 
   // ── ESTADOS LOCALES REDUCER ──────────────────────────────────────────────
@@ -348,12 +363,23 @@ export function BookingSummary({
             >
               <ShoppingCart className="w-6 h-6" strokeWidth={2} />
             </div>
-            <div className="space-y-0.5">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
-                {cartAnalysis.hasServices && scheduleNow
-                  ? t("cart_summary")
-                  : t("order_summary")}
-              </h3>
+            <div className="space-y-0.5 flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
+                  {cartAnalysis.hasServices && scheduleNow
+                    ? t("cart_summary")
+                    : t("order_summary")}
+                </h3>
+                {cart.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => clearCart()}
+                    className="text-[11px] font-bold text-red-500 hover:text-red-600 dark:text-red-400 hover:underline cursor-pointer shrink-0"
+                  >
+                    {t("clear_all", { defaultValue: "Vaciar selección" })}
+                  </button>
+                )}
+              </div>
               <p className="text-xs font-medium text-gray-500">
                 {cart.length === 0
                   ? t("empty_cart")
@@ -363,6 +389,36 @@ export function BookingSummary({
           </div>
 
           <div className="p-6 space-y-6">
+            {/* ── IDENTIDAD DEL ESPECIALISTA / SEDE ─────────────────────── */}
+            {providerName && (
+              <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm text-white shrink-0 shadow-2xs"
+                  style={{ backgroundColor: safeColor }}
+                >
+                  {providerName.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                      {t("provider_label", { defaultValue: "Especialista" })}
+                    </span>
+                    {locationName && (
+                      <span className="text-[10px] text-gray-400 truncate">• {locationName}</span>
+                    )}
+                  </div>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                    {providerName}
+                  </p>
+                  {providerSpecialty && (
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                      {providerSpecialty}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* ── SELECTOR DE DIVISAS ─────────────────────────────────── */}
             {!cartAnalysis.isEmpty && (
               <div className="flex bg-gray-50 dark:bg-[#050505] p-1 rounded-2xl border border-gray-100 dark:border-gray-800">
@@ -394,13 +450,29 @@ export function BookingSummary({
               </div>
             )}
 
-            {/* ── LISTA DE ÍTEMS ───────────────────────────────────────── */}
+            {/* ── LISTA DE ÍTEMS CON ACCIÓN DE ELIMINAR ───────────────── */}
             {cartAnalysis.isEmpty ? (
-              <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/50 dark:bg-[#050505] space-y-2">
+              <div className="text-center py-10 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-gray-50/50 dark:bg-[#050505] p-6 space-y-3">
                 <ShoppingCart className="w-8 h-8 mx-auto text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
-                <p className="text-xs font-semibold text-gray-400">
-                  {t("empty_directory")}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                    {t("empty_selection_title", { defaultValue: "No tienes servicios seleccionados para esta cita" })}
+                  </p>
+                  <p className="text-[11px] text-gray-400 max-w-xs mx-auto">
+                    {t("empty_selection_desc", { defaultValue: "Agrega una consulta o estudio desde el catálogo del especialista para continuar con tu reserva." })}
+                  </p>
+                </div>
+                {providerSlug && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push(`/${locale}/store/${providerSlug}`)}
+                    className="rounded-xl text-xs font-bold gap-2 mt-2 h-9 px-4 cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>{t("return_to_store", { defaultValue: "Explorar catálogo del médico" })}</span>
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -410,7 +482,7 @@ export function BookingSummary({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="py-3.5 first:pt-0 last:pb-0 flex items-start justify-between gap-4"
+                    className="py-3.5 first:pt-0 last:pb-0 flex items-start justify-between gap-3 group"
                   >
                     <div className="space-y-1 min-w-0 flex-1">
                       <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
@@ -418,9 +490,19 @@ export function BookingSummary({
                       </p>
                       {renderItemBadge(item)}
                     </div>
-                    <span className="text-sm font-bold font-mono text-gray-900 dark:text-white">
-                      ${item.price.toLocaleString()}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-sm font-bold font-mono text-gray-900 dark:text-white">
+                        ${item.price.toLocaleString()}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeFromCart(item.id)}
+                        title={t("remove_item", { defaultValue: "Eliminar servicio" })}
+                        className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </div>
