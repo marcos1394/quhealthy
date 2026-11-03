@@ -349,6 +349,107 @@ export function useQuHealthyWebMcp() {
       console.debug("WebMCP registerTool verify_doctor_credentials_and_quscore skipped/failed:", e);
     }
 
+    // 7. Herramienta share_ephemeral_health_vault_context (Fase 3)
+    try {
+      nav.modelContext.registerTool({
+        name: "share_ephemeral_health_vault_context",
+        description:
+          "Genera un consentimiento efímero de lectura para Health Vault™ conforme a la NOM-024-SSA3-2012 y LFPDPPP para una consulta médica.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            holdId: { type: "string", description: "ID de la cita médica pre-reservada (Hold ID)" },
+            sharedSections: {
+              type: "array",
+              items: { type: "string" },
+              description: "Secciones autorizadas (ALLERGIES, ACTIVE_MEDICATIONS, RECENT_LABS, VACCINATIONS, SURGICAL_HISTORY)",
+            },
+            accessDurationMinutes: { type: "integer", description: "Vigencia en minutos (default: 120, máx: 1440)" },
+            vaultAccessPinOrToken: { type: "string", description: "PIN o token de autorización opcional" },
+          },
+          required: ["holdId", "sharedSections"],
+        },
+        execute: async (args: Record<string, unknown>) => {
+          try {
+            const res = await agentMarketplaceService.shareEphemeralHealthVaultContext(args || {});
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(res, null, 2),
+                },
+              ],
+              structuredContent: res,
+              isError: false,
+            };
+          } catch (err: unknown) {
+            const errorMsg = err instanceof Error ? err.message : "Error desconocido";
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Error al compartir Health Vault™: ${errorMsg}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+      });
+    } catch (e) {
+      console.debug("WebMCP registerTool share_ephemeral_health_vault_context skipped/failed:", e);
+    }
+
+    // 8. Herramienta match_lab_biomarkers_to_specialists (Fase 3)
+    try {
+      nav.modelContext.registerTool({
+        name: "match_lab_biomarkers_to_specialists",
+        description:
+          "Interpreta biomarcadores de laboratorio, detecta desviaciones clínicas y canaliza a especialistas certificados disponibles en QuHealthy.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            biomarkers: {
+              type: "array",
+              items: { type: "object" },
+              description: "Lista de biomarcadores con name, value, unit y opcional referenceRange",
+            },
+            city: { type: "string", description: "Ciudad de atención médica" },
+            maxBudgetMxn: { type: "number", description: "Presupuesto máximo para la consulta en MXN" },
+          },
+          required: ["biomarkers"],
+        },
+        execute: async (args: Record<string, unknown>) => {
+          try {
+            const res = await agentMarketplaceService.matchLabBiomarkersToSpecialists(args || {});
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(res, null, 2),
+                },
+              ],
+              structuredContent: res,
+              isError: false,
+            };
+          } catch (err: unknown) {
+            const errorMsg = err instanceof Error ? err.message : "Error desconocido";
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Error al canalizar biomarcadores: ${errorMsg}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+      });
+    } catch (e) {
+      console.debug("WebMCP registerTool match_lab_biomarkers_to_specialists skipped/failed:", e);
+    }
+
     return () => {
       try {
         nav.modelContext?.unregisterTool?.("search_medical_marketplace");
@@ -357,6 +458,8 @@ export function useQuHealthyWebMcp() {
         nav.modelContext?.unregisterTool?.("attach_preconsultation_intake");
         nav.modelContext?.unregisterTool?.("triage_symptom_to_specialty");
         nav.modelContext?.unregisterTool?.("verify_doctor_credentials_and_quscore");
+        nav.modelContext?.unregisterTool?.("share_ephemeral_health_vault_context");
+        nav.modelContext?.unregisterTool?.("match_lab_biomarkers_to_specialists");
       } catch (e) {
         console.debug("Error during WebMCP cleanup:", e);
       }

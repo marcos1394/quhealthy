@@ -43,6 +43,14 @@ const LLMS_TEXT = `# QuHealthy - Marketplace Médico Verificado y Servidor MCP d
    - *Descripción*: Fuente de verdad regulatoria en México: audita la Cédula Profesional SEP de Licenciatura y Especialidad, estatus de aviso de funcionamiento COFEPRIS y desglose de confianza QuScore™ (credenciales académicas, puntualidad, claridad y reseñas reales).
    - *Parámetros*: \`doctorId\` (obligatorio).
 
+7. **share_ephemeral_health_vault_context**:
+   - *Descripción*: Consentimiento efímero de expediente Health Vault™ bajo cumplimiento NOM-024-SSA3-2012 y LFPDPPP: genera un enlace de lectura temporal y URL de revocación inmediata para que el médico especialista revise alergias, medicamentos y estudios clínicos antes o durante la consulta.
+   - *Parámetros*: \`holdId\` (obligatorio), \`sharedSections\` (array de secciones clínicas autorizadas), \`accessDurationMinutes\` (15 a 1440 min, default 120), \`vaultAccessPinOrToken\` (opcional).
+
+8. **match_lab_biomarkers_to_specialists**:
+   - *Descripción*: De estudios de laboratorio a cita médica: procesa paneles y biomarcadores (glucemia, perfil lipídico, renal, hepático, tiroideo, hemático), identifica desviaciones patológicas y canaliza de inmediato con médicos especialistas certificados disponibles para agendar.
+   - *Parámetros*: \`biomarkers\` (lista de objetos con name, value, unit), \`city\`, \`maxBudgetMxn\`.
+
 ## Recursos Clínicos MCP (URIs)
 
 - \`quhealthy://catalog/specialties\`: Listado de especialidades médicas activas y auditadas en México.
@@ -54,6 +62,7 @@ const LLMS_TEXT = `# QuHealthy - Marketplace Médico Verificado y Servidor MCP d
 - \`buscar-especialista-verificado\`: Búsqueda guiada por síntoma, ciudad y presupuesto.
 - \`preparar-nota-preadmision-nom004\`: Estructuración de nota clínica de pre-admisión.
 - \`auditar-credenciales-medico\`: Verificación de Cédula Profesional SEP y reputación QuScore™.
+- \`analizar-laboratorios-y-agendar\`: Análisis de estudios o biomarcadores de laboratorio y canalización médica directa con especialistas.
 
 ## Enlaces Oficiales
 - Sitio Web: https://www.quhealthy.org

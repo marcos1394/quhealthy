@@ -85,6 +85,33 @@ export const agentMarketplaceService = {
   },
 
   /**
+   * Genera consentimiento efímero para lectura de Health Vault™ en consulta médica (Fase 3).
+   * Conforme a NOM-024-SSA3-2012 y LFPDPPP.
+   */
+  shareEphemeralHealthVaultContext: async (
+    vaultPayload: Record<string, unknown>
+  ): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.post(
+      '/api/v1/agent-marketplace/vault-share',
+      vaultPayload
+    );
+    return response.data;
+  },
+
+  /**
+   * Interpreta biomarcadores de laboratorio clínico y canaliza automáticamente a especialistas (Fase 3).
+   */
+  matchLabBiomarkersToSpecialists: async (
+    labPayload: Record<string, unknown>
+  ): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.post(
+      '/api/v1/agent-marketplace/lab-match',
+      labPayload
+    );
+    return response.data;
+  },
+
+  /**
    * Obtiene el manifiesto de descubrimiento MCP del servidor.
    */
   getMcpManifest: async (): Promise<Record<string, unknown>> => {
