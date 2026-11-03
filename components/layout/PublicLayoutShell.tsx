@@ -10,8 +10,10 @@ import { MobileNavbar } from "@/components/platform/MobileNavbar";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { GlobalCartDrawer } from "@/components/store/GlobalCartDrawer";
 import { FloatingCartTrigger } from "@/components/cart/FloatingCartTrigger";
+import { useQuHealthyWebMcp } from "@/hooks/useQuHealthyWebMcp";
 
 export function PublicLayoutShell({ children }: { children: React.ReactNode }) {
+  useQuHealthyWebMcp();
   const pathname = usePathname();
   const isDiscover = pathname.startsWith("/discover");
   const isStore = pathname.startsWith("/store");

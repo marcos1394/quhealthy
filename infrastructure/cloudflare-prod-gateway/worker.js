@@ -81,14 +81,14 @@ function getCorsHeaders(requestOrigin, requestHeaders) {
   const requestedHeaders = requestHeaders?.get?.("Access-Control-Request-Headers");
   const allowHeaders =
     requestedHeaders ||
-    "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Device-Id, X-Timezone, Cache-Control, Pragma, X-Correlation-ID";
+    "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Device-Id, X-Timezone, Cache-Control, Pragma, X-Correlation-ID, Mcp-Session-Id";
 
   return {
     "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
     "Access-Control-Allow-Headers": allowHeaders,
-    "Access-Control-Expose-Headers": "Set-Cookie, Authorization, X-Correlation-ID",
+    "Access-Control-Expose-Headers": "Set-Cookie, Authorization, X-Correlation-ID, Mcp-Session-Id",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   };
@@ -147,7 +147,8 @@ function resolveUpstream(pathname) {
   }
   if (
     pathname.startsWith("/api/health-agent") ||
-    pathname.startsWith("/api/v1/health-agent")
+    pathname.startsWith("/api/v1/health-agent") ||
+    pathname.startsWith("/api/v1/agent-marketplace")
   ) {
     return PROD_UPSTREAMS.healthAgent;
   }

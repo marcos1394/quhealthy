@@ -450,30 +450,90 @@ export function AgentMarketplaceMcpView() {
       </div>
 
       {/* ── GUÍA RÁPIDA DE CONFIGURACIÓN MCP PARA DESARROLLADORES ── */}
-      <div className="p-5 rounded-2xl bg-gray-50/70 dark:bg-[#080808] border border-gray-200 dark:border-gray-800 space-y-3">
-        <h4 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <Code2 className="w-4 h-4 text-emerald-600" />
-          <span>¿Cómo conectar este servidor MCP a tu agente personal?</span>
-        </h4>
-        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-          Para permitir que Claude Desktop, Google Antigravity o agentes
-          autónomos agenden citas y coticen servicios médicos en QuHealthy, añade
-          esta configuración a tu archivo{" "}
-          <code className="text-emerald-600 dark:text-emerald-400 font-mono">
-            claude_desktop_config.json
-          </code>
-          :
-        </p>
+      <div className="p-5 sm:p-6 rounded-2xl bg-gray-50/70 dark:bg-[#080808] border border-gray-200 dark:border-gray-800 space-y-4">
+        <div>
+          <h4 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Code2 className="w-4 h-4 text-emerald-600" />
+            <span>¿Cómo conectar este servidor MCP a tu agente personal?</span>
+          </h4>
+          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-1">
+            Conecta tu IA (Claude Desktop, Cursor, Gemini CLI o agentes autónomos) para buscar médicos certificados, cotizaciones y agendar citas en tiempo real.
+          </p>
+        </div>
 
-        <pre className="p-3.5 bg-gray-900 dark:bg-black rounded-xl text-gray-200 font-mono text-[11px] overflow-x-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Opción 1: Conexión Directa */}
+          <div className="space-y-2 p-4 rounded-xl bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-900 dark:text-white">
+                1. Conexión Directa (Streamable HTTP)
+              </span>
+              <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-[10px]">
+                Recomendado
+              </Badge>
+            </div>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Para Claude Desktop, Cursor y clientes compatibles con transporte HTTP moderno:
+            </p>
+            <pre className="p-3 bg-gray-900 dark:bg-black rounded-lg text-emerald-300 font-mono text-[11px] overflow-x-auto leading-relaxed">
 {`{
   "mcpServers": {
-    "quhealthy-marketplace": {
-      "url": "${MCP_ENDPOINT_URL}"
+    "quhealthy": {
+      "url": "https://api.quhealthy.org/api/v1/agent-marketplace/mcp"
     }
   }
 }`}
-        </pre>
+            </pre>
+          </div>
+
+          {/* Opción 2: Proxy stdio */}
+          <div className="space-y-2 p-4 rounded-xl bg-white dark:bg-[#111] border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-900 dark:text-white">
+                2. Conexión stdio vía mcp-remote
+              </span>
+              <Badge className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 text-[10px]">
+                Legacy / CLI
+              </Badge>
+            </div>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Para clientes locales que únicamente aceptan comandos de subproceso stdio:
+            </p>
+            <pre className="p-3 bg-gray-900 dark:bg-black rounded-lg text-cyan-300 font-mono text-[11px] overflow-x-auto leading-relaxed">
+{`{
+  "mcpServers": {
+    "quhealthy": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://api.quhealthy.org/api/v1/agent-marketplace/mcp"
+      ]
+    }
+  }
+}`}
+            </pre>
+          </div>
+        </div>
+
+        {/* ChatGPT Actions Tip */}
+        <div className="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-start gap-2.5 text-xs">
+          <Bot className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="space-y-0.5 text-gray-600 dark:text-gray-300">
+            <span className="font-bold text-emerald-700 dark:text-emerald-400">¿Usas ChatGPT Actions?</span>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Importa directamente el esquema OpenAPI 3.1.0 desde{" "}
+              <a
+                href="https://api.quhealthy.org/api/v1/agent-marketplace/openapi.json"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline font-mono text-emerald-600 dark:text-emerald-400 hover:text-emerald-500"
+              >
+                https://api.quhealthy.org/api/v1/agent-marketplace/openapi.json
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
