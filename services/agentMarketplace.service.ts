@@ -47,6 +47,19 @@ export const agentMarketplaceService = {
   },
 
   /**
+   * Adjunta la ficha clínica de pre-admisión (NOM-004-SSA3-2012) a una pre-reserva (Hold).
+   */
+  attachPreconsultationIntake: async (
+    intakePayload: Record<string, unknown>
+  ): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.post(
+      '/api/v1/agent-marketplace/intake',
+      intakePayload
+    );
+    return response.data;
+  },
+
+  /**
    * Obtiene el manifiesto de descubrimiento MCP del servidor.
    */
   getMcpManifest: async (): Promise<Record<string, unknown>> => {

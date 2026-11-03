@@ -27,8 +27,8 @@ export function useQuHealthyWebMcp() {
       return;
     }
 
+    // 1. Herramienta search_medical_marketplace
     try {
-      // 1. Herramienta search_medical_marketplace
       nav.modelContext.registerTool({
         name: "search_medical_marketplace",
         description:
@@ -93,8 +93,12 @@ export function useQuHealthyWebMcp() {
           }
         },
       });
+    } catch (e) {
+      console.debug("WebMCP registerTool search_medical_marketplace skipped/failed:", e);
+    }
 
-      // 2. Herramienta get_doctor_availability_and_quote
+    // 2. Herramienta get_doctor_availability_and_quote
+    try {
       nav.modelContext.registerTool({
         name: "get_doctor_availability_and_quote",
         description:
@@ -137,8 +141,12 @@ export function useQuHealthyWebMcp() {
           }
         },
       });
+    } catch (e) {
+      console.debug("WebMCP registerTool get_doctor_availability_and_quote skipped/failed:", e);
+    }
 
-      // 3. Herramienta create_appointment_hold
+    // 3. Herramienta create_appointment_hold
+    try {
       nav.modelContext.registerTool({
         name: "create_appointment_hold",
         description:
@@ -183,7 +191,69 @@ export function useQuHealthyWebMcp() {
         },
       });
     } catch (e) {
-      console.debug("WebMCP no disponible en este entorno:", e);
+      console.debug("WebMCP registerTool create_appointment_hold skipped/failed:", e);
     }
+
+    // 4. Herramienta attach_preconsultation_intake (NOM-004-SSA3-2012)
+    try {
+      nav.modelContext.registerTool({
+        name: "attach_preconsultation_intake",
+        description:
+          "Adjunta la ficha clínica de pre-admisión (anamnesis inicial) conforme a la NOM-004-SSA3-2012 para una pre-reserva de cita médica en QuHealthy.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            holdId: { type: "string", description: "ID o folio del hold de cita" },
+            appointmentId: { type: "string", description: "ID de la cita médica" },
+            chiefComplaint: { type: "string", description: "Motivo principal de consulta médica" },
+            symptomDuration: { type: "string", description: "Tiempo de evolución del cuadro" },
+            severityScale: { type: "integer", description: "Escala de severidad (1-10)" },
+            knownAllergies: { type: "string", description: "Alergias conocidas a fármacos o alimentos" },
+            currentMedications: { type: "string", description: "Medicamentos o suplementos actuales" },
+            chronicConditions: { type: "string", description: "Antecedentes médicos crónicos" },
+          },
+          required: ["chiefComplaint"],
+        },
+        execute: async (args: Record<string, unknown>) => {
+          try {
+            const res = await agentMarketplaceService.attachPreconsultationIntake(args || {});
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(res, null, 2),
+                },
+              ],
+              structuredContent: res,
+              isError: false,
+            };
+          } catch (err: unknown) {
+            const errorMsg = err instanceof Error ? err.message : "Error desconocido";
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Error al adjuntar pre-admisión clínica: ${errorMsg}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+      });
+    } catch (e) {
+      console.debug("WebMCP registerTool attach_preconsultation_intake skipped/failed:", e);
+    }
+
+    return () => {
+      try {
+        nav.modelContext?.unregisterTool?.("search_medical_marketplace");
+        nav.modelContext?.unregisterTool?.("get_doctor_availability_and_quote");
+        nav.modelContext?.unregisterTool?.("create_appointment_hold");
+        nav.modelContext?.unregisterTool?.("attach_preconsultation_intake");
+      } catch (e) {
+        console.debug("Error during WebMCP cleanup:", e);
+      }
+    };
   }, []);
 }
