@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { handleApiError } from '@/lib/handleApiError';
 import { ehrService } from '@/services/ehr.service';
 import { aiService } from '@/services/ai.service';
-import { healthOSService } from '@/services/healthOS.service';
+import { healthOSService, LiveClinicalAlert } from '@/services/healthOS.service';
 import { appointmentService } from '@/services/appointment.service';
 import { 
   PatientClinicalProfile, 
@@ -36,6 +36,7 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
   const [vitalSigns, setVitalSigns] = useState<VitalSignRequest[]>([]);
   const [prescription, setPrescription] = useState<PrescriptionItem[]>([]);
   const [inConsultationServices, setInConsultationServices] = useState<InConsultationItem[]>([]);
+  const [liveClinicalAlerts, setLiveClinicalAlerts] = useState<LiveClinicalAlert[]>([]);
 
   // Estado para las plantillas independientes (anexos)
   const [attachedTemplates, setAttachedTemplates] = useState<any[]>([]);
@@ -391,6 +392,37 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     }
   };
 
+  /**
+   * Copiloto Clínico Ambiental en Tiempo Real (Fase 5)
+   * Procesa fragmentos de audio/transcripción en vivo y actualiza SOAP mientras audita interacciones
+   */
+  const processLiveAssistChunk = async (transcriptChunk: string, ephemeralVaultShareToken?: string) => {
+    try {
+      const res = await healthOSService.consultationLiveAssist({
+        transcriptChunk,
+        appointmentId,
+        ephemeralVaultShareToken,
+        existingSoapDraft: soapNotes,
+        patientName: patientProfile?.fullName
+      });
+      if (res?.liveClinicalAlerts && res.liveClinicalAlerts.length > 0) {
+        setLiveClinicalAlerts(prev => [...prev, ...res.liveClinicalAlerts]);
+      }
+      if (res?.updatedDraftSoap) {
+        setSoapNotes(prevNotes => ({
+          subjective: res.updatedDraftSoap.subjective || prevNotes.subjective,
+          objective: res.updatedDraftSoap.objective || prevNotes.objective,
+          assessment: res.updatedDraftSoap.assessment || prevNotes.assessment,
+          plan: res.updatedDraftSoap.plan || prevNotes.plan
+        }));
+      }
+      return res;
+    } catch (err) {
+      console.warn("Live assist error:", err);
+      return null;
+    }
+  };
+
   return {
     patientProfile,
     vaultDocuments,
@@ -398,6 +430,9 @@ export const useConsultation = (appointmentId: number, consumerId: number) => {
     isLoading,
     isSubmitting,
     soapNotes,
+    liveClinicalAlerts,
+    setLiveClinicalAlerts,
+    processLiveAssistChunk,
     diagnoses,
     vitalSigns,
     prescription,

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SoapNotes } from "@/types/ehr";
+import { LiveClinicalAlert } from "@/services/healthOS.service";
 
 export interface SoapNoteDraftModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export interface SoapNoteDraftModalProps {
   onAccept: (editedSoap: SoapNotes) => void;
   onReject: () => void;
   patientName?: string;
+  liveClinicalAlerts?: LiveClinicalAlert[];
 }
 
 export const SoapNoteDraftModal: React.FC<SoapNoteDraftModalProps> = ({
@@ -23,6 +25,7 @@ export const SoapNoteDraftModal: React.FC<SoapNoteDraftModalProps> = ({
   onAccept,
   onReject,
   patientName,
+  liveClinicalAlerts,
 }) => {
   const [editedSoap, setEditedSoap] = useState<SoapNotes>(draftSoap);
 
@@ -72,6 +75,26 @@ export const SoapNoteDraftModal: React.FC<SoapNoteDraftModalProps> = ({
             </p>
           </div>
         </div>
+
+        {/* ── ALERTAS CLÍNICAS EN TIEMPO REAL (LIVE CLINICAL ALERTS) ── */}
+        {liveClinicalAlerts && liveClinicalAlerts.length > 0 && (
+          <div
+            data-testid="live-clinical-alerts-banner"
+            className="rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 p-4 text-rose-900 dark:text-rose-200 text-xs my-3 space-y-2"
+          >
+            <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-300">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>Alertas Farmacológicas en Tiempo Real (Copiloto Ambiental)</span>
+            </div>
+            <ul className="space-y-1 pl-6 list-disc text-[11px] leading-relaxed">
+              {liveClinicalAlerts.map((alert, idx) => (
+                <li key={idx} className="font-medium">
+                  {alert.message || `${alert.alertType}: ${alert.medication || alert.medicationA || ""}`}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* ── SECCIONES EDITABLES SOAP ── */}
         <div className="space-y-4 my-2">

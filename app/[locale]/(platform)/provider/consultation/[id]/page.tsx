@@ -350,6 +350,7 @@ export default function ConsultationRoomPage() {
     completeConsultation,
     processAudioWithAi,
     syncAiSoapNote,
+    liveClinicalAlerts,
     attachedTemplates,
     setAttachedTemplates,
     attachedTemplatesData,
@@ -909,6 +910,7 @@ export default function ConsultationRoomPage() {
                 setAttachedTemplatesData={setAttachedTemplatesData}
                 patientName={displayFullName}
                 appointmentId={appointmentId}
+                liveClinicalAlerts={liveClinicalAlerts}
                 onBack={() => setCurrentStep("background")}
                 onNext={() => setCurrentStep("treatment")}
               />

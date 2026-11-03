@@ -35,6 +35,7 @@ import {
 import { TemplateSelectorModal } from "./TemplateSelectorModal";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { SoapNotes, AppointmentDiagnosis, VitalSignRequest } from "@/types/ehr";
+import { LiveClinicalAlert } from "@/services/healthOS.service";
 import { cn } from "@/lib/utils";
 import { Icd10Autocomplete } from "./Icd10Autocomplete";
 import { VitalSignsCapture } from "./VitalSignsCapture";
@@ -65,6 +66,7 @@ interface ClinicalEvaluationStepProps {
   patientName?: string;
   doctorName?: string;
   appointmentId?: number;
+  liveClinicalAlerts?: LiveClinicalAlert[];
 }
 
 export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
@@ -91,6 +93,7 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
   patientName,
   doctorName,
   appointmentId,
+  liveClinicalAlerts,
 }) => {
   const t = useTranslations("EHR");
 
@@ -741,6 +744,8 @@ export const ClinicalEvaluationStep: React.FC<ClinicalEvaluationStepProps> = ({
         draftSoap={currentSoapDraft}
         onAccept={handleAcceptSoapDraft}
         onReject={() => setIsSoapDraftModalOpen(false)}
+        patientName={patientName}
+        liveClinicalAlerts={liveClinicalAlerts}
       />
 
       {/* Modal Kit Multimodal Post-Consulta para el Paciente */}

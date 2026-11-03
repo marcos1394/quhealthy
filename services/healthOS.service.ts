@@ -1,5 +1,6 @@
 import axiosInstance from '@/lib/axios';
 import { HealthOSResponse } from '@quhealthy/health-os-contract';
+import { SoapNotes } from '@/types/ehr';
 
 export interface AttachmentData {
   mimeType: string;
@@ -348,5 +349,45 @@ export const healthOSService = {
   generatePatientCareKit: async (request: PatientCareKitRequest): Promise<PatientCareKitResponse> => {
     const response = await axiosInstance.post('/api/v1/health-agent/care-kit/generate', request);
     return response.data;
+  },
+
+  /**
+   * Copiloto Clínico Ambiental en Tiempo Real para Consulta Médica (Fase 5).
+   * Actualiza incrementalmente la nota SOAP (NOM-004) y genera alertas clínicas de interacciones farmacológicas.
+   */
+  consultationLiveAssist: async (request: ConsultationLiveAssistRequest): Promise<ConsultationLiveAssistResponse> => {
+    const response = await axiosInstance.post('/api/v1/health-agent/consultation/live-assist', request);
+    return response.data;
   }
 };
+
+export interface ConsultationLiveAssistRequest {
+  transcriptChunk: string;
+  appointmentId?: number;
+  ephemeralVaultShareToken?: string;
+  existingSoapDraft?: SoapNotes | Partial<SoapNotes> | Record<string, string | undefined>;
+  doctorSpecialty?: string;
+  patientName?: string;
+}
+
+export interface LiveClinicalAlert {
+  alertType: string;
+  severity: string;
+  medicationA?: string;
+  medicationB?: string;
+  medication?: string;
+  condition?: string;
+  allergy?: string;
+  message: string;
+  suggestedSpecialty?: string;
+}
+
+export interface ConsultationLiveAssistResponse {
+  updatedDraftSoap: Record<string, string>;
+  liveClinicalAlerts: LiveClinicalAlert[];
+  detectedMedications: string[];
+  detectedConditions: string[];
+  vaultPatientSummary?: Record<string, any>;
+  nomComplianceVerified: boolean;
+  timestamp: string;
+}
