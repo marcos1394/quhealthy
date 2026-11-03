@@ -160,6 +160,11 @@ export function useQuHealthyWebMcp() {
             patientName: { type: "string", description: "Nombre del paciente" },
             patientPhone: { type: "string", description: "Teléfono de contacto" },
             symptoms: { type: "string", description: "Motivo de consulta" },
+            paymentGuaranteeMode: {
+              type: "string",
+              enum: ["PAY_AT_CLINIC", "QUWALLET_GUARANTEE"],
+              description: "Modalidad de reserva: 'PAY_AT_CLINIC' (30 min) o 'QUWALLET_GUARANTEE' (24 hrs aseguradas con 10% descuento)",
+            },
           },
           required: ["doctorId", "dateTime", "patientName"],
         },
@@ -245,12 +250,113 @@ export function useQuHealthyWebMcp() {
       console.debug("WebMCP registerTool attach_preconsultation_intake skipped/failed:", e);
     }
 
+    // 5. Herramienta triage_symptom_to_specialty (Fase 2)
+    try {
+      nav.modelContext.registerTool({
+        name: "triage_symptom_to_specialty",
+        description:
+          "Pre-triage clínico inteligente: evalúa síntomas en lenguaje natural, calcula nivel de urgencia, detecta banderas rojas y recomienda especialidades médicas QuHealthy.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            symptomsDescription: {
+              type: "string",
+              description: "Descripción detallada de síntomas en lenguaje natural",
+            },
+            patientAge: { type: "integer", description: "Edad del paciente" },
+            biologicalSex: {
+              type: "string",
+              enum: ["M", "F", "OTHER"],
+              description: "Sexo biológico",
+            },
+            city: { type: "string", description: "Ciudad de atención médica" },
+          },
+          required: ["symptomsDescription"],
+        },
+        execute: async (args: Record<string, unknown>) => {
+          try {
+            const res = await agentMarketplaceService.triageSymptoms(args || {});
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(res, null, 2),
+                },
+              ],
+              structuredContent: res,
+              isError: false,
+            };
+          } catch (err: unknown) {
+            const errorMsg = err instanceof Error ? err.message : "Error desconocido";
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Error en pre-triage médico: ${errorMsg}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+      });
+    } catch (e) {
+      console.debug("WebMCP registerTool triage_symptom_to_specialty skipped/failed:", e);
+    }
+
+    // 6. Herramienta verify_doctor_credentials_and_quscore (Fase 2)
+    try {
+      nav.modelContext.registerTool({
+        name: "verify_doctor_credentials_and_quscore",
+        description:
+          "Audita y valida la Cédula Profesional SEP, aviso de funcionamiento COFEPRIS y desglose QuScore™ de un médico especialista.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            doctorId: { type: "string", description: "ID del médico en QuHealthy" },
+          },
+          required: ["doctorId"],
+        },
+        execute: async (args: Record<string, unknown>) => {
+          try {
+            const docId = String(args?.doctorId || "1");
+            const res = await agentMarketplaceService.verifyDoctorCredentials(docId);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify(res, null, 2),
+                },
+              ],
+              structuredContent: res,
+              isError: false,
+            };
+          } catch (err: unknown) {
+            const errorMsg = err instanceof Error ? err.message : "Error desconocido";
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Error al auditar credenciales médicas: ${errorMsg}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+      });
+    } catch (e) {
+      console.debug("WebMCP registerTool verify_doctor_credentials_and_quscore skipped/failed:", e);
+    }
+
     return () => {
       try {
         nav.modelContext?.unregisterTool?.("search_medical_marketplace");
         nav.modelContext?.unregisterTool?.("get_doctor_availability_and_quote");
         nav.modelContext?.unregisterTool?.("create_appointment_hold");
         nav.modelContext?.unregisterTool?.("attach_preconsultation_intake");
+        nav.modelContext?.unregisterTool?.("triage_symptom_to_specialty");
+        nav.modelContext?.unregisterTool?.("verify_doctor_credentials_and_quscore");
       } catch (e) {
         console.debug("Error during WebMCP cleanup:", e);
       }

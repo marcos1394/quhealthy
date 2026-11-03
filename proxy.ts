@@ -8,6 +8,17 @@ const intlMiddleware = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
   let { pathname } = request.nextUrl;
+
+  // 🤖 0. BYPASS RUTAS AGÉNTICAS Y ESTÁNDARES DE AUTODESCUBRIMIENTO (Sin redirect i18n)
+  if (
+    pathname === '/llms.txt' ||
+    pathname.startsWith('/.well-known') ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml'
+  ) {
+    return NextResponse.next();
+  }
+
   const hasToken = request.cookies.has('refreshToken');
   
   // 🛡️ 0. LÓGICA DE SUBDOMINIO PARA ADMIN PORTAL
@@ -152,5 +163,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
+  matcher: ['/((?!api|_next|_vercel|llms\\.txt|\\.well-known|.*\\..*).*)']
 };

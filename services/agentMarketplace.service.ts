@@ -60,6 +60,31 @@ export const agentMarketplaceService = {
   },
 
   /**
+   * Pre-triage clínico inteligente: evalúa síntomas y sugiere especialidades médicas (Fase 2).
+   */
+  triageSymptoms: async (
+    triagePayload: Record<string, unknown>
+  ): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.post(
+      '/api/v1/agent-marketplace/triage',
+      triagePayload
+    );
+    return response.data;
+  },
+
+  /**
+   * Consulta la auditoría de credenciales SEP, COFEPRIS y desglose QuScore™ de un médico (Fase 2).
+   */
+  verifyDoctorCredentials: async (
+    doctorId: string
+  ): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.get(
+      `/api/v1/agent-marketplace/doctors/${encodeURIComponent(doctorId)}/verification`
+    );
+    return response.data;
+  },
+
+  /**
    * Obtiene el manifiesto de descubrimiento MCP del servidor.
    */
   getMcpManifest: async (): Promise<Record<string, unknown>> => {

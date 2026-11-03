@@ -28,12 +28,20 @@ const LLMS_TEXT = `# QuHealthy - Marketplace Médico Verificado y Servidor MCP d
    - *Parámetros*: \`doctorId\` (requerido), \`serviceId\`.
 
 3. **create_appointment_hold**:
-   - *Descripción*: Genera una pre-reserva (Hold) programática de cita médica garantizada por 30 minutos con opción de pago en consultorio (efectivo/tarjeta) y enlaces de confirmación directa y WhatsApp.
-   - *Parámetros*: \`doctorId\`, \`serviceId\`, \`dateTime\` (ISO-8601), \`patientName\`, \`patientPhone\`, \`symptoms\`.
+   - *Descripción*: Genera una pre-reserva (Hold) programática de cita médica garantizada. Admite modalidad estándar en consultorio (30 min) o Garantía QuWallet (24 horas garantizadas con 10% de descuento directo en consulta).
+   - *Parámetros*: \`doctorId\`, \`serviceId\`, \`dateTime\` (ISO-8601), \`patientName\`, \`patientPhone\`, \`symptoms\`, \`paymentGuaranteeMode\` ("PAY_AT_CLINIC" o "QUWALLET_GUARANTEE").
 
 4. **attach_preconsultation_intake**:
    - *Descripción*: Adjunta la ficha clínica de pre-admisión (anamnesis inicial) conforme a la NOM-004-SSA3-2012 a una pre-reserva de cita, calculando escala de severidad y alertas de triage médico.
    - *Parámetros*: \`holdId\` o \`appointmentId\`, \`chiefComplaint\` (obligatorio), \`symptomDuration\`, \`severityScale\` (1-10), \`knownAllergies\`, \`currentMedications\`, \`chronicConditions\`.
+
+5. **triage_symptom_to_specialty**:
+   - *Descripción*: Pre-triage clínico inteligente: evalúa síntomas en lenguaje natural, calcula nivel de urgencia (EMERGENCY_ER, PRIORITY_24_48H, ROUTINE), detecta banderas rojas, sugiere preguntas de seguimiento y recomienda especialidades médicas QuHealthy con justificación clínica.
+   - *Parámetros*: \`symptomsDescription\` (obligatorio), \`patientAge\`, \`biologicalSex\` ("M", "F", "OTHER"), \`city\`.
+
+6. **verify_doctor_credentials_and_quscore**:
+   - *Descripción*: Fuente de verdad regulatoria en México: audita la Cédula Profesional SEP de Licenciatura y Especialidad, estatus de aviso de funcionamiento COFEPRIS y desglose de confianza QuScore™ (credenciales académicas, puntualidad, claridad y reseñas reales).
+   - *Parámetros*: \`doctorId\` (obligatorio).
 
 ## Recursos Clínicos MCP (URIs)
 
