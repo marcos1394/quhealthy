@@ -112,6 +112,39 @@ export const agentMarketplaceService = {
   },
 
   /**
+   * Evalúa interacciones farmacológicas, contraindicaciones y alergias en tiempo real (Fase 4 / Herramienta MCP #9).
+   */
+  checkMedicationInteractions: async (
+    medicationPayload: Record<string, unknown>
+  ): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.post(
+      '/api/v1/agent-marketplace/medication-check',
+      medicationPayload
+    );
+    return response.data;
+  },
+
+  /**
+   * Consulta el contexto clínico persistido mediante un token efímero de Health Vault™ (Fase 4).
+   */
+  getVaultShare: async (shareToken: string): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.get(
+      `/api/v1/agent-marketplace/vault-share/${encodeURIComponent(shareToken)}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Revoca de forma inmediata un token efímero de Health Vault™ por el paciente (Fase 4).
+   */
+  revokeVaultShare: async (shareToken: string): Promise<Record<string, unknown>> => {
+    const response = await axiosInstance.post(
+      `/api/v1/agent-marketplace/vault-share/${encodeURIComponent(shareToken)}/revoke`
+    );
+    return response.data;
+  },
+
+  /**
    * Obtiene el manifiesto de descubrimiento MCP del servidor.
    */
   getMcpManifest: async (): Promise<Record<string, unknown>> => {

@@ -450,6 +450,72 @@ export function useQuHealthyWebMcp() {
       console.debug("WebMCP registerTool match_lab_biomarkers_to_specialists skipped/failed:", e);
     }
 
+    // 9. Herramienta check_medication_interactions_and_contraindications (Fase 4)
+    try {
+      nav.modelContext.registerTool({
+        name: "check_medication_interactions_and_contraindications",
+        description:
+          "Evalúa interacciones farmacológicas, contraindicaciones por antecedentes clínicos y alertas de alergias medicamentosas en tiempo real según lineamientos de COFEPRIS y NOM-004-SSA3-2012.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            medications: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Lista de fármacos o principios activos a evaluar (ej: ['Metformina 850mg', 'Sertralina 50mg'])",
+            },
+            patientConditions: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Diagnósticos o antecedentes patológicos del paciente (ej: ['Insuficiencia renal crónica leve', 'Embarazo'])",
+            },
+            knownAllergies: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Alergias farmacológicas reportadas por el paciente (ej: ['Penicilina', 'Sulfas'])",
+            },
+          },
+          required: ["medications"],
+        },
+        handler: async (args: Record<string, unknown>) => {
+          try {
+            const result =
+              await agentMarketplaceService.checkMedicationInteractions(args);
+            const markdown =
+              typeof result.medicationSummaryMarkdown === "string"
+                ? result.medicationSummaryMarkdown
+                : "Análisis de interacciones medicamentosas completado.";
+            return {
+              content: [{ type: "text", text: markdown }],
+              structuredContent: result,
+              data: result,
+              isError: false,
+            };
+          } catch (err: unknown) {
+            const errorMsg =
+              err instanceof Error ? err.message : "Error desconocido";
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Error al evaluar interacciones farmacológicas: ${errorMsg}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+      });
+    } catch (e) {
+      console.debug(
+        "WebMCP registerTool check_medication_interactions_and_contraindications skipped/failed:",
+        e
+      );
+    }
+
     return () => {
       try {
         nav.modelContext?.unregisterTool?.("search_medical_marketplace");
@@ -460,6 +526,7 @@ export function useQuHealthyWebMcp() {
         nav.modelContext?.unregisterTool?.("verify_doctor_credentials_and_quscore");
         nav.modelContext?.unregisterTool?.("share_ephemeral_health_vault_context");
         nav.modelContext?.unregisterTool?.("match_lab_biomarkers_to_specialists");
+        nav.modelContext?.unregisterTool?.("check_medication_interactions_and_contraindications");
       } catch (e) {
         console.debug("Error during WebMCP cleanup:", e);
       }

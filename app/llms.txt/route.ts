@@ -51,6 +51,10 @@ const LLMS_TEXT = `# QuHealthy - Marketplace Médico Verificado y Servidor MCP d
    - *Descripción*: De estudios de laboratorio a cita médica: procesa paneles y biomarcadores (glucemia, perfil lipídico, renal, hepático, tiroideo, hemático), identifica desviaciones patológicas y canaliza de inmediato con médicos especialistas certificados disponibles para agendar.
    - *Parámetros*: \`biomarkers\` (lista de objetos con name, value, unit), \`city\`, \`maxBudgetMxn\`.
 
+9. **check_medication_interactions_and_contraindications**:
+   - *Descripción*: Auditoría de Farmacovigilancia y Contraindicaciones en Tiempo Real conforme a la NOM-004-SSA3-2012 y normativas de COFEPRIS: analiza combinaciones farmacológicas, detecta interacciones potencialmente letales (ej: Síndrome Serotoninérgico ISRS+Tramadol, hemorragia AINE+Anticoagulante, sedación/paro Benzo+Opioide), contraindicaciones patológicas (Metformina en falla renal, AINEs en úlcera péptica) y alertas de alergia/anafilaxia (betalactámicos, sulfas), recomendando el especialista idóneo para el ajuste posológico seguro.
+   - *Parámetros*: \`medications\` (lista obligatoria de fármacos o principios activos), \`patientConditions\` (lista opcional de diagnósticos o antecedentes), \`knownAllergies\` (lista opcional de alergias reportadas).
+
 ## Recursos Clínicos MCP (URIs)
 
 - \`quhealthy://catalog/specialties\`: Listado de especialidades médicas activas y auditadas en México.
@@ -63,6 +67,7 @@ const LLMS_TEXT = `# QuHealthy - Marketplace Médico Verificado y Servidor MCP d
 - \`preparar-nota-preadmision-nom004\`: Estructuración de nota clínica de pre-admisión.
 - \`auditar-credenciales-medico\`: Verificación de Cédula Profesional SEP y reputación QuScore™.
 - \`analizar-laboratorios-y-agendar\`: Análisis de estudios o biomarcadores de laboratorio y canalización médica directa con especialistas.
+- \`farmacovigilancia-y-seguridad-medicamentos\`: Dictamen de seguridad de medicamentos, interacciones y contraindicaciones clínicas en tiempo real.
 
 ## Enlaces Oficiales
 - Sitio Web: https://www.quhealthy.org

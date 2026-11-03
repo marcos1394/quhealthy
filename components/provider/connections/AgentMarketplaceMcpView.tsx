@@ -129,6 +129,17 @@ const AVAILABLE_TOOLS: ToolPreset[] = [
     },
   },
   {
+    name: "check_medication_interactions_and_contraindications",
+    label: "Farmacovigilancia & Alergias",
+    category: "Farmacología",
+    description: "Auditoría de seguridad de medicamentos, interacciones y contraindicaciones clínicas en tiempo real.",
+    defaultArgs: {
+      medications: ["Sertralina 50mg", "Tramadol 100mg"],
+      patientConditions: ["Insuficiencia renal leve"],
+      knownAllergies: ["Penicilina"],
+    },
+  },
+  {
     name: "get_doctor_availability_and_quote",
     label: "Disponibilidad y Cotización",
     category: "Agendamiento",
@@ -963,6 +974,133 @@ export function AgentMarketplaceMcpView() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* CASO: check_medication_interactions_and_contraindications */}
+          {selectedTool === "check_medication_interactions_and_contraindications" && (
+            <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    className={`text-xs font-bold ${
+                      lastStructuredResult.interactionRiskLevel === "SEVERE_CONTRAINDICATION"
+                        ? "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/50 dark:text-rose-200"
+                        : lastStructuredResult.interactionRiskLevel === "MODERATE"
+                        ? "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/50 dark:text-amber-200"
+                        : lastStructuredResult.interactionRiskLevel === "LOW"
+                        ? "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/50 dark:text-blue-200"
+                        : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200"
+                    }`}
+                  >
+                    Riesgo: {String(lastStructuredResult.interactionRiskLevel || "NONE")}
+                  </Badge>
+                  {Boolean(lastStructuredResult.recommendedSpecialistForAdjustment) && (
+                    <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-xs font-bold">
+                      Ajuste por: {String(lastStructuredResult.recommendedSpecialistForAdjustment)}
+                    </Badge>
+                  )}
+                  <Badge className="bg-gray-100 text-gray-700 border-gray-200 text-xs font-medium">
+                    COFEPRIS & NOM-004
+                  </Badge>
+                </div>
+              </div>
+
+              {Array.isArray(lastStructuredResult.detectedInteractions) &&
+                lastStructuredResult.detectedInteractions.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold uppercase text-gray-400">
+                      Interacciones Farmacológicas Detectadas:
+                    </span>
+                    <div className="space-y-2">
+                      {lastStructuredResult.detectedInteractions.map(
+                        (di: Record<string, unknown>, idx: number) => (
+                          <div
+                            key={idx}
+                            className="p-3 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs space-y-1"
+                          >
+                            <div className="flex items-center justify-between font-bold text-rose-900 dark:text-rose-200">
+                              <span>
+                                {String(di.medicationA)} + {String(di.medicationB)}
+                              </span>
+                              <Badge className="bg-rose-200 text-rose-900 text-[10px]">
+                                {String(di.severity)}
+                              </Badge>
+                            </div>
+                            <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                              {String(di.mechanism)}
+                            </p>
+                            <p className="text-[11px] text-rose-700 dark:text-rose-400 font-semibold">
+                              💡 Conducta: {String(di.clinicalRecommendation)}
+                            </p>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {Array.isArray(lastStructuredResult.conditionContraindications) &&
+                lastStructuredResult.conditionContraindications.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold uppercase text-gray-400">
+                      Contraindicaciones por Condición Médica:
+                    </span>
+                    <div className="space-y-2">
+                      {lastStructuredResult.conditionContraindications.map(
+                        (cc: Record<string, unknown>, idx: number) => (
+                          <div
+                            key={idx}
+                            className="p-3 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-xs space-y-1"
+                          >
+                            <div className="flex items-center justify-between font-bold text-amber-900 dark:text-amber-200">
+                              <span>
+                                {String(cc.medication)} vs {String(cc.condition)}
+                              </span>
+                              <Badge className="bg-amber-200 text-amber-900 text-[10px]">
+                                {String(cc.severity)}
+                              </Badge>
+                            </div>
+                            <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                              {String(cc.clinicalReason)}
+                            </p>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {Array.isArray(lastStructuredResult.allergyWarnings) &&
+                lastStructuredResult.allergyWarnings.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold uppercase text-gray-400">
+                      Alertas de Alergia e Hipersensibilidad:
+                    </span>
+                    <div className="space-y-2">
+                      {lastStructuredResult.allergyWarnings.map(
+                        (aw: Record<string, unknown>, idx: number) => (
+                          <div
+                            key={idx}
+                            className="p-3 rounded-xl bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 text-xs space-y-1"
+                          >
+                            <div className="flex items-center justify-between font-bold text-red-900 dark:text-red-200">
+                              <span>
+                                {String(aw.medication)} (Alergia: {String(aw.allergy)})
+                              </span>
+                              <Badge className="bg-red-200 text-red-900 text-[10px]">
+                                {String(aw.risk)}
+                              </Badge>
+                            </div>
+                            <p className="text-[11px] text-red-700 dark:text-red-300">
+                              {String(aw.warning)}
+                            </p>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
             </div>
           )}
 
