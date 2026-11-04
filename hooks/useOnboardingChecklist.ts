@@ -95,15 +95,23 @@ export const useOnboardingChecklist = () => {
       // --- PASO 3: LICENSE (CÉDULA/LICENCIA) ---
       const isLicenseRequired = true; // Ambos requieren según plan: Salud=Cedula, Belleza=Permiso Negocio. 
 
+      const hasConfiguredLicenses = Boolean(
+        data.professionalLicenses &&
+        data.professionalLicenses.length > 0 &&
+        data.professionalLicenses.some(l => l.licenseNumber && l.licenseNumber.trim() !== '')
+      );
+
+      const isLicenseComplete = data.licenseStatus === 'APPROVED' || hasConfiguredLicenses;
+
       const licenseStep: OnboardingStepUI = {
         id: 'license',
         title: sector === 'HEALTH' ? 'Cédula Profesional' : 'Licencia de Negocio',
         description: sector === 'HEALTH'
           ? 'Cédula profesional para ejercer'
           : 'Licencia sanitaria o permiso de operación',
-        status: data.licenseStatus,
-        statusText: getStatusText(data.licenseStatus),
-        isComplete: data.licenseStatus === 'APPROVED',
+        status: (hasConfiguredLicenses && data.licenseStatus !== 'APPROVED') ? 'APPROVED' : data.licenseStatus,
+        statusText: (hasConfiguredLicenses || data.licenseStatus === 'APPROVED') ? 'Aprobado' : getStatusText(data.licenseStatus),
+        isComplete: isLicenseComplete,
         isLocked: data.kycStatus !== 'APPROVED',
         isRequired: isLicenseRequired,
         actionPath: '/onboarding/license',

@@ -27,6 +27,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useLicenseOnboarding } from "@/hooks/useLicenseOnboarding";
+import { onboardingService } from "@/services/onboarding.service";
+import { useSessionStore } from "@/stores/SessionStore";
 import { useTranslations } from "next-intl";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { UniversalCameraModal } from "@/components/ui/UniversalCameraModal";
@@ -115,6 +117,20 @@ export default function LicensePage() {
 
     const success = await saveLicenses(manualLicenses);
     if (success) {
+      try {
+        await onboardingService.finalizeOnboarding();
+        const sessionStore = useSessionStore.getState();
+        if (sessionStore.status) {
+          sessionStore.updateToken({
+            status: {
+              ...sessionStore.status,
+              onboardingComplete: true,
+            },
+          });
+        }
+      } catch (err) {
+        console.warn("Could not finalize onboarding explicitly:", err);
+      }
       toast.success(t("toasts.save_success"));
       router.push("/provider/dashboard");
     }
