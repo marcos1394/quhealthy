@@ -16,6 +16,7 @@ export interface OnboardingStatusResponse {
   providerId: number;
   email: string;
   firstName: string;
+  lastName?: string | null;
   sector: ProviderSector;
   personType: PersonType;
 
@@ -93,6 +94,15 @@ export interface PrescriptionScanResponse {
   confidenceScore: number;
 }
 
+export interface LocationDto {
+  name: string;
+  address: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  googlePlaceId?: string | null;
+  isMain?: boolean;
+}
+
 export interface ProfileResponse {
   providerId: number;
   sector: ProviderSector;
@@ -113,6 +123,7 @@ export interface ProfileResponse {
   subCategoryId: number;
   tagIds: number[];
   profileStatus: StepStatus;
+  locations?: LocationDto[];
 }
 
 export interface UpdateProfileRequest {

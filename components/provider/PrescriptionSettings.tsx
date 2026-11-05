@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { onboardingService } from "@/services/onboarding.service";
 import { usePrescriptionScanner } from "@/hooks/usePrescriptionScanner";
+import { useSessionStore } from "@/stores/SessionStore";
 import { cn } from "@/lib/utils";
 
 interface State {
@@ -144,20 +145,94 @@ export const PrescriptionSettings = () => {
   useEffect(() => {
     const loadPreferences = async () => {
       try {
-        const data = await onboardingService.getOnboardingStatus();
+        const [data, profile] = await Promise.all([
+          onboardingService.getOnboardingStatus(),
+          onboardingService.getProfile().catch(() => null),
+        ]);
+
+        const sessionUser = useSessionStore.getState().user;
+
+        // Licencia principal o primera registrada
+        const primaryLicense =
+          data.professionalLicenses?.find((l) => l.isPrimary) ||
+          data.professionalLicenses?.[0];
+
+        // Sede principal o primera sucursal registrada
+        const mainLoc =
+          profile?.locations?.find((loc: any) => loc.isMain) ||
+          profile?.locations?.[0];
+
+        const existingHeader = data.prescriptionHeaderData || {};
+
+        const clinicName =
+          existingHeader.clinicName ||
+          data.businessName ||
+          profile?.businessName ||
+          "";
+
+        const doctorName =
+          existingHeader.doctorName ||
+          (sessionUser?.firstName
+            ? `${sessionUser.firstName} ${sessionUser.lastName || ""}`.trim()
+            : [data.firstName, data.lastName].filter(Boolean).join(" ").trim());
+
+        let specialty = existingHeader.specialty || "";
+        if (!specialty && (profile?.subCategoryId || data.subCategoryId || profile?.categoryId || data.categoryId)) {
+          try {
+            const catId = profile?.categoryId || data.categoryId;
+            const subId = profile?.subCategoryId || data.subCategoryId;
+            if (subId && catId) {
+              const subcategories = await onboardingService.getSubcategories(catId);
+              const foundSub = subcategories.find((s) => s.id === subId);
+              if (foundSub) specialty = foundSub.name;
+            }
+            if (!specialty && catId) {
+              const categories = await onboardingService.getCategories();
+              const foundCat = categories.find((c) => c.id === catId);
+              if (foundCat) specialty = foundCat.name;
+            }
+          } catch (e) {
+            console.warn("No se pudo cargar la especialidad del catálogo", e);
+          }
+        }
+
+        const professionalLicense =
+          existingHeader.professionalLicense ||
+          primaryLicense?.licenseNumber ||
+          "";
+
+        const address =
+          existingHeader.address ||
+          mainLoc?.address ||
+          profile?.address ||
+          "";
+
+        const phone =
+          existingHeader.phone ||
+          profile?.contactPhone ||
+          (sessionUser as any)?.phone ||
+          "";
+
+        const logoUrl =
+          data.prescriptionLogoUrl ||
+          profile?.profileImageUrl ||
+          data.profileImageUrl ||
+          sessionUser?.profileImageUrl ||
+          "";
+
         setFormData({
           prescriptionColor: data.prescriptionColor || "#059669",
-          prescriptionLogoUrl: data.prescriptionLogoUrl || "",
+          prescriptionLogoUrl: logoUrl,
           signatureUrl: data.signatureUrl || "",
           prescriptionFooterNote: data.prescriptionFooterNote || "",
           prescriptionCustomHtml: data.prescriptionCustomHtml || "",
-          prescriptionHeaderData: data.prescriptionHeaderData || {
-            clinicName: "",
-            doctorName: "",
-            specialty: "",
-            professionalLicense: "",
-            address: "",
-            phone: "",
+          prescriptionHeaderData: {
+            clinicName,
+            doctorName,
+            specialty,
+            professionalLicense,
+            address,
+            phone,
           },
         });
       } catch (error) {
@@ -740,20 +815,34 @@ export const PrescriptionSettings = () => {
           style={{ borderTop: `8px solid ${formData.prescriptionColor || "#059669"}` }}
         >
           {/* Header de la Receta */}
-          <div className="flex justify-between items-start border-b pb-4 border-gray-100 dark:border-gray-800">
-            <div className="space-y-2">
-              <div
-                className="w-28 h-5 rounded-md transition-colors duration-300"
-                style={{
-                  backgroundColor: formData.prescriptionColor || "#059669",
-                  opacity: 0.25,
-                }}
-              />
-              <div className="w-36 h-3 bg-gray-100 dark:bg-gray-800 rounded-md" />
+          <div className="flex justify-between items-start border-b pb-4 border-gray-100 dark:border-gray-800 gap-3">
+            <div className="space-y-1 max-w-[200px] overflow-hidden">
+              <p
+                className="text-xs font-bold leading-tight truncate"
+                style={{ color: formData.prescriptionColor || "#059669" }}
+              >
+                {formData.prescriptionHeaderData?.clinicName || "Nombre de Clínica"}
+              </p>
+              <p className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 truncate">
+                {formData.prescriptionHeaderData?.doctorName || "Nombre del Médico"}
+              </p>
+              <p className="text-[9px] text-gray-500 dark:text-gray-400 truncate">
+                {formData.prescriptionHeaderData?.specialty || "Especialidad"}
+                {formData.prescriptionHeaderData?.professionalLicense
+                  ? ` • Céd. ${formData.prescriptionHeaderData.professionalLicense}`
+                  : ""}
+              </p>
+              {(formData.prescriptionHeaderData?.address || formData.prescriptionHeaderData?.phone) && (
+                <p className="text-[8px] text-gray-400 dark:text-gray-500 truncate">
+                  {[formData.prescriptionHeaderData?.address, formData.prescriptionHeaderData?.phone]
+                    .filter(Boolean)
+                    .join(" • ")}
+                </p>
+              )}
             </div>
 
             {/* Logo Preview */}
-            <div className="w-14 h-14 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden shadow-2xs">
+            <div className="w-14 h-14 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden shadow-2xs shrink-0">
               {formData.prescriptionLogoUrl ? (
                 <img
                   src={formData.prescriptionLogoUrl}
