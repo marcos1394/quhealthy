@@ -485,29 +485,108 @@ export function ServiceItemCard({
           </label>
 
           <Select
-            value={service.cancellationPolicy}
-            onValueChange={(val) =>
-              onUpdate(service.id, {
-                cancellationPolicy: val as CancellationPolicy,
-                hasUnsavedChanges: true,
-              })
-            }
+            value={service.cancellationPolicy || "global"}
+            onValueChange={(val) => {
+              if (val === "global") {
+                onUpdate(service.id, {
+                  cancellationPolicy: "global",
+                  cancellationDeadlineHours: undefined,
+                  cancellationRefundPercent: undefined,
+                  hasUnsavedChanges: true,
+                });
+              } else if (val === "flexible") {
+                onUpdate(service.id, {
+                  cancellationPolicy: "flexible",
+                  cancellationDeadlineHours: 24,
+                  cancellationRefundPercent: 100,
+                  hasUnsavedChanges: true,
+                });
+              } else if (val === "moderate") {
+                onUpdate(service.id, {
+                  cancellationPolicy: "moderate",
+                  cancellationDeadlineHours: 48,
+                  cancellationRefundPercent: 100,
+                  hasUnsavedChanges: true,
+                });
+              } else if (val === "strict") {
+                onUpdate(service.id, {
+                  cancellationPolicy: "strict",
+                  cancellationDeadlineHours: 72,
+                  cancellationRefundPercent: 50,
+                  hasUnsavedChanges: true,
+                });
+              } else if (val === "custom") {
+                onUpdate(service.id, {
+                  cancellationPolicy: "custom",
+                  cancellationDeadlineHours: service.cancellationDeadlineHours || 24,
+                  cancellationRefundPercent: service.cancellationRefundPercent ?? 100,
+                  hasUnsavedChanges: true,
+                });
+              }
+            }}
           >
             <SelectTrigger className="w-full h-9 px-3.5 rounded-xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl font-sans text-xs">
+              <SelectItem value="global" className="rounded-xl font-medium">
+                🌐 Global de la Tienda (Por defecto)
+              </SelectItem>
               <SelectItem value="flexible" className="rounded-xl font-medium">
-                {t("policy_flexible")}
+                Flexible (24h / 100%)
               </SelectItem>
               <SelectItem value="moderate" className="rounded-xl font-medium">
-                {t("policy_moderate")}
+                Moderada (48h / 100%)
               </SelectItem>
               <SelectItem value="strict" className="rounded-xl font-medium">
-                {t("policy_strict")}
+                Estricta (72h / 50%)
+              </SelectItem>
+              <SelectItem value="custom" className="rounded-xl font-medium text-emerald-600 dark:text-emerald-400 font-bold">
+                ⚙️ Personalizada para este servicio
               </SelectItem>
             </SelectContent>
           </Select>
+
+          {service.cancellationPolicy === "custom" && (
+            <div className="flex items-center gap-2 pt-1 animate-in fade-in duration-200">
+              <div className="flex-1">
+                <input
+                  type="number"
+                  min={0}
+                  max={720}
+                  placeholder="24h"
+                  value={service.cancellationDeadlineHours ?? 24}
+                  onChange={(e) =>
+                    onUpdate(service.id, {
+                      cancellationDeadlineHours: parseInt(e.target.value) || 0,
+                      hasUnsavedChanges: true,
+                    })
+                  }
+                  className="w-full h-8 px-2.5 rounded-lg bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 text-[11px] font-mono font-bold text-gray-900 dark:text-white"
+                  title="Horas de anticipación requeridas"
+                />
+                <span className="text-[9px] text-gray-400 font-medium">Horas aviso</span>
+              </div>
+              <div className="flex-1">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  placeholder="100%"
+                  value={service.cancellationRefundPercent ?? 100}
+                  onChange={(e) =>
+                    onUpdate(service.id, {
+                      cancellationRefundPercent: parseInt(e.target.value) || 0,
+                      hasUnsavedChanges: true,
+                    })
+                  }
+                  className="w-full h-8 px-2.5 rounded-lg bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 text-[11px] font-mono font-bold text-gray-900 dark:text-white"
+                  title="% de reembolso otorgado"
+                />
+                <span className="text-[9px] text-gray-400 font-medium">% Reembolso</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Días de Seguimiento */}

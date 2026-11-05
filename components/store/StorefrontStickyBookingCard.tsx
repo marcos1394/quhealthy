@@ -255,7 +255,13 @@ export const StorefrontStickyBookingCard: React.FC<StorefrontStickyBookingCardPr
         )}
 
         <p className="text-[11px] text-center text-gray-400 font-medium">
-          {store.cancellationPolicy ? "Cancelación flexible disponible" : "Confirmación inmediata en línea"}
+          {store.cancellationRefundPercent === 0
+            ? "Reserva no reembolsable"
+            : store.cancellationDeadlineHours
+            ? `Cancelación con ${store.cancellationRefundPercent}% de reembolso hasta ${store.cancellationDeadlineHours}h antes`
+            : store.cancellationPolicy
+            ? "Cancelación flexible disponible"
+            : "Confirmación inmediata en línea"}
         </p>
       </div>
 

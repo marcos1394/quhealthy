@@ -4,7 +4,7 @@ import { GalleryImage } from './store';
 
 export type ItemType = 'SERVICE' | 'PRODUCT' | 'PACKAGE' | 'COURSE' | 'SUPPLY';
 export type ServiceModality = 'IN_PERSON' | 'ONLINE' | 'HYBRID';
-export type CancellationPolicy = 'flexible' | 'moderate' | 'strict';
+export type CancellationPolicy = 'global' | 'flexible' | 'moderate' | 'strict' | 'custom' | string;
 export type ServiceDeliveryType = 'in_person' | 'video_call' | 'hybrid';
 
 // Lo que enviamos/recibimos del Backend
@@ -25,6 +25,10 @@ export interface CatalogItemDTO {
   durationMinutes?: number;
   modality?: ServiceModality;
   cancellationPolicy?: CancellationPolicy | string;
+  cancellationDeadlineHours?: number;
+  cancellationRefundPercent?: number;
+  returnWindowDays?: number;
+  returnRefundPercent?: number;
   followUpPeriodDays?: number;
 
   // 📦 Específico E-commerce (Productos Físicos / Farmacia)
@@ -63,6 +67,8 @@ export interface UI_Service {
   requiresEvaluation?: boolean;
   serviceDeliveryType: ServiceDeliveryType;
   cancellationPolicy: CancellationPolicy;
+  cancellationDeadlineHours?: number;
+  cancellationRefundPercent?: number;
   followUpPeriodDays?: number;
   imageUrl?: string; 
   galleryImages?: GalleryImage[];
@@ -87,6 +93,9 @@ export interface UI_Package {
   }[];
   imageUrl?: string; 
   galleryImages?: GalleryImage[];
+  cancellationPolicy?: CancellationPolicy;
+  cancellationDeadlineHours?: number;
+  cancellationRefundPercent?: number;
   isNew?: boolean;
   hasUnsavedChanges?: boolean;
 }
@@ -112,6 +121,9 @@ export interface UI_Product {
   requiresPhysicalRetention?: boolean;
   allowsInterstateShipping?: boolean;
   technicalSheetUrl?: string;
+
+  returnWindowDays?: number;
+  returnRefundPercent?: number;
 
   isNew?: boolean;
   hasUnsavedChanges?: boolean;

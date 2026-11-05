@@ -13,8 +13,14 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import { CancellationPolicySection } from "@/components/marketplace/CancellationPolicySection";
-import { ReturnPolicySection } from "@/components/marketplace/ReturnPolicySection";
+import {
+  CancellationPolicySection,
+  generateCancellationPolicyText,
+} from "@/components/marketplace/CancellationPolicySection";
+import {
+  ReturnPolicySection,
+  generateReturnPolicyText,
+} from "@/components/marketplace/ReturnPolicySection";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { useStoreProfile } from "@/hooks/useStoreProfile";
 import { useSessionStore } from "@/stores/SessionStore";
@@ -28,8 +34,19 @@ export default function PoliciesSetupPage() {
   const isSupplierRole = (role as string) === "SUPPLIER" || (role as string) === "SUPPLIER_ADMIN";
 
   const { profile, isLoading, isSaving, updateProfile } = useStoreProfile();
+
+  // Estados de Política de Cancelación (Citas / Servicios)
   const [cancellationText, setCancellationText] = useState("");
+  const [deadlineHours, setDeadlineHours] = useState(24);
+  const [refundPercent, setRefundPercent] = useState(100);
+  const [cancellationPolicyType, setCancellationPolicyType] = useState("FLEXIBLE");
+
+  // Estados de Política de Devolución (Productos / Insumos)
   const [returnText, setReturnText] = useState("");
+  const [returnWindowDays, setReturnWindowDays] = useState(7);
+  const [returnRefundPercent, setReturnRefundPercent] = useState(100);
+  const [returnPolicyType, setReturnPolicyType] = useState("STANDARD_7_DAYS");
+
   const [activeTab, setActiveTab] = useState<"cancellation" | "return">(
     isSupplierRole ? "return" : "cancellation"
   );
@@ -37,7 +54,15 @@ export default function PoliciesSetupPage() {
   useEffect(() => {
     if (profile) {
       setCancellationText(profile.cancellationPolicy || "");
+      setDeadlineHours(profile.cancellationDeadlineHours ?? 24);
+      setRefundPercent(profile.cancellationRefundPercent ?? 100);
+      setCancellationPolicyType(profile.cancellationPolicyType || "FLEXIBLE");
+
       setReturnText(profile.returnPolicy || "");
+      setReturnWindowDays(profile.returnWindowDays ?? 7);
+      setReturnRefundPercent(profile.returnRefundPercent ?? 100);
+      setReturnPolicyType(profile.returnPolicyType || "STANDARD_7_DAYS");
+
       if (isSupplierRole) {
         setActiveTab("return");
       }
@@ -45,25 +70,20 @@ export default function PoliciesSetupPage() {
   }, [profile, isSupplierRole]);
 
   const handleSave = async () => {
-    // Validaciones de longitud mínima según la pestaña activa
-    if (activeTab === "cancellation" && cancellationText.trim().length > 0 && cancellationText.trim().length < 20) {
-      toast.warning(t("toast_min_length", { defaultValue: "La política de cancelación debe tener al menos 20 caracteres." }));
-      return;
-    }
-
-    if (activeTab === "return" && returnText.trim().length > 0 && returnText.trim().length < 20) {
-      toast.warning("La política de devolución debe tener al menos 20 caracteres.");
-      return;
-    }
-
-    if (!cancellationText.trim() && !returnText.trim()) {
-      toast.warning("Por favor redacta o selecciona al menos una política para tu tienda.");
-      return;
-    }
+    const finalCancellationText =
+      cancellationText.trim() || generateCancellationPolicyText(deadlineHours, refundPercent);
+    const finalReturnText =
+      returnText.trim() || generateReturnPolicyText(returnWindowDays, returnRefundPercent);
 
     const success = await updateProfile({
-      cancellationPolicy: cancellationText.trim() || undefined,
-      returnPolicy: returnText.trim() || undefined,
+      cancellationPolicy: finalCancellationText,
+      cancellationDeadlineHours: deadlineHours,
+      cancellationRefundPercent: refundPercent,
+      cancellationPolicyType,
+      returnPolicy: finalReturnText,
+      returnWindowDays,
+      returnRefundPercent,
+      returnPolicyType,
     });
 
     if (success) {
@@ -88,7 +108,6 @@ export default function PoliciesSetupPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 pt-8 px-6 md:px-10 pb-24">
       <div className="max-w-4xl mx-auto space-y-8">
-        
         {/* Navigation Bar */}
         <div className="flex items-center justify-between pb-6 border-b border-gray-100 dark:border-gray-800">
           <Button
@@ -138,12 +157,12 @@ export default function PoliciesSetupPage() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
               {isSupplierRole
                 ? "Políticas de Devolución y Garantías"
-                : "Políticas de Atención y Transparencia"}
+                : "Políticas de Cancelación y Devolución"}
             </h1>
             <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">
               {isSupplierRole
-                ? "Configura las reglas de devolución de producto, garantías de fabricante y bioseguridad para tus compradores en QuHealthy."
-                : "Configura las reglas de cancelación de citas y/o devoluciones de insumos según los servicios y productos que ofreces."}
+                ? "Configura las reglas paramétricas de devolución de producto, garantías de fabricante y bioseguridad para tus compradores en QuHealthy."
+                : "Define los plazos en horas o días y los porcentajes de reembolso aplicables por defecto a tus citas y productos, con opción de personalización atómica en el catálogo."}
             </p>
           </div>
         </motion.div>
@@ -183,7 +202,7 @@ export default function PoliciesSetupPage() {
 
             <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 px-3">
               <Layers className="w-3.5 h-3.5 text-gray-400" />
-              <span>Soporte Híbrido Citas + Farmacia</span>
+              <span>Políticas Globales Parametrizables</span>
             </div>
           </div>
         )}
@@ -202,6 +221,12 @@ export default function PoliciesSetupPage() {
               <CancellationPolicySection
                 policyText={cancellationText}
                 onChange={setCancellationText}
+                deadlineHours={deadlineHours}
+                onChangeDeadlineHours={setDeadlineHours}
+                refundPercent={refundPercent}
+                onChangeRefundPercent={setRefundPercent}
+                policyType={cancellationPolicyType}
+                onChangePolicyType={setCancellationPolicyType}
               />
             </motion.div>
           ) : (
@@ -216,6 +241,12 @@ export default function PoliciesSetupPage() {
               <ReturnPolicySection
                 policyText={returnText}
                 onChange={setReturnText}
+                returnWindowDays={returnWindowDays}
+                onChangeReturnWindowDays={setReturnWindowDays}
+                returnRefundPercent={returnRefundPercent}
+                onChangeReturnRefundPercent={setReturnRefundPercent}
+                policyType={returnPolicyType}
+                onChangePolicyType={setReturnPolicyType}
               />
             </motion.div>
           )}

@@ -20,6 +20,10 @@ export interface StorefrontItem {
   durationMinutes?: number;
   modality?: 'IN_PERSON' | 'ONLINE' | 'HYBRID';
   cancellationPolicy?: string;
+  cancellationDeadlineHours?: number;
+  cancellationRefundPercent?: number;
+  returnWindowDays?: number;
+  returnRefundPercent?: number;
   followUpPeriodDays?: number;
 
   // 🚀 Campos de Marketing (Compartidos)
@@ -107,6 +111,12 @@ export interface StorefrontData {
   languages?: string[];
   cancellationPolicy?: string;
   returnPolicy?: string;
+  cancellationDeadlineHours?: number;
+  cancellationRefundPercent?: number;
+  cancellationPolicyType?: string;
+  returnWindowDays?: number;
+  returnRefundPercent?: number;
+  returnPolicyType?: string;
   tags?: string[]; 
 
   rating: number;

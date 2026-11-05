@@ -52,6 +52,12 @@ export interface StoreProfile {
   languages: string[];
   cancellationPolicy: string | null;
   returnPolicy?: string | null;
+  cancellationDeadlineHours?: number;
+  cancellationRefundPercent?: number;
+  cancellationPolicyType?: string;
+  returnWindowDays?: number;
+  returnRefundPercent?: number;
+  returnPolicyType?: string;
 }
 
 export interface UploadMediaResponse {
