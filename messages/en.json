@@ -5144,7 +5144,11 @@
       "product_deleted": "Product removed from inventory.",
       "course_saved": "Course saved successfully.",
       "course_deleted": "Course removed from your catalog.",
-      "image_uploaded": "Image updated successfully."
+      "image_uploaded": "Image updated successfully.",
+      "draft_discarded": "Draft discarded successfully.",
+      "service_duplicated": "Service duplicated as draft. Remember to save changes.",
+      "package_items_required": "You must add at least one service to the package.",
+      "image_upload_error": "Could not upload image. Please try a valid file (JPG, PNG, or WEBP)."
     }
   },
 

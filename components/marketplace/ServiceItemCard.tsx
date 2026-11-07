@@ -7,6 +7,7 @@
 import React, { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import {
   GripVertical,
   UploadCloud,
@@ -674,8 +675,28 @@ export function ServiceItemCard({
 
         <button
           type="button"
-          onClick={() => onSave(service)}
-          disabled={!isValid || (!service.hasUnsavedChanges && !service.isNew)}
+          onClick={() => {
+            if (!isValid) {
+              if (!service.name?.trim()) {
+                toast.warning("El nombre del servicio es obligatorio.");
+                return;
+              }
+              if (!service.category?.trim()) {
+                toast.warning("La categoría / especialidad es obligatoria.");
+                return;
+              }
+              if (!service.requiresEvaluation && (!service.price || service.price <= 0)) {
+                toast.warning("El precio debe ser mayor a 0 o marcar 'Requiere valoración'.");
+                return;
+              }
+              if (!service.duration || service.duration <= 0) {
+                toast.warning("La duración estimada debe ser mayor a 0 minutos.");
+                return;
+              }
+            }
+            onSave(service);
+          }}
+          disabled={!service.hasUnsavedChanges && !service.isNew}
           className="flex-1 sm:flex-none sm:min-w-[200px] h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" strokeWidth={2} />

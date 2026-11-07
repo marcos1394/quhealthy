@@ -22,6 +22,7 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { toast } from "react-toastify";
 import { UI_Package, UI_Service } from "@/types/catalog";
 
 interface PackageEditorDialogProps {
@@ -534,9 +535,24 @@ export function PackageEditorDialog({
 
             <button
               type="button"
-              onClick={() => onSave(pkg)}
-              disabled={!isValid}
-              className="h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 border-0 w-full sm:w-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => {
+                if (!isValid) {
+                  if (!pkg.name?.trim()) {
+                    toast.warning("El nombre del paquete es obligatorio.");
+                    return;
+                  }
+                  if (!pkg.packageItems || pkg.packageItems.length === 0) {
+                    toast.warning("Debes seleccionar al menos un servicio dentro del paquete.");
+                    return;
+                  }
+                  if (!pkg.price || pkg.price <= 0) {
+                    toast.warning("El precio promocional del paquete debe ser mayor a 0.");
+                    return;
+                  }
+                }
+                onSave(pkg);
+              }}
+              className="h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 border-0 w-full sm:w-auto cursor-pointer"
             >
               <Zap className="w-4 h-4" strokeWidth={2} />
               <span>{t("save_package")}</span>

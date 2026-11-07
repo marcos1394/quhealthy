@@ -481,7 +481,17 @@ export function CoursesManager({
 
                       <Button
                         type="button"
-                        onClick={() => onSave(course)}
+                        onClick={() => {
+                          if (!course.name?.trim()) {
+                            toast.warning("El nombre del curso es obligatorio.");
+                            return;
+                          }
+                          if (course.price < 0) {
+                            toast.warning("El precio del curso no puede ser negativo.");
+                            return;
+                          }
+                          onSave(course);
+                        }}
                         disabled={!course.hasUnsavedChanges && !course.isNew}
                         className={cn(
                           "w-full sm:w-auto h-11 px-8 rounded-xl text-xs font-bold transition-all border-0 shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",

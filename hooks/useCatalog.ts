@@ -162,6 +162,7 @@ export const useCatalog = () => {
 
     } catch (error) {
       console.error("Error cargando inventario", error);
+      handleApiError(error);
     } finally {
       setIsLoading(false);
     }
@@ -194,6 +195,7 @@ export const useCatalog = () => {
       }
       return { ...service, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };
@@ -203,6 +205,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
+      handleApiError(error);
       return false;
     }
   };
@@ -231,6 +234,7 @@ export const useCatalog = () => {
       }
       return { ...pkg, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };
@@ -240,6 +244,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
+      handleApiError(error);
       return false;
     }
   };
@@ -271,6 +276,7 @@ export const useCatalog = () => {
       }
       return { ...product, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };
@@ -280,6 +286,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
+      handleApiError(error);
       return false;
     }
   };
@@ -306,6 +313,7 @@ export const useCatalog = () => {
       }
       return { ...course, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };
@@ -315,6 +323,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
+      handleApiError(error);
       return false;
     }
   };
@@ -343,6 +352,7 @@ export const useCatalog = () => {
       }
       return { ...supply, id: savedItem.id!, isNew: false, hasUnsavedChanges: false };
     } catch (error: any) {
+      handleApiError(error);
       return null;
     }
   };
@@ -352,6 +362,7 @@ export const useCatalog = () => {
       await catalogService.deleteItem(id);
       return true;
     } catch (error) {
+      handleApiError(error);
       return false;
     }
   };
@@ -363,6 +374,7 @@ export const useCatalog = () => {
       return response.url;
     } catch (error) {
       console.error("Error en uploadItemImage", error);
+      handleApiError(error);
       return null;
     }
   };

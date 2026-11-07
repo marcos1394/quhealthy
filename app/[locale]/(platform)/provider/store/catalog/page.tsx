@@ -119,7 +119,10 @@ export default function CatalogSetupPage() {
       toast.warning(t("toasts.validation_name"));
       return;
     }
-    if (!service.requiresEvaluation && service.price <= 0) return;
+    if (!service.requiresEvaluation && (!service.price || service.price <= 0)) {
+      toast.warning(t("toasts.name_price_required"));
+      return;
+    }
 
     const saved = await saveService(service);
     if (saved) {
@@ -139,7 +142,11 @@ export default function CatalogSetupPage() {
     }
     const s = services.find((serv) => serv.id === id);
     if (!s) return;
-    if (s.isNew) return setServices((prev) => prev.filter((serv) => serv.id !== id));
+    if (s.isNew) {
+      setServices((prev) => prev.filter((serv) => serv.id !== id));
+      toast.info(t("toasts.draft_discarded"));
+      return;
+    }
 
     if (await deleteService(id)) {
       setServices((prev) => prev.filter((serv) => serv.id !== id));
@@ -165,6 +172,7 @@ export default function CatalogSetupPage() {
     const newServices = [...services];
     newServices.splice(index + 1, 0, duplicated);
     setServices(newServices);
+    toast.info(t("toasts.service_duplicated"));
   };
 
   // ==========================================
@@ -192,6 +200,14 @@ export default function CatalogSetupPage() {
       toast.warning(t("toasts.validation_name"));
       return false;
     }
+    if (!pkg.packageItems || pkg.packageItems.length === 0) {
+      toast.warning(t("toasts.package_items_required"));
+      return false;
+    }
+    if (!pkg.price || pkg.price <= 0) {
+      toast.warning(t("toasts.name_price_required"));
+      return false;
+    }
 
     const saved = await savePackage(pkg);
     if (saved) {
@@ -208,7 +224,11 @@ export default function CatalogSetupPage() {
   const handleDeletePackage = async (id: number) => {
     const p = packages.find((pkg) => pkg.id === id);
     if (!p) return;
-    if (p.isNew) return setPackages((prev) => prev.filter((pkg) => pkg.id !== id));
+    if (p.isNew) {
+      setPackages((prev) => prev.filter((pkg) => pkg.id !== id));
+      toast.info(t("toasts.draft_discarded"));
+      return;
+    }
 
     if (await deletePackage(id)) {
       setPackages((prev) => prev.filter((pkg) => pkg.id !== id));
@@ -252,6 +272,10 @@ export default function CatalogSetupPage() {
       toast.warning(t("toasts.validation_name"));
       return;
     }
+    if (!product.price || product.price <= 0) {
+      toast.warning(t("toasts.name_price_required"));
+      return;
+    }
 
     const saved = await saveProduct(product);
     if (saved) {
@@ -264,7 +288,11 @@ export default function CatalogSetupPage() {
   const handleDeleteProduct = async (id: number) => {
     const p = products.find((prod) => prod.id === id);
     if (!p) return;
-    if (p.isNew) return setProducts((prev) => prev.filter((prod) => prod.id !== id));
+    if (p.isNew) {
+      setProducts((prev) => prev.filter((prod) => prod.id !== id));
+      toast.info(t("toasts.draft_discarded"));
+      return;
+    }
 
     if (await deleteProduct(id)) {
       setProducts((prev) => prev.filter((prod) => prod.id !== id));
@@ -305,6 +333,10 @@ export default function CatalogSetupPage() {
       toast.warning(t("toasts.validation_name"));
       return;
     }
+    if (course.price < 0) {
+      toast.warning(t("toasts.name_price_required"));
+      return;
+    }
 
     const saved = await saveCourse(course);
     if (saved) {
@@ -317,7 +349,11 @@ export default function CatalogSetupPage() {
   const handleDeleteCourse = async (id: number) => {
     const c = courses.find((crs) => crs.id === id);
     if (!c) return;
-    if (c.isNew) return setCourses((prev) => prev.filter((crs) => crs.id !== id));
+    if (c.isNew) {
+      setCourses((prev) => prev.filter((crs) => crs.id !== id));
+      toast.info(t("toasts.draft_discarded"));
+      return;
+    }
 
     if (await deleteCourse(id)) {
       setCourses((prev) => prev.filter((crs) => crs.id !== id));
@@ -331,7 +367,10 @@ export default function CatalogSetupPage() {
   // ==========================================
   const handleImageUpload = async (id: number, file: File, type: TabType) => {
     const newUrl = await uploadItemImage(file);
-    if (!newUrl) return;
+    if (!newUrl) {
+      toast.error(t("toasts.image_upload_error"));
+      return;
+    }
 
     if (type === "SERVICES") {
       handleUpdateService(id, { imageUrl: newUrl });

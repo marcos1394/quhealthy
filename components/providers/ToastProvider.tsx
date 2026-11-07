@@ -63,7 +63,7 @@ export function ToastProvider() {
 
   return (
     <ToastContainer
-      position="bottom-right"
+      position="top-right"
       autoClose={4000}
       hideProgressBar={false}
       newestOnTop
@@ -73,6 +73,7 @@ export function ToastProvider() {
       draggable
       pauseOnHover
       theme={isDark ? "dark" : "light"}
+      style={{ zIndex: 999999 }}
       toastStyle={{
         borderRadius: "16px",
         fontSize: "13px",

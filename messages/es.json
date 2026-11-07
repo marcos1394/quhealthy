@@ -4840,7 +4840,11 @@
       "product_deleted": "Producto eliminado del inventario.",
       "course_saved": "Curso guardado con éxito.",
       "course_deleted": "Curso eliminado de tu catálogo.",
-      "image_uploaded": "Imagen actualizada correctamente."
+      "image_uploaded": "Imagen actualizada correctamente.",
+      "draft_discarded": "Borrador descartado correctamente.",
+      "service_duplicated": "Servicio duplicado en borrador. Recuerda guardar los cambios.",
+      "package_items_required": "Debes agregar al menos un servicio dentro del paquete.",
+      "image_upload_error": "No se pudo subir la imagen. Intenta con un archivo válido (JPG, PNG o WEBP)."
     }
   },
 

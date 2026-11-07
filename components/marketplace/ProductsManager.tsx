@@ -703,7 +703,17 @@ export function ProductsManager({
 
                       <Button
                         type="button"
-                        onClick={() => onSave(product)}
+                        onClick={() => {
+                          if (!product.name?.trim()) {
+                            toast.warning("El nombre del producto es obligatorio.");
+                            return;
+                          }
+                          if (!product.price || product.price <= 0) {
+                            toast.warning("El precio del producto debe ser mayor a 0.");
+                            return;
+                          }
+                          onSave(product);
+                        }}
                         disabled={!product.hasUnsavedChanges && !product.isNew}
                         className={cn(
                           "w-full sm:w-auto h-11 px-8 rounded-xl text-xs font-bold transition-all border-0 shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
