@@ -3,7 +3,7 @@
 /* eslint-disable react-doctor/button-has-type */
 /* eslint-disable @next/next/no-img-element */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
   ImagePlus,
@@ -17,19 +17,41 @@ import {
   Info,
   Camera,
   CheckSquare,
+  BriefcaseMedical,
+  ShoppingBag,
+  GraduationCap,
+  Layers,
+  Search,
 } from "lucide-react";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
-import { UI_Package, UI_Service } from "@/types/catalog";
+import {
+  UI_Package,
+  UI_Service,
+  UI_Product,
+  UI_Course,
+  PackageItemRef,
+} from "@/types/catalog";
+
+interface SelectableItem {
+  id: number;
+  name: string;
+  type: "SERVICE" | "PRODUCT" | "COURSE";
+  price: number;
+  category?: string;
+  imageUrl?: string;
+}
 
 interface PackageEditorDialogProps {
   isOpen: boolean;
   onClose: () => void;
   initialData: UI_Package | null;
-  availableServices: UI_Service[];
+  availableServices?: UI_Service[];
+  availableProducts?: UI_Product[];
+  availableCourses?: UI_Course[];
   onSave: (pkg: UI_Package) => void;
   onImageUpload?: (id: number, file: File) => void;
 }
@@ -38,7 +60,9 @@ export function PackageEditorDialog({
   isOpen,
   onClose,
   initialData,
-  availableServices,
+  availableServices = [],
+  availableProducts = [],
+  availableCourses = [],
   onSave,
   onImageUpload,
 }: PackageEditorDialogProps) {
@@ -46,7 +70,60 @@ export function PackageEditorDialog({
 
   const [pkg, setPkg] = useState<UI_Package | null>(null);
   const [discountPercent, setDiscountPercent] = useState(15);
+  const [selectedFilter, setSelectedFilter] = useState<
+    "ALL" | "SERVICE" | "PRODUCT" | "COURSE"
+  >("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Lista unificada de todos los elementos disponibles para empaquetar
+  const allAvailableItems = useMemo<SelectableItem[]>(() => {
+    const list: SelectableItem[] = [];
+
+    (availableServices || []).forEach((s) => {
+      list.push({
+        id: s.id,
+        name: s.name,
+        type: "SERVICE",
+        price: s.price,
+        category: s.category,
+        imageUrl: s.imageUrl,
+      });
+    });
+
+    (availableProducts || []).forEach((p) => {
+      list.push({
+        id: p.id,
+        name: p.name,
+        type: "PRODUCT",
+        price: p.price,
+        category: p.category,
+        imageUrl: p.imageUrl,
+      });
+    });
+
+    (availableCourses || []).forEach((c) => {
+      list.push({
+        id: c.id,
+        name: c.name,
+        type: "COURSE",
+        price: c.price,
+        category: c.category,
+        imageUrl: c.imageUrl,
+      });
+    });
+
+    return list;
+  }, [availableServices, availableProducts, availableCourses]);
+
+  function calculateRealValue(items: UI_Package["packageItems"]) {
+    if (!items) return 0;
+    return items.reduce((sum, item) => {
+      const matched = allAvailableItems.find((it) => it.id === item.id);
+      const unitPrice = matched ? matched.price : (item.price || 0);
+      return sum + unitPrice * item.quantity;
+    }, 0);
+  }
 
   useEffect(() => {
     if (isOpen && initialData) {
@@ -59,6 +136,8 @@ export function PackageEditorDialog({
       setDiscountPercent(
         rVal > 0 ? Math.round(((rVal - p.price) / rVal) * 100) : 15
       );
+      setSelectedFilter("ALL");
+      setSearchQuery("");
     }
   }, [isOpen, initialData]);
 
@@ -67,14 +146,25 @@ export function PackageEditorDialog({
   const realValue = calculateRealValue(pkg.packageItems);
   const savings = Math.max(0, realValue - pkg.price);
 
-  function calculateRealValue(items: UI_Package["packageItems"]) {
-    if (!items) return 0;
-    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }
+  const filteredItems = allAvailableItems.filter((item) => {
+    const matchesType =
+      selectedFilter === "ALL" || item.type === selectedFilter;
+    const q = searchQuery.trim().toLowerCase();
+    const matchesQuery =
+      !q ||
+      item.name.toLowerCase().includes(q) ||
+      (item.category && item.category.toLowerCase().includes(q));
+    return matchesType && matchesQuery;
+  });
 
-  const handleQuantityChange = (serviceId: number, delta: number) => {
+  const servicesCount = (availableServices || []).length;
+  const productsCount = (availableProducts || []).length;
+  const coursesCount = (availableCourses || []).length;
+  const totalCount = allAvailableItems.length;
+
+  const handleQuantityChange = (itemId: number, delta: number) => {
     const currentItems = [...(pkg.packageItems || [])];
-    const existingIndex = currentItems.findIndex((i) => i.id === serviceId);
+    const existingIndex = currentItems.findIndex((i) => i.id === itemId);
 
     if (existingIndex >= 0) {
       const newQuantity = Math.max(
@@ -84,17 +174,22 @@ export function PackageEditorDialog({
       if (newQuantity === 0) {
         currentItems.splice(existingIndex, 1);
       } else {
-        currentItems[existingIndex].quantity = newQuantity;
+        currentItems[existingIndex] = {
+          ...currentItems[existingIndex],
+          quantity: newQuantity,
+        };
       }
     } else if (delta > 0) {
-      const service = availableServices.find((s) => s.id === serviceId);
-      if (service) {
+      const targetItem = allAvailableItems.find((it) => it.id === itemId);
+      if (targetItem) {
         currentItems.push({
-          id: service.id,
-          name: service.name,
-          type: "SERVICE",
-          price: service.price,
+          id: targetItem.id,
+          name: targetItem.name,
+          type: targetItem.type,
+          price: targetItem.price,
           quantity: delta,
+          imageUrl: targetItem.imageUrl,
+          category: targetItem.category,
         });
       }
     }
@@ -158,7 +253,7 @@ export function PackageEditorDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="[&>button]:hidden bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 !w-[95vw] !max-w-[1200px] p-0 overflow-hidden rounded-3xl shadow-2xl flex flex-col max-h-[90vh] font-sans transition-colors select-none">
+      <DialogContent className="[&>button]:hidden bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 !w-[95vw] !max-w-[1240px] p-0 overflow-hidden rounded-3xl shadow-2xl flex flex-col max-h-[92vh] font-sans transition-colors select-none">
         {/* ── HEADER DEL DIÁLOGO ──────────────────────────────────────── */}
         <div className="flex items-center justify-between p-6 md:p-8 bg-gray-50/60 dark:bg-[#050505] border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div className="flex items-center gap-4">
@@ -318,67 +413,235 @@ export function PackageEditorDialog({
 
             {/* ── COLUMNA DERECHA: SELECCIÓN Y CONFIGURACIÓN DE PRECIOS ──── */}
             <div className="flex flex-col bg-white dark:bg-[#0a0a0a]">
-              {/* 1. SELECCIÓN DE SERVICIOS INCLUIDOS */}
-              <div className="flex flex-col border-b border-gray-100 dark:border-gray-800 flex-1 min-h-[280px]">
-                <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505] flex items-center justify-between shrink-0">
-                  <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                    <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                    <span>{t("included_services")}</span>
-                  </label>
+              {/* 1. SELECCIÓN DE ELEMENTOS INCLUIDOS (SERVICIOS, PRODUCTOS, CURSOS) */}
+              <div className="flex flex-col border-b border-gray-100 dark:border-gray-800 flex-1 min-h-[340px]">
+                <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-[#050505] flex flex-col gap-3 shrink-0">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                      <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <span>{t("included_services") || "Elementos Incluidos"}</span>
+                    </label>
 
-                  <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-2.5 py-0.5 text-[11px] font-bold font-mono rounded-full shadow-2xs">
-                    {t("items_count", { count: totalItemsCount })}
-                  </span>
+                    <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-2.5 py-0.5 text-[11px] font-bold font-mono rounded-full shadow-2xs">
+                      {totalItemsCount} {totalItemsCount === 1 ? "elemento" : "elementos"}
+                    </span>
+                  </div>
+
+                  {/* Pestañas de Filtro y Buscador */}
+                  <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
+                    {/* Segmented Filter Pills */}
+                    <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-gray-900/80 rounded-xl overflow-x-auto text-[11px] font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFilter("ALL")}
+                        className={cn(
+                          "px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shrink-0",
+                          selectedFilter === "ALL"
+                            ? "bg-white dark:bg-[#151515] text-gray-900 dark:text-white shadow-2xs"
+                            : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-200"
+                        )}
+                      >
+                        <Layers className="w-3.5 h-3.5" />
+                        <span>Todos</span>
+                        <span className="opacity-60 text-[10px]">({totalCount})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFilter("SERVICE")}
+                        className={cn(
+                          "px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shrink-0",
+                          selectedFilter === "SERVICE"
+                            ? "bg-white dark:bg-[#151515] text-emerald-700 dark:text-emerald-400 shadow-2xs"
+                            : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-200"
+                        )}
+                      >
+                        <BriefcaseMedical className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <span>Servicios</span>
+                        <span className="opacity-60 text-[10px]">({servicesCount})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFilter("PRODUCT")}
+                        className={cn(
+                          "px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shrink-0",
+                          selectedFilter === "PRODUCT"
+                            ? "bg-white dark:bg-[#151515] text-sky-700 dark:text-sky-400 shadow-2xs"
+                            : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-200"
+                        )}
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                        <span>Productos</span>
+                        <span className="opacity-60 text-[10px]">({productsCount})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFilter("COURSE")}
+                        className={cn(
+                          "px-2.5 py-1 rounded-lg transition-all flex items-center gap-1.5 shrink-0",
+                          selectedFilter === "COURSE"
+                            ? "bg-white dark:bg-[#151515] text-purple-700 dark:text-purple-400 shadow-2xs"
+                            : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-200"
+                        )}
+                      >
+                        <GraduationCap className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                        <span>Cursos</span>
+                        <span className="opacity-60 text-[10px]">({coursesCount})</span>
+                      </button>
+                    </div>
+
+                    {/* Search Box */}
+                    <div className="relative flex-1 sm:max-w-[180px]">
+                      <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Buscar..."
+                        className="w-full h-7 pl-7 pr-3 text-xs rounded-xl bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#0a0a0a]">
-                  {availableServices.length === 0 ? (
+                <div className="flex-1 overflow-y-auto max-h-[320px] custom-scrollbar bg-white dark:bg-[#0a0a0a]">
+                  {allAvailableItems.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-center p-10 h-full space-y-2">
                       <AlertCircle className="w-7 h-7 text-gray-300 dark:text-gray-600" strokeWidth={2} />
                       <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                        {t("no_services")}
+                        {t("no_services") || "No tienes elementos guardados"}
                       </p>
                       <p className="text-[11px] font-medium text-gray-400 max-w-xs leading-relaxed">
-                        {t("no_services_desc")}
+                        Agrega servicios, productos o cursos individuales a tu catálogo antes de crear un paquete.
+                      </p>
+                    </div>
+                  ) : filteredItems.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center text-center p-8 space-y-1">
+                      <p className="text-xs font-bold text-gray-600 dark:text-gray-400">
+                        No se encontraron elementos
+                      </p>
+                      <p className="text-[11px] text-gray-400">
+                        Prueba cambiando el filtro o término de búsqueda.
                       </p>
                     </div>
                   ) : (
                     <div className="flex flex-col p-4 gap-2">
-                      {availableServices.map((service) => {
+                      {filteredItems.map((item) => {
                         const packageItem = (pkg.packageItems || []).find(
-                          (i) => i.id === service.id
+                          (i) => i.id === item.id
                         );
                         const quantity = packageItem ? packageItem.quantity : 0;
                         const isSelected = quantity > 0;
 
+                        const typeConfig =
+                          item.type === "PRODUCT"
+                            ? {
+                                label: "Producto",
+                                icon: ShoppingBag,
+                                badgeClass:
+                                  "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800",
+                                selectedClass:
+                                  "bg-sky-50/40 dark:bg-sky-950/20 border-sky-300/80 dark:border-sky-800/60",
+                                iconBoxClass:
+                                  "bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 border-sky-200 dark:border-sky-800",
+                              }
+                            : item.type === "COURSE"
+                            ? {
+                                label: "Curso",
+                                icon: GraduationCap,
+                                badgeClass:
+                                  "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+                                selectedClass:
+                                  "bg-purple-50/40 dark:bg-purple-950/20 border-purple-300/80 dark:border-purple-800/60",
+                                iconBoxClass:
+                                  "bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800",
+                              }
+                            : {
+                                label: "Servicio",
+                                icon: BriefcaseMedical,
+                                badgeClass:
+                                  "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+                                selectedClass:
+                                  "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-300/80 dark:border-emerald-800/60",
+                                iconBoxClass:
+                                  "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+                              };
+
+                        const TypeIcon = typeConfig.icon;
+
                         return (
                           <div
-                            key={service.id}
+                            key={item.id}
                             className={cn(
                               "flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl transition-all border shadow-2xs",
                               isSelected
-                                ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-900/40"
+                                ? typeConfig.selectedClass
                                 : "bg-white dark:bg-[#0a0a0a] border-gray-100 dark:border-gray-800 hover:bg-gray-50/50 dark:hover:bg-[#050505]"
                             )}
                           >
                             <div className="flex-1 min-w-0 flex items-center gap-3">
-                              <div className="w-9 h-9 flex items-center justify-center bg-gray-50 dark:bg-[#050505] rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold font-mono text-gray-700 dark:text-gray-300 shrink-0">
+                              <div
+                                className={cn(
+                                  "w-9 h-9 flex items-center justify-center rounded-xl border text-xs font-bold font-mono shrink-0",
+                                  isSelected
+                                    ? "bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white border-gray-300 dark:border-gray-700"
+                                    : "bg-gray-50 dark:bg-[#050505] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-800"
+                                )}
+                              >
                                 {quantity}x
                               </div>
 
+                              <div
+                                className={cn(
+                                  "w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 overflow-hidden",
+                                  typeConfig.iconBoxClass
+                                )}
+                              >
+                                {item.imageUrl ? (
+                                  <img
+                                    src={item.imageUrl}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <TypeIcon className="w-4 h-4" />
+                                )}
+                              </div>
+
                               <div className="flex flex-col min-w-0 space-y-0.5">
-                                <p
-                                  className={cn(
-                                    "text-xs font-bold truncate leading-tight",
-                                    isSelected
-                                      ? "text-emerald-950 dark:text-emerald-200"
-                                      : "text-gray-900 dark:text-white"
-                                  )}
-                                >
-                                  {service.name}
-                                </p>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <p
+                                    className={cn(
+                                      "text-xs font-bold truncate leading-tight",
+                                      isSelected
+                                        ? "text-gray-950 dark:text-white"
+                                        : "text-gray-900 dark:text-white"
+                                    )}
+                                  >
+                                    {item.name}
+                                  </p>
+                                  <span
+                                    className={cn(
+                                      "px-1.5 py-0.2 rounded-md text-[9px] font-bold border",
+                                      typeConfig.badgeClass
+                                    )}
+                                  >
+                                    {typeConfig.label}
+                                  </span>
+                                </div>
                                 <span className="text-[11px] font-mono font-bold text-gray-400">
-                                  ${service.price} c/u
+                                  ${item.price} c/u {item.category ? `• ${item.category}` : ""}
                                 </span>
                               </div>
                             </div>
@@ -388,7 +651,7 @@ export function PackageEditorDialog({
                               <button
                                 type="button"
                                 onClick={() =>
-                                  handleQuantityChange(service.id, -1)
+                                  handleQuantityChange(item.id, -1)
                                 }
                                 className="w-9 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer font-bold text-xs"
                               >
@@ -400,7 +663,7 @@ export function PackageEditorDialog({
                               <button
                                 type="button"
                                 onClick={() =>
-                                  handleQuantityChange(service.id, 1)
+                                  handleQuantityChange(item.id, 1)
                                 }
                                 className="w-9 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] transition-colors cursor-pointer font-bold text-xs"
                               >
@@ -448,54 +711,55 @@ export function PackageEditorDialog({
                 {/* Controles de Precio y Slider */}
                 <div className="space-y-5">
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                        <Percent className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <div className="flex justify-between items-center text-xs font-bold">
+                      <span className="text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                        <Percent className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
                         <span>{t("suggested_discount")}</span>
-                      </label>
-                      <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono shadow-2xs">
+                      </span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-mono text-sm">
                         {discountPercent}%
                       </span>
                     </div>
 
                     <Slider
                       value={[discountPercent]}
-                      max={60}
                       min={0}
+                      max={70}
                       step={1}
-                      onValueChange={(vals) => applyDiscountPercent(vals[0])}
-                      className="py-1"
+                      onValueChange={(val) => applyDiscountPercent(val[0])}
+                      className="py-2"
                     />
 
                     <div className="flex gap-2">
-                      {suggestedDiscounts.map((sug, idx) => (
+                      {suggestedDiscounts.map((d) => (
                         <button
-                          key={idx}
+                          key={d.percent}
                           type="button"
-                          onClick={() => applyDiscountPercent(sug.percent)}
+                          onClick={() => applyDiscountPercent(d.percent)}
                           className={cn(
-                            "flex-1 h-9 rounded-xl text-xs font-bold font-mono transition-all border cursor-pointer shadow-2xs",
-                            discountPercent === sug.percent
-                              ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
-                              : "bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-emerald-500/30"
+                            "flex-1 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all shadow-2xs cursor-pointer",
+                            discountPercent === d.percent
+                              ? "bg-emerald-600 text-white border-emerald-600"
+                              : "bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#111]"
                           )}
                         >
-                          {sug.label}
+                          {d.label}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Campo de precio comercial manual */}
+                  {/* Input Precio Final Manual */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
-                      {t("manual_price")}
+                    <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                      <DollarSign className="w-4 h-4 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                      <span>{t("manual_price")}</span>
                     </label>
+
                     <div className="relative">
-                      <DollarSign
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600 dark:text-emerald-400 pointer-events-none"
-                        strokeWidth={2}
-                      />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 font-mono font-bold text-sm">
+                        $
+                      </div>
                       <input
                         type="number"
                         min="0"
@@ -542,7 +806,9 @@ export function PackageEditorDialog({
                     return;
                   }
                   if (!pkg.packageItems || pkg.packageItems.length === 0) {
-                    toast.warning("Debes seleccionar al menos un servicio dentro del paquete.");
+                    toast.warning(
+                      "Debes seleccionar al menos un servicio, producto o curso dentro del paquete."
+                    );
                     return;
                   }
                   if (!pkg.price || pkg.price <= 0) {

@@ -2,9 +2,17 @@
 
 /* eslint-disable react-doctor/button-has-type */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Edit2, Trash2, Sparkles, Camera } from "lucide-react";
+import {
+  Edit2,
+  Trash2,
+  Sparkles,
+  Camera,
+  BriefcaseMedical,
+  ShoppingBag,
+  GraduationCap,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -15,20 +23,30 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { UI_Package, UI_Service } from "@/types/catalog";
+import {
+  UI_Package,
+  UI_Service,
+  UI_Product,
+  UI_Course,
+} from "@/types/catalog";
 import { GalleryUploadManager } from "@/components/ui/gallery/GalleryUploadManager";
 import { BeforeAfterUploader } from "@/components/ui/gallery/BeforeAfterUploader";
+import { cn } from "@/lib/utils";
 
 interface PackageItemCardProps {
   pkg: UI_Package;
-  availableServices: UI_Service[];
+  availableServices?: UI_Service[];
+  availableProducts?: UI_Product[];
+  availableCourses?: UI_Course[];
   onEdit: (pkg: UI_Package) => void;
   onDelete: (id: number) => void;
 }
 
 export function PackageItemCard({
   pkg,
-  availableServices,
+  availableServices = [],
+  availableProducts = [],
+  availableCourses = [],
   onEdit,
   onDelete,
 }: PackageItemCardProps) {
@@ -36,20 +54,31 @@ export function PackageItemCard({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
+  // Lista unificada para resolver precios y nombres reales de todos los tipos de items
+  const allAvailableItems = useMemo(() => {
+    const list: { id: number; name: string; price: number; type: string }[] = [];
+    (availableServices || []).forEach((s) =>
+      list.push({ id: s.id, name: s.name, price: s.price, type: "SERVICE" })
+    );
+    (availableProducts || []).forEach((p) =>
+      list.push({ id: p.id, name: p.name, price: p.price, type: "PRODUCT" })
+    );
+    (availableCourses || []).forEach((c) =>
+      list.push({ id: c.id, name: c.name, price: c.price, type: "COURSE" })
+    );
+    return list;
+  }, [availableServices, availableProducts, availableCourses]);
+
   // Helpers de cálculo de valor real y ahorro
   const realVal = (pkg.packageItems || []).reduce((sum, item) => {
-    const s = availableServices.find((srv) => srv.id === item.id);
-    return sum + (s ? s.price * item.quantity : 0);
+    const matched = allAvailableItems.find((it) => it.id === item.id);
+    const unitPrice = matched ? matched.price : item.price || 0;
+    return sum + unitPrice * item.quantity;
   }, 0);
 
   const savingsAmt = Math.max(0, realVal - pkg.price);
   const savingsPerc =
     realVal > 0 ? Math.round((savingsAmt / realVal) * 100) : 0;
-
-  const totalServicesCount = (pkg.packageItems || []).reduce(
-    (acc, i) => acc + i.quantity,
-    0
-  );
 
   return (
     <motion.div
@@ -102,7 +131,7 @@ export function PackageItemCard({
         </p>
       </div>
 
-      {/* ── INVENTARIO DE SERVICIOS (CHIPS) ─────────────────────────── */}
+      {/* ── INVENTARIO DE ELEMENTOS (CHIPS COMBINADOS) ─────────────────────────── */}
       <div className="p-6 flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] space-y-3">
         <span className="text-xs font-bold text-gray-800 dark:text-gray-200 tracking-tight">
           {t("package_content")}
@@ -110,20 +139,40 @@ export function PackageItemCard({
 
         <div className="flex flex-wrap gap-2 content-start">
           {(pkg.packageItems || []).map((item) => {
-            const s = availableServices.find(
-              (service) => service.id === item.id
-            );
-            return s && item.quantity > 0 ? (
+            const matched = allAvailableItems.find((it) => it.id === item.id);
+            const name = matched?.name || item.name;
+            const type = item.type || matched?.type || "SERVICE";
+            if (item.quantity <= 0) return null;
+
+            const TypeIcon =
+              type === "PRODUCT"
+                ? ShoppingBag
+                : type === "COURSE"
+                ? GraduationCap
+                : BriefcaseMedical;
+
+            const chipColor =
+              type === "PRODUCT"
+                ? "bg-sky-50/70 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-800/50"
+                : type === "COURSE"
+                ? "bg-purple-50/70 dark:bg-purple-950/30 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800/50"
+                : "bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50";
+
+            return (
               <span
                 key={item.id}
-                className="text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-50/80 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-2xs"
+                className={cn(
+                  "text-xs font-semibold border rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-2xs",
+                  chipColor
+                )}
               >
-                <span className="flex items-center justify-center bg-gray-200 dark:bg-gray-800 rounded-lg px-2 py-0.5 text-[10px] font-bold font-mono text-gray-800 dark:text-gray-200">
+                <span className="flex items-center justify-center bg-black/5 dark:bg-white/10 rounded-lg px-2 py-0.5 text-[10px] font-bold font-mono">
                   {item.quantity}x
                 </span>
-                <span>{s.name}</span>
+                <TypeIcon className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                <span className="truncate max-w-[180px]">{name}</span>
               </span>
-            ) : null;
+            );
           })}
         </div>
       </div>
@@ -168,15 +217,25 @@ export function PackageItemCard({
               </div>
 
               <div className="space-y-8">
-                <GalleryUploadManager
-                  galleryType="SERVICE_WORK"
-                  catalogItemId={pkg.id}
-                  title={t("result_photos_title")}
-                  description={t("result_photos_desc")}
-                  maxImages={5}
-                />
+                {/* 1. Módulo: Fotos de Resultados Clínicos */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("result_photos_title")}
+                  </h4>
+                  <GalleryUploadManager
+                    galleryType="SERVICE_WORK"
+                    catalogItemId={pkg.id}
+                    title={t("result_photos_title")}
+                    description={t("gallery_subtitle")}
+                    maxImages={5}
+                  />
+                </div>
 
-                <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
+                {/* 2. Módulo: Casos Antes / Después */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {t("before_after_title")}
+                  </h4>
                   <BeforeAfterUploader catalogItemId={pkg.id} />
                 </div>
               </div>
@@ -185,73 +244,60 @@ export function PackageItemCard({
         )}
       </AnimatePresence>
 
-      {/* ── FOOTER DE PRECIOS Y TOTALES ──────────────────────────────── */}
-      <div className="p-6 bg-gray-50/60 dark:bg-[#050505] border-t border-gray-100 dark:border-gray-800 flex items-end justify-between shrink-0">
+      {/* ── FOOTER DE PRECIOS ────────────────────────────────────────── */}
+      <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-[#050505] flex items-center justify-between">
         <div className="flex flex-col space-y-0.5">
-          {savingsAmt > 0 && (
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-xs font-mono font-semibold text-gray-400 line-through">
-                ${realVal}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                {t("savings_amount", { amount: savingsAmt })}
-              </span>
-            </div>
-          )}
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-mono font-black text-gray-900 dark:text-white tracking-tight leading-none">
-              ${pkg.price}
-            </span>
-            <span className="text-xs font-bold text-gray-400 uppercase">
-              MXN
-            </span>
-          </div>
+          <span className="text-[11px] font-bold text-gray-400">
+            {t("real_value")}
+          </span>
+          <span className="text-xs font-mono font-bold text-gray-400 line-through">
+            ${realVal}
+          </span>
         </div>
 
-        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 px-3 py-1.5 rounded-xl shadow-2xs font-mono">
-          {t("services_count", { count: totalServicesCount })}
-        </span>
+        <div className="flex flex-col items-end space-y-0.5">
+          <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+            {t("manual_price")}
+          </span>
+          <span className="text-lg sm:text-xl font-mono font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+            ${pkg.price}
+          </span>
+        </div>
       </div>
 
-      {/* ── MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ───────────────────── */}
+      {/* ── MODAL DE ELIMINACIÓN ─────────────────────────────────────── */}
       <AlertDialog
         open={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}
       >
-        <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-0 overflow-hidden shadow-2xl sm:max-w-md [&>button]:hidden font-sans">
-          <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800">
-            <AlertDialogHeader className="space-y-3">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-2xs">
-                  <Trash2 className="w-6 h-6" strokeWidth={2} />
-                </div>
-                <AlertDialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
-                  {t("delete_confirm_title")}
-                </AlertDialogTitle>
-              </div>
-              <AlertDialogDescription className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed text-left">
-                {t("delete_confirm_message")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-          </div>
+        <AlertDialogContent className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-gray-800 rounded-3xl p-6 md:p-8 max-w-md shadow-2xl font-sans select-none">
+          <AlertDialogHeader className="space-y-2">
+            <AlertDialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+              {t("delete_confirm_title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+              {t("delete_confirm_desc", { name: pkg.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-          <AlertDialogFooter className="p-5 bg-gray-50/60 dark:bg-[#050505] flex flex-row gap-3 sm:space-x-0 border-none justify-end">
+          <AlertDialogFooter className="flex-row gap-3 justify-end mt-6">
             <button
               type="button"
               onClick={() => setIsDeleteModalOpen(false)}
-              className="flex-1 h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all shadow-2xs cursor-pointer"
+              className="h-10 px-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#111] transition-all text-xs font-bold shadow-2xs cursor-pointer"
             >
               {t("cancel")}
             </button>
+
             <button
               type="button"
               onClick={() => {
                 onDelete(pkg.id);
                 setIsDeleteModalOpen(false);
               }}
-              className="flex-1 h-11 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-all shadow-xs cursor-pointer border-0"
+              className="h-10 px-5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-xs border-0 cursor-pointer"
             >
-              {t("confirm_delete")}
+              {t("delete_btn")}
             </button>
           </AlertDialogFooter>
         </AlertDialogContent>

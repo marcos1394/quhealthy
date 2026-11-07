@@ -286,6 +286,13 @@ export default function CatalogSetupPage() {
   };
 
   const handleDeleteProduct = async (id: number) => {
+    const isInPackage = packages.some((pkg) =>
+      (pkg.packageItems || []).some((item) => item.id === id)
+    );
+    if (isInPackage) {
+      toast.warning(t("toasts.product_in_package"));
+      return;
+    }
     const p = products.find((prod) => prod.id === id);
     if (!p) return;
     if (p.isNew) {
@@ -347,6 +354,13 @@ export default function CatalogSetupPage() {
   };
 
   const handleDeleteCourse = async (id: number) => {
+    const isInPackage = packages.some((pkg) =>
+      (pkg.packageItems || []).some((item) => item.id === id)
+    );
+    if (isInPackage) {
+      toast.warning(t("toasts.course_in_package"));
+      return;
+    }
     const c = courses.find((crs) => crs.id === id);
     if (!c) return;
     if (c.isNew) {
@@ -408,6 +422,12 @@ export default function CatalogSetupPage() {
 
   const availableServicesForPackages = services.filter(
     (s) => !s.isNew && !s.hasUnsavedChanges
+  );
+  const availableProductsForPackages = products.filter(
+    (p) => !p.isNew && !p.hasUnsavedChanges
+  );
+  const availableCoursesForPackages = courses.filter(
+    (c) => !c.isNew && !c.hasUnsavedChanges
   );
 
   return (
@@ -559,8 +579,9 @@ export default function CatalogSetupPage() {
                   <PackagesManager
                     // @ts-ignore
                     packages={packages}
-                    // @ts-ignore
                     availableServices={availableServicesForPackages}
+                    availableProducts={availableProductsForPackages}
+                    availableCourses={availableCoursesForPackages}
                     onAdd={handleAddPackage}
                     onSave={handleSavePackage}
                     onDelete={handleDeletePackage}

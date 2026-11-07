@@ -76,6 +76,17 @@ export interface UI_Service {
   hasUnsavedChanges?: boolean;
 }
 
+// Interfaz para la referencia de un ítem dentro de un Paquete
+export interface PackageItemRef {
+  id: number;
+  name: string;
+  type: 'SERVICE' | 'PRODUCT' | 'COURSE' | ItemType;
+  imageUrl?: string;
+  price: number;
+  quantity: number;
+  category?: string;
+}
+
 // Interfaz para la UI de Paquetes
 export interface UI_Package {
   id: number;
@@ -83,14 +94,7 @@ export interface UI_Package {
   description: string;
   category?: string; 
   price: number;
-  packageItems?: {
-    id: number;
-    name: string;
-    type: 'SERVICE' | 'PRODUCT';
-    imageUrl?: string;
-    price: number;
-    quantity: number;
-  }[];
+  packageItems?: PackageItemRef[];
   imageUrl?: string; 
   galleryImages?: GalleryImage[];
   cancellationPolicy?: CancellationPolicy;

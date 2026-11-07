@@ -11,11 +11,13 @@ import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import { PackageItemCard } from "./PackageItemCard";
 import { PackageEditorDialog } from "./PackageEditorDialog";
-import { UI_Package, UI_Service } from "@/types/catalog";
+import { UI_Package, UI_Service, UI_Product, UI_Course } from "@/types/catalog";
 
 interface PackagesManagerProps {
   packages: UI_Package[];
-  availableServices: UI_Service[];
+  availableServices?: UI_Service[];
+  availableProducts?: UI_Product[];
+  availableCourses?: UI_Course[];
   onAdd?: () => void;
   onSave: (pkg: UI_Package) => Promise<boolean> | void | boolean;
   onDelete: (id: number) => void;
@@ -27,7 +29,9 @@ interface PackagesManagerProps {
 
 export function PackagesManager({
   packages,
-  availableServices,
+  availableServices = [],
+  availableProducts = [],
+  availableCourses = [],
   onAdd,
   onSave,
   onDelete,
@@ -193,6 +197,8 @@ export function PackagesManager({
                   key={pkg.id}
                   pkg={pkg}
                   availableServices={availableServices}
+                  availableProducts={availableProducts}
+                  availableCourses={availableCourses}
                   onEdit={handleOpenDialog}
                   onDelete={onDelete}
                 />
@@ -231,6 +237,8 @@ export function PackagesManager({
           onClose={() => setIsDialogOpen(false)}
           initialData={editingPackage}
           availableServices={availableServices}
+          availableProducts={availableProducts}
+          availableCourses={availableCourses}
           onSave={handleSaveWrapper}
           onImageUpload={onImageUpload}
         />
