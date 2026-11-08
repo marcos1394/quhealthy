@@ -339,6 +339,7 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
                 </span>
                 <Input
                   value={mod.title}
+                  maxLength={500}
                   onChange={(e) =>
                     setModules(
                       modules.map((m) =>
@@ -386,6 +387,7 @@ export function CourseCurriculumBuilder({ catalogItemId }: Props) {
                           </span>
                           <Input
                             value={lesson.title}
+                            maxLength={500}
                             onChange={(e) =>
                               setModules(
                                 modules.map((m) =>
