@@ -36,9 +36,16 @@ export interface CatalogItemDTO {
   stockQuantity?: number;
   stockAlertThreshold?: number; // 🚨 NUEVO
   isDigital?: boolean;
+  isMedicalProduct?: boolean;
   activeIngredient?: string;
   manufacturer?: string;
   requiresPrescription?: boolean;
+  cofeprisCategory?: string;
+  isAntibiotic?: boolean;
+  requiresPhysicalRetention?: boolean;
+  allowsInterstateShipping?: boolean;
+  requiresResponsiblePharmacistApproval?: boolean;
+  technicalSheetUrl?: string;
 
   // 🏷️ Marketing y Precios
   compareAtPrice?: number;
@@ -116,7 +123,10 @@ export interface UI_Product {
   sku?: string;
   imageUrl?: string;
   
-  // 💊 Campos Farmacéuticos y COFEPRIS
+  // 🏷️ Clasificación de Producto
+  isMedicalProduct?: boolean;
+
+  // 💊 Campos Farmacéuticos y COFEPRIS (Solo aplican si isMedicalProduct === true)
   activeIngredient?: string;
   manufacturer?: string;
   requiresPrescription?: boolean;
@@ -124,6 +134,7 @@ export interface UI_Product {
   isAntibiotic?: boolean;
   requiresPhysicalRetention?: boolean;
   allowsInterstateShipping?: boolean;
+  requiresResponsiblePharmacistApproval?: boolean;
   technicalSheetUrl?: string;
 
   returnWindowDays?: number;

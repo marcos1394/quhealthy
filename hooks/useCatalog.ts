@@ -96,6 +96,20 @@ export const useCatalog = () => {
       // 📦 NUEVO: Formateamos Productos Físicos
       const loadedProducts: UI_Product[] = items.reduce<UI_Product[]>((acc, item) => {
         if (item.type === 'PRODUCT') {
+          const regMeta = (item as any).regulatoryMetadata;
+          const hasMedicalCategory = Boolean(
+            (regMeta?.cofeprisCategory && regMeta.cofeprisCategory !== 'OTC_GENERAL') ||
+            ((item as any).cofeprisCategory && (item as any).cofeprisCategory !== 'OTC_GENERAL')
+          );
+          const isMedical = Boolean(
+            (item.activeIngredient && item.activeIngredient.trim().length > 0) ||
+            item.requiresPrescription ||
+            regMeta?.requiresPrescription ||
+            regMeta?.isAntibiotic ||
+            regMeta?.requiresPhysicalRetention ||
+            hasMedicalCategory
+          );
+
           acc.push({
             id: item.id!,
             name: item.name,
@@ -106,9 +120,18 @@ export const useCatalog = () => {
             stockAlertThreshold: item.stockAlertThreshold || 5, // 🚨 NUEVO
             sku: item.sku || '',
             imageUrl: item.imageUrl,
+            isMedicalProduct: isMedical,
             activeIngredient: item.activeIngredient || '',
             manufacturer: item.manufacturer || '',
-            requiresPrescription: item.requiresPrescription || false,
+            requiresPrescription: regMeta?.requiresPrescription ?? item.requiresPrescription ?? false,
+            cofeprisCategory: regMeta?.cofeprisCategory ?? (item as any).cofeprisCategory ?? 'OTC_GENERAL',
+            isAntibiotic: regMeta?.isAntibiotic ?? (item as any).isAntibiotic ?? false,
+            requiresPhysicalRetention: regMeta?.requiresPhysicalRetention ?? (item as any).requiresPhysicalRetention ?? false,
+            allowsInterstateShipping: regMeta?.allowsInterstateShipping ?? (item as any).allowsInterstateShipping ?? true,
+            requiresResponsiblePharmacistApproval: regMeta?.requiresResponsiblePharmacistApproval ?? (item as any).requiresResponsiblePharmacistApproval ?? false,
+            technicalSheetUrl: (item as any).technicalSheetUrl || '',
+            returnWindowDays: item.returnWindowDays,
+            returnRefundPercent: item.returnRefundPercent,
             isNew: false,
             hasUnsavedChanges: false
           });
@@ -251,6 +274,7 @@ export const useCatalog = () => {
 
   // 📦 --- GESTIÓN DE PRODUCTOS ---
   const saveProduct = async (product: UI_Product): Promise<UI_Product | null> => {
+    const isMedical = Boolean(product.isMedicalProduct);
     const payload: CatalogItemDTO = {
       type: 'PRODUCT',
       name: product.name,
@@ -262,9 +286,18 @@ export const useCatalog = () => {
       sku: product.sku,
       isDigital: false,
       imageUrl: product.imageUrl,
-      activeIngredient: product.activeIngredient,
-      manufacturer: product.manufacturer,
-      requiresPrescription: product.requiresPrescription
+      isMedicalProduct: isMedical,
+      activeIngredient: isMedical ? (product.activeIngredient || '') : '',
+      manufacturer: product.manufacturer || '',
+      requiresPrescription: isMedical ? Boolean(product.requiresPrescription) : false,
+      cofeprisCategory: isMedical ? (product.cofeprisCategory || 'OTC_GENERAL') : 'OTC_GENERAL',
+      isAntibiotic: isMedical ? Boolean(product.isAntibiotic) : false,
+      requiresPhysicalRetention: isMedical ? Boolean(product.requiresPhysicalRetention) : false,
+      allowsInterstateShipping: isMedical ? (product.allowsInterstateShipping ?? true) : true,
+      requiresResponsiblePharmacistApproval: isMedical ? Boolean(product.requiresPrescription) : false,
+      technicalSheetUrl: isMedical ? (product.technicalSheetUrl || '') : '',
+      returnWindowDays: product.returnWindowDays,
+      returnRefundPercent: product.returnRefundPercent
     };
 
     try {

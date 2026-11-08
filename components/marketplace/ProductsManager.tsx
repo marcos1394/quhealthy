@@ -23,6 +23,9 @@ import {
   Building2,
   ShieldAlert,
   FileText,
+  Package,
+  Check,
+  Boxes,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -125,16 +128,28 @@ export function ProductsManager({
 
       const aiData = await catalogAiService.scanProductImage(base64String);
 
+      const currentProduct = products.find((p) => p.id === productId);
+      const isPharmaDetected = Boolean(
+        (aiData.activeIngredient && aiData.activeIngredient.trim().length > 0) ||
+        (aiData.cofeprisCategory && aiData.cofeprisCategory !== "OTC_GENERAL") ||
+        aiData.requiresPrescription ||
+        aiData.isAntibiotic ||
+        aiData.requiresPhysicalRetention
+      );
+
+      const shouldBeMedical = currentProduct?.isMedicalProduct || isPharmaDetected;
+
       onUpdate(productId, {
-        name: aiData.name || "",
-        description: aiData.description || "",
-        activeIngredient: aiData.activeIngredient || "",
-        manufacturer: aiData.manufacturer || "",
-        cofeprisCategory: aiData.cofeprisCategory || "OTC_GENERAL",
-        requiresPrescription: aiData.requiresPrescription || false,
-        isAntibiotic: aiData.isAntibiotic || false,
-        requiresPhysicalRetention: aiData.requiresPhysicalRetention || false,
-        allowsInterstateShipping: aiData.allowsInterstateShipping ?? true,
+        name: aiData.name || currentProduct?.name || "",
+        description: aiData.description || currentProduct?.description || "",
+        manufacturer: aiData.manufacturer || currentProduct?.manufacturer || "",
+        isMedicalProduct: shouldBeMedical,
+        activeIngredient: shouldBeMedical ? (aiData.activeIngredient || "") : "",
+        cofeprisCategory: shouldBeMedical ? (aiData.cofeprisCategory || "OTC_GENERAL") : "OTC_GENERAL",
+        requiresPrescription: shouldBeMedical ? (aiData.requiresPrescription || false) : false,
+        isAntibiotic: shouldBeMedical ? (aiData.isAntibiotic || false) : false,
+        requiresPhysicalRetention: shouldBeMedical ? (aiData.requiresPhysicalRetention || false) : false,
+        allowsInterstateShipping: shouldBeMedical ? (aiData.allowsInterstateShipping ?? true) : true,
       });
 
       toast.update(loadingToast, {
@@ -397,18 +412,159 @@ export function ProductsManager({
 
                   {/* 📝 Zona Principal: Formulario */}
                   <div className="flex-1 p-6 md:p-8 space-y-6">
-                    {/* 🚀 Banner de Escaneo e Extracción Inteligente */}
-                    <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
+                    {/* 🏷️ Selector de Tipo de Producto */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                          {t("product_type_label")}
+                        </label>
+                        <span
+                          className={cn(
+                            "text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-2xs font-mono",
+                            product.isMedicalProduct
+                              ? "bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+                              : "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                          )}
+                        >
+                          {product.isMedicalProduct ? t("badge_medical") : t("badge_general")}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Opción 1: Producto General */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onUpdate(product.id, {
+                              isMedicalProduct: false,
+                              cofeprisCategory: "OTC_GENERAL",
+                              activeIngredient: "",
+                              requiresPrescription: false,
+                              isAntibiotic: false,
+                              requiresPhysicalRetention: false,
+                              allowsInterstateShipping: true,
+                              requiresResponsiblePharmacistApproval: false,
+                            });
+                          }}
+                          className={cn(
+                            "flex items-start gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative",
+                            !product.isMedicalProduct
+                              ? "bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-500 ring-2 ring-emerald-500/20 shadow-2xs"
+                              : "bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 transition-colors",
+                              !product.isMedicalProduct
+                                ? "bg-emerald-600 text-white shadow-xs"
+                                : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500"
+                            )}
+                          >
+                            <Package className="w-4 h-4" strokeWidth={2} />
+                          </div>
+                          <div className="flex-1 min-w-0 pr-4">
+                            <span className="text-xs font-bold text-gray-900 dark:text-white block">
+                              {t("type_general_title")}
+                            </span>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
+                              {t("type_general_desc")}
+                            </p>
+                          </div>
+                          {!product.isMedicalProduct && (
+                            <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                              <Check className="w-3 h-3" strokeWidth={3} />
+                            </div>
+                          )}
+                        </button>
+
+                        {/* Opción 2: Medicamento / Clínico */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onUpdate(product.id, {
+                              isMedicalProduct: true,
+                              cofeprisCategory: product.cofeprisCategory || "OTC_GENERAL",
+                            });
+                          }}
+                          className={cn(
+                            "flex items-start gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative",
+                            product.isMedicalProduct
+                              ? "bg-purple-50/60 dark:bg-purple-950/20 border-purple-500 ring-2 ring-purple-500/20 shadow-2xs"
+                              : "bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 transition-colors",
+                              product.isMedicalProduct
+                                ? "bg-purple-600 text-white shadow-xs"
+                                : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500"
+                            )}
+                          >
+                            <FlaskConical className="w-4 h-4" strokeWidth={2} />
+                          </div>
+                          <div className="flex-1 min-w-0 pr-4">
+                            <span className="text-xs font-bold text-gray-900 dark:text-white block">
+                              {t("type_medical_title")}
+                            </span>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
+                              {t("type_medical_desc")}
+                            </p>
+                          </div>
+                          {product.isMedicalProduct && (
+                            <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-2xs">
+                              <Check className="w-3 h-3" strokeWidth={3} />
+                            </div>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 🚀 Banner de Escaneo con IA */}
+                    <div
+                      className={cn(
+                        "rounded-2xl border p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs transition-colors",
+                        product.isMedicalProduct
+                          ? "border-purple-200 dark:border-purple-900/40 bg-purple-50/40 dark:bg-purple-950/20"
+                          : "border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20"
+                      )}
+                    >
                       <div className="space-y-0.5">
-                        <h4 className="text-xs sm:text-sm font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                        <h4
+                          className={cn(
+                            "text-xs sm:text-sm font-bold flex items-center gap-1.5",
+                            product.isMedicalProduct
+                              ? "text-purple-900 dark:text-purple-300"
+                              : "text-emerald-900 dark:text-emerald-300"
+                          )}
+                        >
                           <Sparkles
-                            className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+                            className={cn(
+                              "w-4 h-4",
+                              product.isMedicalProduct
+                                ? "text-purple-600 dark:text-purple-400"
+                                : "text-emerald-600 dark:text-emerald-400"
+                            )}
                             strokeWidth={2}
                           />
-                          <span>{t("ai_scanner_title")}</span>
+                          <span>
+                            {product.isMedicalProduct
+                              ? t("ai_scanner_medical_title")
+                              : t("ai_scanner_general_title")}
+                          </span>
                         </h4>
-                        <p className="text-xs font-medium text-emerald-800/80 dark:text-emerald-400/80 leading-relaxed">
-                          {t("ai_scanner_subtitle")}
+                        <p
+                          className={cn(
+                            "text-xs font-medium leading-relaxed",
+                            product.isMedicalProduct
+                              ? "text-purple-800/80 dark:text-purple-400/80"
+                              : "text-emerald-800/80 dark:text-emerald-400/80"
+                          )}
+                        >
+                          {product.isMedicalProduct
+                            ? t("ai_scanner_medical_subtitle")
+                            : t("ai_scanner_general_subtitle")}
                         </p>
                       </div>
 
@@ -430,7 +586,12 @@ export function ProductsManager({
                             setIsCameraOpen(true);
                           }}
                           disabled={scanningProductId === product.id}
-                          className="flex-1 md:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold h-10 px-4 transition-all shadow-xs border-0 cursor-pointer disabled:opacity-50"
+                          className={cn(
+                            "flex-1 md:flex-none rounded-xl text-white text-xs font-bold h-10 px-4 transition-all shadow-xs border-0 cursor-pointer disabled:opacity-50",
+                            product.isMedicalProduct
+                              ? "bg-purple-600 hover:bg-purple-700"
+                              : "bg-emerald-600 hover:bg-emerald-700"
+                          )}
                         >
                           {scanningProductId === product.id ? (
                             <>
@@ -452,7 +613,12 @@ export function ProductsManager({
                             fileInputRefs.current[`ai_${product.id}`]?.click()
                           }
                           disabled={scanningProductId === product.id}
-                          className="flex-1 md:flex-none rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-[#0a0a0a] text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-xs font-bold h-10 px-4 transition-all shadow-2xs cursor-pointer"
+                          className={cn(
+                            "flex-1 md:flex-none rounded-xl border bg-white dark:bg-[#0a0a0a] text-xs font-bold h-10 px-4 transition-all shadow-2xs cursor-pointer",
+                            product.isMedicalProduct
+                              ? "border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/30"
+                              : "border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                          )}
                         >
                           <ImagePlus className="w-4 h-4 mr-1.5" strokeWidth={2} />
                           <span>{t("btn_scan_file")}</span>
@@ -461,30 +627,49 @@ export function ProductsManager({
                     </div>
 
                     {/* Campos Básicos */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
-                          {t("label_name")} <span className="text-rose-500">*</span>
-                        </label>
-                        <Input
-                          value={product.name}
-                          onChange={(e) =>
-                            onUpdate(product.id, { name: e.target.value })
-                          }
-                          placeholder={t("placeholder_name")}
-                          className={cn(
-                            "rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs",
-                            !product.name
-                              ? "border-rose-200 dark:border-rose-900/50"
-                              : ""
-                          )}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-4">
+                      {/* Fila 1: Nombre y Categoría */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-1.5">
                           <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
-                            {t("label_price")}
+                            {t("label_name")} <span className="text-rose-500">*</span>
+                          </label>
+                          <Input
+                            value={product.name}
+                            onChange={(e) =>
+                              onUpdate(product.id, { name: e.target.value })
+                            }
+                            placeholder={t("placeholder_name")}
+                            className={cn(
+                              "rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs",
+                              !product.name
+                                ? "border-rose-200 dark:border-rose-900/50"
+                                : ""
+                            )}
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                            <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                            <span>{t("label_category")}</span>
+                          </label>
+                          <Input
+                            value={product.category}
+                            onChange={(e) =>
+                              onUpdate(product.id, { category: e.target.value })
+                            }
+                            placeholder={t("placeholder_category")}
+                            className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Fila 2: Precio, SKU, Stock, Alerta Mínima */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                            {t("label_price")} <span className="text-rose-500">*</span>
                           </label>
                           <div className="relative">
                             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">
@@ -505,174 +690,239 @@ export function ProductsManager({
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                            <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                            <span>{t("label_category")}</span>
+                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block truncate">
+                            {t("label_sku")}
                           </label>
                           <Input
-                            value={product.category}
+                            value={product.sku || ""}
                             onChange={(e) =>
-                              onUpdate(product.id, { category: e.target.value })
+                              onUpdate(product.id, { sku: e.target.value })
                             }
-                            placeholder={t("placeholder_category")}
+                            placeholder={t("placeholder_sku")}
+                            className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-mono font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1 truncate">
+                            <Boxes className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span>{t("label_stock")}</span>
+                          </label>
+                          <Input
+                            type="number"
+                            min="0"
+                            value={product.stockQuantity ?? 0}
+                            onChange={(e) =>
+                              onUpdate(product.id, {
+                                stockQuantity: parseInt(e.target.value, 10) || 0,
+                              })
+                            }
+                            className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-mono font-bold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block truncate">
+                            {t("label_stock_alert")}
+                          </label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={product.stockAlertThreshold ?? 5}
+                            onChange={(e) =>
+                              onUpdate(product.id, {
+                                stockAlertThreshold: parseInt(e.target.value, 10) || 5,
+                              })
+                            }
+                            className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-mono font-bold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Marca / Fabricante opcional para productos generales */}
+                      {!product.isMedicalProduct && (
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                            <span>{t("label_brand_general")}</span>
+                          </label>
+                          <Input
+                            value={product.manufacturer || ""}
+                            onChange={(e) =>
+                              onUpdate(product.id, { manufacturer: e.target.value })
+                            }
+                            placeholder={t("placeholder_brand_general")}
                             className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
                           />
                         </div>
-                      </div>
+                      )}
                     </div>
 
-                    {/* 🛡️ SECCIÓN CUMPLIMIENTO REGULATORIO (COFEPRIS) */}
-                    <div className="border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xs space-y-0">
-                      <div className="border-b border-gray-100 dark:border-gray-800 p-4 bg-gray-50/60 dark:bg-[#050505]">
-                        <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                          <ShieldAlert
-                            className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
-                            strokeWidth={2}
-                          />
-                          <span>{t("cofepris_section_title")}</span>
-                        </h4>
-                      </div>
-
-                      <div className="p-5 space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                          {/* Clasificación Sanitaria */}
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
-                              {t("label_sanitary_class")}
-                            </label>
-                            <select
-                              value={product.cofeprisCategory || "OTC_GENERAL"}
-                              onChange={(e) =>
-                                onUpdate(product.id, {
-                                  cofeprisCategory: e.target.value,
-                                })
-                              }
-                              className="w-full h-11 rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 px-3.5 transition-all appearance-none cursor-pointer shadow-2xs"
-                            >
-                              {cofeprisCategories.map((cat) => (
-                                <option
-                                  key={cat.value}
-                                  value={cat.value}
-                                  className="bg-white dark:bg-[#0a0a0a]"
-                                >
-                                  {cat.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          {/* Ficha Técnica (PDF) */}
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                              <FileText className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                              <span>{t("label_technical_sheet")}</span>
-                            </label>
-                            <Input
-                              value={product.technicalSheetUrl || ""}
-                              onChange={(e) =>
-                                onUpdate(product.id, {
-                                  technicalSheetUrl: e.target.value,
-                                })
-                              }
-                              placeholder={t("placeholder_technical_sheet")}
-                              className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-mono font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
-                            />
-                          </div>
-
-                          {/* Sustancia Activa */}
-                          <div className="space-y-1.5 relative">
-                            <div className="flex items-center justify-between">
-                              <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                                <FlaskConical className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                                <span>{t("label_active_ingredient")}</span>
-                              </label>
-                              {suggestStatus[product.id] === "SEARCHING" && (
-                                <span className="text-[11px] font-bold text-emerald-600 animate-pulse font-mono">
-                                  {t("validating_db")}
-                                </span>
-                              )}
-                            </div>
-                            <Input
-                              value={product.activeIngredient || ""}
-                              onChange={(e) =>
-                                handleActiveIngredientChange(
-                                  product.id,
-                                  e.target.value
-                                )
-                              }
-                              placeholder={t("placeholder_active_ingredient")}
-                              className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
-                            />
-                          </div>
-
-                          {/* Laboratorio / Marca */}
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                              <Building2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
-                              <span>{t("label_manufacturer")}</span>
-                            </label>
-                            <Input
-                              value={product.manufacturer || ""}
-                              onChange={(e) =>
-                                onUpdate(product.id, {
-                                  manufacturer: e.target.value,
-                                })
-                              }
-                              placeholder={t("placeholder_manufacturer")}
-                              className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all shadow-2xs"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Bandera de Restricciones Reguladoras */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-                          {[
-                            {
-                              field: "requiresPrescription",
-                              labelKey: "check_requires_prescription",
-                            },
-                            {
-                              field: "isAntibiotic",
-                              labelKey: "check_is_antibiotic",
-                            },
-                            {
-                              field: "requiresPhysicalRetention",
-                              labelKey: "check_requires_physical_retention",
-                            },
-                            {
-                              field: "allowsInterstateShipping",
-                              labelKey: "check_allows_interstate_shipping",
-                            },
-                          ].map(({ field, labelKey }) => (
-                            <label
-                              key={field}
-                              className="flex items-center space-x-3 cursor-pointer p-3 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-emerald-500/30 transition-all shadow-2xs"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={
-                                  (product[
-                                    field as keyof UI_Product
-                                  ] as boolean) ??
-                                  (field === "allowsInterstateShipping"
-                                    ? true
-                                    : false)
-                                }
-                                onChange={(e) =>
-                                  onUpdate(product.id, {
-                                    [field]: e.target.checked,
-                                  })
-                                }
-                                className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 dark:border-gray-700 dark:bg-[#0a0a0a]"
+                    {/* 🛡️ SECCIÓN CUMPLIMIENTO REGULATORIO (COFEPRIS) - Solo visible para medicamentos */}
+                    <AnimatePresence>
+                      {product.isMedicalProduct && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border border-purple-200 dark:border-purple-900/50 bg-white dark:bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xs space-y-0"
+                        >
+                          <div className="border-b border-purple-100 dark:border-purple-900/40 p-4 bg-purple-50/50 dark:bg-purple-950/20 flex items-center justify-between">
+                            <h4 className="text-xs font-bold text-purple-900 dark:text-purple-300 flex items-center gap-2">
+                              <ShieldAlert
+                                className="w-4 h-4 text-purple-600 dark:text-purple-400"
+                                strokeWidth={2}
                               />
-                              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                                {t(labelKey)}
-                              </span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                              <span>{t("cofepris_section_title")}</span>
+                            </h4>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400 font-mono">
+                              COFEPRIS
+                            </span>
+                          </div>
+
+                          <div className="p-5 space-y-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                              {/* Clasificación Sanitaria */}
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                                  {t("label_sanitary_class")}
+                                </label>
+                                <select
+                                  value={product.cofeprisCategory || "OTC_GENERAL"}
+                                  onChange={(e) =>
+                                    onUpdate(product.id, {
+                                      cofeprisCategory: e.target.value,
+                                    })
+                                  }
+                                  className="w-full h-11 rounded-xl bg-gray-50/50 dark:bg-[#050505] border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 px-3.5 transition-all appearance-none cursor-pointer shadow-2xs"
+                                >
+                                  {cofeprisCategories.map((cat) => (
+                                    <option
+                                      key={cat.value}
+                                      value={cat.value}
+                                      className="bg-white dark:bg-[#0a0a0a]"
+                                    >
+                                      {cat.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {/* Ficha Técnica (PDF) */}
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                  <FileText className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" strokeWidth={2} />
+                                  <span>{t("label_technical_sheet")}</span>
+                                </label>
+                                <Input
+                                  value={product.technicalSheetUrl || ""}
+                                  onChange={(e) =>
+                                    onUpdate(product.id, {
+                                      technicalSheetUrl: e.target.value,
+                                    })
+                                  }
+                                  placeholder={t("placeholder_technical_sheet")}
+                                  className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-mono font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-purple-500/20 focus-visible:border-purple-500 transition-all shadow-2xs"
+                                />
+                              </div>
+
+                              {/* Sustancia Activa */}
+                              <div className="space-y-1.5 relative">
+                                <div className="flex items-center justify-between">
+                                  <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                    <FlaskConical className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" strokeWidth={2} />
+                                    <span>{t("label_active_ingredient")}</span>
+                                  </label>
+                                  {suggestStatus[product.id] === "SEARCHING" && (
+                                    <span className="text-[11px] font-bold text-purple-600 animate-pulse font-mono">
+                                      {t("validating_db")}
+                                    </span>
+                                  )}
+                                </div>
+                                <Input
+                                  value={product.activeIngredient || ""}
+                                  onChange={(e) =>
+                                    handleActiveIngredientChange(
+                                      product.id,
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder={t("placeholder_active_ingredient")}
+                                  className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-purple-500/20 focus-visible:border-purple-500 transition-all shadow-2xs"
+                                />
+                              </div>
+
+                              {/* Laboratorio / Fabricante */}
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                  <Building2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" strokeWidth={2} />
+                                  <span>{t("label_manufacturer")}</span>
+                                </label>
+                                <Input
+                                  value={product.manufacturer || ""}
+                                  onChange={(e) =>
+                                    onUpdate(product.id, {
+                                      manufacturer: e.target.value,
+                                    })
+                                  }
+                                  placeholder={t("placeholder_manufacturer")}
+                                  className="rounded-xl bg-gray-50/50 dark:bg-[#050505] border-gray-200 dark:border-gray-800 h-11 text-xs font-semibold text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-purple-500/20 focus-visible:border-purple-500 transition-all shadow-2xs"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Banderas de Restricciones Reguladoras */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-purple-100 dark:border-purple-900/40">
+                              {[
+                                {
+                                  field: "requiresPrescription",
+                                  labelKey: "check_requires_prescription",
+                                },
+                                {
+                                  field: "isAntibiotic",
+                                  labelKey: "check_is_antibiotic",
+                                },
+                                {
+                                  field: "requiresPhysicalRetention",
+                                  labelKey: "check_requires_physical_retention",
+                                },
+                                {
+                                  field: "allowsInterstateShipping",
+                                  labelKey: "check_allows_interstate_shipping",
+                                },
+                              ].map(({ field, labelKey }) => (
+                                <label
+                                  key={field}
+                                  className="flex items-center space-x-3 cursor-pointer p-3 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#050505] hover:border-purple-500/30 transition-all shadow-2xs"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      (product[
+                                        field as keyof UI_Product
+                                      ] as boolean) ??
+                                      (field === "allowsInterstateShipping"
+                                        ? true
+                                        : false)
+                                    }
+                                    onChange={(e) =>
+                                      onUpdate(product.id, {
+                                        [field]: e.target.checked,
+                                      })
+                                    }
+                                    className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 dark:border-gray-700 dark:bg-[#0a0a0a]"
+                                  />
+                                  <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                                    {t(labelKey)}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     {/* Descripción Comercial */}
                     <div className="space-y-1.5">
@@ -705,12 +955,23 @@ export function ProductsManager({
                         type="button"
                         onClick={() => {
                           if (!product.name?.trim()) {
-                            toast.warning("El nombre del producto es obligatorio.");
+                            toast.warning(tGlobal("validation_name") || "El nombre del producto es obligatorio.");
                             return;
                           }
                           if (!product.price || product.price <= 0) {
-                            toast.warning("El precio del producto debe ser mayor a 0.");
+                            toast.warning(tGlobal("name_price_required") || "El precio del producto debe ser mayor a 0.");
                             return;
+                          }
+                          if (
+                            product.isMedicalProduct &&
+                            product.cofeprisCategory &&
+                            product.cofeprisCategory !== "OTC_GENERAL" &&
+                            product.cofeprisCategory !== "OTC_FARMACIA"
+                          ) {
+                            if (!product.activeIngredient?.trim()) {
+                              toast.warning("Para medicamentos regulados por COFEPRIS, la sustancia activa es obligatoria.");
+                              return;
+                            }
                           }
                           onSave(product);
                         }}
