@@ -43,7 +43,7 @@ import {
 } from "@/types/cfdi";
 import { validateCfdiPayload } from "@/lib/fiscal/cfdi-validator";
 import { QhSpinner } from "@/components/ui/QhSpinner";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 function FacturacionContent() {
   const searchParams = useSearchParams();

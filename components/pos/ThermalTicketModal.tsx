@@ -19,7 +19,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { PosReceipt } from "@/types/pos";
 import { generateThermalTicketPdf } from "@/lib/pdf/thermalTicketPdf";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 interface ThermalTicketModalProps {
   isOpen: boolean;

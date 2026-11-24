@@ -15,7 +15,7 @@ import { CatalogItemDTO } from "@/types/catalog";
 import { useBookingStore } from "@/hooks/useBookingStore";
 import { Button } from "@/components/ui/button";
 import { StorefrontItem } from "@/types/storefront";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 interface AddToCartButtonProps {
   item: CatalogItemDTO;

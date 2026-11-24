@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { GoogleMap, useJsApiLoader, Circle, MarkerF } from "@react-google-maps/api";
 import { useTheme } from "next-themes";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 import { homeVisitService, HomeVisitSettings } from "@/services/homeVisit.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";

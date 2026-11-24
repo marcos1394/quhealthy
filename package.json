@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint . --max-warnings 892",
     "type-check": "tsc --noEmit",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"

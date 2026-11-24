@@ -13,7 +13,7 @@ import {
   Stethoscope,
   Navigation,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { homeVisitService } from "@/services/homeVisit.service";
 
 export interface IncomingHomeVisitRequest {

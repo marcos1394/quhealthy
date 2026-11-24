@@ -37,7 +37,7 @@ import {
 import { clinicalBudgetService } from "@/services/clinical-budget.service";
 import { generateClinicalBudgetPdf } from "@/lib/pdf/clinicalBudgetPdf";
 import Link from "next/link";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 
 export default function PatientBudgetsPage() {

@@ -40,7 +40,7 @@ import {
 import { posService } from "@/services/pos.service";
 import { useCatalog } from "@/hooks/useCatalog";
 import { patientDirectoryService } from "@/services/patientDirectory.service";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { QhSpinner } from "@/components/ui/QhSpinner";
 import { cn } from "@/lib/utils";
 

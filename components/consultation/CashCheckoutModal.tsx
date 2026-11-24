@@ -18,7 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { useTranslations } from "next-intl";
 
 import { paymentService } from "@/services/payment.service";

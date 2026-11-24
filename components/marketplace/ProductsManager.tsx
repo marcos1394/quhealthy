@@ -63,6 +63,7 @@ export function ProductsManager({
 }: ProductsManagerProps) {
   const t = useTranslations("Marketplace.products");
   const tGlobal = useTranslations("StoreCatalog.actions");
+  const tToasts = useTranslations("StoreCatalog.toasts");
 
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
@@ -955,11 +956,11 @@ export function ProductsManager({
                         type="button"
                         onClick={() => {
                           if (!product.name?.trim()) {
-                            toast.warning(tGlobal("validation_name") || "El nombre del producto es obligatorio.");
+                            toast.warning(tToasts("validation_name"));
                             return;
                           }
                           if (!product.price || product.price <= 0) {
-                            toast.warning(tGlobal("name_price_required") || "El precio del producto debe ser mayor a 0.");
+                            toast.warning(tToasts("name_price_required"));
                             return;
                           }
                           if (

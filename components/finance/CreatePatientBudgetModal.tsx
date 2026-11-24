@@ -60,7 +60,7 @@ import { onboardingService } from "@/services/onboarding.service";
 import { PatientDirectorySearchResult } from "@/types/patient";
 import { CatalogItemDTO } from "@/types/catalog";
 import { ProfileResponse } from "@/types/onboarding";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 
 interface CreatePatientBudgetModalProps {

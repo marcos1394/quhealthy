@@ -425,7 +425,6 @@
     },
     "footer": "💡 Every module shares the same data, identity, and workflows for a seamless healthcare experience."
   },
-
   "Auth": {
     "title": "Welcome back",
     "subtitle": "Access your account to continue",
@@ -525,7 +524,6 @@
       }
     }
   },
-
   "OnboardingLayout": {
     "meta_title": "Onboarding | QuHealthy",
     "meta_description": "Complete your professional profile and verification on the QuHealthy platform.",
@@ -535,8 +533,6 @@
     "return_home": "Return home",
     "logout": "Log out"
   },
-
-
   "AuthSignupConsumer": {
     "title": "Create your Account",
     "subtitle": "Join thousands of satisfied users",
@@ -576,10 +572,10 @@
     "secure_connection": "100% Secure",
     "secure_desc": "Your data is protected",
     "success_toast": "Registration successful! Please check your email.",
-    "captcha_error": "Security validation error. Please try again."
+    "captcha_error": "Security validation error. Please try again.",
+    "error_generic": "An error occurred while creating your account. Please try again.",
+    "toast_success": "Account created successfully! Check your email to verify it."
   },
- 
-
   "AuthSignupProvider": {
     "title": "Join QuHealthy",
     "subtitle": "Create your professional account and digitize your practice today",
@@ -623,9 +619,9 @@
     "secure_connection": "100% Secure",
     "secure_desc": "Your data is encrypted and protected",
     "success_toast": "Account created successfully! Please check your email.",
-    "captcha_error": "Security validation error. Please try again."
+    "captcha_error": "Security validation error. Please try again.",
+    "toast_success": "Registration complete! Check your email to continue."
   },
-
   "AuthSignupSupplier": {
     "title": "Join as Medical Supplier",
     "subtitle": "Create your corporate account and access the national healthcare procurement network",
@@ -671,7 +667,6 @@
     "success_toast": "Account created successfully! Please complete your company onboarding.",
     "captcha_error": "Security validation error. Please try again."
   },
-
   "AuthSignupLaboratory": {
     "title": "Join as Clinical Laboratory",
     "subtitle": "Create your institutional account and digitize clinical diagnostics under NOM-007",
@@ -717,7 +712,6 @@
     "success_toast": "Account created successfully! Please verify your email.",
     "captcha_error": "Security validation error. Please try again."
   },
-
   "AuthSignupFoundation": {
     "title": "Join the Foundations Network",
     "subtitle": "Create your institutional account and digitize assistance programs",
@@ -763,8 +757,6 @@
     "success_toast": "Account created successfully! Please complete your institution profile.",
     "captcha_error": "Security validation error. Please try again."
   },
-
-
   "AuthForgotPassword": {
     "title": "Recover Account",
     "area_title": "Recover Your Access",
@@ -820,7 +812,6 @@
     "error_captcha": "Security verification error. Please try again.",
     "error_reset": "Error updating password. Please try again."
   },
-
   "PrivacyModal": {
     "title": "Privacy Notice & Policy",
     "last_updated": "Last updated: January 15, 2025",
@@ -876,10 +867,22 @@
     "sec4_card4_desc": "Access logs",
     "sec5_title": "Your Privacy Rights (ARCO Rights)",
     "sec5_rights": [
-      { "title": "Access", "desc": "Request a copy of all your stored data." },
-      { "title": "Rectification", "desc": "Correct outdated or inaccurate information." },
-      { "title": "Cancellation", "desc": "Request full deletion of your records." },
-      { "title": "Opposition", "desc": "Object to specific processing purposes." }
+      {
+        "title": "Access",
+        "desc": "Request a copy of all your stored data."
+      },
+      {
+        "title": "Rectification",
+        "desc": "Correct outdated or inaccurate information."
+      },
+      {
+        "title": "Cancellation",
+        "desc": "Request full deletion of your records."
+      },
+      {
+        "title": "Opposition",
+        "desc": "Object to specific processing purposes."
+      }
     ],
     "sec5_contact": "To exercise any of your rights, contact: privacy@quhealthy.org",
     "sec6_title": "Official Privacy Contact",
@@ -893,7 +896,6 @@
     "btn_close": "Close",
     "btn_understand": "Understood"
   },
-
   "TermsModal": {
     "title": "General Terms and Conditions of Use",
     "last_updated": "Last updated: August 20, 2026",
@@ -959,8 +961,7 @@
     "notice_text": "By clicking \"I Have Read & Accept\", you confirm that you have fully understood these terms, assuming all rights and responsibilities inherent to your platform role and capabilities.",
     "btn_close": "Close",
     "btn_accept": "I Have Read & Accept"
-  },  
-
+  },
   "BookingFlow": {
     "step_mode_title": "What would you like to do?",
     "mode_schedule_title": "Schedule appointment now",
@@ -979,7 +980,6 @@
       "sun": "Sun"
     }
   },
-
   "PackageScheduler": {
     "step_title": "Schedule Package Sessions",
     "step_desc": "Select a convenient date and time for each session included in your package.",
@@ -1002,7 +1002,6 @@
       "sun": "Sun"
     }
   },
-
   "PatientCheckout": {
     "patient_assignment_title": "Patient Assignment",
     "patient_assignment_desc": "Select the corresponding medical record for this consultation.",
@@ -1015,7 +1014,6 @@
     "btn_add_dependent": "Add Dependent",
     "loading_family": "Loading family members..."
   },
-
   "AppointmentConfirmation": {
     "cart_summary": "Appointment Summary",
     "label_provider": "Assigned Specialist",
@@ -1051,7 +1049,6 @@
     "qr_label": "QR Access Pass",
     "tip_arrive": "Show this code at reception upon arrival for fast check-in."
   },
-
   "AuthActivateStaff": {
     "title": "Activate Your Account",
     "subtitle": "Complete your details to join the clinic team at QuHealthy.",
@@ -1089,8 +1086,6 @@
     "val_password_number": "Must contain at least one number",
     "val_passwords_not_match": "Passwords do not match"
   },
-
-
   "AuthResetPassword": {
     "title": "Reset Password",
     "desc": "Create a new secure password for your account",
@@ -1129,9 +1124,6 @@
     "secure_connection": "Secure connection with SSL encryption",
     "loading_module": "Loading reset module..."
   },
-
-
-  
   "AuthVerifyEmail": {
     "title": "Verifying your Email",
     "desc": "Please wait while we confirm your account",
@@ -1169,7 +1161,6 @@
     "role_patient": "Patient Account",
     "loading_verification": "Loading verification..."
   },
-
   "AuthVerifyPhone": {
     "title": "Verify your Phone",
     "desc": "Enter the 6-digit code we sent via SMS",
@@ -1202,13 +1193,11 @@
     "verify_success_toast": "Phone verified successfully",
     "verify_error": "Error verifying phone"
   },
-
   "AuthLoading": {
     "title": "Verifying Credentials",
     "subtitle": "Securely accessing the system...",
     "aria_label": "Loading authentication status"
   },
-
   "PatientAppointmentDetails": {
     "loading": "Loading your appointment details...",
     "not_found_title": "Appointment not found",
@@ -1260,7 +1249,6 @@
     "status_completed": "Completed",
     "status_cancelled": "Cancelled"
   },
-
   "AppointmentDetails": {
     "header": {
       "back": "Back to my appointments",
@@ -1296,9 +1284,19 @@
       "start_call": "Join video call",
       "link_generating": "Generating your secure link...",
       "no_address": "Address pending confirmation. We recommend reaching out to your specialist."
+    },
+    "qr": {
+      "title": "QR Code Access Pass",
+      "subtitle": "Show this code at reception upon arrival to check in quickly."
+    },
+    "time": {
+      "title": "Scheduled Date & Time",
+      "date_label": "Appointment date",
+      "time_label": "Time & duration",
+      "hrs": "hrs",
+      "min": "min consultation"
     }
   },
-
   "OnboardingChecklist": {
     "badge": "Initial Setup",
     "title": "Welcome to QuHealthy",
@@ -1343,7 +1341,6 @@
     "btn_correct_info": "Update Info",
     "btn_start": "Start"
   },
-
   "PublicPrescription": {
     "protected_title": "Protected Prescription",
     "protected_desc": "To protect your medical privacy, please enter the last 4 digits of your cell phone number.",
@@ -1359,7 +1356,6 @@
     "audio_guide_error": "Could not generate audio prescription at this time.",
     "iframe_title": "Digital medical prescription"
   },
-
   "OnboardingProfile": {
     "badge": "Professional profile setup",
     "title": "Practice or business information",
@@ -1410,7 +1406,6 @@
     "saving": "Saving...",
     "security_footer": "Encrypted information integrated under SSL security standard."
   },
-
   "OnboardingDependents": {
     "header_badge": "Family Unit",
     "title": "Family Members & Dependents",
@@ -1464,7 +1459,6 @@
       "gender_rel_required": "Please select both sex and relationship."
     }
   },
-
   "OnboardingWearables": {
     "header_badge": "Health Devices",
     "title": "Connect your smartwatches and devices",
@@ -1510,8 +1504,6 @@
       "revoke_error": "Error disconnecting device."
     }
   },
-
-  
   "OnboardingConsumer": {
     "header_brand": "QuHealthy",
     "header_sub": "Your Health Profile",
@@ -1652,7 +1644,6 @@
       }
     }
   },
-
   "OnboardingLicense": {
     "health_title": "Medical license & credentials",
     "beauty_title": "Commercial or operating license",
@@ -1701,7 +1692,6 @@
       "save_success": "Licenses saved successfully."
     }
   },
-
   "OnboardingFiscal": {
     "title": "Tax setup",
     "subtitle": "Provide your official tax documents issued by SAT to enable automated invoicing for your consultations and verify your tax identity.",
@@ -1774,7 +1764,6 @@
       "csd_format_hint": "{accept} • CSD File max 2MB"
     }
   },
-
   "OnboardingKyc": {
     "title": "Identity verification",
     "desc": "Upload a valid government-issued ID and a facial selfie to verify your account in compliance with healthcare security standards.",
@@ -1818,7 +1807,6 @@
     "success_toast": "Identity verified successfully!",
     "pending_toast": "Please upload all required documents to continue."
   },
-
   "PatientDashboard": {
     "Header": {
       "morning_greeting": "Good morning, {name} 👋",
@@ -2018,24 +2006,27 @@
       "water_label": "Daily Water (Liters)",
       "step4_title": "Mental Wellness",
       "stress_label": "Recent stress level (1-10)",
-      "sleep_label": "Average sleep hours"
+      "sleep_label": "Average sleep hours",
+      "btn_submitting": "Saving profile...",
+      "sleep_unit": "{hours} hrs / night",
+      "stress_unit": "Level {level} / 10",
+      "water_unit": "{liters} L / day"
     },
     "EditHealthProfileModal": {
-    "title": "Edit Medical History",
-    "description": "Update the patient's core clinical record in the directory.",
-    "blood_type": "Blood Type",
-    "not_registered": "Not registered",
-    "unknown": "UNKNOWN",
-    "height": "Height (CM)",
-    "height_placeholder": "E.g.: 175",
-    "weight": "Weight (KG)",
-    "weight_placeholder": "E.g.: 70.5",
-    "btn_cancel": "Cancel",
-    "btn_saving": "Saving...",
-    "btn_save": "Save Changes"
-  }
+      "title": "Edit Medical History",
+      "description": "Update the patient's core clinical record in the directory.",
+      "blood_type": "Blood Type",
+      "not_registered": "Not registered",
+      "unknown": "UNKNOWN",
+      "height": "Height (CM)",
+      "height_placeholder": "E.g.: 175",
+      "weight": "Weight (KG)",
+      "weight_placeholder": "E.g.: 70.5",
+      "btn_cancel": "Cancel",
+      "btn_saving": "Saving...",
+      "btn_save": "Save Changes"
+    }
   },
-
   "PatientTeleconsultation": {
     "loading_preparing": "Preparing secure environment...",
     "failed_title": "Connection Failed",
@@ -2086,7 +2077,6 @@
       "btn_go_dashboard": "Go to Main Dashboard"
     }
   },
-
   "PatientWalletSuccess": {
     "title": "Fund Top-up Approved",
     "description": "The transaction has been successfully verified. Your balance is now available in your QuHealthy Wallet for future appointments and services.",
@@ -2094,7 +2084,6 @@
     "btn_wallet": "Access My Wallet",
     "btn_dashboard": "Return to Main Dashboard"
   },
-
   "PatientVaccination": {
     "title": "National Health Record",
     "subtitle": "Pediatric immunization tracking (Official Schedule)",
@@ -2117,8 +2106,6 @@
     "age_years": "{years} years",
     "age_months": "{months} months"
   },
-
-
   "DashboardAppointments": {
     "title": "Appointments",
     "subtitle": "Manage and track your patients' appointments.",
@@ -2273,10 +2260,26 @@
     },
     "medical_appointment": "Medical Appointment",
     "drag_here": "Drag appointments here",
-    "no_appointments_filter": "No appointments match this filter."
+    "no_appointments_filter": "No appointments match this filter.",
+    "RescheduleModal": {
+      "title": "Reschedule appointment",
+      "subtitle": "Choose a new available date and time for this consultation.",
+      "step1_label": "1. Select a new date",
+      "date_placeholder": "Choose a date",
+      "step2_label": "2. Select an available time slot",
+      "select_date_first": "Select a date first to view available times.",
+      "checking_slots": "Checking available slots...",
+      "no_slots_available": "No time slots available for this date.",
+      "step3_label": "3. Reason for rescheduling (optional)",
+      "reason_placeholder": "E.g. Schedule change or patient request...",
+      "btn_cancel": "Cancel",
+      "btn_confirm": "Confirm reschedule",
+      "btn_submitting": "Rescheduling...",
+      "toast_select_required": "Select a date and time to continue.",
+      "toast_success": "Appointment rescheduled successfully.",
+      "toast_error": "Could not reschedule the appointment. Please try again."
+    }
   },
-
-
   "DashboardCompletionModal": {
     "title": "Complete Appointment",
     "subtitle": "Finalize this appointment and add notes",
@@ -2297,7 +2300,6 @@
     "cancel": "Cancel",
     "processing": "Processing..."
   },
-
   "DashboardBilling": {
     "title": "Billing & Payments",
     "subtitle": "Manage your transactions, receipts, and payouts",
@@ -2363,9 +2365,9 @@
     "btn_print": "Print",
     "btn_download_pdf": "Download PDF",
     "print_notice": "Preparing print view...",
-    "pdf_download_notice": "Downloading PDF receipt..."
+    "pdf_download_notice": "Downloading PDF receipt...",
+    "modal_patient": "Patient"
   },
-
   "CreateScheduleDrawer": {
     "title": "Schedule Maintenance",
     "subtitle": "Configure automated alerts",
@@ -2390,7 +2392,6 @@
     "toast_success": "Schedule configured successfully.",
     "toast_error": "Failed to configure schedule."
   },
-
   "CreateWarrantyDrawer": {
     "title": "New Warranty",
     "subtitle": "Register equipment coverage",
@@ -2409,7 +2410,6 @@
     "toast_success": "Warranty registered successfully.",
     "toast_error": "Error registering warranty."
   },
-
   "BiomedicalEquipments": {
     "subtitle": "Clinical Engineering",
     "title": "Equipment Catalog",
@@ -2440,7 +2440,6 @@
     "risk_high": "High",
     "not_available": "N/A"
   },
-
   "BiomedicalDashboard": {
     "subtitle": "Clinical Engineering",
     "title": "Biomedical Equipment",
@@ -2456,7 +2455,6 @@
     "expiring_warranties_title": "Expiring Warranties",
     "no_expiring_warranties": "No warranties expiring in the next 30 days."
   },
-
   "RegisterEquipmentDrawer": {
     "title": "New Biomedical Equipment",
     "description": "Clinical inventory registration",
@@ -2493,7 +2491,6 @@
     "toast_success": "Equipment registered successfully.",
     "toast_error": "Error registering equipment."
   },
-
   "CreateWorkOrderDrawer": {
     "title": "New Work Order",
     "subtitle": "Generate maintenance ticket",
@@ -2520,7 +2517,6 @@
     "toast_success": "Work order created successfully.",
     "toast_error": "Failed to create work order."
   },
-
   "BiomedicalEquipmentDetail": {
     "loading": "Loading equipment record...",
     "not_found_title": "Equipment Not Found",
@@ -2623,7 +2619,6 @@
       "btn_send": "Send"
     }
   },
-
   "DashboardStripeConnect": {
     "title": "Payment & Payout Engine",
     "financial_config": "Financial Setup",
@@ -2644,8 +2639,7 @@
     "connect_stripe": "Connect Bank Account",
     "security_footer": "All your bank information is encrypted and managed directly by Stripe. QuHealthy does not store sensitive banking data."
   },
-
-"DashboardCalendar": {
+  "DashboardCalendar": {
     "title": "Calendar & Schedule",
     "subtitle": "Manage your operating hours, block personal time, and sync your appointments.",
     "operating_hours": "Operating Hours",
@@ -2674,8 +2668,7 @@
       "active": "Active"
     }
   },
-
- "CashRegister": {
+  "CashRegister": {
     "btn_processing": "Processing...",
     "toast_close_success": "Cash register closed successfully.",
     "close_modal_protocol": "Closing Protocol",
@@ -2783,9 +2776,12 @@
       "toast_mismatch_error": "Denomination change (${changeTotal}) does not match exact change (${correctChange}).",
       "toast_success": "Payment recorded and cash register updated.",
       "toast_error": "Could not process cash payment. Please try again."
-    }
+    },
+    "error_close_generic": "Could not close the cash register. Please try again.",
+    "error_negative_balance": "Counted amount cannot be negative.",
+    "shortage_detected": "Shortage detected",
+    "surplus_detected": "Surplus detected"
   },
-
   "DashboardCalendarView": {
     "confirmed": "Confirmed",
     "pending": "Pending",
@@ -2898,7 +2894,6 @@
     "tmpl_vacation": "Vacation",
     "tmpl_morning": "Morning Routine"
   },
-  
   "DashboardDocuments": {
     "card": {
       "verified": "Verified",
@@ -2921,7 +2916,11 @@
       "verified_desc": "Your files are processed with medical-grade end-to-end encryption to safeguard your record.",
       "exceeds_size": "File exceeds maximum allowed size of {size} MB.",
       "unsupported_format": "Unsupported format. Please use one of the following: {formats}.",
-      "file_selected": "File selected successfully."
+      "file_selected": "File selected successfully.",
+      "title": "Upload document",
+      "subtitle": "Supported formats: PDF, JPG, or PNG (max. 10 MB).",
+      "uploaded_success": "Document uploaded successfully for review.",
+      "validation_error": "Please check the selected file and try again."
     },
     "actions": {
       "preview": "Preview document",
@@ -2929,9 +2928,27 @@
       "more_options": "More options"
     },
     "empty_title": "No documents",
-    "empty_desc": "No documents were found in this section."
+    "empty_desc": "No documents were found in this section.",
+    "title": "Documents & Credentials",
+    "subtitle": "Manage your official documents, medical licenses, and professional certifications.",
+    "files_title": "My documents",
+    "empty": "You haven't uploaded any documents in this category yet.",
+    "deleted_toast": "Document deleted successfully.",
+    "downloading": "Downloading {name}...",
+    "stats": {
+      "total": "Total",
+      "verified": "Verified",
+      "pending": "Pending",
+      "in_review": "In review",
+      "active": "Active"
+    },
+    "tabs": {
+      "all": "All",
+      "verified": "Verified",
+      "pending": "Pending",
+      "rejected": "Rejected"
+    }
   },
-
   "Emergencies": {
     "title": "Emergency & Triage",
     "subtitle": "Immediate Medical Care • NOM-004",
@@ -2942,7 +2959,6 @@
     "toast_load_error": "Failed to load emergency queue.",
     "toast_register_success": "Patient checked into emergency room successfully."
   },
-
   "BudgetCalendar": {
     "title": "Monthly Schedule",
     "subtitle": "Monthly budget distribution for Budget #{id}",
@@ -2975,7 +2991,6 @@
       "save_error": "Failed to save schedule."
     }
   },
-
   "BudgetBuilder": {
     "title_new": "New Budget",
     "subtitle": "Budget Builder (Grid)",
@@ -3016,7 +3031,6 @@
       "OTHER_EXPENSE": "Other Operating Expenses"
     }
   },
-
   "CreateTransferDrawer": {
     "title": "New Reallocation",
     "subtitle": "Transfer funds between budget line items",
@@ -3041,7 +3055,6 @@
       "error": "Failed to submit reallocation request."
     }
   },
-
   "BudgetTransfers": {
     "title": "Budget Reallocations",
     "subtitle": "Fund transfers between line items",
@@ -3072,7 +3085,6 @@
       "reject_error": "Failed to reject transfer."
     }
   },
-
   "CreateCommitmentDrawer": {
     "title": "New Commitment",
     "subtitle": "Set aside funds for future expenses",
@@ -3095,7 +3107,6 @@
       "error": "Failed to record commitment."
     }
   },
-
   "BudgetCommitments": {
     "title": "Budget Commitments",
     "subtitle": "Set-aside funds pending actual execution",
@@ -3127,7 +3138,6 @@
       "link_in_development": "Invoice linking feature in development."
     }
   },
-
   "BudgetExecutions": {
     "title": "Budget Execution",
     "subtitle": "Record of actual income and expenses for {name}",
@@ -3209,7 +3219,6 @@
       "record_error": "Failed to record movement."
     }
   },
-
   "FinanceReports": {
     "title": "Financial Reports",
     "subtitle": "Analysis, audit and data export (PDF/Excel)",
@@ -3235,7 +3244,6 @@
       "export_error": "Failed to export report"
     }
   },
-
   "CostCenters": {
     "title": "Cost Centers",
     "subtitle": "Hierarchical structure for budget allocation",
@@ -3251,7 +3259,6 @@
       "load_error": "Failed to load cost centers"
     }
   },
-
   "ApprovalChainConfig": {
     "empty_state": "No approval chain configured",
     "btn_create_first": "Create First Step",
@@ -3286,7 +3293,6 @@
       "save_error": "Failed to save approval chain."
     }
   },
-
   "BudgetPolicies": {
     "title": "Budget Policies",
     "subtitle": "Validation and control rules for all financial transactions",
@@ -3333,7 +3339,6 @@
       "save_error": "Failed to save policy."
     }
   },
-
   "CreateFiscalYearDrawer": {
     "title": "New Fiscal Year",
     "subtitle": "Aligned with SAT calendar",
@@ -3349,7 +3354,6 @@
       "error": "Failed to create fiscal year."
     }
   },
-
   "FinanceSettings": {
     "title": "Financial Settings",
     "subtitle": "Fiscal years, cost centers and areas",
@@ -3375,7 +3379,6 @@
       "load_error": "Failed to load settings."
     }
   },
-
   "CreateCostCenterDrawer": {
     "title_edit": "Edit Cost Center",
     "title_sub": "New Sub-Cost Center",
@@ -3401,7 +3404,6 @@
       "default_error": "Failed to process cost center."
     }
   },
-
   "CostCenterGraphDrawer": {
     "title": "Cost Center Graph",
     "subtitle": "{count} {count, plural, =1 {node} other {nodes}} — Organizational hierarchy",
@@ -3412,7 +3414,6 @@
       "sub_center": "Sub-Center"
     }
   },
-
   "Budgets": {
     "title": "Budgets",
     "subtitle": "Financial planning by period",
@@ -3434,7 +3435,6 @@
       "load_error": "Failed to load budgets."
     }
   },
-
   "CreateBudgetDrawer": {
     "title": "New Budget",
     "subtitle": "Financial planning",
@@ -3454,7 +3454,6 @@
       "create_error": "Failed to create budget."
     }
   },
-
   "JournalEntries": {
     "title": "Journal Entries",
     "subtitle": "Accounting records history (Annex 24)",
@@ -3474,7 +3473,6 @@
     "status_draft": "Draft",
     "btn_post": "Post Entry"
   },
-
   "Discover": {
     "CategoryRow": {
       "view_all": "View all"
@@ -3611,7 +3609,6 @@
       "rating": "Top Rated"
     }
   },
-
   "EmergencyConsole": {
     "console_title": "Medical Care Console",
     "soap_title": "New Evolution Note (SOAP)",
@@ -3649,7 +3646,6 @@
     "dictate_btn": "Voice Dictation",
     "allergies_alert": "KNOWN ALLERGIES:"
   },
-
   "RegisterEmergencyModal": {
     "subtitle": "Smart Admission • Emergency",
     "title": "Patient Emergency Admission",
@@ -3697,7 +3693,6 @@
     "error_toast": "Error registering patient in emergency",
     "toast_patient_created": "Patient added to directory and admitted to emergency."
   },
-
   "Emergency": {
     "TriageMonitor": {
       "empty_title": "Empty Waiting Room",
@@ -3715,8 +3710,7 @@
       "level_none": "No Triage"
     }
   },
-
- "VaccinationModals": {
+  "VaccinationModals": {
     "audit_title": "Vaccine Record",
     "audit_desc": "Select the date this dose was given to keep your history up to date.",
     "record_date_label": "Administration Date",
@@ -3731,12 +3725,10 @@
     "applied_date": "Administered: {date}",
     "register_dose": "Register Dose"
   },
-
   "WidgetRenderer": {
     "unsupported_module": "Unsupported module",
     "unrecognized_type": "Unrecognized widget type:"
   },
-
   "AccountingMapping": {
     "title": "Automatic Account Mapping",
     "subtitle": "Set up rules to automatically generate journal entries.",
@@ -3799,7 +3791,6 @@
       "OTHER_EXPENSE": "Other Expenses"
     }
   },
-
   "SatAccounting": {
     "title": "SAT Accounting Overview",
     "subtitle": "Manage chart of accounts and journal entries for tax electronic compliance.",
@@ -3819,7 +3810,6 @@
       "button": "Coming Soon"
     }
   },
-
   "Approvals": {
     "title": "Approval Inbox",
     "subtitle": "Manage financial movements requiring authorization.",
@@ -3874,14 +3864,12 @@
       "process_error": "Failed to process decision."
     }
   },
-
   "SatAccountingLayout": {
     "overview": "Overview",
     "journals": "Journal Entries",
     "accounts": "Chart of Accounts",
     "mapping": "Account Mapping"
   },
-
   "CreateJournalEntry": {
     "title": "Create Journal Entry",
     "subtitle": "Annex 24 Compliance (Electronic Accounting)",
@@ -3941,7 +3929,6 @@
     "toast_success": "Journal entry created successfully.",
     "toast_error": "Failed to create journal entry."
   },
-
   "ChartOfAccounts": {
     "title": "Chart of Accounts (SAT)",
     "subtitle": "Hierarchical structure of Annex 24 grouping codes",
@@ -3953,8 +3940,7 @@
     "th_nature": "Nature",
     "empty_state": "No accounts configured in the chart of accounts."
   },
-
- "DashboardDocumentDetail": {
+  "DashboardDocumentDetail": {
     "title_viewer": "Document details",
     "doc_id": "ID: #{id}",
     "default_description": "Document stored in your health record.",
@@ -3985,7 +3971,6 @@
     "btn_download": "Download file",
     "btn_close": "Close viewer"
   },
-  
   "DashboardHistoryDetail": {
     "title": "Service Record",
     "status_completed": "Completed",
@@ -4015,7 +4000,6 @@
     "rate_service": "Rate Service",
     "extracting": "Downloading..."
   },
-  
   "DashboardMessages": {
     "tab_inbox": "Inbox",
     "tab_social": "Social",
@@ -4075,7 +4059,6 @@
       "sync_error": "An issue occurred during sync. Please check your integration credentials."
     }
   },
-
   "DashboardPatients": {
     "NewPatientModal": {
       "module_label": "Patients",
@@ -4164,7 +4147,6 @@
     "view_medical_record": "Open clinical chart",
     "loading": "Syncing patient directory..."
   },
-
   "DashboardPatientDetail": {
     "back_to_list": "Back to directory",
     "view_consultation": "View Consultation",
@@ -4269,7 +4251,6 @@
     },
     "vault_document": "Health Vault Document"
   },
-
   "HealthMetricInputModal": {
     "title_default": "Update Metric",
     "desc_default": "Enter the most recent value for your health indicator.",
@@ -4316,7 +4297,6 @@
     "btn_saving": "Saving...",
     "btn_save": "Save Metric"
   },
-
   "DashboardReferrals": {
     "title": "Referral program",
     "subtitle": "Invite fellow healthcare professionals to join the QuHealthy network and share platform benefits.",
@@ -4364,7 +4344,6 @@
       "activated_at": "Activated on: {date}"
     }
   },
-
   "DashboardSubscriptionSuccess": {
     "title": "Subscription confirmed successfully!",
     "subtitle": "Your plan has been updated. You now have full access to all of QuHealthy's advanced clinical tools.",
@@ -4391,7 +4370,6 @@
       "view_appointments": "View my schedule"
     }
   },
-
   "DashboardReviews": {
     "title": "Patient Reviews & Reputation",
     "subtitle": "Manage your practice's reputation, analyze clinical satisfaction metrics, and respond to patients",
@@ -4421,7 +4399,6 @@
     "sub_knowledge": "Medical Expertise",
     "sub_facilities": "Facilities & Cleanliness"
   },
-
   "DashboardMarketing": {
     "title": "Marketing & Social Media",
     "subtitle": "Attract more patients with built-in promotional tools.",
@@ -4562,7 +4539,6 @@
       "toast_error": "An error occurred while attempting to schedule the post."
     }
   },
-
   "DashboardSettings": {
     "appearance": {
       "theme_title": "Interface Theme",
@@ -4712,7 +4688,6 @@
       "readonly_desc": "Enable edit mode to modify your privacy settings."
     }
   },
-
   "DashboardRecommendations": {
     "settingsForm": {
       "title_create": "Create Referral Campaign",
@@ -4760,7 +4735,6 @@
       "btn_manage_campaign": "Manage Campaign"
     }
   },
-
   "SettingsSubscription": {
     "Success": {
       "title": "Payment processed successfully!",
@@ -4820,7 +4794,9 @@
       "switch_plan": "Switch to {name}",
       "activate_plan": "Activate {name}",
       "unavailable": "Unavailable",
-      "trust_indicator": "No credit card required • Cancel anytime"
+      "trust_indicator": "No credit card required • Cancel anytime",
+      "per_year": "/ year",
+      "save_amount": "Save ${amount}"
     },
     "ConfirmationModal": {
       "title": "Confirm Subscription",
@@ -4871,7 +4847,6 @@
       "canceled_now": "Select a plan to reactivate your account."
     }
   },
-
   "ProviderTeamSettings": {
     "title": "Team & Staff Management",
     "subtitle": "Invite and manage access permissions for your medical and administrative staff.",
@@ -4936,7 +4911,6 @@
       "messages": "Messages"
     }
   },
-
   "StoreHub": {
     "title": "My digital store",
     "subtitle": "Manage your practice's public presence, service catalog, and team details.",
@@ -5008,20 +4982,17 @@
     "help_title": "Technical support",
     "help_desc": "If you need help setting up your store, our support team is happy to assist at support@quhealthy.org"
   },
-
   "PlatformLayout": {
     "meta_title": "Control Panel | QuHealthy",
     "meta_description": "Manage your services, appointments, patients, and health offerings on the QuHealthy platform.",
     "loading_title": "Loading your workspace...",
     "loading_subtitle": "Preparing your practice details on QuHealthy."
   },
-
   "StoreIntegrations": {
     "title": "Integrations & social media",
     "subtitle": "Connect WhatsApp and your professional social profiles so patients can reach out and ask questions with ease.",
     "back": "Back to my store"
   },
-
   "StorePolicies": {
     "loading": "Loading cancellation policies...",
     "back": "Back to my store",
@@ -5057,7 +5028,6 @@
       }
     }
   },
-  
   "StoreIdentity": {
     "title": "Practice profile",
     "subtitle": "Set up your public directory page. Your name, logo, and welcome note help connect with new patients.",
@@ -5075,7 +5045,6 @@
     "toast_video_uploaded": "Video processed and saved successfully.",
     "toast_upgrade": "Redirecting to plans & subscriptions..."
   },
-
   "StoreCatalog": {
     "title": "Catalog & services",
     "badge": "Active catalog",
@@ -5153,7 +5122,6 @@
       "image_upload_error": "Could not upload image. Please try a valid file (JPG, PNG, or WEBP)."
     }
   },
-
   "StoreStaff": {
     "loading": "Loading team members...",
     "back": "Back to my store",
@@ -5209,11 +5177,11 @@
       "roles": {
         "lead": "Lead Specialist",
         "specialist": "Specialist",
-        "assistant": "Assistant"
+        "assistant": "Assistant",
+        "professional": "Professional"
       }
     }
   },
-
   "VisualIdentitySection": {
     "header_title": "Visual Identity",
     "header_subtitle": "Customize the branding, style, and galleries of your practice or store.",
@@ -5255,8 +5223,6 @@
     "preset_orange": "Orange",
     "preset_indigo": "Indigo"
   },
-  
-
   "StorePublic": {
     "our_team": "Our Team",
     "requires_eval": "Requires evaluation",
@@ -5340,9 +5306,9 @@
       "clear_cart": "Clear",
       "btn_continue": "Proceed to Checkout",
       "verifying": "Verifying..."
-    }
+    },
+    "copied_toast": "Link copied to clipboard."
   },
-
   "AiConsentModal": {
     "title": "AI Medical Assistant",
     "description": "To provide better care, your doctor may use artificial intelligence during the consultation. Please select which uses you authorize.",
@@ -5376,9 +5342,6 @@
     "status_failed": "Connection Error",
     "status_default": "Loading..."
   },
-
-  
-
   "TeleconsultationRoom": {
     "establishing_connection": "Establishing secure connection...",
     "waiting_video": "Waiting for video stream...",
@@ -5402,7 +5365,8 @@
     "lang_es": "Spanish",
     "lang_en": "English",
     "btn_join": "Enter Room",
-    "btn_joining": "Connecting..."
+    "btn_joining": "Connecting...",
+    "consent_ok": "Consent verified"
   },
   "ProviderVideoWidget": {
     "starting_call": "Starting video call...",
@@ -5423,7 +5387,6 @@
     "camera_off": "Camera off",
     "local_video_label": "Your camera (Preview)"
   },
-  
   "HealthVault": {
     "title": "My Clinical Record",
     "subtitle": "Your encrypted health vault. Upload your lab results or prescriptions and our AI will automatically extract relevant clinical data.",
@@ -5467,7 +5430,8 @@
       "tab_upload": "Upload File",
       "tab_note": "Write Note",
       "drag_inactive": "Click or drag a file here",
-      "supported_formats": "PDF, JPG, PNG (max. 10MB)"
+      "supported_formats": "PDF, JPG, PNG (max. 10MB)",
+      "drag_active": "Drop it here!"
     },
     "Card": {
       "ai_pending": "Analyzing...",
@@ -5479,7 +5443,8 @@
       "btn_view": "View Document",
       "btn_listen_guide": "Listen to Audio Guide",
       "generating_guide": "Synthesizing audio guide with Gemini 3.8 Flash TTS...",
-      "confirm_delete": "Are you sure you want to delete this document? This action cannot be undone."
+      "confirm_delete": "Are you sure you want to delete this document? This action cannot be undone.",
+      "audio_guide_error": "Could not generate the audio guide right now."
     },
     "Notifications": {
       "error_size": "The file exceeds the 10MB size limit.",
@@ -5489,10 +5454,12 @@
       "success_note": "Note saved successfully.",
       "error_note": "An error occurred while saving the note.",
       "success_update": "Document updated successfully.",
-      "error_update": "Failed to update the document."
+      "error_update": "Failed to update the document.",
+      "error_delete": "Could not delete the document.",
+      "error_panorama": "Error generating the clinical overview.",
+      "success_delete": "Document deleted."
     }
   },
-
   "PatientAppointments": {
     "title": "My Appointments",
     "subtitle": "Manage your bookings and view your medical history",
@@ -5542,7 +5509,6 @@
     "empty_hint": "Find a specialist and schedule your next consultation",
     "btn_find": "Find Specialist"
   },
-
   "PatientCoursePlayer": {
     "my_courses": "My Courses",
     "not_found_title": "Course not found",
@@ -5583,7 +5549,6 @@
     "module_prefix": "Module {number}",
     "minutes_short": "{min} min"
   },
-
   "PatientCourses": {
     "title": "My Courses",
     "subtitle": "Access your content, resume learning, and consult your digital resources whenever you need them.",
@@ -5602,7 +5567,6 @@
     "empty_desc": "Explore our specialists' catalog to find video content, guides, and programs tailored for you.",
     "btn_explore": "Explore Catalog"
   },
-
   "PatientEldercare": {
     "loading": "Loading health profile...",
     "header_title": "Care & Wellness",
@@ -5658,7 +5622,6 @@
     "freq_weekly": "Weekly",
     "freq_monthly": "Monthly"
   },
-  
   "PatientHistory": {
     "title": "Medical History",
     "subtitle": "Review your past appointments and clinical documents",
@@ -5688,8 +5651,7 @@
     "btn_details": "View Details",
     "toast_export": "Exporting history..."
   },
-
-"PatientMessages": {
+  "PatientMessages": {
     "title": "Messages & Consultations",
     "subtitle": "Communicate securely and directly with your healthcare network",
     "loading": "Loading your conversations...",
@@ -5707,17 +5669,17 @@
     "btn_send": "Send",
     "typing": "Typing...",
     "directory_title": "Message directory",
-"time_minutes": "{count}m",
-"time_hours": "{count}h",
-"time_days": "{count}d",
-"vault_modal_title": "Attach from Vault",
-"vault_modal_desc": "Select a document from your medical history to securely share with your specialist.",
-"search_doc_placeholder": "Search document...",
-"loading_vault": "Loading your clinical vault...",
-"no_docs_found_title": "No documents found",
-"no_docs_found_desc": "Upload documents to your health vault to share them here.",
-"untitled_note": "Untitled note",
-"btn_attach": "Attach",
+    "time_minutes": "{count}m",
+    "time_hours": "{count}h",
+    "time_days": "{count}d",
+    "vault_modal_title": "Attach from Vault",
+    "vault_modal_desc": "Select a document from your medical history to securely share with your specialist.",
+    "search_doc_placeholder": "Search document...",
+    "loading_vault": "Loading your clinical vault...",
+    "no_docs_found_title": "No documents found",
+    "no_docs_found_desc": "Upload documents to your health vault to share them here.",
+    "untitled_note": "Untitled note",
+    "btn_attach": "Attach",
     "status_sending": "Sending",
     "status_sent": "Sent",
     "status_delivered": "Delivered",
@@ -5758,7 +5720,6 @@
     "encrypted_badge": "End-to-end encrypted",
     "chats_header_title": "Chats"
   },
-
   "PatientOrders": {
     "title": "Order History",
     "subtitle": "Track your purchases, audit shipping logistics, and confirm deliveries from this unified dashboard.",
@@ -5804,7 +5765,6 @@
     "issuer_decision": "Issuer Decision:",
     "refund_processed": "Financial refund processed. Contact support if issues persist."
   },
-
   "Nutrition": {
     "title": "QuHealthy Food Vision",
     "subtitle": "Capture your food and get an instant nutritional breakdown.",
@@ -5885,7 +5845,6 @@
       "unit_g": "g"
     }
   },
-
   "OrderCard": {
     "order_number": "Order #{id}",
     "units": "Units",
@@ -5919,7 +5878,6 @@
     "status_delivered": "Delivered",
     "status_cancelled": "Cancelled"
   },
-
   "PatientPackages": {
     "title": "My Health Packages",
     "subtitle": "Check and use the sessions or treatments you have purchased.",
@@ -5945,7 +5903,6 @@
     "status_prepaid": "Prepaid Service",
     "credits_count": "{quantity} / {totalQuantity}"
   },
-
   "PlatformHeader": {
     "search_placeholder": "Search patients, appointments, or settings...",
     "suggestions_title": "Suggestions",
@@ -5973,12 +5930,10 @@
     "user_title": "Dr. Marcos Sandoval",
     "user_email": "m.sandoval@quhealthy.org"
   },
-
   "PlatformMobileNavbar": {
     "menu_aria": "Open navigation menu",
     "brand_name": "QuHealthy"
   },
-
   "ActiveCreditsBanner": {
     "title": "Available Sessions Available!",
     "subtitle": "You have <highlight>{count} prepaid {count, plural, =1 {session} other {sessions}}</highlight> with this specialist.",
@@ -5990,7 +5945,6 @@
     "rating_reviews": "({count, plural, =1 {1 review} other {{count} reviews}})",
     "btn_view": "View Content"
   },
-
   "PatientProfile": {
     "title": "Personal & Health Profile",
     "subtitle": "Clinical summary, health insurance, personal data, and medical background.",
@@ -6068,7 +6022,6 @@
     "modality_video_call": "Remote Video Call",
     "modality_home_visit": "Home Visit",
     "progress": "General progress",
-
     "digital_record_badge": "Digital Medical Record",
     "norm_badge": "NOM-004-SSA3",
     "tab_medical_cv": "Medical CV",
@@ -6082,7 +6035,6 @@
     "profile_updated_success": "Medical and personal profile updated successfully!",
     "official_summary_ready": "Ready for consultation or administrative use",
     "official_summary_label": "Official Clinical Summary:",
-
     "section_identity_title": "Personal Information & Official Identity",
     "section_identity_desc": "Civil identification required for electronic health records and e-prescriptions.",
     "label_full_name_required": "Full Name(s) and Surnames *",
@@ -6116,7 +6068,6 @@
     "placeholder_occupation": "E.g. Software Engineer, Teacher",
     "label_nationality": "Nationality",
     "placeholder_nationality": "E.g. Mexican, American",
-
     "section_insurance_title": "Insurance Policy, Coverage & Donation",
     "section_insurance_desc": "Public or private insurance details for agreements, billing, and hospitalization.",
     "label_insurance_type": "Health Coverage Type",
@@ -6133,7 +6084,6 @@
     "donor_yes": "Yes, I am an Organ & Tissue Donor",
     "donor_no": "No, I do not wish to be a donor",
     "donor_family_decides": "Family / Legal Guardian Decision",
-
     "section_address_title": "Residential Address & Contact",
     "section_address_desc": "Patient location for home care visits, pharmacy delivery, and finding nearby doctors.",
     "label_address_street": "Street & Exterior/Interior Number",
@@ -6147,7 +6097,6 @@
     "label_phone_primary": "Mobile Phone (WhatsApp / SMS) *",
     "placeholder_phone_primary": "E.g. 6681234567",
     "label_email_read": "Email Address (QuHealthy Account)",
-
     "section_emergency_title": "Emergency Contact & Attending Physician",
     "section_emergency_desc": "Primary person to contact in case of emergency and responsible family doctor.",
     "label_emergency_name_field": "Emergency Contact Full Name",
@@ -6160,7 +6109,6 @@
     "placeholder_emergency_phone_alt": "E.g. 6681122334 (Optional)",
     "label_primary_physician": "Primary Physician / Family Doctor",
     "placeholder_primary_physician": "E.g. Dr. Carmen Armenta (Internal Medicine)",
-
     "section_clinical_title": "Quick Medical Chart (Allergies, Medications & Surgeries)",
     "section_clinical_desc": "Essential clinical data for outpatient visits and emergency situations.",
     "label_blood_type_field": "Blood Group & Rh Factor",
@@ -6178,15 +6126,12 @@
     "placeholder_implants": "E.g. Dual-chamber pacemaker, Titanium plate in right femur",
     "label_vaccinations": "Relevant Vaccines or Immunization Schedule",
     "placeholder_vaccinations": "E.g. COVID-19 (3 doses), Annual Flu, Tetanus",
-
     "section_ehr_base_title": "Base Electronic Record & NOM-004 Background",
     "section_ehr_base_desc": "Comprehensive manager for family, pathological, and lifestyle history.",
     "section_language_title": "Language Settings",
-
     "floating_unsaved_text": "You have unsaved changes in your medical profile",
     "btn_save_profile": "Save Changes",
     "btn_discard": "Discard",
-
     "cv_summary": {
       "header_badge": "QuHealthy Digital Medical Record",
       "norm_badge": "NOM-004-SSA3 / NOM-024",
@@ -6236,7 +6181,6 @@
       "footer_generated": "Generated: {date}"
     }
   },
-
   "TagInput": {
     "add_more": "Add more...",
     "remove_tag_aria": "Remove {tag}"
@@ -6302,7 +6246,6 @@
       "placeholder_reason": "E.g. Glycemic control"
     }
   },
-  
   "ProviderProfileSettings": {
     "card_title": "Provider General Profile",
     "card_desc": "This information will be displayed on your public profile for patients.",
@@ -6324,7 +6267,6 @@
     "toast_create_success": "Profile created successfully",
     "toast_save_error": "Error saving profile"
   },
-
   "PatientBooking": {
     "location_selector_title": "Select Location",
     "location_selector_desc": "Choose where you want your appointment",
@@ -6414,7 +6356,6 @@
     "empty_selection_title": "No services selected for this appointment",
     "empty_selection_desc": "Add a consultation or test from the specialist's catalog to proceed with your booking."
   },
-
   "BookingTimeStep": {
     "step_time": "Select Consultation Time",
     "step_time_desc": "Available time slots for the selected date.",
@@ -6422,7 +6363,6 @@
     "no_slots_title": "No Available Time Slots",
     "no_slots_desc": "The specialist has no available time slots for this date. We recommend selecting a different day on the calendar."
   },
-
   "FinanceModule": {
     "title": "Administration & Finance",
     "subtitle": "Budget control, billing and financial telemetry.",
@@ -6435,7 +6375,6 @@
       "settings": "Settings"
     }
   },
-
   "PatientBookingSuccess": {
     "title": "Appointment Confirmed!",
     "subtitle": "Your booking has been processed successfully",
@@ -6473,7 +6412,6 @@
     "reminders_enabled_toast": "Reminders (SMS/Email) enabled successfully",
     "reminders_error_toast": "Error enabling reminders"
   },
-
   "PatientHybridSuccess": {
     "loading": "Confirming your payment...",
     "not_found_title": "Transaction Not Found",
@@ -6495,7 +6433,6 @@
     "go_home": "Go Home",
     "error_toast": "An error occurred while retrieving the transaction record."
   },
-
   "PatientReviews": {
     "loading_validation": "Securely verifying your appointment...",
     "error_title": "Invalid Link",
@@ -6538,7 +6475,6 @@
     "anonymous_toggle": "Post as anonymous review",
     "anonymous_desc": "Your name will not be shown publicly on the specialist's storefront"
   },
-
   "SettingsActiveSessions": {
     "title": "Active Sessions",
     "subtitle": "Devices currently authorized to access your account.",
@@ -6595,7 +6531,6 @@
     "toast_password_required": "Current password is required.",
     "toast_delete_success": "Account deleted successfully. Redirecting..."
   },
-
   "SecuritySettings": {
     "title": "Security & Access",
     "subtitle": "Protect your account with strong passwords and two-step verification.",
@@ -6635,7 +6570,6 @@
     "toast_mfa_disable_success": "MFA disabled.",
     "toast_mfa_disable_error": "Incorrect password."
   },
-
   "SettingsWearables": {
     "title": "Devices & Wearables",
     "subtitle": "Sync your biometric devices to enrich your clinical health tracking.",
@@ -6662,7 +6596,6 @@
       "oura_desc": "Advanced biometric recovery and smart ring data."
     }
   },
-
   "LocationPicker": {
     "loading_stage_1": "Initializing interactive map...",
     "loading_stage_2": "Syncing office coordinates...",
@@ -6673,7 +6606,6 @@
     "error_desc": "We had trouble connecting to mapping services. Please check your internet connection and try again.",
     "btn_retry": "Reload map"
   },
-
   "MapModal": {
     "search_placeholder": "Search street, number, neighborhood, or zip code...",
     "btn_2d_map": "2D Map View",
@@ -6694,7 +6626,6 @@
     "loading_default": "Loading map...",
     "loading_subtext": "Establishing geographic coordinates"
   },
-
   "CategorySelector": {
     "loading_catalog": "Loading specialties catalog...",
     "loading_subtext": "Select your sector to display available medical disciplines.",
@@ -6725,7 +6656,6 @@
     "toast_cat_selected": "Category selected: {name}",
     "toast_sub_selected": "Focus area selected: {name}"
   },
-
   "AuthGateModal": {
     "default_title": "Access Required",
     "default_description": "Sign up or log in to unlock this feature and access the full QuHealthy experience.",
@@ -6746,7 +6676,6 @@
     "btn_pdf": "PDF",
     "toast_download_error": "Could not download the medical certificate."
   },
-
   "CheckoutModal": {
     "title_order_finalization": "Order Checkout",
     "title_booking_confirmation": "Booking Confirmation",
@@ -6799,7 +6728,6 @@
     "btn_processing": "Processing Payment...",
     "toast_rx_error": "Error uploading prescription. Please try again."
   },
-
   "CourseCurriculum": {
     "loading": "Loading syllabus...",
     "title": "Course Syllabus",
@@ -6827,7 +6755,6 @@
     "view_selection_tooltip": "View and edit selection",
     "edit": "Edit"
   },
-
   "StoreConflictModal": {
     "title": "Change Specialist",
     "subtitle": "Previous selection detected",
@@ -6837,7 +6764,6 @@
     "continue_btn": "Continue with {providerName}",
     "cancel_btn": "Keep browsing"
   },
-
   "QuScoreModal": {
     "title": "QuScore Breakdown",
     "subtitle": "Algorithmic Transparency Audit",
@@ -6876,7 +6802,6 @@
     "sub_knowledge": "Medical Expertise",
     "sub_facilities": "Facilities & Cleanliness"
   },
-
   "PatientSupport": {
     "title": "Help & Support Center",
     "subtitle": "We are here to help you. Choose your preferred communication channel to resolve any questions or technical issues.",
@@ -6902,7 +6827,6 @@
     "btn_coming_soon": "Coming Soon",
     "coming_soon_toast": "{channel} support will be available soon."
   },
-
   "PatientSettings": {
     "title": "Settings",
     "subtitle": "Manage your security, privacy, and platform preferences.",
@@ -6923,7 +6847,6 @@
     "wearables_title": "Devices & Integrations",
     "wearables_desc": "Connect your smartwatches and health monitors to sync your metrics."
   },
- 
   "PatientReviewsDashboard": {
     "title": "My Reviews",
     "subtitle": "Manage your feedback and view responses from your specialists.",
@@ -6944,7 +6867,6 @@
     "completed_on": "Completed on {date}",
     "toast_error": "We couldn't load your review history. Please try again."
   },
- 
   "PatientFavoritesDashboard": {
     "title": "My Favorites",
     "subtitle": "Your favorite specialists and medical services just one click away.",
@@ -6965,7 +6887,6 @@
     "default_location": "Remote Location",
     "no_description": "No detailed description."
   },
-
   "FinanceDashboard": {
     "loading": "Calculating financial analytics...",
     "summary_banner": {
@@ -6994,7 +6915,6 @@
       "load_error": "Failed to load financial summary"
     }
   },
-
   "PurchaseOrders": {
     "title": "Purchase orders",
     "subtitle": "Manage supplies, vendors, and practice restocking",
@@ -7054,7 +6974,6 @@
       "receive_error": "Could not process inventory receipt."
     }
   },
-
   "SuppliersDirectory": {
     "title": "Vendor directory",
     "subtitle": "Manage contacts and companies supplying your practice",
@@ -7093,7 +7012,6 @@
       "delete_error": "Could not delete vendor."
     }
   },
-
   "InventoryManagement": {
     "title": "Inventory control",
     "subtitle": "Manage your stock, clinic supplies, and products",
@@ -7137,7 +7055,6 @@
       "update_error": "Could not update stock. Please try again."
     }
   },
-
   "DashboardHistory": {
     "title": "Care history",
     "subtitle": "A clear overview of all your appointments and provided services",
@@ -7195,7 +7112,6 @@
     "status_rescheduled": "Rescheduled",
     "status_pending": "Pending"
   },
-
   "PatientFamilyDashboard": {
     "title": "My Family",
     "subtitle": "Manage your loved ones' profiles to quickly schedule appointments.",
@@ -7256,7 +7172,6 @@
       "btn_saving": "Saving..."
     }
   },
-
   "MedicalGrowthChart": {
     "title_weight": "WHO Weight-for-Age Growth Chart",
     "title_length": "WHO Height-for-Age Growth Chart",
@@ -7277,7 +7192,6 @@
     "status_vigilancia": "Monitoring Needed",
     "status_alerta": "Attention Needed"
   },
-
   "Growth": {
     "MedicalContainer": {
       "loading_charts": "Loading growth charts...",
@@ -7339,15 +7253,13 @@
       "height": "Height",
       "age_months": "{months} months"
     },
-  "Guards": {
-    "ProviderGuard": {
-      "verifying": "Verifying specialist credentials..."
+    "Guards": {
+      "ProviderGuard": {
+        "verifying": "Verifying specialist credentials..."
+      }
     }
-    
-  }
-},
-
-"Intelligence": {
+  },
+  "Intelligence": {
     "HealthcareExplorerTable": {
       "search_placeholder": "Search by CLUES, medical unit, or institution...",
       "export_button": "Export Data ({count})",
@@ -7414,14 +7326,12 @@
       "units": "{count} units"
     }
   },
-
   "CameraModal": {
     "title": "AI Medication Scanner",
     "permission_denied_error": "Permission denied. Please enable camera access in your browser to proceed.",
     "access_error": "Could not access camera. Make sure it is not in use by another app.",
     "retry": "Retry"
   },
-
   "ContactIntegrationsSection": {
     "header_title": "Contact Methods & Integrations",
     "header_subtitle": "Connect your social media, WhatsApp, and email to centralize all communication in one place.",
@@ -7443,7 +7353,6 @@
     "platform_email_name": "Email",
     "platform_email_desc": "Read and send emails with your patients from a single dashboard."
   },
-
   "CourseCurriculumBuilder": {
     "curriculum_title": "Course Curriculum",
     "add_module": "Add Module",
@@ -7476,7 +7385,6 @@
     "default_module_title": "New Module",
     "default_lesson_title": "New Lesson"
   },
-
   "DependentVaccineAlert": {
     "delayed_count": "{count, plural, =1 {1 Pending Dose} other {{count} Pending Doses}}",
     "tooltip_title": "Pending Vaccines",
@@ -7495,7 +7403,6 @@
     "placeholder_head": "E.g. 48.0",
     "btn_submit": "Save Measurement"
   },
-
   "PatientVideoCall": {
     "connecting": "Connecting to video call...",
     "error": "Connection error",
@@ -7516,7 +7423,6 @@
     "no_results": "No results found",
     "no_results_desc": "Try searching with different terms or expand your search area."
   },
-
   "ProviderCheckin": {
     "title": "In-Person Check-in",
     "header_cancel": "Cancel",
@@ -7539,7 +7445,6 @@
     "btn_confirm": "Confirm Arrival",
     "btn_confirming": "Processing..."
   },
-
   "ProviderReputation": {
     "title": "My Reputation",
     "updated_at": "Updated: {date}",
@@ -7548,7 +7453,8 @@
     "top_percentile": "You are in the <highlight>Top {percent}%</highlight> of your area.",
     "loading": "Calculating your reputation...",
     "quality_metrics": "Quality Metrics",
-    "audit_title": "Reputation Audit"
+    "audit_title": "Reputation Audit",
+    "projected_delta": "+{points} potential pts"
   },
   "ProviderScore": {
     "band_elite": "Elite",
@@ -8019,7 +7925,12 @@
         "error": "There was an error sending your message. Please try again."
       },
       "info": {
-        "phone": "+52 (55) 1234 5678"
+        "phone": "+52 (55) 1234 5678",
+        "address": "Mexico City, Mexico",
+        "email": "hola@quhealthy.org",
+        "headquarters": "Headquarters",
+        "phone_title": "Phone",
+        "support": "General Support"
       }
     }
   },
@@ -8094,7 +8005,7 @@
       "template_general_consultation": "General Consultation",
       "template_followup_consultation": "Follow-Up Consultation",
       "template_initial_assessment": "Initial Assessment",
-      "template_teleconsultation": "Teleconsultation"    
+      "template_teleconsultation": "Teleconsultation"
     },
     "packages": {
       "header_subtitle": "Combine multiple services, products or courses into a special package with a promotional price.",
@@ -8264,7 +8175,6 @@
       "new_course_lms_hint": "Save the course first to build the curriculum (modules and lessons)."
     }
   },
-
   "PublicInfoSection": {
     "header_title": "Public Information",
     "header_subtitle": "Biography and welcome video for your public profile.",
@@ -8302,7 +8212,6 @@
     "toast_invalid_format": "Please select a valid video file (MP4 or WebM).",
     "toast_file_too_large": "The video file exceeds the maximum 20 MB limit."
   },
-
   "ProviderOrders": {
     "title": "Order fulfillment",
     "subtitle": "Manage patient shipments, tracking numbers, and prescriptions",
@@ -8448,7 +8357,6 @@
       "doc_view_error": "Could not open attached document."
     }
   },
- 
   "PatientWallet": {
     "title": "QuHealthy Wallet",
     "badge_ready_balance": "Balance ready for your care",
@@ -8478,7 +8386,6 @@
     "btn_continue": "Continue",
     "info_wallet_usage": "Your balance is used as a payment method when booking appointments or buying packages. It is valid for 12 months from your last top-up."
   },
-  
   "EHR": {
     "title_clinical_backgrounds": "Clinical History & Base Background",
     "subtitle_clinical_backgrounds": "Record and update pathological, family, and lifestyle medical history according to NOM-004.",
@@ -8494,11 +8401,11 @@
     "btn_all_negative": "Queried and Denied",
     "btn_save_backgrounds": "Save Backgrounds",
     "btn_saving": "Saving...",
-    "btn_add_entry": "Add Entry",
-    "no_data_added": "No medical history recorded in this category. Click 'Add Entry' to register one.",
-    "health_profile_missing": "Active health profile not found to save medical history.",
-    "background_updated_success": "Clinical medical history updated successfully!",
-    "background_update_failed": "Could not update clinical medical history.",
+    "btn_add_entry": "Add Record",
+    "no_data_added": "No data added yet",
+    "health_profile_missing": "Error: Health profile not found.",
+    "background_updated_success": "Medical history updated successfully.",
+    "background_update_failed": "Error updating patient medical history.",
     "loading_backgrounds": "Loading clinical medical history...",
     "step_background": "Background & History",
     "condition_or_relation": "Condition or Kinship",
@@ -8508,7 +8415,6 @@
     "nom004_background_notice": "According to official regulations, recording patient medical history is mandatory.",
     "family_background": "Family Medical History",
     "add": "Add",
-    "no_data_added": "No data added yet",
     "personal_background": "Personal Pathological & Non-Pathological History",
     "social_background": "Social History",
     "title_consultation": "Consultation Room",
@@ -8659,99 +8565,94 @@
     "care_kit_title": "Multimodal Post-Consultation Patient Care Kit",
     "care_kit_subtitle": "Clinical orchestration: Plain-language summary, TTS Audio Recovery Guide and visual support",
     "icd10_search_placeholder": "Search diagnosis by ICD-10 code or name (e.g., E11, Diabetes)...",
-"icd10_no_results": "No matching diagnoses found.",
-"icd10_type_primary": "Primary",
-"icd10_type_secondary": "Secondary",
-"icd10_type_label": "Type: {type}",
-"nom004_title": "Base Clinical Record (NOM-004)",
-"nom004_notice": "This data belongs to the patient's unique interoperable health record and must be filled out to validate First-Time consultations.",
-"btn_add_entry": "Add Record",
-"btn_save_changes": "Save Changes",
-"btn_saving_changes": "Saving...",
-"condition_or_relation_placeholder": "Condition / Relation (e.g., Mother - Hypertension)",
-"description_or_details_placeholder": "Details or evolution (e.g., Diagnosed 10 years ago)",
-"family_bg_key_placeholder": "Condition / Family member (e.g., Mother - Hypertension)",
-"family_bg_val_placeholder": "Details or evolution (e.g., Diagnosed 10 years ago)",
-"personal_bg_key_placeholder": "Condition or illness (e.g., Diabetes, Surgery)",
-"personal_bg_val_placeholder": "Details (e.g., Controlled, 2018)",
-"social_bg_key_placeholder": "Habit or factor (e.g., Smoking, Exercise)",
-"social_bg_val_placeholder": "Frequency or details (e.g., 5/day, 3 times/week)",
-"health_profile_missing": "Error: Health profile not found.",
-"background_updated_success": "Medical history updated successfully.",
-"background_update_failed": "Error updating patient medical history.",
-"not_registered_app": "Not registered in app",
-"blood_type_nd": "Blood N/A",
-"uncalculated": "Uncalculated",
-"biometric_profile": "Biometric Profile",
-"vault_restricted_title": "Restricted Health Record",
-"vault_restricted_desc": "The patient keeps their medical record private. Request authorization to access their full health history.",
-"btn_request_access": "Request Authorization",
-"btn_sending_request": "Sending Request...",
-"clinical_document": "Clinical Document",
-"request_sent_success": "Access request sent successfully.",
-"request_sent_error": "Failed to send authorization request.",
-"doc_unavailable": "Document unavailable.",
-"doc_open_error": "Error opening document.",
-"doc_local_error": "Cannot open local document.",
-"note_modal_title": "Clinical Note",
-"text_document": "Text Document",
-"registered_on": "Recorded on: {date}",
-"close_viewer": "Close Viewer",
-"no_record_short": "No record",
-"template_modal_title": "Load Medical Template",
-"search_template_placeholder": "Search template by name...",
-"loading_templates": "Loading your templates...",
-"no_templates_found": "No templates available.",
-"no_content": "No content recorded",
-"protocol_pharmacological": "Pharmacological Protocol",
-"form_instructions_title": "Prescription Form Instructions",
-"linked_catalog": "Linked Catalog",
-"medication_or_product": "Active Ingredient / Product *",
-"search_inventory_placeholder": "Type to search inventory or enter free text...",
-"consult_price": "Check price",
-"unit_available": "{count} units available",
-"inventory_out_of_stock": "Out of stock",
-"no_matches_free_text": "No matches found. Will be recorded as free text (no direct sale).",
-"dosage_placeholder": "e.g., 1 Tablet (500mg)",
-"sale_quantity": "Qty (Sale)",
-"days_short": "Days",
-"duration_free_text": "Free text (e.g. for 7 days)...",
-"duration_days_prefix": "For {days} days",
-"rx_instructions_placeholder": "e.g., Take with food before bedtime",
-"direct_sale_badge": "Direct sale (x{qty})",
-"note_label": "Note",
-"finish_charge_notice": "To finish, use the {button} button in the top bar.",
-"finish_charge_btn_text": "Finish & Charge",
-"freq_every_4_hours": "Every 4 hours",
-"freq_every_6_hours": "Every 6 hours",
-"freq_every_8_hours": "Every 8 hours",
-"freq_every_12_hours": "Every 12 hours",
-"freq_once_daily": "Once daily",
-"freq_as_needed": "PRN (As needed)",
-"freq_custom": "Other (Custom)...",
-"vital_sign_type_label": "Vital sign type",
-"vital_sign_type_placeholder": "Select vital sign...",
-"vital_sign_value_label": "Value",
-"systolic_label": "Systolic",
-"diastolic_label": "Diastolic",
-"btn_add_vital": "Add Vital Sign",
-"vs_heart_rate": "Heart Rate (bpm)",
-"vs_blood_pressure": "Blood Pressure (mmHg)",
-"vs_spo2": "Blood Oxygen (%)",
-"vs_temperature": "Body Temperature (°C)",
-"vs_weight": "Weight (kg)",
-"vs_height": "Height (cm)",
-"vs_bmi": "BMI",
-"vs_respiratory_rate": "Respiratory Rate (rpm)",
-"vs_glucose": "Blood Glucose (mg/dL)",
-"appointment_num": "Appointment #{id}",
-"offline_badge": "Local Directory",
-"listening_status": "Listening...",
-"btn_save_draft": "Save Draft",
-"btn_finish_and_charge": "Finish & Charge",
-"btn_processing": "Processing..."
+    "icd10_no_results": "No matching diagnoses found.",
+    "icd10_type_primary": "Primary",
+    "icd10_type_secondary": "Secondary",
+    "icd10_type_label": "Type: {type}",
+    "nom004_title": "Base Clinical Record (NOM-004)",
+    "nom004_notice": "This data belongs to the patient's unique interoperable health record and must be filled out to validate First-Time consultations.",
+    "btn_save_changes": "Save Changes",
+    "btn_saving_changes": "Saving...",
+    "condition_or_relation_placeholder": "Condition / Relation (e.g., Mother - Hypertension)",
+    "description_or_details_placeholder": "Details or evolution (e.g., Diagnosed 10 years ago)",
+    "family_bg_key_placeholder": "Condition / Family member (e.g., Mother - Hypertension)",
+    "family_bg_val_placeholder": "Details or evolution (e.g., Diagnosed 10 years ago)",
+    "personal_bg_key_placeholder": "Condition or illness (e.g., Diabetes, Surgery)",
+    "personal_bg_val_placeholder": "Details (e.g., Controlled, 2018)",
+    "social_bg_key_placeholder": "Habit or factor (e.g., Smoking, Exercise)",
+    "social_bg_val_placeholder": "Frequency or details (e.g., 5/day, 3 times/week)",
+    "not_registered_app": "Not registered in app",
+    "blood_type_nd": "Blood N/A",
+    "uncalculated": "Uncalculated",
+    "biometric_profile": "Biometric Profile",
+    "vault_restricted_title": "Restricted Health Record",
+    "vault_restricted_desc": "The patient keeps their medical record private. Request authorization to access their full health history.",
+    "btn_request_access": "Request Authorization",
+    "btn_sending_request": "Sending Request...",
+    "clinical_document": "Clinical Document",
+    "request_sent_success": "Access request sent successfully.",
+    "request_sent_error": "Failed to send authorization request.",
+    "doc_unavailable": "Document unavailable.",
+    "doc_open_error": "Error opening document.",
+    "doc_local_error": "Cannot open local document.",
+    "note_modal_title": "Clinical Note",
+    "text_document": "Text Document",
+    "registered_on": "Recorded on: {date}",
+    "close_viewer": "Close Viewer",
+    "no_record_short": "No record",
+    "template_modal_title": "Load Medical Template",
+    "search_template_placeholder": "Search template by name...",
+    "loading_templates": "Loading your templates...",
+    "no_templates_found": "No templates available.",
+    "no_content": "No content recorded",
+    "protocol_pharmacological": "Pharmacological Protocol",
+    "form_instructions_title": "Prescription Form Instructions",
+    "linked_catalog": "Linked Catalog",
+    "medication_or_product": "Active Ingredient / Product *",
+    "search_inventory_placeholder": "Type to search inventory or enter free text...",
+    "consult_price": "Check price",
+    "unit_available": "{count} units available",
+    "inventory_out_of_stock": "Out of stock",
+    "no_matches_free_text": "No matches found. Will be recorded as free text (no direct sale).",
+    "dosage_placeholder": "e.g., 1 Tablet (500mg)",
+    "sale_quantity": "Qty (Sale)",
+    "days_short": "Days",
+    "duration_free_text": "Free text (e.g. for 7 days)...",
+    "duration_days_prefix": "For {days} days",
+    "rx_instructions_placeholder": "e.g., Take with food before bedtime",
+    "direct_sale_badge": "Direct sale (x{qty})",
+    "note_label": "Note",
+    "finish_charge_notice": "To finish, use the {button} button in the top bar.",
+    "finish_charge_btn_text": "Finish & Charge",
+    "freq_every_4_hours": "Every 4 hours",
+    "freq_every_6_hours": "Every 6 hours",
+    "freq_every_8_hours": "Every 8 hours",
+    "freq_every_12_hours": "Every 12 hours",
+    "freq_once_daily": "Once daily",
+    "freq_as_needed": "PRN (As needed)",
+    "freq_custom": "Other (Custom)...",
+    "vital_sign_type_label": "Vital sign type",
+    "vital_sign_type_placeholder": "Select vital sign...",
+    "vital_sign_value_label": "Value",
+    "systolic_label": "Systolic",
+    "diastolic_label": "Diastolic",
+    "btn_add_vital": "Add Vital Sign",
+    "vs_heart_rate": "Heart Rate (bpm)",
+    "vs_blood_pressure": "Blood Pressure (mmHg)",
+    "vs_spo2": "Blood Oxygen (%)",
+    "vs_temperature": "Body Temperature (°C)",
+    "vs_weight": "Weight (kg)",
+    "vs_height": "Height (cm)",
+    "vs_bmi": "BMI",
+    "vs_respiratory_rate": "Respiratory Rate (rpm)",
+    "vs_glucose": "Blood Glucose (mg/dL)",
+    "appointment_num": "Appointment #{id}",
+    "offline_badge": "Local Directory",
+    "listening_status": "Listening...",
+    "btn_save_draft": "Save Draft",
+    "btn_finish_and_charge": "Finish & Charge",
+    "btn_processing": "Processing..."
   },
-
   "PastConsultationModal": {
     "subtitle": "Clinical Archive",
     "title": "Consultation Record",
@@ -8769,7 +8670,6 @@
     "btn_close": "Close Record",
     "toast_prescription_error": "Could not find or generate the prescription for this consultation."
   },
-
   "DynamicFormRenderer": {
     "status_finalized": "Form Finalized",
     "schema_error": "No configured fields found in this template.",
@@ -8783,8 +8683,6 @@
     "btn_confirm_finalize": "Yes, Finalize Form",
     "btn_cancel": "Cancel"
   },
-
-
   "ClinicalFormsHistory": {
     "loading": "Loading clinical forms history...",
     "empty_title": "No completed clinical forms",
@@ -8799,7 +8697,6 @@
     "error_download_pdf": "Error generating clinical form PDF",
     "pdf_download_failed": "Could not download the clinical form"
   },
-
   "ClinicalTemplatesManager": {
     "subtitle": "Dynamic Forms",
     "title": "Clinical Templates",
@@ -8818,7 +8715,6 @@
     "error_load": "Error loading clinical templates",
     "error_save": "Error saving clinical form"
   },
-
   "AccountingAccounts": {
     "title": "Chart of Accounts",
     "erp_tag": "Financial ERP / Accounting",
@@ -8833,7 +8729,6 @@
     "btn_edit": "Edit",
     "empty_title": "No accounts registered"
   },
-
   "AccountingDashboard": {
     "title": "Accounting & Finance",
     "erp_tag": "Financial ERP",
@@ -8847,7 +8742,6 @@
     "vouchers_desc": "Recording of accounting entries and double-entry system.",
     "phase_2_badge": "Phase 2"
   },
-
   "AccountingCostCenters": {
     "title": "Cost Centers",
     "erp_tag": "Financial ERP / Accounting",
@@ -8861,8 +8755,6 @@
     "btn_edit": "Edit",
     "empty_title": "No cost centers registered"
   },
-
-
   "Errors": {
     "400": "Invalid request. Please check the information and try again.",
     "401": "Your session has expired. Please log in again.",
@@ -8881,7 +8773,6 @@
     "unknown": "An unexpected error occurred. Please try again.",
     "loading": "Loading..."
   },
-
   "DashboardProviderHome": {
     "ExpiredPlanNotice": {
       "badge_free_tier": "Free Plan Active",
@@ -8955,7 +8846,6 @@
     "in_person": "In-person",
     "manage": "Manage"
   },
-
   "ProviderSettings": {
     "title": "Account settings",
     "subtitle": "Manage your preferences, professional profile, and prescription settings.",
@@ -9048,7 +8938,6 @@
       "btn_saving": "Saving..."
     }
   },
-
   "Templates": {
     "title": "Template explorer",
     "subtitle": "Clinical structure and protocols for appointments and medical records.",
@@ -9151,7 +9040,6 @@
       "link_error": "An error occurred while linking the template."
     }
   },
-
   "FoundationSettings": {
     "panel_title": "Institutional Settings",
     "panel_subtitle": "Manage security, institutional identity, team permissions and platform preferences.",
@@ -9184,7 +9072,6 @@
     "saving": "Saving...",
     "save_success": "Institutional settings updated successfully."
   },
-
   "SidebarNav": {
     "brand_name": "QUHEALTHY",
     "platform": "Platform",
@@ -9262,7 +9149,6 @@
     "collapse_sidebar": "Collapse sidebar",
     "expand_sidebar": "Expand sidebar"
   },
-
   "TrialBanner": {
     "expires_today": "🚨 Your trial period ends TODAY",
     "upgrade_now": "Upgrade Now",
@@ -9302,7 +9188,8 @@
     "view_calendar": "View Full Calendar",
     "appointment": "appointment",
     "appointments": "appointments",
-    "min": "min"
+    "min": "min",
+    "today_schedule": "Today's schedule"
   },
   "CalendarView": {
     "title": "Calendar",
@@ -9380,7 +9267,6 @@
     "public_title": "Public Information",
     "public_desc": "Information displayed on your public profile."
   },
-  
   "PrescriptionSettings": {
     "loading_preferences": "Loading preferences...",
     "description": "Adjust colors and add your logo to give a more professional image to your patients.",
@@ -9429,13 +9315,21 @@
     "toast_signature_error": "There was a problem uploading the digital signature.",
     "toast_canvas_empty": "The signature canvas is empty.",
     "toast_save_success": "Prescription preferences saved successfully.",
-    "toast_save_error": "There was a problem saving preferences."
+    "toast_save_error": "There was a problem saving preferences.",
+    "digital_signature_placeholder": "Digital signature",
+    "error_loading": "Could not load prescription preferences.",
+    "error_logo_upload": "There was a problem uploading the logo.",
+    "error_save": "There was a problem saving your preferences.",
+    "error_signature_upload": "There was a problem uploading the digital signature.",
+    "success_logo_upload": "Logo uploaded successfully.",
+    "success_save": "Prescription preferences saved successfully.",
+    "success_signature_upload": "Digital signature uploaded and secured successfully.",
+    "uploading_logo": "Uploading logo...",
+    "uploading_signature": "Uploading signature..."
   },
-
   "AuthProvider": {
     "restoring_session": "Restoring secure session..."
   },
-
   "PublicAbout": {
     "breadcrumb": "Our Story",
     "title_light": "Reimagining ",
@@ -10156,7 +10050,6 @@
     "error": "Could not get your location. Please try again later.",
     "not_supported": "Your browser does not support geolocation."
   },
-
   "CookieConsent": {
     "title": "Privacy & Cookies",
     "description": "We use cookies to improve your experience, analyze traffic, and personalize content. By clicking \"Accept all\", you agree to their use.",
@@ -10178,7 +10071,6 @@
     "toggle_functional": "Enable or disable functional cookies",
     "save_btn": "Save Preferences"
   },
-  
   "AuthGate": {
     "title": "ACCESS REQUIRED",
     "description": "Sign up to unlock this feature and access the full QuHealthy experience.",
@@ -10217,7 +10109,9 @@
       "sms_alerts": "SMS Reminders",
       "sms_alerts_desc": "Send appointment reminders via SMS to patients",
       "marketing": "Offers and Marketing",
-      "marketing_desc": "Promotions and new QuHealthy features"
+      "marketing_desc": "Promotions and new QuHealthy features",
+      "push_alerts": "Real-time push alerts",
+      "push_alerts_desc": "Receive instant notifications on your browser or device for appointments and messages."
     },
     "appearance": {
       "title": "Appearance",
@@ -10226,9 +10120,9 @@
       "dark": "Dark",
       "system": "System"
     },
-    "toast_save": "Preferences successfully updated"
+    "toast_save": "Preferences successfully updated",
+    "loading": "Loading preferences..."
   },
-
   "SettingsConnections": {
     "title": "Linked Accounts & Connections",
     "subtitle": "Manage your direct sign-ins, social networks, and linked digital identities.",
@@ -10281,9 +10175,9 @@
       "redirect_error": "Error initiating redirect to {provider}",
       "disconnected_success": "Account disconnected successfully",
       "disconnect_error": "Error disconnecting account"
-    }
+    },
+    "confirm_disconnect": "Are you sure you want to disconnect this account?"
   },
-  
   "SettingsSecurity": {
     "title": "Security Center",
     "subtitle": "Manage your account protection and sensitive data security.",
@@ -10387,9 +10281,6 @@
       "error_loading": "An error occurred while loading recent activity."
     }
   },
-
-
-
   "Settings2FA": {
     "title": "Two-Factor Authentication (2FA)",
     "subtitle": "Protect your account with an extra layer of security.",
@@ -10428,7 +10319,6 @@
     "toast_disable_success": "2FA disabled successfully!",
     "toast_disable_error": "Incorrect password or error disabling 2FA."
   },
-
   "SettingsPassword": {
     "title": "Password Rules",
     "subtitle": "Define the complexity requirements for your account.",
@@ -10546,7 +10436,8 @@
       "loading": "Loading revenue...",
       "days_7": "7 Days",
       "weeks_4": "4 Weeks",
-      "months_6": "6 Months"
+      "months_6": "6 Months",
+      "error_title": "Could not load revenue data"
     },
     "RetentionWidget": {
       "title": "Patient Retention",
@@ -11182,5 +11073,74 @@
     "undo": "Undo",
     "reset_position": "Reset position",
     "position_reset": "Pulso position reset"
+  },
+  "Eldercare": {
+    "MedicationModal": {
+      "title_add": "Add medication",
+      "title_edit": "Edit medication",
+      "subtitle": "Configure the dosage and intake reminders.",
+      "name_label": "Medication name",
+      "name_placeholder": "E.g. Losartan, Metformin...",
+      "dosage_label": "Dosage",
+      "dosage_placeholder": "E.g. 50 mg, 1 tablet...",
+      "frequency_label": "Frequency",
+      "freq_every_4": "Every 4 hours",
+      "freq_every_6": "Every 6 hours",
+      "freq_every_8": "Every 8 hours",
+      "freq_every_12": "Every 12 hours",
+      "freq_once_daily": "Once daily",
+      "freq_as_needed": "As needed",
+      "first_dose_question": "When does the first dose start?",
+      "starts_now": "Starts now",
+      "schedule_time": "Schedule time",
+      "duration_label": "Treatment duration",
+      "duration_placeholder": "E.g. 7 days, Ongoing...",
+      "instructions_label": "Additional instructions",
+      "instructions_placeholder": "E.g. Take with food, before bedtime...",
+      "btn_cancel": "Cancel",
+      "btn_save": "Save medication",
+      "btn_saving": "Saving..."
+    }
+  },
+  "Guards": {
+    "ProviderGuard": {
+      "verifying": "Verifying provider session..."
+    }
+  },
+  "Provider": {
+    "Settings": {
+      "HomeVisit": {
+        "saved_success": "Home visit settings saved successfully."
+      }
+    }
+  },
+  "VerificationStatus": {
+    "urgent_badge": "Action required",
+    "badge_review": "Under review",
+    "progress_label": "Verification progress",
+    "time_left": "Approx. {hours}h remaining",
+    "time_soon": "Very soon",
+    "rejected_title": "Verification rejected",
+    "rejected_desc": "We found issues with your documents. Please update them to activate your public profile.",
+    "rejected_btn": "Update documents",
+    "pending_title": "Verification under review",
+    "pending_desc": "Our team is reviewing your identity and professional credentials.",
+    "pending_btn": "View status",
+    "almost_title": "You're almost done!",
+    "almost_desc": "Complete the final steps to start receiving bookings and online payments.",
+    "almost_btn": "Complete verification",
+    "required_title": "Verify your professional profile",
+    "required_desc": "Complete your identity, license, and payout verification to appear in the directory.",
+    "required_btn": "Start verification",
+    "step_kyc": "Identity (KYC)",
+    "step_license": "Professional license",
+    "step_payment": "Payout account",
+    "benefits_title": "Benefits of getting verified",
+    "benefit_1": "Verified Specialist badge on your profile",
+    "benefit_2": "Priority visibility in the directory and QUMarket",
+    "benefit_3": "Online payments and secure automatic payouts",
+    "benefit_4": "Full access to digital prescriptions and video consultations",
+    "review_time_title": "Estimated review time",
+    "review_time_desc": "We typically review your documents within 24 business hours."
   }
 }

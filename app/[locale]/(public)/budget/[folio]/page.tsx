@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { PatientClinicalBudgetDTO } from "@/types/clinical-budget";
 import { clinicalBudgetService } from "@/services/clinical-budget.service";
 import { generateClinicalBudgetPdf, formatDoctorDisplayName } from "@/lib/pdf/clinicalBudgetPdf";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 export default function PublicPatientBudgetPage() {
   const params = useParams();

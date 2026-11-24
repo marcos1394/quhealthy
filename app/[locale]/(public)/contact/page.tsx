@@ -17,7 +17,7 @@ import {
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 import { sendContactEmail } from "@/app/actions/contact";
 import { QhSpinner } from "@/components/ui/QhSpinner";

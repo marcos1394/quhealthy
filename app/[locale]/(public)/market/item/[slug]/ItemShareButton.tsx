@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Share } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 
 interface ItemShareButtonProps {

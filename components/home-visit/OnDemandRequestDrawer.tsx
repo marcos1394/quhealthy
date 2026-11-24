@@ -21,7 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { GoogleMap, useJsApiLoader, MarkerF } from "@react-google-maps/api";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 import { homeVisitService, HomeVisitDispatchResponse } from "@/services/homeVisit.service";
 import { QhSpinner } from "@/components/ui/QhSpinner";
