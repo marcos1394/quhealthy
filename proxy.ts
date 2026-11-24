@@ -63,6 +63,7 @@ export function proxy(request: NextRequest) {
   const isProviderRegisterRoute = /^\/([a-zA-Z]{2}\/)?provider\/register/.test(pathname);
   const isSupplierRegisterRoute = /^\/([a-zA-Z]{2}\/)?supplier\/register/.test(pathname);
   const isFoundationRegisterRoute = /^\/([a-zA-Z]{2}\/)?foundation\/register/.test(pathname);
+  const isLaboratoryRegisterRoute = /^\/([a-zA-Z]{2}\/)?laboratory\/register/.test(pathname);
   
   // 🚀 Identificamos la ruta pública de la receta para excluirla
   const isPublicPrescriptionRoute = /^\/([a-zA-Z]{2}\/)?patient\/prescription\//.test(pathname);
@@ -78,12 +79,13 @@ export function proxy(request: NextRequest) {
   const isPublicSuppliersRoute = /^\/([a-zA-Z]{2}\/)?suppliers(\/|$)/.test(pathname);
   const isPublicFoundationProfile = /^\/([a-zA-Z]{2}\/)?foundation\/\d+(\/|$)/.test(pathname);
 
-  // Todo bajo /patient, /provider, /supplier, /foundation o /admin está protegido (salvo portales públicos de acceso)
-  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|supplier|foundation|admin)(\/|$)/.test(pathname) 
+  // Todo bajo /patient, /provider, /supplier, /foundation, /laboratory o /admin está protegido (salvo portales públicos)
+  const isProtectedRoute = /^\/([a-zA-Z]{2}\/)?(patient|provider|supplier|foundation|laboratory|admin)(\/|$)/.test(pathname) 
     && !isProviderLoginRoute
     && !isProviderRegisterRoute 
     && !isSupplierRegisterRoute
     && !isFoundationRegisterRoute
+    && !isLaboratoryRegisterRoute
     && !isPublicPrescriptionRoute
     && !isPublicBookingRoute
     && !isAdminLoginRoute
@@ -91,18 +93,33 @@ export function proxy(request: NextRequest) {
     && !isPublicSuppliersRoute
     && !isPublicFoundationProfile;
   
-  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/login|provider\/register|supplier\/register|foundation\/register|admin\/login)(\/|$)/.test(pathname);
+  const isAuthRoute = /^\/([a-zA-Z]{2}\/)?(login|register|forgot-password|provider\/login|provider\/register|supplier\/register|foundation\/register|laboratory\/register|admin\/login)(\/|$)/.test(pathname);
 
   const localeMatch = pathname.match(/^\/([a-zA-Z]{2})(\/|$)/);
   const currentLocale = localeMatch ? `/${localeMatch[1]}` : '';
 
+  const isAdminProtectedRoute = /^\/([a-zA-Z]{2}\/)?admin(\/|$)/.test(pathname) && !isAdminLoginRoute;
+
   // 🛡️ Lógica de Protección (Sin token -> a Login correspondiente)
   if (isProtectedRoute && !isTokenPresent) {
+    if (isAdminProtectedRoute) {
+      const url = new URL(`${currentLocale}/admin/login`, request.url);
+      url.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(url);
+    }
     const isProviderArea = /^\/([a-zA-Z]{2}\/)?(provider|supplier|foundation|laboratory)(\/|$)/.test(pathname);
     const loginTarget = isProviderArea ? `${currentLocale}/provider/login` : `${currentLocale}/login`;
     const url = new URL(loginTarget, request.url);
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
+  }
+
+  // 🛡️ RBAC mínimo en borde para /admin/* (bloquea usuarios no-admin con refreshToken)
+  if (isAdminProtectedRoute && isTokenPresent) {
+    const userRole = request.cookies.get('__Secure-userRole')?.value;
+    if (userRole && userRole !== 'ROLE_ADMIN' && userRole !== 'ADMIN') {
+      return NextResponse.redirect(new URL(`${currentLocale}/admin/login`, request.url));
+    }
   }
 
   // 🛡️ Lógica Anti-rebote (Con token intentando ir a Login/Registro)

@@ -170,25 +170,34 @@ export default function AdminDashboardPage() {
   }, [periodParam, selectedPeriod, loadAllData]);
 
   useEffect(() => {
-    const cookies = document.cookie.split(";");
-    const roleCookie = cookies.find((c) => c.trim().startsWith("__Secure-userRole="));
-    const role = roleCookie ? roleCookie.split("=")[1] : null;
+    let isMounted = true;
 
-    if (role !== "ROLE_ADMIN" && role !== "ADMIN") {
-      toast.error("Acceso denegado. No cuentas con permisos de administrador.");
-      router.push("/admin/login");
-    } else {
-      useSessionStore
-        .getState()
-        .initializeSession()
-        .then(() => {
-          loadAllData();
-        })
-        .catch(() => {
-          toast.error("Sesión inválida.");
+    const verifyAdminSession = async () => {
+      try {
+        await useSessionStore.getState().initializeSession();
+        if (!isMounted) return;
+
+        const { isAuthenticated, role } = useSessionStore.getState();
+        const normalizedRole = String(role || "").toUpperCase();
+        if (!isAuthenticated || (normalizedRole !== "ROLE_ADMIN" && normalizedRole !== "ADMIN")) {
+          toast.error("Acceso denegado. No cuentas con permisos de administrador.");
           router.push("/admin/login");
-        });
-    }
+          return;
+        }
+
+        loadAllData();
+      } catch {
+        if (!isMounted) return;
+        toast.error("Sesión inválida.");
+        router.push("/admin/login");
+      }
+    };
+
+    verifyAdminSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, [router, loadAllData]);
 
   // Carga diferida de transacciones de Stripe cuando se entra a Finanzas

@@ -6,9 +6,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldCheck, Loader2, ArrowRight, LockKeyhole } from "lucide-react";
 import { toast } from "react-toastify";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { setAuthCookies } from "@/app/actions/auth-cookies";
 import apiClient from "@/lib/axios";
 import { useSessionStore } from "@/stores/SessionStore";
+
+function getSafeRedirectPath(rawUrl: string | null, fallback: string): string {
+  if (!rawUrl) return fallback;
+  const trimmed = rawUrl.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//") || trimmed.startsWith("/\\") || trimmed.includes("\\")) {
+    return fallback;
+  }
+  return trimmed;
+}
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -31,11 +39,8 @@ export default function AdminLoginPage() {
         captchaToken: token,
       });
 
-      // The backend returns { token, refreshToken, role }
-      // Ensure cookies/tokens are set securely via server action
-      await setAuthCookies(response.data.role, response.data.refreshToken);
-
-      // 🚀 FIX: Save the token in the session store so axios intercepts it!
+      // Las cookies HttpOnly (refreshToken y __Secure-userRole) son emitidas directamente
+      // por Spring Boot (/api/auth/admin/login). Guardamos únicamente el access token en RAM.
       useSessionStore.getState().updateToken({
         token: response.data.token,
         role: response.data.role,
@@ -44,12 +49,11 @@ export default function AdminLoginPage() {
 
       toast.success("Bienvenido al panel de administración");
 
-      const callbackUrl = searchParams.get("callbackUrl");
-      if (callbackUrl) {
-        router.push(callbackUrl);
-      } else {
-        router.push("/admin/dashboard");
-      }
+      const safeCallbackUrl = getSafeRedirectPath(
+        searchParams.get("callbackUrl"),
+        "/admin/dashboard"
+      );
+      router.push(safeCallbackUrl);
     } catch (error: any) {
       console.error("Error logging in admin:", error);
       const msg =

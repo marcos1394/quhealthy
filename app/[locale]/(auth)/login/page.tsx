@@ -121,7 +121,13 @@ export default function LoginPage() {
     }
 
     const redirectParam = searchParams.get("redirect") || searchParams.get("callbackUrl");
-    if (redirectParam && redirectParam.startsWith("/")) {
+    if (
+      redirectParam &&
+      redirectParam.startsWith("/") &&
+      !redirectParam.startsWith("//") &&
+      !redirectParam.startsWith("/\\") &&
+      !redirectParam.includes("\\")
+    ) {
       toast.success(t("login_success"), { theme: "colored" });
       router.push(redirectParam);
       return;

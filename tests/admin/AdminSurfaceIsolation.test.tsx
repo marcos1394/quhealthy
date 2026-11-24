@@ -47,7 +47,7 @@ vi.mock("@marsidev/react-turnstile", () => {
 
 // Mock auth-cookies
 vi.mock("@/app/actions/auth-cookies", () => ({
-  setAuthCookies: vi.fn().mockResolvedValue(undefined),
+  clearAuthCookies: vi.fn().mockResolvedValue(undefined),
 }));
 
 // Mock axios

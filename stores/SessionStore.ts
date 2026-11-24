@@ -153,10 +153,15 @@ export const useSessionStore = create<SessionState>()(
 
         initialRefreshPromise = (async (): Promise<string | null> => {
           try {
+            const headers: Record<string, string> = {};
+            if (typeof window !== 'undefined') {
+              const deviceId = localStorage.getItem('qd_id');
+              if (deviceId) headers['X-Device-Id'] = deviceId;
+            }
             const response = await axios.post<AuthResponse>(
               `${getSessionApiBaseUrl()}/api/auth/refresh-token`,
               {}, // Body vacío
-              { withCredentials: true } 
+              { withCredentials: true, headers } 
             );
 
             const newToken = response.data.token;
@@ -281,8 +286,9 @@ export const useSessionStore = create<SessionState>()(
       name: 'quhealthy-session',
       storage: createJSONStorage(() => localStorage),
 
+      // 🛡️ SEGURIDAD: El access token JWT vive estrictamente en RAM (nunca en localStorage)
+      // para evitar robo vía XSS. Al recargar la página, se renueva silenciosamente vía cookie HttpOnly.
       partialize: (state) => ({
-        token: state.token,
         user: state.user,
         role: state.role,
         status: state.status,
