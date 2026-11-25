@@ -1,4 +1,7 @@
 import React from "react";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { pickMessages, PUBLIC_NAMESPACES } from "@/i18n/scopes";
 import { PublicLayoutShell } from "@/components/layout/PublicLayoutShell";
 
 export default async function PublicLayout({
@@ -10,6 +13,7 @@ export default async function PublicLayout({
 }) {
   const resolvedParams = params ? await params : undefined;
   const locale = resolvedParams?.locale || "es";
+  const messages = pickMessages(await getMessages(), PUBLIC_NAMESPACES);
 
   const jsonLdGlobal = {
     "@context": "https://schema.org",
@@ -54,9 +58,13 @@ export default async function PublicLayout({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGlobal) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLdGlobal).replace(/</g, "\\u003c"),
+        }}
       />
-      <PublicLayoutShell>{children}</PublicLayoutShell>
+      <NextIntlClientProvider messages={messages}>
+        <PublicLayoutShell>{children}</PublicLayoutShell>
+      </NextIntlClientProvider>
     </>
   );
 }

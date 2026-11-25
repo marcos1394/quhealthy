@@ -200,6 +200,73 @@ if (missingCodeKeys.size > 0) {
   }
 }
 
+// 4. Verify scoped NextIntlClientProvider coverage (prevents runtime MISSING_MESSAGE in scoped route groups)
+const scopesPath = path.join(ROOT, "i18n", "scopes.ts");
+if (fs.existsSync(scopesPath)) {
+  const scopesSrc = fs.readFileSync(scopesPath, "utf8");
+  const parseScope = (name) => {
+    const m = scopesSrc.match(new RegExp(`export const ${name} = \\[([\\s\\S]*?)\\] as const;`));
+    if (!m) return new Set();
+    const out = new Set();
+    for (const s of m[1].matchAll(/["']([^"']+)["']/g)) out.add(s[1]);
+    return out;
+  };
+  const rootScope = parseScope("ROOT_NAMESPACES");
+  const withRoot = (s) => new Set([...rootScope, ...s]);
+  const groupScopes = [
+    ["(public)", "app/[locale]/(public)/", withRoot(parseScope("PUBLIC_NAMESPACES"))],
+    ["(auth)", "app/[locale]/(auth)/", withRoot(parseScope("AUTH_NAMESPACES"))],
+    ["onboarding", "app/[locale]/onboarding/", withRoot(parseScope("ONBOARDING_NAMESPACES"))],
+    ["(foundation)", "app/[locale]/(foundation)/", withRoot(parseScope("FOUNDATION_NAMESPACES"))],
+    ["(laboratory)", "app/[locale]/(laboratory)/", withRoot(parseScope("B2B_SHELL_NAMESPACES"))],
+    ["(supplier)", "app/[locale]/(supplier)/", withRoot(parseScope("B2B_SHELL_NAMESPACES"))],
+    ["admin", "app/[locale]/admin/", rootScope],
+  ];
+
+  const fileMap = new Map();
+  for (const f of codeFiles) fileMap.set(path.relative(ROOT, f), fs.readFileSync(f, "utf8"));
+  const resolveImport = (src, spec) => {
+    let base = null;
+    if (spec.startsWith("@/")) base = spec.slice(2);
+    else if (spec.startsWith(".")) base = path.posix.normalize(path.posix.join(path.posix.dirname(src), spec));
+    if (!base) return null;
+    for (const c of [base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`]) {
+      if (fileMap.has(c)) return c;
+    }
+    return null;
+  };
+  const scopeGaps = [];
+  for (const [label, prefix, allowed] of groupScopes) {
+    const seen = new Set();
+    const stack = [...fileMap.keys()].filter((p) => p.startsWith(prefix));
+    const missing = new Set();
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      if (seen.has(cur) || !fileMap.has(cur)) continue;
+      seen.add(cur);
+      const txt = fileMap.get(cur);
+      for (const m of txt.matchAll(/(?:useTranslations|getTranslations)\(\s*(?:\{[^}]*namespace\s*:\s*)?["']([^"']+)["']/g)) {
+        const top = m[1].split(".")[0];
+        if (!allowed.has(top) && (esPrefixes.has(top) || esFlat.has(top))) {
+          missing.add(top);
+        }
+      }
+      for (const m of txt.matchAll(/(?:from|import)\s+["']([^"']+)["']/g)) {
+        const target = resolveImport(cur, m[1]);
+        if (target && !seen.has(target)) stack.push(target);
+      }
+    }
+    if (missing.size > 0) {
+      scopeGaps.push(`  [${label}] missing in i18n/scopes.ts: ${[...missing].sort().join(", ")}`);
+    }
+  }
+  if (scopeGaps.length > 0) {
+    hasErrors = true;
+    console.error(`\n❌ Scoped NextIntlClientProvider gaps detected:`);
+    for (const line of scopeGaps) console.error(line);
+  }
+}
+
 if (!hasErrors) {
   console.log(`✅ i18n check passed! (${esFlat.size} es keys, ${enFlat.size} en keys, 0 duplicates, 0 parity gaps, 0 missing code keys)`);
   process.exit(0);

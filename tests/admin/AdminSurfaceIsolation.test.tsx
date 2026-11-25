@@ -28,6 +28,12 @@ vi.mock("next/navigation", () => ({
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
   useLocale: () => "es",
+  NextIntlClientProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("next-intl/server", () => ({
+  getMessages: vi.fn().mockResolvedValue({}),
+  getTranslations: vi.fn().mockResolvedValue((key: string) => key),
 }));
 
 // Mock Turnstile

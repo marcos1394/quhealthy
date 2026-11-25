@@ -1,5 +1,8 @@
 import React from "react";
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { pickMessages, AUTH_NAMESPACES } from "@/i18n/scopes";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -17,10 +20,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const messages = pickMessages(await getMessages(), AUTH_NAMESPACES);
   return (
-    <div className="min-h-screen w-full bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 antialiased">
-      {children}
-    </div>
+    <NextIntlClientProvider messages={messages}>
+      <div className="min-h-screen w-full bg-gray-50/50 dark:bg-[#050505] text-gray-900 dark:text-white font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950/30 transition-colors duration-500 antialiased">
+        {children}
+      </div>
+    </NextIntlClientProvider>
   );
 }

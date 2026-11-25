@@ -19,6 +19,12 @@ const nextConfig: NextConfig = {
   
   experimental: {
     externalDir: true,
+    optimizePackageImports: [
+      'lucide-react',
+      'date-fns',
+      'recharts',
+      'framer-motion',
+    ],
   },
 
   // === 2. BYPASS DE ERRORES ===

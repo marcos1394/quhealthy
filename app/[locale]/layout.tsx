@@ -4,6 +4,7 @@ import CustomProvider from "@/components/ui/provider";
 import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import { pickMessages, ROOT_NAMESPACES } from '@/i18n/scopes';
 
 // Providers globales y límite de plataforma
 import { ToastProvider } from '@/components/providers/ToastProvider';
@@ -140,13 +141,14 @@ export default async function RootLayout({
 }) {
   const { locale } = await params;
   const messages = await getMessages();
+  const rootMessages = pickMessages(messages, ROOT_NAMESPACES);
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
         className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white antialiased flex flex-col min-h-screen transition-colors duration-300`}
       >
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={rootMessages}>
           <CustomProvider>
             {children}
 
