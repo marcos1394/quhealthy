@@ -1,21 +1,22 @@
-"use client"
-/* eslint-disable react-doctor/no-react19-deprecated-apis */;;
+"use client";
 
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
-// Importamos el tipo correctamente para asegurar el tipado estricto
 import type { ThemeProviderProps } from "next-themes";
+import { LazyMotion, domAnimation } from "framer-motion";
 
 export default function CustomProvider({ children, ...props }: ThemeProviderProps) {
- return (
- <NextThemesProvider
- attribute="class" // Usa clases de Tailwind (.dark) en lugar de data-attributes
- defaultTheme="light" // Por defecto modo claro
- enableSystem={true} // Permite respetar la preferencia del sistema operativo si el usuario cambia
- disableTransitionOnChange // Evita parpadeos molestos al cambiar de tema
- {...props}
- >
- {children}
- </NextThemesProvider>
- );
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem={true}
+      disableTransitionOnChange
+      {...props}
+    >
+      <LazyMotion features={domAnimation}>
+        {children}
+      </LazyMotion>
+    </NextThemesProvider>
+  );
 }

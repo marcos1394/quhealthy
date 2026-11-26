@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 import { clearAuthCookies } from "@/app/actions/auth-cookies";
@@ -17,16 +18,30 @@ import {
 } from "@/services/admin.service";
 import { AdminHeader } from "./components/AdminHeader";
 import { AdminSidebar, AdminTab } from "./components/AdminSidebar";
-import { TabExecutivePulse } from "./tabs/TabExecutivePulse";
-import { TabAdminCrm } from "./tabs/TabAdminCrm";
-import { TabAdminSocialConnections } from "./tabs/TabAdminSocialConnections";
-import { TabFinances } from "./tabs/TabFinances";
-import { TabUnitEconomics } from "./tabs/TabUnitEconomics";
-import { TabProductAnalytics } from "./tabs/TabProductAnalytics";
-import { TabMedicalOperations } from "./tabs/TabMedicalOperations";
-import { TabFoundations } from "./tabs/TabFoundations";
-import { TabSystemHealth } from "./tabs/TabSystemHealth";
-import { OperatingCockpitPilot } from "./components/OperatingCockpitPilot";
+
+const TabSkeleton = () => (
+  <div className="space-y-4 animate-pulse">
+    <div className="h-8 w-56 rounded-xl bg-slate-200/70" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="h-32 rounded-2xl bg-slate-200/60" />
+      <div className="h-32 rounded-2xl bg-slate-200/60" />
+      <div className="h-32 rounded-2xl bg-slate-200/60" />
+    </div>
+    <div className="h-72 rounded-2xl bg-slate-200/50" />
+  </div>
+);
+
+// Code-splitting por pestaña (evita cargar Recharts y las 9 vistas del panel en el bundle inicial)
+const TabExecutivePulse = dynamic(() => import("./tabs/TabExecutivePulse").then((m) => m.TabExecutivePulse), { loading: TabSkeleton });
+const TabAdminCrm = dynamic(() => import("./tabs/TabAdminCrm").then((m) => m.TabAdminCrm), { loading: TabSkeleton });
+const TabAdminSocialConnections = dynamic(() => import("./tabs/TabAdminSocialConnections").then((m) => m.TabAdminSocialConnections), { loading: TabSkeleton });
+const TabFinances = dynamic(() => import("./tabs/TabFinances").then((m) => m.TabFinances), { loading: TabSkeleton });
+const TabUnitEconomics = dynamic(() => import("./tabs/TabUnitEconomics").then((m) => m.TabUnitEconomics), { loading: TabSkeleton });
+const TabProductAnalytics = dynamic(() => import("./tabs/TabProductAnalytics").then((m) => m.TabProductAnalytics), { loading: TabSkeleton });
+const TabMedicalOperations = dynamic(() => import("./tabs/TabMedicalOperations").then((m) => m.TabMedicalOperations), { loading: TabSkeleton });
+const TabFoundations = dynamic(() => import("./tabs/TabFoundations").then((m) => m.TabFoundations), { loading: TabSkeleton });
+const TabSystemHealth = dynamic(() => import("./tabs/TabSystemHealth").then((m) => m.TabSystemHealth), { loading: TabSkeleton });
+const OperatingCockpitPilot = dynamic(() => import("./components/OperatingCockpitPilot").then((m) => m.OperatingCockpitPilot), { loading: TabSkeleton });
 
 const VALID_TABS: AdminTab[] = [
   "pulse",

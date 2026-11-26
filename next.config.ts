@@ -41,6 +41,10 @@ const nextConfig: NextConfig = {
   async headers() {
     const cspHeader = `
       default-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      frame-ancestors 'self';
+      form-action 'self';
       
       script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.stripe.com https://js.stripe.com https://maps.googleapis.com https://accounts.google.com https://va.vercel-scripts.com https://*.googletagmanager.com https://app.chatwoot.com https://challenges.cloudflare.com https://www.gstatic.com https://apis.google.com https://vercel.live https://*.vercel.live; 
       
