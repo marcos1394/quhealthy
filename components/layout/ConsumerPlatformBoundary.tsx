@@ -53,9 +53,14 @@ export function ConsumerPlatformBoundary() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsAdminSurface(
-        isAdministrativeSurface(pathname, window.location.hostname)
-      );
+      const admin = isAdministrativeSurface(pathname, window.location.hostname);
+      setIsAdminSurface(admin);
+
+      // Kill-switch oficial de Google Analytics: detiene page_view por History Change en SPA al entrar a /admin
+      const gaId = process.env.NEXT_PUBLIC_GA_ID;
+      if (gaId) {
+        (window as unknown as Record<string, boolean>)[`ga-disable-${gaId}`] = admin;
+      }
     }
   }, [pathname]);
 

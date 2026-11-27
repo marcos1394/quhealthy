@@ -5,6 +5,9 @@ export const SPECIALTY_MAP: Record<string, { es: string; en: string }> = {
   ginecologia: { es: "Ginecología y Obstetricia", en: "Gynecology & Obstetrics" },
   psicologia: { es: "Psicología Clínica", en: "Clinical Psychology" },
   "medicina-general": { es: "Medicina General", en: "General Medicine" },
+  neumologia: { es: "Neumología", en: "Pulmonology" },
+  nutricion: { es: "Nutrición Clínica", en: "Clinical Nutrition" },
+  "cirugia-general": { es: "Cirugía General", en: "General Surgery" },
 };
 
 export const CITY_MAP: Record<string, { es: string; en: string }> = {
@@ -13,6 +16,10 @@ export const CITY_MAP: Record<string, { es: string; en: string }> = {
   monterrey: { es: "Monterrey", en: "Monterrey" },
   queretaro: { es: "Querétaro", en: "Queretaro" },
   puebla: { es: "Puebla", en: "Puebla" },
+  "los-mochis": { es: "Los Mochis", en: "Los Mochis" },
+  culiacan: { es: "Culiacán", en: "Culiacan" },
+  tijuana: { es: "Tijuana", en: "Tijuana" },
+  merida: { es: "Mérida", en: "Merida" },
 };
 
 export function getProgrammaticMetadata(specialtySlug: string, citySlug: string, locale: string) {

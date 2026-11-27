@@ -4,6 +4,7 @@ import {
   trackFunnelEvent,
   trackProviderFunnel,
   trackPatientFunnel,
+  trackEcommerceEvent,
   trackReferralInviteSent,
 } from "@/lib/analytics/funnel-events";
 
@@ -103,5 +104,31 @@ describe("Funnel Events & Anti-PII Guard (MKT-ANL-01)", () => {
         funnel_type: "provider",
       }
     );
+  });
+
+  it("dispatches standard GA4 ecommerce events (view_item, add_to_cart, begin_checkout, sign_up) without PII", () => {
+    const dispatched = trackEcommerceEvent("view_item", {
+      item_id: "284",
+      item_category: "PRODUCT",
+      value: 4500,
+      currency: "MXN",
+      email: "should-be-stripped@example.com",
+    });
+
+    expect(dispatched).toBe(true);
+    expect((window as any).gtag).toHaveBeenCalledWith("event", "view_item", {
+      item_id: "284",
+      item_category: "PRODUCT",
+      value: 4500,
+      currency: "MXN",
+    });
+  });
+
+  it("never dispatches GA4 events when current path is an /admin route", () => {
+    window.history.pushState({}, "", "/es/admin/dashboard");
+    const dispatched = trackEcommerceEvent("view_item", { item_id: "1" });
+    expect(dispatched).toBe(false);
+    expect((window as any).gtag).not.toHaveBeenCalled();
+    window.history.pushState({}, "", "/es");
   });
 });

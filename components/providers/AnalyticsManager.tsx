@@ -3,18 +3,38 @@
 /* eslint-disable react-doctor/no-initialize-state */
 
 import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Script from "next/script";
 import {
   readCookieConsent,
   type CookieConsentRecord,
 } from "@/components/ui/CookieConsent";
+import { captureAndStoreAttribution } from "@/lib/analytics/funnel-events";
 
 type ConsentState = Pick<CookieConsentRecord, "analytics" | "marketing">;
 
 const DEFAULT_CONSENT: ConsentState = { analytics: false, marketing: false };
 
+const isAdminPath = (pathname: string | null): boolean => {
+  if (!pathname) return false;
+  return (
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    /^\/[a-zA-Z]{2}\/admin(\/|$)/.test(pathname)
+  );
+};
+
 export const AnalyticsManager = () => {
+  const pathname = usePathname();
   const [consent, setConsent] = useState<ConsentState>(DEFAULT_CONSENT);
+  const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+
+  // Captura UTMs / gclid / fbclid al aterrizar desde redes sociales o anuncios
+  useEffect(() => {
+    if (!isAdminPath(pathname)) {
+      captureAndStoreAttribution();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const applyStoredConsent = () => {
@@ -47,11 +67,13 @@ export const AnalyticsManager = () => {
       window.removeEventListener("cookie_consent_changed", handleConsentEvent);
   }, []);
 
-  const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+  if (isAdminPath(pathname)) {
+    return null;
+  }
 
   return (
     <>
-      {/* 📊 GOOGLE ANALYTICS — Solo se carga con consentimiento activo */}
+      {/* 📊 GOOGLE ANALYTICS — Solo se carga con consentimiento activo y fuera de /admin */}
       {consent.analytics && GA_ID && (
         <>
           <Script

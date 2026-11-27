@@ -35,6 +35,7 @@ import { QhSpinner } from "@/components/ui/QhSpinner";
 import { paymentService } from "@/services/payment.service";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
+import { trackEcommerceEvent } from "@/lib/analytics/funnel-events";
 
 export default function GlobalCheckoutPage() {
   const t = useTranslations("Checkout");
@@ -75,9 +76,21 @@ export default function GlobalCheckoutPage() {
     isLoading: isAutocompleteLoading,
   } = useGoogleAutocomplete();
 
+  const beginCheckoutTrackedRef = React.useRef(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted || cart.length === 0 || beginCheckoutTrackedRef.current) return;
+    beginCheckoutTrackedRef.current = true;
+    trackEcommerceEvent("begin_checkout", {
+      value: getTotalPrice(),
+      currency: "MXN",
+      item_count: getTotalItemCount(),
+    });
+  }, [mounted, cart.length, getTotalPrice, getTotalItemCount]);
 
   const handleSelectSuggestion = (placeId: string, description: string) => {
     setQuery("");
@@ -195,6 +208,12 @@ export default function GlobalCheckoutPage() {
       const { checkoutUrl } = await paymentService.createGlobalCartCheckout(payload);
 
       if (checkoutUrl) {
+        trackEcommerceEvent("add_payment_info", {
+          value: totalPrice,
+          currency: "MXN",
+          item_count: totalItems,
+          shipping_method: hasPhysical ? shippingMethod : "DIGITAL",
+        });
         window.location.href = checkoutUrl;
       } else {
         throw new Error("No se pudo obtener la URL de Stripe.");

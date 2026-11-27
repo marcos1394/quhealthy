@@ -35,6 +35,11 @@ import { RegisterConsumerRequest } from "@/types/auth";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { handleApiError } from "@/lib/handleApiError";
+import {
+  getStoredAttribution,
+  trackEcommerceEvent,
+  clearStoredAttribution,
+} from "@/lib/analytics/funnel-events";
 
 interface PasswordRule {
   regex: RegExp;
@@ -130,6 +135,7 @@ export default function ConsumerSignupPage() {
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(" ") || "";
 
+      const attribution = getStoredAttribution();
       const signupData: RegisterConsumerRequest = {
         firstName: firstName,
         lastName: lastName,
@@ -139,11 +145,17 @@ export default function ConsumerSignupPage() {
         termsAccepted: formData.acceptTerms as true,
         privacyPolicyVersion: "v1.0",
         captchaToken: token,
-        utmSource: "web_direct",
-        utmMedium: "organic",
+        utmSource: attribution?.utm_source || "web_direct",
+        utmMedium: attribution?.utm_medium || "organic",
       };
 
       const response = await registerConsumer(signupData);
+
+      trackEcommerceEvent("sign_up", {
+        method: "email",
+        user_role: "patient",
+      });
+      clearStoredAttribution();
 
       toast.success(response.message || t("success_toast"), {
         theme: "colored",

@@ -31,10 +31,27 @@ import { CourseDetailsSection } from "./CourseDetailsSection";
 import { PackageDetailsSection } from "./PackageDetailsSection";
 import { MarketplaceFaqSection } from "./MarketplaceFaqSection";
 import { StickyBottomBar } from "./StickyBottomBar";
+import { ItemViewTracker } from "./ItemViewTracker";
 import { GuestStorefrontBanner } from "@/components/store/GuestStorefrontBanner";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 300; // ISR 5 min: acelera TTFB para Googlebot y usuarios
+
+function formatMxnPrice(price?: number, currency = "MXN"): string | null {
+  if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
+    return null;
+  }
+  const formatted = price.toLocaleString("es-MX", {
+    minimumFractionDigits: price % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+  return `$${formatted} ${currency}`;
+}
+
+function getPriceValidUntilIso(): string {
+  const nextYear = new Date();
+  nextYear.setFullYear(nextYear.getFullYear() + 1);
+  return nextYear.toISOString().slice(0, 10);
+}
 
 async function getCatalogItem(id: string): Promise<CatalogItemDTO | null> {
   try {
@@ -42,7 +59,7 @@ async function getCatalogItem(id: string): Promise<CatalogItemDTO | null> {
       process.env.NEXT_PUBLIC_API_URL || "https://api.quhealthy.org"
     ).replace(/\/$/, "");
     const res = await fetch(`${baseUrl}/api/catalog/items/${id}`, {
-      cache: "no-store",
+      next: { revalidate: 300 },
       headers: {
         Accept: "application/json",
         "User-Agent": "Mozilla/5.0 (compatible; QuHealthy/1.0; +Next.js Server)",
@@ -64,7 +81,7 @@ async function getProviderProfile(providerId: number) {
     const res = await fetch(
       `${baseUrl}/api/catalog/store/profile/${providerId}`,
       {
-        cache: "no-store",
+        next: { revalidate: 300 },
         headers: {
           Accept: "application/json",
           "User-Agent":
@@ -90,7 +107,7 @@ async function getProviderItems(
     const res = await fetch(
       `${baseUrl}/api/catalog/provider/${providerId}/items`,
       {
-        cache: "no-store",
+        next: { revalidate: 300 },
         headers: {
           Accept: "application/json",
           "User-Agent":
@@ -129,50 +146,85 @@ export async function generateMetadata({
     (provider?.galleryImages && provider.galleryImages.length > 0
       ? provider.galleryImages[0].imageUrl
       : null);
-  const imageUrl = item.imageUrl || providerImage;
+  const imageUrl =
+    item.imageUrl || providerImage || "https://www.quhealthy.org/og-image.png";
 
+  const canonicalEsUrl = `https://www.quhealthy.org/es/market/item/${slug}`;
   const url = `https://www.quhealthy.org/${locale}/market/item/${slug}`;
-  const providerName = provider?.displayName ? ` - ${provider.displayName}` : '';
-  const title = `${item.name}${providerName}`.slice(0, 50);
+  const currency = (item as any).currency || "MXN";
+  const priceLabel = formatMxnPrice(item.price, currency);
+  const cleanName = item.name.trim();
+  const shortName = cleanName.length > 42 ? `${cleanName.slice(0, 41).trimEnd()}…` : cleanName;
+  const providerDisplay = provider?.displayName?.trim();
+
+  let title: string;
+  if (locale === "en") {
+    title = priceLabel
+      ? `${shortName} — ${priceLabel}`
+      : providerDisplay
+        ? `${shortName} — ${providerDisplay}`
+        : shortName;
+  } else if (item.type === "SERVICE") {
+    title = priceLabel
+      ? `${shortName} — Consulta ${priceLabel}`
+      : `${shortName} — Agenda Cita en México`;
+  } else if (item.type === "COURSE") {
+    title = priceLabel
+      ? `${shortName} — Curso ${priceLabel}`
+      : `${shortName} — Curso Online`;
+  } else {
+    title = priceLabel
+      ? `${shortName} — Precio ${priceLabel}`
+      : `${shortName} — Precio y Envío en México`;
+  }
+
+  const brandText = item.manufacturer ? ` (${item.manufacturer})` : "";
+  const rawDescription = item.description?.replace(/\s+/g, " ").trim();
   const description =
-    item.description?.slice(0, 150) ||
-    `Adquiere ${item.name} en QuHealthy con garantía médica y profesionales certificados.`;
+    locale === "en"
+      ? `${priceLabel ? `Price: ${priceLabel}. ` : ""}${rawDescription || `Buy ${cleanName}${brandText} from verified providers on QuHealthy.`}`.slice(
+          0,
+          160
+        )
+      : `${priceLabel ? `Precio: ${priceLabel}. ` : ""}${rawDescription ? `${rawDescription.slice(0, 115)} ` : `Compra ${cleanName}${brandText} en México con proveedores verificados. `}Envío seguro en QuHealthy.`.slice(
+          0,
+          160
+        );
 
   return {
     title,
     description,
     keywords: (item as any).searchTags
       ? (item as any).searchTags.join(", ")
-      : "",
+      : `${cleanName}, ${cleanName} precio, comprar ${cleanName} México`,
     openGraph: {
       title,
       description,
-      url: url,
+      url,
       siteName: "QuHealthy",
-      images: imageUrl
-        ? [
-            {
-              url: imageUrl,
-              width: 1200,
-              height: 630,
-              alt: item.name,
-            },
-          ]
-        : [],
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: cleanName,
+        },
+      ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: imageUrl ? [imageUrl] : [],
+      images: [imageUrl],
     },
     alternates: {
-      canonical: url,
+      // Consolidar canonical de fichas en español para evitar canibalización /en/ vs /es/ en México
+      canonical: locale === "en" ? url : canonicalEsUrl,
       languages: {
-        es: `https://www.quhealthy.org/es/market/item/${slug}`,
+        es: canonicalEsUrl,
         en: `https://www.quhealthy.org/en/market/item/${slug}`,
-        "x-default": `https://www.quhealthy.org/es/market/item/${slug}`,
+        "x-default": canonicalEsUrl,
       },
     },
   };
@@ -202,19 +254,118 @@ export default async function MarketItemPage({
   if (item.type === "SERVICE") schemaType = "Service";
   if (item.type === "COURSE") schemaType = "Course";
 
-  const jsonLd: any = {
+  const canonicalItemUrl = `https://www.quhealthy.org/${locale}/market/item/${slug}`;
+  const fallbackImage =
+    item.imageUrl ||
+    providerProfile?.bannerUrl ||
+    providerProfile?.logoUrl ||
+    "https://www.quhealthy.org/og-image.png";
+  const currency = (item as any).currency || "MXN";
+  const stockQty = (item as any).stockQuantity;
+  const availability =
+    typeof stockQty === "number" && stockQty <= 0
+      ? "https://schema.org/OutOfStock"
+      : "https://schema.org/InStock";
+
+  const offerSchema: Record<string, unknown> = {
+    "@type": "Offer",
+    price: typeof item.price === "number" ? Number(item.price).toFixed(2) : item.price,
+    priceCurrency: currency,
+    availability,
+    priceValidUntil: getPriceValidUntilIso(),
+    url: canonicalItemUrl,
+    seller: {
+      "@type": "Organization",
+      name: providerProfile?.displayName || "QuHealthy",
+      url: providerProfile?.slug
+        ? `https://www.quhealthy.org/${locale}/store/${providerProfile.slug}`
+        : "https://www.quhealthy.org",
+    },
+  };
+
+  if (schemaType === "Product") {
+    offerSchema.itemCondition = "https://schema.org/NewCondition";
+    offerSchema.shippingDetails = {
+      "@type": "OfferShippingDetails",
+      shippingDestination: {
+        "@type": "DefinedRegion",
+        addressCountry: "MX",
+      },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" },
+        transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 5, unitCode: "DAY" },
+      },
+    };
+    offerSchema.hasMerchantReturnPolicy = {
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: "MX",
+      returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+      merchantReturnDays: 15,
+      returnMethod: "https://schema.org/ReturnByMail",
+      returnFees: "https://schema.org/FreeReturn",
+    };
+  }
+
+  const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": schemaType,
     name: item.name,
-    description: item.description,
-    image: item.imageUrl ? [item.imageUrl] : undefined,
-    offers: {
-      "@type": "Offer",
-      price: item.price,
-      priceCurrency: (item as any).currency || "MXN",
-      availability: "https://schema.org/InStock",
-      url: `https://www.quhealthy.org/${locale}/market/item/${slug}`,
-    },
+    description:
+      item.description ||
+      `Adquiere ${item.name} en QuHealthy México con proveedores verificados.`,
+    image: [fallbackImage],
+    url: canonicalItemUrl,
+    offers: offerSchema,
+  };
+
+  if (schemaType === "Product") {
+    jsonLd.sku = (item as any).sku || `QH-${item.id}`;
+    jsonLd.category = item.category || "Salud y Bienestar";
+    jsonLd.brand = {
+      "@type": "Brand",
+      name: item.manufacturer || providerProfile?.displayName || "QuHealthy",
+    };
+  }
+
+  if (
+    providerProfile?.averageRating &&
+    providerProfile.averageRating > 0 &&
+    providerProfile?.totalReviews &&
+    providerProfile.totalReviews > 0
+  ) {
+    jsonLd.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: Number(providerProfile.averageRating).toFixed(1),
+      reviewCount: providerProfile.totalReviews,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: locale === "en" ? "Home" : "Inicio",
+        item: `https://www.quhealthy.org/${locale}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Marketplace",
+        item: `https://www.quhealthy.org/${locale}/market`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: item.name,
+        item: canonicalItemUrl,
+      },
+    ],
   };
 
   const isCourse = item.type === "COURSE";
@@ -241,8 +392,19 @@ export default async function MarketItemPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          __html: JSON.stringify([jsonLd, breadcrumbJsonLd]).replace(
+            /</g,
+            "\\u003c"
+          ),
         }}
+      />
+      <ItemViewTracker
+        itemId={item.id ?? id}
+        itemType={item.type}
+        category={item.category}
+        price={item.price}
+        currency={currency}
+        providerId={item.providerId}
       />
 
       <main className="min-h-screen bg-gray-50/40 dark:bg-[#070707] pt-28 pb-28 font-sans select-none selection:bg-emerald-100 dark:selection:bg-emerald-950/40">

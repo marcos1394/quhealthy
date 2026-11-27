@@ -16,6 +16,10 @@ import { useBookingStore } from "@/hooks/useBookingStore";
 import { Button } from "@/components/ui/button";
 import { StorefrontItem } from "@/types/storefront";
 import { toast } from "react-toastify";
+import {
+  trackEcommerceEvent,
+  trackPatientFunnel,
+} from "@/lib/analytics/funnel-events";
 
 interface AddToCartButtonProps {
   item: CatalogItemDTO;
@@ -74,6 +78,15 @@ export function AddToCartButton({
       const finalName = providerName || "Proveedor";
 
       addToCart(storefrontItem, finalSlug, finalName, safeBrandColor);
+      trackEcommerceEvent("add_to_cart", {
+        item_id: String(item.id),
+        item_type: item.type,
+        item_category: item.category || item.type,
+        value: item.price * quantity,
+        quantity,
+        currency: (item as any).currency || "MXN",
+        providerId: item.providerId,
+      });
       openCart();
       setIsAdding(false);
       toast.success(`${item.name} agregado a tu carrito`);
@@ -89,6 +102,16 @@ export function AddToCartButton({
       const finalName = providerName || "Proveedor";
 
       addToCart(storefrontItem, finalSlug, finalName, safeBrandColor);
+      trackEcommerceEvent("add_to_cart", {
+        item_id: String(item.id),
+        item_type: item.type,
+        item_category: item.category || item.type,
+        value: item.price * quantity,
+        quantity,
+        currency: (item as any).currency || "MXN",
+        providerId: item.providerId,
+        checkout_intent: "buy_now",
+      });
       setIsBuyingNow(false);
       router.push("/checkout");
     }, 200);
@@ -96,6 +119,12 @@ export function AddToCartButton({
 
   const handleDirectBooking = () => {
     const finalSlug = providerSlug || String(item.providerId);
+    trackPatientFunnel("booking_initiated", {
+      providerId: item.providerId,
+      item_id: String(item.id),
+      value: item.price,
+      currency: (item as any).currency || "MXN",
+    });
     router.push(`/patient/booking/${finalSlug}?serviceId=${item.id}`);
   };
 

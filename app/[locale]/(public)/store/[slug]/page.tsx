@@ -62,6 +62,7 @@ import { MultiLocationSelector } from "@/components/store/MultiLocationSelector"
 import { StorefrontTrustBadges } from "@/components/store/StorefrontTrustBadges";
 import { StoreConflictModal } from "@/components/store/StoreConflictModal";
 import { toast } from "react-toastify";
+import { trackPatientFunnel } from "@/lib/analytics/funnel-events";
 
 type TabType = "servicios" | "paquetes" | "productos" | "cursos";
 
@@ -146,8 +147,13 @@ export default function PublicStorePage() {
         store.primaryColor || "#000000",
       );
       fetchSingleScore(store.providerId);
-      
-      // LOG VISIT TO ANALYTICS
+
+      // LOG VISIT TO ANALYTICS (GA4 sin PII)
+      trackPatientFunnel("view_provider_profile", {
+        providerId: store.providerId,
+        specialty: store.specialty || store.providerType,
+        city: store.city,
+      });
       import('@/services/analytics.service').then(({ analyticsService }) => {
         const searchQuery = searchParams?.get("q") || "";
         const referrer = document.referrer || "";

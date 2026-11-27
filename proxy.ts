@@ -150,14 +150,23 @@ export function proxy(request: NextRequest) {
   }
 
   // 🤖 5. SEO / BOT INTERCEPTION 🤖
-  // Redes sociales y buscadores no siguen redirecciones 307 correctamente al leer metadatos.
-  // Si un bot visita una ruta sin locale (ej. / o /academy), reescribimos internamente a /es...
+  // - Buscadores (Googlebot, Bingbot, etc.): 301 permanente a /es... para consolidar autoridad
+  //   canónica y evitar indexación duplicada de "/" vs "/es" o "/store/..." vs "/es/store/...".
+  // - Scrapers sociales (WhatsApp, Facebook, X, LinkedIn): rewrite interno para renderizar OG cards.
   const userAgent = request.headers.get('user-agent') || '';
-  const isBot = /Googlebot|bingbot|YandexBot|Slurp|DuckDuckBot|Baiduspider|Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|SkypeUriPreview|TelegramBot|Slackbot|Discordbot/i.test(userAgent);
+  const isSearchEngineBot = /Googlebot|bingbot|YandexBot|Slurp|DuckDuckBot|Baiduspider/i.test(userAgent);
+  const isSocialPreviewBot = /Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|SkypeUriPreview|TelegramBot|Slackbot|Discordbot/i.test(userAgent);
 
-  if (isBot && !localeMatch) {
+  if (!localeMatch) {
     const newPath = pathname === '/' || pathname === '' ? '/es' : `/es${pathname}`;
-    return NextResponse.rewrite(new URL(newPath, request.url));
+    if (isSearchEngineBot) {
+      const targetUrl = new URL(newPath, request.url);
+      targetUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(targetUrl, 301);
+    }
+    if (isSocialPreviewBot) {
+      return NextResponse.rewrite(new URL(newPath, request.url));
+    }
   }
 
   // Obtener respuesta base

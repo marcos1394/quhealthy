@@ -37,6 +37,11 @@ import { RegisterProviderRequest } from "@/types/auth";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { handleApiError } from "@/lib/handleApiError";
+import {
+  trackProviderFunnel,
+  trackEcommerceEvent,
+  clearStoredAttribution,
+} from "@/lib/analytics/funnel-events";
 
 // Interfaces
 interface PasswordRule {
@@ -120,6 +125,9 @@ export default function ProviderSignupPage() {
   };
 
   const handleSocialSuccess = (res: any) => {
+    trackProviderFunnel("signup_provider_complete", { leadSource: "social_oauth" });
+    trackEcommerceEvent("sign_up", { method: "social", user_role: "provider" });
+    clearStoredAttribution();
     if (res && res.status) {
       if (!res.status.onboardingComplete) {
         router.push("/onboarding");
@@ -148,6 +156,9 @@ export default function ProviderSignupPage() {
       const res = await registerProvider(signupData);
 
       if (res && res.id) {
+        trackProviderFunnel("signup_provider_complete", { leadSource: "email" });
+        trackEcommerceEvent("sign_up", { method: "email", user_role: "provider" });
+        clearStoredAttribution();
         toast.success(t("success_toast"), { theme: "colored" });
         router.push(`/verify-email?email=${encodeURIComponent(res.email)}`);
       } else {

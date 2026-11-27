@@ -16,7 +16,19 @@ export type PatientFunnelStep =
   | 'booking_initiated'
   | 'booking_confirmed';
 
-export type FunnelEventName = ProviderFunnelStep | PatientFunnelStep;
+export type EcommerceFunnelStep =
+  | 'view_item'
+  | 'add_to_cart'
+  | 'begin_checkout'
+  | 'add_payment_info'
+  | 'purchase'
+  | 'sign_up'
+  | 'contact_provider';
+
+export type FunnelEventName =
+  | ProviderFunnelStep
+  | PatientFunnelStep
+  | EcommerceFunnelStep;
 
 export interface FunnelEventParams {
   specialty?: string;
@@ -110,6 +122,19 @@ export function trackFunnelEvent(
 ): boolean {
   if (typeof window === 'undefined') return false;
 
+  // Bloqueo estricto: nunca contaminar GA4 desde rutas /admin o subdominio admin.*
+  const host = window.location?.hostname || '';
+  const path = window.location?.pathname || '';
+  if (
+    host === 'admin.quhealthy.org' ||
+    host.startsWith('admin.') ||
+    path === '/admin' ||
+    path.startsWith('/admin/') ||
+    /^\/[a-zA-Z]{2}\/admin(\/|$)/.test(path)
+  ) {
+    return false;
+  }
+
   const sanitized = sanitizeAnalyticsPayload(params);
 
   try {
@@ -128,6 +153,14 @@ export function trackFunnelEvent(
   }
 
   return false;
+}
+
+/** Helper para eventos estándar de e-commerce y conversión GA4 */
+export function trackEcommerceEvent(
+  step: EcommerceFunnelStep,
+  params?: FunnelEventParams
+): boolean {
+  return trackFunnelEvent(step, withAttribution(params));
 }
 
 /** Helper para embudo de proveedores/médicos */

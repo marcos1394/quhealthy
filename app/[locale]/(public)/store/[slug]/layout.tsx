@@ -16,7 +16,10 @@ type StorefrontData = {
   longitude?: number;
   quScore?: number;
   totalReviews?: number;
+  reviewsCount?: number;
   averageRating?: number;
+  rating?: number;
+  specialty?: string;
 };
 
 function formatSlugToTitle(slug: string): string {
@@ -52,13 +55,23 @@ export async function generateMetadata({
   }
 
   const name = store?.displayName || fallbackName;
-  const specialty = store?.categoryName || store?.subCategoryName || '';
+  const specialty = store?.specialty || store?.categoryName || store?.subCategoryName || '';
   const city = store?.city ? ` en ${store.city}` : '';
+  const effectiveRating = store?.averageRating || store?.rating || 0;
+  const effectiveReviews = store?.totalReviews || store?.reviewsCount || 0;
+  const ratingSnippet =
+    effectiveRating > 0 && effectiveReviews > 0
+      ? ` (${effectiveRating.toFixed(1)}★)`
+      : '';
 
-  const title = specialty ? `${name} - ${specialty}${city}` : `${name}${city}`;
-  const description =
-    store?.bio?.slice(0, 150) ||
-    `Agenda tu cita médica con ${name}${specialty ? ` (${specialty})` : ''}${city}. Conoce servicios, horarios y opiniones verificadas en QuHealthy.`;
+  const title = specialty
+    ? `${name} — ${specialty}${city}${ratingSnippet}`
+    : `${name}${city}${ratingSnippet} | Citas y Catálogo`;
+  const description = (
+    store?.bio?.replace(/\s+/g, ' ').trim()
+      ? `${store.bio.replace(/\s+/g, ' ').trim().slice(0, 120)} · Agenda online en QuHealthy.`
+      : `Agenda tu cita o compra con ${name}${specialty ? ` (${specialty})` : ''}${city}. Consulta precios, horarios y reseñas verificadas en QuHealthy.`
+  ).slice(0, 160);
 
   const ogImage =
     store?.bannerUrl ||
@@ -136,7 +149,8 @@ export default async function StorefrontLayout({
         description: store.bio || `Servicios de salud y consultas médicas con ${name}`,
         image: store.bannerUrl || store.logoUrl || 'https://www.quhealthy.org/og-image.png',
         url: `https://www.quhealthy.org/${locale}/store/${slug}`,
-        telephone: store.phone || '+52-668-184-2487',
+        ...(store.phone ? { telephone: store.phone } : {}),
+        ...(store.categoryName ? { medicalSpecialty: store.categoryName } : {}),
         priceRange: '$$',
         address: {
           '@type': 'PostalAddress',
@@ -155,11 +169,13 @@ export default async function StorefrontLayout({
         };
       }
 
-      if (store.totalReviews && store.totalReviews > 0 && store.averageRating) {
+      const effectiveRating = store.averageRating || store.rating || 0;
+      const effectiveReviews = store.totalReviews || store.reviewsCount || 0;
+      if (effectiveReviews > 0 && effectiveRating > 0) {
         jsonLd.aggregateRating = {
           '@type': 'AggregateRating',
-          ratingValue: store.averageRating,
-          reviewCount: store.totalReviews,
+          ratingValue: Number(effectiveRating).toFixed(1),
+          reviewCount: effectiveReviews,
           bestRating: 5,
           worstRating: 1,
         };
@@ -169,16 +185,41 @@ export default async function StorefrontLayout({
     console.warn('[SEO] Storefront JSON-LD fallback for', slug, err);
   }
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: locale === 'en' ? 'Home' : 'Inicio',
+        item: `https://www.quhealthy.org/${locale}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: locale === 'en' ? 'Directory' : 'Especialistas',
+        item: `https://www.quhealthy.org/${locale}/discover`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: (jsonLd?.name as string) || fallbackName,
+        item: `https://www.quhealthy.org/${locale}/store/${slug}`,
+      },
+    ],
+  };
+
+  const structuredDataPayload = jsonLd ? [jsonLd, breadcrumbJsonLd] : breadcrumbJsonLd;
+
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
-          }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredDataPayload).replace(/</g, '\\u003c'),
+        }}
+      />
       {children}
     </>
   );
