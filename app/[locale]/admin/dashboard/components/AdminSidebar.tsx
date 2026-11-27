@@ -5,11 +5,7 @@ import {
   LayoutDashboard,
   DollarSign,
   TrendingUp,
-  BarChart3,
-  Stethoscope,
   Server,
-  FileCheck,
-  MessageSquare,
   Share2,
   PanelLeftClose,
   PanelLeftOpen,
@@ -17,13 +13,9 @@ import {
 
 export type AdminTab =
   | "pulse"
-  | "crm"
-  | "channels"
-  | "finances"
-  | "economics"
-  | "analytics"
-  | "operations"
-  | "foundations"
+  | "growth"
+  | "social"
+  | "business"
   | "health";
 
 interface AdminSidebarProps {
@@ -31,6 +23,7 @@ interface AdminSidebarProps {
   onTabChange: (tab: AdminTab) => void;
   pendingKycCount?: number;
   unhealthyServicesCount?: number;
+  seoQuickWinsCount?: number;
   isCollapsed?: boolean;
   onToggleCollapse?: (collapsed: boolean) => void;
   isMobileOpen?: boolean;
@@ -42,6 +35,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onTabChange,
   pendingKycCount = 1,
   unhealthyServicesCount = 0,
+  seoQuickWinsCount = 0,
   isCollapsed: controlledIsCollapsed,
   onToggleCollapse,
   isMobileOpen = false,
@@ -131,71 +125,42 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const menuItems = [
     {
       id: "pulse" as AdminTab,
-      label: "Executive Pulse",
-      description: "Visión 360° Negocio & Ops",
+      label: "Command Center",
+      description: "Pulso 360°: SEO, GA4, Redes & Negocio",
       icon: LayoutDashboard,
-      badge: null,
-    },
-    {
-      id: "crm" as AdminTab,
-      label: "Admin CRM & Leads",
-      description: "Inbox Omnicanal & Soporte",
-      icon: MessageSquare,
-      badge: "En vivo",
+      badge: "North Star",
       badgeColor: "bg-emerald-100 text-emerald-800",
     },
     {
-      id: "channels" as AdminTab,
-      label: "Métricas CMO & Redes",
-      description: "Facebook, IG & Canales",
-      icon: Share2,
-      badge: "Meta / CMO",
-      badgeColor: "bg-indigo-100 text-indigo-700",
-    },
-    {
-      id: "finances" as AdminTab,
-      label: "Finanzas & SaaS",
-      description: "MRR, Comisiones & Stripe",
-      icon: DollarSign,
-      badge: null,
-    },
-    {
-      id: "economics" as AdminTab,
-      label: "Unit Economics & Costos",
-      description: "Nube GCP, IA & Márgenes",
+      id: "growth" as AdminTab,
+      label: "Adquisición & SEO",
+      description: "Search Console, GA4 & Embudo",
       icon: TrendingUp,
-      badge: null,
-    },
-    {
-      id: "analytics" as AdminTab,
-      label: "Product & User Flow",
-      description: "DAU/MAU, Módulos & Funnels",
-      icon: BarChart3,
-      badge: "Nuevo",
+      badge: seoQuickWinsCount > 0 ? `${seoQuickWinsCount} Wins` : "GSC + GA4",
       badgeColor: "bg-indigo-100 text-indigo-700",
     },
     {
-      id: "operations" as AdminTab,
-      label: "Operaciones Médicas & KYC",
-      description: "Citas, Cédulas & Validación",
-      icon: Stethoscope,
+      id: "social" as AdminTab,
+      label: "Redes Sociales & CRM",
+      description: "Meta, IG, Campañas & Leads",
+      icon: Share2,
+      badge: "Meta / CRM",
+      badgeColor: "bg-sky-100 text-sky-800",
+    },
+    {
+      id: "business" as AdminTab,
+      label: "Negocio & Operaciones",
+      description: "Finanzas, Costos, KYC & Fundaciones",
+      icon: DollarSign,
       badge: pendingKycCount > 0 ? `${pendingKycCount} KYC` : null,
       badgeColor: "bg-amber-100 text-amber-800",
     },
     {
-      id: "foundations" as AdminTab,
-      label: "Fundaciones & Subsidios",
-      description: "Supervisión KYB & Programas",
-      icon: FileCheck,
-      badge: "Institucional",
-      badgeColor: "bg-rose-100 text-rose-800",
-    },
-    {
       id: "health" as AdminTab,
-      label: "Salud & Auditoría LFPDPPP",
-      description: "14 Microservicios & Seguridad",
+      label: "Plataforma & Conectores",
+      description: "Microservicios, APIs & Auditoría",
       icon: Server,
-      badge: unhealthyServicesCount > 0 ? `${unhealthyServicesCount} Fallo` : "14 UP",
+      badge: unhealthyServicesCount > 0 ? `${unhealthyServicesCount} Fallo` : "Saludable",
       badgeColor:
         unhealthyServicesCount > 0
           ? "bg-rose-100 text-rose-700"

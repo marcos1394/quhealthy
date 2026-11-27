@@ -53,7 +53,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-slate-500 hidden sm:block">
-              Control Ejecutivo, Operativo & Analíticas Meta
+              Product Owner Command Center · SEO, GA4, Meta & Operaciones
             </p>
           </div>
         </div>

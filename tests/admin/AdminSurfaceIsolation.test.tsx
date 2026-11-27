@@ -227,7 +227,7 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
 
       render(
         <AdminSidebar
-          activeTab="crm"
+          activeTab="social"
           onTabChange={onTabChange}
           pendingKycCount={2}
           unhealthyServicesCount={0}
@@ -238,12 +238,12 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
       expect(tablist).toBeInTheDocument();
 
       const tabs = screen.getAllByRole("tab");
-      expect(tabs.length).toBeGreaterThanOrEqual(8);
+      expect(tabs.length).toBe(5);
 
-      // Find the active tab (crm)
-      const crmTab = tabs.find((tab) => tab.getAttribute("aria-controls") === "admin-panel-crm");
-      expect(crmTab).toBeDefined();
-      expect(crmTab).toHaveAttribute("aria-selected", "true");
+      // Find the active tab (social)
+      const socialTab = tabs.find((tab) => tab.getAttribute("aria-controls") === "admin-panel-social");
+      expect(socialTab).toBeDefined();
+      expect(socialTab).toHaveAttribute("aria-selected", "true");
 
       // Other tabs should have aria-selected="false"
       const pulseTab = tabs.find((tab) => tab.getAttribute("aria-controls") === "admin-panel-pulse");
@@ -323,21 +323,21 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
     it("implements WAI-ARIA roving tabindex on AdminSidebar tabs (only active tab has tabIndex=0)", () => {
       render(
         <AdminSidebar
-          activeTab="crm"
+          activeTab="social"
           onTabChange={vi.fn()}
           pendingKycCount={0}
           unhealthyServicesCount={0}
         />
       );
 
-      const crmTab = screen.getByRole("tab", { name: /Admin CRM & Leads/i });
-      expect(crmTab).toHaveAttribute("tabindex", "0");
+      const socialTab = screen.getByRole("tab", { name: /Redes Sociales & CRM/i });
+      expect(socialTab).toHaveAttribute("tabindex", "0");
 
-      const pulseTab = screen.getByRole("tab", { name: /Executive Pulse/i });
+      const pulseTab = screen.getByRole("tab", { name: /Command Center/i });
       expect(pulseTab).toHaveAttribute("tabindex", "-1");
 
-      const financesTab = screen.getByRole("tab", { name: /Finanzas & SaaS/i });
-      expect(financesTab).toHaveAttribute("tabindex", "-1");
+      const businessTab = screen.getByRole("tab", { name: /Negocio & Operaciones/i });
+      expect(businessTab).toHaveAttribute("tabindex", "-1");
     });
 
     it("navigates AdminSidebar tabs using vertical arrow keys (ArrowDown, ArrowUp, Home, End)", () => {
@@ -351,11 +351,11 @@ describe("ADMIN-UX-01: Administrative Surface Isolation & Accessible UX", () => 
         />
       );
 
-      const pulseTab = screen.getByRole("tab", { name: /Executive Pulse/i });
+      const pulseTab = screen.getByRole("tab", { name: /Command Center/i });
 
-      // ArrowDown -> next tab (crm)
+      // ArrowDown -> next tab (growth)
       fireEvent.keyDown(pulseTab, { key: "ArrowDown" });
-      expect(onTabChange).toHaveBeenCalledWith("crm");
+      expect(onTabChange).toHaveBeenCalledWith("growth");
 
       // ArrowUp from pulse -> wraps around to last tab (health)
       fireEvent.keyDown(pulseTab, { key: "ArrowUp" });

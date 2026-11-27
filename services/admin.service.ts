@@ -204,6 +204,161 @@ export interface AuditLogDTO {
   eventType: string;
 }
 
+export interface GscTotalsDTO {
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  avgPosition: number;
+}
+
+export interface GscDailyPointDTO {
+  date: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface GscQueryRowDTO {
+  query: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface SeoQuickWinDTO {
+  query: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+  estimatedExtraClicks: number;
+  recommendation: string;
+}
+
+export interface GscPageRowDTO {
+  page: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface GscDimensionRowDTO {
+  key: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface SitemapStatusDTO {
+  path: string;
+  submitted: number;
+  indexed: number;
+  warnings: number;
+  errors: number;
+  lastDownloaded: string;
+}
+
+export interface SearchConsoleReportDTO {
+  connected: boolean;
+  siteUrl?: string;
+  error?: string;
+  totals?: GscTotalsDTO;
+  previousTotals?: GscTotalsDTO;
+  clicksDeltaPct?: number | null;
+  impressionsDeltaPct?: number | null;
+  ctrDeltaPct?: number | null;
+  positionDelta?: number | null;
+  dailyTrend: GscDailyPointDTO[];
+  topQueries: GscQueryRowDTO[];
+  quickWinQueries: SeoQuickWinDTO[];
+  topPages: GscPageRowDTO[];
+  countries: GscDimensionRowDTO[];
+  devices: GscDimensionRowDTO[];
+  sitemaps: SitemapStatusDTO[];
+}
+
+export interface Ga4TotalsDTO {
+  activeUsers: number;
+  newUsers: number;
+  sessions: number;
+  engagedSessions: number;
+  engagementRate: number;
+  screenPageViews: number;
+  avgSessionDurationSec: number;
+}
+
+export interface Ga4DailyPointDTO {
+  date: string;
+  activeUsers: number;
+  sessions: number;
+  screenPageViews: number;
+}
+
+export interface Ga4ChannelRowDTO {
+  channel: string;
+  sessions: number;
+  activeUsers: number;
+  engagedSessions: number;
+  engagementRate: number;
+}
+
+export interface Ga4PageRowDTO {
+  pagePath: string;
+  views: number;
+  activeUsers: number;
+}
+
+export interface Ga4EventRowDTO {
+  eventName: string;
+  count: number;
+}
+
+export interface Ga4CityRowDTO {
+  city: string;
+  country: string;
+  activeUsers: number;
+  sessions: number;
+}
+
+export interface Ga4ReportDTO {
+  connected: boolean;
+  propertyId?: string;
+  error?: string;
+  totals?: Ga4TotalsDTO;
+  previousTotals?: Ga4TotalsDTO;
+  usersDeltaPct?: number | null;
+  sessionsDeltaPct?: number | null;
+  pageViewsDeltaPct?: number | null;
+  dailyTrend: Ga4DailyPointDTO[];
+  channels: Ga4ChannelRowDTO[];
+  topPages: Ga4PageRowDTO[];
+  keyEvents: Ga4EventRowDTO[];
+  topCities: Ga4CityRowDTO[];
+}
+
+export interface GrowthActionableInsightDTO {
+  id: string;
+  severity: 'HIGH' | 'MEDIUM' | 'INFO' | string;
+  category: 'SEO' | 'TRAFFIC' | 'CONVERSION' | string;
+  title: string;
+  description: string;
+  metricBadge?: string;
+  targetTab?: string;
+}
+
+export interface GrowthOverviewDTO {
+  periodDays: number;
+  generatedAt: string;
+  cached: boolean;
+  searchConsole: SearchConsoleReportDTO;
+  ga4: Ga4ReportDTO;
+  insights: GrowthActionableInsightDTO[];
+}
+
 export interface MicroserviceHealthDTO {
   name: string;
   serviceKey: string;
@@ -815,6 +970,19 @@ export const adminService = {
 
   deleteOutboundCampaign: async (campaignId: string): Promise<any> => {
     const response = await axiosInstance.delete(`/api/social/crm/outbound/campaigns/${campaignId}`);
+    return response.data;
+  },
+
+  // =========================================================================
+  // 📈 GROWTH, SEO (GOOGLE SEARCH CONSOLE) & GA4 LIVE INTELLIGENCE
+  // =========================================================================
+  getGrowthOverview: async (
+    days: number = 30,
+    forceRefresh: boolean = false
+  ): Promise<GrowthOverviewDTO> => {
+    const response = await axiosInstance.get<GrowthOverviewDTO>(
+      `/api/intelligence/admin/growth/overview?days=${days}&forceRefresh=${forceRefresh}`
+    );
     return response.data;
   },
 };
